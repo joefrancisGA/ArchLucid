@@ -15152,15 +15152,21 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-11-02 thorough hunt #226 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-infra-resource-hub` is **1/3** — dry **#225** at tail — below `minLowYieldStreak` 3; default picker returned **`securenow-question-queue`**). Attempted failing repro on both header `(candidate)` rows from hunt **#224** reseed; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), compiler UpdatedUtc tie-break (MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **255/255** SecureNow queue vitest + **38/38** Application `SecureNowQuestion*` tests. **This dry starts 1/3** on `securenow-question-queue` at run-log tail (rotation dry **#225** on resource hub broke the prior SecureNow **3/3** streak). Private beta: n/a.
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — **cheap-disproof 2026-11-02 thorough hunt #226:** SQL integration host unavailable; monitor reseeded below.
+
+- [x] (invalid) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — **cheap-disproof 2026-11-02 thorough hunt #226:** integration-only duplicate identity rows; newer-wins compiler regression.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+
+- [ ] (candidate) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor).
+
 2026-11-02 thorough hunt #224 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on **`securenow-question-queue`** is **2/3** before this record — dry **#222** and **#223** at tail — below `minLowYieldStreak` 3 until this dry is recorded; default picker returned the same zone). Attempted failing repro on both header `(candidate)` rows; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; MERGE identity + `ComputeIdentityHash` binding), compiler UpdatedUtc tie-break (MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **255/255** SecureNow queue vitest + **38/38** Application `SecureNowQuestion*` tests. **This dry completes 3/3** on `securenow-question-queue` at run-log tail — **rotation eligible** on the next Set 3 invocation (`-AvoidZoneId securenow-question-queue`). Private beta: n/a.
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — **cheap-disproof 2026-11-02 thorough hunt #224:** SQL integration host unavailable; monitor reseeded below.
 
 - [x] (invalid) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — **cheap-disproof 2026-11-02 thorough hunt #224:** integration-only duplicate identity rows; newer-wins compiler regression.
-
-- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
-
-- [ ] (candidate) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor).
 
 2026-11-02 thorough hunt #223 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#222** at tail — below `minLowYieldStreak` 3; default picker returned the same zone). Attempted failing repro on both header `(candidate)` rows from hunt **#222** reseed; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; same `ComputeIdentityHash` + MERGE key binding as hunts **#218–#222**), compiler UpdatedUtc tie-break (MERGE uniqueness; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **255/255** SecureNow queue vitest + **38/38** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
 
