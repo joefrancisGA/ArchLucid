@@ -15184,11 +15184,17 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-11-02 thorough hunt #243 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **1/3** before this record — dry **#242** at tail). Attempted failing repro on two header `(candidate)` rows from hunt **#242** reseed; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), compiler UpdatedUtc tie-break (MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **283/283** SecureNow queue vitest (queue, api, provider, mutation suites) + **38/38** Application `SecureNowQuestion*` tests. **This dry is 2/3** on `securenow-question-queue` at run-log tail. Private beta: n/a.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #243 reseed).
+
+- [ ] (candidate) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor; hunt #243 reseed).
+
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #242 reseed). — **cheap-disproof 2026-11-02 thorough hunt #243:** SQL integration host unavailable; monitor reseeded below.
+
+- [x] (invalid) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor; hunt #242 reseed). — **cheap-disproof 2026-11-02 thorough hunt #243:** integration-only duplicate identity rows; newer-wins compiler regression.
+
 2026-11-02 thorough hunt #242 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`securenow-question-queue`** is **0/3** before this record — dry **#241** on `ui-infra-resource-hub` at tail broke prior SecureNow **3/3** from **#240**; default picker returned **`securenow-question-queue`** by score). Attempted failing repro on two header `(candidate)` rows from hunt **#240** reseed; cheap-disproof closed both **invalid** — MERGE collision monitor (SQL integration host unavailable; MERGE + `ComputeIdentityHash` binding), compiler UpdatedUtc tie-break (MERGE single-row identity; `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`). Reseeded both monitors below. Scoped **283/283** SecureNow queue vitest (queue, api, provider, mutation suites) + **38/38** Application `SecureNowQuestion*` tests. **This dry starts 1/3** on `securenow-question-queue` at run-log tail (rotation dry **#241** on resource hub at tail). Private beta: n/a.
-
-- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #242 reseed).
-
-- [ ] (candidate) `SecureNowQuestionCompiler` — disposition identity group picks `OrderByDescending(UpdatedUtc).First()` without tie-break — locus: compile merge; input: two disposition rows share identity and `UpdatedUtc`; wrong outcome: stale status wins; reachability: concurrent upserts / integration host (monitor; hunt #242 reseed).
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available (monitor; hunt #240 reseed). — **cheap-disproof 2026-11-02 thorough hunt #242:** SQL integration host unavailable; monitor reseeded below.
 
