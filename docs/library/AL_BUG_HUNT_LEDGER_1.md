@@ -20573,13 +20573,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-11-02 thorough hunt (dry, hunt 241): no rotation (`shouldRotate: false`; run-log low-yield streak on `agent-runtime-evaluation` is **1/3** before this record — dry **240** since rotation storage dry **239**). Cheap-disproof closed five header `(candidate)` monitor rows from hunt 240 reseed — **valid-no-repro** PilotStrict citation-only reject with null `evaluationReason` maps to semantic via `ClassifyThresholdFailure` / `ResolveRejectReasonCategory` (hunt 22/66 family), **valid-no-repro** summary omits `pilot_semantic_score_below_floor` for non-finite published semantic while gate rejects and summary adds `quality_gate_threshold_reject` (hunt 64/66 family), **valid-no-repro** calibrated confidence warn band with high published semantic (`AgentOutputQualityGate.Evaluate` calibrated ladder; hunt 66 regression family), **valid-no-repro** non-finite `LlmFaithfulnessScore` under Phase B skipped when comparisons are false for NaN (monitor parity class), **valid-no-repro** `referenceMatched` true with `schemaPassed` false follows additive `FindingConfidenceCalculator` contract (TB-053; hunt 66). Reseeded five `(candidate)` monitor rows below (regression family hunt **155**); scoped filter **243/243** passed (`RunAnalyzers=false`). **This dry completes 2/3** on `agent-runtime-evaluation` in the run log. Private beta: n/a.
+
+- [ ] (candidate) `AgentOutputQualityGate.ClassifyThresholdFailure` — PilotStrict citation-only reject with null reason — locus: telemetry category; input: passing published floors with sub-floor citation ratio (monitor; hunt 241 reseed).
+- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — non-finite published semantic omits `pilot_semantic_score_below_floor` — locus: summary tokens; input: NaN OverallSemanticScore under PilotStrict (monitor; hunt 241 reseed).
+- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — calibrated confidence in warn band with high published semantic — locus: warn ladder; input: calibrated between warn and reject floors (monitor; hunt 241 reseed).
+- [ ] (candidate) `AgentOutputTraceFaithfulnessEvaluator.ApplyLlmFaithfulnessPhaseBEnforcement` — non-finite LLM faithfulness score skipped — locus: Phase B floors; input: NaN `LlmFaithfulnessScore` with EnforcePhaseB (monitor; hunt 241 reseed).
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — referenceMatched true with schemaPassed false — locus: enricher confidence; input: passing reference corpus with failing gate (monitor; hunt 241 reseed).
+
+- [x] (valid-no-repro) `AgentOutputQualityGate.ClassifyThresholdFailure` — PilotStrict citation-only reject with null reason — locus: telemetry category; input: passing published floors with sub-floor citation ratio (monitor; hunt 240 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 241):** hunt 240 reseed queue; hunt 22/66 regression family.
+- [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — non-finite published semantic omits `pilot_semantic_score_below_floor` — locus: summary tokens; input: NaN OverallSemanticScore under PilotStrict (monitor; hunt 240 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 241):** hunt 240 reseed queue; hunt 64/66 regression family.
+- [x] (valid-no-repro) `AgentOutputQualityGate.Evaluate` — calibrated confidence in warn band with high published semantic — locus: warn ladder; input: calibrated between warn and reject floors (monitor; hunt 240 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 241):** hunt 240 reseed queue; hunt 66 regression family.
+- [x] (valid-no-repro) `AgentOutputTraceFaithfulnessEvaluator.ApplyLlmFaithfulnessPhaseBEnforcement` — non-finite LLM faithfulness score skipped — locus: Phase B floors; input: NaN `LlmFaithfulnessScore` with EnforcePhaseB (monitor; hunt 240 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 241):** hunt 240 reseed queue; monitor parity class.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — referenceMatched true with schemaPassed false — locus: enricher confidence; input: passing reference corpus with failing gate (monitor; hunt 240 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 241):** hunt 240 reseed queue; TB-053 additive contract.
+
 2026-11-02 thorough hunt (dry, hunt 240): no rotation (`shouldRotate: false`; run-log low-yield streak on `agent-runtime-evaluation` is **0/3** before this record — rotation storage dry **239** since eval **3/3** at hunt **238**). Cheap-disproof closed five header `(candidate)` monitor rows from hunt 238 reseed — **valid-no-repro** PilotStrict citation-only reject with null `evaluationReason` maps to semantic via `ClassifyThresholdFailure` / `ResolveRejectReasonCategory` (hunt 22/66 family), **valid-no-repro** summary omits `pilot_semantic_score_below_floor` for non-finite published semantic while gate rejects and summary adds `quality_gate_threshold_reject` (hunt 64/66 family), **valid-no-repro** calibrated confidence warn band with high published semantic (`AgentOutputQualityGate.Evaluate` calibrated ladder; hunt 66 regression family), **valid-no-repro** non-finite `LlmFaithfulnessScore` under Phase B skipped when comparisons are false for NaN (monitor parity class), **valid-no-repro** `referenceMatched` true with `schemaPassed` false follows additive `FindingConfidenceCalculator` contract (TB-053; hunt 66). Reseeded five `(candidate)` monitor rows below (regression family hunt **155**); scoped filter **243/243** passed (`RunAnalyzers=false`). **This dry starts 1/3** on `agent-runtime-evaluation` in the run log. Private beta: n/a.
 
-- [ ] (candidate) `AgentOutputQualityGate.ClassifyThresholdFailure` — PilotStrict citation-only reject with null reason — locus: telemetry category; input: passing published floors with sub-floor citation ratio (monitor; hunt 240 reseed).
-- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — non-finite published semantic omits `pilot_semantic_score_below_floor` — locus: summary tokens; input: NaN OverallSemanticScore under PilotStrict (monitor; hunt 240 reseed).
-- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — calibrated confidence in warn band with high published semantic — locus: warn ladder; input: calibrated between warn and reject floors (monitor; hunt 240 reseed).
-- [ ] (candidate) `AgentOutputTraceFaithfulnessEvaluator.ApplyLlmFaithfulnessPhaseBEnforcement` — non-finite LLM faithfulness score skipped — locus: Phase B floors; input: NaN `LlmFaithfulnessScore` with EnforcePhaseB (monitor; hunt 240 reseed).
-- [ ] (candidate) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — referenceMatched true with schemaPassed false — locus: enricher confidence; input: passing reference corpus with failing gate (monitor; hunt 240 reseed).
 
 - [x] (valid-no-repro) `AgentOutputQualityGate.ClassifyThresholdFailure` — PilotStrict citation-only reject with null reason — locus: telemetry category; input: passing published floors with sub-floor citation ratio (monitor; hunt 238 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 240):** hunt 238 reseed queue; hunt 22/66 regression family.
 - [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — non-finite published semantic omits `pilot_semantic_score_below_floor` — locus: summary tokens; input: NaN OverallSemanticScore under PilotStrict (monitor; hunt 238 reseed) — **cheap-disproof 2026-11-02 thorough hunt (hunt 240):** hunt 238 reseed queue; hunt 64/66 regression family.
@@ -21430,10 +21439,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 40
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-02
 - **last-bug:** 2026-11-01 — non-finite agent-result faithfulness ratio bypassed PilotStrict floor
 - **last-bug:** 2026-11-01 — non-finite finding citation coverage bypassed PilotStrict floor
 - **related-pd-tb:** none
