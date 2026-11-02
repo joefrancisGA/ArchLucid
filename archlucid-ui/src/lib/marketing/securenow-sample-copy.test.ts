@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   SECURENOW_SAMPLE_BEATS,
   SECURENOW_SAMPLE_FIXTURE_LINE,
+  SECURENOW_SAMPLE_PATH_INSPECT_HREF,
+  SECURENOW_SAMPLE_PATH_INSPECT_LABEL,
   WHY_SECURENOW_CONVERSATION_MAILTO,
 } from "@/lib/marketing/securenow-sample-copy";
 
@@ -25,6 +27,10 @@ describe("SecureNow sample copy (SN-MKT-09)", () => {
     ].join(" ");
 
     expect(joined).toContain("fixture-path-01");
+    expect(SECURENOW_SAMPLE_PATH_INSPECT_HREF).toBe(
+      "/security/remediation-factory?pathId=fixture-path-01",
+    );
+    expect(SECURENOW_SAMPLE_PATH_INSPECT_LABEL).toContain("Path inspect");
     expect(WHY_SECURENOW_CONVERSATION_MAILTO).toBe(
       "mailto:support@archlucid.net?subject=SecureNow%20conversation",
     );

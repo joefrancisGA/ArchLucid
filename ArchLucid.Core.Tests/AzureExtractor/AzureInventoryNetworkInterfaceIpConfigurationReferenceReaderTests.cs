@@ -50,6 +50,9 @@ public sealed class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         string? armId = AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(document.RootElement);
 
         armId.Should().Be(ArmResourceIdNormalizer.Normalize(rawId));
+    }
+
+    [Fact]
     public void TryReadArmId_reads_id_from_a_json_object_carried_in_a_string()
     {
         const string plainId =

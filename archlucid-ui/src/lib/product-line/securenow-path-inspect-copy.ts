@@ -19,6 +19,9 @@ export const SECURENOW_PATH_INSPECT_HOPS_TITLE = secureNowTitleCase("Path hops")
 
 export const SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE = secureNowTitleCase("Cut points");
 
+export const SECURENOW_PATH_INSPECT_FRAMEWORK_THEME =
+  "Framework theme: Microsoft cloud security benchmark. A cited theme is not a certification." as const;
+
 export const SECURENOW_PATH_INSPECT_ROUTING_TITLE = secureNowTitleCase("Organizational routing");
 
 export const SECURENOW_PATH_INSPECT_ADVISORY_INSTANCE_LINK = "Open advisory remediation instance" as const;

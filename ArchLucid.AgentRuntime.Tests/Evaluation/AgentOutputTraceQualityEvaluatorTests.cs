@@ -19,6 +19,52 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     private static readonly HeuristicOnlyAgentOutputSemanticEvaluator SemanticShim =
         new(new HeuristicAgentOutputSemanticEvaluator());
 
+    [Theory]
+    [InlineData(false, AgentOutputQualityGateOutcome.Rejected)]
+    [InlineData(true, AgentOutputQualityGateOutcome.Accepted)]
+    public async Task TryEvaluateTrace_azure_cost_governance_starter_pack_requires_an_evidence_anchor(
+        bool hasEvidenceAnchor,
+        AgentOutputQualityGateOutcome expectedOutcome)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            PilotStrictMinEvidenceRefCount = 1,
+        };
+        string evidenceRef = "starter-pack:azure-cost-governance";
+        string evidenceRefs = hasEvidenceAnchor ? $"[\"{evidenceRef}\"]" : "[]";
+        string citation = hasEvidenceAnchor
+            ? $"{{\"source\":\"{evidenceRef}\"}}"
+            : "{\"source\":\"\"}";
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "starter-pack-trace",
+            RunId = "starter-pack-run",
+            TaskId = "azure-cost-governance",
+            AgentType = AgentType.Cost,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                $$"""
+                {"resultId":"starter-pack-result","taskId":"azure-cost-governance","runId":"starter-pack-run","agentType":2,"claims":[{"text":"Cost governance finding","evidence":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"evidenceRefs":{{evidenceRefs}},"confidence":0.8,"findings":[{"severity":"Low","description":"Starter-pack cost governance finding with an explicit evidence boundary.","recommendation":"Review the stored cost evidence.","evidenceRef":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{{citation}}]}
+                """,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(expectedOutcome);
+    }
+
     [Fact]
     public async Task TryEvaluateTrace_warn_only_missing_citations_warns_when_scores_accept()
     {

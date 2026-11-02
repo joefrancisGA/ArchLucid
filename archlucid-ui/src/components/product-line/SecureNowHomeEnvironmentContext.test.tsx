@@ -6,6 +6,10 @@ vi.mock("@/lib/relative-time", () => ({
   formatRelativeTime: () => "2 hours ago",
 }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/hooks/use-operator-scope-query-key", () => ({
   useOperatorScopeQueryKey: () => ({
     tenantId: "tenant-1",
@@ -86,6 +90,11 @@ describe("SecureNowHomeEnvironmentContext", () => {
     );
     expect(screen.queryByText("Inventory capture completed.")).not.toBeInTheDocument();
     expect(screen.queryByText("Inventory capture failed.")).not.toBeInTheDocument();
+    expect(screen.getByTestId("securenow-home-next-step")).toHaveTextContent("One ranked path");
+    expect(screen.getByRole("link", { name: "One ranked path" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory",
+    );
   });
 
   it("renders a subscription count when the first page has more than one", async () => {
@@ -159,6 +168,10 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(screen.getByRole("link", { name: "First hour" })).toHaveAttribute(
       "href",
       "/administration/securenow-first-hour",
+    );
+    expect(screen.getByRole("link", { name: "Scope and freshness" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
     );
     expect(screen.getByText("Contoso — Payments")).toBeInTheDocument();
   });

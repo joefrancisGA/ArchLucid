@@ -9,6 +9,14 @@ export const SECURENOW_SAMPLE_HEADING = "SecureNow sample" as const;
 
 export const SECURENOW_SAMPLE_FIXTURE_LINE = "Synthetic fixture. Not a customer result." as const;
 
+export const SECURENOW_SAMPLE_PATH_INSPECT_HREF =
+  "/security/remediation-factory?pathId=fixture-path-01" as const;
+
+export const SECURENOW_SAMPLE_PATH_INSPECT_LABEL = "Open fixture-path-01 in Path inspect" as const;
+
+export const SECURENOW_SAMPLE_PATH_INSPECT_LEAD =
+  "Signed-in operators only. Synthetic fixture. Not a customer result." as const;
+
 export const SECURENOW_SAMPLE_WHY_LINK_HREF = "/why-securenow" as const;
 
 export const SECURENOW_SAMPLE_WHY_LINK_LABEL = "Why SecureNow" as const;

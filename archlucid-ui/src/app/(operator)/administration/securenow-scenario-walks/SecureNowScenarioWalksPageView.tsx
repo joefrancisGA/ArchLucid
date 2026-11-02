@@ -22,7 +22,11 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
           </h2>
           <ul className="space-y-4">
             {SECURENOW_SCENARIO_WALKS.map((scenario) => (
-              <li key={scenario.id} className="rounded-md border border-neutral-200 p-4 dark:border-neutral-800">
+              <li
+                key={scenario.id}
+                id={scenario.id}
+                className="rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
+              >
                 <p className={OPERATOR_TYPOGRAPHY.body}>
                   <span className="font-medium">{scenario.id}</span>
                 </p>

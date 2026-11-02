@@ -200,6 +200,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_LINK,
   DESIGN_TOKENS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -445,6 +446,7 @@ export function DiagramsWorkbenchClient() {
   );
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraDiagramsSnapshotIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM));
+  const urlPathId = searchParams.get("pathId")?.trim() ?? "";
   const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
     searchParams.get(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM),
   );
@@ -2357,6 +2359,32 @@ export function DiagramsWorkbenchClient() {
         testId="infra-diagrams-page-shortcuts"
         entries={diagramsWorkbenchPageShortcutsDisclosureEntries()}
       />
+
+      {urlPathId.length > 0 ? (
+        <section
+          className={cnCard}
+          aria-labelledby="infra-diagrams-path-focus-heading"
+          data-testid="infra-diagrams-path-focus-banner"
+        >
+          <h2 id="infra-diagrams-path-focus-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Path focus requested
+          </h2>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            Path {urlPathId} is the requested SecureNow path. Path hops and cut points remain authoritative in Path inspect.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link
+              href={`/security/remediation-factory?pathId=${encodeURIComponent(urlPathId)}`}
+              className={OPERATOR_LINK.inline}
+            >
+              Open Path inspect
+            </Link>
+            <Link href={pathname || "/infrastructure/diagrams"} className={OPERATOR_LINK.inline}>
+              Show rest of subscription
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
