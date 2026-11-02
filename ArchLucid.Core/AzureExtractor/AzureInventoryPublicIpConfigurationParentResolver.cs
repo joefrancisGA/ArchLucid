@@ -10,8 +10,23 @@ public static class AzureInventoryPublicIpConfigurationParentResolver
             return null;
         }
 
-        string[] segments = configurationId
-            .Trim()
+        string working = configurationId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        string[] segments = working
             .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         for (int index = segments.Length - 2; index >= 0; index--)
