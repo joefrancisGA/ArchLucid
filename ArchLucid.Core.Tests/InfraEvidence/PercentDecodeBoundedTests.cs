@@ -28,6 +28,26 @@ public sealed class PercentDecodeBoundedTests
         PercentDecodeBounded.Decode("value%ZZtail").Should().Be("value%ZZtail");
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Decode_rejects_non_positive_max_passes(int maxPasses)
+    {
+        Action act = () => PercentDecodeBounded.Decode("value", maxPasses);
+
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .Which.ParamName.Should().Be("maxPasses");
+    }
+
+    [Fact]
+    public void Decode_with_one_max_pass_leaves_a_second_encoding_layer()
+    {
+        string once = Uri.EscapeDataString("value");
+        string twice = Uri.EscapeDataString(once);
+
+        PercentDecodeBounded.Decode(twice, maxPasses: 1).Should().Be(once);
+    }
+
     [Fact]
     public void Decode_stops_at_max_passes()
     {
