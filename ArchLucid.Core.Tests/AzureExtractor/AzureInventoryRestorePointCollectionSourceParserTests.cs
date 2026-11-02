@@ -84,6 +84,20 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_parses_literal_json_without_decoding_percent_escapes_elsewhere_in_payload()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] =
+                """{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app","note":"%22%22"}""",
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_without_source_returns_null()
     {
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())
