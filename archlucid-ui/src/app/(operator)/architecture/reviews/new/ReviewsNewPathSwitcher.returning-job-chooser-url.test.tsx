@@ -1,10 +1,10 @@
-import { render, screen, waitFor, type ReactNode } from "@testing-library/react";
-import { createElement, useSyncExternalStore } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const returningJobChooserSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -24,12 +24,28 @@ const returningJobChooserSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -39,7 +55,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => returningJobChooserSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => returningJobChooserSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       returningJobChooserSearchParamsHarness.applyHref(href);
 
@@ -86,6 +102,7 @@ vi.mock("./ReviewsNewOwnEvidenceStart", () => ({
 }));
 
 import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
+import { ACCELERATOR_JOB_CHOOSER_HEADING } from "@/lib/accelerator-chooser-start-copy";
 
 function ReturningJobChooserSearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
   useSyncExternalStore(
@@ -101,6 +118,55 @@ describe("ReviewsNewPathSwitcher returning job chooser URL sync", () => {
   beforeEach(() => {
     returningJobChooserSearchParamsHarness.reset();
     window.localStorage.clear();
+  });
+
+  it("writes returning job chooser disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    returningJobChooserSearchParamsHarness.applySearchParamsQuery("");
+    returningJobChooserSearchParamsHarness.setWindowLocationSearch("staleToolbar=old");
+
+    render(
+      <ReturningJobChooserSearchParamsRerenderHost>
+        <ReviewsNewPathSwitcher />
+      </ReturningJobChooserSearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-returning-job-chooser")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText(ACCELERATOR_JOB_CHOOSER_HEADING));
+
+    if (!returningJobChooserSearchParamsHarness.state.query.includes("reviewsNewReturningJobChooserOpen=1")) {
+      const details = screen.getByTestId("reviews-new-returning-job-chooser");
+
+      fireEvent(details, new Event("toggle", { bubbles: true }));
+    }
+
+    expect(returningJobChooserSearchParamsHarness.state.query).toContain("reviewsNewReturningJobChooserOpen=1");
+    expect(returningJobChooserSearchParamsHarness.state.query).not.toContain("staleToolbar");
+  });
+
+  it("keeps returning job chooser closed from useSearchParams when popstate reads lagging window.location.search", async () => {
+    returningJobChooserSearchParamsHarness.applySearchParamsQuery("");
+    returningJobChooserSearchParamsHarness.setWindowLocationSearch("reviewsNewReturningJobChooserOpen=1");
+
+    render(
+      <ReturningJobChooserSearchParamsRerenderHost>
+        <ReviewsNewPathSwitcher />
+      </ReturningJobChooserSearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-returning-job-chooser")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-returning-job-chooser")).not.toHaveAttribute("open");
+    });
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(screen.getByTestId("reviews-new-returning-job-chooser")).not.toHaveAttribute("open");
   });
 
   it("follows reviewsNewReturningJobChooserOpen= URL changes without a popstate event", async () => {

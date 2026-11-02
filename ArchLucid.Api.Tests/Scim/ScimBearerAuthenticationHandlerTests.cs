@@ -2929,6 +2929,58 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
+    public async Task HandleAuthenticateAsync_succeeds_when_u25b2_black_up_pointing_triangle_only_bearer_segment_precedes_valid_comma_folded_credential()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(ValidToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ScimBearerAuthenticationResult
+                {
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    TokenRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                });
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer\u25B2, Bearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(ValidToken, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_succeeds_when_u25bc_black_down_pointing_triangle_only_bearer_segment_precedes_valid_comma_folded_credential()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(ValidToken, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ScimBearerAuthenticationResult
+                {
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    TokenRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                });
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer\u25BC, Bearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(ValidToken, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task HandleAuthenticateAsync_succeeds_when_doubled_fullwidth_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential()
     {
         Mock<IScimBearerTokenAuthenticator> authenticator = new();
