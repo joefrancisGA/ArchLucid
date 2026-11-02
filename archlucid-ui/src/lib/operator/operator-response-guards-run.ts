@@ -117,6 +117,10 @@ export function coerceRunSummaryPaged(
   const items = normalizedItems.items;
 
   if (isLegacyOffsetPagedRunEnvelope(data)) {
+    if (data.page < 1 || data.pageSize < 1) {
+      return { ok: false, message: "Paged runs response has invalid page or pageSize." };
+    }
+
     return {
       ok: true,
       value: {

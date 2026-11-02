@@ -129,7 +129,7 @@ public static class AzureInventoryFederatedCredentialParser
 
         string working = PercentDecodeBounded.Decode(armId.Trim());
 
-        if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        if (!working.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return working;
         }

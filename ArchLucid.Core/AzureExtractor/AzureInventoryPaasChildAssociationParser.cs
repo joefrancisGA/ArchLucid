@@ -21,14 +21,14 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string? parentResourceId = TryReadString(element, "parentResourceId");
-        string? childResourceId = TryReadString(element, "childResourceId");
+        string? parentResourceIdRaw = TryReadString(element, "parentResourceId");
+        string? childResourceIdRaw = TryReadString(element, "childResourceId");
         string? childName = TryReadBoundedString(element, "childName", MaxNameLength);
         string? childType = TryReadBoundedString(element, "childType", MaxNameLength);
         string? collectionStatus = TryReadBoundedString(element, "collectionStatus", MaxNameLength);
 
-        if (string.IsNullOrWhiteSpace(parentResourceId)
-            || string.IsNullOrWhiteSpace(childResourceId)
+        if (string.IsNullOrWhiteSpace(parentResourceIdRaw)
+            || string.IsNullOrWhiteSpace(childResourceIdRaw)
             || string.IsNullOrWhiteSpace(childName)
             || string.IsNullOrWhiteSpace(childType)
             || string.IsNullOrWhiteSpace(collectionStatus))
@@ -45,14 +45,10 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(
-                parentResourceId,
-                out string normalizedParentResourceId)
-            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(
-                childResourceId,
-                out string normalizedChildResourceId))
+        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(parentResourceIdRaw, out string normalizedParentResourceId)
+            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(childResourceIdRaw, out string normalizedChildResourceId))
         {
-            errorMessage = "parentResourceId and childResourceId must be valid bounded ARM identifiers.";
+            errorMessage = "parentResourceId and childResourceId must be valid ARM identifiers.";
 
             return false;
         }

@@ -124,6 +124,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context">
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
+        <ContextLink href="/administration/securenow-first-hour">First hour</ContextLink>
       </p>
     );
   }
