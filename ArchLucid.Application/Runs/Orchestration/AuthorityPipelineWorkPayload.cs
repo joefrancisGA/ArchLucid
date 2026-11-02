@@ -154,7 +154,7 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableIdentifierText(value))
+            .Where(static value => value is not null && HasUsableMultilineBodyText(value))
             .ToList();
     }
 
@@ -164,26 +164,8 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableProseReferenceText(value))
+            .Where(static value => value is not null && HasUsableMultilineBodyText(value))
             .ToList();
-    }
-
-    /// <summary>
-    ///     Policy references, topology hints, security baselines, and capability lines are sentences.
-    ///     Ordinary spaces stay. Whitespace other than U+0020 still fails because those consumers only trim the ends.
-    /// </summary>
-    private static bool HasUsableProseReferenceText(string? value)
-    {
-        if (!HasUsableIdentifierText(value))
-            return false;
-
-        foreach (char character in value!.Trim())
-        {
-            if (char.IsWhiteSpace(character) && character != ' ')
-                return false;
-        }
-
-        return true;
     }
 
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
@@ -197,9 +179,31 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableCompactIdentifierText(document.Name)
+        HasUsableMultilineBodyText(document.Name)
         && HasUsableDocumentContentType(document.ContentType)
-        && HasUsableIdentifierText(document.Content);
+        && HasUsableMultilineBodyText(document.Content);
+
+    /// <summary>
+    ///     Prose fields and document or declaration names may contain newlines. Reject no-break and other
+    ///     non-ASCII whitespace while keeping ordinary spaces and line breaks.
+    /// </summary>
+    private static bool HasUsableMultilineBodyText(string? value)
+    {
+        if (!HasUsableIdentifierText(value))
+            return false;
+
+        foreach (char character in value!)
+        {
+            if (character == '\u00A0')
+                return false;
+
+            if (char.IsWhiteSpace(character)
+                && character is not ' ' and not '\n' and not '\r' and not '\t')
+                return false;
+        }
+
+        return true;
+    }
 
     /// <summary>
     ///     MIME parameters such as <c>; charset=utf-8</c> contain a space. Judge the type token
@@ -224,8 +228,8 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableCompactIdentifierText(declaration.Name)
+        return HasUsableMultilineBodyText(declaration.Name)
                && HasUsableCompactIdentifierText(declaration.Format)
-               && HasUsableIdentifierText(declaration.Content);
+               && HasUsableMultilineBodyText(declaration.Content);
     }
 }

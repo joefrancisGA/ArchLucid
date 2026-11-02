@@ -3,11 +3,11 @@
 
 # SecureNow adoption friction — Composer prompts
 
-**Created:** 2026-10-31 · **Updated:** 2026-11-01 · **Status:** SN-ADOPT-01–04 shipped. SN-ADOPT-05–08 not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-31 · **Updated:** 2026-11-01 · **Status:** SN-ADOPT-01–08 shipped on trunk. **Audience:** Composer 2.5 slow (`composer-2.5`)
 
 Adoption Friction scored **60** on the 31 October 2026 SecureNow desk pass (weight 6) and **64** after the first-hour note, Home **Start here** section, operator page, and warn-only checker shipped. Steps 2 and 3 still open the same Priorities & waves list. Path inspect is a panel on a selected row, and Home still has one row into the preparation page.
 
-SN-ADOPT-05–08 name that panel, split Start here into five unique destinations, lock the existing empty-collection link with a test, and extend the warn-only checker. They do not add a setup wizard that hides collection gaps, autonomous remediation, a timed SLA, a Path inspect route, or ArchLucid first-review wizard reuse.
+SN-ADOPT-05–08 name that panel, split Start here into five unique destinations, lock the existing empty-collection link with a test, and extend the warn-only checker. They are on trunk in commit `afbf73aa1d`. They do not add a setup wizard that hides collection gaps, autonomous remediation, a timed SLA, a Path inspect route, or ArchLucid first-review wizard reuse.
 
 A human walk of `fixture-path-01` is what can move the score past this wave. These prompts do not time that walk.
 
@@ -19,14 +19,14 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 | **SN-ADOPT-02** | `securenow-adoption-02-home-section.md` | SecureNow Home **Start here** section (**shipped**) |
 | **SN-ADOPT-03** | `securenow-adoption-03-operator-page.md` | `/administration/securenow-first-hour` (**shipped**) |
 | **SN-ADOPT-04** | `securenow-adoption-04-checker.md` | `scripts/ci/check_securenow_adoption_friction.py` and CI (**shipped**) |
-| **SN-ADOPT-05** | `securenow-adoption-05-path-inspect.md` | Path inspect wording; step 3 has no factory href |
-| **SN-ADOPT-06** | `securenow-adoption-06-home-steps.md` | Five unique Start here rows |
-| **SN-ADOPT-07** | `securenow-adoption-07-collection-line.md` | Empty-collection link regression test |
-| **SN-ADOPT-08** | `securenow-adoption-08-checker.md` | Extend the warn-only adoption checker |
+| **SN-ADOPT-05** | `securenow-adoption-05-path-inspect.md` | Path inspect wording; step 3 has no factory href (**shipped**) |
+| **SN-ADOPT-06** | `securenow-adoption-06-home-steps.md` | Five unique Start here rows (**shipped**) |
+| **SN-ADOPT-07** | `securenow-adoption-07-collection-line.md` | Empty-collection link regression test (**shipped**) |
+| **SN-ADOPT-08** | `securenow-adoption-08-checker.md` | Extend the warn-only adoption checker (**shipped**) |
 | **SN-ADOPT-HOLD** | `securenow-adoption-hold.md` | Stop list for 01–04 |
 | **SN-ADOPT-HOLD** | `securenow-adoption-05-hold.md` | Stop list for 05–08 |
 
-Run **SN-ADOPT-05**, then **06**, then **07**, then **08**. **SN-ADOPT-HOLD** is not a build step.
+**SN-ADOPT-01** through **SN-ADOPT-08** are on trunk. Do not redo them. **SN-ADOPT-HOLD** is not a build step.
 
 ## Human tasks (owner)
 
