@@ -9,6 +9,8 @@ import { SecureNowInvestigationEffortPageView } from "@/app/(operator)/administr
 import { SecureNowPilotDecisionPageView } from "@/app/(operator)/administration/securenow-pilot-decision/SecureNowPilotDecisionPageView";
 import { SecureNowReturnReasonsPageView } from "@/app/(operator)/administration/securenow-return-reasons/SecureNowReturnReasonsPageView";
 import { SecureNowSelfServicePageView } from "@/app/(operator)/administration/securenow-self-service/SecureNowSelfServicePageView";
+import { SecureNowSkuCardView } from "@/app/(marketing)/securenow-sku/SecureNowSkuCardView";
+import { SecureNowSampleView } from "@/app/(marketing)/securenow-sample/SecureNowSampleView";
 import { WhySecureNowDraftView } from "@/app/(marketing)/why-securenow/WhySecureNowDraftView";
 
 expect.extend(toHaveNoViolations);
@@ -33,6 +35,8 @@ describe("SecureNow accessibility surfaces — axe", () => {
     ["return reasons", <SecureNowReturnReasonsPageView />],
     ["pilot decision", <SecureNowPilotDecisionPageView />],
     ["investigation effort", <SecureNowInvestigationEffortPageView />],
+    ["public synthetic sample", <SecureNowSampleView />],
+    ["public SKU card", <SecureNowSkuCardView />],
   ])("has no serious axe violations on the SecureNow %s page", async (_label, view) => {
     const { container } = render(view);
 

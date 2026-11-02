@@ -6,6 +6,9 @@ import {
   SECURENOW_SAMPLE_BEATS,
   SECURENOW_SAMPLE_FIXTURE_LINE,
   SECURENOW_SAMPLE_HEADING,
+  SECURENOW_SAMPLE_PATH_INSPECT_HREF,
+  SECURENOW_SAMPLE_PATH_INSPECT_LABEL,
+  SECURENOW_SAMPLE_PATH_INSPECT_LEAD,
   SECURENOW_SAMPLE_WHY_LINK_LABEL,
   SECURENOW_SAMPLE_WHY_LINK_LEAD,
   WHY_SECURENOW_CONVERSATION_LABEL,
@@ -52,6 +55,16 @@ export function SecureNowSampleView(): React.JSX.Element {
             );
           })}
         </div>
+
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          {SECURENOW_SAMPLE_PATH_INSPECT_LEAD}{" "}
+          <Link
+            href={SECURENOW_SAMPLE_PATH_INSPECT_HREF}
+            className="text-al-link underline-offset-2 hover:underline"
+          >
+            {SECURENOW_SAMPLE_PATH_INSPECT_LABEL}
+          </Link>
+        </p>
 
         <p className={MARKETING_TYPOGRAPHY.body}>
           {SECURENOW_SAMPLE_WHY_LINK_LEAD}{" "}

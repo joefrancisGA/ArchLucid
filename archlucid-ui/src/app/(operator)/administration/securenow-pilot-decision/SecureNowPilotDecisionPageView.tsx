@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -17,6 +21,49 @@ import {
 } from "@/lib/product-line/securenow-pilot-decision-copy";
 
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
+  const searchParams = useSearchParams();
+  const pathId = searchParams.get("pathId")?.trim() ?? "";
+  const storageKey = pathId.length > 0 ? `securenow-pilot-disposition:${pathId}` : null;
+  const [outcome, setOutcome] = useState("");
+  const [rationale, setRationale] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (storageKey === null) {
+      setOutcome("");
+      setRationale("");
+      return;
+    }
+
+    const stored = window.localStorage.getItem(storageKey);
+    if (stored === null) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(stored) as { outcome?: string; rationale?: string };
+      setOutcome(parsed.outcome ?? "");
+      setRationale(parsed.rationale ?? "");
+    } catch {
+      window.localStorage.removeItem(storageKey);
+    }
+  }, [storageKey]);
+
+  const saveDisposition = () => {
+    if (storageKey === null || outcome.length === 0) {
+      setSaveError("Select Proceed, Extend, or Stop for a path.");
+      return;
+    }
+
+    if (rationale.trim().length === 0) {
+      setSaveError("Rationale is required.");
+      return;
+    }
+
+    window.localStorage.setItem(storageKey, JSON.stringify({ outcome, rationale: rationale.trim() }));
+    setSaveError(null);
+  };
+
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-pilot-decision-page">
       <OperatorPageHeader title={SECURENOW_PILOT_DECISION_HEADING} subtitle={SECURENOW_PILOT_DECISION_LEAD} />
@@ -46,6 +93,43 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section aria-labelledby="securenow-pilot-decision-disposition-heading" className="space-y-2">
+          <h2 id="securenow-pilot-decision-disposition-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Path disposition
+          </h2>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>
+            {pathId.length > 0 ? `Path ${pathId}` : "No path selected. Open this page from a sponsor path."}
+          </p>
+          <label className="block space-y-1">
+            <span className={OPERATOR_TYPOGRAPHY.helper}>Outcome</span>
+            <select
+              className="w-full rounded border border-border bg-background px-3 py-2"
+              value={outcome}
+              onChange={(event) => setOutcome(event.target.value)}
+              aria-label="Path disposition outcome"
+            >
+              <option value="">Select an outcome</option>
+              <option value="Proceed">Proceed</option>
+              <option value="Extend">Extend</option>
+              <option value="Stop">Stop</option>
+            </select>
+          </label>
+          <label className="block space-y-1">
+            <span className={OPERATOR_TYPOGRAPHY.helper}>Rationale</span>
+            <textarea
+              className="min-h-24 w-full rounded border border-border bg-background px-3 py-2"
+              value={rationale}
+              onChange={(event) => setRationale(event.target.value)}
+              aria-label="Path disposition rationale"
+            />
+          </label>
+          <button type="button" className="rounded border border-border px-3 py-2" onClick={saveDisposition}>
+            Save path disposition
+          </button>
+          {saveError !== null ? <p className="text-rose-700" role="alert">{saveError}</p> : null}
+          <p className={OPERATOR_TYPOGRAPHY.helper}>A saved disposition does not clear beta NO_GO.</p>
         </section>
 
         <section
