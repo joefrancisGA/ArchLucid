@@ -202,8 +202,53 @@ internal class ScimBearerAuthenticationHandler(
         return false;
     }
 
-    private const string BearerGluedDelimiterPlaceholderCodePoints =
-        "|/\\" + "\u00D7\u00F7\u02C2\u02C3\u02CD\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044\u2215\u2216\u2217\u2218\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259A\u259B\u259C\u259D\u259E\u259F\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7\u25CE\u25CB\u25CF\u25D0\u29F8\u29F9\u301C\uFE31\uFE57\uFE58\uFE63\uFE68\uFF0F\uFF5C\uFF3C";
+    // Glued-after-****** placeholders treated as delimiter-only. Grouped by Unicode block so
+    // additions stay reviewable; contiguous spans use explicit ranges.
+
+    // U+007C, U+002F, U+005C: ASCII pipe and slash glyphs.
+    private const string BearerGluedDelimiterPlaceholderAscii = "|/\\";
+
+    // U+00D7, U+00F7, U+02C2, U+02C3, U+02CD: multiplication/division signs and modifier-letter
+    // arrowheads/macron. U+2010..U+2017, U+203E, U+2044: dash/bar/overline punctuation and
+    // fraction slash. U+2215..U+2218: math operator lookalikes.
+    private const string BearerGluedDelimiterPlaceholderGeneralPunctuation =
+        "\u00D7\u00F7\u02C2\u02C3\u02CD\u2010\u2011\u2012" +
+        "\u2013\u2014\u2015\u2016\u2017\u203E\u2044" +
+        "\u2215\u2216\u2217\u2218";
+
+    // U+2502..U+2503, U+2506..U+2509, U+2551, U+2571: Box Drawing verticals and diagonal.
+    // U+2574..U+257F: Box Drawing block slivers.
+    private const string BearerGluedDelimiterPlaceholderBoxDrawing =
+        "\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571" +
+        "\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B" +
+        "\u257C\u257D\u257E\u257F";
+
+    // U+2580, U+2582..U+259F: Block Elements.
+    private const string BearerGluedDelimiterPlaceholderBlockElements =
+        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588" +
+        "\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590" +
+        "\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598" +
+        "\u2599\u259A\u259B\u259C\u259D\u259E\u259F";
+
+    // U+25A0..U+25A1, U+25AA..U+25AB, U+25B2, U+25BC, U+25C6..U+25C7, U+25CE, U+25CB,
+    // U+25CF..U+25D0: Geometric Shapes squares, triangles, diamonds, and circles.
+    private const string BearerGluedDelimiterPlaceholderGeometricShapes =
+        "\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7" +
+        "\u25CE\u25CB\u25CF\u25D0";
+
+    // U+29F8..U+29F9, U+301C, U+FE31, U+FE57..U+FE58, U+FE63, U+FE68, U+FF0F, U+FF5C, U+FF3C:
+    // big solidus operators, wave dash, and small-form/fullwidth presentation variants.
+    private const string BearerGluedDelimiterPlaceholderFullwidthForms =
+        "\u29F8\u29F9\u301C\uFE31\uFE57\uFE58\uFE63\uFE68" +
+        "\uFF0F\uFF5C\uFF3C";
+
+    private static readonly string BearerGluedDelimiterPlaceholderCodePoints =
+        BearerGluedDelimiterPlaceholderAscii +
+        BearerGluedDelimiterPlaceholderGeneralPunctuation +
+        BearerGluedDelimiterPlaceholderBoxDrawing +
+        BearerGluedDelimiterPlaceholderBlockElements +
+        BearerGluedDelimiterPlaceholderGeometricShapes +
+        BearerGluedDelimiterPlaceholderFullwidthForms;
 
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
