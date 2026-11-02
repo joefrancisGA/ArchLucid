@@ -202,9 +202,48 @@ internal class ScimBearerAuthenticationHandler(
         return false;
     }
 
-    private const string BearerGluedDelimiterPlaceholderCodePoints =
-        "|/\\" + "\u00D7\u00F7\u02C2\u02C3\u02CD\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044\u2215\u2216\u2217\u2218\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u29F8\u29F9\u301C\uFE31\uFE57\uFE58\uFE63\uFE68\uFF0F\uFF5C\uFF3C";
+    // Gateways sometimes glue a decorative placeholder segment directly onto the ******
+    // (e.g. "Bearer▌") when comma-folding Authorization headers. Each group below lists the
+    // delimiter-lookalike codepoints observed in that position, grouped by Unicode block.
+    // ASCII delimiter lookalikes: vertical line, solidus, reverse solidus.
+    private const string BearerGluedAsciiDelimiterLookalikes = "|/\\";
 
+    // Latin-1 Supplement operator lookalikes: multiplication and division signs.
+    private const string BearerGluedLatin1OperatorLookalikes = "\u00D7\u00F7";
+
+    // Spacing Modifier Letters lookalikes: arrowheads and low macron.
+    private const string BearerGluedModifierLetterLookalikes = "\u02C2\u02C3\u02CD";
+
+    // General Punctuation lookalikes: dashes, double vertical/low lines, overline, fraction slash.
+    private const string BearerGluedGeneralPunctuationLookalikes =
+        "\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044";
+
+    // Mathematical Operators lookalikes: division slash, set minus, asterisk and ring operators.
+    private const string BearerGluedMathOperatorLookalikes = "\u2215\u2216\u2217\u2218";
+
+    // Box Drawing block lookalikes: verticals, dashed verticals/horizontals, diagonal, and half-weight horizontals.
+    private const string BearerGluedBoxDrawingLookalikes =
+        "\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571" +
+        "\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F";
+
+    // Block Elements lookalikes: upper/lower/left partial blocks and the full block
+    // (U+2581 is deliberately excluded: not observed as glued placeholders).
+    private const string BearerGluedBlockElementLookalikes =
+        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593";
+
+    // Miscellaneous Mathematical Symbols-B lookalikes: big solidus and big reverse solidus.
+    private const string BearerGluedBigSolidusLookalikes = "\u29F8\u29F9";
+
+    // CJK Symbols and Punctuation lookalike: wave dash.
+    private const string BearerGluedWaveDashLookalike = "\u301C";
+
+    // Small Form Variants / vertical presentation lookalikes: vertical em dash, small exclamation/em dash/hyphen-minus/reverse solidus.
+    private const string BearerGluedSmallFormLookalikes = "\uFE31\uFE57\uFE58\uFE63\uFE68";
+
+    // Halfwidth and Fullwidth Forms lookalikes: fullwidth solidus, vertical line, reverse solidus.
+    private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
+
+    
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
         foreach (char character in tail)

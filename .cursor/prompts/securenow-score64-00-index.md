@@ -16,8 +16,8 @@ AI/Agent Readiness is a separate score. Its prompts are [`securenow-agent-readin
 | Accessibility | `securenow-accessibility-01-scope.md` through `securenow-accessibility-04-checker.md` | Ready to paste |
 | Stickiness | `securenow-stickiness-01-return-reasons.md` through `securenow-stickiness-04-checker.md` | Ready to paste |
 | Template and Accelerator Richness | `securenow-scenario-01-chooser.md` through `securenow-scenario-03-checker.md` | Ready to paste |
-| Cognitive Load | `securenow-cognitive-load-01-next-action.md` through `securenow-cognitive-load-03-checker.md` | Ready to paste |
+| Cognitive Load | `securenow-cognitive-load-01-next-action.md` through `securenow-cognitive-load-03-checker.md` | Shipped in PR #5893. Follow-on **SN-COG-04–06** is in [`securenow-score66-00-index.md`](securenow-score66-00-index.md). |
 
-Run one existing attribute set at a time. For Cognitive Load, run **SN-COG-01**, then **SN-COG-02**, then **SN-COG-03**. Each prompt must be implemented in its own session. The hold files are not build steps.
+Run one existing attribute set at a time. **SN-COG-01** through **SN-COG-03** are on trunk. Do not redo them. Each prompt must be implemented in its own session. The hold files are not build steps.
 
 Do not use these prompts to claim customer adoption, retention, WCAG certification, assistive-technology user testing, or completed buyer validation. Do not hide review workspace tabs behind More.
