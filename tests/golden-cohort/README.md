@@ -25,13 +25,13 @@ Categories listed per item are **expected high-level finding buckets** for regre
 
 `expectedCommittedManifestSha256` carries the **canonical Simulator-path** committed-manifest **content** SHA-256 (lowercase hex) for each cohort row — see `GoldenManifestFingerprint.ComputeContentSha256Hex`. Nightly drift compares fresh simulator runs to these values when the repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is `true`.
 
-### Locked baseline (Simulator) — 2026-07-25
+### Locked baseline (Simulator) — 2026-11-02
 
 | Field | Value |
 |-------|--------|
-| **Lock date (UTC)** | 2026-07-25 |
-| **Fingerprint** | `GoldenManifestFingerprint.ComputeContentSha256Hex` (excludes per-run `RunId`, `Metadata.CreatedUtc`, `Metadata.DecisionTraceIds`) |
-| **Capture method** | Re-lock from CI `GoldenCohortSimulatorDriftTests` actual content SHAs (categories unchanged: Compliance, Cost, Critic, Topology). Prior 2026-07-22 offline authority-projection lock drifted after intentional Simulator/commit-path content changes |
+| **Lock date (UTC)** | 2026-11-02 |
+| **Fingerprint** | `GoldenManifestFingerprint.ComputeContentSha256Hex` (excludes per-run `RunId`, `Metadata.CreatedUtc`, `Metadata.DecisionTraceIds`; inventory binds artifact name / content type / producer only — no `CapturedUtc`, no identity-bearing `ContentHashSha256`) |
+| **Capture method** | Re-lock from CI `GoldenCohortSimulatorDriftTests` actual content SHAs. Scheduled runs [41279592379](https://github.com/joefrancisGA/ArchLucid/actions/runs/41279592379) (2026-11-01) and [41398487386](https://github.com/joefrancisGA/ArchLucid/actions/runs/41398487386) (2026-11-02) produced **identical** 20/20 actuals (Hasher B stable after #5727). Categories unchanged: Compliance, Cost, Critic, Topology. Prior 2026-07-25 lock predated wave-14 inventory binding and Hasher B include-set changes #5352 / #5727 (TB-1172 intentional re-lock, not a rubber stamp) |
 | **API mode** | `AgentExecution__Mode=Simulator`, `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=false` |
 | **Storage** | `ArchLucid__StorageProvider=InMemory` (E2E drift job) |
 | **Simulator payload stability** | `FakeScenarioFactory` uses SHA-256–derived stable ids per `(runId, taskId, slot)` and a fixed synthetic `CreatedUtc` (2024-06-01 UTC) so agent payloads stay repeatable; cohort SHAs use the content hasher so commit-path run identity cannot break the lock |

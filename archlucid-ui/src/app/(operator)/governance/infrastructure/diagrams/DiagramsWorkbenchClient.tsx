@@ -47,6 +47,7 @@ import {
   fetchInfraEvidenceMermaidPreview,
   fetchInfraEvidenceMermaidRender,
   formatInfraEvidenceMermaidApiError,
+  infraEvidenceMermaidRenderQueriesEqual,
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
@@ -518,6 +519,7 @@ export function DiagramsWorkbenchClient() {
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const selectedSnapshotIdRef = useRef(selectedSnapshotId);
   selectedSnapshotIdRef.current = selectedSnapshotId;
+  const renderQueryRef = useRef<InfraEvidenceMermaidRenderQuery | null>(null);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
     urlEvidenceFamily as InfraEvidenceDiagramFamily,
@@ -580,21 +582,6 @@ export function DiagramsWorkbenchClient() {
   }, [urlEvidenceFamily]);
 
   useEffect(() => {
-    setSeedNodeDraft(urlSeedNodeId);
-
-    if (urlMermaidMode !== "dependencyNeighborhood") {
-      setAppliedSeedNodeId("");
-      return;
-    }
-
-    const trimmedUrlSeed = urlSeedNodeId.trim();
-
-    if (trimmedUrlSeed.length > 0) {
-      setAppliedSeedNodeId(trimmedUrlSeed);
-    }
-  }, [urlMermaidMode, urlSeedNodeId]);
-
-  useEffect(() => {
     setShowPrivateEndpoints(urlIncludePrivateEndpoints);
   }, [urlIncludePrivateEndpoints]);
 
@@ -622,6 +609,8 @@ export function DiagramsWorkbenchClient() {
     setSelectedSubscriptionFilter(urlSubscriptionFilter);
   }, [urlSubscriptionFilter]);
 
+  const lastSelfGeneratedUrlRef = useRef<string | null>(null);
+
   const syncUrl = useCallback(
     (patch: {
       snapshotId?: string;
@@ -636,7 +625,10 @@ export function DiagramsWorkbenchClient() {
       includeAvdAssets?: boolean;
       evidenceFamily?: string;
     }) => {
-      router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
+      const href = infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname);
+
+      lastSelfGeneratedUrlRef.current = href;
+      router.replace(href, {
         scroll: false,
       });
     },
@@ -646,6 +638,95 @@ export function DiagramsWorkbenchClient() {
   const syncUrlRef = useRef(syncUrl);
 
   syncUrlRef.current = syncUrl;
+
+  const priorUrlSnapshotIdRef = useRef(urlSnapshotId);
+  const suppressUrlSeedApplyRef = useRef(false);
+  const lastUrlSeedNodeIdRef = useRef(urlSeedNodeId);
+  const appliedSeedNodeIdRef = useRef(appliedSeedNodeId);
+  appliedSeedNodeIdRef.current = appliedSeedNodeId;
+  const selectedSnapshotIdForSeedRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdForSeedRef.current = selectedSnapshotId;
+  const currentUrlRef = useRef("");
+  currentUrlRef.current = `${pathname}?${searchParams.toString()}`;
+  const lastConsumedUrlRef = useRef("");
+  const selfGeneratedPatchPendingRef = useRef(false);
+
+  useEffect(() => {
+    const priorSnapshotId = priorUrlSnapshotIdRef.current;
+    priorUrlSnapshotIdRef.current = urlSnapshotId;
+
+    if (priorSnapshotId === urlSnapshotId || priorSnapshotId.length === 0) {
+      return;
+    }
+
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      return;
+    }
+
+    setAppliedSeedNodeId("");
+    setSeedNodeDraft("");
+    suppressUrlSeedApplyRef.current = true;
+    syncUrlRef.current({ seedNodeId: "" });
+  }, [urlMermaidMode, urlSnapshotId]);
+
+  useEffect(() => {
+    const priorUrlSeedNodeId = lastUrlSeedNodeIdRef.current;
+    lastUrlSeedNodeIdRef.current = urlSeedNodeId;
+
+    setSeedNodeDraft(urlSeedNodeId);
+
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      setAppliedSeedNodeId("");
+      return;
+    }
+
+    if (suppressUrlSeedApplyRef.current) {
+      const trimmedPendingSeed = urlSeedNodeId.trim();
+
+      if (trimmedPendingSeed.length > 0) {
+        setAppliedSeedNodeId("");
+        setSeedNodeDraft("");
+        return;
+      }
+
+      suppressUrlSeedApplyRef.current = false;
+    }
+
+    const trimmedUrlSeed = urlSeedNodeId.trim();
+
+    if (trimmedUrlSeed.length === 0) {
+      // Self-generated URL patches (display options, automatic subscription
+      // filter) rebuild the query string and can briefly omit seedNodeId
+      // while the router catches up. Only treat an empty URL seed as that
+      // transient omission when the current URL still matches the pending
+      // self-generated patch; back/soft navigation to the same snapshot
+      // without seedNodeId is an intentional seed removal that returns to
+      // the seed-required state.
+      const currentUrl = currentUrlRef.current;
+
+      if (currentUrl !== lastConsumedUrlRef.current) {
+        lastConsumedUrlRef.current = currentUrl;
+        selfGeneratedPatchPendingRef.current = currentUrl === lastSelfGeneratedUrlRef.current;
+      }
+
+      const trimmedAppliedSeed = appliedSeedNodeIdRef.current.trim();
+      const renderedSnapshotId = selectedSnapshotIdForSeedRef.current;
+
+      if (
+        selfGeneratedPatchPendingRef.current
+        && trimmedAppliedSeed.length > 0
+        && priorUrlSeedNodeId.trim() === trimmedAppliedSeed
+        && renderedSnapshotId.length > 0
+        && urlSnapshotId === renderedSnapshotId
+      ) {
+        setSeedNodeDraft(trimmedAppliedSeed);
+        syncUrlRef.current({ seedNodeId: trimmedAppliedSeed });
+        return;
+      }
+    }
+
+    setAppliedSeedNodeId(trimmedUrlSeed.length > 0 ? trimmedUrlSeed : "");
+  }, [urlMermaidMode, urlSeedNodeId, urlSnapshotId]);
 
   const activeModePreview = useMemo(
     () => modePreviews.find((preview) => preview.mode === selectedMode) ?? null,
@@ -1301,6 +1382,14 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    setRenderResult(null);
+    setLoadError(null);
+    setSubscriptionResourceGroupArtifacts([]);
+    setModePreviews([]);
+    setSnapshotCompletenessWarnings(undefined);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
     if (
       !shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline(selectedMode, appliedSeedNodeId)
     ) {
@@ -1375,6 +1464,7 @@ export function DiagramsWorkbenchClient() {
   }, [
     deepLinkedSnapshotMissing,
     dependencyNeighborhoodAwaitingSeed,
+    includeNeverShow,
     seedCatalogOutline,
     seedCatalogSnapshotId,
     selectedMode,
@@ -1387,6 +1477,7 @@ export function DiagramsWorkbenchClient() {
       || !dependencyNeighborhoodAwaitingSeed
       || seedCatalogOutline == null
       || seedCatalogSnapshotId !== selectedSnapshotId
+      || loadingSeedCatalog
     ) {
       return;
     }
@@ -1397,6 +1488,7 @@ export function DiagramsWorkbenchClient() {
   }, [
     dependencyNeighborhoodAwaitingSeed,
     includeNeverShow,
+    loadingSeedCatalog,
     seedCatalogOutline,
     seedCatalogSnapshotId,
     selectedMode,
@@ -1666,7 +1758,12 @@ export function DiagramsWorkbenchClient() {
         setSelectedViewKey("");
         setRenderResult(null);
         setSubscriptionResourceGroupArtifacts([]);
-        syncUrl({ mermaidMode: "", mermaidView: "", subscriptionFilter: nextSubscriptionFilter });
+        syncUrl({
+          mermaidMode: "",
+          mermaidView: "",
+          seedNodeId: "",
+          subscriptionFilter: nextSubscriptionFilter,
+        });
       }
 
       if (!snapshotStillVisible) {
@@ -1674,7 +1771,13 @@ export function DiagramsWorkbenchClient() {
         setSelectedMode("");
         setSelectedViewKey("");
         setRenderResult(null);
-        syncUrl({ snapshotId: "", mermaidMode: "", mermaidView: "", subscriptionFilter: nextSubscriptionFilter });
+        syncUrl({
+          snapshotId: "",
+          mermaidMode: "",
+          mermaidView: "",
+          seedNodeId: "",
+          subscriptionFilter: nextSubscriptionFilter,
+        });
       }
     },
     [selectedSnapshotId, snapshots, syncUrl],
@@ -1782,20 +1885,21 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadPreview() {
       setLoadingPreview(true);
       setLoadError(null);
 
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(selectedSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setModePreviews(preview.modes ?? []);
           setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
           setSnapshotCompletenessWarnings([]);
@@ -1825,18 +1929,19 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = resourceGroupSnapshotId;
 
     async function loadSubscriptionResourceGroups() {
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(resourceGroupSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
         const previewArtifacts = (preview.modes ?? []).flatMap((modePreview) => modePreview.fallbackArtifacts ?? []);
         const artifacts = resolveInfraDiagramsResourceGroupFallbackArtifacts(previewArtifacts);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setSubscriptionResourceGroupArtifacts(artifacts);
         }
       } catch {
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setSubscriptionResourceGroupArtifacts([]);
         }
       }
@@ -1856,6 +1961,8 @@ export function DiagramsWorkbenchClient() {
   ]);
 
   useEffect(() => {
+    renderQueryRef.current = renderQuery;
+
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setRenderResult(null);
       return;
@@ -1869,6 +1976,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     const activeRenderQuery = renderQuery;
+    const requestSnapshotId = selectedSnapshotId;
     let cancelled = false;
 
     async function loadRender() {
@@ -1876,9 +1984,13 @@ export function DiagramsWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, activeRenderQuery);
+        const response = await fetchInfraEvidenceMermaidRender(requestSnapshotId, activeRenderQuery);
 
-        if (!cancelled) {
+        if (
+          !cancelled
+          && requestSnapshotId === selectedSnapshotIdRef.current
+          && infraEvidenceMermaidRenderQueriesEqual(activeRenderQuery, renderQueryRef.current)
+        ) {
           setRenderResult(response);
 
           if (
@@ -1892,7 +2004,11 @@ export function DiagramsWorkbenchClient() {
           }
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (
+          !cancelled
+          && requestSnapshotId === selectedSnapshotIdRef.current
+          && infraEvidenceMermaidRenderQueriesEqual(activeRenderQuery, renderQueryRef.current)
+        ) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setRenderResult(null);
         }
@@ -1949,9 +2065,17 @@ export function DiagramsWorkbenchClient() {
       setSelectedSnapshotId(nextSnapshotId);
       setSelectedViewKey("");
       setRenderResult(null);
+
+      if (selectedMode === "dependencyNeighborhood") {
+        setAppliedSeedNodeId("");
+        setSeedNodeDraft("");
+        syncUrl({ snapshotId: nextSnapshotId, mermaidView: "", seedNodeId: "" });
+        return;
+      }
+
       syncUrl({ snapshotId: nextSnapshotId, mermaidView: "" });
     },
-    [syncUrl],
+    [selectedMode, syncUrl],
   );
 
   const handleModeChange = useCallback(

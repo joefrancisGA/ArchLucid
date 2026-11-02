@@ -28,6 +28,26 @@ describe("fetchInfraEvidenceMermaidPreview", () => {
   });
 });
 
+describe("infraEvidenceMermaidRenderQueriesEqual", () => {
+  it("treats matching render queries as equal regardless of property order", async () => {
+    const { infraEvidenceMermaidRenderQueriesEqual } = await import("@/lib/infra-evidence/infra-evidence-mermaid-api");
+
+    expect(
+      infraEvidenceMermaidRenderQueriesEqual(
+        { mode: "dependencyNeighborhood", seedNodeId: "seed-a", includeNeverShow: true },
+        { includeNeverShow: true, seedNodeId: "seed-a", mode: "dependencyNeighborhood" },
+      ),
+    ).toBe(true);
+    expect(
+      infraEvidenceMermaidRenderQueriesEqual(
+        { mode: "dependencyNeighborhood", seedNodeId: "seed-a" },
+        { mode: "dependencyNeighborhood", seedNodeId: "seed-b" },
+      ),
+    ).toBe(false);
+    expect(infraEvidenceMermaidRenderQueriesEqual({ mode: "executive" }, null)).toBe(false);
+  });
+});
+
 describe("fetchInfraEvidenceMermaidRender", () => {
   beforeEach(() => {
     proxyJsonGetMock.mockReset();

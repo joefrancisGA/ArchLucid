@@ -74,6 +74,12 @@ public sealed class SecurityEvidencePathExplanationResponse
         init;
     }
 
+    public string? ModelOutputRejection
+    {
+        get;
+        init;
+    }
+
     public DateTime CreatedUtc
     {
         get;
