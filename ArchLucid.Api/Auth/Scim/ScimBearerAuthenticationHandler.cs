@@ -244,7 +244,7 @@ internal class ScimBearerAuthenticationHandler(
     private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
 
     // Geometric Shapes lookalikes: circle placeholders glued after Bearer (hunts #69–#70).
-    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF\u25CE\u25D0\u25D1\u25D2\u25D3\u25D4";
+    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF\u25CE\u25D0\u25D1\u25D2\u25D3\u25D4\u25D7\u25D8";
 
     private const string BearerGluedDelimiterPlaceholderCodePoints =
         BearerGluedAsciiDelimiterLookalikes +
@@ -262,17 +262,22 @@ internal class ScimBearerAuthenticationHandler(
 
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
+        int placeholderCount = 0;
+
         foreach (char character in tail)
         {
-            if (BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
-                continue;
-
             if (char.IsWhiteSpace(character))
                 continue;
 
-            return false;
+            if (!BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
+                return false;
+
+            // Accept a single placeholder rune (the comma-folding artifact) so a run of allowlisted
+            // characters cannot pad a malformed Authorization segment past the mix guard.
+            if (++placeholderCount > 1)
+                return false;
         }
 
-        return true;
+        return placeholderCount == 1;
     }
 }
