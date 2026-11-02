@@ -2423,3 +2423,4 @@
 {"at":"2026-11-02T14:35:17.5470136Z","zoneId":"ui-operator-lib","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/"]}
 {"at":"2026-11-02T14:37:29.1670878Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-11-02T14:39:42.1316753Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
+{"at":"2026-11-02T14:41:53.0099209Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
