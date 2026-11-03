@@ -2578,3 +2578,4 @@
 {"at":"2026-11-03T03:00:34.7729821Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T03:04:13.7253016Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T03:10:19.6233375Z","zoneId":"scim-users","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-03T03:15:17.3322569Z","zoneId":"tenant-data-export","outcome":"seed-only","productLine":"archlucid-shared"}
