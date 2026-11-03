@@ -260,6 +260,26 @@ describe("InferenceQuestionnairePanel", () => {
     );
   });
 
+  it("labels stored-empty database catalog on SQL catalog missing questions", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{
+        ...questionnaireResponse.items[0],
+        ruleName: "SQL catalog missing",
+        questionText: "Which database should this connection use?",
+        toCatalog: "   ",
+      }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    fireEvent.click(await screen.findByTestId("inference-questionnaire-yes"));
+
+    expect(screen.getByTestId("inference-questionnaire-catalog-missing")).toHaveTextContent(
+      "Database name was stored empty.",
+    );
+  });
+
   it("shows cap honesty when questionnaire list hits server cap", async () => {
     vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
       ...questionnaireResponse,

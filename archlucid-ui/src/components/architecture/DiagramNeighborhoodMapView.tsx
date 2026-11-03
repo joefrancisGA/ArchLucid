@@ -30,6 +30,10 @@ function titleFor(map: DiagramNeighborhoodMap, id: string): string {
     return "Neighborhood title was stored empty.";
   }
 
+  if (title.trim().length === 0) {
+    return "Neighborhood title was stored empty.";
+  }
+
   return title;
 }
 
@@ -38,14 +42,18 @@ function renderTypeChip(type: { readonly name: string | null; readonly count: nu
     type.name === null
       ? type.count == null
         ? "Type name was not stored. Count was not stored."
-        : `Type name was not stored. ${type.count} stored.`
+        : `Type name was not stored ${type.count}`
       : type.name.length === 0
         ? type.count == null
           ? "Type name was stored empty. Count was not stored."
-          : `Type name was stored empty. ${type.count} stored.`
-        : type.count == null
-          ? `${type.name} — count was not stored`
-          : `${type.name} — ${type.count} stored`;
+          : `Type name was stored empty ${type.count}`
+        : type.name.trim().length === 0
+          ? type.count == null
+            ? "Type name was stored empty. Count was not stored."
+            : `Type name was stored empty ${type.count}`
+          : type.count == null
+            ? `${type.name} count was not stored`
+            : `${type.name} ${type.count}`;
 
   return (
     <span
@@ -78,7 +86,7 @@ function renderTile(
       <span className="w-full break-words text-[14px] font-semibold text-[#0f172a] dark:text-slate-100">
         {neighborhood.title === null
           ? "Neighborhood title was not stored."
-          : neighborhood.title.length === 0
+          : neighborhood.title.length === 0 || neighborhood.title.trim().length === 0
             ? "Neighborhood title was stored empty."
             : neighborhood.title}
       </span>

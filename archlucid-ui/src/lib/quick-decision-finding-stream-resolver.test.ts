@@ -110,6 +110,7 @@ describe("quick-decision-finding-stream-resolver (LP-05)", () => {
     expect(sealed[0]?.severityValue).toBeNull();
     expect(severityBadgeLabel(sealed[0]?.severityValue ?? null)).toBe("Severity label was not stored.");
     expect(findingEnforcementTierLabel(sealed[0]?.enforcementTier ?? null)).toBe("Enforcement tier was not stored");
+    expect(sealed[0]?.enforcementTierStored).toBe(false);
     expect(sealed[0]?.category).toBe("");
   });
 

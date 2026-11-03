@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { collectCitedReviewIdsFromAskAnswerRefs } from "@/lib/ask-buyer-grounding-links";
 import { ASK_ASSISTANT_EVIDENCE_SECTION_TITLE } from "@/lib/ask-assistant-section-parser";
 import { AskAssistantMessageBody } from "./AskAssistantMessageBody";
 
@@ -164,6 +165,25 @@ describe("AskAssistantMessageBody", () => {
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(sampleId)}`);
     expect(links[0]).toHaveTextContent(sampleId);
+  });
+
+  it("does not link artifact UUIDs cited in metadata unless they match the review id", () => {
+    const artifactId = "22222222-2222-4222-8222-222222222222";
+
+    render(
+      <AskAssistantMessageBody
+        content={`Artifact ${artifactId} is referenced.`}
+        citedReviewIds={collectCitedReviewIdsFromAskAnswerRefs(sampleId, {
+          referencedArtifacts: [artifactId],
+          referencedFindings: [],
+          referencedDecisions: [],
+        })}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: artifactId })).toBeNull();
+    expect(screen.getByText(artifactId, { exact: false })).toBeInTheDocument();
   });
 
   it("renders grounding links footer when provided", () => {

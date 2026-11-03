@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildAskAnswerCitationSourceLinks,
   buyerAskGroundingLinksForRun,
+  collectCitedReviewIdsFromAskAnswerRefs,
 } from "@/lib/ask-buyer-grounding-links";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -109,6 +110,21 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links[0]?.href).toBeUndefined();
     expect(links[0]?.label).toContain("missing-finding");
     expect(links[0]?.label).toContain("not in the loaded decision-grade findings index");
+  });
+
+  it("collectCitedReviewIdsFromAskAnswerRefs only cites review id artifacts, not other artifact UUIDs", () => {
+    const runId = "11111111-1111-4111-8111-111111111111";
+    const artifactId = "22222222-2222-4222-8222-222222222222";
+
+    const cited = collectCitedReviewIdsFromAskAnswerRefs(runId, {
+      referencedFindings: [],
+      referencedDecisions: [],
+      referencedArtifacts: [artifactId, runId],
+    });
+
+    expect(cited.has(runId.toLowerCase())).toBe(true);
+    expect(cited.has(artifactId.toLowerCase())).toBe(false);
+    expect(cited.size).toBe(1);
   });
 
   it("normalizes known demo aliases to the showcase spine", () => {

@@ -148,7 +148,12 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
-        return id is null ? missingValue : id.Value.ToString("D");
+        if (id is null || id.Value == Guid.Empty)
+        {
+            return missingValue;
+        }
+
+        return id.Value.ToString("D");
     }
 
     private static string FormatInlineCodeCell(string value)

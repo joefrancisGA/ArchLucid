@@ -195,6 +195,27 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         sb.ToString().Should().Contain(PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain);
     }
 
+    [Fact]
+    public void AppendMarkdownSection_GuidEmpty_UsesOmissionLabel()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-empty-guid",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain =
+                new FindingEvidenceChainResponse
+                {
+                    FindingsSnapshotId = Guid.Empty,
+                },
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, MinimalProof());
+
+        sb.ToString().Should().Contain("Findings snapshot id was not stored.");
+        sb.ToString().Should().NotContain("00000000-0000-0000-0000-000000000000");
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {
