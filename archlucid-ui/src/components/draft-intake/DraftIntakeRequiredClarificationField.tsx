@@ -19,6 +19,7 @@ import {
   GUIDED_INTAKE_CLOUD_TARGET_CONTROL_HINT,
   GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_SAVE_ANSWER_LABEL,
+  GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT,
 } from "@/lib/guided-intake-copy";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 import {
@@ -217,6 +218,9 @@ export function DraftIntakeRequiredClarificationField(
         className="flex flex-row flex-wrap items-center gap-2"
         data-testid="socratic-question-actions"
       >
+        <p className={cn("m-0 w-full text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT}
+        </p>
         <Button
           type="button"
           size={actionSize}

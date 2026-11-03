@@ -59,6 +59,11 @@ describe("quickDecisionRecommendationSnippet", () => {
       "Recommended action was stored empty.",
     );
   });
+  it("shows stored count when evidence link target is missing (P-05)", () => {
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(2)).toBe(
+      "2 evidence references were stored — Evidence link was not stored.",
+    );
+  });
 });
 
 describe("formatQuickDecisionFindingEvidenceLinkLabel (P-20)", () => {

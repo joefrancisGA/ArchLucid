@@ -23,11 +23,12 @@ export type RunDetailCreateHomeEvidencePanelProps = {
   readonly reviewDateLabel: string;
   readonly deliverableCount: number;
   readonly evidenceCoverageSummaryLine: string;
-  readonly linkedFindingCount: number;
+  readonly linkedFindingCount: number | null;
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
   readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
   readonly findingsSnapshotStored?: boolean;
+  readonly attachmentFileNames?: readonly string[];
   readonly artifacts: readonly { readonly artifactId: string; readonly name: string; readonly createdUtc: string }[];
   readonly runId: string;
   readonly buyerPolished: boolean;
@@ -76,7 +77,14 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
         readinessVerdict={scopeReadiness.verdict}
         evidenceCoverageLine={evidenceCoverageLine}
       />
-      <EvidenceGapForecastPanel presence={evidencePresence} presentation="summary" />
+      <EvidenceGapForecastPanel
+        presence={evidencePresence}
+        presentation="summary"
+        attachmentFileNames={
+          props.attachmentFileNames
+          ?? props.items.map((item) => item.sourceName).filter((name) => name.trim().length > 0)
+        }
+      />
       <RunDetailEvidenceInventorySection runId={props.runId} items={props.items} hasManifest={false} />
       <RunDetailCreateHomeEvidenceDiagramCrossLink
         runId={props.runId}

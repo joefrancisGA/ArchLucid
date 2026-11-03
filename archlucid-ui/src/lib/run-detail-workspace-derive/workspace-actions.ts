@@ -228,9 +228,9 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "assign-owners",
       title: "Open findings",
-      reason: "Owner was not stored for important findings.",
+      reason: "Owner was not stored for critical or error findings.",
       relatedFindingCount: unassignedHigh,
-      ownerOrRole: "Remediation lead",
+      ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "findings"),
       actionLabel: "Open findings",
     });
@@ -288,7 +288,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       title: "Request approval",
       reason: "Approval has not been recorded for this finalized review.",
       relatedFindingCount: null,
-      ownerOrRole: "Approval lead",
+      ownerOrRole: null,
       href: `/governance/approval-queue?runId=${encodeURIComponent(input.runId)}`,
       actionLabel: "Open approval queue",
     });

@@ -377,7 +377,7 @@ export function countRunDetailEvidenceInventoryItems(
 export type EvidenceScopeCoverageInput = {
   readonly inventoryCount: number;
   readonly findingsCoverageSummaryLine: string;
-  readonly linkedFindingCount: number;
+  readonly linkedFindingCount: number | null;
   readonly openFindingCount: number;
   readonly findingsSnapshotStored?: boolean;
 };
@@ -388,7 +388,12 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
     return input.findingsCoverageSummaryLine;
   }
 
-  if (input.openFindingCount > 0 && input.linkedFindingCount > 0) {
+  if (
+    input.openFindingCount > 0
+    && input.linkedFindingCount !== null
+    && input.linkedFindingCount !== undefined
+    && input.linkedFindingCount > 0
+  ) {
     const linkedCount = input.linkedFindingCount;
     const findingNoun = linkedCount === 1 ? "finding with" : "findings with";
 
