@@ -3173,6 +3173,20 @@
 
 ## Zone: finding-disposition
 
+2026-11-03 thorough hunt (dry #57): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#56** — **valid-no-repro** empty bulk batch rejected at service entry (`RecordBulkAsync` `requests.Count == 0` guard before repository; dry **#55**); **valid-no-repro** whitespace-only `reviewerUserId` rejected on `RecordAsync`/`RecordBulkAsync` (same guard as empty reviewer; dry **#55**); **valid-no-repro** `ListHistoryAsync` rejects `scope.TenantId == Guid.Empty` before trail query (dry **#55**); **valid-no-repro** optional `Deferred` rationale above `MaximumRationaleLength` rejected (`Validate_deferred_rejects_overlong_optional_rationale`; seed **#54**); **valid-no-repro** working-desk remediated preview override below `MinimumRationaleLength` rejected (`Validate_working_remediated_rejects_short_preview_override_reason`; seed **#54**). Reseeded five follow-on `(candidate)` monitor rows from dry **#56** closed themes; zone **cooling** (`consecutive-dry-hunts` 15); **70/70** scoped `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `FindingDispositionService.RecordBulkAsync` — empty request list rejected before repository — **cheap-disproof 2026-11-03 thorough hunt #57:** entry guard; dry **#55** regressions in diary above.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — whitespace-only `reviewerUserId` rejected — **cheap-disproof 2026-11-03 thorough hunt #57:** reviewer guard; dry **#55** diary above.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — `scope.TenantId == Guid.Empty` rejected — **cheap-disproof 2026-11-03 thorough hunt #57:** tenant scope guard; dry **#55** diary above.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` — optional rationale on `Deferred` above `MaximumRationaleLength` rejected — **cheap-disproof 2026-11-03 thorough hunt #57:** regression `Validate_deferred_rejects_overlong_optional_rationale`.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working-desk remediated preview override below `MinimumRationaleLength` rejected — **cheap-disproof 2026-11-03 thorough hunt #57:** regression `Validate_working_remediated_rejects_short_preview_override_reason`.
+
+- [ ] (candidate) `FindingDispositionValidation.Validate` — `NeedsEvidence` accepts single-character substantive `EvidenceRequestText` — locus: substantive-text gate; input: one-character request (`Validate_needs_evidence_accepts_single_character_evidence_request_text`; monitor dry **#57** / dry **#56** / dry **#52**).
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — malformed `ExpectedCurrentDispositionRowVersionBase64` rejected before repository — locus: `TryDecodeRowVersion`; input: invalid base64 (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`; monitor dry **#57** / dry **#56** / dry **#49**).
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — case-variant duplicate finding ids rejected in one batch — locus: batch dedupe; input: `Finding-1` vs `finding-1` (`RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`; monitor dry **#57** / dry **#56** / hit **#2054**).
+- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — review-trail rows without disposition omitted — locus: disposition-only API; input: null disposition trail row (`ListHistoryAsync_excludes_review_trail_events_without_disposition`; monitor dry **#57** / dry **#56** / dry **#49**).
+- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — guided-desk `Remediated` ignores client `ImpactPreviewCompleted` — locus: `!isWorkingDesk`; input: guided remediated notes (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`; monitor dry **#57** / dry **#56** / hit **#1719**).
+
 2026-11-03 thorough hunt (dry #56): cheap-disproof closed five open `(candidate)` rows from thorough **#55** reseed — **valid-no-repro** `NeedsEvidence` single-character substantive `EvidenceRequestText` (`Validate_needs_evidence_accepts_single_character_evidence_request_text`; dry **#52**); **valid-no-repro** malformed `ExpectedCurrentDispositionRowVersionBase64` rejected before repository (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`; dry **#49**); **valid-no-repro** bulk batch rejects case-variant duplicate finding ids (`RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`; hit **#2054**); **valid-no-repro** disposition history omits review-trail rows with null disposition (`ListHistoryAsync_excludes_review_trail_events_without_disposition`; dry **#49**); **valid-no-repro** guided-desk `Remediated` ignores client `ImpactPreviewCompleted` (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`; hit **#1719**). Reseeded five follow-on `(candidate)` rows from dry **#55** closed themes; zone **cooling** (`consecutive-dry-hunts` 14); scoped **70/70** `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — empty request list rejected before repository — locus: entry guard; input: zero-length batch (`RecordBulkAsync` `requests.Count == 0`; monitor dry **#56** / dry **#55**).
@@ -3284,9 +3298,9 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 14
+- **consecutive-dry-hunts:** 15
 - **last-hunt:** 2026-11-03
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
