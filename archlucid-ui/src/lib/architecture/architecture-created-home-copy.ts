@@ -34,7 +34,26 @@ export const ARCHITECTURE_CREATED_PRIMARY_ACTIONS = {
   viewAssessmentProgress: "View assessment progress",
 } as const;
 
+export const ARCHITECTURE_CREATED_OPEN_ASSESSMENT_ACTIVITY_LABEL = "Open assessment activity" as const;
+
 export const ARCHITECTURE_CREATED_OVERFLOW_LABEL = "More actions" as const;
+
+export function formatArchitectureCreatedMissingItemsOmittedLine(
+  omittedCount: number,
+  usesFindingsDerivedClarificationGaps: boolean,
+): string {
+  if (omittedCount <= 0) {
+    return "";
+  }
+
+  const noun = omittedCount === 1 ? "gap" : "gaps";
+
+  if (usesFindingsDerivedClarificationGaps) {
+    return `${omittedCount} more clarification ${noun} were stored but are not listed here.`;
+  }
+
+  return `${omittedCount} more page-check ${noun} are not listed here.`;
+}
 
 export const ARCHITECTURE_SUMMARY_LABELS = {
   businessPurpose: "Business purpose",

@@ -16,7 +16,8 @@ public static class RunSummaryOnePagerDocumentFactory
         string SponsorReport,
         IReadOnlyList<string> topFindingTitles,
         string? activeTrialExportNotice = null,
-        int sealedFindingCount = 0,
+        int sealedFindingCount = -1,
+        int? findingsSnapshotFindingCount = null,
         string? careerExportHonestyPlainText = null,
         string? sendableExportCoverPlainText = null,
         string? architectRestatementMarkdown = null)
@@ -38,6 +39,11 @@ public static class RunSummaryOnePagerDocumentFactory
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
         bool hasSealedSnapshot = detail.Run.FindingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty;
+        int resolvedSealedFindingCount = RunSummaryOnePagerHonestyCopy.ResolveSealedFindingCount(
+            detail.Run.FindingsSnapshotId,
+            agentFindingsStored,
+            sealedFindingCount,
+            findingsSnapshotFindingCount);
         (string? executionModeNoticeTitle, string? executionModeNoticeBody) =
             BoardExportExecutionModeNoticeResolver.TryGetNotice(detail.Run);
 
@@ -49,7 +55,7 @@ public static class RunSummaryOnePagerDocumentFactory
             RunIdDisplay = RunSummaryOnePagerHonestyCopy.ResolveRunId(runId),
             SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
                 detail.Run.FindingsSnapshotId,
-                hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0),
+                hasSealedSnapshot ? resolvedSealedFindingCount : 0),
             AgentFindingsCountsStored = agentFindingsStored,
             AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
             CriticalCount = counts.Critical,
@@ -76,7 +82,7 @@ public static class RunSummaryOnePagerDocumentFactory
             FindingsSnapshotId = hasSealedSnapshot
                 ? detail.Run.FindingsSnapshotId!.Value.ToString("D")
                 : null,
-            SealedFindingCount = hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0,
+            SealedFindingCount = hasSealedSnapshot ? Math.Max(-1, resolvedSealedFindingCount) : 0,
             SimulatorRehearsalTitle = executionModeNoticeTitle,
             SimulatorRehearsalBody = executionModeNoticeBody,
             CareerExportHonestyPlainText = string.IsNullOrWhiteSpace(careerExportHonestyPlainText)

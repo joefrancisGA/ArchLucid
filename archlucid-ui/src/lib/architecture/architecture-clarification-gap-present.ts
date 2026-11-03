@@ -33,14 +33,17 @@ export function formatGapCapturedAtLabel(utc: string | null): string | null {
 
   // Clock-only label has no shared formatter; pinned to UTC with the zone shown so the
   // same capture time reads identically for every reviewer (TB-1678).
-  const capturedAt = parsed.toLocaleTimeString("en-US", {
+  const capturedAt = parsed.toLocaleString("en-US", {
     timeZone: "UTC",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     timeZoneName: "short",
   });
 
-  return `captured ${capturedAt}`;
+  return `captured ${capturedAt} UTC`;
 }
 
 export const ARCHITECTURE_INTAKE_HEURISTIC_GAP_SOURCE_LABEL =

@@ -1,6 +1,6 @@
 # Sponsor review packet
 
-**Generated (UTC):** 2026-05-16 14:00:00 Z
+**Export written (UTC):** 2026-05-16 14:00:00 Z
 
 ## Manifest summary
 
