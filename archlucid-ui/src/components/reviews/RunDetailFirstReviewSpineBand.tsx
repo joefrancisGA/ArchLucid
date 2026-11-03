@@ -86,7 +86,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             Open gate: {summary.openGateLabel}.{" "}
             {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
               <Link
-                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=findings`}
+                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=${summary.openGateReviewTab ?? "findings"}`}
                 className={OPERATOR_LINK.inline}
               >
                 Open the gate

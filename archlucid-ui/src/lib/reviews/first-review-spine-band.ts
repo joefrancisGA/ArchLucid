@@ -46,6 +46,7 @@ export type FirstReviewSpineBandSummary = {
   readonly topFindingPolicyMapped: boolean;
   readonly openGateLabel: string | null;
   readonly openGateHref: string | null;
+  readonly openGateReviewTab: FirstReviewOpenGateReviewTab | null;
 };
 
 export function countUncitedFindings(findings: readonly QuickDecisionFinding[]): number {
@@ -143,11 +144,34 @@ export const FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED =
 
 export const FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED = "Dispositions were not stored." as const;
 
+export type FirstReviewOpenGateReviewTab = "findings" | "review-package";
+
+export function resolveFirstReviewOpenGate(input: {
+  readonly uncitedCount: number;
+  readonly openDecisionGradeDispositionCount: number;
+  readonly reviewHasGoldenManifest: boolean;
+}): { readonly label: string | null; readonly reviewTab: FirstReviewOpenGateReviewTab | null } {
+  if (input.uncitedCount > 0) {
+    return { label: "Uncited finding", reviewTab: "findings" };
+  }
+
+  if (input.openDecisionGradeDispositionCount > 0) {
+    return { label: "Open disposition", reviewTab: "findings" };
+  }
+
+  if (!input.reviewHasGoldenManifest) {
+    return { label: "Uncommitted review", reviewTab: "review-package" };
+  }
+
+  return { label: null, reviewTab: null };
+}
+
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly structuralExecutionMode: StructuralExecutionModeInput;
   readonly findings: readonly QuickDecisionFinding[];
   readonly hasFindingsSnapshot?: boolean;
+  readonly reviewHasGoldenManifest?: boolean;
 }): FirstReviewSpineBandSummary | null {
   if (input.hasFindingsSnapshot === false) {
     const feasibilityVerdict = input.feasibilityVerdict ?? null;
@@ -172,6 +196,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
       topFindingPolicyMapped: false,
       openGateLabel: null,
       openGateHref: null,
+      openGateReviewTab: null,
       topFindingSeverityLabel: null,
       semanticSupportLine: null,
       showLaneBHonesty: false,
@@ -229,12 +254,11 @@ export function deriveFirstReviewSpineBandSummary(input: {
   const treatmentCounts = countFindingsByTreatmentBand(findings);
   const treatmentSummaryLine = formatTreatmentSummaryLine(treatmentCounts);
   const dispositionStats = countDispositionStats(findings);
-  const openGateLabel =
-    uncitedCount > 0
-      ? "Uncited finding"
-      : dispositionStats.openDecisionGradeCount > 0
-        ? "Open disposition"
-        : null;
+  const openGate = resolveFirstReviewOpenGate({
+    uncitedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    reviewHasGoldenManifest: input.reviewHasGoldenManifest === true,
+  });
 
   return {
     gateOutcomeLabel,
@@ -265,7 +289,8 @@ export function deriveFirstReviewSpineBandSummary(input: {
     showDispositionNextAction: dispositionStats.openDecisionGradeCount > 0,
     classificationCountsStored: true,
     dispositionCountsStored: true,
-    openGateLabel,
-    openGateHref: openGateLabel === null ? null : "#run-detail-first-review-spine-findings",
+    openGateLabel: openGate.label,
+    openGateHref: openGate.reviewTab === null ? null : `#run-detail-first-review-spine-${openGate.reviewTab}`,
+    openGateReviewTab: openGate.reviewTab,
   };
 }
