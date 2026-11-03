@@ -80,8 +80,17 @@ export function ClarificationAnswerCapturePanel(
           {props.totalDerivedCount !== null && props.totalDerivedCount > props.questions.length
             ? `Showing ${props.questions.length} of ${props.totalDerivedCount} findings-derived questions. `
             : null}
-          Answers update κ on this review and trigger a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
+          Answers are saved on this review and start a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
           characters.
+          {props.priorRunId.trim().length > 0 ? (
+            <>
+              {" "}
+              Clarification carry-forward references prior review{" "}
+              <span className="font-mono">{props.priorRunId.trim()}</span>; answers apply to this review only.
+            </>
+          ) : (
+            <> Prior review id was not stored on this clarification round.</>
+          )}
         </p>
       </div>
 

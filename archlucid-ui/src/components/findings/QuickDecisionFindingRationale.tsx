@@ -10,6 +10,7 @@ import { findingDerivationFromQuickDecisionFinding } from "@/lib/findings/findin
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { sponsorSeverityInputFromFindingSeverityValue } from "@/lib/sponsor/sponsor-finding-severity-input";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { formatQuickDecisionFindingMessageDisplay } from "@/lib/quick-decision-finding-links";
 
 export type QuickDecisionFindingRationaleProps = {
   readonly runId: string;
@@ -37,7 +38,7 @@ export function QuickDecisionFindingRationale(
       <SponsorPlainEnglishFindingPanel
         input={{
           title: finding.title,
-          message: finding.recommendation,
+          message: formatQuickDecisionFindingMessageDisplay(finding.findingMessage ?? finding.recommendation),
           severity: sponsorSeverityInputFromFindingSeverityValue(finding.severityValue),
           derivationSentence: derivation.sentence,
           residualRisk: null,

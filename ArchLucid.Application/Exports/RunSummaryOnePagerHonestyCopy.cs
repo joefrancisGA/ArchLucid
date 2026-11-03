@@ -1,5 +1,7 @@
 namespace ArchLucid.Application.Exports;
 
+using ArchLucid.Application.Reporting;
+
 /// <summary>Omission copy for run summary one-pager markdown exports.</summary>
 internal static class RunSummaryOnePagerHonestyCopy
 {
@@ -46,11 +48,32 @@ internal static class RunSummaryOnePagerHonestyCopy
     internal const string TopFindingsCriticalErrorScopeLine =
         "This list includes Critical and Error findings only.";
 
+    internal const string TopFindingMessageLinePrefix = "Finding message: ";
+
+    internal const string TopFindingsMessagePrefixDisclaimer =
+        "Each bullet below is the stored finding message, not a recommended action or title.";
+
     internal const string FindingTitleStoredEmpty = "Finding title was stored empty.";
 
     internal const string AgentFindingsNotStored = "Agent findings were not stored.";
 
     internal const string SponsorReportNotStored = "Sponsor report was not stored.";
+
+    internal static string FormatTopFindingListLine(string? message)
+    {
+        if (message is null)
+        {
+            return TopFindingMessageLinePrefix + ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel;
+        }
+
+        if (message.Length == 0 || string.IsNullOrWhiteSpace(message))
+        {
+            return TopFindingMessageLinePrefix
+                + ArchitectureRunFindingsCsvFormatter.FindingMessageStoredEmptyLabel;
+        }
+
+        return TopFindingMessageLinePrefix + message.Trim();
+    }
 
     internal static string ResolveSystemName(string? systemName)
     {

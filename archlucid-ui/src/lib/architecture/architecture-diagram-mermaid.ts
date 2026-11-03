@@ -244,12 +244,10 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
   const edgeLinesAll = renderedEdges.map((edge) => {
-    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
-      nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
-    );
-    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
-      nodeLabelById.get(edge.targetId) ?? edge.targetId,
-    );
+    const sourceRaw = nodeLabelById.get(edge.sourceId);
+    const targetRaw = nodeLabelById.get(edge.targetId);
+    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(sourceRaw ?? "");
+    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(targetRaw ?? "");
     const inferred =
       edge.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);

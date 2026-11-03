@@ -1,6 +1,7 @@
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY } from "@/lib/quick-decision-finding-wire-fields";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import {
@@ -22,6 +23,13 @@ export const QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO =
 
 export const QUICK_DECISION_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
+export const QUICK_DECISION_EVIDENCE_GRAPH_NAV_DISCLAIMER =
+  "Graph link opens layout adjacency on this review, not a stored per-reference evidence URL." as const;
+
+export function quickDecisionEvidenceGraphLinkAccessibleLabel(visibleLabel: string): string {
+  return `${visibleLabel}. ${QUICK_DECISION_EVIDENCE_GRAPH_NAV_DISCLAIMER}`;
+}
+
 export function formatQuickDecisionFindingEvidenceLinkLabel(
   evidenceRefCount: number | null,
 ): string {
@@ -40,6 +48,22 @@ export function formatQuickDecisionFindingEvidenceLinkLabel(
 
 /** @deprecated Use {@link QUICK_DECISION_RECOMMENDATION_NOT_STORED}. */
 export const QUICK_DECISION_RECOMMENDATION_FALLBACK = QUICK_DECISION_RECOMMENDATION_NOT_STORED;
+
+export const QUICK_DECISION_FINDING_MESSAGE_NOT_STORED = "Finding message was not stored." as const;
+
+export function formatQuickDecisionFindingMessageDisplay(message: string): string {
+  if (message.length === 0) {
+    return QUICK_DECISION_FINDING_MESSAGE_NOT_STORED;
+  }
+
+  const trimmed = message.trim();
+
+  if (trimmed.length === 0) {
+    return QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY;
+  }
+
+  return trimmed;
+}
 
 export function formatQuickDecisionRecommendedAction(recommendation: string): string {
   if (recommendation.length === 0) {

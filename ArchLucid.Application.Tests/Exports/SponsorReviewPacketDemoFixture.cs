@@ -186,6 +186,7 @@ internal static class SponsorReviewPacketDemoFixture
                 new SponsorReviewPacketDecisionRow
                 {
                     Title = "PHI ingress classification",
+                    Category = "Security",
                     SelectedOption = "Enforce boundary classifier before persistence",
                     ConfidenceLabel = "Rule audit (0.92)",
                     EvidenceHref = string.Empty

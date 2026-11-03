@@ -197,6 +197,37 @@ export function humanReviewStatusDisplay(
   }
 }
 
+/** Helper copy under Decision state on the findings workspace primary card. */
+export function quickDecisionDecisionStateHelper(
+  reviewStatus: FindingHumanReviewStatusDisplay | null,
+  options?: { readonly stored?: boolean },
+): string {
+  if (options?.stored === false) {
+    return "No human review decision is stored on this finding.";
+  }
+
+  if (reviewStatus === null) {
+    return "No human review decision is stored on this finding.";
+  }
+
+  switch (reviewStatus.label) {
+    case "Pending review":
+      return "Human review is still open. Opening this card does not record a new decision.";
+    case "Approved":
+    case "Rejected":
+    case "Overridden":
+      return "The decision recorded for this finding. Opening this card does not change it.";
+    case "No human review required":
+      return "This finding did not require human review when stored.";
+    default:
+      return "The decision recorded for this finding. Opening this card does not record a new decision.";
+  }
+}
+
+export function formatQuickDecisionFindingOwnerStoredEmptyHelper(): string {
+  return "An owner field was stored empty on this finding.";
+}
+
 function normalizedSeverity(severityValue: number): number | null {
   if (!Number.isFinite(severityValue)) {
     return null;

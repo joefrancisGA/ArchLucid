@@ -63,6 +63,33 @@ export function formatQuickDecisionFindingOwnerDisplay(
   return owner;
 }
 
+export function formatQuickDecisionFindingOwnerHelper(
+  assignedToUserId: string | null | undefined,
+  emptyLabel = "Owner was not stored.",
+): string {
+  if (assignedToUserId === null || assignedToUserId === undefined) {
+    return "No owner name is stored on this finding.";
+  }
+
+  if (assignedToUserId.trim().length === 0) {
+    return "Remediation owner was stored empty.";
+  }
+
+  const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(assignedToUserId, emptyLabel);
+
+  if (ownerDisplay === emptyLabel || ownerDisplay === "Owner was stored empty.") {
+    return ownerDisplay === "Owner was stored empty."
+      ? "Remediation owner was stored empty."
+      : "No owner name is stored on this finding.";
+  }
+
+  if (ownerDisplay === "Owner display name was not stored.") {
+    return "Owner id was stored without a display name.";
+  }
+
+  return "The person recorded as responsible for this finding.";
+}
+
 export function isKnownQuickDecisionConfidenceLevel(
   confidenceLevel: string | null | undefined,
 ): confidenceLevel is "High" | "Medium" | "Low" {
