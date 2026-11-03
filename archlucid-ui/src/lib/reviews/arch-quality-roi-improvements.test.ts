@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -66,6 +66,57 @@ describe("first-review-spine-band", () => {
     expect(summary?.semanticSupportLine).toMatch(/Semantic support/i);
     expect(summary?.treatmentSummaryLine).toMatch(/Decision-grade:/i);
     expect(summary?.showDispositionNextAction).toBe(true);
+  });
+
+  it("resolveFirstReviewOpenGate prefers uncited findings over open dispositions", () => {
+    expect(
+      resolveFirstReviewOpenGate({
+        uncitedCount: 1,
+        openDecisionGradeDispositionCount: 2,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toEqual({ label: "Uncited finding", reviewTab: "findings" });
+  });
+
+  it("resolveFirstReviewOpenGate names uncommitted review when manifest is absent", () => {
+    expect(
+      resolveFirstReviewOpenGate({
+        uncitedCount: 0,
+        openDecisionGradeDispositionCount: 0,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toEqual({ label: "Uncommitted review", reviewTab: "review-package" });
+  });
+
+  it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {
+    const summary = deriveFirstReviewSpineBandSummary({
+      feasibilityVerdict: { kind: "SoftInfeasible", summary: "Gate summary.", transparencyTrail: null },
+      structuralExecutionMode: "Simulator",
+      findings: [finding({ findingId: "dg", title: "Decision grade", severityValue: 2 })],
+      reviewHasGoldenManifest: false,
+    });
+
+    expect(summary?.openGateLabel).toBe("Open disposition");
+    expect(summary?.openGateReviewTab).toBe("findings");
+  });
+
+  it("deriveFirstReviewSpineBandSummary reports no open gate when review is sealed and findings are cited", () => {
+    const summary = deriveFirstReviewSpineBandSummary({
+      feasibilityVerdict: { kind: "Feasible", summary: "Clear.", transparencyTrail: null },
+      structuralExecutionMode: "Simulator",
+      findings: [
+        finding({
+          findingId: "cl",
+          title: "Checklist item",
+          classification: "ChecklistFinding",
+          evidenceRefCount: 2,
+        }),
+      ],
+      reviewHasGoldenManifest: true,
+    });
+
+    expect(summary?.openGateLabel).toBeNull();
+    expect(summary?.openGateReviewTab).toBeNull();
   });
 });
 
