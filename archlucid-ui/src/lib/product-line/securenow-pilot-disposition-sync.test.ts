@@ -48,12 +48,27 @@ describe("securenow pilot disposition sync", () => {
 
     writeSecureNowPilotDisposition("path-2", { outcome: "Proceed", rationale: "Old copy." });
 
-    const error = await persistSecureNowPilotDispositionForPath("path-2", {
+    const result = await persistSecureNowPilotDispositionForPath("path-2", {
       outcome: "Extend",
       rationale: "More time.",
     });
 
-    expect(error).toBeNull();
+    expect(result).toEqual({ status: "saved", tenantAuditRecorded: true });
     expect(saveDisposition).toHaveBeenCalledWith("path-2", { outcome: "Extend", rationale: "More time." });
+  });
+
+  it("returns an error outcome when tenant audit save fails", async () => {
+    saveDisposition.mockResolvedValueOnce({
+      succeeded: false,
+      errorMessage: "Audit write rejected.",
+      disposition: null,
+    });
+
+    const result = await persistSecureNowPilotDispositionForPath("path-3", {
+      outcome: "Stop",
+      rationale: "Pilot stop.",
+    });
+
+    expect(result).toEqual({ status: "error", errorMessage: "Audit write rejected." });
   });
 });

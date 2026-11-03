@@ -8,6 +8,10 @@ import {
   type SecureNowPilotDispositionRecord,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 
+export type SecureNowPilotDispositionPersistOutcome =
+  | { readonly status: "saved"; readonly tenantAuditRecorded: true }
+  | { readonly status: "error"; readonly errorMessage: string };
+
 export async function loadSecureNowPilotDispositionForPath(
   pathId: string,
 ): Promise<SecureNowPilotDispositionRecord | null> {
@@ -35,23 +39,23 @@ export async function loadSecureNowPilotDispositionForPath(
 export async function persistSecureNowPilotDispositionForPath(
   pathId: string,
   record: SecureNowPilotDispositionRecord,
-): Promise<string | null> {
+): Promise<SecureNowPilotDispositionPersistOutcome> {
   const trimmed = pathId.trim();
 
   if (trimmed.length === 0) {
-    return "Path id is required.";
+    return { status: "error", errorMessage: "Path id is required." };
   }
 
   try {
     const result = await saveSecureNowPilotPathDisposition(trimmed, record);
 
     if (!result.succeeded) {
-      return result.errorMessage ?? "Path disposition save failed.";
+      return { status: "error", errorMessage: result.errorMessage ?? "Path disposition save failed." };
     }
   } catch {
-    return "Path disposition save failed.";
+    return { status: "error", errorMessage: "Path disposition save failed." };
   }
 
   writeSecureNowPilotDisposition(trimmed, record);
-  return null;
+  return { status: "saved", tenantAuditRecorded: true };
 }

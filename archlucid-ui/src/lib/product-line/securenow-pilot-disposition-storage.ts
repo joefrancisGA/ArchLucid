@@ -3,6 +3,9 @@ export const SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX = "securenow-pilot-dispo
 export const SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE =
   "Tenant audit is authoritative; this browser copy is a cache. It does not clear beta NO_GO." as const;
 
+export const SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE =
+  "Saved to tenant audit for this workspace. Browser copy updated." as const;
+
 export type SecureNowPilotDispositionRecord = {
   readonly outcome: string;
   readonly rationale: string;

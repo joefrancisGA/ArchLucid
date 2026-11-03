@@ -11,6 +11,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   secureNowPilotDispositionStorageKey,
   SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
+  SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   loadSecureNowPilotDispositionForPath,
@@ -26,12 +27,14 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const [rationale, setRationale] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
+  const [tenantAuditSaved, setTenantAuditSaved] = useState(false);
 
   useEffect(() => {
     if (pathId.length === 0) {
       setOutcome("");
       setRationale("");
       setSavedDisposition(null);
+      setTenantAuditSaved(false);
       return;
     }
 
@@ -46,6 +49,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
         setOutcome("");
         setRationale("");
         setSavedDisposition(null);
+        setTenantAuditSaved(false);
         return;
       }
 
@@ -72,14 +76,16 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
 
     const record = { outcome, rationale: rationale.trim() };
 
-    void persistSecureNowPilotDispositionForPath(pathId, record).then((errorMessage) => {
-      if (errorMessage !== null) {
-        setSaveError(errorMessage);
+    void persistSecureNowPilotDispositionForPath(pathId, record).then((outcome) => {
+      if (outcome.status === "error") {
+        setSaveError(outcome.errorMessage);
+        setTenantAuditSaved(false);
         return;
       }
 
       setSavedDisposition(record);
       setSaveError(null);
+      setTenantAuditSaved(true);
     });
   };
 
@@ -144,6 +150,11 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
               {savedDisposition !== null ? (
                 <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-sponsor-path-saved-disposition">
                   Saved {savedDisposition.outcome}: {savedDisposition.rationale}
+                </p>
+              ) : null}
+              {tenantAuditSaved ? (
+                <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-tenant-audit-saved">
+                  {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
                 </p>
               ) : null}
               {savedDisposition?.outcome === "Stop" ? (

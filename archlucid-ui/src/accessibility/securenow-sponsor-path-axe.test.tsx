@@ -16,7 +16,10 @@ vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
 
 vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
   loadSecureNowPilotDispositionForPath: vi.fn(async () => null),
-  persistSecureNowPilotDispositionForPath: vi.fn(async () => null),
+  persistSecureNowPilotDispositionForPath: vi.fn(async () => ({
+    status: "saved",
+    tenantAuditRecorded: true,
+  })),
 }));
 
 describe("SecureNow sponsor path — axe", () => {

@@ -58,6 +58,9 @@ export const SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD =
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON = "Grounded on" as const;
 
+export const SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG =
+  "Stored-path fallback — citation rejected" as const;
+
 export const SECURENOW_PATH_RANKED_PATHS_TITLE = secureNowTitleCase("Ranked architect paths");
 
 export const SECURENOW_PATH_RANKED_PATHS_LEAD =
