@@ -2608,3 +2608,4 @@
 {"at":"2026-11-03T13:32:11.7479384Z","zoneId":"finding-disposition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T13:36:35.3786342Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T13:42:07.4218882Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T13:46:36.0149776Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
