@@ -16,8 +16,12 @@ describe("architecture-clarification-gap-present", () => {
     expect(formatGapCapturedAtLabel("2026-01-15T12:00:00Z")).toMatch(/^captured .* UTC$/);
   });
 
-  it("appends captured time honesty to the gap source label", () => {
-    const source = buildClarificationGapSourcePresentation({ capturedAtUtc: null, fromHandoff: true });
+  it("appends captured time honesty to the gap source label when findings-derived", () => {
+    const source = buildClarificationGapSourcePresentation({
+      capturedAtUtc: null,
+      fromHandoff: false,
+      findingsDerived: true,
+    });
     expect(formatClarificationGapSourceLabel(source)).toContain("Captured time was not stored.");
   });
 
