@@ -10,14 +10,16 @@ public static partial class SponsorReviewPacketComposer
     private static void AppendTopDecisionsSection(
         StringBuilder sb,
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions,
-        int omittedTopDecisionsCount = 0)
+        int omittedTopDecisionsCount = 0,
+        bool reviewIdNotGuid = false)
     {
         sb.AppendLine("## First five decisions (not ranked)");
         sb.AppendLine();
 
         if (topDecisions is null || topDecisions.Count == 0)
         {
-            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored}");
+            sb.AppendLine(
+                $"- {(reviewIdNotGuid ? SponsorReviewPacketExportHonestyCopy.DecisionRegisterReviewIdNotGuid : SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored)}");
             sb.AppendLine();
             return;
         }
@@ -66,6 +68,9 @@ public static partial class SponsorReviewPacketComposer
     {
         sb.AppendLine("## Portfolio signals (snapshot at export)");
         sb.AppendLine();
+        sb.AppendLine(
+            $"- {SponsorReviewPacketExportHonestyCopy.PortfolioSignalsWorkspaceSnapshotDisclaimer}");
+        sb.AppendLine();
 
         if (portfolioSignals is null)
         {
@@ -95,7 +100,8 @@ public static partial class SponsorReviewPacketComposer
 
         if (nextActions.Count == 0)
         {
-            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.NextActionNotStored}");
+            sb.AppendLine(
+                $"- {(portfolioSignals.NextActions.Count == 0 ? SponsorReviewPacketExportHonestyCopy.PortfolioNextActionsDerivedEmpty : SponsorReviewPacketExportHonestyCopy.NextActionNotStored)}");
         }
         else
         {

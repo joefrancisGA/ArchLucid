@@ -10,6 +10,7 @@ export {
   type FindingHumanReviewStatusDisplay,
   normalizeFindingHumanReviewStatus,
   humanReviewStatusDisplay,
+  quickDecisionDecisionStateHelper,
   coerceArchitectureFindingSeverity,
 } from "@/lib/quick-decision-severity-labels";
 

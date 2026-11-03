@@ -38,11 +38,11 @@ function renderTypeChip(type: { readonly name: string | null; readonly count: nu
     type.name === null
       ? type.count == null
         ? "Type name was not stored. Count was not stored."
-        : `Type name was not stored ${type.count}`
+        : `Type name was not stored. ${type.count} stored.`
       : type.name.length === 0
         ? type.count == null
           ? "Type name was stored empty. Count was not stored."
-          : `Type name was stored empty. ${type.count}`
+          : `Type name was stored empty. ${type.count} stored.`
         : type.count == null
           ? `${type.name} — count was not stored`
           : `${type.name} — ${type.count} stored`;

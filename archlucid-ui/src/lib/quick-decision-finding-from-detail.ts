@@ -21,6 +21,8 @@ export type QuickDecisionFinding = {
   findingId: string;
   title: string;
   category?: string | null;
+  /** Stored ArchitectureFinding message body when present (distinct from recommended action). */
+  findingMessage?: string;
   recommendation: string;
   /** Raw `FindingSeverity` enum numeric from API (higher = more severe). */
   severityValue: number | null;
@@ -159,6 +161,7 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
   return {
     findingId,
     title,
+    findingMessage: "",
     recommendation,
     severityValue: severityValueFromTraceRow(row),
     findingOrder: order,
@@ -232,7 +235,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         const trimmed = categoryRaw.trim();
         category = trimmed.length > 0 ? trimmed : "";
       }
-      const { title, recommendation } = resolveQuickDecisionFindingPresentation(fr);
+      const { title, findingMessage, recommendation } = resolveQuickDecisionFindingPresentation(fr);
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
           ? fr.reasoningTrace.trim()
@@ -361,6 +364,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
             : category.length > 0
               ? category
               : "",
+        findingMessage,
         recommendation,
         severityValue,
         severityStored,

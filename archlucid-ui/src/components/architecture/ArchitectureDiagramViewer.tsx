@@ -81,6 +81,7 @@ import {
 } from '@/lib/help/help-mermaid';
 import {
   applySecureNowQuestionSubjectHighlight,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_MAP_SURFACE_NOTE,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY,
@@ -666,7 +667,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [questionSubjectBanner, setQuestionSubjectBanner] = useState<
-    "not-stored" | "stored-empty" | "not-found" | null
+    "not-stored" | "stored-empty" | "not-found" | "map-surface" | null
   >(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
@@ -866,6 +867,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
+    if (effectiveSurface === "map") {
+      applySecureNowQuestionSubjectHighlight(svg, null);
+      setQuestionSubjectBanner("map-surface");
+      return;
+    }
+
     if (questionSubjectNodeId.length === 0) {
       applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
       setQuestionSubjectBanner("not-stored");
@@ -880,7 +887,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     const subjectFound = applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
     setQuestionSubjectBanner(subjectFound ? null : "not-found");
-  }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
+  }, [effectiveSurface, questionSubjectNodeId, sanitizedSvg, focusNonce]);
 
   const syncInlineViewportCamera = useCallback((): boolean => {
     const host = svgHostRef.current;
@@ -1573,6 +1580,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED
             : questionSubjectBanner === "stored-empty"
               ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY
+              : questionSubjectBanner === "map-surface"
+                ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_MAP_SURFACE_NOTE
               : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
         </p>
       ) : null}
