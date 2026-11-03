@@ -79,7 +79,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(runId, finding);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus, {
-    stored: finding.humanReviewStatusStored,
+    stored: finding.humanReviewStatusStored !== false,
   });
   const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(
     finding.assignedToUserId,
@@ -111,7 +111,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       : "How many evidence references support this finding.";
   const decisionStateLabel = reviewStatus?.label ?? "Human review status was not stored";
   const decisionStateHelper = quickDecisionDecisionStateHelper(reviewStatus, {
-    stored: finding.humanReviewStatusStored,
+    stored: finding.humanReviewStatusStored !== false,
   });
 
   return (
