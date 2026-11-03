@@ -40,7 +40,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string? activeTrialExportNotice = null,
         string? careerExportHonestyPlainText = null,
         string? sendableExportCoverPlainText = null,
-        string? architectRestatementMarkdown = null)
+        string? architectRestatementMarkdown = null,
+        string? sponsorReportGeneratedDisclaimer = null)
 
         => RunSummaryOnePagerDocumentFactory.Create(
             detail,
@@ -49,7 +50,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             activeTrialExportNotice,
             careerExportHonestyPlainText: careerExportHonestyPlainText,
             sendableExportCoverPlainText: sendableExportCoverPlainText,
-            architectRestatementMarkdown: architectRestatementMarkdown);
+            architectRestatementMarkdown: architectRestatementMarkdown,
+            sponsorReportGeneratedDisclaimer: sponsorReportGeneratedDisclaimer);
 
 
     /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>

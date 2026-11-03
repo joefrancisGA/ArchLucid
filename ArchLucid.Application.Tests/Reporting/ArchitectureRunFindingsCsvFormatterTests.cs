@@ -74,6 +74,20 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void FormatSeverityForExport_labels_unstored_severity_on_finding()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Severity = FindingSeverity.Critical,
+            SeverityStored = false,
+        };
+
+        ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(finding)
+            .Should()
+            .Be("Severity was not stored.");
+    }
+
+    [Fact]
     public void BuildCsvContent_exports_evaluation_confidence_when_agent_confidence_is_absent()
     {
         ArchitectureFinding finding = new()

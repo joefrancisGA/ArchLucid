@@ -120,7 +120,7 @@ describe("run-detail-evidence-inventory", () => {
     });
 
     expect(items).toHaveLength(1);
-    expect(items[0]?.sourceName).toBe("storageAccount.bicep");
+    expect(items[0]?.sourceName).toBe(RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED);
     expect(items[0]?.kind).toBe(RUN_DETAIL_EVIDENCE_KIND_NOT_STORED);
     expect(items[0]?.inventoryKind).toBe("citation");
     expect(items[0]?.citingFindingCount).toBe(2);

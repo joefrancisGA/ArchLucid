@@ -35,6 +35,9 @@ export const ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION = "View Mermaid source" as
 export const ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE =
   "Technical diagram source for review or export — not the finalized architecture record." as const;
 
+export const ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE =
+  "Saved Mermaid source is shown below. The rendered diagram follows the generated model when they differ." as const;
+
 export const ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION = "Copy Mermaid source" as const;
 
 export const ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION = "Download diagram" as const;

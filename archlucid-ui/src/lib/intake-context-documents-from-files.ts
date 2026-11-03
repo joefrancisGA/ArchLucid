@@ -38,6 +38,9 @@ const INTAKE_CONTEXT_DOCUMENT_MAX_CHARS = 500_000;
 
 const INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS = 500;
 
+export const INTAKE_DUPLICATE_CATALOG_FILE_NAME_MESSAGE =
+  "Duplicate catalog file name — both uploads were kept." as const;
+
 export type BuildIntakeContextDocumentsOptions = {
   /** ESI catalog ids keyed by trimmed attachment file name (AS-014 binds after upload). */
   readonly storedEvidenceIdsByFileName?: Readonly<Record<string, string>>;
@@ -53,8 +56,39 @@ export async function buildIntakeContextDocumentsFromEvidenceFiles(
   files: readonly File[],
   options?: BuildIntakeContextDocumentsOptions,
 ): Promise<CreateArchitectureRunDocumentPayload[]> {
+  const seenLowerNames = new Map<string, number>();
   const documents = await Promise.all(
-    files.map((file) => toIntakeContextDocument(file, options)),
+    files.map(async (file) => {
+      const trimmedName = file.name.trim();
+      const lower = trimmedName.toLowerCase();
+      const seenCount = seenLowerNames.get(lower) ?? 0;
+      seenLowerNames.set(lower, seenCount + 1);
+
+      let disambiguatedName = trimmedName;
+
+      if (seenCount > 0) {
+        const suffix = ` (${seenCount + 1})`;
+        disambiguatedName = `${trimmedName.slice(0, INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS - suffix.length)}${suffix}`;
+      }
+
+      const document = await toIntakeContextDocument(
+        new File([file], disambiguatedName, { type: file.type }),
+        options,
+      );
+
+      if (document === null || seenCount === 0) {
+        return document;
+      }
+
+      return {
+        ...document,
+        name: document.name,
+        content:
+          typeof document.content === "string"
+            ? `${INTAKE_DUPLICATE_CATALOG_FILE_NAME_MESSAGE}\n\n${document.content}`
+            : document.content,
+      };
+    }),
   );
 
   return documents.filter(

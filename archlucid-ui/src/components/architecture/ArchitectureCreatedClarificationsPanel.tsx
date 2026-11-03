@@ -151,7 +151,9 @@ export function ArchitectureCreatedClarificationsPanel(
     && !showIntakeOpenQuestions
     && !openQuestionsEntitiesOmitted;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
+  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta, {
+    priorRunId: props.priorRunId ?? null,
+  });
   const clarificationQuestions = props.clarificationQuestions ?? [];
   const pathname = usePathname() ?? "/";
   const readAnsweredBriefOpenFromUrl = (): boolean =>
@@ -243,7 +245,7 @@ export function ArchitectureCreatedClarificationsPanel(
       {props.clarificationRoundAvailable === true ? (
         <ClarificationAnswerCapturePanel
           runId={props.model.runId}
-          priorRunId={props.priorRunId ?? props.model.runId}
+          priorRunId={props.priorRunId?.trim() ?? ""}
           questions={clarificationQuestions}
           freeTextIntent={props.sourceText}
         />
