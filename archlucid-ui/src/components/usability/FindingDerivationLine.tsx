@@ -72,9 +72,11 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
   const evidenceActionLabel =
     evidenceRefCount === null || evidenceRefCount === undefined
       ? "Evidence reference count was not stored"
-      : citedEvidenceCount > 0
-        ? "Show evidence"
-        : "Open finding";
+      : citedEvidenceCount === 0
+        ? "0 evidence references were stored"
+        : citedEvidenceCount > 0
+          ? "Show evidence"
+          : "Open finding";
   const sentenceAlreadyPrefixed =
     derivation.sentence.startsWith(FINDING_DERIVATION_ASSEMBLED_PREFIX)
     || derivation.sentence.startsWith("Assembled from stored rule fields, not a stored explanation.");

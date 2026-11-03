@@ -25,14 +25,16 @@ function shouldShowCreateHomeProvenanceAsOf(label: string): boolean {
     return false;
   }
 
-  return trimmed !== "Not recorded" && trimmed !== "Date not readable";
+  return trimmed !== "Not recorded"
+    && trimmed !== "Date not readable"
+    && trimmed !== "Provenance as-of was not loaded on this page.";
 }
 
 function formatCreateHomeProvenanceTimeHonesty(label: string): string | null {
   const trimmed = label.trim();
 
   if (trimmed.length === 0 || trimmed === "Not recorded" || trimmed === "—" || trimmed === " — ") {
-    return "Provenance time was not stored.";
+    return "Provenance as-of was not loaded on this page.";
   }
 
   if (trimmed === "Date not readable") {
