@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX } from "@/lib/architecture-spine/pixel-diagram-not-verifiable-warnings";
+import { PIXEL_DIAGRAM_FILE_NAME_NOT_STORED } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import {
   formatArchitectureDeskDiagramSourceRow,
   readArchitectureDeskDiagramSourcesFromContextSnapshot,
@@ -73,6 +74,37 @@ describe("readArchitectureDeskDiagramSourcesFromContextSnapshot (AS-044)", () =>
     expect(rows).toHaveLength(2);
     expect(rows[0]?.status).toBe("analyzed");
     expect(rows[1]?.status).toBe("not-extracted");
+  });
+
+  it("maps missing file warnings to a single not-extracted row", () => {
+    const rows = readArchitectureDeskDiagramSourcesFromContextSnapshot({
+      warnings: [
+        `${PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX}mime=image/png;evidenceItemId=none;pending=none`,
+        `${PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX}mime=image/jpeg;evidenceItemId=none;pending=none`,
+      ],
+    });
+
+    expect(rows).toEqual([
+      {
+        sourceKey: "pixel:file-name-not-stored",
+        label: PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
+        status: "not-extracted",
+        nodeCount: null,
+      },
+    ]);
+  });
+
+  it("keeps missing-name and stored-name rows distinct when the file token matches the display sentence", () => {
+    const rows = readArchitectureDeskDiagramSourcesFromContextSnapshot({
+      warnings: [
+        `${PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX}mime=image/png;evidenceItemId=none;pending=none`,
+        `${PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX}file=${PIXEL_DIAGRAM_FILE_NAME_NOT_STORED};mime=image/png;evidenceItemId=none;pending=none`,
+      ],
+    });
+
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.sourceKey).toBe("pixel:file-name-not-stored");
+    expect(rows[1]?.sourceKey).toBe(`pixel:${PIXEL_DIAGRAM_FILE_NAME_NOT_STORED}`);
   });
 
   it("formats operator-facing row labels without claiming screenshot analysis", () => {

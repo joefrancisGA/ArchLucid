@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
   PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE,
+  PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE,
   formatPixelDiagramNotVerifiableLabel,
   parsePixelDiagramNotVerifiableWarning,
   readPixelDiagramNotVerifiableSourcesFromContextSnapshot,
@@ -43,6 +45,33 @@ describe("pixel diagram not verifiable sources (AS-005)", () => {
 
   it("returns null for unrelated warnings", () => {
     expect(parsePixelDiagramNotVerifiableWarning("No parser for foo.bin")).toBeNull();
+  });
+
+  it("parses missing file token as null and uses topology-not-extracted copy", () => {
+    const parsed = parsePixelDiagramNotVerifiableWarning(
+      `${PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX}mime=image/png;evidenceItemId=none;pending=none`,
+    );
+
+    expect(parsed?.fileName).toBeNull();
+
+    const label = formatPixelDiagramNotVerifiableLabel(parsed!);
+
+    expect(label).toContain(PIXEL_DIAGRAM_FILE_NAME_NOT_STORED);
+    expect(label).toContain(PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE);
+    expect(label).not.toContain(PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE);
+  });
+
+  it("treats a stored filename that matches the missing-name sentence as a real file", () => {
+    const label = formatPixelDiagramNotVerifiableLabel({
+      fileName: PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
+      sourceMimeType: "image/png",
+      evidenceItemId: null,
+      pendingStoredFileMarker: null,
+    });
+
+    expect(label).toContain(PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE);
+    expect(label).toContain(PIXEL_DIAGRAM_FILE_NAME_NOT_STORED);
+    expect(label).not.toContain(PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE);
   });
 
   it("surfaces pixel diagram labels on measurement floor presentation", () => {
