@@ -104,6 +104,9 @@ public static class RunSummaryOnePagerDocumentFactory
             TopHighCriticalRemainderLine = topHighCriticalRemainder > 0
                 ? $"{topHighCriticalRemainder} {RunSummaryOnePagerHonestyCopy.TopHighCriticalRemainderLine}"
                 : null,
+            TopFindingsScopeLine = agentFindingsStored && topTitles.Length > 0
+                ? RunSummaryOnePagerHonestyCopy.TopFindingsCriticalErrorScopeLine
+                : null,
             SponsorReportGeneratedDisclaimer = string.IsNullOrWhiteSpace(sponsorReportGeneratedDisclaimer)
                 ? null
                 : sponsorReportGeneratedDisclaimer.Trim(),

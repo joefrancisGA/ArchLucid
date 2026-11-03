@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-copy";
+import { guidedIntakeClarificationsAnsweredCounter, GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT } from "@/lib/guided-intake-copy";
 import {
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER,
@@ -346,6 +346,9 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
       <div className="space-y-4">
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Quick start collects the same baseline facts Guided questions requires before analysis begins.
+        </p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT}
         </p>
 
         {props.isSuggestingFromEvidence === true ? <EvidenceExtractionAwaitingSkeleton /> : null}

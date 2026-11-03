@@ -89,6 +89,9 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
     case "summary":
       return (
         <div className="space-y-2" data-testid="evidence-gap-forecast-summary-block">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {EVIDENCE_GAP_FORECAST_DISCLAIMER}
+          </p>
           <CoverageSummaryLine summaryLine={summaryLine} />
           <AttachmentHonestyNotices notices={attachmentHonestyNotices} />
         </div>

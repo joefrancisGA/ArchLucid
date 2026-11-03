@@ -20,6 +20,8 @@ export const QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED =
 export const QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO =
   "Zero evidence references were stored." as const;
 
+export const QUICK_DECISION_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
 export function formatQuickDecisionFindingEvidenceLinkLabel(
   evidenceRefCount: number | null,
 ): string {
@@ -31,7 +33,9 @@ export function formatQuickDecisionFindingEvidenceLinkLabel(
     return QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO;
   }
 
-  return "Evidence link was not stored";
+  const noun = evidenceRefCount === 1 ? "reference was" : "references were";
+
+  return `${evidenceRefCount} evidence ${noun} stored — ${QUICK_DECISION_EVIDENCE_LINK_NOT_STORED}`;
 }
 
 /** @deprecated Use {@link QUICK_DECISION_RECOMMENDATION_NOT_STORED}. */

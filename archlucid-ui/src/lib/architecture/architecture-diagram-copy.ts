@@ -169,6 +169,12 @@ export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
 
 export const ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP = 48;
 
+export function formatArchitectureDiagramDanglingConnectionsOmittedLine(omittedConnectionCount: number): string {
+  const noun = omittedConnectionCount === 1 ? "connection was" : "connections were";
+
+  return `${omittedConnectionCount} ${noun} left off this diagram because an endpoint was not on the diagram.`;
+}
+
 export function formatArchitectureDiagramTextAlternativeOverflowNotice(
   omittedNodeCount: number,
   omittedEdgeCount: number,

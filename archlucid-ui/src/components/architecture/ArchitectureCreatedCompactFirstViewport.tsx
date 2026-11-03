@@ -5,6 +5,7 @@ import { ArchitectureDiagramPanel } from "@/components/architecture/Architecture
 import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
+  ARCHITECTURE_CREATED_CONTEXT_BAR_PURPOSE_TRUNCATED_SUFFIX,
   ARCHITECTURE_DEFINITION_STATUS_HELPER,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
@@ -80,7 +81,9 @@ export function ArchitectureCreatedCompactFirstViewport(
   const compactPrimaryVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (mode === "context-bar") {
-    const summaryPreview = summaryFields[0]?.value ?? ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
+    const businessPurposeField = summaryFields.find((field) => field.label === "Business purpose");
+    const purposeValue = businessPurposeField?.value ?? ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
+    const purposeTruncated = purposeValue.endsWith("… (Full business purpose was stored.)");
 
     return (
       <section
@@ -88,12 +91,23 @@ export function ArchitectureCreatedCompactFirstViewport(
         data-testid="architecture-created-compact-context-bar"
         aria-label="Architecture context"
       >
-        <p className={cn("m-0 truncate text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <span className="font-medium text-neutral-900 dark:text-neutral-100">{model.architectureName}</span>
           <span className="text-neutral-500 dark:text-neutral-400"> · </span>
-          {summaryPreview}
+          <span className={purposeTruncated ? "truncate inline-block max-w-[14rem] align-bottom" : undefined}>
+            {purposeValue}
+          </span>
+          {purposeTruncated ? (
+            <span className="text-neutral-500 dark:text-neutral-400">
+              {" "}
+              {ARCHITECTURE_CREATED_CONTEXT_BAR_PURPOSE_TRUNCATED_SUFFIX}
+            </span>
+          ) : null}
           <span className="text-neutral-500 dark:text-neutral-400"> · </span>
           {model.definitionStatusLabel}
+        </p>
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+          {ARCHITECTURE_DEFINITION_STATUS_HELPER}
         </p>
       </section>
     );

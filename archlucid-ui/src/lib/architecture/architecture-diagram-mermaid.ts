@@ -5,6 +5,7 @@ import {
   ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP,
   formatArchitectureDiagramTextAlternativeOverflowNotice,
   formatArchitectureDiagramUnlabeledComponentsNotice,
+  formatArchitectureDiagramDanglingConnectionsOmittedLine,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
@@ -36,6 +37,15 @@ export const RECORDED_ARCHITECTURE_COMPONENTS_REMOVED_FROM_DIAGRAM =
 
 export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
   "A connection was left off this diagram because an endpoint was not on the diagram." as const;
+
+function countDanglingArchitectureDiagramEdges(
+  activeEdges: ArchitectureDiagramModel["edges"],
+  activeNodeIds: ReadonlySet<string>,
+): number {
+  return activeEdges.filter(
+    (edge) => !activeNodeIds.has(edge.sourceId) || !activeNodeIds.has(edge.targetId),
+  ).length;
+}
 
 function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
   if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
@@ -138,11 +148,8 @@ export function architectureDiagramModelToMermaid(
   }
 
   const activeEdges = model.edges.filter((edge) => !edge.removed);
-  const danglingEdgeOmitted = activeEdges.some(
-    (edge) =>
-      !activeNodes.some((node) => node.id === edge.sourceId)
-      || !activeNodes.some((node) => node.id === edge.targetId),
-  );
+  const activeNodeIds = new Set(activeNodes.map((node) => node.id));
+  const danglingConnectionCount = countDanglingArchitectureDiagramEdges(activeEdges, activeNodeIds);
 
   for (const edge of activeEdges) {
     const sourceExists = activeNodes.some((node) => node.id === edge.sourceId);
@@ -161,8 +168,11 @@ export function architectureDiagramModelToMermaid(
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
   }
 
-  if (danglingEdgeOmitted) {
-    const omissionLabel = escapeMermaidLabel(ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED, peerResourceNames);
+  if (danglingConnectionCount > 0) {
+    const omissionLabel = escapeMermaidLabel(
+      formatArchitectureDiagramDanglingConnectionsOmittedLine(danglingConnectionCount),
+      peerResourceNames,
+    );
     lines.push(`  diagramOmissionNote["${omissionLabel}"]:::inferredNode`);
   }
 
@@ -177,9 +187,14 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
   const omittedConnectionCount = activeEdges.length - renderedEdges.length;
-  const danglingEdgeOmitted = activeEdges.some(
-    (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
+  const danglingConnectionCount = countDanglingArchitectureDiagramEdges(
+    activeEdges,
+    new Set(nodeLabelById.keys()),
   );
+  const danglingEdgeLine =
+    danglingConnectionCount > 0
+      ? formatArchitectureDiagramDanglingConnectionsOmittedLine(danglingConnectionCount)
+      : null;
   const boundaryLine =
     model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
   const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
@@ -190,7 +205,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const tailParts = [
     boundaryLine,
     skippedUnlabeledLine,
-    danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null,
+    danglingEdgeLine,
     ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
@@ -251,9 +266,8 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   );
   const edgeLines = cappedEdgeLines;
 
-  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
   const omittedConnectionLine =
-    !danglingEdgeOmitted && omittedConnectionCount > 0
+    danglingConnectionCount === 0 && omittedConnectionCount > 0
       ? `${ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX} ${omittedConnectionCount}`
       : null;
 

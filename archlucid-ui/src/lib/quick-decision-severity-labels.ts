@@ -9,10 +9,23 @@ export function firstRecommendationSentence(text: string): string {
     return "";
   }
 
-  const match = /^[\s\S]*?[.!?](?=\s|$)/.exec(t);
+  for (let index = 0; index < t.length; index += 1) {
+    const ch = t[index];
 
-  if (match !== null) {
-    return match[0].trim();
+    if (ch !== "." && ch !== "!" && ch !== "?") {
+      continue;
+    }
+
+    const sliceStart = Math.max(0, index - 3);
+    const window = t.slice(sliceStart, index + 1).toLowerCase();
+
+    if (window.endsWith("e.g.") || window.endsWith("i.e.")) {
+      continue;
+    }
+
+    if (index + 1 >= t.length || /\s/u.test(t[index + 1] ?? "")) {
+      return t.slice(0, index + 1).trim();
+    }
   }
 
   return t;
