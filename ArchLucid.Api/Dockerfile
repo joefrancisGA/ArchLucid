@@ -147,6 +147,7 @@ RUN apk update --no-cache \
          "openssl>=3.5.6-r0" \
          "libssl3>=3.5.6-r0" \
          "libcrypto3>=3.5.6-r0" \
+         "libexpat>=2.10.0-r0" \
     && apk add --no-cache icu-libs nodejs npm chromium ttf-dejavu fontconfig graphviz \
     && npm install -g @mermaid-js/mermaid-cli@11 \
     && npm cache clean --force \
