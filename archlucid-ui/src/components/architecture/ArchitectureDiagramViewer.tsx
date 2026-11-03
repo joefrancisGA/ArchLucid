@@ -95,6 +95,35 @@ const ZOOM_STEP = 0.1;
 const DIAGRAM_EDGE_ENDPOINT_NOT_STORED = 'Edge endpoint was not stored.';
 const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
 const DIAGRAM_MEMBER_NAME_STORED_EMPTY = 'Diagram member name was stored empty.';
+const DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED = 'Resource name was not stored.';
+const DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY = 'Resource name was stored empty.';
+
+function formatDiagramClickFocusHeading(focus: {
+  readonly name: string;
+  readonly memberNames?: readonly string[];
+}): string {
+  if (focus.memberNames !== undefined) {
+    if (focus.name.length > 0) {
+      return focus.name;
+    }
+
+    return focus.name.length === 0
+      ? DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED
+      : DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY;
+  }
+
+  const trimmed = focus.name.trim();
+
+  if (trimmed.length > 0) {
+    return `Showing connections for ${trimmed}.`;
+  }
+
+  if (focus.name.length === 0) {
+    return `Showing connections for ${DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED}.`;
+  }
+
+  return `Showing connections for ${DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY}.`;
+}
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
 const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
@@ -1441,11 +1470,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           aria-live="polite"
         >
           <p className="m-0">
-            {clickFocus.memberNames !== undefined
-              ? clickFocus.name.length > 0
-                ? clickFocus.name
-                : "Resource name was not stored."
-              : `Diagram click focus (not stored metadata): connections for ${clickFocus.name.trim().length > 0 ? clickFocus.name : "Resource name was not stored."}.`}
+            {formatDiagramClickFocusHeading(clickFocus)}
           </p>
           {focusedNodeConnectionHint !== null ? (
             <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
@@ -1526,9 +1551,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             {ARCHITECTURE_DIAGRAM_MAP_LABEL}
           </Button>
           <span className={cn('text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}>
-            {(activeNeighborhood.title ?? "").trim().length > 0
-              ? activeNeighborhood.title
-              : "Neighborhood title was not stored."}
+            {activeNeighborhood.title === null || activeNeighborhood.title === undefined
+              ? "Neighborhood title was not stored."
+              : activeNeighborhood.title.trim().length > 0
+                ? activeNeighborhood.title
+                : "Neighborhood title was stored empty."}
           </span>
         </div>
       ) : null}

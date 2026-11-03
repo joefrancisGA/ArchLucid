@@ -170,11 +170,6 @@ internal static class DiagramForestEdgeLabelSvgEmitter
             return edgeGroup;
         }
 
-        if (relationshipNotStored && suppressEmptyRelationshipOnPathLabel && !privateEndpointEdge)
-        {
-            return edgeGroup;
-        }
-
         double labelWidth = EstimateLabelWidth(label);
         double labelHeight = LabelFontSize + (LabelPaddingY * 2.0d);
         (double labelX, double labelY) = ResolveLabelAnchor(

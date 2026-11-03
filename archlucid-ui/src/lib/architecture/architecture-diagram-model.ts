@@ -11,7 +11,6 @@ import {
 } from "@/lib/architecture/architecture-diagram-copy";
 import {
   resolveArchitectureDiagramNodeDisplayLabel,
-  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureContentProvenance,
@@ -127,10 +126,7 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    const displayLabel =
-      entity.label.trim().length === 0
-        ? ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED
-        : resolveArchitectureDiagramNodeDisplayLabel(entity.label);
+    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(entity.label);
 
     if (entity.label.trim().length === 0) {
       skippedUnlabeled.count += 1;
