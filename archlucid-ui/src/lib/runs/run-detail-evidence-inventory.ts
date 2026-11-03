@@ -16,6 +16,8 @@ export const RUN_DETAIL_EVIDENCE_KIND_NOT_STORED = "Evidence kind was not stored
 export const RUN_DETAIL_EVIDENCE_DUPLICATE_STORED_FILE_NAME =
   "More than one stored file uses this name; this row is not linked to a single file." as const;
 
+export const RUN_DETAIL_EVIDENCE_KIND_STORED_EMPTY = "Evidence kind was stored empty." as const;
+
 export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
   "Findings cite evidence, but source names were not stored." as const;
 
@@ -87,9 +89,15 @@ function resolveStoredEvidenceKindFromCatalog(
   }
 
   const entry = catalog.find((row) => row.evidenceItemId === catalogMatch.evidenceItemId);
-  const contentType = entry?.contentType?.trim() ?? "";
+  const rawContentType = entry?.contentType;
 
-  return contentType.length > 0 ? contentType : RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  if (rawContentType === undefined) {
+    return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  }
+
+  const contentType = rawContentType.trim();
+
+  return contentType.length > 0 ? contentType : RUN_DETAIL_EVIDENCE_KIND_STORED_EMPTY;
 }
 
 export function formatRunDetailEvidenceCitingFindingCount(

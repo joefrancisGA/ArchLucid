@@ -200,7 +200,7 @@ describe("finding-policy-evidence-citations", () => {
         lineRange: null,
         excerpt: "",
       }),
-    ).toBe("Evidence artifact id storage-account. A citation title was not stored.");
+    ).toBe("Evidence excerpt was stored empty. Evidence artifact id storage-account.");
   });
 
   it("does not infer policy pack from waf-az rule id alone", () => {

@@ -61,10 +61,22 @@ export function findingInspectEvidenceExcerptTitle(excerpt: string): string {
 }
 
 export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence): string {
-  const excerpt = row.excerpt?.trim() ?? "";
+  const excerptRaw = row.excerpt;
 
-  if (excerpt.length > 0) {
-    return findingInspectEvidenceExcerptTitle(excerpt);
+  if (excerptRaw !== null && excerptRaw !== undefined) {
+    const trimmed = excerptRaw.trim();
+
+    if (trimmed.length > 0) {
+      return findingInspectEvidenceExcerptTitle(trimmed);
+    }
+
+    const artifact = row.artifactId?.trim() ?? "";
+
+    if (artifact.length > 0) {
+      return `Evidence excerpt was stored empty. Evidence artifact id ${artifact}.`;
+    }
+
+    return "Evidence excerpt was stored empty.";
   }
 
   const artifact = row.artifactId?.trim() ?? "";

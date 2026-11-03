@@ -153,6 +153,8 @@ export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name wa
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED = "Flow name was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_STORED_EMPTY = "Flow name was stored empty." as const;
+
 export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
   "Entities were not stored." as const;
 
@@ -265,31 +267,36 @@ export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
   return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${trimmed}`;
 }
 
+function formatUnmatchedArchitectureDataFlowDetailSuffix(detail: string | null | undefined): string {
+  if (detail === null || detail === undefined) {
+    return ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED;
+  }
+
+  const trimmedDetail = detail.trim();
+
+  if (trimmedDetail.length === 0) {
+    return ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY;
+  }
+
+  return trimmedDetail;
+}
+
 export function formatUnmatchedArchitectureDataFlowEntity(
   entity: { readonly label: string; readonly detail?: string | null },
 ): string {
   const flowText = entity.label.trim();
-
-  if (flowText.length === 0) {
-    const detailSuffix =
-      entity.detail === null || entity.detail === undefined
-        ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED
-        : entity.detail.trim().length === 0
-          ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY
-          : ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED;
-
-    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED} (${detailSuffix})`;
-  }
+  const flowNameLabel =
+    flowText.length > 0
+      ? flowText
+      : ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_STORED_EMPTY;
 
   if (entity.detail === null || entity.detail === undefined) {
-    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowNameLabel} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;
   }
 
-  if (entity.detail.trim().length === 0) {
-    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY})`;
-  }
+  const detailSuffix = formatUnmatchedArchitectureDataFlowDetailSuffix(entity.detail);
 
-  return formatUnmatchedArchitectureDataFlowLine(flowText);
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowNameLabel} (${detailSuffix})`;
 }
 
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =

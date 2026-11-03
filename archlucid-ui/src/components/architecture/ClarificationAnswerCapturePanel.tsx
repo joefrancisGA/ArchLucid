@@ -100,7 +100,7 @@ export function ClarificationAnswerCapturePanel(
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {question.missingItem === null || question.missingItem === undefined
                   ? "Missing item was not stored."
-                  : question.missingItem.length === 0
+                  : question.missingItem.trim().length === 0
                     ? "Missing item was stored empty."
                     : question.missingItem}
               </p>
