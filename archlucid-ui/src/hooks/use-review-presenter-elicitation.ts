@@ -56,6 +56,7 @@ export type UseReviewPresenterElicitationResult = {
   readonly questionListStored: boolean;
   readonly questionListMissing: boolean;
   readonly questionsLoading: boolean;
+  readonly primaryQuestionPromptStored: boolean;
 };
 
 function selectPrimaryPendingQuestion(
@@ -175,6 +176,9 @@ export function useReviewPresenterElicitation(
   const readyToFinalize =
     trimmedDraftId.length === 0 || (query.isSuccess && questionListStored && primaryQuestion === null);
 
+  const primaryQuestionPromptStored =
+    primaryQuestion !== null && primaryQuestion.prompt.trim().length > 0;
+
   const title =
     query.isLoading && trimmedDraftId.length > 0
       ? REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING
@@ -182,7 +186,11 @@ export function useReviewPresenterElicitation(
         ? REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING
         : query.isSuccess && !questionListStored
           ? REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING
-          : (primaryQuestion?.prompt ?? "Ready to finalize");
+          : readyToFinalize
+            ? "Ready to finalize"
+            : primaryQuestionPromptStored
+              ? primaryQuestion!.prompt
+              : "Question text was not stored.";
 
   const effectiveTrail = transparencyTrail;
   const questionsFailure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
@@ -204,6 +212,7 @@ export function useReviewPresenterElicitation(
     questionListStored,
     questionListMissing: query.isSuccess && trimmedDraftId.length > 0 && !questionListStored,
     questionsLoading: trimmedDraftId.length > 0 && query.isLoading,
+    primaryQuestionPromptStored,
   };
 }
 

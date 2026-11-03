@@ -159,20 +159,22 @@ export function mergeCapturedEvidenceUploadOutcomes(
     }
 
     const fileName = resolveCapturedEvidenceFileName(outcome.fileName ?? "");
-
-    if (items.some((item) => item.fileName === fileName)) {
-      continue;
-    }
-
     const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
+    const rowKey =
+      evidenceItemId !== null && evidenceItemId.trim().length > 0
+        ? evidenceItemId.trim()
+        : fileName === RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY
+          ? `upload:missing-name:${evidenceIdIndex}`
+          : `upload:${fileName}:${evidenceIdIndex}`;
 
     evidenceIdIndex += 1;
 
+    if (items.some((item) => item.key === rowKey)) {
+      continue;
+    }
+
     items.push({
-      key:
-        evidenceItemId !== null && evidenceItemId.trim().length > 0
-          ? evidenceItemId.trim()
-          : `upload:${fileName}`,
+      key: rowKey,
       fileName,
       ingestedUtc,
       evidenceItemId,
