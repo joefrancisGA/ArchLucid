@@ -119,7 +119,13 @@ export function QuickDecisionSummaryFindingRow({
           />
         ) : null}
         {showTierBadge ? (
-          <StatusTag kind="neutral" label={findingEnforcementTierLabel(finding.enforcementTier)} className="shrink-0" />
+          <StatusTag
+            kind="neutral"
+            label={findingEnforcementTierLabel(
+              finding.enforcementTierStored === false ? null : finding.enforcementTier,
+            )}
+            className="shrink-0"
+          />
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />

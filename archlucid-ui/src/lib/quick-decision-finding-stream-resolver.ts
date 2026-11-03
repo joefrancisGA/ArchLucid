@@ -94,6 +94,8 @@ function mapFindingSummaryRowToQuickDecision(
     isMuted: false,
     muteReason: null,
     enforcementTier: normalizeFindingEnforcementTier(row.enforcementTier),
+    enforcementTierStored:
+      typeof row.enforcementTier === "string" && row.enforcementTier.trim().length > 0,
     policyRuleId,
     streamBand: "sealed",
   };

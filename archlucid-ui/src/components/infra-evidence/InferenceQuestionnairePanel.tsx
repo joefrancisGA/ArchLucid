@@ -157,6 +157,12 @@ export function InferenceQuestionnairePanel(
 
   const requiresCatalogChoice =
     currentItem?.ruleName === "SQL catalog missing" || currentItem?.ruleName === "Tenant catalog template";
+  const storedToCatalog =
+    currentItem?.toCatalog === null || currentItem?.toCatalog === undefined
+      ? null
+      : currentItem.toCatalog.length === 0 || currentItem.toCatalog.trim().length === 0
+        ? ""
+        : currentItem.toCatalog.trim();
   const isDataPlaneQuestion = currentItem?.ruleName === "Unmapped data-plane role";
   const questionTextMissing =
     currentItem !== null && currentItem !== undefined
@@ -388,7 +394,7 @@ export function InferenceQuestionnairePanel(
             )}
 
             {choice === "yes" && requiresCatalogChoice ? (
-              currentItem.toCatalog != null ? (
+              storedToCatalog !== null && storedToCatalog.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
                   <select
@@ -398,7 +404,7 @@ export function InferenceQuestionnairePanel(
                     onChange={(event) => setSelectedCatalog(event.target.value)}
                     data-testid="inference-questionnaire-catalog"
                   >
-                    <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
+                    <option value={storedToCatalog}>{storedToCatalog}</option>
                   </select>
                 </div>
               ) : (
@@ -406,7 +412,9 @@ export function InferenceQuestionnairePanel(
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="inference-questionnaire-catalog-missing"
                 >
-                  Database name was not stored.
+                  {storedToCatalog === ""
+                    ? "Database name was stored empty."
+                    : "Database name was not stored."}
                 </p>
               )
             ) : null}

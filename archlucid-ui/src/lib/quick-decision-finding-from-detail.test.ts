@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-from-detail";
+import { extractQuickDecisionFindingsFromRunDetail, quickDecisionFindingFromTraceRow } from "@/lib/quick-decision-finding-from-detail";
 import { FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL } from "@/lib/findings/finding-classification-chip-presentation";
 import { resolveFindingClassificationLabel } from "@/lib/findings/finding-classification-chip-presentation";
 
@@ -38,5 +38,19 @@ describe("quick-decision-finding-from-detail (P-12)", () => {
     expect(resolveFindingClassificationLabel(findings[0]?.classification ?? null, null)).toBe(
       FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL,
     );
+  });
+
+  it("quickDecisionFindingFromTraceRow does not invent enforcement tier", () => {
+    const row = quickDecisionFindingFromTraceRow(
+      {
+        findingId: "trace-1",
+        findingTitle: "Gap",
+        confidenceLevel: "Medium",
+      },
+      0,
+    );
+
+    expect(row?.enforcementTier).toBeNull();
+    expect(row?.enforcementTierStored).toBe(false);
   });
 });

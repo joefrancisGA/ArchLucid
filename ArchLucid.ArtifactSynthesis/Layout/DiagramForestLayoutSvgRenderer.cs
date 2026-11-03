@@ -1510,6 +1510,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             !edge.IsLayoutOnly
             && DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource)
                 == DiagramEdgeVisualKind.Unclassified);
+        bool hasStoredSolidRelationshipConnectors = visibleEdges.Any(edge =>
+            !edge.IsLayoutOnly
+            && !DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge)
+            && DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource)
+                == DiagramEdgeVisualKind.Observed);
         IReadOnlyList<DiagramInventoryPictogramKind> usedKinds =
             DiagramForestLegendSvgEmitter.CollectUsedKinds(placements.Select(placement => placement.Metrics).ToList());
 
@@ -1796,6 +1801,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             new DiagramForestLegendSvgEmitter.LegendInput(
                 usedKinds,
                 hasPrivateEndpointAccess,
+                hasStoredSolidRelationshipConnectors,
                 hasUnclassifiedConnectors,
                 hasDashedPeering,
                 frameBounds.Count > 0,
