@@ -23,6 +23,12 @@ export const SECURENOW_COMPLIANCE_NOTES_PACKS = [
   "organization-security-architecture-starter",
 ] as const;
 
+/** Named expectation keys surfaced when assigned packs are enabled (see Standards and rules). */
+export const SECURENOW_COMPLIANCE_NOTES_NAMED_EXPECTATION_KEYS = SECURENOW_COMPLIANCE_NOTES_PACKS;
+
+export const SECURENOW_COMPLIANCE_NOTES_EXPECTATION_KEYS_LEAD =
+  "Assigned packs expose these named expectation keys in Standards and rules. Path rank and explanation outputs are not pack-parameterized (WK-21)." as const;
+
 export const SECURENOW_COMPLIANCE_NOTES_LINKS = [
   {
     label: "Control-evidence responsibility",

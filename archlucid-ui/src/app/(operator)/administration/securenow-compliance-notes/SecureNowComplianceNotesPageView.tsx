@@ -9,6 +9,8 @@ import {
   SECURENOW_COMPLIANCE_NOTES_HEADING,
   SECURENOW_COMPLIANCE_NOTES_LEAD,
   SECURENOW_COMPLIANCE_NOTES_LINKS,
+  SECURENOW_COMPLIANCE_NOTES_EXPECTATION_KEYS_LEAD,
+  SECURENOW_COMPLIANCE_NOTES_NAMED_EXPECTATION_KEYS,
   SECURENOW_COMPLIANCE_NOTES_PACKS,
 } from "@/lib/product-line/securenow-compliance-notes-copy";
 
@@ -40,6 +42,19 @@ export function SecureNowComplianceNotesPageView(): React.JSX.Element {
             {SECURENOW_COMPLIANCE_NOTES_PACKS.map((pack) => (
               <li key={pack} className={OPERATOR_TYPOGRAPHY.body}>
                 {pack}
+              </li>
+            ))}
+          </ul>
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-compliance-expectation-keys-lead">
+            {SECURENOW_COMPLIANCE_NOTES_EXPECTATION_KEYS_LEAD}
+          </p>
+          <ul
+            className="list-disc space-y-1 pl-5"
+            data-testid="securenow-compliance-named-expectation-keys"
+          >
+            {SECURENOW_COMPLIANCE_NOTES_NAMED_EXPECTATION_KEYS.map((key) => (
+              <li key={key} className={OPERATOR_TYPOGRAPHY.helper}>
+                {key}
               </li>
             ))}
           </ul>

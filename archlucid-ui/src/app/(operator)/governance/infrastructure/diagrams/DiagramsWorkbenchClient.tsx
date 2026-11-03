@@ -104,7 +104,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
 import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
-import { filterInfraEvidenceDiagramOutlineByPathHops } from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
+import { filterInfraEvidenceDiagramOutlineByPathHopsWithBasis } from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
@@ -212,6 +212,8 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 import {
   SECURENOW_DIAGRAM_PATH_FOCUS_ACTIVE_BODY,
   SECURENOW_DIAGRAM_PATH_FOCUS_FULL_SUBSCRIPTION_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID,
+  SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_HOP_LABELS,
   SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_BODY,
   SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT,
 } from "@/lib/product-line/securenow-diagram-path-focus-copy";
@@ -1204,13 +1206,22 @@ export function DiagramsWorkbenchClient() {
     return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
   }, [includeNeverShow, mermaidOutline]);
 
-  const pathScopedMermaidOutline = useMemo(() => {
+  const pathHopDiagramFilter = useMemo(() => {
     if (!pathFocusActive || pathDetailQuery.data == null) {
-      return visibleMermaidOutline;
+      return {
+        outline: visibleMermaidOutline,
+        matchBasis: "unfiltered" as const,
+      };
     }
 
-    return filterInfraEvidenceDiagramOutlineByPathHops(visibleMermaidOutline, pathDetailQuery.data.hops);
+    return filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(
+      visibleMermaidOutline,
+      pathDetailQuery.data.hops,
+    );
   }, [pathDetailQuery.data, pathFocusActive, visibleMermaidOutline]);
+
+  const pathScopedMermaidOutline = pathHopDiagramFilter.outline;
+  const pathHopDiagramMatchBasis = pathHopDiagramFilter.matchBasis;
 
   const pathFocusMatchedNoNodes =
     pathFocusActive
@@ -2460,6 +2471,22 @@ export function DiagramsWorkbenchClient() {
               data-testid="securenow-diagram-path-focus-no-nodes-next"
             >
               {SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT}
+            </p>
+          ) : null}
+          {pathFocusActive && !pathFocusMatchedNoNodes && pathHopDiagramMatchBasis === "hopLabels" ? (
+            <p
+              className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="securenow-diagram-path-focus-match-basis"
+            >
+              {SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_HOP_LABELS}
+            </p>
+          ) : null}
+          {pathFocusActive && !pathFocusMatchedNoNodes && pathHopDiagramMatchBasis === "cloudResourceId" ? (
+            <p
+              className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="securenow-diagram-path-focus-match-basis"
+            >
+              {SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID}
             </p>
           ) : null}
           <div className="mt-2 flex flex-wrap gap-3">
