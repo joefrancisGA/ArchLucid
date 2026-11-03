@@ -3582,6 +3582,8 @@
 
 ## Zone: scim-users
 
+2026-11-03 seed hunt (seed-only #58): re-read `ScimUsersController`, `ScimFilterParser`, and cancellation tests after seed **#57** monitor reseed; cheap-disproof closed five open `(candidate)` rows from seed **#57** — **valid-no-repro** post-patch/list/PUT/PATCH cancel monitors (dry **#48** / hunt **#351** / replace post-get parity); **valid-no-repro** unbalanced-parentheses filter → SCIM `invalidFilter` via `ScimFilterParseException` before service (`ScimFilterParserTests` parse failures); seeded five follow-on `(candidate)` monitor rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
+
 2026-11-03 seed hunt (seed-only #57): re-read `ScimUsersController` and cancellation tests after seed **#56** monitor reseed; cheap-disproof closed five open `(candidate)` rows from seed **#56** — **valid-no-repro** post-patch `GetAsync` cancel (parity replace post-get; dry **#52**); **valid-no-repro** list cancel (hunt **#351**); **valid-no-repro** PUT/PATCH deserialize cancel (dry **#48**); **valid-no-repro** SQL translation filter failure → `invalidFilter` (~55–57); seeded five follow-on `(candidate)` monitor rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
 
 2026-11-03 seed hunt (seed-only #56): rotation avoided `tenant-data-export` after three consecutive seed-only hunts (#962–#964); re-read `ScimUsersController` and cancellation tests; cheap-disproof closed five open `(candidate)` rows from seed **#55** — **valid-no-repro** post-patch `GetAsync` cancel (parity replace post-get; dry **#52**); **valid-no-repro** list cancel (hunt **#351**); **valid-no-repro** PUT/PATCH JSON deserialize cancel (rethrow ~128–130 / ~171–178; dry **#48**); **valid-no-repro** `ScimFilterSqlException` → SCIM `invalidFilter` (~55–57; controller catch by design); seeded five follow-on `(candidate)` monitor rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
@@ -3630,11 +3632,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-03 seed hunt #57:** dry **#48**; seed **#56**.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — syntactically valid filter that fails SQL translation returns SCIM `invalidFilter` — **cheap-disproof 2026-11-03 seed hunt #57:** `ScimFilterSqlException` catch; seed **#56**.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — locus: ~187–192; input: cancel after persist (monitor gap: no `PatchAsync_propagates_operation_canceled_from_post_patch_get`; seed **#57**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — cooperative cancel during service `ListAsync` propagates without controller catch — locus: ~44–49; input: cancel during paged query (monitor gap: no list cancel Api test; seed **#57**).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — locus: ~125–130; input: cancel during body read (monitor gap: no Replace deserialize cancel test; seed **#57**).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — locus: ~171–178; input: cancel during body read (monitor gap: no Patch deserialize cancel test; seed **#57**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — malformed filter with unbalanced parentheses maps to SCIM `invalidFilter` before service — locus: ~51–54; input: `filter=(userName eq "a"` (monitor seed **#57**).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — **cheap-disproof 2026-11-03 seed hunt #58:** seed **#57** diary.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — cooperative cancel during service `ListAsync` propagates without controller catch — **cheap-disproof 2026-11-03 seed hunt #58:** seed **#57** diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-03 seed hunt #58:** seed **#57** diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-03 seed hunt #58:** seed **#57** diary.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — malformed filter with unbalanced parentheses maps to SCIM `invalidFilter` before service — **cheap-disproof 2026-11-03 seed hunt #58:** `ScimFilterParseException` catch ~51–54; parser tests; seed **#57**.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — locus: ~187–192; input: cancel after persist (monitor gap: no Patch post-get Api test; seed **#58**).
+- [ ] (candidate) `ScimUsersController.ListAsync` — cooperative cancel during service `ListAsync` propagates without controller catch — locus: ~44–49; input: cancel during paged query (monitor gap: no list cancel Api test; seed **#58**).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — locus: ~125–130; input: cancel during body read (monitor gap: no Replace deserialize cancel test; seed **#58**).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — locus: ~171–178; input: cancel during body read (monitor gap: no Patch deserialize cancel test; seed **#58**).
+- [ ] (candidate) `ScimUsersController.ListAsync` — filter referencing unsupported attribute path maps to SCIM `invalidFilter` or `notImplemented` consistently — locus: parser/service; input: `members[value eq "x"]` on Users list (monitor seed **#58** / dry **#44** 501 class).
 
 2026-11-01 thorough hunt (dry #51): cheap-disproof closed five open `(candidate)` rows recycled from dry **#50** — **valid-no-repro** PUT/PATCH/POST cooperative cancel during service or post-mutation `GetAsync` propagates without SCIM envelope (intentional host cancel contract; regressions `ReplaceAsync_propagates_operation_canceled_from_service_replace`, `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`, `PatchAsync_propagates_operation_canceled_from_service_patch`, `CreateAsync_propagates_operation_canceled_from_service_create`, parity `GetAsync_propagates_operation_canceled_from_service` / `DeleteAsync_propagates_operation_canceled_during_deactivate`); **valid-no-repro** omitted `filter` vs empty `filter=` yield identical totals (`ListAsync_null_filter_matches_empty_string_filter_totals`, `ScimFilterParser.Parse` whitespace class hunt **#49**/**#50**); seeded five follow-on `(candidate)` rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -3879,7 +3887,7 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-11-03
