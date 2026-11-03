@@ -17956,6 +17956,8 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-11-03 thorough hunt (dry #347): cheap-disproof closed five open `(candidate)` rows from dry **#346** reseed — **valid-no-repro** `GetActivations` null golden-manifest skip then **404** (`GetActivations_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** `GetApprovalRequestLineage` missing approval **404** after guard skip (`GetApprovalRequestLineage_returns_not_found_when_run_is_out_of_scope`; dry **#937**); **valid-no-repro** `GetReadinessAsync` padded out-of-scope **404** before sealed guard (`GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`; dry **#335**); **valid-no-repro** mutation correction rationale min length before tenant lookup (proven **#678**; `RecordAsync_rejects_correction_when_rationale_is_shorter_than_minimum_length`); **valid-no-repro** `CreateProjectAsync` duplicate slug when workspace list null (no HTTP create route in zone surface today; delete/list asymmetry monitors remain dry **#333**). Reseeded five follow-on `(candidate)` rows; scoped picker filter **159/174** (`RunAnalyzers=false`; 15 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
+
 2026-11-02 thorough hunt (dry #346): cheap-disproof closed five open `(candidate)` rows from dry **#345** reseed — **valid-no-repro** `Reject` zero-width-prefix route parity (`NormalizeApprovalRequestId` ~144; regression `Approve_returns_ok_when_approval_request_id_has_zero_width_prefix`; dry **#341**); **valid-no-repro** `Promote` optional body invisible prefix (`ValidateOptionalApprovalRequestId` since hit **#340**; mapper regression); **valid-no-repro** `GetPromotions` out-of-scope **404** (`GetPromotions_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** mutation correction padded run **404** vs sealed **409** when run missing (dry **#937**; drift regression when run resolves); **valid-no-repro** `ListAsync` null active catalog coalesce vs delete fail-closed (`ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; dry **#333**). Reseeded five follow-on `(candidate)` rows; scoped picker filter **159/174** (`RunAnalyzers=false`; 15 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
 
 2026-11-02 thorough hunt (dry #345): cheap-disproof closed five open `(candidate)` rows from dry **#344** reseed — **valid-no-repro** `GetActivations` null golden-manifest skip then **404** (`GetActivations_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** `GetApprovalRequestLineage` missing approval **404** after guard skip (`GetApprovalRequestLineage_returns_not_found_when_run_is_out_of_scope`; dry **#937**); **valid-no-repro** `GetReadinessAsync` padded out-of-scope **404** before sealed guard (`GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`; dry **#335**); **valid-no-repro** mutation correction rationale min length before tenant lookup (proven **#678**; `RecordAsync_rejects_correction_when_rationale_is_shorter_than_minimum_length`); **valid-no-repro** `CreateProjectAsync` duplicate slug when workspace list null (create validates before list coalesce; dry **#333**). Reseeded five follow-on `(candidate)` rows; scoped picker filter **159/174** (`RunAnalyzers=false`; 15 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
@@ -18013,11 +18015,17 @@
 - [x] (valid-no-repro) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — padded run id **404** vs sealed **409** ordering — **cheap-disproof 2026-11-02 thorough hunt #346:** dry **#937** classes.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — null active catalog coalesce vs delete fail-closed asymmetry — **cheap-disproof 2026-11-02 thorough hunt #346:** dry **#333** intentional asymmetry.
 
-- [ ] (candidate) `GovernanceController.GetActivations` — null golden manifest skip before **404** — locus: run-scoped sealed guard (monitor dry **#335**; dry **#346** reseed).
-- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — locus: guard skip when approval absent (monitor dry **#937**; dry **#346** reseed).
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** before sealed guard — locus: run repository lookup (monitor dry **#335**; dry **#346** reseed).
-- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — locus: service validation (monitor dry **#678**; dry **#346** reseed).
-- [ ] (candidate) `TenantWorkspacesController.CreateProjectAsync` — duplicate slug when workspace list null — locus: create validation (monitor dry **#333**; dry **#346** reseed).
+- [x] (valid-no-repro) `GovernanceController.GetActivations` — null golden manifest skip before **404** — **cheap-disproof 2026-11-03 thorough hunt #347:** regression `GetActivations_returns_not_found_when_run_is_out_of_scope`; dry **#335**.
+- [x] (valid-no-repro) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — **cheap-disproof 2026-11-03 thorough hunt #347:** regression `GetApprovalRequestLineage_returns_not_found_when_run_is_out_of_scope`; dry **#937**.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** before sealed guard — **cheap-disproof 2026-11-03 thorough hunt #347:** regression `GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`; dry **#335**.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — **cheap-disproof 2026-11-03 thorough hunt #347:** proven **#678**; service min-length guard.
+- [x] (valid-no-repro) `TenantWorkspacesController.CreateProjectAsync` — duplicate slug when workspace list null — **cheap-disproof 2026-11-03 thorough hunt #347:** no create route on controller surface; monitor dry **#333**.
+
+- [ ] (candidate) `GovernanceController.GetActivations` — null golden manifest skip before **404** — locus: run-scoped sealed guard (monitor dry **#335**; dry **#347** reseed).
+- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — locus: guard skip when approval absent (monitor dry **#937**; dry **#347** reseed).
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** before sealed guard — locus: run repository lookup (monitor dry **#335**; dry **#347** reseed).
+- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — locus: service validation (monitor dry **#678**; dry **#347** reseed).
+- [ ] (candidate) `GovernanceController.Activate` — POST body run id null golden-manifest skip before **404** — locus: `EnsureSealedManifestReadAllowedAsync` on activate path (monitor dry **#335**; seed **#347**).
 
 
 2026-11-01 thorough hunt (hit #339): promoted `(candidate)` batch duplicate guard gap on approval request ids — `GovernanceApprovalRequestsFacade.BatchReviewAsync` deduped with `Trim()` only while sealed preflight and singleton routes trim outer whitespace, so zero-width-prefix (U+200B) paste variant and canonical id in one batch bypassed duplicate detection (first id not-found, second approve succeeded); shared `GovernanceApprovalRequestIdNormalizer` via `ApiKeyMaterialNormalizer` for batch facade, promote path, and HTTP `NormalizeApprovalRequestId`; regression `BatchReviewApprovalRequests_returns_validation_failed_per_item_when_zero_width_prefixed_id_duplicates_canonical_id`. Cheap-disproof closed five open `(candidate)` rows (plus duplicate hypothesis text from reseed **#338**) — **valid-no-repro** coordinator dashed vs `N` run summary (`CanonicalRunIdForLookup` after hit **#338**); **valid-no-repro** legacy promotion keys (`CompareQuality_GetApprovalRequestLineageAsync_merges_promotions_when_stored_under_legacy_run_id_key`); **valid-no-repro** `GetActivations` out-of-scope **404** (`RequireScopedRunIdAsync` / `RunNotFoundException`; mirror `GetPromotions_returns_not_found_when_run_is_out_of_scope`); **valid-no-repro** batch duplicate merge order for sealed conflicts (preflight dictionary + facade duplicate guard; hit **#337**); **valid-no-repro** `DeleteProjectAsync` foreign branch null list (`DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; dry **#333**). Reseeded five follow-on `(candidate)` rows; scoped picker filter **156/171** (`RunAnalyzers=false`; 15 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: batch approval review treats invisible-prefix and canonical approval ids as the same id for duplicate detection, so operators cannot accidentally approve twice in one batch by pasting hidden Unicode variants.
@@ -18098,13 +18106,13 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 346
-- **last-hunt:** 2026-11-02
+- **hunts:** 347
+- **last-hunt:** 2026-11-03
 - **bugs-found:** 531
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-bug:** 2026-11-01 — batch/optional approval id max-length validation ignored invisible-prefix normalize
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 ### Hypotheses
 
 - [x] (valid-no-repro) `GovernanceController.GetComplianceDriftTrend` — bucket window overflow **400** before facade — **cheap-disproof 2026-11-02 thorough hunt #344:** see dry #344 diary.
@@ -18125,11 +18133,17 @@
 - [x] (valid-no-repro) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — padded run **404** vs **409** ordering — **cheap-disproof 2026-11-02 thorough hunt #346:** see dry #346 diary.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — null active catalog vs delete asymmetry — **cheap-disproof 2026-11-02 thorough hunt #346:** see dry #346 diary.
 
-- [ ] (candidate) `GovernanceController.GetActivations` — null golden manifest skip before **404** — monitor dry **#346** reseed.
-- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — monitor dry **#346** reseed.
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** — monitor dry **#346** reseed.
-- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — monitor dry **#346** reseed.
-- [ ] (candidate) `TenantWorkspacesController.CreateProjectAsync` — duplicate slug when workspace list null — monitor dry **#346** reseed.
+- [x] (valid-no-repro) `GovernanceController.GetActivations` — null golden manifest skip before **404** — **cheap-disproof 2026-11-03 thorough hunt #347:** see dry #347 diary.
+- [x] (valid-no-repro) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — **cheap-disproof 2026-11-03 thorough hunt #347:** see dry #347 diary.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** — **cheap-disproof 2026-11-03 thorough hunt #347:** see dry #347 diary.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — **cheap-disproof 2026-11-03 thorough hunt #347:** see dry #347 diary.
+- [x] (valid-no-repro) `TenantWorkspacesController.CreateProjectAsync` — duplicate slug when workspace list null — **cheap-disproof 2026-11-03 thorough hunt #347:** see dry #347 diary.
+
+- [ ] (candidate) `GovernanceController.GetActivations` — null golden manifest skip before **404** — monitor dry **#347** reseed.
+- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — monitor dry **#347** reseed.
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** — monitor dry **#347** reseed.
+- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — monitor dry **#347** reseed.
+- [ ] (candidate) `GovernanceController.Activate` — POST body run id null golden-manifest skip before **404** — monitor dry **#347** reseed.
 
 - [x] (valid-no-repro) `GovernanceController.GetActivations` — null golden manifest skip before **404** — **cheap-disproof 2026-11-02 thorough hunt #341:** hit **#340**; regression `GetActivations_returns_not_found_when_run_is_out_of_scope`.
 - [x] (valid-no-repro) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — **cheap-disproof 2026-11-02 thorough hunt #341:** guard skip + null service; hit **#340**.
