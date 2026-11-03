@@ -19,5 +19,7 @@ describe("SecureNowComplianceNotesPageView", () => {
       "href",
       "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/FRAMEWORK_COVERAGE.md",
     );
+    expect(screen.getByTestId("securenow-compliance-expectation-keys-lead")).toHaveTextContent("WK-21");
+    expect(screen.getByTestId("securenow-compliance-named-expectation-keys")).toBeInTheDocument();
   });
 });
