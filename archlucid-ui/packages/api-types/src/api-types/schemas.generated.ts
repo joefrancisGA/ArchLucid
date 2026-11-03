@@ -10068,6 +10068,44 @@ export interface components {
             sharedDependencyNodeId?: null | string;
             status?: string;
         };
+        SecureNowInvestigationEffortInputsResponse: {
+            afterHours?: string;
+            annualCost?: string;
+            annualInvestigations?: string;
+            baselineHours?: string;
+            hourlyRate?: string;
+            /** Format: date-time */
+            recordedUtc?: string;
+        };
+        SecureNowInvestigationEffortInputsSaveResult: {
+            errorMessage?: null | string;
+            inputs?: null | components["schemas"]["SecureNowInvestigationEffortInputsResponse"];
+            succeeded?: boolean;
+        };
+        SecureNowInvestigationEffortInputsWriteRequest: {
+            afterHours?: string;
+            annualCost?: string;
+            annualInvestigations?: string;
+            baselineHours?: string;
+            hourlyRate?: string;
+        };
+        SecureNowPilotPathDispositionResponse: {
+            outcome?: string;
+            /** Format: uuid */
+            pathId?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedUtc?: string;
+        };
+        SecureNowPilotPathDispositionSaveResult: {
+            disposition?: null | components["schemas"]["SecureNowPilotPathDispositionResponse"];
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        SecureNowPilotPathDispositionWriteRequest: {
+            outcome?: string;
+            rationale?: string;
+        };
         SecureNowQuestionDispositionAuditResponse: {
             action?: string;
             actorKey?: string;
@@ -10363,6 +10401,7 @@ export interface components {
             confidenceBandScore?: number | string;
             dimensionProse?: components["schemas"]["SecurityEvidencePathRankDimensionProseResponse"];
             explanationSummary?: string;
+            nextStoredPathRankContext?: string;
             pathConfidenceBand?: string;
             /** Format: uuid */
             pathId?: string;
