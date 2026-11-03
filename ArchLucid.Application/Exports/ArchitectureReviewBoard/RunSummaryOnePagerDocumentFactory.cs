@@ -20,7 +20,8 @@ public static class RunSummaryOnePagerDocumentFactory
         int? findingsSnapshotFindingCount = null,
         string? careerExportHonestyPlainText = null,
         string? sendableExportCoverPlainText = null,
-        string? architectRestatementMarkdown = null)
+        string? architectRestatementMarkdown = null,
+        string? sponsorReportGeneratedDisclaimer = null)
 
     {
         ArgumentNullException.ThrowIfNull(detail);
@@ -28,7 +29,21 @@ public static class RunSummaryOnePagerDocumentFactory
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
         bool agentFindingsStored = detail.AgentResultsIncludedInDetail;
-        (SeverityCounts counts, int mutedFindingCount) = CountBySeverity(detail);
+        (SeverityCounts counts, int mutedFindingCount, int unstoredSeverityCount) = CountBySeverity(detail);
+        List<string> severityFootnotes = [];
+
+        if (mutedFindingCount > 0)
+        {
+            severityFootnotes.Add($"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted).");
+        }
+
+        string unstoredSeverityFootnote =
+            RunSummaryOnePagerHonestyCopy.FormatUnstoredSeverityOmittedFromCounts(unstoredSeverityCount);
+
+        if (unstoredSeverityFootnote.Length > 0)
+        {
+            severityFootnotes.Add(unstoredSeverityFootnote);
+        }
         string[] topTitles = topFindingTitles
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())
@@ -63,9 +78,7 @@ public static class RunSummaryOnePagerDocumentFactory
             MediumCount = counts.Medium,
             LowCount = counts.Low,
             MutedFindingCount = mutedFindingCount,
-            SeverityCountsFootnote = mutedFindingCount > 0
-                ? $"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted)."
-                : string.Empty,
+            SeverityCountsFootnote = severityFootnotes.Count > 0 ? string.Join(" ", severityFootnotes) : string.Empty,
             SponsorReport = string.IsNullOrWhiteSpace(SponsorReport)
                 ? RunSummaryOnePagerHonestyCopy.SponsorReportNotStored
                 : SponsorReport.Trim(),
@@ -97,6 +110,12 @@ public static class RunSummaryOnePagerDocumentFactory
             TopHighCriticalRemainderLine = topHighCriticalRemainder > 0
                 ? $"{topHighCriticalRemainder} {RunSummaryOnePagerHonestyCopy.TopHighCriticalRemainderLine}"
                 : null,
+            TopFindingsScopeLine = agentFindingsStored && topTitles.Length > 0
+                ? RunSummaryOnePagerHonestyCopy.TopFindingsCriticalErrorScopeLine
+                : null,
+            SponsorReportGeneratedDisclaimer = string.IsNullOrWhiteSpace(sponsorReportGeneratedDisclaimer)
+                ? null
+                : sponsorReportGeneratedDisclaimer.Trim(),
 
         };
     }
@@ -115,6 +134,9 @@ public static class RunSummaryOnePagerDocumentFactory
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
                 if (finding is null || finding.IsMuted)
+                    continue;
+
+                if (!finding.SeverityStored)
                     continue;
 
                 if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
@@ -143,6 +165,9 @@ public static class RunSummaryOnePagerDocumentFactory
                 if (finding is null || finding.IsMuted)
                     continue;
 
+                if (!finding.SeverityStored)
+                    continue;
+
                 if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
                     findings.Add(finding);
             }
@@ -155,14 +180,16 @@ public static class RunSummaryOnePagerDocumentFactory
             .ToArray();
     }
 
-    private static (SeverityCounts counts, int mutedFindingCount) CountBySeverity(ArchitectureRunDetail detail)
+    private static (SeverityCounts counts, int mutedFindingCount, int unstoredSeverityCount) CountBySeverity(
+        ArchitectureRunDetail detail)
     {
         SeverityCounts counts = new();
         int mutedFindingCount = 0;
+        int unstoredSeverityCount = 0;
 
         if (!detail.AgentResultsIncludedInDetail)
         {
-            return (counts, mutedFindingCount);
+            return (counts, mutedFindingCount, unstoredSeverityCount);
         }
 
         foreach (AgentResult result in detail.Results)
@@ -175,6 +202,12 @@ public static class RunSummaryOnePagerDocumentFactory
                 if (finding.IsMuted)
                 {
                     mutedFindingCount++;
+                    continue;
+                }
+
+                if (!finding.SeverityStored)
+                {
+                    unstoredSeverityCount++;
                     continue;
                 }
 
@@ -196,7 +229,7 @@ public static class RunSummaryOnePagerDocumentFactory
             }
         }
 
-        return (counts, mutedFindingCount);
+        return (counts, mutedFindingCount, unstoredSeverityCount);
     }
 
     private sealed class SeverityCounts

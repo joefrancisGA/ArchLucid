@@ -131,6 +131,43 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
     }
 
     [Fact]
+    public void Create_omits_findings_with_unstored_severity_from_counts()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Info,
+                            Message = "Stored severity",
+                            SeverityStored = true,
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            Message = "Unstored severity",
+                            SeverityStored = false,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.CriticalCount.Should().Be(0);
+        model.LowCount.Should().Be(1);
+        model.SeverityCountsFootnote.Should().Contain("severity not stored");
+    }
+
+    [Fact]
     public void Create_sets_top_findings_empty_copy_when_no_titles()
     {
         ArchitectureRunDetail detail = new()

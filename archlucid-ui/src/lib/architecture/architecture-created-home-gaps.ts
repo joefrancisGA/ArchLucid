@@ -69,7 +69,7 @@ function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): stri
     return (
       resolveClarificationFollowUpHref({
         runId: input.runId,
-        priorRunId: input.clarificationPriorRunId ?? input.runId,
+        priorRunId: input.clarificationPriorRunId ?? null,
       }) ?? buildArchitectureCorrectionHref(input.runId, input.correctionHref)
     );
   }
@@ -188,7 +188,7 @@ export function buildMissingItemsWithOmitted(input: BuildArchitectureCreatedHome
       buildFindingsDerivedClarificationGaps({
         runId: input.runId,
         questions: findingsQuestions,
-        clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
+        clarificationPriorRunId: input.clarificationPriorRunId ?? null,
         gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
       }),
     );

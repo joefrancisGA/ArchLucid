@@ -112,7 +112,7 @@ export function isActivityNewSinceLastVisit(
   const watermarkMs = parseUtcMillis(readLastVisitedWatermark(key));
 
   if (watermarkMs === null) {
-    return true;
+    return false;
   }
 
   return activityMs > watermarkMs;

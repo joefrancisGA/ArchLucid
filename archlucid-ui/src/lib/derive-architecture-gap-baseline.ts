@@ -55,7 +55,6 @@ function integrationLabelsFromSection(section: ArchitectureStructuredSection | u
     return [];
   }
 
-  const narrative = section.narrativeMarkdown?.trim() ?? "";
   const entityLabels = (section.entities ?? [])
     .map((entity) => entity.label.trim())
     .filter((label) => label.length > 0);
@@ -64,14 +63,13 @@ function integrationLabelsFromSection(section: ArchitectureStructuredSection | u
     return entityLabels;
   }
 
+  const narrative = section.narrativeMarkdown?.trim() ?? "";
+
   if (narrative.length === 0) {
     return [];
   }
 
-  return narrative
-    .split(/[,;\n]+/)
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0);
+  return [narrative];
 }
 
 /**
@@ -112,8 +110,8 @@ export function deriveArchitectureGapBaselineFromSubmittedText(
     peopleAndSystems,
     keyIntegrations,
     gapAssertion: {
-      businessOutcome: false,
-      peopleAndSystems: false,
+      businessOutcome: businessOutcomeSection !== undefined,
+      peopleAndSystems: usersSection !== undefined || systemsSection !== undefined,
     },
   };
 }

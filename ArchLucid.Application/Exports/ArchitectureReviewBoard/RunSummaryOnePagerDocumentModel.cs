@@ -171,4 +171,16 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string? TopFindingsScopeLine
+    {
+        get;
+        init;
+    }
+
+    public string? SponsorReportGeneratedDisclaimer
+    {
+        get;
+        init;
+    }
+
 }

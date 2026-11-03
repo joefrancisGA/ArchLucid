@@ -45,7 +45,8 @@ public sealed class RunSummaryOnePagerExportService(
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
-        + "Given severity counts and the top architecture findings below, write exactly three concise sentences: "
+        + "Given severity counts labeled Critical, Error, Warning, and Info (not High, Medium, or Low) and the top architecture findings below, "
+        + "write exactly three concise sentences: "
         + "(1) overall risk posture, (2) the dominant theme, (3) the recommended next step. Return ONLY the prose.";
 
     private readonly IRunDetailQueryService _runDetailQueryService =
@@ -196,7 +197,8 @@ public sealed class RunSummaryOnePagerExportService(
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
                 sendableExportCoverPlainText: sendableExportCoverPlainText,
                 architectRestatementMarkdown: architectRestatementMarkdownText,
-                findingsSnapshotFindingCount: findingsSnapshotFindingCount);
+                findingsSnapshotFindingCount: findingsSnapshotFindingCount,
+                sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.GeneratedSponsorBriefDisclaimer);
 
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
@@ -222,7 +224,8 @@ public sealed class RunSummaryOnePagerExportService(
                 topFindingTitles: []);
 
         StringBuilder prompt = new();
-        prompt.AppendLine($"Critical: {countsOnly.CriticalCount}, High: {countsOnly.HighCount}, Medium: {countsOnly.MediumCount}, Low: {countsOnly.LowCount}");
+        prompt.AppendLine(
+            $"Critical: {countsOnly.CriticalCount}, Error: {countsOnly.HighCount}, Warning: {countsOnly.MediumCount}, Info: {countsOnly.LowCount}");
         prompt.AppendLine("Top findings:");
 
         foreach (ArchitectureFinding finding in topFindings)

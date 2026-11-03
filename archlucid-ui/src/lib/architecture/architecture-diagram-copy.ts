@@ -38,6 +38,9 @@ export const ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION = "View Mermaid source" as
 export const ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE =
   "Technical diagram source for review or export — not the finalized architecture record." as const;
 
+export const ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE =
+  "Saved Mermaid source is shown below. The rendered diagram follows the generated model when they differ." as const;
+
 export const ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION = "Copy Mermaid source" as const;
 
 export const ARCHITECTURE_DIAGRAM_DOWNLOAD_ACTION = "Download diagram" as const;
@@ -168,6 +171,12 @@ export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
   "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
 
 export const ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP = 48;
+
+export function formatArchitectureDiagramDanglingConnectionsOmittedLine(omittedConnectionCount: number): string {
+  const noun = omittedConnectionCount === 1 ? "connection was" : "connections were";
+
+  return `${omittedConnectionCount} ${noun} left off this diagram because an endpoint was not on the diagram.`;
+}
 
 export function formatArchitectureDiagramTextAlternativeOverflowNotice(
   omittedNodeCount: number,

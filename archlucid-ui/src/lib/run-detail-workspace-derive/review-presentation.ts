@@ -353,7 +353,7 @@ export function deriveEvidenceCoverageSummary(
 
   if (hasMissingEvidenceRefCount) {
     return {
-      linkedCount: 0,
+      linkedCount: null,
       totalCount,
       summaryLine: "Evidence link count was not stored.",
     };

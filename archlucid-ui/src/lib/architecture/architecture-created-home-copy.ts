@@ -24,6 +24,9 @@ export const ARCHITECTURE_DEFINITION_STATUS_LABELS = {
   "insufficient-context": "Brief below minimum length",
 } as const;
 
+export const ARCHITECTURE_CREATED_CONTEXT_BAR_PURPOSE_TRUNCATED_SUFFIX =
+  " (Full business purpose was stored.)" as const;
+
 export const ARCHITECTURE_DEFINITION_STATUS_HELPER =
   "Status reflects stored brief length and fields, not a quality grade." as const;
 

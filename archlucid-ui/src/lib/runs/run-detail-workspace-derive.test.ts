@@ -265,7 +265,9 @@ describe("run-detail-workspace-derive", () => {
     expect(formatDecisionSnapshotFindingsLine(3, 1, 2)).toBe("3 open · 1 blocks approval · 1 needs triage");
     expect(formatDecisionSnapshotFindingsLine(0, 0, 0)).toBe("None open");
     expect(formatDecisionSnapshotFindingsLine(0, 0, 0, false)).toBe("Findings snapshot was not stored.");
-    expect(formatDecisionSnapshotFindingsLine(3, null, 2)).toBe("3 open · 2 need triage");
+    expect(formatDecisionSnapshotFindingsLine(3, null, 2)).toBe(
+      "3 open · Blocking count was not stored.",
+    );
     expect(formatDecisionSnapshotFindingsLine(3, undefined, 0)).toBe("3 open");
   });
 
@@ -274,7 +276,9 @@ describe("run-detail-workspace-derive", () => {
       finding(1, { title: "No topology resources were found" }),
     ]);
 
-    expect(label).toBe("Evidence did not surface architecture components");
+    expect(label).toBe(
+      "Warning: Evidence did not surface architecture components (stored finding title: No topology resources were found)",
+    );
   });
 
   it("labels an open finding with an empty title on primary concern", () => {
@@ -343,10 +347,10 @@ describe("run-detail-workspace-derive", () => {
     });
 
     expect(summary.reviewOutcome).toBe("Approved with monitoring");
-    expect(summary.highestUnresolvedSeverity).toBe("High");
+    expect(summary.highestUnresolvedSeverity).toBe("Error");
     expect(summary.openFindingsCount).toBe(2);
-    expect(summary.primaryConcern).toBe("PHI Minimization Risk");
-    expect(summary.nextAction).toContain("Confirm evidence and remediation ownership");
+    expect(summary.primaryConcern).toBe("Error: PHI Minimization Risk");
+    expect(summary.nextAction).toContain("No evidence references were stored for PHI Minimization Risk");
   });
 
   it("falls back to key decision considerations when only theme labels exist", () => {
@@ -465,7 +469,9 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("formats Finalized review record id labels without treating them as versions", () => {
-    expect(deriveSignedReviewRecordIdLabel("9026d565-0000-0000-0000-0000000099e8")).toBe("9026d565…99e8");
+    expect(deriveSignedReviewRecordIdLabel("9026d565-0000-0000-0000-0000000099e8")).toBe(
+      "9026d565…99e8 (shortened for display)",
+    );
   });
 
   it("uses ArchLucid review when it is the review title and no other label exists", () => {

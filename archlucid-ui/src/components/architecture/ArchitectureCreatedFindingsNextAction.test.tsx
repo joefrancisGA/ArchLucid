@@ -31,7 +31,7 @@ describe("ArchitectureCreatedFindingsNextAction", () => {
     );
 
     expect(screen.getByTestId("architecture-findings-triage-primary-action")).toHaveTextContent(
-      "Triage an open finding. Severity was not stored.",
+      "Triage: Finding",
     );
   });
 

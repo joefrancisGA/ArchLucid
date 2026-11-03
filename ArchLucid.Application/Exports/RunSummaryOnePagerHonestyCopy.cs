@@ -20,6 +20,21 @@ internal static class RunSummaryOnePagerHonestyCopy
     internal const string MutedFindingsExcludedFromCounts =
         "Muted findings are excluded from these counts.";
 
+    internal const string GeneratedSponsorBriefDisclaimer =
+        "This sponsor report brief was model-generated from stored finding counts and titles. Verify against findings before external send.";
+
+    internal static string FormatUnstoredSeverityOmittedFromCounts(int unstoredSeverityCount)
+    {
+        if (unstoredSeverityCount <= 0)
+        {
+            return string.Empty;
+        }
+
+        return unstoredSeverityCount == 1
+            ? "1 finding had severity not stored and is omitted from these counts."
+            : $"{unstoredSeverityCount} findings had severity not stored and are omitted from these counts.";
+    }
+
     internal const string TopFindingTitlesNotStored = "Top finding titles were not stored.";
 
     internal const string NoCriticalOrErrorFindingTitles =
@@ -27,6 +42,9 @@ internal static class RunSummaryOnePagerHonestyCopy
 
     internal const string TopHighCriticalRemainderLine =
         "more Critical or Error finding(s) were not listed in this top-findings cap.";
+
+    internal const string TopFindingsCriticalErrorScopeLine =
+        "This list includes Critical and Error findings only.";
 
     internal const string FindingTitleStoredEmpty = "Finding title was stored empty.";
 
