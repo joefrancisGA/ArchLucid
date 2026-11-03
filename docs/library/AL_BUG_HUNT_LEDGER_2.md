@@ -3524,6 +3524,20 @@
 
 ## Zone: review-recurrence
 
+2026-11-03 thorough hunt (dry #54): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#53** — **valid-no-repro** `@daily ` trailing ASCII space after `Trim()` (parity `IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space`; dry **#48** / dry **#52**); **valid-no-repro** `@reboot` rejected (Cronos standard aliases only; dry **#48**); **valid-no-repro** zero preview count returns empty without parse (`ComputeNextRunsUtc_returns_empty_when_count_is_zero`; dry **#52**); **invalid** horizontal tab between five-field tokens (interior whitespace class; tab tokenization like ASCII space — dry **#935** / dry **#52**); **valid-no-repro** `@weekly` at `DateTime.MaxValue` throws (`ComputeNextRunUtc_interval_alias_at_max_value_throws`; dry **#52**). Reseeded five follow-on `(candidate)` monitor rows from dry **#53** closed themes; zone **cooling** (`consecutive-dry-hunts` 21); **67/67** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` — trailing ASCII space on `@daily ` interval alias — **cheap-disproof 2026-11-03 thorough hunt #54:** `Trim()` boundary; regressions in diary above.
+- [x] (valid-no-repro) `IsSupportedCronExpression` — macOS `@reboot` alias rejected — **cheap-disproof 2026-11-03 thorough hunt #54:** Cronos standard aliases only; not supported by design.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — zero preview count returns empty without parsing cron — **cheap-disproof 2026-11-03 thorough hunt #54:** `count <= 0` guard; regression above.
+- [x] (invalid) `IsSupportedCronExpression` — horizontal tab between five-field cron tokens — **cheap-disproof 2026-11-03 thorough hunt #54:** tab parses like spaces; dry **#935** probe class.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@weekly` at `DateTime.MaxValue` throws on interval overflow — **cheap-disproof 2026-11-03 thorough hunt #54:** interval alias theory; regression above.
+
+- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@annually` vs `@yearly` Cronos acceptance — locus: Cronos calendar synonym; input: `@annually` (`IsSupportedCronExpression_accepts_annually_as_cronos_calendar_synonym`; monitor dry **#54** / dry **#53** / dry **#47**).
+- [ ] (candidate) `IsSupportedCronExpression` — mixed-case `@Monthly` calendar alias — locus: case-insensitive alias parse; input: `@Monthly` (`IsSupportedCronExpression_accepts_mixed_case_Monthly_alias`; monitor dry **#54** / dry **#53**).
+- [ ] (candidate) `ComputeNextRunUtc` — five-field cron at `DateTime.MaxValue` reference — locus: Cronos overflow; input: MaxValue + five-field cron (`ComputeNextRunUtc_five_field_cron_at_max_value_throws`; monitor dry **#54** / dry **#53**).
+- [ ] (candidate) `IsSupportedCronExpression` — trailing ASCII space on interval alias (`@hourly `) — locus: `Trim()` boundary; input: `@hourly ` (`IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space`; monitor dry **#54** / dry **#53** / dry **#47**).
+- [ ] (candidate) `ComputeNextRunsUtc` — `@yearly` batch preview at `DateTime.MaxValue` throws on first iteration — locus: batch preview overflow; input: MaxValue reference (`ComputeNextRunsUtc_yearly_alias_at_max_value_throws_on_first_iteration`; monitor dry **#54** / dry **#53**).
+
 2026-11-03 thorough hunt (dry #53): cheap-disproof closed five open `(candidate)` monitor rows from dry **#52** reseed queue — **valid-no-repro** `@annually` Cronos calendar synonym (`IsSupportedCronExpression_accepts_annually_as_cronos_calendar_synonym`; dry **#47** / **#51**); **valid-no-repro** mixed-case `@Monthly` alias (`IsSupportedCronExpression_accepts_mixed_case_Monthly_alias`; dry **#51**); **valid-no-repro** five-field cron at `DateTime.MaxValue` (`ComputeNextRunUtc_five_field_cron_at_max_value_throws`; dry **#51**); **valid-no-repro** `@hourly ` trailing ASCII space after `Trim()` (`IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space`; dry **#47** / **#51**); **valid-no-repro** `@yearly` batch preview at MaxValue (`ComputeNextRunsUtc_yearly_alias_at_max_value_throws_on_first_iteration`; dry **#51**). Reseeded five follow-on `(candidate)` rows from dry **#52** closed themes; zone **cooling** (`consecutive-dry-hunts` 20); **67/67** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
 - [ ] (candidate) `IsSupportedCronExpression` — trailing ASCII space on `@daily ` interval alias — locus: `Trim()` boundary; input: `@daily ` (monitor dry **#53** / dry **#52**).
@@ -3692,7 +3706,7 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 53
+- **hunts:** 54
 - **last-hunt:** 2026-11-03
 
 - **id:** review-recurrence
@@ -3702,7 +3716,7 @@
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 20
+- **consecutive-dry-hunts:** 21
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
