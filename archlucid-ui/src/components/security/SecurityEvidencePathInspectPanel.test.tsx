@@ -46,7 +46,10 @@ vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
     );
     return readSecureNowPilotDisposition(pathId);
   }),
-  persistSecureNowPilotDispositionForPath: vi.fn(async () => null),
+  persistSecureNowPilotDispositionForPath: vi.fn(async () => ({
+    status: "saved",
+    tenantAuditRecorded: true,
+  })),
 }));
 
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
@@ -56,6 +59,8 @@ import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 
@@ -659,6 +664,66 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
   });
 
+  it("surfaces citation rejection before the explanation body when the server stored a fallback", async () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      explanation: {
+        explanationId: "exp-1",
+        pathId: "path-1",
+        executiveSummary: "Summary",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "WeakestHop",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: ["evidence-1"],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: "Model cited hop-99 which is not on this path.",
+        createdUtc: new Date().toISOString(),
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    const rejection = await screen.findByTestId("security-evidence-path-explanation-citation-rejection");
+    expect(rejection).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG);
+    expect(rejection).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD);
+    expect(rejection).toHaveTextContent("Model cited hop-99 which is not on this path.");
+  });
+
   it("links hop resource evidence when cloudResourceId is present", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
@@ -971,6 +1036,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
     });
 
     renderPanel("finding-1");
+
+    expect(screen.getByTestId("security-evidence-path-explanation-real-mode-hint")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
 

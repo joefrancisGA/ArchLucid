@@ -210,6 +210,6 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
-            .Be("resource-b · Resource type was not stored · Connection state was not stored.");
+            .Be("resource-b · Resource type was not stored");
     }
 }

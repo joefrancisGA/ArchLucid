@@ -1,6 +1,5 @@
 import { ARCHITECTURE_SUMMARY_LABELS } from "@/lib/architecture/architecture-created-home-copy";
 import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
-import { ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED } from "@/lib/architecture/architecture-scope-understanding-derive";
 import { formatParsedSubmittedArchitectureName } from "@/lib/derive-architecture-gap-baseline";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -138,26 +137,43 @@ export function deriveDefinitionStatus(
   return "insufficient-context";
 }
 
+export const ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY =
+  "Primary users were stored empty." as const;
+
+export const ARCHITECTURE_CREATED_MAJOR_SYSTEMS_STORED_EMPTY =
+  "Major systems were stored empty." as const;
+
 export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): ArchitectureSummaryField[] {
   const fields: ArchitectureSummaryField[] = [];
-  const humans = input.peopleAndSystems
-    .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
-    .map((entry) =>
-      entry.label.trim().length > 0 ? entry.label.trim() : ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED,
+  const humanEntries = input.peopleAndSystems.filter(
+    (entry) => entry.kind === "Human" || entry.kind === "Both",
+  );
+  const humanLabels = humanEntries
+    .map((entry) => entry.label.trim())
+    .filter((label) => label.length > 0)
+    .map((label) =>
+      input.peopleAndSystems.some(
+        (entry) =>
+          (entry.kind === "Human" || entry.kind === "Both")
+          && entry.fromSubmittedParse === true
+          && entry.label.trim() === label,
+      )
+        ? formatParsedSubmittedArchitectureName(label)
+        : label,
     );
-  const humanLabelsFromParse =
-    input.peopleAndSystems.some(
-      (entry) => (entry.kind === "Human" || entry.kind === "Both") && entry.fromSubmittedParse === true,
+  const humanLabelsFromParse = humanEntries.some((entry) => entry.fromSubmittedParse === true);
+  const systemEntries = input.peopleAndSystems.filter(
+    (entry) => entry.kind === "Machine" || entry.kind === "Both",
+  );
+  const systemLabels = systemEntries
+    .map((entry) => entry.label.trim())
+    .filter((label) => label.length > 0)
+    .map((label) =>
+      systemEntries.some((entry) => entry.fromSubmittedParse === true && entry.label.trim() === label)
+        ? formatParsedSubmittedArchitectureName(label)
+        : label,
     );
-  const systems = input.peopleAndSystems
-    .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
-    .map((entry) =>
-      entry.label.trim().length > 0 ? entry.label.trim() : ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED,
-    );
-  const systemLabelsFromParse =
-    input.peopleAndSystems.some(
-      (entry) => (entry.kind === "Machine" || entry.kind === "Both") && entry.fromSubmittedParse === true,
-    );
+  const systemLabelsFromParse = systemEntries.some((entry) => entry.fromSubmittedParse === true);
   const integrationLabels = (input.keyIntegrations ?? [])
     .map((label) => label.trim())
     .filter((label) => label.length > 0);
@@ -167,16 +183,26 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
-    value: formatSummaryList(humans, ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED, {
-      fromSubmittedParse: humanLabelsFromParse,
-    }),
+    value:
+      humanLabels.length > 0
+        ? formatSummaryList(humanLabels, ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED, {
+            fromSubmittedParse: humanLabelsFromParse,
+          })
+        : humanEntries.some((entry) => entry.label.trim().length === 0)
+          ? ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY
+          : ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
   });
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
-    value: formatSummaryList(systems, ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED, {
-      fromSubmittedParse: systemLabelsFromParse,
-    }),
+    value:
+      systemLabels.length > 0
+        ? formatSummaryList(systemLabels, ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED, {
+            fromSubmittedParse: systemLabelsFromParse,
+          })
+        : systemEntries.some((entry) => entry.label.trim().length === 0)
+          ? ARCHITECTURE_CREATED_MAJOR_SYSTEMS_STORED_EMPTY
+          : ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
   });
 
   fields.push({

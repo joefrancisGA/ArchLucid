@@ -94,4 +94,24 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
       value: "Payment gateway (submitted text, not operator-asserted)",
     });
   });
+
+  it("does not count blank actor names toward visible list overflow (P-15)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [
+          { label: "Ledger API", kind: "Machine" },
+          { label: "   ", kind: "Machine" },
+          { label: "Billing API", kind: "Machine" },
+          { label: "Claims API", kind: "Machine" },
+          { label: "Auth API", kind: "Machine" },
+          { label: "Notify API", kind: "Machine" },
+        ],
+      }),
+    );
+
+    const majorSystems = fields.find((field) => field.label === "Major systems")?.value ?? "";
+
+    expect(majorSystems).toBe("Ledger API, Billing API, Claims API, Auth API (1 more entry was stored.)");
+    expect(majorSystems).not.toContain("was not stored");
+  });
 });

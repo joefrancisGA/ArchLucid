@@ -144,10 +144,6 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · No diagram link was stored.";
         }
-        else if (node.ConnectionState is null && !string.IsNullOrWhiteSpace(node.SeedNodeId))
-        {
-            combined = $"{combined} · Connection state was not stored.";
-        }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)
         {

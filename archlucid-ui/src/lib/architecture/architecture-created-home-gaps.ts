@@ -20,6 +20,7 @@ export type ArchitectureMissingItem = {
   readonly href: string;
   readonly category: ClarificationGapCategory;
   readonly source: ClarificationGapSource;
+  readonly followUpUnavailableMessage?: string | null;
 };
 
 const MIN_STRONG_OVERVIEW_CHARS = 100;
@@ -53,10 +54,12 @@ function buildGapSource(
 
 function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): string {
   if (input.clarificationRoundAvailable === true) {
-    return resolveClarificationFollowUpHref({
-      runId: input.runId,
-      priorRunId: input.clarificationPriorRunId ?? input.runId,
-    });
+    return (
+      resolveClarificationFollowUpHref({
+        runId: input.runId,
+        priorRunId: input.clarificationPriorRunId ?? input.runId,
+      }) ?? buildArchitectureCorrectionHref(input.runId, input.correctionHref)
+    );
   }
 
   return buildArchitectureCorrectionHref(input.runId, input.correctionHref);

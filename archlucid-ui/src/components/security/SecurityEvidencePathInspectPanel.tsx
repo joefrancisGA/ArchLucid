@@ -42,6 +42,9 @@ import {
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON,
   SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
@@ -364,6 +367,9 @@ function PathExplanationSection(props: {
   const showRankContextInExplanation =
     rankContext.length > 0
     && (executiveSummary.length === 0 || !executiveSummary.includes(rankContext));
+  const citationRejection = props.explanation?.modelOutputRejection?.trim() ?? "";
+  const showCitationRejection =
+    props.explanation?.provenanceKind === "DeterministicInference" && citationRejection.length > 0;
 
   return (
     <div
@@ -375,6 +381,14 @@ function PathExplanationSection(props: {
         <StatusTag kind="neutral" label={explanationTag} />
       </div>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{explanationLead}</p>
+      {!props.useSimulator ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-explanation-real-mode-hint"
+        >
+          {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT}
+        </p>
+      ) : null}
       <Button
         type="button"
         variant="outline"
@@ -387,6 +401,15 @@ function PathExplanationSection(props: {
       </Button>
       {props.explanationError != null ? (
         <StatusTag kind="needs-attention" label={props.explanationError} />
+      ) : null}
+      {showCitationRejection ? (
+        <div data-testid="security-evidence-path-explanation-citation-rejection">
+          <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG} />
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+            {SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD}
+          </p>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{citationRejection}</p>
+        </div>
       ) : null}
       {props.explanation != null ? (
         <OperatorAdvisorySimulatorProvenanceBlock

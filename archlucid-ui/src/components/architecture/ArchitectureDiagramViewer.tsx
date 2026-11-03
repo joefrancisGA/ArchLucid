@@ -1478,8 +1478,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           {clickFocus.memberNames !== undefined ? (
             clickFocus.memberNames.length > 0 ? (
               <ul className="m-0 mt-1 list-disc pl-5" data-testid="diagram-click-focus-cluster-members">
-                {clickFocus.memberNames.map((memberName) => (
-                  <li key={memberName}>{memberName}</li>
+                {clickFocus.memberNames.map((memberName, memberIndex) => (
+                  <li key={`${memberIndex}-${memberName}`}>{memberName}</li>
                 ))}
               </ul>
             ) : (

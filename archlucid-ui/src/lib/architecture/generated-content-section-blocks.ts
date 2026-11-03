@@ -1,4 +1,9 @@
-import { formatPeopleAndSystemsActorKindOmissionNote } from "@/lib/architecture/architecture-diagram-copy";
+import {
+  formatPeopleAndSystemsActorKindOmissionNote,
+  ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_STORED_EMPTY,
+  formatPeopleAndSystemsVendorKindNoDiagramRoleNote,
+} from "@/lib/architecture/architecture-diagram-copy";
 import { demoteOpenQuestionsStructuredSectionProvenance } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import {
   appendEntity,
@@ -196,7 +201,18 @@ export function mergeUserAssertions(
     const label = entry.label.trim();
     const kind = entry.kind.trim();
 
+    if (entry.label.length === 0) {
+      diagramHonestyNotes.push(ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_NOT_STORED);
+      continue;
+    }
+
     if (label.length === 0) {
+      diagramHonestyNotes.push(ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_STORED_EMPTY);
+      continue;
+    }
+
+    if (kind.localeCompare("Vendor", undefined, { sensitivity: "accent" }) === 0) {
+      diagramHonestyNotes.push(formatPeopleAndSystemsVendorKindNoDiagramRoleNote(label));
       continue;
     }
 

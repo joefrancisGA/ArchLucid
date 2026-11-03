@@ -199,19 +199,20 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   if (activeNodes.length === 0) {
     const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
     const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
+    const nonEntityTail = tailParts.filter(
+      (line) => !(model.entitySectionHonestyLines ?? []).includes(line),
+    );
 
     if (omittedSectionLines.length > 0) {
-      return omittedSectionLines.join(". ");
+      const head = omittedSectionLines.join(". ");
+
+      return nonEntityTail.length > 0 ? [head, ...nonEntityTail].join(". ") : head;
     }
 
     const head =
       sectionHonesty.length > 0
         ? [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ")
         : resolveEmptyArchitectureDiagramMessage(model);
-
-    const nonEntityTail = tailParts.filter(
-      (line) => !(model.entitySectionHonestyLines ?? []).includes(line),
-    );
 
     return nonEntityTail.length > 0 ? [head, ...nonEntityTail].join(". ") : head;
   }
@@ -252,7 +253,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
   const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
   const omittedConnectionLine =
-    omittedConnectionCount > 0
+    !danglingEdgeOmitted && omittedConnectionCount > 0
       ? `${ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX} ${omittedConnectionCount}`
       : null;
 

@@ -221,6 +221,27 @@ export function formatTrustBoundaryDisplayLabel(label: string): string {
   return label.trim();
 }
 
+export function isArchitectureDiagramTrustBoundaryOmissionLabel(label: string): boolean {
+  return (
+    label === ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED
+    || label === ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY
+  );
+}
+
+export const ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_NOT_STORED =
+  "People and systems: Actor name was not stored — not drawn on the diagram." as const;
+
+export const ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_STORED_EMPTY =
+  "People and systems: Actor name was stored empty — not drawn on the diagram." as const;
+
+export function formatPeopleAndSystemsVendorKindNoDiagramRoleNote(actorLabel: string): string {
+  const label = actorLabel.trim();
+
+  return label.length > 0
+    ? `People and systems: ${label} was not drawn because stored kind Vendor has no diagram role.`
+    : "People and systems: Stored kind Vendor has no diagram role — not drawn on the diagram.";
+}
+
 export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
   return `Review title: ${reviewTitle}. This title is not a collected system.`;
 }
@@ -234,7 +255,13 @@ export function formatPeopleAndSystemsActorKindOmissionNote(actorLabel: string):
 }
 
 export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
-  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+  const trimmed = flow.trim();
+
+  if (trimmed.startsWith(ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX)) {
+    return trimmed;
+  }
+
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${trimmed}`;
 }
 
 function formatUnmatchedArchitectureDataFlowDetailSuffix(detail: string | null | undefined): string {

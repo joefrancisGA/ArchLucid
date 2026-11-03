@@ -13,11 +13,11 @@ import {
 } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
-  isSecureNowInvestigationEffortFixtureWorksheet,
   persistSecureNowInvestigationEffortInputs,
   SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
   type SecureNowInvestigationEffortInputFields,
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
+import { resolveSecureNowInvestigationEffortResultState } from "@/lib/product-line/securenow-investigation-effort-result-state";
 import {
   loadSecureNowInvestigationEffortInputs,
   persistSecureNowInvestigationEffortInputsToAudit,
@@ -32,11 +32,6 @@ const EMPTY_INPUTS: EffortInputs = {
   hourlyRate: "",
   annualCost: "",
 };
-
-function numberValue(value: string): number | null {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
 
 export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
@@ -83,43 +78,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
     };
   }, [inputs, restoreComplete]);
 
-  const result = useMemo(() => {
-    const baselineHours = numberValue(inputs.baselineHours);
-    const afterHours = numberValue(inputs.afterHours);
-    const annualInvestigations = numberValue(inputs.annualInvestigations);
-    const hourlyRate = numberValue(inputs.hourlyRate);
-    const annualCost = numberValue(inputs.annualCost);
-
-    if (
-      baselineHours === null
-      || afterHours === null
-      || annualInvestigations === null
-      || hourlyRate === null
-      || annualCost === null
-      || afterHours > baselineHours
-    ) {
-      return null;
-    }
-
-    if (isSecureNowInvestigationEffortFixtureWorksheet(inputs)) {
-      return {
-        fixture: true,
-        gross: 0,
-        net: 0,
-        ratio: 0,
-      };
-    }
-
-    const gross = Math.max(0, baselineHours - afterHours) * annualInvestigations * hourlyRate;
-    const net = gross - annualCost;
-
-    return {
-      fixture: false,
-      gross,
-      net,
-      ratio: net / annualCost,
-    };
-  }, [inputs]);
+  const resultState = useMemo(() => resolveSecureNowInvestigationEffortResultState(inputs), [inputs]);
 
   const updateInput = (field: keyof EffortInputs, value: string) => {
     editedRef.current = true;
@@ -176,18 +135,20 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             className="rounded border border-border bg-muted/30 p-3"
             data-testid="securenow-investigation-effort-result"
           >
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              {result === null
-                ? "ROI not calculated."
-                : result.fixture
-                  ? "ROI not calculated. Those values are the fixture worksheet."
-                  : "Entered inputs. Not a customer result."}
-            </p>
-            {result !== null && !result.fixture ? (
+            <p className={OPERATOR_TYPOGRAPHY.body}>{resultState.headline}</p>
+            {resultState.kind === "incomplete" ? (
+              <p
+                className={OPERATOR_TYPOGRAPHY.helper}
+                data-testid="securenow-investigation-effort-result-reason"
+              >
+                {resultState.reason}
+              </p>
+            ) : null}
+            {resultState.kind === "calculated" ? (
               <ul className={OPERATOR_TYPOGRAPHY.helper}>
-                <li>Gross annual analyst capacity value: {result.gross}</li>
-                <li>Net annual value estimate: {result.net}</li>
-                <li>ROI ratio: {result.ratio}</li>
+                <li>Gross annual analyst capacity value: {resultState.gross}</li>
+                <li>Net annual value estimate: {resultState.net}</li>
+                <li>ROI ratio: {resultState.ratio}</li>
               </ul>
             ) : null}
           </div>

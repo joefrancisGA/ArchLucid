@@ -43,4 +43,12 @@ describe("SponsorRoiBoardPackEvidenceBanner", () => {
 
     expect(screen.getByText(/optional AI narrative is advisory/i)).toBeInTheDocument();
   });
+
+  it("states non-summing ROI honesty before board-pack download", () => {
+    render(<SponsorRoiBoardPackEvidenceBanner summary={baseSummary()} includeNarrative={false} />);
+
+    expect(screen.getByTestId("exec-roi-board-pack-non-summing")).toHaveTextContent(
+      "do not sum to the headline",
+    );
+  });
 });

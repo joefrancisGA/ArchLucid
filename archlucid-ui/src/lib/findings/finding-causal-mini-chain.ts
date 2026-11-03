@@ -178,7 +178,14 @@ export function findingCausalMiniChainFromGovernanceQueueRow(
 export function findingCausalMiniChainFromInspectPayload(
   payload: FindingInspectPayload,
 ): FindingCausalMiniChainResult {
-  const recommendation = payload.recommendedActions.find((action) => action.trim().length > 0) ?? null;
+  const nonWhitespaceAction = payload.recommendedActions.find((action) => action.trim().length > 0);
+  const recommendation =
+    nonWhitespaceAction
+    ?? (payload.recommendedActionsReturned !== false
+      && payload.recommendedActions.length > 0
+      && payload.recommendedActions.every((action) => action.trim().length === 0)
+      ? FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY
+      : null);
 
   return buildFindingCausalMiniChain({
     ruleName: payload.decisionRuleName,
