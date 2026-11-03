@@ -39,6 +39,8 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData("999")]
     [InlineData("-1")]
     [InlineData("bogus")]
+    [InlineData("true")]
+    [InlineData("false")]
     public void TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values(string raw)
     {
         FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(raw);

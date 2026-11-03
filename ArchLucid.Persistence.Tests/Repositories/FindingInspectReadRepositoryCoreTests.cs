@@ -3160,4 +3160,38 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.NormalizeFindingId("finding-1\u200B").Should().Be("finding-1\u200B");
     }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_typed_payload_when_property_name_contains_interior_format_character()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"class\u200Bification":"ChecklistCoverage"}""");
+        JsonElement typed = document.RootElement.Clone();
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_returns_null_when_typed_payload_root_is_json_boolean_true()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "true",
+            title: "t",
+            rationale: "r");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.True);
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_falls_back_to_typed_payload_when_overlay_is_whitespace_only()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Supported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            "   ",
+            typed);
+
+        band.Should().Be(FindingSemanticSupportBand.Supported);
+    }
 }
