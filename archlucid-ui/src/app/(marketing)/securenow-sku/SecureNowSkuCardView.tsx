@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MARKETING_LAYOUT, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -43,6 +44,7 @@ export function SecureNowSkuCardView(): React.JSX.Element {
             </tbody>
           </table>
         </div>
+        <SecureNowBetaSkuContentsSection />
         <p className={MARKETING_TYPOGRAPHY.body}>{SECURENOW_SKU_CARD_LIMIT}</p>
         <p className={MARKETING_TYPOGRAPHY.body}>
           <Link href="/why-securenow" className="text-al-link underline-offset-2 hover:underline">

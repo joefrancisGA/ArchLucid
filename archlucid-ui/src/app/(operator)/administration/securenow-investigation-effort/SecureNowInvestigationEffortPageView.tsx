@@ -10,6 +10,10 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_HEADING,
   SECURENOW_INVESTIGATION_EFFORT_LEAD,
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
+  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS,
+  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_HEADING,
+  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_LEAD,
+  SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_RESULT,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
@@ -152,6 +156,25 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
               </ul>
             ) : null}
           </div>
+        </section>
+
+        <section
+          aria-labelledby="securenow-investigation-effort-synthetic-heading"
+          className="space-y-2 rounded border border-dashed border-border p-3"
+          data-testid="securenow-investigation-effort-synthetic-example"
+        >
+          <h2 id="securenow-investigation-effort-synthetic-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_HEADING}
+          </h2>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_LEAD}</p>
+          <ul className={OPERATOR_TYPOGRAPHY.helper}>
+            <li>B = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.baselineHours}</li>
+            <li>A = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.afterHours}</li>
+            <li>N = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.annualInvestigations}</li>
+            <li>R = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.hourlyRate}</li>
+            <li>C = {SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_FIELDS.annualCost}</li>
+          </ul>
+          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_RESULT}</p>
         </section>
 
         <section
