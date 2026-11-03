@@ -34522,6 +34522,128 @@
         },
         "type": "object"
       },
+      "SecureNowInvestigationEffortInputsResponse": {
+        "properties": {
+          "afterHours": {
+            "type": "string"
+          },
+          "annualCost": {
+            "type": "string"
+          },
+          "annualInvestigations": {
+            "type": "string"
+          },
+          "baselineHours": {
+            "type": "string"
+          },
+          "hourlyRate": {
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowInvestigationEffortInputsSaveResult": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inputs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowInvestigationEffortInputsResponse"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowInvestigationEffortInputsWriteRequest": {
+        "properties": {
+          "afterHours": {
+            "type": "string"
+          },
+          "annualCost": {
+            "type": "string"
+          },
+          "annualInvestigations": {
+            "type": "string"
+          },
+          "baselineHours": {
+            "type": "string"
+          },
+          "hourlyRate": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionResponse": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionSaveResult": {
+        "properties": {
+          "disposition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+              }
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionWriteRequest": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecureNowQuestionDispositionAuditResponse": {
         "properties": {
           "action": {
@@ -35465,6 +35587,9 @@
             "$ref": "#/components/schemas/SecurityEvidencePathRankDimensionProseResponse"
           },
           "explanationSummary": {
+            "type": "string"
+          },
+          "nextStoredPathRankContext": {
             "type": "string"
           },
           "pathConfidenceBand": {
@@ -49132,6 +49257,9 @@
     },
     {
       "name": "OperationalSecurityFindings"
+    },
+    {
+      "name": "OperationalSecurityInvestigationEffort"
     },
     {
       "name": "OperationalSecurityPaths"
