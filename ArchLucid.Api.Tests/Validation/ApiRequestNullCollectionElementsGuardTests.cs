@@ -205,6 +205,15 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_stack_without_body_parameter()
+    {
+        ConcurrentStack<string> stack = new();
+        stack.Push(null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(stack).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property()
     {
         ObservableCollectionRequest request = new()

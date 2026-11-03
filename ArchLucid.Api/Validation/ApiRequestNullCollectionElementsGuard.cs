@@ -109,6 +109,7 @@ public static class ApiRequestNullCollectionElementsGuard
                 || genericDefinition == typeof(LinkedList<>)
                 || genericDefinition == typeof(ConcurrentBag<>)
                 || genericDefinition == typeof(ConcurrentQueue<>)
+                || genericDefinition == typeof(ConcurrentStack<>)
                 || genericDefinition == typeof(BlockingCollection<>))
             {
                 return type.GetGenericArguments()[0];
@@ -148,6 +149,7 @@ public static class ApiRequestNullCollectionElementsGuard
                || genericDefinition == typeof(LinkedList<>)
                || genericDefinition == typeof(ConcurrentBag<>)
                || genericDefinition == typeof(ConcurrentQueue<>)
+               || genericDefinition == typeof(ConcurrentStack<>)
                || genericDefinition == typeof(BlockingCollection<>);
     }
 
