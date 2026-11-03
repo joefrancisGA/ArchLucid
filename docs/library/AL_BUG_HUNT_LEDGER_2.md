@@ -4318,6 +4318,20 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-11-03 thorough hunt (dry #16): cheap-disproof closed five open `(candidate)` monitor rows from dry **#15** reseed (duplicate dry **#14** queue) — padded persisted Stripe ids trim before guard/charge by design (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`, dry **#12**); UTC month cap bucket rollover documented (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); concurrent enable/disable without `ExpectedRowVersion` is optional OCC (dry **#7**); **invalid** empty-string Stripe id bind on repository is internal-only — wallet PUT normalizes in consume stage (dry **#12**); **invalid** retried charge reuses Stripe idempotency key — fresh PaymentIntent per attempt (dry **#12**). Reseeded five follow-on `(candidate)` rows from dry **#15** monitor class; scoped tests below (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded persisted Stripe customer/payment method ids trimmed before guard and persist — **cheap-disproof 2026-11-03 thorough hunt #16:** regressions above; dry **#14** diary.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month cap bucket rollover resets auto-refill count while cap dollars unchanged — **cheap-disproof 2026-11-03 thorough hunt #16:** documented contract; regressions above.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — concurrent enable/disable without `ExpectedRowVersion` — **cheap-disproof 2026-11-03 thorough hunt #16:** optional OCC; dry **#7** diary.
+- [x] (invalid) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — **cheap-disproof 2026-11-03 thorough hunt #16:** public path normalizes; dry **#12** diary.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — **cheap-disproof 2026-11-03 thorough hunt #16:** no idempotency key reuse; dry **#12** diary.
+
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — locus: enable pre-check; input: zero cap in same PUT (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`; monitor dry **#16** / dry **#13**).
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted partial PUT — locus: `NormalizeOptionalStripeId`; input: whitespace PM id (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`; monitor dry **#16** / dry **#11**).
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook-settled credits omit monthly auto-refill counter increment — locus: webhook credit path; input: small webhook top-up (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`; monitor dry **#16** / dry **#13**).
+- [ ] (candidate) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — locus: partial PUT / COALESCE; input: disable-only PUT (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields`; monitor dry **#16**).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — locus: merge before guard; input: enable with PM only (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`; monitor dry **#16** / dry **#10**).
+
 2026-11-01 thorough hunt (dry #15): cheap-disproof closed five open `(candidate)` monitor rows from dry **#14** reseed (duplicate dry **#13** monitor queue) — explicit enable with `MonthlyCapUsd=0` fails enable pre-check (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`, dry **#13**); whitespace payment method id normalizes to omitted partial PUT (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`, dry **#11**); webhook credits omit auto-refill counter by design (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`, dry **#13**); disable-only PUT preserves persisted cap (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields`); enable with payment method merges linked customer before guard (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`, dry **#10**). Reseeded five follow-on `(candidate)` rows from dry **#14** closed themes; scoped filter **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — **cheap-disproof 2026-11-01 thorough hunt #15:** dry **#14** reseed queue; regressions above; dry **#13** diary.
@@ -4325,12 +4339,6 @@
 - [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook-settled credits omit monthly auto-refill counter increment — **cheap-disproof 2026-11-01 thorough hunt #15:** dry **#14** reseed queue; regression above; dry **#13** diary.
 - [x] (valid-no-repro) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — **cheap-disproof 2026-11-01 thorough hunt #15:** dry **#14** reseed queue; regression above; dry **#13** diary.
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — **cheap-disproof 2026-11-01 thorough hunt #15:** dry **#14** reseed queue; regression above; dry **#10**.
-
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded persisted Stripe customer/payment method ids trimmed before guard and persist — locus: `NormalizeOptionalStripeId` / charge path trim; input: padded ids on row (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`; monitor dry **#15** / dry **#12**).
-- [ ] (candidate) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month cap bucket rollover resets auto-refill count while cap dollars unchanged — locus: UTC month bucket; input: prior month at cap (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`; monitor dry **#15**).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — concurrent enable/disable without `ExpectedRowVersion` — locus: optional OCC; input: parallel PUT without row version (monitor dry **#15** / dry **#7**).
-- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — locus: repository bind; input: internal empty-string ids (monitor dry **#15** / dry **#12**).
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — locus: PaymentIntent create; input: retry after failure (monitor dry **#15** / dry **#12**).
 
 2026-11-01 thorough hunt (dry #14): cheap-disproof closed five open `(candidate)` monitor rows from dry **#13** reseed (duplicate dry **#12** monitor queue) — padded persisted Stripe ids trim before guard/charge by design (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`, dry **#12**); UTC month cap bucket rollover documented with regressions (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); concurrent enable/disable without `ExpectedRowVersion` is optional OCC (dry **#7** / seed **#6**); `SqlLlmTenantWalletRepository` empty-string bind is internal-only — wallet PUT normalizes via `NormalizeOptionalStripeId` in consume stage (~210-211); `ChargeRefillAsync` creates fresh PaymentIntent per attempt — no Stripe idempotency-key reuse (invalid). Reseeded five follow-on `(candidate)` monitor rows from dry **#13** closed themes; scoped filter **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -4432,10 +4440,10 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
 - **related-pd-tb:** none
 - **code-changed-since:** no
