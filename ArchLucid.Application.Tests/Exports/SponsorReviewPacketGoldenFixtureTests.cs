@@ -69,7 +69,7 @@ public sealed class SponsorReviewPacketGoldenFixtureTests
             inputs.TopDecisions,
             inputs.PortfolioSignals);
 
-        markdown.Should().Contain("## Top decisions");
+        markdown.Should().Contain("## First five decisions (not ranked)");
         markdown.Should().Contain("## Portfolio signals (snapshot at export)");
         markdown.Should().Contain("Review stale PHI minimization risk");
         markdown.Should().NotContain("(mock)");
@@ -98,7 +98,7 @@ public sealed class SponsorReviewPacketGoldenFixtureTests
         [
             "## Manifest summary",
             "## Execution mode",
-            "## Top decisions",
+            "## First five decisions (not ranked)",
             "## Review summary",
             "## Portfolio signals (snapshot at export)",
             "## ROI basis",

@@ -220,7 +220,9 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,Estimated savings were not stored.,"
+            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,"
+            + ArchitectureRunFindingsCsvFormatter.EvidenceRefsOnRowEmptyLabel
+            + ",Estimated savings were not stored.,"
             + ArchitectureRunFindingsCsvFormatter.FindingNotMutedStatusLabel
             + ","
             + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
@@ -507,6 +509,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_joins_stored_evidence_refs()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-evidence",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Message = "Gap",
+        };
+        finding.EvidenceRefs.Add("doc:manifest#services");
+        finding.EvidenceRefs.Add(" trace:path-1 ");
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain("doc:manifest#services; trace:path-1");
+    }
+
+    [Fact]
     public void BuildCsvContent_labels_omitted_scalar_fields_as_not_stored()
     {
         ArchitectureFinding finding = new()
@@ -532,6 +560,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.CategoryNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.EvidenceRefsOnRowEmptyLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelReasonNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ConfidenceScoreNotStoredLabel);

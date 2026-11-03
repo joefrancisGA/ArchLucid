@@ -41,6 +41,7 @@ import {
   deriveReviewRecordMetadataContext,
   isReviewPipelineIncomplete,
   resolveReviewMetadataAbsentReasons} from "@/lib/run-detail-workspace-derive";
+import { formatWorkspacePrimaryConcernDisplay } from "@/lib/run-detail-workspace-derive/primary-concern-display";
 import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import {
@@ -428,9 +429,10 @@ export function RunDetailWorkspaceSummaryStrip(
 ): React.JSX.Element {
   const suppressedReason = props.suppressedReason?.trim() ?? "";
   const hasFindingsSnapshot = props.hasFindingsSnapshot !== false;
-  const primaryConcernDisplay =
-    props.primaryConcern ??
-    (hasFindingsSnapshot ? "No unresolved findings" : "Primary concern was not stored.");
+  const primaryConcernDisplay = formatWorkspacePrimaryConcernDisplay(
+    props.primaryConcern,
+    hasFindingsSnapshot,
+  );
   const highestSeverityMissingCopy = "Highest unresolved severity was not stored.";
   const highestSeverityTrimmed = props.highestUnresolvedSeverity?.trim() ?? "";
   const highestSeverityIsExplicitNone = highestSeverityTrimmed.toLowerCase() === "none";

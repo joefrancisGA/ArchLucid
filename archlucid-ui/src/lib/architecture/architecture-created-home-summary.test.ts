@@ -95,6 +95,19 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     });
   });
 
+  it("shows integration narrative without treating commas as separate names (P-07)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        keyIntegrations: ["Payment gateway, CRM sync, and legacy batch feed"],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: "Payment gateway, CRM sync, and legacy batch feed",
+    });
+  });
+
   it("labels parsed actor names once when fromSubmittedParse (P-01)", () => {
     const fields = buildSummaryFields(
       baseInput({
@@ -117,6 +130,18 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
 
     expect(fields.find((field) => field.label === "Primary users")?.value).toContain("(stored as Both)");
     expect(fields.find((field) => field.label === "Major systems")?.value).toContain("(stored as Both)");
+  });
+
+  it("labels missing actor kind on parsed primary users (P-17)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "Claims analyst", kind: "   ", fromSubmittedParse: false }],
+      }),
+    );
+
+    expect(fields.find((field) => field.label === "Primary users")?.value).toContain(
+      "Claims analyst — Actor kind was not stored.",
+    );
   });
 
   it("does not count blank actor names toward visible list overflow (P-15)", () => {

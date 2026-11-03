@@ -143,6 +143,8 @@ export const ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY =
 export const ARCHITECTURE_CREATED_MAJOR_SYSTEMS_STORED_EMPTY =
   "Major systems were stored empty." as const;
 
+export const ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED = "Actor kind was not stored." as const;
+
 export const ARCHITECTURE_CREATED_ACTOR_STORED_AS_BOTH = " (stored as Both)" as const;
 
 type ActorSummaryEntry = BuildArchitectureCreatedHomeModelInput["peopleAndSystems"][number];
@@ -157,7 +159,9 @@ function formatActorSummaryLabel(entry: ActorSummaryEntry): string {
   let label =
     entry.fromSubmittedParse === true ? formatParsedSubmittedArchitectureName(trimmed) : trimmed;
 
-  if (entry.kind === "Both") {
+  if (entry.kind.trim().length === 0) {
+    label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
+  } else if (entry.kind === "Both") {
     label = `${label}${ARCHITECTURE_CREATED_ACTOR_STORED_AS_BOTH}`;
   }
 
@@ -167,7 +171,7 @@ function formatActorSummaryLabel(entry: ActorSummaryEntry): string {
 export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): ArchitectureSummaryField[] {
   const fields: ArchitectureSummaryField[] = [];
   const humanEntries = input.peopleAndSystems.filter(
-    (entry) => entry.kind === "Human" || entry.kind === "Both",
+    (entry) => entry.kind === "Human" || entry.kind === "Both" || entry.kind.trim().length === 0,
   );
   const humanLabels = humanEntries.map(formatActorSummaryLabel).filter((label) => label.length > 0);
   const systemEntries = input.peopleAndSystems.filter(
@@ -207,9 +211,11 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
       input.keyIntegrations === undefined
         ? ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED
         : integrationLabels.length > 0
-          ? formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED, {
-              fromSubmittedParse: true,
-            })
+          ? integrationLabels.length === 1 && integrationLabels[0].includes(",")
+            ? integrationLabels[0]
+            : formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED, {
+                fromSubmittedParse: true,
+              })
           : "Key integrations were stored empty.",
   });
 

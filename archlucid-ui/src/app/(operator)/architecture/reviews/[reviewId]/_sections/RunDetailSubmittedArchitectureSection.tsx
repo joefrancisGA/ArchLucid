@@ -346,7 +346,10 @@ export function RunDetailSubmittedArchitectureSection(
           >
             <ArchitectureNarrativeMarkdownView markdown={previewLines.join("\n\n")} />
             {hasMore ? (
-              <p className="m-0 mt-2 text-neutral-500 dark:text-neutral-400">Expand to read the full description.</p>
+              <p className="m-0 mt-2 text-neutral-500 dark:text-neutral-400">
+                First {PREVIEW_LINE_COUNT} non-empty lines shown; full submitted architecture was stored. Expand below
+                to read the rest.
+              </p>
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">

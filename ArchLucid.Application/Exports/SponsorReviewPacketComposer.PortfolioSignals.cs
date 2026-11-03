@@ -30,6 +30,9 @@ public static partial class SponsorReviewPacketComposer
             string selectedOption = SponsorReviewPacketExportHonestyCopy.FormatSelectedOption(decision.SelectedOption);
             sb.AppendLine($"- **{title}** — {selectedOption}");
 
+            string category = SponsorReviewPacketExportHonestyCopy.FormatDecisionCategory(decision.Category);
+            sb.AppendLine($"  - Decision category: {category}");
+
             string confidence = string.IsNullOrWhiteSpace(decision.ConfidenceLabel)
                 ? SponsorReviewPacketExportHonestyCopy.ConfidenceNotStored
                 : decision.ConfidenceLabel.Trim();
@@ -45,8 +48,9 @@ public static partial class SponsorReviewPacketComposer
 
             string evidence = decision.EvidenceHref switch
             {
-                null => SponsorReviewPacketExportHonestyCopy.EvidenceLinkNotStored,
-                _ when string.IsNullOrWhiteSpace(decision.EvidenceHref) => SponsorReviewPacketExportHonestyCopy.EvidenceLinkNotStored,
+                null => SponsorReviewPacketExportHonestyCopy.DecisionRegisterRowHasNoEvidenceLinkField,
+                _ when string.IsNullOrWhiteSpace(decision.EvidenceHref) =>
+                    SponsorReviewPacketExportHonestyCopy.DecisionRegisterRowHasNoEvidenceLinkField,
                 _ => decision.EvidenceHref.Trim(),
             };
             sb.AppendLine($"  - Evidence: {evidence}");

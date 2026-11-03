@@ -63,6 +63,32 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
     }
 
     [Fact]
+    public void Render_includes_top_finding_message_prefix_disclaimer_when_set()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
+            CriticalCount = 1,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Brief",
+            TopFindingTitles =
+            [
+                RunSummaryOnePagerHonestyCopy.FormatTopFindingListLine("Encryption gap on storage account"),
+            ],
+            TopFindingsMessagePrefixDisclaimer = RunSummaryOnePagerHonestyCopy.TopFindingsMessagePrefixDisclaimer,
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.TopFindingsMessagePrefixDisclaimer);
+        markdown.Should().Contain("Finding message: Encryption gap on storage account");
+    }
+
+    [Fact]
     public void Render_includes_simulator_rehearsal_notice_when_simulator_mode()
     {
         RunSummaryOnePagerDocumentModel model = new()

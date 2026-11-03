@@ -261,7 +261,8 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       ) : null}
 
-      {!isZeroGapSuccess ? (
+      {!isZeroGapSuccess
+      && (hasVisibleWorkQueue || hasStoredClarificationQuestions || showIntakeOpenQuestions) ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           These clarifications are still open. Answer them or add evidence before sharing with sponsors or creating
           work items.
