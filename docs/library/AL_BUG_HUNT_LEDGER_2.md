@@ -3105,6 +3105,14 @@
 
 ## Zone: finding-disposition
 
+2026-11-03 seed hunt (seed-only #54): re-read `FindingDispositionService` (`RecordAsync`/`RecordBulkAsync` entry guards, `ListHistoryAsync` tenant scope, `TryDecodeRowVersion`) and `FindingDispositionValidation` (deferred revisit clock, optional-field substantive-text gates, LP-14 working-desk remediated attestation); no mechanism-backed row met hunt-ready promotion bar without non-zone test doubles; seeded five `(candidate)` rows in header queue below; scoped **35/35** `FindingDispositionValidationTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — empty request list rejected before repository — locus: `requests.Count == 0`; input: zero-item bulk batch (seed **#54**).
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — whitespace-only `reviewerUserId` rejected — locus: reviewer guard; input: `"   "` reviewer id (seed **#54**).
+- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — `scope.TenantId == Guid.Empty` rejected — locus: tenant guard; input: empty tenant scope (seed **#54**).
+- [ ] (candidate) `FindingDispositionValidation.Validate` — optional rationale on `Deferred` above `MaximumRationaleLength` rejected — locus: optional branch cap; input: 4001-character optional rationale (seed **#54**).
+- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working-desk remediated preview override shorter than `MinimumRationaleLength` rejected — locus: override length gate; input: nine-character override (seed **#54**).
+
 2026-11-03 thorough hunt (dry #53): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#52** — **valid-no-repro** `Remediated` optional rationale below 10 characters when provided (TB-2305 — `Validate_remediated_accepts_two_character_optional_rationale`; dry **#50** / **#51**); **valid-no-repro** whitespace-only expected row version decodes absent and conflicts when pointer exists (`RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict`; dry **#50** / **#1579**); **valid-no-repro** bulk `Remediated` batch shares one working-desk attestation lookup (`RecordBulkAsync_queries_working_desk_mode_once_per_batch`; dry **#49**); **valid-no-repro** foreign-workspace disposition events omitted (`ListHistoryAsync_excludes_disposition_events_from_other_workspace`; dry **#50**); **valid-no-repro** working desk accepts LP-14 `ImpactPreviewCompleted` attestation without server artifact (`Validate_working_remediated_accepts_impact_preview_completed`; dry **#50**). Reseeded five follow-on `(candidate)` rows from dry **#52** closed themes; **70/70** scoped `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-11-03 thorough hunt (dry #52): cheap-disproof closed five open `(candidate)` monitor rows from dry **#51** reseed — **valid-no-repro** `NeedsEvidence` accepts single-character substantive `EvidenceRequestText` by contract (`Validate_needs_evidence_accepts_single_character_evidence_request_text`; dry **#49** / hypotheses); **valid-no-repro** malformed `ExpectedCurrentDispositionRowVersionBase64` rejected before repository (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`, `RecordBulkAsync_rejects_invalid_base64_expected_row_version_before_repository`; dry **#49**); **valid-no-repro** bulk batch rejects case-variant duplicate finding ids (`RecordBulkAsync_rejects_case_variant_duplicate_finding_ids_in_single_batch`, hit **#2054** / last-bug); **valid-no-repro** disposition history omits review-trail rows with null disposition (`ListHistoryAsync_excludes_review_trail_events_without_disposition`; dry **#49**); **valid-no-repro** guided-desk `Remediated` ignores client `ImpactPreviewCompleted` without working desk (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, hit **#1719** / dry **#49**). Reseeded five follow-on `(candidate)` rows from dry **#50** monitor class; **70/70** scoped `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
@@ -3192,7 +3200,7 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-11-03
