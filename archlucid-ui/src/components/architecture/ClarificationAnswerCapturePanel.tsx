@@ -81,9 +81,11 @@ export function ClarificationAnswerCapturePanel(
           Answer findings-derived clarifications
         </h3>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {props.totalDerivedCount !== null && props.totalDerivedCount > props.questions.length
-            ? `Showing ${props.questions.length} of ${props.totalDerivedCount} findings-derived questions. `
-            : null}
+          {props.totalDerivedCount === null
+            ? "Derived question count was not stored. "
+            : props.totalDerivedCount !== null && props.totalDerivedCount > props.questions.length
+              ? `Showing ${props.questions.length} of ${props.totalDerivedCount} findings-derived questions. `
+              : null}
           Answers are saved on this review and start a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
           characters.
           {props.priorRunId.trim().length > 0 ? (

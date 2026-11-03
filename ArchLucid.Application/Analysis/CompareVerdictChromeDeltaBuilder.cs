@@ -181,13 +181,14 @@ internal static class CompareVerdictChromeDeltaBuilder
 
     private static string FormatGateLabel(FeasibilityVerdict? verdict)
     {
-        if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is null || !SendableExportCoverComposer.IsSendableCoverGateOutcomeStored(verdict.Kind))
         {
             return GateOutcomeNotStoredLabel;
         }
 
         return verdict.Kind switch
         {
+            FeasibilityVerdictKind.Feasible => "Feasible",
             FeasibilityVerdictKind.SoftInfeasible => "Soft infeasible",
             FeasibilityVerdictKind.HardInfeasible => "Hard infeasible",
             _ => verdict.Kind.ToString(),

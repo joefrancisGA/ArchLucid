@@ -111,19 +111,38 @@ public sealed class SendableExportCoverComposerTests
         sb.ToString().Should().Contain("**Review record status:** `Committed`");
     }
 
+    [Fact]
+    public void RenderPlainTextLines_shows_stored_feasible_gate_outcome()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            verdict: new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.Feasible,
+                Summary = "Proceed with constraints.",
+            });
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line =>
+            line.StartsWith("Gate outcome: Feasible", StringComparison.Ordinal)
+            && !line.Contains(SendableExportCoverComposer.GateOutcomeNotStoredLine, StringComparison.Ordinal));
+    }
+
     private static CareerExportCoverageHonestyInput CreateInput(
         FindingsSnapshot? findingsSnapshot = null,
         string? ruleSetId = "azure-waf",
         string? ruleSetVersion = "2024.1",
-        string? reviewRecordStatus = null) =>
+        string? reviewRecordStatus = null,
+        FeasibilityVerdict? verdict = null) =>
         new(
             new SponsorReviewCoverageHonestyContext(
                 RunId: "run-1",
-                Verdict: new FeasibilityVerdict
-                {
-                    Kind = FeasibilityVerdictKind.SoftInfeasible,
-                    Summary = "Sample gate summary",
-                },
+                Verdict: verdict
+                       ?? new FeasibilityVerdict
+                       {
+                           Kind = FeasibilityVerdictKind.SoftInfeasible,
+                           Summary = "Sample gate summary",
+                       },
                 AnalysisStagesComplete: true,
                 ActorNodeCount: 1),
             EnginesSucceeded: 4,

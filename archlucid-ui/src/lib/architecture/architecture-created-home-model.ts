@@ -48,6 +48,7 @@ export type ArchitectureCreatedHomeModel = {
   readonly lifecycleStatusTagKind: BuildArchitectureCreatedHomeModelInput["workspaceStatus"]["statusTagKind"];
   readonly ownerLabel: string | null;
   readonly lastUpdatedLabel: string;
+  readonly homeTimestampPrefix: string;
   readonly definitionStatus: ArchitectureDefinitionStatusKind;
   readonly definitionStatusLabel: string;
   readonly summaryFields: readonly ArchitectureSummaryField[];
@@ -79,6 +80,7 @@ export function buildArchitectureCreatedHomeModel(
     lifecycleStatusTagKind: input.workspaceStatus.statusTagKind,
     ownerLabel: input.ownerLabel,
     lastUpdatedLabel: input.lastUpdatedLabel,
+    homeTimestampPrefix: input.homeTimestampPrefix ?? "Updated",
     definitionStatus,
     definitionStatusLabel: ARCHITECTURE_DEFINITION_STATUS_LABELS[definitionStatus],
     summaryFields: buildSummaryFields(input),

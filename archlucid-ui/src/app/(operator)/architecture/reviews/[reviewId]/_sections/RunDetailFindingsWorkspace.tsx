@@ -74,6 +74,7 @@ import {
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { formatRunDetailFindingsMissingFindingIdLine } from "@/lib/quick-decision-summary-derive";
 import {
   BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE,
   formatFindingStreamDualCountLine,
@@ -109,6 +110,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
   readonly parentArchitectureId?: string | null;
+  readonly findingsMissingFindingIdCount?: number;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -516,6 +518,15 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           role="status"
         >
           {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
+        </p>
+      ) : null}
+      {(props.findingsMissingFindingIdCount ?? 0) > 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-missing-finding-id"
+          role="status"
+        >
+          {formatRunDetailFindingsMissingFindingIdLine(props.findingsMissingFindingIdCount ?? 0)}
         </p>
       ) : null}
       {hiddenFilterHonesty.hasHidden ? (

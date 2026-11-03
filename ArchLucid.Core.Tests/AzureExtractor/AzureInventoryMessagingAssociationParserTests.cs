@@ -137,4 +137,56 @@ public sealed class AzureInventoryMessagingAssociationParserTests
         parsed.Should().BeTrue(error);
         row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
     }
+
+    [Fact]
+    public void TryParse_reads_service_bus_forward_target_names()
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+                                                            {
+                                                              "parentResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns",
+                                                              "childResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns/topics/orders",
+                                                              "childName": "orders",
+                                                              "childType": "serviceBusTopic",
+                                                              "collectionStatus": "Succeeded",
+                                                              "forwardToName": "archive",
+                                                              "forwardDeadLetteredMessagesToName": "deadletters"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryMessagingAssociationParser.TryParse(
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.ForwardToName.Should().Be("archive");
+        row.ForwardDeadLetteredMessagesToName.Should().Be("deadletters");
+    }
+
+    [Fact]
+    public void TryParse_treats_json_null_capture_and_forward_fields_as_absent()
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+                                                            {
+                                                              "parentResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns",
+                                                              "childResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sbns/queues/orders",
+                                                              "childName": "orders",
+                                                              "childType": "serviceBusQueue",
+                                                              "collectionStatus": "Succeeded",
+                                                              "captureStorageAccountId": null,
+                                                              "forwardToName": null,
+                                                              "forwardDeadLetteredMessagesToName": null
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryMessagingAssociationParser.TryParse(
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.CaptureStorageAccountId.Should().BeNull();
+        row.ForwardToName.Should().BeNull();
+        row.ForwardDeadLetteredMessagesToName.Should().BeNull();
+    }
 }

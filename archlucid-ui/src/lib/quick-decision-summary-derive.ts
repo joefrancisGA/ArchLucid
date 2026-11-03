@@ -16,6 +16,8 @@ export {
 
 export {
   extractQuickDecisionFindingsFromRunDetail,
+  countRunDetailFindingsMissingFindingId,
+  formatRunDetailFindingsMissingFindingIdLine,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   resolveRunDetailFindingStreams,

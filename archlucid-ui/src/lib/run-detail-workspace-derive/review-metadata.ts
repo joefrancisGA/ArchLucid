@@ -200,6 +200,27 @@ export function formatReviewOwnerDisplay(
   return trimmed;
 }
 
+/** Create-home Owner line — never prints a raw user id as the owner name. */
+export function formatArchitectureCreatedHomeOwnerDisplay(
+  ownerLabel: string | null,
+): string {
+  if (ownerLabel === null) {
+    return "Owner was not stored.";
+  }
+
+  const trimmed = ownerLabel.trim();
+
+  if (trimmed.length === 0) {
+    return "Owner was stored empty.";
+  }
+
+  if (isUuidLike(trimmed)) {
+    return "Owner name was not stored.";
+  }
+
+  return `Owner: ${trimmed}`;
+}
+
 /** Buyer-facing approver on review metadata — never surfaces a raw user id as a display name. */
 export const RUN_DETAIL_ARCHITECTURE_REQUEST_ID_STORED_EMPTY =
   "Architecture request id was stored empty." as const;

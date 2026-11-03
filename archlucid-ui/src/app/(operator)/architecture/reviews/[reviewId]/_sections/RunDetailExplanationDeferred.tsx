@@ -7,6 +7,7 @@ import {
 } from "@/lib/findings/findings-withheld-band";
 import {
   buildFindingWireSnapshotsForRunDetail,
+  countRunDetailFindingsMissingFindingId,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   resolveRunDetailFindingStreams,
@@ -117,6 +118,8 @@ export async function RunDetailExplanationDeferred(
 
   const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(resolvedDetail);
 
+  const findingsMissingFindingIdCount = countRunDetailFindingsMissingFindingId(resolvedDetail);
+
   return (
     <RunDetailRunExplanationCollapsibleDeferred
       runId={runId}
@@ -148,6 +151,7 @@ export async function RunDetailExplanationDeferred(
       explanationUsesStaticDemo={explanationUsesStaticDemo}
       structuralExecutionMode={resolvedDetail.run.structuralExecutionMode}
       parentArchitectureId={resolvedDetail.run.architectureId ?? null}
+      findingsMissingFindingIdCount={findingsMissingFindingIdCount}
     />
   );
 }

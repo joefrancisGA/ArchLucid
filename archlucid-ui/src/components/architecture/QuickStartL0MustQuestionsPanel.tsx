@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { guidedIntakeClarificationsAnsweredCounter, GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT } from "@/lib/guided-intake-copy";
+import { guidedIntakeClarificationsAnsweredCounter, GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT, GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED } from "@/lib/guided-intake-copy";
 import {
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER,
@@ -240,7 +240,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
       }
 
       if (savedLocallyQuestionKeys.has(questionKey)) {
-        return { kind: "ready", label: "Answered" };
+        return { kind: "ready", label: GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED };
       }
 
       return undefined;

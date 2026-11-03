@@ -121,8 +121,10 @@ function formatDiagramClickFocusHeading(focus: {
   readonly memberNames?: readonly string[];
 }): string {
   if (focus.memberNames !== undefined) {
-    if (focus.name.length > 0) {
-      return focus.name;
+    const trimmedName = focus.name.trim();
+
+    if (trimmedName.length > 0) {
+      return trimmedName;
     }
 
     return focus.name.length === 0
@@ -1262,7 +1264,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
-      const title = node.querySelector('title')?.textContent?.trim() ?? "";
+      const title = node.querySelector('title')?.textContent ?? "";
       const memberNamesAttribute = node.getAttribute('data-member-names');
       const memberNames =
         memberNamesAttribute !== null
@@ -1280,7 +1282,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           : undefined;
       setClickFocus({
         id,
-        name: title.trim(),
+        name: title,
         memberNames,
       });
     };

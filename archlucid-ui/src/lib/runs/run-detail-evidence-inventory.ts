@@ -42,7 +42,8 @@ export function formatRunDetailEvidenceSourceNameDisplay(sourceName: string): st
   return sourceName.trim();
 }
 
-export const SUBMITTED_EVIDENCE_LIST_NOT_STORED = "Submitted evidence list was not stored." as const;
+export const RUN_DETAIL_EVIDENCE_ARCHITECTURE_BRIEF_SOURCE_HONESTY =
+  "Submitted architecture text, not a stored file name." as const;
 
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;

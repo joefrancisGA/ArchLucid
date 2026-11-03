@@ -75,9 +75,11 @@ public static class DecisionReceiptComposer
     public static string BuildFilename(Guid? draftId, Guid? runId)
     {
         string stamp = TimeProvider.System.UtcNowDateTime().ToString("yyyy-MM-dd");
-        string id = runId?.ToString() ?? draftId?.ToString() ?? "review-id-not-stored";
+        string? id = runId?.ToString() ?? draftId?.ToString();
 
-        return $"archlucid-decision-receipt-{id}-{stamp}.json";
+        return id is not null
+            ? $"archlucid-decision-receipt-{id}-{stamp}.json"
+            : $"archlucid-decision-receipt-{stamp}.json";
     }
 
     private static DecisionReceiptIntakeContext BuildIntakeContext(DraftRequestDocument document)
