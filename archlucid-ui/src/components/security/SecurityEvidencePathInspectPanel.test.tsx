@@ -826,6 +826,94 @@ describe("SecurityEvidencePathInspectPanel", () => {
     });
   });
 
+  it("appends next stored path rank context to explanation output when it is not in the summary", async () => {
+    const rankContext =
+      "Selected path path-2 outranks stored path path-3 on TechnicalExposure. This does not change the rank.";
+
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Public exposure.",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        rankOrder: 2,
+        ruleVersion: "SA-09-v1",
+        technicalExposureScore: 0.8,
+        privilegeDepthScore: 0.6,
+        blastRadiusScore: 0.7,
+        businessConsequenceScore: null,
+        confidenceBandScore: 0.5,
+        compositeSortScore: 0.7123,
+        explanationSummary: "Summary",
+        breakdownJson: "[]",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        dimensionProse: {
+          technicalExposure: "",
+          privilegeDepth: "",
+          blastRadius: "",
+          businessConsequence: "",
+          confidenceBand: "",
+          overall: "",
+        },
+        computedUtc: "2026-01-01T00:00:00Z",
+        nextStoredPathRankContext: rankContext,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      errorMessage: null,
+      explanation: {
+        explanationId: "explanation-1",
+        pathId: "path-1",
+        executiveSummary: "Simulator summary for the cited path.",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "cut-point",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: [],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: "2026-01-01T00:00:00Z",
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(await screen.findByTestId("security-evidence-path-explanation-output")).toHaveTextContent(
+      "This does not change the rank.",
+    );
+  });
+
   it("generates a model explanation in Real mode and labels the stored-path provenance", async () => {
     vi.mocked(useAgentExecutionMode).mockReturnValue({
       mode: "Real",

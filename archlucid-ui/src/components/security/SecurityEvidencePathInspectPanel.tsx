@@ -80,11 +80,7 @@ import {
   type SecureNowPilotDispositionRecord,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import { loadSecureNowPilotDispositionForPath } from "@/lib/product-line/securenow-pilot-disposition-sync";
-import {
-  resolveSecureNowStopItsmOutboundHandoffHref,
-  SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE,
-  SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE,
-} from "@/lib/product-line/securenow-stop-itsm-handoff";
+import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
 import type {
   SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
@@ -351,6 +347,7 @@ function PathExplanationSection(props: {
   readonly isGenerating: boolean;
   readonly useSimulator: boolean;
   readonly generatedAt: Date | null;
+  readonly nextStoredPathRankContext?: string | null;
   readonly onGenerate: () => void;
 }) {
   const isModelExplanation = props.explanation?.provenanceKind === "AiInference";
@@ -360,6 +357,11 @@ function PathExplanationSection(props: {
   const explanationLead = props.useSimulator
     ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD
     : SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD;
+  const rankContext = props.nextStoredPathRankContext?.trim() ?? "";
+  const executiveSummary = props.explanation?.executiveSummary.trim() ?? "";
+  const showRankContextInExplanation =
+    rankContext.length > 0
+    && (executiveSummary.length === 0 || !executiveSummary.includes(rankContext));
 
   return (
     <div
@@ -403,6 +405,7 @@ function PathExplanationSection(props: {
             props.explanation.citedEvidenceRefs.length > 0
               ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`
               : "",
+            showRankContextInExplanation ? rankContext : "",
             props.explanation.modelOutputRejection?.trim() ?? "",
           ]
             .filter((line) => line.trim().length > 0)
@@ -897,25 +900,13 @@ export function SecurityEvidencePathInspectPanel(props: {
                 {SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}
               </p>
               {pilotDisposition.outcome === "Stop" ? (
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  <Link
-                    className={OPERATOR_LINK.inline}
-                    href={resolveSecureNowStopItsmOutboundHandoffHref({
-                      pathId: resolvedPathId,
-                      rationale: pilotDisposition.rationale,
-                      findingId: props.findingId,
-                      snapshotId: pathQuery.data?.snapshotId,
-                    })}
-                    data-testid="security-evidence-path-pilot-stop-itsm-handoff"
-                  >
-                    {props.findingId != null ? "Draft finding ITSM export" : "Draft ITSM outbound handoff"}
-                  </Link>
-                  <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
-                    {props.findingId != null
-                      ? SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE
-                      : SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE}
-                  </span>
-                </p>
+                <SecureNowPilotStopItsmHandoffBlock
+                  pathId={resolvedPathId}
+                  rationale={pilotDisposition.rationale}
+                  findingId={props.findingId}
+                  snapshotId={pathQuery.data?.snapshotId}
+                  handoffTestId="security-evidence-path-pilot-stop-itsm-handoff"
+                />
               ) : null}
               <Link
                 className={OPERATOR_LINK.inline}
@@ -956,6 +947,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             isGenerating={isGeneratingExplanation}
             useSimulator={useSimulatorForExplanation}
             generatedAt={explanationGeneratedAt}
+            nextStoredPathRankContext={pathRankQuery.data?.nextStoredPathRankContext ?? null}
             onGenerate={generateExplanation}
           />
 
