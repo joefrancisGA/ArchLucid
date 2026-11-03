@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-from-detail";
+import {
+  countRunDetailFindingsMissingFindingId,
+  extractQuickDecisionFindingsFromRunDetail,
+  formatRunDetailFindingsMissingFindingIdLine,
+} from "@/lib/quick-decision-finding-from-detail";
 import { FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL } from "@/lib/findings/finding-classification-chip-presentation";
 import { resolveFindingClassificationLabel } from "@/lib/findings/finding-classification-chip-presentation";
 
@@ -37,6 +41,18 @@ describe("quick-decision-finding-from-detail (P-12)", () => {
     expect(findings[0]?.classification).toBe("LegacyGate");
     expect(resolveFindingClassificationLabel(findings[0]?.classification ?? null, null)).toBe(
       FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL,
+    );
+  });
+
+  it("counts findings stored without a finding id", () => {
+    const detail = {
+      results: [{ findings: [{ title: "Gap", message: "Fix" }, { findingId: "ok", title: "Ok", message: "Fix" }] }],
+    } as never;
+
+    expect(extractQuickDecisionFindingsFromRunDetail(detail)).toHaveLength(1);
+    expect(countRunDetailFindingsMissingFindingId(detail)).toBe(1);
+    expect(formatRunDetailFindingsMissingFindingIdLine(1)).toBe(
+      "1 findings were stored without a finding id and are not listed.",
     );
   });
 });

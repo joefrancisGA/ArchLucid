@@ -33,6 +33,10 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string EvidenceRefsOnRowEmptyLabel = "No evidence references were on this finding row.";
 
+    internal const string EvidenceRefsNotStoredLabel = "Evidence refs were not stored.";
+
+    internal const string EvidenceRefsStoredEmptyLabel = "Evidence refs were stored empty.";
+
     internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
 
     internal const string TrustLabelStoredEmptyLabel = "Trust label was stored empty.";
@@ -616,12 +620,12 @@ public static class ArchitectureRunFindingsCsvFormatter
     {
         if (evidenceRefs is null)
         {
-            return EvidenceRefsOnRowEmptyLabel;
+            return EvidenceRefsNotStoredLabel;
         }
 
         if (evidenceRefs.Count == 0)
         {
-            return EvidenceRefsOnRowEmptyLabel;
+            return EvidenceRefsStoredEmptyLabel;
         }
 
         List<string> trimmed = evidenceRefs
@@ -629,7 +633,7 @@ public static class ArchitectureRunFindingsCsvFormatter
             .Where(static reference => reference.Length > 0)
             .ToList();
 
-        return trimmed.Count == 0 ? EvidenceRefsOnRowEmptyLabel : string.Join("; ", trimmed);
+        return trimmed.Count == 0 ? EvidenceRefsStoredEmptyLabel : string.Join("; ", trimmed);
     }
 
     private static string FormatMessage(string? message)

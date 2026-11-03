@@ -106,7 +106,9 @@ export function buildRunDetailEvidencePresentation(
     lastUpdatedLabel:
       lastEvaluatedUtc !== null
         ? formatInstantForLocale(lastEvaluatedUtc)
-        : "Last updated time was not stored.",
+        : "Completed time was not stored.",
+    homeTimestampPrefix:
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0 ? "Completed" : "Updated",
     workspaceStatus: input.workspaceStatus,
     assessmentInProgress: model.showProgressTracker,
     hasArtifacts: model.artifacts.length > 0,

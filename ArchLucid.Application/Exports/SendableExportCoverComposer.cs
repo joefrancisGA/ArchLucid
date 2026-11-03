@@ -52,7 +52,7 @@ public static class SendableExportCoverComposer
 
         FeasibilityVerdict? verdict = input.CoverageContext.Verdict;
 
-        if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is not null && IsSendableCoverGateOutcomeStored(verdict.Kind))
         {
             lines.Add(
                 $"Gate outcome: {FormatVerdictKindLabel(verdict.Kind)} — treat exports as a reasoned decision record, not approval to proceed.");
@@ -157,9 +157,15 @@ public static class SendableExportCoverComposer
             : "- **Review record status:** Review record status was stored empty.";
     }
 
+    internal static bool IsSendableCoverGateOutcomeStored(FeasibilityVerdictKind kind) =>
+        kind is FeasibilityVerdictKind.Feasible
+            or FeasibilityVerdictKind.SoftInfeasible
+            or FeasibilityVerdictKind.HardInfeasible;
+
     private static string FormatVerdictKindLabel(FeasibilityVerdictKind kind) =>
         kind switch
         {
+            FeasibilityVerdictKind.Feasible => "Feasible",
             FeasibilityVerdictKind.SoftInfeasible => "Soft infeasible",
             FeasibilityVerdictKind.HardInfeasible => "Hard infeasible",
             _ => kind.ToString(),

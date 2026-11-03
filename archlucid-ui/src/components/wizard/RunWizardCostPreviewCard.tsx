@@ -76,7 +76,14 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
   }
 
   if (data.mode !== "Real") {
-    return null;
+    return (
+      <p
+        className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="run-cost-preview-non-real-mode"
+      >
+        Cost preview applies only when execution mode is Real.
+      </p>
+    );
   }
 
   const low = data.estimatedCostUsdLow;

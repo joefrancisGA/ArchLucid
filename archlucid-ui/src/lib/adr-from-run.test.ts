@@ -30,6 +30,26 @@ describe("adr-from-run", () => {
     expect(md).toContain("ADR status was not stored.");
   });
 
+  it("uses omission copy for blank run and project ids and empty findings export", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "   ",
+      projectId: "",
+      reviewTitle: "Title",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: "proposed",
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+      omittedMutedFindingCount: 0,
+    });
+
+    expect(md).toContain("Review id was not stored.");
+    expect(md).toContain("Project id was not stored.");
+    expect(md).toContain("Findings were not stored on this export.");
+    expect(md).not.toContain("Findings were not included");
+  });
+
   it("preserves stored proposed status labels", () => {
     const md = buildMadrMarkdownFromRun({
       runId: "run-proposed",
@@ -540,7 +560,7 @@ describe("adr-from-run", () => {
     });
 
     expect(missingThemes).toContain("Theme summaries were not stored.");
-    expect(missingThemes).toContain("Findings were not included in this export.");
+    expect(missingThemes).toContain("Findings were not stored on this export.");
 
     const emptyThemes = buildMadrMarkdownFromRun({
       runId: "r1",

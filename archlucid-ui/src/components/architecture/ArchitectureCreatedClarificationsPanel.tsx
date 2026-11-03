@@ -146,7 +146,8 @@ export function ArchitectureCreatedClarificationsPanel(
   const hasStoredClarificationQuestions =
     props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const isZeroGapSuccess =
-    !hasStoredClarificationQuestions
+    props.clarificationQuestions !== undefined
+    && !clarificationQuestionsStoredEmpty
     && !hasClarificationBlockedReason
     && !parseResult.hasPartialParseFailure
     && !hasVisibleWorkQueue

@@ -33,7 +33,7 @@ function formatPageCheckGapLabel(fieldLabel: string, trimmedValue: string, minim
   }
 
   if (trimmedValue.length < minimumChars) {
-    return `${fieldLabel} is below intake minimum on this page`;
+    return `${fieldLabel} was stored but is below the intake minimum on this page`;
   }
 
   return `${fieldLabel} was not stored on this page`;

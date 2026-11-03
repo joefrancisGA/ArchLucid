@@ -242,6 +242,46 @@ public sealed class SponsorReviewPacketComposerTests
     }
 
     [Fact]
+    public void ComposeMarkdown_maps_committed_run_status_to_finalized_in_manifest_summary()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "cccccccccccccccccccccccccccccccc",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "cccccccccccccccccccccccccccccccc",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow);
+
+        markdown.Should().Contain("- **Status:** Finalized");
+        markdown.Should().NotContain("- **Status:** Committed");
+    }
+
+    [Fact]
     public void ComposeMarkdown_labels_null_manifest_and_roi_sections()
     {
         ArchitectureRunDetail detail = new()

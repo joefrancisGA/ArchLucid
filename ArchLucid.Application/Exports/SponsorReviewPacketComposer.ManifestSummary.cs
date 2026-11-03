@@ -34,9 +34,7 @@ public static partial class SponsorReviewPacketComposer
             : "Review ID was not stored.";
         string statusLabel = run is null
             ? "Review status was not stored."
-            : run.Status == ArchitectureRunStatus.Committed
-                ? "Committed"
-                : run.Status.ToString();
+            : FormatReviewStatusForSponsorPacket(run.Status);
 
         string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
         sb.AppendLine($"- **System:** {systemName}");
@@ -72,4 +70,20 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine(RunSummaryOnePagerMarkdownRenderer.Render(onePager).TrimEnd());
         sb.AppendLine();
     }
+
+    private static string FormatReviewStatusForSponsorPacket(ArchitectureRunStatus status) =>
+        status switch
+        {
+            ArchitectureRunStatus.Committed => "Finalized",
+            ArchitectureRunStatus.ReadyForCommit => "Ready to finalize",
+            ArchitectureRunStatus.Failed => "Failed",
+            ArchitectureRunStatus.FailedPartial => "Failed (partial results)",
+            ArchitectureRunStatus.PartiallyCompleted => "Partially completed",
+            ArchitectureRunStatus.ExecutionCompletedQualityRejected => "Quality rejected",
+            ArchitectureRunStatus.Retrying => "Retrying",
+            ArchitectureRunStatus.WaitingForResults => "Waiting for results",
+            ArchitectureRunStatus.TasksGenerated => "Tasks generated",
+            ArchitectureRunStatus.Created => "Created",
+            _ => status.ToString(),
+        };
 }

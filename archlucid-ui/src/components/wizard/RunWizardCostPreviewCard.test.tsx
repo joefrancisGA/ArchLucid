@@ -25,7 +25,7 @@ describe("RunWizardCostPreviewCard", () => {
     vi.clearAllMocks();
   });
 
-  it("renders nothing when host mode is Simulator", async () => {
+  it("renders non-Real mode honesty instead of a Real cost card", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -34,13 +34,15 @@ describe("RunWizardCostPreviewCard", () => {
       })),
     );
 
-    const { container } = render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
 
     await waitFor(() => {
-      expect(screen.queryByTestId("run-cost-preview-loading")).not.toBeInTheDocument();
+      expect(screen.getByTestId("run-cost-preview-non-real-mode")).toHaveTextContent(
+        "Cost preview applies only when execution mode is Real.",
+      );
     });
 
-    expect(container.querySelector('[data-testid="run-cost-preview-card"]')).toBeNull();
+    expect(screen.queryByTestId("run-cost-preview-card")).toBeNull();
   });
 
   it("labels omitted execution mode", async () => {

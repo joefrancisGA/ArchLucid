@@ -24,6 +24,7 @@ import {
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatArchitectureCreatedHomeOwnerDisplay } from "@/lib/run-detail-workspace-derive/review-metadata";
 
 export type ArchitectureCreatedHomeViewportProps = {
   readonly model: ArchitectureCreatedHomeModel;
@@ -112,10 +113,10 @@ export function ArchitectureCreatedHomeViewport(
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind={model.lifecycleStatusTagKind} label={model.lifecycleLabel} />
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {model.ownerLabel !== null ? `Owner: ${model.ownerLabel}` : "Owner was not stored."}
+              {formatArchitectureCreatedHomeOwnerDisplay(model.ownerLabel)}
             </span>
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Updated {model.lastUpdatedLabel}
+              {model.homeTimestampPrefix} {model.lastUpdatedLabel}
             </span>
           </div>
         </div>

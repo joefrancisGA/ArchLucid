@@ -34,6 +34,7 @@ export type BuildArchitectureCreatedHomeModelInput = {
   readonly artifactBundleKnown?: boolean;
   readonly ownerLabel: string | null;
   readonly lastUpdatedLabel: string;
+  readonly homeTimestampPrefix?: string;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly assessmentInProgress: boolean;
   readonly hasArtifacts: boolean;
@@ -68,6 +69,9 @@ export const ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY =
 
 export const ARCHITECTURE_CREATED_KEY_INTEGRATIONS_OMITTED =
   "Key integrations were not stored on this draft." as const;
+
+export const ARCHITECTURE_CREATED_INTEGRATION_NAMES_NOT_STORED =
+  "Integration names were not stored." as const;
 
 export const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
   businessOutcome: true,
@@ -159,7 +163,9 @@ function formatActorSummaryLabel(entry: ActorSummaryEntry): string {
   let label =
     entry.fromSubmittedParse === true ? formatParsedSubmittedArchitectureName(trimmed) : trimmed;
 
-  if (entry.kind.trim().length === 0) {
+  if (entry.fromSubmittedParse === true) {
+    label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
+  } else if (entry.kind.trim().length === 0) {
     label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
   } else if (entry.kind === "Both") {
     label = `${label}${ARCHITECTURE_CREATED_ACTOR_STORED_AS_BOTH}`;
@@ -211,12 +217,8 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
       input.keyIntegrations === undefined
         ? ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED
         : integrationLabels.length > 0
-          ? integrationLabels.length === 1 && integrationLabels[0].includes(",")
-            ? integrationLabels[0]
-            : formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED, {
-                fromSubmittedParse: true,
-              })
-          : "Key integrations were stored empty.",
+          ? formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED)
+          : ARCHITECTURE_CREATED_INTEGRATION_NAMES_NOT_STORED,
   });
 
   return fields;

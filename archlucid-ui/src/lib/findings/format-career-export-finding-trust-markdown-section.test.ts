@@ -52,6 +52,25 @@ describe("formatCareerExportFindingTrustMarkdownSection (FC-36)", () => {
     expect(markdown).toContain("Trust label was not stored.");
   });
 
+  it("labels findings without a stored finding id in the trust export section", () => {
+    const markdown = formatCareerExportFindingTrustMarkdownSection([
+      {
+        findingId: "   ",
+        title: "Open egress",
+        recommendation: "Restrict egress.",
+        severityValue: 3,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: "DecisionGradeFinding",
+      },
+    ]);
+
+    expect(markdown).toContain("**Finding id was not stored.**");
+  });
+
   it("labels findings without a stored title in the trust export section", () => {
     const markdown = formatCareerExportFindingTrustMarkdownSection([
       {

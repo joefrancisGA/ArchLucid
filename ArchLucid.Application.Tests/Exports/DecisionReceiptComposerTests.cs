@@ -75,4 +75,14 @@ public sealed class DecisionReceiptComposerTests
 
         missingVersion.Should().Throw<ArgumentException>();
     }
+
+    [Fact]
+    public void BuildFilename_WithoutIds_OmitsStandInToken()
+    {
+        string name = DecisionReceiptComposer.BuildFilename(null, null);
+
+        name.Should().StartWith("archlucid-decision-receipt-");
+        name.Should().EndWith(".json");
+        name.Should().NotContain("review-id-not-stored");
+    }
 }
