@@ -262,6 +262,20 @@
 
 ## Zone: email-otp-auth
 
+2026-11-03 thorough hunt (dry #62): cheap-disproof closed five open `(candidate)` monitor rows from dry **#61** reseed — bot challenge missing returns neutral anti-enumeration envelope without explicit delivery failure (`RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`, dry **#58** / **#940**); verify rate limit runs before enterprise SSO re-check by design (`VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`, dry **#56**); controller omits challenge id when `EmailDeliverySucceeded` is null on neutral paths (`RequestChallengeAsync_omits_challenge_id_when_email_delivery_succeeded_is_null_without_challenge`, `RequestChallengeAsync_treats_null_email_delivery_succeeded_as_distinct_from_explicit_failure`, dry **#940**); concurrent delivery-failure cleanup deletes by challenge id only (`RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`, hit **2026-10-10**); `SelectWorkspace` verify next step uses intentional trial JWT defaults (`VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` + controller verify workspace tests, dry **#940** / seed **#353**). Reseeded five follow-on `(candidate)` rows; **68/68** scoped Application + Api email OTP tests (`RunAnalyzers=false`: 50 service/concurrency + 18 controller). Private beta: n/a.
+
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — bot-challenge missing neutral envelope — **cheap-disproof 2026-11-03 thorough hunt #62:** anti-enumeration; regressions above.
+- [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — verify rate limit before SSO re-check — **cheap-disproof 2026-11-03 thorough hunt #62:** intentional ordering; regression above.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — null `EmailDeliverySucceeded` omits challenge id — **cheap-disproof 2026-11-03 thorough hunt #62:** neutral envelope mapping; regressions above.
+- [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — concurrent replace during delivery-failure cleanup — **cheap-disproof 2026-11-03 thorough hunt #62:** id-scoped delete; regression above.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `SelectWorkspace` trial JWT defaults — **cheap-disproof 2026-11-03 thorough hunt #62:** intentional contract; regressions above.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — null request body returns HTTP 400 before service call — locus: `body is null` guard; input: verify POST with null JSON body (monitor dry **#62**).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed service verify returns HTTP 401 without leaking token fields — locus: `!result.Succeeded` branch; input: invalid code path in controller tests (monitor dry **#62**).
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — repeated incorrect codes invalidate challenge after max attempts — locus: attempt counter + repository invalidate; input: `VerifyCodeAsync_rejects_incorrect_code_and_invalidates_after_max_attempts` (monitor dry **#62**).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — access-token lifetime upper clamp via `Math.Clamp(..., 5, 24 * 60)` — locus: verify response `ExpiresInSeconds`; input: options above 1440 minutes (monitor dry **#62** / seed **#353**).
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — empty string `Email` delegates to service neutral path (not API 400) — locus: only null-email guard; input: challenge POST `{ "email": "" }` (monitor dry **#62**).
+
 2026-11-01 thorough hunt (dry #61): cheap-disproof closed five open `(candidate)` monitor rows from dry **#60** reseed — whitespace-only verification code rejected before repository touch (`VerifyCodeAsync_returns_failure_when_code_is_whitespace_only`, seed hunt **#34**); disabled OTP returns neutral without notifier (`RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`, seed **#34**); unknown challenge id fails without verification audit (`VerifyCodeAsync_returns_failure_without_audit_when_challenge_is_unknown`, seed **#34**); hourly request cap returns neutral anti-enumeration envelope (`RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once` / rate-limit family, dry **#940**); JWT lifetime uses clamped email OTP minutes with issuer parity (`VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`, hit **2026-10-09**, dry **#59**). Reseeded five follow-on `(candidate)` rows; **68/68** scoped Application + Api email OTP tests (`RunAnalyzers=false`: 50 service/concurrency + 18 controller). Private beta: n/a.
 
 - [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — whitespace-only verification code — **cheap-disproof 2026-11-01 thorough hunt #61:** early guard; regression above.
@@ -269,12 +283,6 @@
 - [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — unknown challenge id without audit — **cheap-disproof 2026-11-01 thorough hunt #61:** `unknown_challenge` path; regression above.
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — hourly request cap neutral envelope — **cheap-disproof 2026-11-01 thorough hunt #61:** anti-enumeration; dry **#940** class; regressions above.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — JWT lifetime clamp vs trial TTL — **cheap-disproof 2026-11-01 thorough hunt #61:** proven hit **2026-10-09**; regression above.
-
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — bot-challenge missing returns neutral envelope without explicit delivery failure — locus: `NeutralResult()`; input: bot required, token missing (monitor dry **#60** / **#58**).
-- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — verify rate limit runs before enterprise SSO re-check — locus: ordering; input: stale challenge + SSO domain (monitor dry **#56**).
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — null `EmailDeliverySucceeded` omits challenge id — locus: controller mapping; input: neutral envelope (monitor dry **#58** / **#940**).
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — concurrent replace during delivery-failure cleanup — locus: id-scoped delete; input: parallel request (monitor hit **2026-10-10**).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `SelectWorkspace` next step trial JWT defaults — locus: onboarding contract; input: multi-workspace verify (monitor dry **#940** / seed **#353**).
 
 2026-11-01 thorough hunt (dry #60): cheap-disproof closed five open `(candidate)` monitor rows from dry **#59** reseed — missing bot token returns neutral envelope without explicit delivery failure (`RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`, dry **#58** / **#940**); verify rate limit before enterprise SSO re-check is intentional (`VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`, dry **#56**); controller omits challenge id for null or false `EmailDeliverySucceeded` (`RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`, `RequestChallengeAsync_omits_challenge_id_when_email_delivery_succeeded_is_null_without_challenge`, `RequestChallengeAsync_treats_null_email_delivery_succeeded_as_distinct_from_explicit_failure`); concurrent delivery-failure cleanup is id-scoped (`RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`, hit **2026-10-10**); `SelectWorkspace` next step with trial JWT defaults is onboarding contract (`VerifyAsync` controller/service tests, dry **#940** / seed **#353**); reseeded five follow-on `(candidate)` rows; **68/68** scoped Application + Api email OTP tests (`RunAnalyzers=false`: 50 service/concurrency + 18 controller). Private beta: n/a.
 
@@ -435,10 +443,10 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
 - **related-pd-tb:** none
 - **code-changed-since:** no

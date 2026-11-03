@@ -2571,3 +2571,4 @@
 {"at":"2026-11-03T02:33:39.7298133Z","zoneId":"tenant-erasure","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-03T02:39:08.8773616Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T02:42:14.8985204Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T02:48:02.4209200Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
