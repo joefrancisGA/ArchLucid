@@ -45,6 +45,7 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_SUBSTRATE,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON,
   SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
@@ -387,6 +388,14 @@ function PathExplanationSection(props: {
           data-testid="security-evidence-path-explanation-real-mode-hint"
         >
           {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT}
+        </p>
+      ) : null}
+      {!props.useSimulator ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-explanation-real-mode-substrate"
+        >
+          {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_SUBSTRATE}
         </p>
       ) : null}
       <Button

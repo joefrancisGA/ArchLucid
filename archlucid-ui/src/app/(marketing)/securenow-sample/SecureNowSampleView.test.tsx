@@ -58,4 +58,11 @@ describe("SecureNow sample page (SN-MKT-09)", () => {
     expect(screen.getByTestId("securenow-sample-fixture-hops")).toHaveTextContent("Reader on the subscription");
     expect(screen.getByTestId("securenow-sample-fixture-hops")).toHaveTextContent("not an observed exploit");
   });
+
+  it("lists the second synthetic fixture path section", () => {
+    render(<SecureNowSampleView />);
+
+    expect(document.getElementById("fixture-path-02")).toBeInTheDocument();
+    expect(screen.getByText(/Second synthetic path \(fixture-path-02\)/)).toBeInTheDocument();
+  });
 });

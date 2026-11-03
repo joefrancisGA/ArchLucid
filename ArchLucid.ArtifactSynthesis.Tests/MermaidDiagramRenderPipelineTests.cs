@@ -176,6 +176,30 @@ public sealed class MermaidDiagramRenderPipelineTests
         collapse.Entries.Should().Contain(entry => entry.Kind == "RequiredCloudResourceDropped");
     }
 
+    [Fact]
+    public void Render_emits_questionable_metadata_honesty_for_stored_empty_reason()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "questionable",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm-1",
+                    Label = "VM",
+                    NodeType = "TopologyResource",
+                    QuestionableAttention = new DiagramQuestionableAttention("   ", "Fix it"),
+                },
+            ],
+        };
+
+        string mermaid = new MermaidDiagramRenderer().Render(ast);
+
+        mermaid.Should().Contain("al-questionable-reason=\"Questionable reason was stored empty.\"");
+        mermaid.Should().Contain("al-questionable-action=\"Fix it\"");
+    }
+
     private static DiagramAst BuildLargeAst(int nodeCount)
     {
         DiagramAst ast = new() { Title = "large" };

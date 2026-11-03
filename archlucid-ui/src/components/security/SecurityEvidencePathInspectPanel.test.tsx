@@ -1038,6 +1038,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     renderPanel("finding-1");
 
     expect(screen.getByTestId("security-evidence-path-explanation-real-mode-hint")).toBeInTheDocument();
+    expect(screen.getByTestId("security-evidence-path-explanation-real-mode-substrate")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
 

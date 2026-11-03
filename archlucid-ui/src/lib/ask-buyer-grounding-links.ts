@@ -193,13 +193,9 @@ export function collectCitedReviewIdsFromAskAnswerRefs(
   for (const artifactId of refs.referencedArtifacts ?? []) {
     const trimmed = artifactId.trim().toLowerCase();
 
-    if (trimmed.length > 0) {
+    if (trimmed.length > 0 && runId.length > 0 && trimmed === runId) {
       cited.add(trimmed);
     }
-  }
-
-  if (runId.length > 0 && (refs.referencedArtifacts ?? []).some((id) => id.trim().toLowerCase() === runId)) {
-    cited.add(runId);
   }
 
   return cited;

@@ -11,6 +11,23 @@ export const SECURENOW_SAMPLE_FIXTURE_LINE = "Synthetic fixture. Not a customer 
 
 export const SECURENOW_SAMPLE_FIXTURE_PATH_ID = "fixture-path-01" as const;
 
+export const SECURENOW_SAMPLE_SECOND_FIXTURE_PATH_ID = "fixture-path-02" as const;
+
+export type SecureNowSampleSecondFixtureHop = {
+  readonly hopOrdinal: number;
+  readonly label: string;
+};
+
+export const SECURENOW_SAMPLE_SECOND_FIXTURE_HOPS: readonly SecureNowSampleSecondFixtureHop[] = [
+  { hopOrdinal: 1, label: "Reader on the subscription" },
+  { hopOrdinal: 2, label: "Storage Blob Data Contributor on a storage account" },
+] as const;
+
+export const SECURENOW_SAMPLE_SECOND_FIXTURE_CUT_POINT =
+  "Remove standing Blob Data Contributor on that storage account." as const;
+
+export const SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID = "fixture-path-02" as const;
+
 export type SecureNowSampleFixtureHop = {
   readonly hopOrdinal: number;
   readonly label: string;

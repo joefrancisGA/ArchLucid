@@ -24,6 +24,7 @@ public static class DiagramForestLegendSvgEmitter
     public sealed record LegendInput(
         IReadOnlyList<DiagramInventoryPictogramKind> UsedKinds,
         bool HasPrivateEndpointAccess,
+        bool HasStoredSolidRelationshipConnectors,
         bool HasUnclassifiedConnectors,
         bool HasDashedPeeringEdges,
         bool HasResourceGroupFrames,
@@ -59,7 +60,10 @@ public static class DiagramForestLegendSvgEmitter
             rows.Add("Private endpoint access");
         }
 
-        rows.Add("Solid connector (stored relationship)");
+        if (input.HasStoredSolidRelationshipConnectors)
+        {
+            rows.Add("Solid connector (stored relationship)");
+        }
 
         if (input.HasUnclassifiedConnectors)
         {

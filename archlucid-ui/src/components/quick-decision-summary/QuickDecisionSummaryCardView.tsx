@@ -5,6 +5,7 @@ import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/R
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE } from "@/lib/finding-stream-product-of-record-copy";
+import { isQuickDecisionPolicyBlockingFinding } from "@/lib/quick-decision-finding-merge-and-sort";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -23,6 +24,8 @@ export function QuickDecisionSummaryCardView({
   derived,
   interaction,
 }: QuickDecisionSummaryCardViewProps): ReactElement {
+  const policyBlockingFindings = derived.policyViolations.filter(isQuickDecisionPolicyBlockingFinding);
+
   return (
     <Card
       data-testid="quick-decision-summary"
@@ -138,7 +141,7 @@ export function QuickDecisionSummaryCardView({
               <h3 className={cn("m-0 mb-2", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
                 Policy violations
               </h3>
-              {derived.policyViolations.length === 0 ? (
+              {policyBlockingFindings.length === 0 ? (
                 <p className="m-0 text-neutral-600 dark:text-neutral-400">
                   No policy-blocking findings on this review. Baseline guidance may still appear under advisory
                   notes.
@@ -179,6 +182,30 @@ export function QuickDecisionSummaryCardView({
                 </div>
               )}
             </div>
+
+            {derived.enforcementTierUnspecified.length > 0 ? (
+              <div data-testid="quick-decision-enforcement-tier-unspecified">
+                <h3 className={cn("m-0 mb-2", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
+                  Findings without stored enforcement tier
+                </h3>
+                <ol className="m-0 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
+                  {derived.enforcementTierUnspecified.map((finding) => (
+                    <QuickDecisionSummaryFindingRow
+                      key={finding.findingId}
+                      props={props}
+                      finding={finding}
+                      showTierBadge
+                      canMutate={interaction.canMutate}
+                      askFindingId={interaction.askFindingId}
+                      onToggleAskPanel={interaction.toggleAskPanel}
+                      onViewReasoning={interaction.openReasoningDialog}
+                      onMute={interaction.openMuteDialog}
+                      findingWireSnapshot={props.findingWireSnapshots?.[finding.findingId] ?? null}
+                    />
+                  ))}
+                </ol>
+              </div>
+            ) : null}
 
             {derived.advisoryNotes.length > 0 ? (
               <div

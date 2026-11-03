@@ -4,30 +4,30 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-09-26**).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-11-03**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
 
 | Architectural quality | Open |
 | --- | ---: |
-| Reliability | 3 |
+| Reliability | 2 |
 | Deployability | 1 |
 | AI/Agent readiness | 8 |
-| Architectural integrity | 3 |
+| Architectural integrity | 1 |
 | Cutting-edge AI | 2 |
 | Explainability | 1 |
 | Trustworthiness | 4 |
 | Interoperability | 3 |
-| Performance | 3 |
+| Performance | 2 |
 | Cost-effectiveness | 3 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
-| Differentiability | 2 |
+| Differentiability | 1 |
 | Security | 5 |
-| **Total (unique open)** | **40** |
+| **Total (unique open)** | **35** |
 
-**By priority band:** P0 **0** | P1 **10** | P2 **21** | P3 **9**.
+**By priority band:** P0 **0** | P1 **10** | P2 **16** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -665,7 +665,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-2282** was added 2026-08-13 from an owner ask to **strengthen reviews and architectures** by drafting a structured architecture model before starting a review. **Problem:** `/architectures/{id}` review-start readiness (`validateArchitectureReviewReadiness`) unlocks **Start architecture review** on system name + 100-character free-text overview + 10-character business outcome. That is enough to persist a draft, not enough to give engines explicit constraints, assumptions, quality attributes, trust-boundary actors, failure modes, or labeled unknowns ? so reviews invent, skip, or genericize. **Reuse, do not parallel:** `ArchitectureRequest` already has `Constraints` / `RequiredCapabilities` / `Assumptions`; `ArchitectureRequestDraftService` already suggests those lists from free text; actor editor already captures trust origin + interaction contract. This row surfaces and gates those objects on the draft, then maps them onto the request at review start. **Peers not duplicated:** Done **TB-2006** (disable CTA until *current* readiness); Done **TB-2176** (brief-understanding check, not structured fields); Done **TB-766** (draft-vs-review help); Done **TB-2211** (cost constraint nodes from request `constraints` ? downstream consumer of this intake). No new GTM IDs.
 
-**TB-2302**?**TB-2304** were added 2026-08-14 from an owner ask to **log V1.1 backlog** for operator-home startup optimizations deferred after the 2026-08-14 shell-status wave. **V1 shipped (do not refile):** `GET /v1/operator/shell-status` home-bundle fields (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action); `OperatorShellStatusQueryGate` hydration + gated concern fetches; assigned-to-me badge via SQL `COUNT` (`GET /v1/governance/risk-register/assigned-to-me-count`) instead of 500-row risk-register download. **V1.1 open:** **TB-2302** (P2) `GET /v1/operator/bootstrap` mega-bundle for any remaining cold-start reads after shell-status; **TB-2303** (P3) user-preferences TanStack bridge across root `ColorModePreferenceProvider` vs operator `QueryClientProvider` (current `user-preferences.ts` TTL + in-flight dedupe stays until then); **TB-2304** (P2) operator-home proxy-trace re-measurement baseline + regression gate. **Prerequisite:** run **TB-2304** before scoping **TB-2302**. Peers: Done **TB-2023** (alerts inbox summary), **TB-2165** (Query persistence); open **TB-934**/**TB-935**. Owner ask 2026-08-14.
+**TB-2302**?**TB-2304** were added 2026-08-14 from an owner ask to **log V1.1 backlog** for operator-home startup optimizations deferred after the 2026-08-14 shell-status wave. **V1 shipped (do not refile):** `GET /v1/operator/shell-status` home-bundle fields (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action); `OperatorShellStatusQueryGate` hydration + gated concern fetches; assigned-to-me badge via SQL `COUNT` (`GET /v1/governance/risk-register/assigned-to-me-count`) instead of 500-row risk-register download. **Closed:** **TB-2304** **Done** (2026-08-19) proxy-trace baseline; **TB-2302** **Rejected** the same day (bootstrap bundling no-go); **TB-2303** **Done** (2026-08-19) shared `operatorQueryKeys.userPreferences` fetch. Peers: Done **TB-2023** (alerts inbox summary), **TB-2165** (Query persistence); open **TB-934**/**TB-935**. Owner ask 2026-08-14.
 
 **TB-2330**?**TB-2332** were added 2026-08-15 from a **residual easier-to-use audit** after Done **TB-2130**?**TB-2139**, **TB-2175**?**TB-2184**, **TB-2232**, the 2026-08-15 nav gate unification fix (`useEffectiveNavCommittedArchitectureReview`, commit `d3b4124071`), and vocabulary rename (`sealedReviewRecord`, commit `04f6e100bb`). **Do not reopen** those Done rows. **TB-2330** (P2) Vitest/CI guard that sidebar, command palette, and impact-preview reachability share one committed-review gate input (regression after Done **TB-2133**). **TB-2331** (P2) consolidate competing first-run home rails into one primary onboarding object after Done **TB-2232** canonical next-action slot. **TB-2332** (P2) collapse `ReviewsNewPathSwitcher` tabs behind job chooser for returning users after Done **TB-2136** / **TB-2283**. Owner ask 2026-08-15.
 
@@ -1642,7 +1642,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2299 | **Done** (2026-08-14) ? Impact preview before apply-change / mark-remediated; TB-2184 export impact stays; see ## TB-2299 below | Trustworthiness P1 ? **V1**; owner strengthen-reviews ask 2026-08-13 item 6; does not reopen **TB-2184**/**TB-1987** | M |
 | TB-2300 | **Done** (2026-08-14) ? Second review reuses prior package + compare default; see ## TB-2300 below | Adoption friction P1 ? **V1**; owner strengthen-reviews ask 2026-08-13 item 7; does not reopen **TB-2130**/**TB-224** | M |
 | TB-2301 | **Done** (2026-08-19) — Refresh `/why` hero product screenshot after operator Home IA drift; `why-hero-operator-home-2026-08-19.png` + `capture:why-hero-operator-home`; see ## TB-2301 below | Adoption friction P2 ? **V1.1**; owner UX pass 2026-08-14 /why hero screenshot | XS |
-| TB-2302 | `GET /v1/operator/bootstrap` cold-start mega-bundle (residual reads after shell-status) ? **V1.1**; see ## TB-2302 below | Performance P2 ? **V1.1**; operator home startup; after **TB-2304** | L |
+| TB-2302 | **Rejected** (2026-08-19, TB-2304 no-go) — operator-home bootstrap mega-bundle; proxy-trace baseline rejected a second payload; see the TB-2302 section below | Performance P2 ? **V1.1** | L |
 | TB-2303 | **Done** (2026-08-19) ? User preferences cross-tree TanStack dedupe via `operatorQueryKeys.userPreferences` + shared `getOperatorQueryClient().fetchQuery`; see ## TB-2303 below | Performance P3 ? **V1.1**; replaces module-level TTL dedupe in `user-preferences.ts` | M |
 | TB-2304 | **Done** (2026-08-19) ? Operator home startup proxy-trace baseline + regression gate; `operator-home-startup-proxy-trace-baseline.v1.json` + concern-gate drift guard; TB-2302 **no-go**; see ## TB-2304 below | Performance P2 ? **V1.1**; gates **TB-2302** scope; post shell-status wave | S |
 | TB-2330 | **Done** (2026-08-15) ? Vitest `nav-committed-review-gate-drift-guard.test.ts`; NAV_CONFIG_CONTRACT single-input rule; see ## TB-2330 below | Testability P2 ? **V1**; nav gate regression after Done **TB-2133** | S |
@@ -1952,7 +1952,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-882 | ~~Automated nav-authority/label-consistency guard — CI check that `NavLinkItem.requiredAuthority` matches controller primary GET policy; heading/label snapshot tests~~ **Done 2026-08-23** — `scripts/ci/check_nav_authority_controller_parity.py` + manifest/exemptions; Vitest `nav-authority-controller-parity.test.ts`; see `## TB-882` below | Correctness P2 ? **V1** | M |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal ? capture optional `retrievalHits` on `*.real.json` exemplars; Phase B faithfulness script reports Graph-RAG ? vs all-on by filtering `KnowledgeGraphNodeNeighbor`; see `## TB-883` below | AI/Agent readiness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | M |
 | TB-884 | ~~Policy-pack attribution signal ? read-side `% of findings attributable to assigned policy-pack rules` over `RulesApplied` + pack rule sets; CI/script summary~~ **Done 2026-08-24** ? `PolicyPackAttributionSignalCalculator` + `scripts/ci/policy_pack_attribution_signal.py`; eval-corpus fixtures; see `## TB-884` below | Differentiability P2 ? **V1** | M |
-| TB-885 | Policy-pack compounding-evidence ledger — dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 — **Done** (2026-09-07, DX-18) | L |
+| TB-885 | **Done** (2026-09-07, DX-18) — Policy-pack compounding-evidence ledger — dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 ? **V1** | L |
 | TB-886 | Surface tamper-evident manifest-verify endpoint in buyer-facing material ? demo/script for `GET /v1/artifacts/runs/{runId}/export/verify` (TB-307); ADR 0040 application-layer hash lineage (not WORM); see `## TB-886` below | Differentiability P3 ? **V1** (docs); **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); low-cost enough for pilot packet if owner wants sooner | S |
 | TB-686 | **Done** (2026-08-17) â€” structure-aware retrieval chunking behind `Retrieval:Chunking:Strategy=Semantic`; `StructureAwareTextChunker` + fingerprint wiring; default Simple pending TB-595 ablation lift; see `## TB-686` below | Cutting-edge AI P2 ? **V1**; owner promoted from V2 2026-07-19; IR ~98% so ship gated behind TB-595 ablation; found during AI quality/cost/speed review 2026-07-07 | L |
 | TB-560 | ~~Dynamic-import `CommandPalette` from operator shell top bar ??? defer `cmdk` + ~617-line palette chunk until shortcut/open; `next/dynamic({ ssr: false })` + loading placeholder~~ ? **Done** (2026-07-03) | Performance P1 ? **V1.1** | S |
@@ -2231,8 +2231,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** ??? `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 ? **V1** | S |
 | TB-392 | ~~Per-tenant Jira/ServiceNow credentials ??? mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS~~ ? **Done** (2026-06-27) | Trustworthiness P1 ? **V1** | M |
 | TB-393 | ~~Tenant ITSM outbound settings write API + admin UI ??? upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `ExecuteAuthority` gate~~ ? **Done** (2026-06-27) | Adoption friction P1 ? **V1** | M |
-| TB-394 | Durable async ITSM outbound ticket creation ??? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1** | M |
-| TB-395 | Finding assignee + general remediation due date ??? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1** | M |
+| TB-394 | **Done** (2026-06-27) — Durable async ITSM outbound ticket creation — `IBackgroundJobQueue` when `DurableAsyncCreateEnabled`; worker retry + terminal failed state; UI polls 202 jobs; see `## TB-394` below | Reliability P2 ? **V1.1** | M |
+| TB-395 | **Done** (2026-06-27) — Finding assignee + general remediation due date — `AssignedToUserId` + `RemediationDueUtc` on contract/SQL; inspect + risk register + outbound mappers; see `## TB-395` below | Architectural integrity P2 ? **V1.1** | M |
 | TB-396 | ~~Inbound ITSM disposition sync â€” extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document statusâ†’disposition map in inbound options~~ â€” **Done** (2026-06-27; config ref **2026-08-14**) | Interoperability P2 ? **V1.1** | M |
 | TB-196 | ~~Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path~~ ? **Done** (2026-06-02, batch 5R): aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | Reliability P1 ? **V1** | XS |
 | TB-197 | ~~`GovernanceWorkflowService.PromoteAsync` ? wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test~~ ? **Done** (2026-06-02, batch 5J): single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | Reliability P1 ? **V1** | S |
@@ -2491,7 +2491,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2415 | V2 ? Pareto alternatives for architecture mutations; retain nondominated options across named dimensions and refuse a single fitness score | Security P2 ? **V2**; depends on **TB-2412**; size XL |
 | TB-2416 | V2 ? requirements-constrained architecture synthesis; search candidates against budget, RTO, RPO, and exposure constraints, then explain why each survivor remains | Security P3 ? **V2**; depends on **TB-2415**; size XL |
 | | **Done V2 (kept for grep; not shippable)** | | |
-| TB-397 | `IExternalTicketConnector` plugin boundary ??? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite | M |
+| TB-397 | **Done** (2026-06-27) — `IExternalTicketConnector` plugin boundary — shared port + provider registry; Jira/ServiceNow behind registry; see `## TB-397` below | Architectural integrity P2 ? **V1.1** | M |
 | TB-689 | ~~Multi-vendor LLM routing decision gate~~ **Done** (2026-07-18) ? ADR 0060 Accepted: Azure-native managed path; BYO via **TB-872**/**TB-873**; no third-party vendor SDK adapters under this ADR; see `## TB-689` below | Cutting-edge AI P3 ? **V2**; decision gate closed | XS |
 | TB-919 | ~~Retire deprecated run-lifecycle alias routes~~ **Done** (2026-07-20) ? deleted `v1/requests` / `v1/runs/{runId}/submit` / `v1/runs/{runId}/manifest/finalize`; closes coordinator strangler migration's last open item (TB-305 placeholder + ADR 0021 gate (iv)); see `## TB-919` below | Deployability P2 ? closes TB-305's deferred "later sunset TB" | S |
 
@@ -13320,63 +13320,23 @@ Jira/ServiceNow outbound and inbound webhook secrets live in deployment-wide `In
 
 ---
 
-## TB-394 ??? Durable async ITSM outbound ticket creation ??? **V1.1**
+## TB-394 ??? Durable async ITSM outbound ticket creation ??? **Done (2026-06-27)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Problem:**
-
-`ItsmOutboundIssueCreationService.TryCreateForFindingAsync` runs **synchronously** in the HTTP request. Vendor outage after Polly retries exhaust fails the operator inline; there is no durable retry/DLQ for ticket creation despite mature outbox/queue infrastructure elsewhere.
-
-**Scope:**
-
-1. Enqueue outbound create on `IntegrationEventOutbox` or `BackgroundJobQueue` after operator action; return **202 Accepted** with job/correlation id.
-2. Worker executes create + correlation persist + audit; surface pending/failed state on finding inspect ITSM panel.
-3. Reuse `AddOutboundExternalHttpResilience()` in worker scope; cap retries; DLQ with admin replay hook (pattern from `IntegrationEventDlqRetryHostedService`).
-4. Keep synchronous path behind config flag for local dev/smoke tests.
-
-**Acceptance criteria:**
-
-- Transient vendor failures retry without blocking the operator UI thread.
-- Failed creates are visible and replayable; duplicate guard still applies.
-
-**Affected files / projects:**
-
-- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs`
-- `ArchLucid.Host.Core/Jobs/` or `Hosted/IntegrationEventOutboxHostedService.cs`
-- `archlucid-ui/src/lib/api/itsm-outbound-api.ts`
+**Shipped:** `Integrations:ItsmOutbound:DurableAsyncCreateEnabled` (default true) enqueues `ItsmOutboundCreateJobPayload` on `IBackgroundJobQueue`; `ItsmOutboundIssuesController` returns **202** with job id; `ItsmOutboundCreateJobProcessor` maps vendor errors to worker retries and terminal `Failed` job files; UI polls via `archlucid-ui/src/lib/api/itsm-outbound-create.ts`. Synchronous path remains when durable create is disabled (WireMock/smoke). Delivery semantics: [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) Path A.
 
 **Size estimate:** **M**
 
-**Cross-ref:** **TB-251** (outbox pattern precedent).
+**Cross-ref:** **TB-251** (outbox pattern precedent); pairs **TB-397**.
 
 ---
 
-## TB-395 ??? Finding assignee + general remediation due date ??? **V1.1**
+## TB-395 ??? Finding assignee + general remediation due date ??? **Done (2026-06-27)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Problem:**
-
-Core `Finding` has no `AssignedToUserId` or general remediation due date. Risk-register `OwnerUserId` maps to last disposition reviewer; `RevisitDueUtc` applies only on defer disposition. Jira assignee and ServiceNow `assigned_to` / SLA fields cannot map cleanly.
-
-**Scope:**
-
-1. Add nullable `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL (migration).
-2. Expose on inspect, risk register, and outbound payload mapper (`ItsmFindingAuthorityPayloadMapper`).
-3. Optional UI edit on finding inspect (governance section) with audit trail.
-4. Do **not** conflate with waiver owner or disposition reviewer fields.
-
-**Acceptance criteria:**
-
-- Operators can assign a finding owner and target remediation date independent of disposition deferral.
-- Outbound ticket create includes assignee/due when configured.
-
-**Affected files / projects:**
-
-- `ArchLucid.Contracts/Findings/Finding.cs`
-- `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`
-- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmFindingAuthorityPayloadMapper.cs`
+**Shipped:** Nullable `AssignedToUserId` and `RemediationDueUtc` on `Finding` + SQL; inspect and architecture risk register projections; finding inspect governance/disposition controls for operator edit; Jira/ServiceNow outbound connectors map assignee and due from inspect read model. Distinct from waiver owner and disposition `RevisitDueUtc`.
 
 **Size estimate:** **M**
 
@@ -28124,28 +28084,15 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
-## TB-2302 ? `GET /v1/operator/bootstrap` cold-start mega-bundle (P2) ? **V1.1**
+## TB-2302 ? `GET /v1/operator/bootstrap` cold-start mega-bundle (P2) ? **Rejected (2026-08-19)**
 
-**Window:** V1.1 ? Performance (operator home cold start).
+**Window:** V1.1 — Performance (operator home cold start).
 
-**Priority:** P2.
+**Status:** **Rejected / no-go** (2026-08-19). **TB-2304** published the operator-home proxy-trace baseline and regression gate and recorded bootstrap bundling as a no-go. Do not add `GET /v1/operator/bootstrap`.
 
-**Source:** Owner ask 2026-08-14 to log deferred operator-home startup follow-ups after the shell-status optimization wave.
+**Why it stays closed:** Shell-status already carries the home bundle (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action). The trace did not justify a second mega-payload.
 
-**Problem:** Operator home still fans out multiple `/api/proxy` reads on first paint even after `GET /v1/operator/shell-status` gained home-bundle fields (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action) and concern queries were gated on shell-status hydration. A single bootstrap response may still be justified if proxy traces show material duplicate or serial round trips remain.
-
-**Approach:**
-
-1. Run **TB-2304** first ? capture post-`shell-status` proxy trace and define an allowed call budget.
-2. Design `GET /v1/operator/bootstrap` (or extend shell-status only if that stays smaller) returning only reads that still fire on every home load.
-3. Hydrate TanStack caches from the bootstrap payload the same way `fetchAndHydrateOperatorShellStatus` does today.
-4. Keep granular endpoints for deep links and cache invalidation; bootstrap is first-paint only.
-
-**Acceptance:** Cold operator-home load meets the **TB-2304** call budget without regressing shell-status-only surfaces; OpenAPI + contract snapshots updated; Vitest hydration tests for cache seeding.
-
-**Out of scope:** Replacing long-running operations poll/SSE (**TB-2074**); full-app bootstrap for every operator route.
-
-**Peers:** V1 shipped shell-status home bundle + assigned-to-me SQL count (2026-08-14); Done **TB-2023**; open **TB-2304**.
+**Evidence:** `archlucid-ui/performance/operator-home-startup-proxy-trace-baseline.v1.json`; `docs/architecture/operator_home_startup_proxy_trace_tb2304.md`; Done **TB-2304**.
 
 **Size estimate:** L.
 

@@ -4,6 +4,7 @@ import {
   countRunDetailFindingsMissingFindingId,
   extractQuickDecisionFindingsFromRunDetail,
   formatRunDetailFindingsMissingFindingIdLine,
+  quickDecisionFindingFromTraceRow,
 } from "@/lib/quick-decision-finding-from-detail";
 import { FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL } from "@/lib/findings/finding-classification-chip-presentation";
 import { resolveFindingClassificationLabel } from "@/lib/findings/finding-classification-chip-presentation";
@@ -54,5 +55,19 @@ describe("quick-decision-finding-from-detail (P-12)", () => {
     expect(formatRunDetailFindingsMissingFindingIdLine(1)).toBe(
       "1 findings were stored without a finding id and are not listed.",
     );
+  });
+
+  it("quickDecisionFindingFromTraceRow does not invent enforcement tier", () => {
+    const row = quickDecisionFindingFromTraceRow(
+      {
+        findingId: "trace-1",
+        findingTitle: "Gap",
+        confidenceLevel: "Medium",
+      },
+      0,
+    );
+
+    expect(row?.enforcementTier).toBeNull();
+    expect(row?.enforcementTierStored).toBe(false);
   });
 });

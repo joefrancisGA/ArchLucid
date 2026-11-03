@@ -64,6 +64,9 @@ export const SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG =
 export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT =
   "Real mode sends one completion constrained to this path's hop evidence refs and cut points. Disallowed citations persist as a stored-path summary with the rejection reason shown here." as const;
 
+export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_SUBSTRATE =
+  "Completion uses the tenant-configured Azure OpenAI deployment on the shared ArchLucid host, not a separate SecureNow model route." as const;
+
 export const SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD =
   "The live completion cited evidence outside this path. The summary below is the stored deterministic fallback — not a second rank." as const;
 

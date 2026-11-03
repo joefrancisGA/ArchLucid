@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
+import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -218,6 +219,7 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
             Read the sponsor-facing decision path
           </Link>
         </p>
+        <SecureNowProcurementTrustStrip />
       </main>
     </OperatorPageContainer>
   );

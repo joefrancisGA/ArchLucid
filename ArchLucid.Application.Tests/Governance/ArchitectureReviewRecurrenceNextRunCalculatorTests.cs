@@ -476,6 +476,44 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
     }
 
     [Fact]
+    public void IsSupportedCronExpression_accepts_annually_as_cronos_calendar_synonym()
+    {
+        _sut.IsSupportedCronExpression("@annually").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_accepts_mixed_case_Monthly_alias()
+    {
+        _sut.IsSupportedCronExpression("@Monthly").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_accepts_hourly_alias_with_trailing_ascii_space()
+    {
+        _sut.IsSupportedCronExpression("@hourly ").Should().BeTrue();
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_five_field_cron_at_max_value_throws()
+    {
+        DateTime max = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+
+        Action act = () => _sut.ComputeNextRunUtc("0 0 1 1 *", max);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_yearly_alias_at_max_value_throws_on_first_iteration()
+    {
+        DateTime max = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+
+        Action act = () => _sut.ComputeNextRunsUtc("@yearly", max, 3);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
     public void ComputeNextRunsUtc_yearly_alias_returns_future_instants()
     {
         DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
