@@ -32,6 +32,7 @@ import {
 } from "@/lib/findings/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
+  formatQuickDecisionFindingMessageDisplay,
   quickDecisionRecommendationSnippet,
 } from "@/lib/quick-decision-finding-links";
 import {
@@ -39,10 +40,12 @@ import {
   formatQuickDecisionFindingCategoryLine,
   formatQuickDecisionFindingOwnerDisplay,
   formatQuickDecisionFindingTitleDisplay,
+  formatQuickDecisionFindingOwnerHelper,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
   humanReviewStatusDisplay,
+  quickDecisionDecisionStateHelper,
   severityBadgeLabel,
   severityKindFromNumericValue,
 } from "@/lib/quick-decision-summary-derive";
@@ -82,13 +85,13 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
     finding.assignedToUserId,
     "Remediation owner was not stored",
   );
-  const ownerHelper =
-    ownerDisplay === "Remediation owner was not stored" ||
-    ownerDisplay === "Owner display name was not stored."
-      ? "No owner name is stored on this finding."
-      : "The person recorded as responsible for this finding.";
+  const ownerHelper = formatQuickDecisionFindingOwnerHelper(
+    finding.assignedToUserId,
+    "Remediation owner was not stored",
+  );
   const confidenceWorkspaceLabel = formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel);
   const snippet = quickDecisionRecommendationSnippet(finding);
+  const findingMessageLine = formatQuickDecisionFindingMessageDisplay(finding.findingMessage ?? "");
   const findingActivityAt = resolveFindingActivityAtUtc(finding.aiReasoning);
   const findingWatermarkKey = reviewFindingWatermarkKey(runId, finding.findingId);
   const showNewSinceLastVisit = isActivityNewSinceLastVisit(findingWatermarkKey, findingActivityAt);
@@ -107,10 +110,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       ? "Evidence reference count was not stored on this finding."
       : "How many evidence references support this finding.";
   const decisionStateLabel = reviewStatus?.label ?? "Human review status was not stored";
-  const decisionStateHelper =
-    reviewStatus === null
-      ? "No human review decision is stored on this finding."
-      : "The decision recorded for this finding. Opening this card does not record a new decision.";
+  const decisionStateHelper = quickDecisionDecisionStateHelper(reviewStatus, {
+    stored: finding.humanReviewStatusStored,
+  });
 
   return (
     <article
@@ -204,11 +206,20 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           );
         })()}
         <QuickDecisionFindingRationale runId={runId} finding={finding} />
+        <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">Finding message: </span>
+          {findingMessageLine}
+        </p>
         {snippet.length > 0 ? (
           <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
             {snippet}
           </p>
-        ) : null}
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Recommended action was not stored on this finding.
+          </p>
+        )}
       </header>
       <dl className={cn("m-0 mt-4 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
         <div>
@@ -260,26 +271,36 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         </div>
       </dl>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Button type="button" size="sm" variant="default" className="h-8" asChild>
-          <Link
-            href={resolveQuickDecisionFindingDispositionHref(runId, finding.findingId, findingNavOptions)}
-            prefetch={false}
-            data-testid={`finding-record-disposition-${finding.findingId}`}
-          >
-            Record finding disposition
-          </Link>
-        </Button>
-        <Button type="button" size="sm" variant="outline" className="h-8" asChild>
-          <Link
-            href={resolveQuickDecisionFindingInspectHref(runId, finding.findingId, findingNavOptions)}
-            prefetch={false}
-            onClick={() => {
-              markLastVisitedNow(findingWatermarkKey, findingActivityAt);
-            }}
-          >
-            Open finding
-          </Link>
-        </Button>
+        <div className="flex flex-col gap-0.5">
+          <Button type="button" size="sm" variant="default" className="h-8" asChild>
+            <Link
+              href={resolveQuickDecisionFindingDispositionHref(runId, finding.findingId, findingNavOptions)}
+              prefetch={false}
+              data-testid={`finding-record-disposition-${finding.findingId}`}
+            >
+              Record finding disposition
+            </Link>
+          </Button>
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Opens the disposition form; nothing is recorded until you submit there.
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <Button type="button" size="sm" variant="outline" className="h-8" asChild>
+            <Link
+              href={resolveQuickDecisionFindingInspectHref(runId, finding.findingId, findingNavOptions)}
+              prefetch={false}
+              onClick={() => {
+                markLastVisitedNow(findingWatermarkKey, findingActivityAt);
+              }}
+            >
+              Open finding
+            </Link>
+          </Button>
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Read-only inspect view; does not record a disposition.
+          </span>
+        </div>
         {evidenceRefCount !== null || viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
             href={viewEvidenceHref ?? undefined}

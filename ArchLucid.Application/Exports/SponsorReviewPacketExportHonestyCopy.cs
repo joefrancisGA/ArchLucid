@@ -13,6 +13,16 @@ internal static class SponsorReviewPacketExportHonestyCopy
     internal const string SelectedOptionNotStored = "Selected option was not stored.";
     internal const string SelectedOptionStoredEmpty = "Selected option was stored empty.";
     internal const string NextActionNotStored = "Next action was not stored.";
+    internal const string PortfolioNextActionsDerivedEmpty =
+        "No portfolio next actions were derived from stored disposition amounts.";
+    internal const string PortfolioSignalsWorkspaceSnapshotDisclaimer =
+        "Portfolio signal counts reflect the workspace snapshot at export time, not live portal totals.";
+    internal const string DecisionRegisterReviewIdNotGuid =
+        "Review ID is not a GUID; decisions for this review were not listed from the register.";
+    internal const string ManifestStoredReviewNotCommitted =
+        "Manifest is stored on this review but the review is not committed.";
+    internal const string TenantPricingDefaultsNotStored =
+        "Retail savings basis and 1.0 EA discount multiplier are defaults when tenant pricing settings were not stored.";
     internal const string PortfolioSignalsNotStored = "Portfolio signals were not stored.";
     internal const string ConfidenceNotStored = "Confidence was not stored.";
     internal const string EvidenceLinkNotStored = "Evidence link was not stored.";
@@ -82,6 +92,33 @@ internal static class SponsorReviewPacketExportHonestyCopy
         }
 
         return string.IsNullOrWhiteSpace(raw) ? DecisionRationaleNotStored : raw.Trim();
+    }
+
+    internal static string FormatDecisionConfidenceLabel(string? buyerConfidenceSource, string? confidenceSource, double? confidence)
+    {
+        string? raw = !string.IsNullOrWhiteSpace(buyerConfidenceSource)
+            ? buyerConfidenceSource
+            : confidenceSource;
+
+        if (!string.IsNullOrWhiteSpace(raw))
+        {
+            string trimmed = raw.Trim();
+
+            if (double.TryParse(trimmed, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _))
+            {
+                return $"Confidence {trimmed} was stored without a reviewer label.";
+            }
+
+            return trimmed;
+        }
+
+        if (confidence is not null && double.IsFinite(confidence.Value))
+        {
+            return
+                $"Confidence {confidence.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} was stored without a reviewer label.";
+        }
+
+        return ConfidenceNotStored;
     }
 
     internal static string FormatTopFindingTitle(ArchitectureFinding finding)
