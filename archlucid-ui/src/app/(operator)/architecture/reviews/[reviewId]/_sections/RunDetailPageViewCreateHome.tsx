@@ -200,7 +200,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 artifacts={m.artifacts}
                 runId={m.resolvedDetail.run.runId}
                 buyerPolished={m.buyerPolishedArtifactTable ?? false}
-                architectureDiagramStored={m.resolvedDetail.run.hasGraphSnapshot === true}
+                hasGraphSnapshot={m.resolvedDetail.run.hasGraphSnapshot}
               />
             ),
             governance: (

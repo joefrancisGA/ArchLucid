@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -42,6 +42,7 @@ describe("first-review-spine-band", () => {
     expect(summary?.classificationCountsStored).toBe(false);
     expect(summary?.dispositionCountsStored).toBe(false);
     expect(summary?.showTopFindingRow).toBe(false);
+    expect(summary?.openGateLabel).toBe(FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED);
   });
 
   it("derives gate, execution mode, and top finding for the stamp spine", () => {

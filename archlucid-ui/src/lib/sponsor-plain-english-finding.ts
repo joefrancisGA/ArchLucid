@@ -118,7 +118,7 @@ function derivationHonestyLine(derivationSentence: string | null | undefined): s
   }
 
   if (derivationSentence === FINDING_DERIVATION_NOT_AVAILABLE) {
-    return null;
+    return SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_AVAILABLE_LINE;
   }
 
   const trimmed = nonEmpty(derivationSentence);
@@ -128,7 +128,7 @@ function derivationHonestyLine(derivationSentence: string | null | undefined): s
   }
 
   if (trimmed === FINDING_DERIVATION_NOT_AVAILABLE) {
-    return null;
+    return SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_AVAILABLE_LINE;
   }
 
   return `How reviewers derived it: ${trimmed}`;

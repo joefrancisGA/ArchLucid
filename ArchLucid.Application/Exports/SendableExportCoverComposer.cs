@@ -33,6 +33,9 @@ public static class SendableExportCoverComposer
 
     public const string PolicyPackVersionNotStoredLine = "Policy pack version was not stored.";
 
+    public const string SponsorRoiAmountNotStoredOnCoverLine =
+        "Sponsor ROI amount was not stored on this cover.";
+
     public const string ReviewIdNotStoredLine = "Review id was not stored.";
 
     public const string ReviewRecordStatusNotStoredLine = "Review record status was not stored.";
@@ -69,6 +72,7 @@ public static class SendableExportCoverComposer
             lines.Add($"Semantic support: {SemanticSupportBandLaneBAsyncHonestyLine}");
         }
 
+        lines.Add($"Sponsor ROI amount: {SponsorRoiAmountNotStoredOnCoverLine}");
         lines.Add($"Sponsor ROI: {SponsorRoiNonSummingHeadlineLine}");
 
         return lines;
@@ -124,19 +128,19 @@ public static class SendableExportCoverComposer
                 $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
         }
 
-        List<string> parts = [];
-
-        if (id.Length == 0)
+        if (id.Length > 0 && version.Length == 0)
         {
-            parts.Add(PolicyPackIdNotStoredLine);
+            return FormattableString.Invariant(
+                $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PolicyPackVersionNotStoredLine}");
         }
 
-        if (version.Length == 0)
+        if (id.Length == 0 && version.Length > 0)
         {
-            parts.Add(PolicyPackVersionNotStoredLine);
+            return FormattableString.Invariant(
+                $"{PolicyPackIdNotStoredLine} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
         }
 
-        return parts.Count > 0 ? string.Join(' ', parts) : PolicyPackNotStoredLine;
+        return PolicyPackNotStoredLine;
     }
 
     internal static string FormatReviewRecordStatusMarkdownLine(string? reviewRecordStatus)

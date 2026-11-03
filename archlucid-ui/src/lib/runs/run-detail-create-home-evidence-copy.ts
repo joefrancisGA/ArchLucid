@@ -20,12 +20,21 @@ export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CROSS_LINK_HELPER =
 export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_NOT_STORED_HELPER =
   "An architecture diagram was not stored for this package." as const;
 
+export const RUN_DETAIL_CREATE_HOME_EVIDENCE_GRAPH_SNAPSHOT_NOT_STORED_HELPER =
+  "Graph snapshot status was not stored for this package." as const;
+
 export function resolveRunDetailCreateHomeEvidenceDiagramCrossLinkHelper(
-  architectureDiagramStored: boolean,
+  hasGraphSnapshot: boolean | null | undefined,
 ): string {
-  return architectureDiagramStored
-    ? RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CROSS_LINK_HELPER
-    : RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_NOT_STORED_HELPER;
+  if (hasGraphSnapshot === true) {
+    return RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CROSS_LINK_HELPER;
+  }
+
+  if (hasGraphSnapshot === false) {
+    return RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_NOT_STORED_HELPER;
+  }
+
+  return RUN_DETAIL_CREATE_HOME_EVIDENCE_GRAPH_SNAPSHOT_NOT_STORED_HELPER;
 }
 
-export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL = "Open diagram" as const;
+export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL = "Open diagram tab" as const;

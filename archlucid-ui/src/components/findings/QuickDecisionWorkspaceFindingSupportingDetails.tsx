@@ -18,6 +18,7 @@ import {
   SOURCE_EVIDENCE_EXCERPTS_NOT_STORED,
   SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY,
 } from "@/lib/findings/finding-source-evidence-excerpt-copy";
+import { FINDING_DETAIL_POLICY_CITATION_NOT_STORED } from "@/lib/findings/finding-detail-evidence-copy";
 import { quickDecisionWorkItemSeverityLabel } from "@/lib/quick-decision-finding-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { humanReviewStatusDisplay } from "@/lib/quick-decision-summary-derive";
@@ -243,7 +244,11 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
             policy={citationModel.policy}
             compact
           />
-        ) : null}
+        ) : (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {FINDING_DETAIL_POLICY_CITATION_NOT_STORED}
+          </p>
+        )}
         <FindingPolicyEvidenceCitationLinks model={citationModel} />
         {resolveFindingEvidenceRefSnippetsWireState(finding.evidenceRefSnippets) === "present" ? (
           <FindingEvidenceRefSnippets snippets={finding.evidenceRefSnippets ?? []} />

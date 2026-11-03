@@ -25,6 +25,9 @@ internal static class RunSummaryOnePagerHonestyCopy
     internal const string GeneratedSponsorBriefDisclaimer =
         "This sponsor report brief was model-generated from stored finding counts and titles. Verify against findings before external send.";
 
+    internal const string SponsorReportGeneratedForExportDisclaimer =
+        "Generated for this export. This is not a stored sponsor statement.";
+
     internal static string FormatUnstoredSeverityOmittedFromCounts(int unstoredSeverityCount)
     {
         if (unstoredSeverityCount <= 0)

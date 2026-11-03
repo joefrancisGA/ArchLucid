@@ -50,6 +50,8 @@ import {
   severityKindFromNumericValue,
 } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { resolveFindingAiReasoningButtonLabel } from "@/lib/quick-decision-wire-snapshots";
+import type { FindingWireSnapshot } from "@/lib/quick-decision-wire-snapshots";
 import {
   isActivityNewSinceLastVisit,
   markLastVisitedNow,
@@ -68,6 +70,7 @@ export type QuickDecisionWorkspacePrimaryFindingCardProps = {
   readonly onToggleAskPanel: (finding: QuickDecisionFinding) => void;
   readonly onViewReasoning: (finding: QuickDecisionFinding) => void;
   readonly onMute: (finding: QuickDecisionFinding) => void;
+  readonly findingWireSnapshot?: FindingWireSnapshot | null;
 };
 
 /** Expanded top-severity finding card for the review findings workspace. */
@@ -321,7 +324,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             props.onViewReasoning(finding);
           }}
         >
-          View AI reasoning
+          {resolveFindingAiReasoningButtonLabel(props.findingWireSnapshot)}
         </Button>
         <Button
           type="button"

@@ -196,7 +196,7 @@ public sealed class RunSummaryOnePagerExportService(
                 sendableExportCoverPlainText: sendableExportCoverPlainText,
                 architectRestatementMarkdown: architectRestatementMarkdownText,
                 findingsSnapshotFindingCount: findingsSnapshotFindingCount,
-                sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.GeneratedSponsorBriefDisclaimer);
+                sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.SponsorReportGeneratedForExportDisclaimer);
 
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
