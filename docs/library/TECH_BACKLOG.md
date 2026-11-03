@@ -4,17 +4,17 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-09-26**).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-11-03**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
 
 | Architectural quality | Open |
 | --- | ---: |
-| Reliability | 3 |
+| Reliability | 2 |
 | Deployability | 1 |
 | AI/Agent readiness | 8 |
-| Architectural integrity | 3 |
+| Architectural integrity | 1 |
 | Cutting-edge AI | 2 |
 | Explainability | 1 |
 | Trustworthiness | 4 |
@@ -23,11 +23,11 @@ Regenerate after opening or closing summary-table rows:
 | Cost-effectiveness | 3 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
-| Differentiability | 2 |
+| Differentiability | 1 |
 | Security | 5 |
-| **Total (unique open)** | **40** |
+| **Total (unique open)** | **36** |
 
-**By priority band:** P0 **0** | P1 **10** | P2 **21** | P3 **9**.
+**By priority band:** P0 **0** | P1 **10** | P2 **17** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1952,7 +1952,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-882 | ~~Automated nav-authority/label-consistency guard — CI check that `NavLinkItem.requiredAuthority` matches controller primary GET policy; heading/label snapshot tests~~ **Done 2026-08-23** — `scripts/ci/check_nav_authority_controller_parity.py` + manifest/exemptions; Vitest `nav-authority-controller-parity.test.ts`; see `## TB-882` below | Correctness P2 ? **V1** | M |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal ? capture optional `retrievalHits` on `*.real.json` exemplars; Phase B faithfulness script reports Graph-RAG ? vs all-on by filtering `KnowledgeGraphNodeNeighbor`; see `## TB-883` below | AI/Agent readiness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | M |
 | TB-884 | ~~Policy-pack attribution signal ? read-side `% of findings attributable to assigned policy-pack rules` over `RulesApplied` + pack rule sets; CI/script summary~~ **Done 2026-08-24** ? `PolicyPackAttributionSignalCalculator` + `scripts/ci/policy_pack_attribution_signal.py`; eval-corpus fixtures; see `## TB-884` below | Differentiability P2 ? **V1** | M |
-| TB-885 | Policy-pack compounding-evidence ledger — dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 — **Done** (2026-09-07, DX-18) | L |
+| TB-885 | **Done** (2026-09-07, DX-18) — Policy-pack compounding-evidence ledger — dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 ? **V1** | L |
 | TB-886 | Surface tamper-evident manifest-verify endpoint in buyer-facing material ? demo/script for `GET /v1/artifacts/runs/{runId}/export/verify` (TB-307); ADR 0040 application-layer hash lineage (not WORM); see `## TB-886` below | Differentiability P3 ? **V1** (docs); **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); low-cost enough for pilot packet if owner wants sooner | S |
 | TB-686 | **Done** (2026-08-17) â€” structure-aware retrieval chunking behind `Retrieval:Chunking:Strategy=Semantic`; `StructureAwareTextChunker` + fingerprint wiring; default Simple pending TB-595 ablation lift; see `## TB-686` below | Cutting-edge AI P2 ? **V1**; owner promoted from V2 2026-07-19; IR ~98% so ship gated behind TB-595 ablation; found during AI quality/cost/speed review 2026-07-07 | L |
 | TB-560 | ~~Dynamic-import `CommandPalette` from operator shell top bar ??? defer `cmdk` + ~617-line palette chunk until shortcut/open; `next/dynamic({ ssr: false })` + loading placeholder~~ ? **Done** (2026-07-03) | Performance P1 ? **V1.1** | S |
@@ -2231,8 +2231,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** ??? `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 ? **V1** | S |
 | TB-392 | ~~Per-tenant Jira/ServiceNow credentials ??? mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS~~ ? **Done** (2026-06-27) | Trustworthiness P1 ? **V1** | M |
 | TB-393 | ~~Tenant ITSM outbound settings write API + admin UI ??? upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `ExecuteAuthority` gate~~ ? **Done** (2026-06-27) | Adoption friction P1 ? **V1** | M |
-| TB-394 | Durable async ITSM outbound ticket creation ??? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1** | M |
-| TB-395 | Finding assignee + general remediation due date ??? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1** | M |
+| TB-394 | **Done** (2026-06-27) — Durable async ITSM outbound ticket creation — `IBackgroundJobQueue` when `DurableAsyncCreateEnabled`; worker retry + terminal failed state; UI polls 202 jobs; see `## TB-394` below | Reliability P2 ? **V1.1** | M |
+| TB-395 | **Done** (2026-06-27) — Finding assignee + general remediation due date — `AssignedToUserId` + `RemediationDueUtc` on contract/SQL; inspect + risk register + outbound mappers; see `## TB-395` below | Architectural integrity P2 ? **V1.1** | M |
 | TB-396 | ~~Inbound ITSM disposition sync â€” extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document statusâ†’disposition map in inbound options~~ â€” **Done** (2026-06-27; config ref **2026-08-14**) | Interoperability P2 ? **V1.1** | M |
 | TB-196 | ~~Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path~~ ? **Done** (2026-06-02, batch 5R): aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | Reliability P1 ? **V1** | XS |
 | TB-197 | ~~`GovernanceWorkflowService.PromoteAsync` ? wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test~~ ? **Done** (2026-06-02, batch 5J): single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | Reliability P1 ? **V1** | S |
@@ -2491,7 +2491,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2415 | V2 ? Pareto alternatives for architecture mutations; retain nondominated options across named dimensions and refuse a single fitness score | Security P2 ? **V2**; depends on **TB-2412**; size XL |
 | TB-2416 | V2 ? requirements-constrained architecture synthesis; search candidates against budget, RTO, RPO, and exposure constraints, then explain why each survivor remains | Security P3 ? **V2**; depends on **TB-2415**; size XL |
 | | **Done V2 (kept for grep; not shippable)** | | |
-| TB-397 | `IExternalTicketConnector` plugin boundary ??? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite | M |
+| TB-397 | **Done** (2026-06-27) — `IExternalTicketConnector` plugin boundary — shared port + provider registry; Jira/ServiceNow behind registry; see `## TB-397` below | Architectural integrity P2 ? **V1.1** | M |
 | TB-689 | ~~Multi-vendor LLM routing decision gate~~ **Done** (2026-07-18) ? ADR 0060 Accepted: Azure-native managed path; BYO via **TB-872**/**TB-873**; no third-party vendor SDK adapters under this ADR; see `## TB-689` below | Cutting-edge AI P3 ? **V2**; decision gate closed | XS |
 | TB-919 | ~~Retire deprecated run-lifecycle alias routes~~ **Done** (2026-07-20) ? deleted `v1/requests` / `v1/runs/{runId}/submit` / `v1/runs/{runId}/manifest/finalize`; closes coordinator strangler migration's last open item (TB-305 placeholder + ADR 0021 gate (iv)); see `## TB-919` below | Deployability P2 ? closes TB-305's deferred "later sunset TB" | S |
 
@@ -13320,63 +13320,23 @@ Jira/ServiceNow outbound and inbound webhook secrets live in deployment-wide `In
 
 ---
 
-## TB-394 ??? Durable async ITSM outbound ticket creation ??? **V1.1**
+## TB-394 ??? Durable async ITSM outbound ticket creation ??? **Done (2026-06-27)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Problem:**
-
-`ItsmOutboundIssueCreationService.TryCreateForFindingAsync` runs **synchronously** in the HTTP request. Vendor outage after Polly retries exhaust fails the operator inline; there is no durable retry/DLQ for ticket creation despite mature outbox/queue infrastructure elsewhere.
-
-**Scope:**
-
-1. Enqueue outbound create on `IntegrationEventOutbox` or `BackgroundJobQueue` after operator action; return **202 Accepted** with job/correlation id.
-2. Worker executes create + correlation persist + audit; surface pending/failed state on finding inspect ITSM panel.
-3. Reuse `AddOutboundExternalHttpResilience()` in worker scope; cap retries; DLQ with admin replay hook (pattern from `IntegrationEventDlqRetryHostedService`).
-4. Keep synchronous path behind config flag for local dev/smoke tests.
-
-**Acceptance criteria:**
-
-- Transient vendor failures retry without blocking the operator UI thread.
-- Failed creates are visible and replayable; duplicate guard still applies.
-
-**Affected files / projects:**
-
-- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs`
-- `ArchLucid.Host.Core/Jobs/` or `Hosted/IntegrationEventOutboxHostedService.cs`
-- `archlucid-ui/src/lib/api/itsm-outbound-api.ts`
+**Shipped:** `Integrations:ItsmOutbound:DurableAsyncCreateEnabled` (default true) enqueues `ItsmOutboundCreateJobPayload` on `IBackgroundJobQueue`; `ItsmOutboundIssuesController` returns **202** with job id; `ItsmOutboundCreateJobProcessor` maps vendor errors to worker retries and terminal `Failed` job files; UI polls via `archlucid-ui/src/lib/api/itsm-outbound-create.ts`. Synchronous path remains when durable create is disabled (WireMock/smoke). Delivery semantics: [`ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) Path A.
 
 **Size estimate:** **M**
 
-**Cross-ref:** **TB-251** (outbox pattern precedent).
+**Cross-ref:** **TB-251** (outbox pattern precedent); pairs **TB-397**.
 
 ---
 
-## TB-395 ??? Finding assignee + general remediation due date ??? **V1.1**
+## TB-395 ??? Finding assignee + general remediation due date ??? **Done (2026-06-27)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Problem:**
-
-Core `Finding` has no `AssignedToUserId` or general remediation due date. Risk-register `OwnerUserId` maps to last disposition reviewer; `RevisitDueUtc` applies only on defer disposition. Jira assignee and ServiceNow `assigned_to` / SLA fields cannot map cleanly.
-
-**Scope:**
-
-1. Add nullable `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL (migration).
-2. Expose on inspect, risk register, and outbound payload mapper (`ItsmFindingAuthorityPayloadMapper`).
-3. Optional UI edit on finding inspect (governance section) with audit trail.
-4. Do **not** conflate with waiver owner or disposition reviewer fields.
-
-**Acceptance criteria:**
-
-- Operators can assign a finding owner and target remediation date independent of disposition deferral.
-- Outbound ticket create includes assignee/due when configured.
-
-**Affected files / projects:**
-
-- `ArchLucid.Contracts/Findings/Finding.cs`
-- `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`
-- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmFindingAuthorityPayloadMapper.cs`
+**Shipped:** Nullable `AssignedToUserId` and `RemediationDueUtc` on `Finding` + SQL; inspect and architecture risk register projections; finding inspect governance/disposition controls for operator edit; Jira/ServiceNow outbound connectors map assignee and due from inspect read model. Distinct from waiver owner and disposition `RevisitDueUtc`.
 
 **Size estimate:** **M**
 
