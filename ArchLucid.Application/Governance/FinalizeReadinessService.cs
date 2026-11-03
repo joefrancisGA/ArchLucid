@@ -474,6 +474,7 @@ public sealed class FinalizeReadinessService(
                 _runRepository,
                 _architectureVersionRepository,
                 _architectureKnowledgeModelAccess,
+                runRecord,
                 cancellationToken)
             .ConfigureAwait(false);
 

@@ -22,6 +22,7 @@ public static class CommitArchitectureVersionPinIntegrityEvaluator
         IRunRepository runRepository,
         IArchitectureVersionRepository architectureVersionRepository,
         IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess,
+        RunRecord? preloadedRunHeader = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -36,8 +37,13 @@ public static class CommitArchitectureVersionPinIntegrityEvaluator
             return ["Commit blocked: run id is invalid for architecture version pin verification."];
         }
 
-        RunRecord? header =
-            await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+        RunRecord? header = preloadedRunHeader;
+
+        if (header is null)
+        {
+            header =
+                await runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+        }
 
         if (header?.ArchitectureVersionId is not Guid versionId || versionId == Guid.Empty)
         {

@@ -120,6 +120,14 @@ public sealed class CommitOutputIntegrityService(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        Persistence.Models.RunRecord? runHeader = null;
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuidForHeader) || Guid.TryParse(runId, out runGuidForHeader))
+        {
+            runHeader =
+                await _runRepository.GetByIdAsync(scope, runGuidForHeader, cancellationToken).ConfigureAwait(false);
+        }
+
         IReadOnlyList<string> architectureVersionPinReasons =
             await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
                 scope,
@@ -128,35 +136,28 @@ public sealed class CommitOutputIntegrityService(
                 _runRepository,
                 _architectureVersionRepository,
                 _architectureKnowledgeModelAccess,
+                runHeader,
                 cancellationToken)
             .ConfigureAwait(false);
 
         if (architectureVersionPinReasons.Count > 0)
             throw new ConflictException(architectureVersionPinReasons[0]);
 
-        Persistence.Models.RunRecord? runHeader = null;
-
-        if (Guid.TryParseExact(runId, "N", out Guid runGuidForCreateTimePins) || Guid.TryParse(runId, out runGuidForCreateTimePins))
+        if (runHeader is not null)
         {
-            runHeader =
-                await _runRepository.GetByIdAsync(scope, runGuidForCreateTimePins, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<string> createTimePinReasons =
+                await CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync(
+                    scope,
+                    runId,
+                    runHeader,
+                    _runPolicyPackPinService,
+                    _runEvidencePackagePinService,
+                    _draftRequestRepository,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-            if (runHeader is not null)
-            {
-                IReadOnlyList<string> createTimePinReasons =
-                    await CommitCreateTimePinIntegrityEvaluator.GetBlockingReasonsAsync(
-                        scope,
-                        runId,
-                        runHeader,
-                        _runPolicyPackPinService,
-                        _runEvidencePackagePinService,
-                        _draftRequestRepository,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (createTimePinReasons.Count > 0)
-                    throw new ConflictException(createTimePinReasons[0]);
-            }
+            if (createTimePinReasons.Count > 0)
+                throw new ConflictException(createTimePinReasons[0]);
         }
 
         IReadOnlyList<string> provenanceViolations = DecisionGradeFindingProvenanceValidator.GetViolations(findings);
