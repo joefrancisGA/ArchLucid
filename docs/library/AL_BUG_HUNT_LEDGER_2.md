@@ -13046,6 +13046,8 @@
 
 ## Zone: persistence-identity
 
+2026-11-03 seed hunt (seed-only #937): re-read `ArchLucid.Persistence/Identity/` after dry **#957** monitor queue; no hunt-ready row promoted (existing monitors used wrong surface names or duplicate closed OTP/cache classes). Seeded five fresh mechanism-backed `(candidate)` rows below and in Hypotheses; scoped filter **46/48** on `ArchLucid.Persistence.Tests` (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
+
 2026-11-01 thorough hunt (dry #957): cheap-disproof closed five open `(candidate)` monitor rows from dry **#935** reseed — **invalid** `GetLatestRequestUtcByEmailAsync` SQL `TOP 1`/`CreatedUtc` tie-break (identical timestamps yield identical cooldown anchor — hunt **#930** regression `GetLatestRequestUtcByEmailAsync_returns_max_created_utc_among_active_unexpired_challenges`; in-memory/SQL same semantics); **valid-no-repro** `TryCompleteAsync` after `AlreadyCompleted` — second submit with correct hash returns `AlreadyCompleted` not a second `Completed` (`InMemoryEmailOtpChallengeRepositoryCoverageTests` completion path); **valid-no-repro** `FindByNormalizedDomainAsync` global cache after soft-remove — `UpdateAsync` invalidates normalized key; regression `TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update` (hunt **#930**; extends **#935** TryGet parity); **valid-no-repro** `FindByExternalKeyAsync` vs `FindAnyByExternalKeyAsync` disabled history — intentional contract; regression `DisableAsync_and_ReEnableAsync_toggle_active_lookup` (hunt **#931**); **valid-no-repro** SQL parallel wrong-code increments — in-memory `TryCompleteAsync` serializes failed-attempt accounting under `_completionLock`; SQL integration monitor-only on cloud VM (`TryCompleteAsync_parallel_wrong_codes_increment_failed_attempt_count` skipped); reseeded five follow-on `(candidate)` rows; scoped filter **46/48** on `ArchLucid.Persistence.Tests` (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
 
 2026-11-01 thorough hunt (dry #935): cheap-disproof closed five open `(candidate)` rows from dry **#934** — **invalid** `GetLatestRequestUtcByEmailAsync` `ORDER BY CreatedUtc DESC` tie-break (identical `CreatedUtc` yields identical cooldown anchor — hunt **#930** regression `GetLatestRequestUtcByEmailAsync_returns_max_created_utc_among_active_unexpired_challenges`; SQL `TOP 1` same semantics); **valid-no-repro** parallel `TryCompleteAsync` on one challenge id — regression `TryCompleteAsync_allows_only_one_successful_completion` (hunt **#932**); **valid-no-repro** `CachingTenantSignInEmailDomainRepository.TryGetAsync` tenant+normalized cache after soft-remove — regression `TenantSignInEmailDomain_TryGetAsync_returns_null_after_soft_remove_update` (extends hunt **#930**/`#932` normalized-domain eviction); **valid-no-repro** `FindByExternalKeyAsync` excludes disabled rows after relink — intentional; regression `DisableAsync_and_ReEnableAsync_toggle_active_lookup` (hunt **#931**); **valid-no-repro** `DapperWorkspaceMembershipRepository.UpsertAsync` MERGE last-writer — in-memory `UpsertAsync_last_writer_wins_for_same_user_and_workspace` (hunt **#933**; SQL parallel SCIM monitor-only on cloud VM); reseeded five follow-on `(candidate)` rows; scoped filter **46/48** on `ArchLucid.Persistence.Tests` (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
@@ -13057,11 +13059,11 @@
 - [x] (valid-no-repro) `InMemoryAuthenticationIdentityRepository.FindByExternalKeyAsync` — disabled row visible via `FindAnyByExternalKeyAsync` but not active lookup — **cheap-disproof 2026-11-01 thorough hunt #957:** intentional; `DisableAsync_and_ReEnableAsync_toggle_active_lookup`.
 - [x] (valid-no-repro) `DapperEmailOtpChallengeRepository.TryCompleteAsync` — SQL parallel wrong-code increments under MERGE/UPDATE — **cheap-disproof 2026-11-01 thorough hunt #957:** in-memory lock + failure path; SQL parallel monitor-only on cloud VM.
 
-- [ ] (candidate) `CachingTenantIdentityProviderConfigurationRepository.GetConfigurationAsync` — cached IdP row survives deactivate without explicit eviction — locus: hot-path cache keys; input: admin disables SAML then re-reads config (monitor).
-- [ ] (candidate) `InMemoryAuthenticationIdentityLinkProposalRepository.TryUpdateStatusAsync` — terminal status overwrite under concurrent accept/expire — locus: proposal lifecycle; input: duplicate IdP link accept (monitor; SQL integration skipped on cloud VM).
-- [ ] (candidate) `InMemoryPlatformTenantAuthRecoveryGrantRepository.TryConsumeAsync` — double-consume same grant id without row lock — locus: recovery grant consumption; input: parallel recovery flows (monitor).
-- [ ] (candidate) `EmailOtpFailedVerificationRateLimitSql.ActiveReplacementProbe` — SQL active-challenge probe diverges from `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` when replacement expires mid-window — locus: hourly verify budget; input: resend then expire (monitor; hunt **#930** in-memory class).
-- [ ] (candidate) `InMemorySelfServiceTrialAbuseRepository.RecordSignalAsync` — duplicate normalized signal within window increments counter without dedupe — locus: trial abuse throttling; input: repeated signup abuse telemetry (monitor).
+- [ ] (candidate) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — lockout `CASE` preserves existing `LockoutEnd` when already beyond threshold instead of extending window on later failures — locus: SQL ~159–166; input: failed login while lockout still active (seed **#937**).
+- [ ] (candidate) `DapperIdentityMigrationReviewRepository.UpsertAsync` — MERGE `WHEN MATCHED` clears `ResolvedUtc` reopening operator-resolved review items — locus: UPDATE ~41; input: duplicate legacy detection after manual resolve (seed **#937**).
+- [ ] (candidate) `DapperIdentityMigrationReviewRepository.ListUnresolvedAsync` — `Enum.Parse` on stored `ReasonCode` fails entire list when one corrupt row exists — locus: `ReviewRow.ToRecord` ~139; input: invalid ReasonCode in `IdentityMigrationReviewItems` (seed **#937**).
+- [ ] (candidate) `DapperPlatformTenantAuthRecoveryGrantRepository.GetActiveByTenantAndDomainAsync` — `TOP 1` by `GrantedUtc DESC` without `GrantId` tie-break when timestamps equal — locus: SQL ~96; input: two concurrent active grants (seed **#937**; OTP tie-break class).
+- [ ] (candidate) `CachingTenantIdentityProviderConfigurationRepository.TryGetAsync` — hot-path cache has no TTL so reads stay stale until `UpsertAsync` eviction — locus: `GetOrCreateAsync` without expiration; input: IdP row mutated without decorator upsert path (seed **#937**).
 
 - [x] (invalid) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — `ORDER BY CreatedUtc DESC` without secondary tie-break when timestamps equal — **cheap-disproof 2026-11-01 thorough hunt #935:** hunt **#930** diary and regression above.
 - [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — parallel completion attempts on same challenge id — **cheap-disproof 2026-11-01 thorough hunt #935:** `TryCompleteAsync_allows_only_one_successful_completion`.
@@ -14928,15 +14930,26 @@
 2026-09-13 seed hunt #2398 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2392 (seed-only): reseeded persistence-identity; no new hunt-ready rows.
+
+### Hypotheses
+
+2026-11-03 seed hunt (seed-only #937): seeded five mechanism-backed `(candidate)` rows from trial lockout SQL, migration review MERGE/list mapping, recovery-grant tie-break, and IdP cache TTL posture.
+
+- [ ] (candidate) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — lockout `CASE` preserves existing `LockoutEnd` when already beyond threshold instead of extending window on later failures — locus: SQL ~159–166; input: failed login while lockout still active (seed **#937**).
+- [ ] (candidate) `DapperIdentityMigrationReviewRepository.UpsertAsync` — MERGE `WHEN MATCHED` clears `ResolvedUtc` reopening operator-resolved review items — locus: UPDATE ~41; input: duplicate legacy detection after manual resolve (seed **#937**).
+- [ ] (candidate) `DapperIdentityMigrationReviewRepository.ListUnresolvedAsync` — `Enum.Parse` on stored `ReasonCode` fails entire list when one corrupt row exists — locus: `ReviewRow.ToRecord` ~139; input: invalid ReasonCode in `IdentityMigrationReviewItems` (seed **#937**).
+- [ ] (candidate) `DapperPlatformTenantAuthRecoveryGrantRepository.GetActiveByTenantAndDomainAsync` — `TOP 1` by `GrantedUtc DESC` without `GrantId` tie-break when timestamps equal — locus: SQL ~96; input: two concurrent active grants (seed **#937**).
+- [ ] (candidate) `CachingTenantIdentityProviderConfigurationRepository.TryGetAsync` — hot-path cache has no TTL so reads stay stale until `UpsertAsync` eviction — locus: `GetOrCreateAsync` without expiration; input: IdP row mutated without decorator upsert path (seed **#937**).
+
 - **status:** open
 - **impact:** high
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 936
+- **hunts:** 937
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-11-01
+- **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
 - **code-changed-since:** no
