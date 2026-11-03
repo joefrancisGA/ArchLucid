@@ -130,4 +130,17 @@ describe("run-detail-create-home-captured-evidence", () => {
     expect(readPersistedCapturedEvidenceInventory("run-1")).toEqual(items);
     expect(readPersistedCapturedEvidenceInventory("run-2")).toEqual([]);
   });
+
+  it("keeps case-different upload file names as separate rows (P-19)", () => {
+    const merged = mergeCapturedEvidenceUploadOutcomes(
+      [],
+      [
+        { fileName: "Brief.md", status: "uploaded" },
+        { fileName: "brief.md", status: "uploaded" },
+      ],
+      "2026-08-12T11:00:00Z",
+    );
+
+    expect(merged.map((item) => item.fileName)).toEqual(["Brief.md", "brief.md"]);
+  });
 });

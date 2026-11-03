@@ -221,7 +221,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
       ...baselineMerged,
       findingsDerivedQuestions: clarificationData.questions,
       clarificationRoundAvailable: clarificationData.clarificationRoundAvailable,
-      clarificationPriorRunId: props.baseline.clarificationPriorRunId ?? props.baseline.runId,
+      clarificationPriorRunId: props.baseline.clarificationPriorRunId ?? null,
     };
   }, [props.baseline, clarificationQuestionsQuery.data]);
 
@@ -486,7 +486,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             clarificationRoundAvailable={clarificationQuestionsQuery.data?.clarificationRoundAvailable === true}
             clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
             clarificationQuestionsBlockedReason={clarificationQuestionsQuery.blockedReason}
-            priorRunId={props.baseline.clarificationPriorRunId ?? props.baseline.runId}
+            priorRunId={props.baseline.clarificationPriorRunId ?? undefined}
           />
       </div>
 

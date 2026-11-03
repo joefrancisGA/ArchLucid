@@ -459,6 +459,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     inferredReviewLocked,
     diagramVersionSource,
     displayMermaidSource,
+    liveModelSynced,
     runGeneration,
     copyMermaid,
     downloadMermaid,

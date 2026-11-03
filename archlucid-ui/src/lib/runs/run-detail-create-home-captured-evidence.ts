@@ -150,7 +150,7 @@ export function mergeCapturedEvidenceUploadOutcomes(
   ingestedUtc: string | null,
   evidenceItemIds: readonly string[] = [],
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
-  const map = new Map(existing.map((item) => [item.fileName.toLowerCase(), item]));
+  const items = [...existing];
   let evidenceIdIndex = 0;
 
   for (const outcome of outcomes) {
@@ -159,14 +159,20 @@ export function mergeCapturedEvidenceUploadOutcomes(
     }
 
     const fileName = resolveCapturedEvidenceFileName(outcome.fileName ?? "");
+
+    if (items.some((item) => item.fileName === fileName)) {
+      continue;
+    }
+
     const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
 
     evidenceIdIndex += 1;
 
-    const mapKey = fileName.trim().length > 0 ? fileName.toLowerCase() : `upload:${evidenceIdIndex}`;
-
-    map.set(mapKey, {
-      key: evidenceItemId ?? `upload:${mapKey}`,
+    items.push({
+      key:
+        evidenceItemId !== null && evidenceItemId.trim().length > 0
+          ? evidenceItemId.trim()
+          : `upload:${fileName}`,
       fileName,
       ingestedUtc,
       evidenceItemId,
@@ -174,7 +180,7 @@ export function mergeCapturedEvidenceUploadOutcomes(
     });
   }
 
-  return [...map.values()].sort((left, right) =>
+  return items.sort((left, right) =>
     left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }),
   );
 }

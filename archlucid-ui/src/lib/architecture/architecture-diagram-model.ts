@@ -1,4 +1,5 @@
 import {
+  ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
   formatReviewTitleNotCollectedSystemNote,
   formatTrustBoundaryDisplayLabel,
   formatTrustBoundaryWithoutMembershipNote,
@@ -358,6 +359,28 @@ function pushFlowEdge(
   edgeIndexRef.current += 1;
 }
 
+function ambiguousEndpointLabelInFlow(
+  flowText: string,
+  nodes: readonly ArchitectureDiagramNode[],
+): string | null {
+  const segments = flowText
+    .split(FLOW_SPLIT_PATTERN)
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0);
+
+  for (const segment of segments) {
+    const matches = nodes.filter(
+      (node) => !node.removed && node.label.trim().toLowerCase() === segment.toLowerCase(),
+    );
+
+    if (matches.length > 1) {
+      return segment;
+    }
+  }
+
+  return null;
+}
+
 function addFlowEdges(
   parseResult: ArchitectureStructuredParseResult,
   nodes: readonly ArchitectureDiagramNode[],
@@ -383,6 +406,17 @@ function addFlowEdges(
   };
 
   const recordUnmatchedFlowEntity = (entity: ArchitectureStructuredEntity): void => {
+    const { flowText } = resolveEntityFlowParseText(entity);
+    const ambiguousLabel = ambiguousEndpointLabelInFlow(flowText, nodes);
+
+    if (ambiguousLabel !== null) {
+      unmatchedDataFlows.push(
+        `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} Duplicate component name "${ambiguousLabel}" — ${flowText}`,
+      );
+
+      return;
+    }
+
     unmatchedDataFlows.push(formatUnmatchedArchitectureDataFlowEntity(entity));
   };
 

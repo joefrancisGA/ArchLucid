@@ -309,6 +309,19 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     public static string FormatFindingStatus(bool isMuted) => isMuted ? "muted" : FindingNotMutedStatusLabel;
 
+    internal static string FormatSeverityForExport(ArchitectureFinding finding)
+    {
+        if (!finding.SeverityStored)
+        {
+            return "Severity was not stored.";
+        }
+
+        string stored = finding.Severity.ToString();
+        string reviewerLabel = MapReviewerSeverityLabel(finding.Severity);
+
+        return $"Stored severity: {stored}. Reviewer label: {reviewerLabel}.";
+    }
+
     internal static string FormatSeverityForExport(FindingSeverity severity)
     {
         string stored = severity.ToString();
@@ -369,7 +382,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
                 ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
                 ExportFormatterService.EscapeCsvField(FormatSourceAgent(result)),
-                ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding.Severity)),
+                ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding)),
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
