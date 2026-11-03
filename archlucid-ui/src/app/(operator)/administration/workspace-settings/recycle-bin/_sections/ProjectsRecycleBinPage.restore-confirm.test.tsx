@@ -3,8 +3,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
+const recycleBinRouter = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
+const recycleBinSearchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => recycleBinRouter,
   usePathname: () => "/administration/workspace-settings/recycle-bin",
+  useSearchParams: () => recycleBinSearchParams,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {

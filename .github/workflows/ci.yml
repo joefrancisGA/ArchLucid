@@ -36,10 +36,10 @@ name: CI
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC36-only full regression and coverage on every branch push; no production deployment.
+# RC42-only full regression and coverage on every branch push; no production deployment.
 on:
   push:
-    branches: [RC36]
+    branches: [RC42]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -52,11 +52,11 @@ on:
         default: false
         type: boolean
 
-# One active CI run per PR (or per ref for workflow_dispatch / merge_group). A newer push cancels the
-# stale run so overlapping OpenAPI/build/test minutes are not burned on commits that are already superseded.
+# RC42 push CI uses one branch-scoped group: a new candidate supersedes older RC42 push runs.
+# A distinct prefix keeps workflow_dispatch, PR and merge_group grouping unchanged.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC42' && format('rc42-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
   cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
@@ -2657,11 +2657,11 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
-    # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
+    # RC42 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
     # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
     # Critical path: start after gitleaks only so this runs in parallel with OpenAPI + Terraform validate
     # (warn-only docs/IaC/demo jobs must not delay text guards or the corset build).
-    continue-on-error: ${{ github.ref != 'refs/heads/RC2' }}
+    continue-on-error: ${{ github.ref != 'refs/heads/RC42' }}
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -2685,7 +2685,23 @@ jobs:
 
       - name: Set git diff range (push)
         if: github.event_name == 'push'
-        run: echo "ARCHLUCID_GIT_DIFF_RANGE=${{ github.event.before }}...${{ github.event.after }}" >> "$GITHUB_ENV"
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          # The first push to a newly created shared RC has an all-zero GitHub 'before'.
+          # Compare its first parent to the merge HEAD rather than silently skipping
+          # guard checks or passing an invalid 000...HEAD range into git diff.
+          if [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            if ! git rev-parse --verify "${AFTER_SHA}^1" >/dev/null 2>&1; then
+              echo "::error::New-branch push has no valid first parent for guard diff."
+              exit 1
+            fi
+            BEFORE_SHA="$(git rev-parse "${AFTER_SHA}^1")"
+            echo "First RC push: comparing the first parent to the merge HEAD."
+          fi
+          echo "ARCHLUCID_GIT_DIFF_RANGE=${BEFORE_SHA}...${AFTER_SHA}" >> "$GITHUB_ENV"
 
       - name: Set git diff range (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
@@ -2713,6 +2729,19 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset
+    # RC42 diagnostic exception: the OpenAPI snapshot remains a separate hard gate,
+    # but contract mismatch must not suppress independent .NET/SQL test evidence.
+    # All other refs retain the existing OpenAPI-success prerequisite.
+    if: >-
+      ${{
+        !cancelled()
+        && needs.gitleaks.result == 'success'
+        && needs.ci-path-lanes.result == 'success'
+        && needs.terraform-validate-private.result == 'success'
+        && needs.terraform-validate-public-stacks.result == 'success'
+        && needs.guards-pre-corset.result == 'success'
+        && (github.ref == 'refs/heads/RC42' || needs.openapi-contract-snapshot.result == 'success')
+      }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -2764,7 +2793,17 @@ jobs:
     name: ".NET: fast core — test (${{ matrix.shard_label }})"
     needs:
       - ci-path-lanes
+      - openapi-contract-snapshot
       - dotnet-fast-core-build
+    # RC42 diagnostic scheduling mirrors dotnet-fast-core-build: shard matrix runs when the
+    # build artifact exists even if OpenAPI drift failed the snapshot job (snapshot stays blocking).
+    if: >-
+      ${{
+        !cancelled()
+        && needs.ci-path-lanes.result == 'success'
+        && needs.dotnet-fast-core-build.result == 'success'
+        && (github.ref == 'refs/heads/RC42' || needs.openapi-contract-snapshot.result == 'success')
+      }}
     runs-on: ubuntu-latest
     # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
     # run_fast_core_corset_shard.sh (14m, names the stuck project) → step timeout → job timeout.
@@ -2864,6 +2903,7 @@ jobs:
             ${{ runner.temp }}/coverage-fast-core/project-timing.log
             ${{ runner.temp }}/coverage-fast-core/**/*.trx
             ${{ runner.temp }}/coverage-fast-core/**/Sequence_*.xml
+            ${{ runner.temp }}/coverage-fast-core/**/*.vstest.diag*.log
           if-no-files-found: warn
 
   # Branch protection / downstream `needs` target: fails when build or any test shard fails.
@@ -4018,7 +4058,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC36' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC42' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
@@ -4375,11 +4415,18 @@ jobs:
           cache: false
 
   ui-unit:
-    name: "Operator UI: unit (Vitest)"
+    name: "Operator UI: unit (Vitest shard ${{ matrix.shard }})"
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 65
+    timeout-minutes: 90
+    # All four required check names and the full test-file inventory remain.
+    # Each check runs sixteen disjoint 1/64 cohorts in fresh processes to contain observed heap OOMs.
+    # Run every cohort even when one fails; any failure fails the required check.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/4", "2/4", "3/4", "4/4"]
     steps:
       - uses: actions/checkout@v7
 
@@ -4396,16 +4443,34 @@ jobs:
       - name: Install & run unit tests
         working-directory: archlucid-ui
         env:
-          NODE_OPTIONS: --max-old-space-size=12288
+          NODE_OPTIONS: --max-old-space-size=8192
         run: |
           npm ci
-          npm run test:vitest-single-worker
+          shard_label="${{ matrix.shard }}"
+          shard_index="${shard_label%/*}"
+          case "${shard_label}" in
+            1/4|2/4|3/4|4/4) ;;
+            *) echo "::error::Unexpected Vitest shard ${shard_label}"; exit 1 ;;
+          esac
+          failed=0
+          first_shard="$((16 * (shard_index - 1) + 1))"
+          last_shard="$((16 * shard_index))"
+          for shard_in_cohort in $(seq "${first_shard}" "${last_shard}"); do
+            echo "::group::Vitest shard ${shard_in_cohort}/64"
+            if ! ARCHLUCID_VITEST_PROCESS_TELEMETRY=1 NODE_OPTIONS="${NODE_OPTIONS} --require=./testing/vitest-process-memory.cjs" npm run test:vitest-single-worker -- --shard="${shard_in_cohort}/64"; then
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "${failed}"
 
       - name: Generate npm SBOM (CycloneDX)
+        if: matrix.shard == '1/4'
         working-directory: archlucid-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
       - uses: actions/upload-artifact@v7
+        if: matrix.shard == '1/4'
         with:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json
@@ -4531,6 +4596,25 @@ jobs:
           npm run typecheck:e2e
           npm run build
           npm run check:first-load-js
+
+      - name: Generate First Load JS evidence and run diagnostics regression tests
+        if: always()
+        working-directory: archlucid-ui
+        run: |
+          node --test scripts/ui-first-load-evidence.test.mjs
+          node scripts/ui-first-load-evidence.mjs
+
+      - name: Upload First Load JS route and shared-chunk diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-first-load-js-diagnostics
+          path: |
+            archlucid-ui/.next/diagnostics/route-bundle-stats.json
+            archlucid-ui/.next/diagnostics/first-load-evidence.json
+            archlucid-ui/performance/first-load-js-baseline.v1.json
+          if-no-files-found: warn
+
 
   ui-lighthouse-ci:
     name: "Operator UI: Lighthouse CI synthetic checks (lab)"

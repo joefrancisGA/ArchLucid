@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const pushMock = vi.fn();
 const navigationMocks = vi.hoisted(() => ({
   searchParams: new URLSearchParams(),
+  routerHookCalls: 0,
 }));
 const replaceMock = vi.fn((href: string) => {
   const queryIndex = href.indexOf("?");
@@ -17,7 +18,13 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    useRouter: () => ({ push: pushMock, replace: replaceMock }),
+    useRouter: () => {
+      // Catch synchronous render/navigation loops before they can exhaust a CI worker.
+      if (++navigationMocks.routerHookCalls > 250) {
+        throw new Error("SSO wizard router-wrapper render loop exceeded 250 useRouter calls");
+      }
+      return { push: pushMock, replace: replaceMock };
+    },
     usePathname: () => "/administration/identity/sso-wizard",
     useSearchParams: () => navigationMocks.searchParams,
   };
@@ -68,6 +75,7 @@ beforeEach(() => {
   pushMock.mockReset();
   replaceMock.mockReset();
   navigationMocks.searchParams = new URLSearchParams();
+  navigationMocks.routerHookCalls = 0;
 });
 
 function selectEntraAndContinue(): void {
@@ -76,6 +84,34 @@ function selectEntraAndContinue(): void {
 }
 
 describe("SsoWizardPage", () => {
+  it("does not replace a canonical step URL again when navigation wrappers change", () => {
+    const { rerender } = render(<SsoWizardPageClient />);
+
+    // The route already represents step zero; fresh useRouter objects are
+    // not evidence of changed navigation intent.
+    expect(replaceMock).not.toHaveBeenCalled();
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      rerender(<SsoWizardPageClient />);
+    }
+    expect(replaceMock).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("sso-idp-entra"));
+    fireEvent.click(screen.getByTestId("sso-wizard-continue"));
+
+    // Real step transitions must still be reflected in the URL.
+    expect(replaceMock).toHaveBeenCalledWith(
+      "/administration/identity/sso-wizard?step=1",
+      { scroll: false },
+    );
+    const replacementsAfterStepChange = replaceMock.mock.calls.length;
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      rerender(<SsoWizardPageClient />);
+    }
+    expect(replaceMock).toHaveBeenCalledTimes(replacementsAfterStepChange);
+    expect(navigationMocks.routerHookCalls).toBeLessThan(250);
+  });
+
   it("renders enterprise SSO wizard chrome without internal implementation language", () => {
     render(<SsoWizardPageClient />);
 

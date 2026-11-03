@@ -30,7 +30,9 @@ export function getOperatorQueryClient(): QueryClient {
   return browserQueryClient;
 }
 
-/** Vitest helper — drop the browser singleton between cases. */
+/** Vitest helper — evict cached data and GC timers before releasing the singleton. */
 export function resetOperatorQueryClientForTests(): void {
+  const previousClient = browserQueryClient;
   browserQueryClient = undefined;
+  previousClient?.clear();
 }

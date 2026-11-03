@@ -155,7 +155,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
 }
 
 export function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): readonly ArchitectureMissingItem[] {
-  return buildMissingItemsWithOmitted(input).items;
+  return [...buildMissingItemsWithOmitted(input).items];
 }
 
 export function buildMissingItemsWithOmitted(input: BuildArchitectureCreatedHomeModelInput): {

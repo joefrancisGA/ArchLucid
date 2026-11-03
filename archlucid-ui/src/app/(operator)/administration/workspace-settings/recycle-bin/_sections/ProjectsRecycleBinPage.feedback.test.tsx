@@ -8,8 +8,13 @@ import {
 } from "@/lib/projects-recycle-bin-page-copy";
 import { PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
+const recycleBinRouter = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
+const recycleBinSearchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => recycleBinRouter,
   usePathname: () => "/administration/workspace-settings/recycle-bin",
+  useSearchParams: () => recycleBinSearchParams,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {

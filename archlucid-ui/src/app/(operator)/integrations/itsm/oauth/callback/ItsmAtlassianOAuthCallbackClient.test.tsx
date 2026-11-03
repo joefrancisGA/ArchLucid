@@ -28,6 +28,7 @@ import {
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
+const oauthRouter = vi.hoisted(() => ({ replace: vi.fn() }));
 const completeItsmAtlassianOAuthConsent = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 let searchParams = new URLSearchParams("code=oauth-code&state=oauth-state");
@@ -42,6 +43,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
+  useRouter: () => oauthRouter,
+  usePathname: () => "/integrations/itsm/oauth/callback",
   useSearchParams: () => searchParams,
 }));
 
@@ -81,6 +84,7 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
       tenantId: "tenant-1",
     });
     completeItsmAtlassianOAuthConsent.mockReset();
+    oauthRouter.replace.mockReset();
   });
 
   it("renders operator chrome while consent completion is in flight", () => {
@@ -238,6 +242,22 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
       { code: "oauth-code", state: "oauth-state" },
       expect.objectContaining({ correlationId: expect.any(String) }),
     );
+  });
+
+  it("keeps support disclosure state on the callback URL without a full navigation", async () => {
+    searchParams = new URLSearchParams("error=access_denied");
+
+    render(<ItsmAtlassianOAuthCallbackClient />);
+    await expectFailureChrome();
+
+    fireEvent.click(screen.getByText("Details for support"));
+
+    await waitFor(() => {
+      expect(oauthRouter.replace).toHaveBeenCalledWith(
+        expect.stringContaining("itsmOAuthCallbackSupportDetailsOpen=1"),
+        { scroll: false },
+      );
+    });
   });
 
   it("exposes support reference disclosure without forbidden substrings", async () => {

@@ -12,10 +12,14 @@ public sealed class RunAgentLlmCostEstimateDto
         set;
     }
 
-    public RunLlmTokenCountsDto? TokenCounts
+    // Explicit JSON null (and omitted fields) must not produce a nullable token-count
+    // object for downstream callers. EstimatedCostUsd separately represents unavailable cost.
+    private RunLlmTokenCountsDto _tokenCounts = new();
+
+    public RunLlmTokenCountsDto TokenCounts
     {
-        get;
-        set;
+        get => _tokenCounts;
+        set => _tokenCounts = value ?? new RunLlmTokenCountsDto();
     }
 
     /// <summary>Distinct deployment labels from traces (sorted).</summary>

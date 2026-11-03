@@ -7,7 +7,9 @@ import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progres
 
 import { recheckUnresolvedArchitectureReviewCreate } from "./review-start-unresolved-recheck";
 
-vi.mock("@/lib/api/architecture-runs", () => ({
+// Mock the exact public API module imported by the subject and test.
+// Mocking an indirect barrel can leave createArchitectureRun as a real function.
+vi.mock("@/lib/api", () => ({
   createArchitectureRun: vi.fn(),
 }));
 

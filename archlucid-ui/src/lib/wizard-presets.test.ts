@@ -5,6 +5,7 @@ import {
   isWizardFormFieldDirty,
   isWizardFormFieldTouched,
   resolveWizardPresetLabel,
+  resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
   wizardPresets,
 } from "@/lib/wizard-presets";
@@ -62,6 +63,58 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
     expect(isWizardFormFieldDirty(undefined)).toBe(false);
     expect(isWizardFormFieldDirty([false, true])).toBe(true);
     expect(isWizardFormFieldDirty([false, undefined])).toBe(false);
+  });
+
+  it("handles sparse react-hook-form dirty field arrays without treating missing indices as dirty", () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(preset).toBeDefined();
+    if (preset === undefined) return;
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+    const unchanged = resolveWizardRecapPresetMatchingFields({
+      presetId: preset.id,
+      formValues,
+      dirtyFields: { constraints: [undefined, false], requiredCapabilities: [undefined, false] },
+    });
+
+    expect(unchanged).toContain("constraints");
+    expect(unchanged).toContain("requiredCapabilities");
+
+    const changed = resolveWizardRecapPresetMatchingFields({
+      presetId: preset.id,
+      formValues,
+      dirtyFields: { constraints: [undefined, true], requiredCapabilities: [true] },
+    });
+
+    expect(changed).not.toContain("constraints");
+    expect(changed).not.toContain("requiredCapabilities");
+  });
+
+
+  it("ignores nested dirty fields from untracked document arrays", () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+    expect(preset).toBeDefined();
+    if (preset === undefined) return;
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+    // React Hook Form marks object-array entries using nested field objects.
+    // Untracked documents must not make untouched starter fields appear edited.
+    const dirtyFields = {
+      documents: [{ name: true, contentType: false, content: false }],
+      infrastructureDeclarations: [{ content: true }],
+      constraints: [undefined, false],
+      requiredCapabilities: [false, undefined],
+    };
+
+    const matching = resolveWizardRecapPresetMatchingFields({
+      presetId: preset.id,
+      formValues,
+      dirtyFields,
+    });
+
+    expect(matching).toContain("constraints");
+    expect(matching).toContain("requiredCapabilities");
   });
 
   it("matches a live form field against the selected starter preset", () => {

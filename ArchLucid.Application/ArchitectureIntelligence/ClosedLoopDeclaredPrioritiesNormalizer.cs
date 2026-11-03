@@ -20,6 +20,26 @@ internal static class ClosedLoopDeclaredPrioritiesNormalizer
             .ToList();
     }
 
+    // Preserve the user's priority labels for downstream presentation, while grouping
+    // and ordering by the same case-insensitive canonical key used for cache identity.
+    // The existing Normalize() continues to produce stable fingerprint inputs.
+    public static List<string> NormalizeForDisplay(IEnumerable<string> priorities)
+    {
+        ArgumentNullException.ThrowIfNull(priorities);
+
+        return priorities
+            .Where(priority => !string.IsNullOrWhiteSpace(priority))
+            .Select(priority => NormalizeUnicode(priority.Trim()))
+            .Select(priority => (
+                Display: priority.Contains('/') || priority.Contains('\\')
+                    ? GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(priority)
+                    : priority,
+                Key: NormalizePriorityToken(priority)))
+            .GroupBy(priority => priority.Key, StringComparer.Ordinal)
+            .Select(group => group.First().Display)
+            .ToList();
+    }
+
     // Path canonicalization cuts at '#' and '?'. Numbered prose such as "priority #1: Cost over Security"
     // is not a path, so that cut dropped the explicit pair. Slash-shaped priorities still canonicalize.
     private static string NormalizePriorityToken(string priority)

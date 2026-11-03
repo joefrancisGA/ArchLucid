@@ -28,6 +28,7 @@ type AlertRulesHubListQueryResult<TItem> = {
   readonly items: readonly TItem[];
   readonly loading: boolean;
   readonly failure: ApiLoadFailureState | null;
+  readonly dataUpdatedAt: number;
   readonly refresh: () => Promise<void>;
 };
 
@@ -59,6 +60,7 @@ function useAlertRulesHubListQuery<TItem>(args: {
     items: normalizeHubListItems(query.data, args.emptyItems),
     loading: query.isPending || query.isFetching,
     failure: query.isError ? toApiLoadFailure(query.error) : null,
+    dataUpdatedAt: query.dataUpdatedAt,
     refresh,
   };
 }

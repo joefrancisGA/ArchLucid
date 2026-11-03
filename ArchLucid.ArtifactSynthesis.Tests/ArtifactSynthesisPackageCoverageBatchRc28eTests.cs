@@ -135,13 +135,17 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("- No requirements recorded.");
+        artifact.Content.Should().Contain("- Covered requirements were stored as an empty list.");
+        artifact.Content.Should().Contain("- Uncovered requirements were stored as an empty list.");
+        artifact.Content.Should().NotContain("- No requirements recorded.");
         artifact.Content.Should().Contain("Selected patterns were stored as an empty list.");
         artifact.Content.Should().Contain("Resources were stored as an empty list.");
         artifact.Content.Should().Contain("Topology gaps were stored as an empty list.");
         artifact.Content.Should().NotContain("- No topology information recorded.");
         artifact.Content.Should().Contain("- No security posture recorded.");
-        artifact.Content.Should().Contain("- No compliance posture recorded.");
+        artifact.Content.Should().Contain("- Compliance controls were stored as an empty list.");
+        artifact.Content.Should().Contain("- Compliance posture was stored as an empty list.");
+        artifact.Content.Should().NotContain("- No compliance posture recorded.");
         artifact.Content.Should().Contain("- Max Monthly Cost: Max monthly cost was not stored.");
         artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
         artifact.Content.Should().Contain("- No decisions recorded.");

@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.InfraEvidence;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SqlAuditScopedInsertGuardTests
 {
     [Theory]
@@ -51,7 +53,7 @@ public sealed class SqlAuditScopedInsertGuardTests
             LinkedUtc = DateTime.UtcNow,
         };
         Func<Task> action = () => repository.InsertArchitectureLinkInScopeAsync(scope, link);
-        await action.Should().ThrowAsync<InvalidOperationException>()
+        await action.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*foreign tenant authority*");
     }
 }

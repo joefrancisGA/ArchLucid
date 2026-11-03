@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Internal Azure inventory-host saturation and reseed guidance; not customer-facing assurance.
+
 # Inventory host / reachability — saturated /al-bug reseed classes
 
 Owner pivot **2026-10-29:** `archlucid-core` dry hunts **#882–#894** closed five `(candidate)` rows per run using **arithmetic sibling** inputs (`.e(N+1)` Cosmos typo suffixes, `[N,"a"]` firewall arrays, supplementary-plane `U+XXFFFE`, `%22` depth **N+1**, Latin Extended **U+1ECx** storage names). Those mechanisms were already pinned; further siblings are **not hunt-ready**.

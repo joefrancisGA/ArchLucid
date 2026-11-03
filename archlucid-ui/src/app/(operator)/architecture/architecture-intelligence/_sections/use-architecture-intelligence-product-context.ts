@@ -99,6 +99,9 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const router = useRouter();
   const pathname = usePathname() ?? ARCHITECTURE_INTELLIGENCE_PATH;
   const searchParams = useSearchParams();
+  // Next can return a new ReadonlyURLSearchParams wrapper on re-render.
+  // Effects that reset state must depend on URL values, not wrapper identity.
+  const searchParamsSerialized = searchParams.toString();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
   const urlContextRunId = parseArchitectureIntelligenceContextRunIdFromSearch(searchParams.get("contextRunId"));
@@ -112,6 +115,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const actionGenerationRef = useRef(0);
   const strippedInvalidTierRef = useRef<string | null>(null);
   const clearedInboundContextConflictRef = useRef<string | null>(null);
+  const lastInboundHydrationSignatureRef = useRef<string | null>(null);
   const invalidateInFlightActions = useCallback(() => {
     actionGenerationRef.current += 1;
   }, []);
@@ -295,8 +299,24 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
   useEffect(() => {
     if (inboundRunId.length === 0) {
+      lastInboundHydrationSignatureRef.current = null;
       return;
     }
+
+    // A router wrapper can change without a change in URL or hydration context.
+    // Run the destructive reset once per semantic input, not once per wrapper identity.
+    const hydrationSignature = JSON.stringify([
+      inboundRunId,
+      urlContextRunId,
+      productContextReloadNonce,
+      urlReviewTier,
+      pathname,
+      searchParamsSerialized,
+    ]);
+    if (lastInboundHydrationSignatureRef.current === hydrationSignature) {
+      return;
+    }
+    lastInboundHydrationSignatureRef.current = hydrationSignature;
 
     if (urlContextRunId.length > 0 && urlContextRunId !== inboundRunId) {
       const conflictKey = `${inboundRunId}|${urlContextRunId}`;
@@ -304,7 +324,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       if (clearedInboundContextConflictRef.current !== conflictKey) {
         clearedInboundContextConflictRef.current = conflictKey;
         router.replace(
-          architectureIntelligenceContextRunHrefFromSearch(searchParams.toString(), null, pathname),
+          architectureIntelligenceContextRunHrefFromSearch(searchParamsSerialized, null, pathname),
           { scroll: false },
         );
       }
@@ -319,7 +339,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setError(null);
     setPublishToProduct(false);
     setReviewTier(urlReviewTier ?? "Standard");
-  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier, urlContextRunId, pathname, router, searchParams]);
+  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier, urlContextRunId, pathname, router, searchParamsSerialized]);
 
   useEffect(() => {
     const rawTier = searchParams.get("tier")?.trim() ?? "";

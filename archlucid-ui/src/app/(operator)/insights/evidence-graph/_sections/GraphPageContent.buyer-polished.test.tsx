@@ -11,8 +11,13 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+const graphRouter = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
+const graphSearchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => graphRouter,
+  usePathname: () => "/insights/evidence-graph",
+  useSearchParams: () => graphSearchParams,
 }));
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({

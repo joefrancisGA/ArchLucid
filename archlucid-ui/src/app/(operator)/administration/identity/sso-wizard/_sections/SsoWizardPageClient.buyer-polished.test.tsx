@@ -1,9 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const navigationMocks = vi.hoisted(() => ({
+  router: { push: vi.fn(), replace: vi.fn() },
+  searchParams: new URLSearchParams(),
+}));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => navigationMocks.router,
   usePathname: () => "/administration/identity/sso-wizard",
+  useSearchParams: () => navigationMocks.searchParams,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

@@ -141,6 +141,9 @@ for proj in "${PROJECTS[@]}"; do
     --blame-hang-dump-type none
     --logger "trx;LogFilePrefix=${proj_base}-"
     --results-directory "${RESULT_DIR}"
+    # Write diagnostic traces before test discovery; the Core/Persistence
+    # stall sometimes produces no TRX or blame-hang signal.
+    --diag "${RESULT_DIR}/${proj_base}.vstest.diag.log"
   )
 
   if [ "${collect_coverage}" -eq 1 ]; then
