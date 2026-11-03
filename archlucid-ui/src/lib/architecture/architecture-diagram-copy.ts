@@ -9,6 +9,9 @@ export const ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE =
 export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
   "Draft diagram — confirm or edit before treating this as authoritative." as const;
 
+export const ARCHITECTURE_DIAGRAM_EMPTY_MERMAID_NOTE_PREFIX =
+  "Diagram note, not a component:" as const;
+
 export const ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING = "A diagram could not be generated yet." as const;
 
 export const ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION =

@@ -146,7 +146,7 @@ export function buildRunDetailEvidencePresentation(
       governanceGateLabel: model.governanceGateLabel,
       aggregateRiskPosture: model.explanationSummary?.riskPosture ?? null,
     }),
-    createHomeActivityProvenanceAsOfLabel: "Not recorded",
+    createHomeActivityProvenanceAsOfLabel: "Provenance as-of was not loaded on this page.",
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome
       ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)

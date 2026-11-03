@@ -11,6 +11,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { clarificationAnswersMutationBlockedReason } from "@/lib/runs/clarification-answers-mutation-blocked-reason";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatClarificationMissingItemDisplay } from "@/lib/reviews/clarification-missing-item-display";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 
 const MIN_ANSWER_CHARS = 8;
@@ -98,11 +99,7 @@ export function ClarificationAnswerCapturePanel(
                   : "Source finding id was not stored."}
               </p>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {question.missingItem === null || question.missingItem === undefined
-                  ? "Missing item was not stored."
-                  : question.missingItem.trim().length === 0
-                    ? "Missing item was stored empty."
-                    : question.missingItem}
+                {formatClarificationMissingItemDisplay(question.missingItem)}
               </p>
               <Textarea
                 id={answerId}

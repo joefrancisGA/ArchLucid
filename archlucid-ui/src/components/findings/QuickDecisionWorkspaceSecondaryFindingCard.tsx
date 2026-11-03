@@ -32,6 +32,7 @@ import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
@@ -209,7 +210,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
               </p>
             ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">
-              {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
+              {formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title)}
             </span>
           </div>
         </summary>

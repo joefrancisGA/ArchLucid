@@ -105,6 +105,30 @@ internal static class RunSummaryOnePagerHonestyCopy
             $"Sealed snapshot `{snapshotLabel}` — {sealedFindingCount} finding(s) on the authority pipeline stream. Finalize gate, ITSM `FindingId`, and golden corpus use this record.";
     }
 
+    internal static int ResolveSealedFindingCount(
+        Guid? findingsSnapshotId,
+        bool agentFindingsIncludedInDetail,
+        int explicitSealedFindingCount,
+        int? findingsSnapshotFindingCount)
+    {
+        if (findingsSnapshotId is null || findingsSnapshotId == Guid.Empty)
+        {
+            return 0;
+        }
+
+        if (explicitSealedFindingCount >= 0)
+        {
+            return explicitSealedFindingCount;
+        }
+
+        if (findingsSnapshotFindingCount is int snapshotCount)
+        {
+            return snapshotCount;
+        }
+
+        return -1;
+    }
+
     internal static string ResolveTopFindingsEmptyCopy(bool agentFindingsStored, int nonBlankTitleCount)
     {
         if (!agentFindingsStored)

@@ -39,6 +39,7 @@ import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingCategoryLine,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
   formatQuickDecisionFindingOwnerHelper,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
@@ -184,7 +185,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           </p>
         ) : null}
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
+          {formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title)}
         </h3>
         {(() => {
           const categoryLine = formatQuickDecisionFindingCategoryLine(finding.category);

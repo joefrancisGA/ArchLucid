@@ -57,10 +57,15 @@ public static partial class SponsorReviewPacketComposer
         StringBuilder sb,
         ArchitectureRunDetail detail,
         string SponsorReport,
-        IReadOnlyList<string> topFindingTitles)
+        IReadOnlyList<string> topFindingTitles,
+        int? findingsSnapshotFindingCount = null)
     {
         RunSummaryOnePagerDocumentModel onePager =
-            RunSummaryOnePagerDocumentFactory.Create(detail, SponsorReport, topFindingTitles);
+            RunSummaryOnePagerDocumentFactory.Create(
+                detail,
+                SponsorReport,
+                topFindingTitles,
+                findingsSnapshotFindingCount: findingsSnapshotFindingCount);
 
         sb.AppendLine("## Review summary");
         sb.AppendLine();
