@@ -4932,6 +4932,20 @@
 
 ## Zone: billing-webhooks
 
+2026-11-03 thorough hunt (dry #87): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#86** (regression family dry **#85** / seed **#84**) — **valid-no-repro** raw padded `tenantIdRaw` forwarded to processor by design (~227–231; regression `HandleWebhookAsync_wallet_passes_raw_padded_tenant_id_metadata_to_processor`; processor trims ~32); **valid-no-repro** null-coalesced empty `eventType` exits without wallet call (~25–51; regression `ProcessPaymentIntentEventAsync_ignores_unknown_event_type_without_wallet_call`); **valid-no-repro** `customer.subscription.updated` with null typed subscription returns handled (~136–148; seed **#76** subscription null-object ack class); **valid-no-repro** marketplace controller returns HTTP 200 when integration publish fails non-fatally (~89–105; `TryPublishAsync_swallows_non_fatal_publish_failure`; webhook ack decoupled from outbox); **valid-no-repro** concurrent duplicate `TryRegisterEventAsync` loser returns false without refreshing winner TTL (~70–71; regression `TryRegisterEventAsync_only_first_concurrent_caller_wins`). Reseeded five follow-on `(candidate)` monitor rows from dry **#86** closed themes; zone **cooling** (`consecutive-dry-hunts` 11); scoped filter **39/39** (24 Persistence + 15 Application, `RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — forwards untrimmed `tenantIdRaw` metadata to processor after validating with `Guid.TryParse(tenantIdRaw.Trim())` — **cheap-disproof 2026-11-03 thorough hunt #87:** regressions in diary above; dry **#85**.
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — null-coalesced empty `eventType` exits without wallet call or failure telemetry — **cheap-disproof 2026-11-03 thorough hunt #87:** regression above.
+- [x] (valid-no-repro) `StripeBillingProvider.DispatchSubscriptionWebhookEventAsync` — `customer.subscription.updated` returns handled when typed subscription is null — **cheap-disproof 2026-11-03 thorough hunt #87:** seed **#76** diary; regression above.
+- [x] (valid-no-repro) `BillingMarketplaceWebhookController.MarketplaceAsync` — integration outbox publish errors do not change HTTP status when provider already succeeded — **cheap-disproof 2026-11-03 thorough hunt #87:** `TryPublishAsync_swallows_non_fatal_publish_failure`; regression above.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — duplicate loser returns false without extending winner cache TTL — **cheap-disproof 2026-11-03 thorough hunt #87:** regression `TryRegisterEventAsync_only_first_concurrent_caller_wins`; dry **#85**.
+
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — `MidpointRounding.AwayFromZero` when converting `amountCents` to USD — locus: integer Stripe cents; input: fractional-cent path absent (monitor dry **#87** / dry **#86** / thorough **#85**).
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — checks `Returns202Accepted` before `DuplicateIgnored` short-circuit — locus: controller branch order; input: duplicate marketplace delivery (monitor dry **#87** / dry **#86**).
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — `_claimedKeys` membership returns true before cache TTL consult — locus: claim belt vs TTL; input: expired cache entry still claimed (monitor dry **#87** / dry **#86** / dry **#73**).
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — wallet and subscription routes share identical replay/success empty `Ok()` mapping — locus: intentional Stripe ack; input: processed vs replay (monitor dry **#87** / dry **#86** / dry **#79**).
+- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — passes `intent.LastPaymentError?.DeclineCode` into processor on succeeded events — locus: decline telemetry on success path; input: succeeded intent with stale LastPaymentError (monitor dry **#87** / dry **#86**).
+
 2026-11-03 thorough hunt (dry #86): cheap-disproof closed five open `(candidate)` rows from thorough **#85** reseed — **valid-no-repro** `MidpointRounding.AwayFromZero` on integer Stripe cent amounts (~35; no fractional-cent input path); **invalid** marketplace controller evaluates `DuplicateIgnored` before `Returns202Accepted` (~97–101; monitor inverted actual order); **invalid** `_claimedKeys` consult before cache TTL by design (~31–33; dry **#73** / **#74** diary); **invalid** wallet and subscription Stripe routes share intentional empty `Ok()` ack (~65–71; dry **#79** / seed **#68**); **valid-no-repro** `LastPaymentError?.DeclineCode` forwarded on wallet dispatch but processor records decline telemetry only on `payment_intent.payment_failed` (~233–234 vs ~48–50); reseeded five follow-on `(candidate)` rows from dry **#85** closed themes; zone **cooling** (`consecutive-dry-hunts` 10); scoped filter **39/39** (24 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
 
 - [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — forwards untrimmed `tenantIdRaw` metadata to processor after validating with `Guid.TryParse(tenantIdRaw.Trim())` (~227–231) — locus: raw metadata passthrough; input: padded tenant id string.
@@ -5084,9 +5098,9 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-03
 - **last-bug:** 2026-11-01 — marketplace JWT-valid non-JSON webhook returned HTTP 500 instead of 400
 - **related-pd-tb:** none
