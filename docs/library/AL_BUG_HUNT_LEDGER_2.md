@@ -1106,6 +1106,8 @@
 
 ## Zone: tenant-erasure
 
+2026-11-03 seed hunt (seed-only #284): re-read `TenantErasureCommandService` restore/offboard clamp and `TenantErasureQuarantineMiddleware` normalization after **1** unrelated set-2 commit since seed **#283**; cheap-disproof closed five open `(candidate)` rows from seed **#283** — **valid-no-repro** approve non-deterministic `EventId` (seed **#282** / dry **#939**); **valid-no-repro** actor trim surrounding whitespace only (**085a013586**); **valid-no-repro** past-due scheduled erasure middleware gate (seed **#282**); **valid-no-repro** case-insensitive lifecycle prefix (~59); **valid-no-repro** clear-hold offboard pre-append skip (dry **#274**). Seeded five follow-on `(candidate)` monitor rows; scoped **88/88** Application + Api `TenantErasure` tests (`RunAnalyzers=false`). Private beta: n/a.
+
 2026-11-03 seed hunt (seed-only #283): re-read `TenantErasureCommandService` concurrency/idempotency and middleware eligibility after seed **#282**; cheap-disproof closed five open `(candidate)` rows from seed **#282** — **valid-no-repro** concurrent offboard atomic start + deterministic offboard `EventId` (dry **#279**); **invalid** percent-encoded lifecycle dot (dry **#279**); **valid-no-repro** concurrent clear-hold CAS (dry **#279**); **valid-no-repro** legal hold without offboard does not gate middleware login block (dry **#277**/`#279**); **valid-no-repro** approve after concurrent restore idempotent success (dry **#279**). Seeded five follow-on `(candidate)` monitor rows from dry **#281** themes; **88/88** scoped Application + Api `TenantErasure` tests (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-11-03 seed hunt (seed-only #282): re-read `TenantErasureCommandService` audit append/idempotency and `TenantErasureQuarantineMiddleware` eligibility after dry **#281**; cheap-disproof closed five open `(candidate)` rows from dry **#281** — **valid-no-repro** approve non-deterministic `EventId` mitigated by idempotent retry (`TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`; dry **#939**); **valid-no-repro** actor fields trim surrounding whitespace only by design (`AppendPlatformAuditAsync`; parity correlation trim **085a013586**); **valid-no-repro** past-due scheduled erasure blocks tenant APIs (`Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`; **#6972** family); **valid-no-repro** lifecycle prefix case-insensitive (`StartsWithSegments(..., OrdinalIgnoreCase)` ~59); **valid-no-repro** clear-hold skips audit when offboard observed on pre-append re-read (`TryClearLegalHoldAsync_returns_success_without_audit_when_offboard_completes_after_pre_audit_read_before_audit`; dry **#274**). Seeded five follow-on `(candidate)` monitor rows; **88/88** scoped Application + Api `TenantErasure` tests (`RunAnalyzers=false`). Private beta: n/a.
@@ -1154,11 +1156,17 @@
 - [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.InvokeAsync` — legal hold without offboard does not block tenant APIs — **cheap-disproof 2026-11-03 seed hunt #283:** dry **#279** diary.
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approve after concurrent restore clears quarantine — **cheap-disproof 2026-11-03 seed hunt #283:** dry **#279** diary.
 
-- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit append uses non-deterministic `EventId` unlike offboard deterministic hash — locus: `AppendPlatformAuditAsync`; input: operator safe-retry (monitor dry **#283** / dry **#281**).
-- [ ] (candidate) `TenantErasureCommandService.AppendPlatformAuditAsync` — `actorUserId`/`actorUserName` trim surrounding whitespace only — locus: `.Trim()` on append; input: interior format characters (monitor dry **#283** / dry **#281**).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — past-due `TenantErasureRequestedUtc` without `OffboardedUtc` blocks tenant APIs — locus: eligibility gate; input: scheduled request in past (monitor dry **#283** / dry **#281**).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — case-insensitive lifecycle `/v1/tenant/erasure` prefix — locus: `OrdinalIgnoreCase`; input: uppercase path (monitor dry **#283** / dry **#281**).
-- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit skipped when offboard observed on pre-append re-read — locus: pre-append tenant re-read; input: offboard during clear (monitor dry **#283** / dry **#281**).
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit append uses non-deterministic `EventId` unlike offboard deterministic hash — **cheap-disproof 2026-11-03 seed hunt #284:** idempotent approved retry; seed **#282** / dry **#939**.
+- [x] (valid-no-repro) `TenantErasureCommandService.AppendPlatformAuditAsync` — `actorUserId`/`actorUserName` trim surrounding whitespace only — **cheap-disproof 2026-11-03 seed hunt #284:** `.Trim()` contract; **085a013586**.
+- [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.InvokeAsync` — past-due `TenantErasureRequestedUtc` without `OffboardedUtc` blocks tenant APIs — **cheap-disproof 2026-11-03 seed hunt #284:** regression `Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded`; seed **#282**.
+- [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.Skip` — case-insensitive lifecycle `/v1/tenant/erasure` prefix — **cheap-disproof 2026-11-03 seed hunt #284:** `OrdinalIgnoreCase` ~59; seed **#282**.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — clear-hold audit skipped when offboard observed on pre-append re-read — **cheap-disproof 2026-11-03 seed hunt #284:** dry **#274** / seed **#282** regressions.
+
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — restore audit append uses non-deterministic `EventId` unlike offboard hash — locus: `AppendPlatformAuditAsync` without explicit event id; input: operator restore safe-retry (monitor seed **#284** / dry **#281**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — configured `QuarantineDays` above 3650 clamped to ceiling — locus: `Math.Clamp(..., 1, 3650)` ~54; input: misconfigured options max (monitor).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — duplicate-slash normalization on erasure lifecycle paths — locus: `NormalizeRequestPath`; input: `//v1/tenant/erasure/approve` (monitor; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path`).
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — legal hold with `requireErasureQuarantine: false` without offboard — locus: ~242 guard; input: hold on live tenant (monitor).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — `/v1/register` skip requires raw prefix when normalized path differs — locus: register branch ~76–77; input: traversal normalizing away from register (monitor; `Erasure_quarantine_blocks_offboarded_tenant_when_register_or_erasure_prefix_traversal_normalizes_away_from_skip`).
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryClearLegalHoldAsync` — idempotent clear retry must not duplicate platform audit — **cheap-disproof 2026-11-01 thorough hunt #278:** see dry #278 diary.
 - [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` — unauthenticated tenant-scoped routes pass through before quarantine lookup — **cheap-disproof 2026-11-01 thorough hunt #278:** see dry #278 diary.
@@ -1318,7 +1326,7 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 283
+- **hunts:** 284
 - **bugs-found:** 493
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-11-03
