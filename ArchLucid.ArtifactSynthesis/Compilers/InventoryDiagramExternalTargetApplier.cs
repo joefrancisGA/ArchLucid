@@ -582,17 +582,21 @@ internal static class InventoryDiagramExternalTargetApplier
 
     private static string FormatExternalTargetLabel(string targetArmId, ScopeSubscriptionResolution scopeSubscription)
     {
+        string armIdSuffix = string.IsNullOrWhiteSpace(targetArmId)
+            ? string.Empty
+            : $" ARM id: {targetArmId.Trim()}.";
+
         string? scopeSubscriptionId = scopeSubscription.SubscriptionId;
         string? targetSubscriptionId = TryReadSubscriptionIdFromArmId(targetArmId);
 
         if (string.IsNullOrWhiteSpace(scopeSubscriptionId) && !string.IsNullOrWhiteSpace(targetSubscriptionId))
         {
-            return "Scope subscription was not stored. Target is not on this diagram.";
+            return $"Scope subscription was not stored. Target is not on this diagram.{armIdSuffix}";
         }
 
         if (string.IsNullOrWhiteSpace(targetSubscriptionId))
         {
-            return "Target subscription id was not stored, so outside-subscription was not decided.";
+            return $"Target subscription id was not stored, so outside-subscription was not decided.{armIdSuffix}";
         }
 
         bool outsideSubscription = !string.IsNullOrWhiteSpace(scopeSubscriptionId)
@@ -602,13 +606,13 @@ internal static class InventoryDiagramExternalTargetApplier
         {
             if (scopeSubscription.InferredFromDiagram)
             {
-                return "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.";
+                return $"Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.{armIdSuffix}";
             }
 
-            return "Outside this subscription. Resource name was not stored.";
+            return $"Outside this subscription. Resource name was not stored.{armIdSuffix}";
         }
 
-        return "Target is not on this diagram.";
+        return $"Target is not on this diagram.{armIdSuffix}";
     }
 
 }

@@ -79,7 +79,7 @@ export function RunDetailSponsorModeExplanationCard(
   const visibleFindings = visibleSponsorFindings(findings);
   const top = topFindings(findings);
 
-  if (explanationSummary === null && top.length === 0) {
+  if (explanationSummary === null && findings.length === 0) {
     return null;
   }
 

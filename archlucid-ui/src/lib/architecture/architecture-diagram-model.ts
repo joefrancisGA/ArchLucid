@@ -3,6 +3,7 @@ import {
   formatTrustBoundaryDisplayLabel,
   formatTrustBoundaryWithoutMembershipNote,
   formatUnmatchedArchitectureDataFlowEntity,
+  isArchitectureDiagramTrustBoundaryOmissionLabel,
 } from "@/lib/architecture/architecture-diagram-copy";
 import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
 import {
@@ -12,6 +13,7 @@ import {
 import {
   resolveArchitectureDiagramNodeDisplayLabel,
   ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureContentProvenance,
@@ -127,13 +129,16 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    const displayLabel =
-      entity.label.trim().length === 0
-        ? ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED
-        : resolveArchitectureDiagramNodeDisplayLabel(entity.label);
+    let displayLabel: string;
 
-    if (entity.label.trim().length === 0) {
+    if (entity.label.length === 0) {
+      displayLabel = ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
       skippedUnlabeled.count += 1;
+    } else if (entity.label.trim().length === 0) {
+      displayLabel = ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY;
+      skippedUnlabeled.count += 1;
+    } else {
+      displayLabel = resolveArchitectureDiagramNodeDisplayLabel(entity.label);
     }
 
     nodes.push(createNode(displayLabel, kind, entity.provenance, usedIds, index));
@@ -499,7 +504,13 @@ export function buildArchitectureDiagramModel(
       : [];
 
   if (trustBoundaryLabels.length > 0) {
-    diagramHonestyNotes.push(formatTrustBoundaryWithoutMembershipNote(trustBoundaryLabels));
+    const membershipBoundaryNames = trustBoundaryLabels.filter(
+      (label) => !isArchitectureDiagramTrustBoundaryOmissionLabel(label),
+    );
+
+    if (membershipBoundaryNames.length > 0) {
+      diagramHonestyNotes.push(formatTrustBoundaryWithoutMembershipNote(membershipBoundaryNames));
+    }
   }
 
   return {

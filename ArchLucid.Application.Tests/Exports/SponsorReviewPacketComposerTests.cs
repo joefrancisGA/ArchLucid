@@ -408,7 +408,7 @@ public sealed class SponsorReviewPacketComposerTests
             DateTime.UtcNow,
             topDecisions: []);
 
-        markdown.Should().Contain("## Top decisions");
+        markdown.Should().Contain("## First five decisions (not ranked)");
         markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored);
         markdown.Should().Contain($"**Pricing basis note:** {SponsorReviewPacketExportHonestyCopy.PricingBasisNoteNotStored}");
         markdown.Should().Contain($"**Cost evidence freshness:** {SponsorReviewPacketExportHonestyCopy.CostEvidenceFreshnessNotStored}");

@@ -163,4 +163,25 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     expect(evidenceBasisBlock).not.toBeNull();
     expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations were not stored.")).toBeInTheDocument();
   });
+
+  it("renders when only muted findings remain (P-08)", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={null}
+        findings={[
+          finding({
+            findingId: "muted",
+            title: "Muted finding",
+            isMuted: true,
+            severityValue: 4,
+          }),
+        ]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(
+      screen.getByText(/Only muted or closed findings remain on this review/i),
+    ).toBeInTheDocument();
+  });
 });

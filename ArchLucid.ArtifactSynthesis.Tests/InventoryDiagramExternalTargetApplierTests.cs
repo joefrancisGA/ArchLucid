@@ -21,8 +21,10 @@ public sealed class InventoryDiagramExternalTargetApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Nodes.Should().ContainSingle(node =>
-            node.Label ==
-            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.");
+            node.Label.StartsWith(
+                "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.",
+                StringComparison.Ordinal)
+            && node.Label.Contains("ARM id:", StringComparison.Ordinal));
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
@@ -44,8 +46,10 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             DiagramMode.FullSubscription);
 
         ast.Nodes.Should().ContainSingle(node =>
-            node.Label ==
-            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.");
+            node.Label.StartsWith(
+                "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.",
+                StringComparison.Ordinal)
+            && node.Label.Contains("ARM id:", StringComparison.Ordinal));
         ast.Edges.Count(edge =>
             !edge.IsLayoutOnly
             && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
@@ -83,7 +87,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             },
             DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Target is not on this diagram.");
+        ast.Nodes.Should().ContainSingle(node => node.Label.StartsWith("Target is not on this diagram.", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -128,8 +132,10 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             DiagramMode.FullSubscription);
 
         string externalNodeId = ast.Nodes.Single(node =>
-            node.Label ==
-            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.").NodeId;
+            node.Label.StartsWith(
+                "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.",
+                StringComparison.Ordinal)
+            && node.Label.Contains("ARM id:", StringComparison.Ordinal)).NodeId;
         string vnetNodeId = ast.Nodes.Single(node => node.Label == "vnet-a").NodeId;
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly

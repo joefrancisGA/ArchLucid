@@ -17,7 +17,7 @@ public sealed class DiagramInventoryNodeCanvasLabelFormatterTests
             [],
             DefaultOptions);
 
-        lines.Should().Equal("Resource name was not stored.");
+        lines.Should().Equal("Resource name was stored empty.");
     }
 
     [Fact]

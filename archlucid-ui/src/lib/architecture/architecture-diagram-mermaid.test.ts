@@ -393,4 +393,42 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(alt).toContain("No diagram components were stored.");
     expect(alt).toContain("Gateway -> Unknown sink");
   });
+
+  it("appends stored-empty section honesty and flows when users were omitted (P-02)", () => {
+    const model: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: ["Gateway -> Unknown sink"],
+      entitySectionHonestyLines: ["Users and stakeholders: Entities were not stored."],
+      diagramHonestyNotes: ["Trust boundary names were stored without component membership: Corporate network."],
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(model);
+
+    expect(alt).toContain("Users and stakeholders: Entities were not stored.");
+    expect(alt).toContain("Trust boundary names were stored without component membership: Corporate network.");
+    expect(alt).toContain("Gateway -> Unknown sink");
+  });
+
+  it("does not double-prefix unmatched data flow lines (P-01)", () => {
+    const prefixed =
+      "Data flow was not matched to diagram components: Gateway -> Unknown sink";
+    const model: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [prefixed],
+      entitySectionHonestyLines: [],
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(model);
+
+    expect(alt).not.toContain(
+      "Data flow was not matched to diagram components: Data flow was not matched to diagram components:",
+    );
+    expect(alt).toContain(prefixed);
+  });
 });
