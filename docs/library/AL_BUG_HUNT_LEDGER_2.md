@@ -2030,6 +2030,8 @@
 
 ## Zone: finding-inspect-sql
 
+2026-11-03 seed hunt (seed-only #100): re-read `FindingInspectReadRepositoryCore` typed-payload property lookup, primitive `PayloadJson` roots, relational storage-first density resolvers, overlay band normalization, and `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel`; retired dry **#99** open monitor rows into hypotheses sync; seeded five fresh mechanism-backed `(candidate)` rows (interior format character inside JSON property name, JSON boolean primitive root vs object-only enum resolvers, invalid overlay band whitespace-only fall-through to typed payload, evaluation confidence column token `"true"`/`"false"`, relational classification storage shadows conflicting typed payload); no row met hunt-ready bar; scoped picker filter **464/464** (`RunAnalyzers=false`; `FindingInspectEndpointTests` require SQL — not run on Linux VM). Private beta: n/a.
+
 2026-11-01 thorough hunt (dry #99): cheap-disproof closed five open `(candidate)` monitor rows from dry **#98** reseed — **valid-no-repro** boolean JSON `semanticSupportBand:true/false` ignored (string/number branches only; parity treatment/classification boolean regressions); **valid-no-repro** decimal string `treatment:"1.0"` fail-closed like classification `"2.0"` and disposition `"1.0"` (`ResolveInspectClassification_ignores_decimal_string_classification_token`; dry **#97**); **valid-no-repro** minus-prefixed disposition `"-1.0"` fail-closed like `"-1"` and other fractional numerics (`ParseDisposition_returns_null_for_fractional_numeric_string`); **valid-no-repro** plus-prefixed severity `"+2.0"` fail-closed like `"2.0"` (`ParseFindingSeverity_rejects_two_point_zero_numeric_string`; dry **#98**); **invalid** JSON array root `[]` — typed payload deserializes array by design (`ResolveTypedPayloadForInspect_returns_deserialized_array_when_payload_is_json_array`; not object-only guard); reseeded five follow-on `(candidate)` rows; **464/464** scoped inspect mapper/sql/repository-core tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` require SQL — not run). Private beta: n/a.
 
 2026-11-01 thorough hunt (dry #98): cheap-disproof closed five open `(candidate)` monitor rows from dry **#97** reseed — boolean JSON `treatment:true` ignored by string/number branches only (`ResolveInspectTreatment_ignores_boolean_json_treatment_token`; parity with classification boolean class); plus-prefixed decimal disposition `"+1.0"` does not map to deferred like `"+1"` (`ParseDisposition_returns_null_for_plus_one_point_zero_numeric_string`); decimal string `semanticSupportBand:"2.0"` does not parse as enum (`ResolveInspectSemanticSupportBand_ignores_decimal_string_band_token`; parity with classification `"2.0"`); decimal severity `"2.0"` fail-closed throw like other fractional ordinals (`ParseFindingSeverity_rejects_two_point_zero_numeric_string`); JSON literal `null` payload returns `JsonValueKind.Null` without title/rationale metadata fallback (`ResolveTypedPayloadForInspect_returns_json_null_element_when_payload_is_null_literal`; seed **#1572**); reseeded five follow-on `(candidate)` rows; **464/464** scoped inspect mapper/sql/repository-core tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` require SQL — not run). Private beta: n/a.
@@ -2046,11 +2048,17 @@
 - [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — plus-prefixed decimal string `"+2.0"` vs defined `"+2"` error ordinal — **cheap-disproof 2026-11-01 thorough hunt #99:** fail-closed fractional ordinals; regression `ParseFindingSeverity_rejects_two_point_zero_numeric_string` (dry **#98**).
 - [x] (invalid) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON array root vs object typed payload — **cheap-disproof 2026-11-01 thorough hunt #99:** array roots deserialize by design; regression `ResolveTypedPayloadForInspect_returns_deserialized_array_when_payload_is_json_array` (not an object-only guard).
 
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — boolean JSON `true`/`false` in typed payload `treatment` — locus: string/number branches only; input: `"treatment":true`; reachability: schema-loose export JSON (monitor dry **#98** class).
-- [ ] (candidate) `FindingInspectReadModelMapper.ParseDisposition` — plus-prefixed decimal string `"+1.0"` vs defined `"+1"` deferred ordinal — locus: string `Enum.TryParse`; input: `"+1.0"`; reachability: legacy signed export strings (monitor dry **#98**).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — decimal string token `"2.0"` in typed payload — locus: string branch; input: `"semanticSupportBand":"2.0"`; reachability: hand-edited payload (monitor `ResolveInspectSemanticSupportBand_ignores_decimal_string_band_token`).
-- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — decimal string severity `"2.0"` vs integer `"2"` error ordinal — locus: fractional numeric guard; input: `"2.0"`; reachability: legacy export strings (monitor dry **#98**).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON `null` root vs missing column — locus: null literal deserialize; input: `null` payload; reachability: explicit null in column (monitor dry **#98**).
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — boolean JSON `true`/`false` in typed payload `treatment` — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary; monitor dry **#98** class.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseDisposition` — plus-prefixed decimal string `"+1.0"` vs defined `"+1"` deferred ordinal — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — decimal string token `"2.0"` in typed payload — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — decimal string severity `"2.0"` vs integer `"2"` error ordinal — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON `null` root vs missing column — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — interior format character inside JSON property name (for example `class\u200Bification`) — locus: `property.Name.Trim()` only; input: hand-edited export key; reachability: invisible paste inside name (monitor seed **#100**).
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON boolean primitive root `true`/`false` leaves density enum resolvers null — locus: `Resolve*FromTypedPayload` requires `JsonValueKind.Object`; input: `"true"` column value; reachability: corrupt exporter (monitor seed **#100**).
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — whitespace-only overlay column falls through to typed payload — locus: `NormalizeInspectEnumToken` on overlay; input: overlay `"   "` with valid payload band; reachability: empty overlay row (monitor seed **#100**).
+- [ ] (candidate) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` — column token `"true"`/`"false"` does not map to enum — locus: string `Enum.TryParse` only; input: boolean-ish strings in `EvaluationConfidenceLevel`; reachability: legacy import (monitor seed **#100**).
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectClassification` — defined storage byte hides conflicting typed payload classification — locus: `FromClassificationStorage` before payload; input: storage `ChecklistCoverage` + payload `DemoteToChecklist`; reachability: partial density backfill (monitor seed **#100**; regression `ResolveInspectClassification_prefers_relational_storage_over_typed_payload`).
 
 2026-11-01 thorough hunt (dry #97): cheap-disproof closed five open `(candidate)` rows from dry **#96** reseed — interior ZWSP in `ParseHumanReview` (`Pend\u200Bing`) fail-closed via `InvalidDataException` like severity/disposition interior contract (`ParseHumanReview_rejects_interior_format_character_in_review_status_name`); fractional JSON `semanticSupportBand` `2.5` rejected by `TryGetInt32` (`ResolveInspectSemanticSupportBand_ignores_fractional_json_number_in_typed_payload`); decimal string disposition `"1.0"` does not parse as enum ordinal (`ParseDisposition_returns_null_for_one_point_zero_numeric_string`); boolean JSON `classification:true` ignored by string/number branches only (`ResolveInspectClassification_ignores_boolean_json_classification_token`); interior ZWSP in `ParseFindingSeverity` (`Erro\u200Br`) fail-closed throw (`ParseFindingSeverity_rejects_interior_format_character_in_severity_name`); reseeded five follow-on `(candidate)` rows; **460/460** scoped inspect mapper/sql/repository-core tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` require SQL — not run). Private beta: n/a.
 
@@ -2122,13 +2130,13 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 99
+- **hunts:** 100
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-11-01
+- **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-31 — typed-payload JSON property names with surrounding whitespace ignored on inspect read
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-21 seed hunt (seed→hit, lane B): see ledger header.
 
@@ -2139,6 +2147,18 @@
 2026-10-03 seed hunt (seed-only): reread the selected inspect SQL, repository mapping, and enum-normalization paths; no new hunt-ready defect was proven. Added two candidates for unnormalized persisted metadata fields; the scoped test build was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — boolean JSON in typed payload — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseDisposition` — plus-prefixed decimal `"+1.0"` — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — decimal string `"2.0"` — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — decimal string `"2.0"` — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON `null` root — **cheap-disproof 2026-11-01 thorough hunt #99:** see dry #99 diary.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — interior format character inside JSON property name — monitor seed **#100**.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — JSON boolean primitive root — monitor seed **#100**.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — whitespace-only overlay fall-through — monitor seed **#100**.
+- [ ] (candidate) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` — column token `"true"`/`"false"` — monitor seed **#100**.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectClassification` — storage shadows conflicting typed payload — monitor seed **#100**.
 
 - [x] (proven) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — leading format character on overlay band made `Enum.TryParse` fail and preferred typed payload over relational overlay — **hit 2026-10-21 lane B:** `NormalizeInspectEnumToken`; regression `ResolveInspectSemanticSupportBand_parses_overlay_after_leading_invisible_format_characters`.
 

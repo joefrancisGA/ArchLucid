@@ -2559,3 +2559,4 @@
 {"at":"2026-11-03T01:38:43.4677749Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T01:48:41.2924020Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T01:53:33.4563477Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T01:56:23.8676728Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared"}
