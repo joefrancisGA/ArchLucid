@@ -289,6 +289,9 @@ export const GUIDED_INTAKE_CLOUD_TARGET_CONTROL_HINT =
 
 export const GUIDED_INTAKE_SAVE_ANSWER_LABEL = "Save answer";
 
+export const GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT =
+  "This answer is not stored until you submit the intake." as const;
+
 export const GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL = "Save and continue";
 
 export function guidedIntakeClarificationsAnsweredCounter(

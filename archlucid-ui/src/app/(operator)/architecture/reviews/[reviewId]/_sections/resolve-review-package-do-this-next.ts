@@ -64,7 +64,7 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly findingsCount?: number | null;
   readonly correctionHref: string | null;
   readonly nextAction?: string | null;
-  readonly evidenceCoverageLinkedCount: number;
+  readonly evidenceCoverageLinkedCount: number | null;
   readonly evidenceCoverageTotalCount: number;
   readonly governanceDecisionRecorded: boolean;
   /** Create-home and committed review workspace both use canonical `reviewTab=` (TB-2363). */
@@ -132,7 +132,7 @@ function sentenceForPrimaryAction(
 
       return "Evidence is still thin — add architecture evidence before expecting full findings.";
     case "review-findings":
-      if (input.blockingFindingCount > 0) {
+      if (input.blockingFindingCount !== null && input.blockingFindingCount > 0) {
         return input.blockingFindingCount === 1
           ? "One finding still blocks approval or finalization — review it next."
           : `${input.blockingFindingCount} findings still block approval or finalization — review them next.`;
@@ -155,7 +155,11 @@ function sentenceForPrimaryAction(
 }
 
 function evidenceCoverageGap(input: ResolveReviewPackageDoThisNextInput): boolean {
-  return input.evidenceCoverageTotalCount > 0 && input.evidenceCoverageLinkedCount === 0;
+  return (
+    input.evidenceCoverageTotalCount > 0
+    && input.evidenceCoverageLinkedCount !== null
+    && input.evidenceCoverageLinkedCount === 0
+  );
 }
 
 function evidenceCoverageGapSentence(totalCount: number): string {
@@ -203,7 +207,7 @@ function buildPostFinalizeQuickLinks(
 ): readonly ReviewPackageDoThisNextQuickLink[] {
   const manifestId = input.manifestId?.trim() ?? "";
 
-  if (manifestId.length === 0 || input.blockingFindingCount > 0) {
+  if (manifestId.length === 0 || input.blockingFindingCount === null || input.blockingFindingCount > 0) {
     return [];
   }
 
@@ -228,7 +232,7 @@ function attachPostFinalizeGuidance(
 ): ReviewPackageDoThisNext {
   const manifestId = input.manifestId?.trim() ?? "";
 
-  if (manifestId.length === 0 || input.blockingFindingCount > 0) {
+  if (manifestId.length === 0 || input.blockingFindingCount === null || input.blockingFindingCount > 0) {
     return next;
   }
 

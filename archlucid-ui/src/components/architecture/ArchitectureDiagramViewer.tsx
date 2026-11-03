@@ -1442,10 +1442,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         >
           <p className="m-0">
             {clickFocus.memberNames !== undefined
-              ? clickFocus.name.length > 0
-                ? clickFocus.name
-                : "Resource name was not stored."
-              : `Diagram click focus (not stored metadata): connections for ${clickFocus.name.trim().length > 0 ? clickFocus.name : "Resource name was not stored."}.`}
+              ? clickFocus.name.trim().length > 0
+                ? `Stored diagram metadata: ${clickFocus.name}`
+                : "Stored diagram metadata: resource name was not stored."
+              : clickFocus.name.trim().length > 0
+                ? `Diagram click focus: ${clickFocus.name}. Cluster metadata was not stored.`
+                : "Diagram click focus: resource name was not stored. Cluster metadata was not stored."}
           </p>
           {focusedNodeConnectionHint !== null ? (
             <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>

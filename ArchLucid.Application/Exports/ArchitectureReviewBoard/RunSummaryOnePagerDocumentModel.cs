@@ -171,4 +171,10 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string? TopFindingsScopeLine
+    {
+        get;
+        init;
+    }
+
 }

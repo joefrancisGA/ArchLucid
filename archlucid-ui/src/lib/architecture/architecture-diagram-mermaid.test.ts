@@ -319,7 +319,7 @@ describe("architectureDiagramModelToMermaid", () => {
     };
 
     expect(architectureDiagramModelToTextAlternative(dangling)).toContain(
-      "A connection was left off this diagram because an endpoint was not on the diagram.",
+      "1 connection was left off this diagram because an endpoint was not on the diagram.",
     );
 
     const mermaid = architectureDiagramModelToMermaid(dangling);

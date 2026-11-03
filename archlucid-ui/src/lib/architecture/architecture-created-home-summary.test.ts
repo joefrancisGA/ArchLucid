@@ -95,6 +95,30 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     });
   });
 
+  it("labels parsed actor names once when fromSubmittedParse (P-01)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "Payment gateway", kind: "Human", fromSubmittedParse: true }],
+      }),
+    );
+
+    const primaryUsers = fields.find((field) => field.label === "Primary users")?.value ?? "";
+
+    expect(primaryUsers).toBe("Payment gateway (submitted text, not operator-asserted)");
+    expect(primaryUsers.match(/\(submitted text, not operator-asserted\)/gu)?.length).toBe(1);
+  });
+
+  it("marks Both kind on primary users and major systems lines (P-02)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "Ops portal", kind: "Both", fromSubmittedParse: false }],
+      }),
+    );
+
+    expect(fields.find((field) => field.label === "Primary users")?.value).toContain("(stored as Both)");
+    expect(fields.find((field) => field.label === "Major systems")?.value).toContain("(stored as Both)");
+  });
+
   it("does not count blank actor names toward visible list overflow (P-15)", () => {
     const fields = buildSummaryFields(
       baseInput({

@@ -145,4 +145,29 @@ describe("deriveEvidenceCoverageSummary", () => {
 
     expect(summary.summaryLine).toBe("Evidence coverage was not stored.");
   });
+
+  it("omits linkedCount when evidence reference counts were not stored", async () => {
+    const { deriveEvidenceCoverageSummary } = await import("./review-presentation");
+    const summary = deriveEvidenceCoverageSummary(
+      [
+        {
+          findingId: "f-1",
+          title: "Gap",
+          recommendation: "",
+          severityValue: 2,
+          findingOrder: 0,
+          aiReasoning: { findingJson: null, reasoningTrace: null },
+          isMuted: false,
+          muteReason: null,
+          enforcementTier: "Blocking",
+          evidenceRefCount: null,
+          humanReviewStatus: "Pending",
+        } as import("@/lib/quick-decision-summary-derive").QuickDecisionFinding,
+      ],
+      { hasFindingsSnapshot: true },
+    );
+
+    expect(summary.linkedCount).toBeNull();
+    expect(summary.summaryLine).toBe("Evidence link count was not stored.");
+  });
 });

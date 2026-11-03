@@ -26,6 +26,17 @@ describe("resolveReviewPackagePrimaryAction", () => {
     expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=findings");
   });
 
+  it("keeps review findings primary when blocking count was not stored on finalized packages", () => {
+    const action = resolveReviewPackagePrimaryAction({
+      ...baseInput,
+      manifestId: "manifest-1",
+      runCompleted: true,
+      blockingFindingCount: null,
+    });
+
+    expect(action.kind).toBe("review-findings");
+  });
+
   it("surfaces blocking finding counts on finalized packages", () => {
     const action = resolveReviewPackagePrimaryAction({
       ...baseInput,

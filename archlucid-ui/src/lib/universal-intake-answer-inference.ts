@@ -16,10 +16,10 @@ import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must
 export const UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS = 40;
 
 export const UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER =
-  "Suggested from your architecture context and rewritten in plain language — review each answer before you continue.";
+  "Suggested from your brief text only — review each answer before you continue.";
 
 export const UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER =
-  "Suggested from your evidence — review each answer before you continue.";
+  "Suggested from your evidence corpus — review each answer before you continue.";
 
 export const UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER =
   "We could not suggest clarification answers from your document text. Answer each question in your own words.";

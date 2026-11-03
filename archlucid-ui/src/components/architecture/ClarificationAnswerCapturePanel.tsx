@@ -12,6 +12,7 @@ import { clarificationAnswersMutationBlockedReason } from "@/lib/runs/clarificat
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
+import { formatReviewClarificationSourceFindingId } from "@/lib/review-clarification-questions-types";
 
 const MIN_ANSWER_CHARS = 8;
 
@@ -92,6 +93,9 @@ export function ClarificationAnswerCapturePanel(
                   ? question.prompt
                   : "Question text was stored empty."}
               </Label>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                Source finding id: {formatReviewClarificationSourceFindingId(question.sourceFindingId)}
+              </p>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {question.missingItem === null || question.missingItem === undefined
                   ? "Missing item was not stored."

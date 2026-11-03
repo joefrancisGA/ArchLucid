@@ -29,6 +29,8 @@ export function formatDecisionSnapshotGovernanceOutcome(input: {
   return `${label} · blocked by ${input.blockingFindingCount} unresolved ${noun}`;
 }
 
+export const DECISION_SNAPSHOT_BLOCKING_COUNT_NOT_STORED = "Blocking count was not stored." as const;
+
 export function formatDecisionSnapshotFindingsLine(
   openCount: number,
   blockingCount: number | null | undefined,
@@ -46,7 +48,16 @@ export function formatDecisionSnapshotFindingsLine(
   const blockingPresentation = resolveBlockingFindingCountPresentation(blockingCount);
   const segments: string[] = [`${openCount} open`];
 
-  if (blockingPresentation.known && blockingPresentation.value > 0) {
+  if (blockingCount === null) {
+    segments.push(DECISION_SNAPSHOT_BLOCKING_COUNT_NOT_STORED);
+    return segments.join(" · ");
+  }
+
+  if (!blockingPresentation.known) {
+    return segments.join(" · ");
+  }
+
+  if (blockingPresentation.value > 0) {
     const blockingValue = blockingPresentation.value;
     segments.push(`${blockingValue} block${blockingValue === 1 ? "s" : ""} approval`);
   }

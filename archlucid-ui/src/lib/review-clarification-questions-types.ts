@@ -1,3 +1,9 @@
+export function formatReviewClarificationSourceFindingId(sourceFindingId: string): string {
+  const trimmed = sourceFindingId.trim();
+
+  return trimmed.length > 0 ? trimmed : "Source finding id was not stored.";
+}
+
 export type ReviewClarificationSeverity = "Info" | "Warning" | "Error" | "Critical";
 
 export type ReviewClarificationQuestion = {
