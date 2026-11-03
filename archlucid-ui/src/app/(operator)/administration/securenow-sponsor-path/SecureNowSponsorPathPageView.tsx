@@ -16,6 +16,7 @@ import {
   loadSecureNowPilotDispositionForPath,
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -144,6 +145,13 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-sponsor-path-saved-disposition">
                   Saved {savedDisposition.outcome}: {savedDisposition.rationale}
                 </p>
+              ) : null}
+              {savedDisposition?.outcome === "Stop" ? (
+                <SecureNowPilotStopItsmHandoffBlock
+                  pathId={pathId}
+                  rationale={savedDisposition.rationale}
+                  handoffTestId="securenow-sponsor-path-pilot-stop-itsm-handoff"
+                />
               ) : null}
               <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}</p>
               <p className={OPERATOR_TYPOGRAPHY.helper}>
