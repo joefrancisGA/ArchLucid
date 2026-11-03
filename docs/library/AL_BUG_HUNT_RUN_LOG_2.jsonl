@@ -2610,3 +2610,4 @@
 {"at":"2026-11-03T13:42:07.4218882Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T13:46:36.0149776Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T13:49:28.2411173Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T13:55:07.9005520Z","zoneId":"scope-binding-middleware","outcome":"dry","productLine":"archlucid-shared"}
