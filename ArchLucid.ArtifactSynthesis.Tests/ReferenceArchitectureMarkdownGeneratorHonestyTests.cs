@@ -162,4 +162,55 @@ public sealed class ReferenceArchitectureMarkdownGeneratorHonestyTests
         artifact.Content.Should().Contain("Resource was stored empty.");
         artifact.Content.Should().Contain("Topology gap was stored empty.");
     }
+
+    [Fact]
+    public async Task GenerateAsync_labels_null_topology_list_entries_as_not_stored()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Collect review" },
+            Topology = new TopologySection
+            {
+                SelectedPatterns = [null!],
+                Resources = [null!],
+                Gaps = [null!],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Pattern was not stored.");
+        artifact.Content.Should().Contain("- Resource was not stored.");
+        artifact.Content.Should().Contain("- Gap was not stored.");
+        artifact.Content.Should().NotContain(ManifestPostureListHonesty.TopologyPostureStoredEmpty);
+    }
+
+    [Fact]
+    public async Task GenerateAsync_emits_null_whitespace_and_real_topology_entries_together()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Collect review" },
+            Topology = new TopologySection
+            {
+                SelectedPatterns = [null!, " ", "hub-spoke"],
+                Resources = [],
+                Gaps = [],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Pattern was not stored.");
+        artifact.Content.Should().Contain("- Pattern was stored empty.");
+        artifact.Content.Should().Contain("- Pattern: hub-spoke");
+        artifact.Content.Should().Contain("- Resources were stored as an empty list.");
+        artifact.Content.Should().Contain("- Topology gaps were stored as an empty list.");
+    }
 }

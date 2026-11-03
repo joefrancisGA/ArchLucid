@@ -7,7 +7,7 @@ import {
 } from "@/lib/architecture-spine/pixel-diagram-not-verifiable-warnings";
 
 export type PixelDiagramNotVerifiableSource = {
-  readonly fileName: string;
+  readonly fileName: string | null;
   readonly sourceMimeType: string;
   readonly evidenceItemId: string | null;
   readonly pendingStoredFileMarker: string | null;
@@ -21,10 +21,14 @@ export const PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE =
 
 export const PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE = "Topology was not extracted." as const;
 
+function isMissingPixelDiagramFileName(fileName: string | null): boolean {
+  return fileName === null || fileName.trim().length === 0;
+}
+
 export function formatPixelDiagramNotVerifiableLabel(source: PixelDiagramNotVerifiableSource): string {
   const disposition = "not verifiable";
 
-  if (source.fileName === PIXEL_DIAGRAM_FILE_NAME_NOT_STORED) {
+  if (isMissingPixelDiagramFileName(source.fileName)) {
     return `${PIXEL_DIAGRAM_FILE_NAME_NOT_STORED} — ${PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE} (${disposition})`;
   }
 
@@ -50,7 +54,7 @@ export function parsePixelDiagramNotVerifiableWarning(warning: string): PixelDia
   }
 
   const payload = warning.slice(PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX.length);
-  const fileName = parseWarningToken(payload, "file") ?? PIXEL_DIAGRAM_FILE_NAME_NOT_STORED;
+  const fileName = parseWarningToken(payload, "file");
 
   return {
     fileName,
