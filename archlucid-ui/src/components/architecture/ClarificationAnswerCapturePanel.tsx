@@ -78,6 +78,15 @@ export function ClarificationAnswerCapturePanel(
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Answers are saved on this review and start a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
           characters.
+          {props.priorRunId.trim().length > 0 ? (
+            <>
+              {" "}
+              Clarification carry-forward references prior review{" "}
+              <span className="font-mono">{props.priorRunId.trim()}</span>; answers apply to this review only.
+            </>
+          ) : (
+            <> Prior review id was not stored on this clarification round.</>
+          )}
         </p>
       </div>
 

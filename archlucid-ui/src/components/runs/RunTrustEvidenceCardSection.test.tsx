@@ -75,7 +75,7 @@ function card(overrides: Partial<RunTrustEvidenceCard> = {}): RunTrustEvidenceCa
 
 describe("RunTrustEvidenceCardSection", () => {
   it("renders compact evidence-to-manifest-to-audit proof chain with product links", () => {
-    render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} />);
+    render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} manifestVersion="v1" />);
 
     const proofChain = screen.getByTestId("evidence-to-manifest-audit-proof-chain");
 
@@ -98,9 +98,9 @@ describe("RunTrustEvidenceCardSection", () => {
   });
 
   it("warns when a partial chain is missing a top finding", () => {
-    render(<RunTrustEvidenceCardSection card={card({ topFinding: null, links: [] })} runId={RUN_ID} />);
+    render(<RunTrustEvidenceCardSection card={card({ topFinding: null, links: [] })} runId={RUN_ID} manifestVersion="v1" />);
 
-    expect(screen.getByText(/No top finding evidence-chain pointer is available/i)).toBeInTheDocument();
+    expect(screen.getByText(/Top finding evidence chain was not stored for this review/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Supporting link unavailable — regenerate this evidence before sharing the package/i).length).toBeGreaterThan(0);
   });
 
@@ -108,7 +108,7 @@ describe("RunTrustEvidenceCardSection", () => {
     render(
       <RunTrustEvidenceCardSection
         card={card({ aiExplainability: field("AI explainability rollup", "Low confidence") })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
       />,
     );
 
@@ -119,11 +119,29 @@ describe("RunTrustEvidenceCardSection", () => {
     ).toBeInTheDocument();
   });
 
+  it("uses stored-approval-blocker copy when explicitly flagged", () => {
+    render(
+      <RunTrustEvidenceCardSection
+        card={card()}
+        runId={RUN_ID} manifestVersion="v1"
+        blockingFindingId="finding-1"
+        blockingFindingTitle="Encrypt PHI stores"
+        approvalBlocked
+        approvalBlockerUsesStoredFinding
+      />,
+    );
+
+    const blocker = screen.getByTestId("trust-evidence-approval-blocker-link");
+
+    expect(blocker).toHaveTextContent("Approval is blocked by");
+    expect(blocker).not.toHaveTextContent("not a stored approval blocker");
+  });
+
   it("links approval blockers to the findings tab above the exception grid", () => {
     render(
       <RunTrustEvidenceCardSection
         card={card({ aiExplainability: field("AI explainability rollup", "Low confidence") })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
         blockingFindingId="finding-1"
         blockingFindingTitle="Encrypt PHI stores"
         approvalBlocked
@@ -132,6 +150,7 @@ describe("RunTrustEvidenceCardSection", () => {
 
     const blocker = screen.getByTestId("trust-evidence-approval-blocker-link");
 
+    expect(blocker).toHaveTextContent("not a stored approval blocker");
     expect(blocker).toHaveTextContent("Encrypt PHI stores");
     expect(within(blocker).getByRole("link", { name: "Encrypt PHI stores" })).toHaveAttribute(
       "href",
@@ -147,7 +166,7 @@ describe("RunTrustEvidenceCardSection", () => {
     render(
       <RunTrustEvidenceCardSection
         card={card({ aiExplainability: field("AI explainability rollup", "Low confidence") })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
         blockingFindingId="finding-1"
         blockingFindingTitle="Encrypt PHI stores"
         approvalBlocked={false}
@@ -161,7 +180,7 @@ describe("RunTrustEvidenceCardSection", () => {
     render(
       <RunTrustEvidenceCardSection
         card={card({ executionMode: field("Execution mode", "Available", "Persisted label: deterministic analysis path.") })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
       />,
     );
 
@@ -179,7 +198,7 @@ describe("RunTrustEvidenceCardSection", () => {
           ),
           goldenManifest: field("Golden manifest snapshot", "Available", "Version 1: committed 2026-08-09T17:18:02.2700188Z"),
         })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
       />,
     );
 
@@ -197,12 +216,12 @@ describe("RunTrustEvidenceCardSection", () => {
 
   it("distinguishes a missing self-attestation notice from a stored blank notice", () => {
     const { rerender } = render(
-      <RunTrustEvidenceCardSection card={card({ selfAttestationNotice: null })} runId={RUN_ID} />,
+      <RunTrustEvidenceCardSection card={card({ selfAttestationNotice: null })} runId={RUN_ID} manifestVersion="v1" />,
     );
 
     expect(screen.getByText("Self-attestation notice was not stored.")).toBeInTheDocument();
 
-    rerender(<RunTrustEvidenceCardSection card={card({ selfAttestationNotice: "" })} runId={RUN_ID} />);
+    rerender(<RunTrustEvidenceCardSection card={card({ selfAttestationNotice: "" })} runId={RUN_ID} manifestVersion="v1" />);
 
     expect(screen.queryByText("Self-attestation notice was not stored.")).not.toBeInTheDocument();
   });
@@ -218,13 +237,13 @@ describe("RunTrustEvidenceCardSection", () => {
             evidencePointersSummary: "Manifest version v1.0.0; graph nodes: 0; linked trace ids: 3",
           },
         })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
       />,
     );
 
     const step = screen.getByTestId("proof-chain-step-2");
 
-    expect(within(step).getByText("Evidence did not surface architecture components")).toBeInTheDocument();
+    expect(within(step).getByText(/Evidence did not surface architecture components/i)).toBeInTheDocument();
     expect(within(step).getByText("Recorded")).toBeInTheDocument();
     expect(within(step).queryByText("Available")).not.toBeInTheDocument();
     expect(within(step).queryByText(/graph nodes: 0/)).not.toBeInTheDocument();
@@ -241,7 +260,7 @@ describe("RunTrustEvidenceCardSection", () => {
             evidencePointersSummary: "Manifest version v1.0.0; graph nodes: 0; linked trace ids: 3",
           },
         })}
-        runId={RUN_ID}
+        runId={RUN_ID} manifestVersion="v1"
       />,
     );
 
@@ -255,7 +274,7 @@ describe("RunTrustEvidenceCardSection", () => {
   it("buyer-polished shell maps golden manifest labels to Finalized review record", () => {
     buyerPolishedMock.mockReturnValue(true);
 
-    render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} />);
+    render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} manifestVersion="v1" />);
 
     expect(screen.getByText(/Step 3: Finalized review record/i)).toBeInTheDocument();
     expect(screen.queryByText("Golden manifest snapshot")).not.toBeInTheDocument();

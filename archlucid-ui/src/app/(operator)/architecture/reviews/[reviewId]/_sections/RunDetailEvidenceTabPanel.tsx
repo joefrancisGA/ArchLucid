@@ -48,6 +48,7 @@ type RunDetailEvidenceTabPanelProps = {
   readonly blockingFindingId: string | null;
   readonly blockingFindingTitle: string | null;
   readonly approvalBlocked: boolean;
+  readonly approvalBlockerUsesStoredFinding?: boolean;
   /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -139,6 +140,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
           blockingFindingId={props.blockingFindingId}
           blockingFindingTitle={props.blockingFindingTitle}
           approvalBlocked={props.approvalBlocked}
+          approvalBlockerUsesStoredFinding={props.approvalBlockerUsesStoredFinding}
         />
       ) : null}
       {props.artifactsExportsSection}

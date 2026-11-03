@@ -7,6 +7,7 @@ import {
   FINDING_EVIDENCE_LINK_VIEW_GRAPH_ACCESSIBLE_LABEL,
   FINDING_EVIDENCE_LINK_VIEW_GRAPH_LABEL,
 } from "@/lib/vocabulary/finding-evidence-link-chip-copy";
+import { quickDecisionEvidenceGraphLinkAccessibleLabel } from "@/lib/quick-decision-finding-links";
 
 export type FindingEvidenceLinkChipProps = {
   readonly href?: string;
@@ -47,10 +48,15 @@ function resolveFindingEvidenceLinkLabel(
     };
   }
 
-  if (count !== null) {
-    return useColumnScope
+  if (count > 0) {
+    const base = useColumnScope
       ? { visible: `${count} linked`, accessible: `Evidence: ${count} linked` }
       : { visible: `Evidence: ${count} linked`, accessible: `Evidence: ${count} linked` };
+
+    return {
+      visible: base.visible,
+      accessible: quickDecisionEvidenceGraphLinkAccessibleLabel(base.accessible),
+    };
   }
 
   return useColumnScope

@@ -21,7 +21,7 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
     expect(screen.getByText("Approved with monitoring")).toBeInTheDocument();
     expect(screen.getByText("High")).toBeInTheDocument();
     expect(screen.getByText("1 of 1 open finding has linked evidence")).toBeInTheDocument();
-    expect(screen.getByText("PHI Minimization Risk")).toBeInTheDocument();
+    expect(screen.getByText(/PHI Minimization Risk \(first unresolved finding by severity/i)).toBeInTheDocument();
     expect(screen.queryByText(/Confirm evidence and remediation ownership/)).toBeNull();
     expect(screen.queryByRole("link", { name: "Open findings" })).toBeNull();
   });

@@ -9,6 +9,12 @@ public sealed class SponsorReviewPacketDecisionRow
         set;
     } = string.Empty;
 
+    public string Category
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public string SelectedOption
     {
         get;
