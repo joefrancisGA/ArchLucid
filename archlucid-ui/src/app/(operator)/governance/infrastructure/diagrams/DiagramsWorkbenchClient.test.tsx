@@ -3012,6 +3012,56 @@ describe("DiagramsWorkbenchClient", () => {
     expect(searchParams.get("pathId")).toBe("path-1");
   });
 
+  it("shows next-action copy when path hops do not match diagram nodes", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  nodea[unrelated-node]",
+      metrics: {
+        nodeCount: 1,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 80,
+        layoutEstimate: 40,
+      },
+      fallbackArtifacts: [],
+    }));
+    fetchSecurityEvidencePathDetailMock.mockResolvedValue({
+      pathId: "path-unmatched",
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      hops: [
+        {
+          hopOrdinal: 1,
+          fromNodeLabel:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/unknown",
+          toNodeLabel: "vault",
+          edgeType: "Allows",
+          provenanceKind: "ObservedFact",
+          hopConfidenceBand: "High",
+          inferenceSource: null,
+          evidenceReference: "hop:1",
+          cloudResourceId: null,
+        },
+      ],
+      routing: [],
+      weakestHop: null,
+      relatedCutPoints: [],
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&pathId=path-unmatched",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("securenow-diagram-path-focus-no-nodes-next")).toHaveTextContent(
+      "Show the rest of the subscription",
+    );
+  });
+
   it("hides the subscription expansion control when pathId is absent", async () => {
     searchParams = new URLSearchParams(
       "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",

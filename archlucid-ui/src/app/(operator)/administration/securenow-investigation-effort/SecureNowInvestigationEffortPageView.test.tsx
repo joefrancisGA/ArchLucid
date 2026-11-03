@@ -73,6 +73,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
       "ROI not calculated.",
     );
+    expect(screen.getByTestId("securenow-investigation-effort-result-reason")).toHaveTextContent(
+      "Enter all five inputs with positive numbers.",
+    );
 
     fireEvent.change(screen.getByLabelText("Baseline hours (B)"), { target: { value: "3" } });
     fireEvent.change(screen.getByLabelText("After-product hours (A)"), { target: { value: "2" } });
