@@ -13233,6 +13233,8 @@
 
 ## Zone: persistence-identity
 
+2026-11-03 thorough hunt (dry #939): rotation avoided `scim-users` after three consecutive seed-only hunts (#57–#59); cheap-disproof closed five open `(candidate)` monitor rows recycled from dry **#938** — **invalid** `GetLatestRequestUtcByEmailAsync` `CreatedUtc` tie-break (hunt **#930** regression; identical anchor); **valid-no-repro** `TryCompleteAsync` after `AlreadyCompleted` (`InMemoryEmailOtpChallengeRepositoryCoverageTests`); **valid-no-repro** `FindByNormalizedDomainAsync` cache eviction on soft-remove (regression `TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update`); **valid-no-repro** disabled external-key active vs `FindAnyByExternalKeyAsync` contract (`DisableAsync_and_ReEnableAsync_toggle_active_lookup`); **valid-no-repro** failed-verification SQL active-replacement probe requires `ExpiresUtc > @NowUtc` (regression `Active_replacement_probe_ignores_expired_unused_challenges`; in-memory `emailHasActiveChallenge` uses `IsActive` + expiry). Reseeded five follow-on `(candidate)` monitor rows; scoped filter **46/48** (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
+
 2026-11-03 thorough hunt (dry #938): cheap-disproof closed five open `(candidate)` rows from seed **#937** — **valid-no-repro** `RecordAccessFailedAsync` lockout `CASE` keeps longer existing `LockoutEnd` while still incrementing `AccessFailedCount` (intentional do-not-shorten lockout; `RecordAccessFailedAsync_parallel_increments_preserve_all_attempts` SQL integration skipped on VM); **valid-no-repro** migration review MERGE/`InMemoryIdentityMigrationReviewRepository` clears `ResolvedUtc` on re-detection by design (`Review_repository_upserts_and_lists_unresolved_rows`); **invalid** corrupt `ReasonCode` `Enum.Parse` — app-only enum writes; fail-fast on corrupt DB row is operational integrity not a reachable product defect; **invalid** recovery-grant `TOP 1`/`GrantedUtc` tie-break (OTP hunt **#930** class; in-memory `OrderByDescending` same); **valid-no-repro** IdP configuration cache without TTL until `UpsertAsync` eviction — production admin path uses decorator upsert; regression `TenantIdentityProvider_TryGetAsync_refreshes_after_upsert`. Reseeded five follow-on `(candidate)` monitor rows; scoped filter **46/48** (`RunAnalyzers=false`; 2 SQL integration skipped). Private beta: n/a.
 
 2026-11-03 seed hunt (seed-only #937): re-read `ArchLucid.Persistence/Identity/` after dry **#957** monitor queue; no hunt-ready row promoted (existing monitors used wrong surface names or duplicate closed OTP/cache classes). Seeded five fresh mechanism-backed `(candidate)` rows below and in Hypotheses; scoped filter **46/48** on `ArchLucid.Persistence.Tests` (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository|FullyQualifiedName~EmailOtp|FullyQualifiedName~TenantSignInEmailDomain`; 2 SQL integration skipped; `RunAnalyzers=false`). Private beta: n/a.
@@ -13254,11 +13256,17 @@
 - [x] (invalid) `DapperPlatformTenantAuthRecoveryGrantRepository.GetActiveByTenantAndDomainAsync` — `GrantedUtc` tie-break — **cheap-disproof 2026-11-03 thorough hunt #938:** hunt **#930** OTP class.
 - [x] (valid-no-repro) `CachingTenantIdentityProviderConfigurationRepository.TryGetAsync` — cache without TTL until upsert eviction — **cheap-disproof 2026-11-03 thorough hunt #938:** `TenantIdentityProvider_TryGetAsync_refreshes_after_upsert`.
 
-- [ ] (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `TOP 1` without secondary tie-break when `CreatedUtc` ties — locus: ORDER BY; input: identical timestamps (monitor dry **#938** / hunt **#930**).
-- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — second successful hash after `AlreadyCompleted` — locus: completion outcome; input: duplicate verify submit (monitor dry **#938**).
-- [ ] (candidate) `CachingTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` — stale global normalized-domain cache after soft-remove — locus: eviction on `UpdateAsync`; input: tenant domain soft-remove (monitor dry **#938**).
-- [ ] (candidate) `InMemoryAuthenticationIdentityRepository.FindByExternalKeyAsync` — disabled identity hidden from active lookup but visible via `FindAnyByExternalKeyAsync` — locus: lifecycle contract; input: relink after disable (monitor dry **#938**).
-- [ ] (candidate) `EmailOtpFailedVerificationRateLimitSql` — active-replacement probe vs in-memory `IsActive` when replacement expires mid-window — locus: hourly verify budget; input: resend then expire (monitor dry **#938**; hunt **#930** class).
+- [x] (invalid) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `TOP 1` without secondary tie-break when `CreatedUtc` ties — **cheap-disproof 2026-11-03 thorough hunt #939:** hunt **#930** / dry **#957** class; identical `CreatedUtc` → identical cooldown anchor.
+- [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — second successful hash after `AlreadyCompleted` — **cheap-disproof 2026-11-03 thorough hunt #939:** second submit returns `AlreadyCompleted`; coverage test ~167–169.
+- [x] (valid-no-repro) `CachingTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` — stale global normalized-domain cache after soft-remove — **cheap-disproof 2026-11-03 thorough hunt #939:** `UpdateAsync` invalidates; regression `TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update`.
+- [x] (valid-no-repro) `InMemoryAuthenticationIdentityRepository.FindByExternalKeyAsync` — disabled identity hidden from active lookup but visible via `FindAnyByExternalKeyAsync` — **cheap-disproof 2026-11-03 thorough hunt #939:** intentional lifecycle; `DisableAsync_and_ReEnableAsync_toggle_active_lookup`.
+- [x] (valid-no-repro) `EmailOtpFailedVerificationRateLimitSql` — active-replacement probe vs in-memory `IsActive` when replacement expires mid-window — **cheap-disproof 2026-11-03 thorough hunt #939:** SQL probe requires unexpired active replacement; regression `Active_replacement_probe_ignores_expired_unused_challenges`; core `MatchesFailedVerificationByEmail`.
+
+- [ ] (candidate) `InMemoryAuthenticationIdentityLinkProposalRepository.TryUpdateStatusAsync` — terminal `Confirmed` proposal rejects later `Cancelled` transition — locus: status guard; input: confirm then cancel (monitor dry **#939**).
+- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.DeleteActiveChallengesForEmailAsync` — hard delete vs concurrent `TryCompleteAsync` on same id — locus: `_completionLock`; input: parallel delete and verify (monitor dry **#939**).
+- [ ] (candidate) `InMemorySelfServiceTrialAbuseRepository.RecordAttemptAsync` — rolling window boundary uses caller `nowUtc` not wall clock — locus: rate window; input: attempts spanning window edge (monitor dry **#939**).
+- [ ] (candidate) `SqlTrialIdentityUserRepository.RecordAccessFailedAsync` — SQL lockout `CASE` vs in-memory parallel increments — locus: lockout end preservation; input: concurrent failures (monitor dry **#939**; SQL integration skipped on VM).
+- [ ] (candidate) `InMemoryPlatformTenantAuthRecoveryGrantRepository.GetActiveByTenantAndDomainAsync` — newest `GrantedUtc` when multiple non-revoked grants overlap — locus: selection ordering; input: duplicate-domain grants (monitor dry **#939**).
 
 - [x] (invalid) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — `ORDER BY CreatedUtc DESC` without secondary tie-break when timestamps equal — **cheap-disproof 2026-11-01 thorough hunt #935:** hunt **#930** diary and regression above.
 - [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — parallel completion attempts on same challenge id — **cheap-disproof 2026-11-01 thorough hunt #935:** `TryCompleteAsync_allows_only_one_successful_completion`.
@@ -15155,9 +15163,9 @@
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 938
+- **hunts:** 939
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
