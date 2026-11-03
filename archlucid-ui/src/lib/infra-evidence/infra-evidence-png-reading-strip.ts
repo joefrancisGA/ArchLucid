@@ -58,6 +58,8 @@ export const INFRA_EVIDENCE_PNG_STARTING_RESOURCE_NAME_NOT_STORED =
 
 export const INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_NOT_STORED = "Layout engine was not stored." as const;
 export const INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_STORED_EMPTY = "Layout engine was stored empty." as const;
+export const INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_NOT_STORED =
+  "Completeness warnings were not stored on this PNG strip." as const;
 
 export type InfraEvidencePngRasterSource =
   | "server-graphviz"
@@ -67,7 +69,7 @@ export type InfraEvidencePngRasterSource =
 export type InfraEvidencePngReadingStripInput = {
   readonly mode: string | null | undefined;
   readonly outline: InfraEvidenceMermaidOutline | null | undefined;
-  readonly completenessWarnings: readonly string[];
+  readonly completenessWarnings?: readonly string[] | null;
   readonly snapshotLabel?: string | null;
   readonly resourceGroupScopeName?: string | null;
   readonly dependencyNeighborhoodSeedId?: string | null;
@@ -296,7 +298,9 @@ export function buildInfraEvidencePngReadingStripLines(
     lines.push(PRIVATE_ENDPOINT_ALL_STATUSES_TRAFFIC_HEDGE);
   }
 
-  if (input.completenessWarnings.length > 0) {
+  if (input.completenessWarnings === null || input.completenessWarnings === undefined) {
+    lines.push(INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_NOT_STORED);
+  } else if (input.completenessWarnings.length > 0) {
     lines.push(
       `Inventory completeness warnings (${input.completenessWarnings.length}). Connection lines may be missing.`,
     );

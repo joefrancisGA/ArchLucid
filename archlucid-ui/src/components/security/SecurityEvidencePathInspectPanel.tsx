@@ -76,9 +76,11 @@ import {
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import {
-  readSecureNowPilotDisposition,
+  SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
   type SecureNowPilotDispositionRecord,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { loadSecureNowPilotDispositionForPath } from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
 import type {
   SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
@@ -308,6 +310,14 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
       ) : null}
+      {props.rank.nextStoredPathRankContext.trim().length > 0 ? (
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-rank-next-stored-context"
+        >
+          {props.rank.nextStoredPathRankContext}
+        </p>
+      ) : null}
       {dimensionEntries.length > 0 ? (
         <ul
           className="m-0 mt-2 list-disc space-y-1 pl-5"
@@ -337,6 +347,7 @@ function PathExplanationSection(props: {
   readonly isGenerating: boolean;
   readonly useSimulator: boolean;
   readonly generatedAt: Date | null;
+  readonly nextStoredPathRankContext?: string | null;
   readonly onGenerate: () => void;
 }) {
   const isModelExplanation = props.explanation?.provenanceKind === "AiInference";
@@ -346,6 +357,11 @@ function PathExplanationSection(props: {
   const explanationLead = props.useSimulator
     ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD
     : SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD;
+  const rankContext = props.nextStoredPathRankContext?.trim() ?? "";
+  const executiveSummary = props.explanation?.executiveSummary.trim() ?? "";
+  const showRankContextInExplanation =
+    rankContext.length > 0
+    && (executiveSummary.length === 0 || !executiveSummary.includes(rankContext));
 
   return (
     <div
@@ -389,6 +405,7 @@ function PathExplanationSection(props: {
             props.explanation.citedEvidenceRefs.length > 0
               ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`
               : "",
+            showRankContextInExplanation ? rankContext : "",
             props.explanation.modelOutputRejection?.trim() ?? "",
           ]
             .filter((line) => line.trim().length > 0)
@@ -662,7 +679,17 @@ export function SecurityEvidencePathInspectPanel(props: {
       return;
     }
 
-    setPilotDisposition(readSecureNowPilotDisposition(resolvedPathId));
+    let cancelled = false;
+
+    void loadSecureNowPilotDispositionForPath(resolvedPathId).then((record) => {
+      if (!cancelled) {
+        setPilotDisposition(record);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [resolvedPathId]);
   const decisionReadiness = pathQuery.data != null
     ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
@@ -870,8 +897,17 @@ export function SecurityEvidencePathInspectPanel(props: {
                 {pilotDisposition.outcome}: {pilotDisposition.rationale}
               </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Stored in this browser only. It does not clear beta NO_GO.
+                {SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}
               </p>
+              {pilotDisposition.outcome === "Stop" ? (
+                <SecureNowPilotStopItsmHandoffBlock
+                  pathId={resolvedPathId}
+                  rationale={pilotDisposition.rationale}
+                  findingId={props.findingId}
+                  snapshotId={pathQuery.data?.snapshotId}
+                  handoffTestId="security-evidence-path-pilot-stop-itsm-handoff"
+                />
+              ) : null}
               <Link
                 className={OPERATOR_LINK.inline}
                 href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(resolvedPathId)}`}
@@ -911,6 +947,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             isGenerating={isGeneratingExplanation}
             useSimulator={useSimulatorForExplanation}
             generatedAt={explanationGeneratedAt}
+            nextStoredPathRankContext={pathRankQuery.data?.nextStoredPathRankContext ?? null}
             onGenerate={generateExplanation}
           />
 

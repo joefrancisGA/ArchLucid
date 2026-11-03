@@ -1020,6 +1020,13 @@ public static class AzureInventorySecurityEdgeMaterializer
                     out string resolvedDestinationArmId,
                     out string diagnosticInferenceSource);
 
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    diagnosticInferenceSource = GraphEdgeInferenceSources.WithQualifier(
+                        GraphEdgeInferenceSources.InventoryDiagnosticDestination,
+                        name.Trim());
+                }
+
                 AddRelationship(
                     relationships,
                     relationshipKeys,

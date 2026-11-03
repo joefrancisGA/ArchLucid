@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  readSecureNowPilotDisposition,
-  secureNowPilotDispositionStorageKey,
-  writeSecureNowPilotDisposition,
-} from "@/lib/product-line/securenow-pilot-disposition-storage";
+  loadSecureNowPilotDispositionForPath,
+  persistSecureNowPilotDispositionForPath,
+} from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { secureNowPilotDispositionStorageKey } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PILOT_DECISION_GUARDRAIL,
   SECURENOW_PILOT_DECISION_HEADING,
@@ -32,24 +33,38 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const [outcome, setOutcome] = useState("");
   const [rationale, setRationale] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
 
   useEffect(() => {
     if (pathId.length === 0) {
       setOutcome("");
       setRationale("");
+      setSavedDisposition(null);
       return;
     }
 
-    const stored = readSecureNowPilotDisposition(pathId);
+    let cancelled = false;
 
-    if (stored === null) {
-      setOutcome("");
-      setRationale("");
-      return;
-    }
+    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+      if (cancelled) {
+        return;
+      }
 
-    setOutcome(stored.outcome);
-    setRationale(stored.rationale);
+      if (stored === null) {
+        setOutcome("");
+        setRationale("");
+        setSavedDisposition(null);
+        return;
+      }
+
+      setOutcome(stored.outcome);
+      setRationale(stored.rationale);
+      setSavedDisposition(stored);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [pathId]);
 
   const saveDisposition = () => {
@@ -63,8 +78,17 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       return;
     }
 
-    writeSecureNowPilotDisposition(pathId, { outcome, rationale: rationale.trim() });
-    setSaveError(null);
+    const record = { outcome, rationale: rationale.trim() };
+
+    void persistSecureNowPilotDispositionForPath(pathId, record).then((errorMessage) => {
+      if (errorMessage !== null) {
+        setSaveError(errorMessage);
+        return;
+      }
+
+      setSavedDisposition(record);
+      setSaveError(null);
+    });
   };
 
   return (
@@ -132,6 +156,18 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
             Save path disposition
           </button>
           {saveError !== null ? <p className="text-rose-700" role="alert">{saveError}</p> : null}
+          {savedDisposition !== null ? (
+            <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-pilot-decision-saved-disposition">
+              Saved {savedDisposition.outcome}: {savedDisposition.rationale}
+            </p>
+          ) : null}
+          {savedDisposition?.outcome === "Stop" ? (
+            <SecureNowPilotStopItsmHandoffBlock
+              pathId={pathId}
+              rationale={savedDisposition.rationale}
+              handoffTestId="securenow-pilot-decision-pilot-stop-itsm-handoff"
+            />
+          ) : null}
           <p className={OPERATOR_TYPOGRAPHY.helper}>A saved disposition does not clear beta NO_GO.</p>
         </section>
 

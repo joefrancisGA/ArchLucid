@@ -41,4 +41,55 @@ describe("filterInfraEvidenceDiagramOutlineByPathHops", () => {
   it("returns the original outline when no hops are provided", () => {
     expect(filterInfraEvidenceDiagramOutlineByPathHops(outline, [])).toBe(outline);
   });
+
+  it("prefers cloudResourceId tokens before label heuristics", () => {
+    const cloudOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        { id: "node-a", label: "ambiguous-a", resourceType: null, resourceGroup: null },
+        { id: "node-b", label: "ambiguous-b", resourceType: null, resourceGroup: null },
+        { id: "node-c", label: "vm-c", resourceType: null, resourceGroup: null },
+      ],
+      edges: [
+        {
+          from: "node-a",
+          to: "node-b",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+        {
+          from: "node-b",
+          to: "node-c",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    const cloudHops: readonly SecurityEvidencePathHop[] = [
+      {
+        hopOrdinal: 1,
+        fromNodeLabel: "vm-b",
+        toNodeLabel: "vm-c",
+        edgeType: "Allows",
+        provenanceKind: "ObservedFact",
+        hopConfidenceBand: "High",
+        inferenceSource: null,
+        evidenceReference: "hop:1",
+        cloudResourceId: "ambiguous-a",
+      },
+    ];
+
+    const filtered = filterInfraEvidenceDiagramOutlineByPathHops(cloudOutline, cloudHops);
+
+    expect(filtered?.nodes.map((node) => node.id)).toEqual(["node-a"]);
+    expect(filtered?.edges).toHaveLength(0);
+  });
 });

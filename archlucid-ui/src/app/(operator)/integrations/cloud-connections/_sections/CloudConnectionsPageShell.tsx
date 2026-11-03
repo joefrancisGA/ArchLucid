@@ -17,7 +17,10 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  formatSecureNowHomeSubscriptionScopeLine,
+  resolveSecureNowCloudConnectionsSubscriptionScopeLabel,
   resolveSecureNowCollectionMissingDetail,
+  SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
 
@@ -49,6 +52,10 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     && showConnectionContent
     && shouldShowSecureNowCollectionMissingBlock(collectionMissingInput);
   const collectionMissingDetail = resolveSecureNowCollectionMissingDetail(collectionMissingInput);
+  const collectionMissingSubscriptionLabel = resolveSecureNowCloudConnectionsSubscriptionScopeLabel({
+    azureSubscriptionIdsPresent: props.azureSubscriptionIdsPresent,
+    azureSubscriptionSummary: props.azureSubscriptionScopeLabel,
+  });
 
   const checklist = showConnectionContent ? (
     <IntegrationConnectChecklist
@@ -71,8 +78,14 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="cloud-connections-collection-missing-detail">
         {collectionMissingDetail}
       </p>
+      <p
+        className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="cloud-connections-collection-missing-subscription-scope"
+      >
+        {formatSecureNowHomeSubscriptionScopeLine(collectionMissingSubscriptionLabel)}
+      </p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-        Connector role: Reader on the subscription in scope. SecureNow does not change Azure.
+        {SECURENOW_COLLECTION_READER_ROLE_LINE} SecureNow does not change Azure.
       </p>
     </section>
   ) : null;

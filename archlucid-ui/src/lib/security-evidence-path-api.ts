@@ -162,6 +162,10 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
       overall: mapStoredLabel(dimensionProseRaw?.overall, "Overall rank prose was not stored."),
     },
     computedUtc: String(raw.computedUtc ?? ""),
+    nextStoredPathRankContext: mapStoredLabel(
+      raw.nextStoredPathRankContext,
+      "Next stored path rank context was not stored.",
+    ),
   };
 }
 

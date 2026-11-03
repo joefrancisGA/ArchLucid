@@ -14,6 +14,7 @@ import {
   resolveFindingNextReviewLabel,
   resolveFindingRiskOwnerLabel,
   summarizeEvidenceBasis,
+  validationRequirement,
 } from "./finding-detail-route-display";
 
 function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {
@@ -43,10 +44,22 @@ describe("finding-detail-route-display buyer summary copy", () => {
     );
   });
 
-  it("does not invent High severity for PHI showcase finding id without payload", () => {
-    const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
+  it("includes stored audit id in validation requirement line", () => {
+    expect(
+      validationRequirement(
+        emptyPayload({ auditRowId: "audit-row-42" }),
+        "finding-1",
+      ),
+    ).toBe("Audit record id audit-row-42 was stored.");
+  });
 
-    expect(summary.severity).toBe("Severity was not stored");
+  it("maps stored High severity word without Error label", () => {
+    const summary = deriveFindingDecisionSummary(
+      emptyPayload({ severity: "High", severityStored: true }),
+      "finding-1",
+    );
+
+    expect(summary.severity).toBe("High");
   });
 
   it("does not invent owner, status, or monitoring for PHI showcase finding id without payload", () => {

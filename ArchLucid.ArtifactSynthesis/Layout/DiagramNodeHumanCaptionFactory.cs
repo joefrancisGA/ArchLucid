@@ -75,7 +75,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
 
         return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
-            ?? DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption;
+            ?? DiagramDataFlowHonestyLegend.FormatArmTypeWithoutCatalogLabel(node.ArmResourceType);
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)

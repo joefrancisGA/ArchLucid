@@ -25,6 +25,11 @@ import {
   formatScopeSwitcherTriggerLabel,
   isSampleWorkspacePresentationScope,
 } from "@/lib/scope-switcher-display";
+import {
+  formatSecureNowHomeSubscriptionScopeLine,
+  SECURENOW_COLLECTION_MISSING_STATUS_LINE,
+  SECURENOW_COLLECTION_READER_ROLE_LINE,
+} from "@/lib/product-line/securenow-collection-missing-reason";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
@@ -133,6 +138,18 @@ function ContextLink(props: { readonly href: string; readonly children: string }
     <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href={props.href}>
       {props.children}
     </Link>
+  );
+}
+
+function SecureNowHomeReaderRoleHint(props: { readonly subscriptionLabel: string | null }): React.JSX.Element {
+  return (
+    <div className="space-y-0.5" data-testid="securenow-home-reader-role-hint">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_MISSING_STATUS_LINE}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_READER_ROLE_LINE}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        {formatSecureNowHomeSubscriptionScopeLine(props.subscriptionLabel)}
+      </p>
+    </div>
   );
 }
 
@@ -253,6 +270,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
         <ContextLink href="/administration/securenow-first-hour">First hour</ContextLink>
         </p>
+        <SecureNowHomeReaderRoleHint subscriptionLabel={null} />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
           Next step:{" "}
           <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
@@ -279,6 +297,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {collectedAt !== null ? <ContextLink href={DRIFT_HREF}>{collectedAt}</ContextLink> : null}
         {gap !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{gap}</ContextLink> : null}
       </p>
+      {gap !== null ? <SecureNowHomeReaderRoleHint subscriptionLabel={subscriptions} /> : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
         Next step:{" "}
         <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}

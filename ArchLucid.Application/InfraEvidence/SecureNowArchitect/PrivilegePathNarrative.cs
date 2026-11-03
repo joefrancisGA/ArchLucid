@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -88,11 +89,17 @@ internal static class PrivilegePathNarrative
 
         if (nodeId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal))
         {
-            return $"principal:{nodeId[^8..]}";
+            return "Principal name was not stored.";
+        }
+
+        if (nodeId.Contains("/providers/", StringComparison.OrdinalIgnoreCase)
+            || nodeId.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored;
         }
 
         int lastSlash = nodeId.LastIndexOf('/');
 
-        return lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+        return lastSlash >= 0 ? InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored : nodeId;
     }
 }

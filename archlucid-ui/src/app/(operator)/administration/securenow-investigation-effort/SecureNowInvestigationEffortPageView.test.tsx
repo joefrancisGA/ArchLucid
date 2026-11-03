@@ -1,9 +1,36 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
+  secureNowInvestigationEffortInputStorageKeyForScope,
+} from "@/lib/product-line/securenow-investigation-effort-input-storage";
 import { SecureNowInvestigationEffortPageView } from "./SecureNowInvestigationEffortPageView";
 
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
+  readOperatorScopeFromStorage: () => ({
+    tenantId: "tenant-a",
+    workspaceId: "workspace-b",
+    projectId: "project-c",
+    workspaceLabel: "Working",
+    projectLabel: "Default",
+  }),
+}));
+
+vi.mock("@/lib/product-line/securenow-investigation-effort-sync", () => ({
+  loadSecureNowInvestigationEffortInputs: vi.fn(async () => {
+    const { readSecureNowInvestigationEffortInputs } = await import(
+      "@/lib/product-line/securenow-investigation-effort-input-storage"
+    );
+    return readSecureNowInvestigationEffortInputs();
+  }),
+  persistSecureNowInvestigationEffortInputsToAudit: vi.fn(async () => null),
+}));
+
 describe("SecureNowInvestigationEffortPageView", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
   it("renders the four ROI notes", () => {
     render(<SecureNowInvestigationEffortPageView />);
 
@@ -35,6 +62,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(
       screen.getByTestId("securenow-investigation-effort-page"),
     ).not.toHaveTextContent(/\$/);
+    expect(screen.getByTestId("securenow-investigation-effort-input-storage-discipline")).toHaveTextContent(
+      SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
+    );
   });
 
   it("keeps incomplete and fixture inputs out of the ROI result", () => {
@@ -52,6 +82,34 @@ describe("SecureNowInvestigationEffortPageView", () => {
 
     expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
       "Those values are the fixture worksheet.",
+    );
+  });
+
+  it("restores persisted non-fixture inputs on mount", async () => {
+    window.localStorage.setItem(
+      secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b"),
+      JSON.stringify({
+        baselineHours: "5",
+        afterHours: "3",
+        annualInvestigations: "10",
+        hourlyRate: "80",
+        annualCost: "5000",
+      }),
+    );
+
+    render(<SecureNowInvestigationEffortPageView />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Baseline hours (B)")).toHaveValue(5);
+    });
+    expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
+      "Entered inputs. Not a customer result.",
+    );
+    expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
+      "Gross annual analyst capacity value: 1600",
+    );
+    expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
+      "Net annual value estimate: -3400",
     );
   });
 });

@@ -155,6 +155,13 @@ public sealed class SecurityEvidencePathRankQueryService(
         SecurityEvidencePathRankProse prose =
             SecurityEvidencePathRankExplanationBuilder.BuildDimensionProse(path, rank);
 
+        IReadOnlyList<SecurityEvidencePathRankRecord> snapshotRanks =
+            await rankRepository.ListBySnapshotAsync(
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId),
+                cancellationToken);
+        string nextStoredPathRankContext =
+            SecurityEvidencePathRankContextBuilder.BuildNextStoredPathRankContext(path.PathId, snapshotRanks);
+
         return new SecurityEvidencePathRankDetailResponse
         {
             PathId = rank.PathId,
@@ -181,6 +188,7 @@ public sealed class SecurityEvidencePathRankQueryService(
                 Overall = prose.Overall,
             },
             ComputedUtc = rank.ComputedUtc,
+            NextStoredPathRankContext = nextStoredPathRankContext,
         };
     }
 

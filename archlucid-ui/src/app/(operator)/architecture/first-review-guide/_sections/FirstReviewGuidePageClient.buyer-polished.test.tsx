@@ -101,6 +101,7 @@ const loadedGuideState = {
     secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
   },
   requiredBlockers: [],
+  onePrerequisite: null,
   canExecute: true,
   readyToFinalize: false,
   latestRunHref: null,

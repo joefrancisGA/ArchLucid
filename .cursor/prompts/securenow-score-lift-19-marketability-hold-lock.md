@@ -1,5 +1,7 @@
 # SN-LIFT-19 — Lock welcome and footer off the public SecureNow links
 
+**Superseded for sample links (owner 2026-11-02):** welcome and the marketing footer now ship the Healthcare Claims sample review and `/securenow-sample`. This prompt still describes the pre-lift hold; the checker requires those two links and still forbids `/why-securenow` on welcome and the footer.
+
 **Model:** Composer 2.5 slow (`composer-2.5`). Paste this file as the whole task. Do not use a fast-tier slug and do not use a model outside the workspace allowlist. Do not implement another SN-LIFT prompt in this session.
 
 **Repo:** `c:\ArchLucid`

@@ -204,6 +204,23 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
     }
 
     [Fact]
+    public void Create_key_risks_labels_null_analysis_warnings_as_not_stored()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+        report.Warnings = null!;
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.KeyRisks.Should().Contain(risk =>
+            risk.Summary == ArchitectureReviewBoardExportHonestyCopy.AnalysisWarningsNotStoredLabel);
+    }
+
+    [Fact]
     public void Create_evidence_reviewed_includes_request_narrative_not_stored_when_blank()
     {
         (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =

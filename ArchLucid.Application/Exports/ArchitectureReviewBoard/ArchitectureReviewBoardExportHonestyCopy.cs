@@ -42,6 +42,8 @@ internal static class ArchitectureReviewBoardExportHonestyCopy
 
     internal const string AnalysisWarningStoredEmpty = "Analysis warning was stored empty.";
 
+    internal const string AnalysisWarningsNotStoredLabel = "Analysis warnings were not stored.";
+
     internal static string AdditionalKeyRisksOmittedDetail(int omittedCount) =>
         $"{omittedCount} additional analysis warnings were stored but are not listed in this export package.";
 

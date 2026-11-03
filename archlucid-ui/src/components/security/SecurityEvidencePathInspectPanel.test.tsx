@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
@@ -39,12 +39,22 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
   fetchRemediationInstances: vi.fn(async () => []),
 }));
 
+vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
+  loadSecureNowPilotDispositionForPath: vi.fn(async (pathId: string) => {
+    const { readSecureNowPilotDisposition } = await import(
+      "@/lib/product-line/securenow-pilot-disposition-storage"
+    );
+    return readSecureNowPilotDisposition(pathId);
+  }),
+  persistSecureNowPilotDispositionForPath: vi.fn(async () => null),
+}));
+
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
-import { secureNowPilotDispositionStorageKey } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -381,6 +391,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
           overall: "Rank driven by privilege depth and exposure.",
         },
         computedUtc: "2026-01-01T00:00:00Z",
+        nextStoredPathRankContext:
+          "Selected path path-2 outranks stored path path-3 on TechnicalExposure. This does not change the rank.",
       },
       isLoading: false,
       isError: false,
@@ -401,6 +413,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_RANK_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-rank")).toHaveTextContent("Rank 2");
+    expect(screen.getByTestId("security-evidence-path-rank-next-stored-context")).toHaveTextContent(
+      "This does not change the rank.",
+    );
     expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
       "Rank was not stored",
     );
@@ -811,6 +826,94 @@ describe("SecurityEvidencePathInspectPanel", () => {
     });
   });
 
+  it("appends next stored path rank context to explanation output when it is not in the summary", async () => {
+    const rankContext =
+      "Selected path path-2 outranks stored path path-3 on TechnicalExposure. This does not change the rank.";
+
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Public exposure.",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        rankOrder: 2,
+        ruleVersion: "SA-09-v1",
+        technicalExposureScore: 0.8,
+        privilegeDepthScore: 0.6,
+        blastRadiusScore: 0.7,
+        businessConsequenceScore: null,
+        confidenceBandScore: 0.5,
+        compositeSortScore: 0.7123,
+        explanationSummary: "Summary",
+        breakdownJson: "[]",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        dimensionProse: {
+          technicalExposure: "",
+          privilegeDepth: "",
+          blastRadius: "",
+          businessConsequence: "",
+          confidenceBand: "",
+          overall: "",
+        },
+        computedUtc: "2026-01-01T00:00:00Z",
+        nextStoredPathRankContext: rankContext,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      errorMessage: null,
+      explanation: {
+        explanationId: "explanation-1",
+        pathId: "path-1",
+        executiveSummary: "Simulator summary for the cited path.",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "cut-point",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: [],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: "2026-01-01T00:00:00Z",
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(await screen.findByTestId("security-evidence-path-explanation-output")).toHaveTextContent(
+      "This does not change the rank.",
+    );
+  });
+
   it("generates a model explanation in Real mode and labels the stored-path provenance", async () => {
     vi.mocked(useAgentExecutionMode).mockReturnValue({
       mode: "Real",
@@ -1041,7 +1144,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
   });
 
-  it("shows a saved pilot disposition beside the inspected path", () => {
+  it("shows a saved pilot disposition beside the inspected path", async () => {
     const pathId = "path-local-1";
     window.localStorage.setItem(
       secureNowPilotDispositionStorageKey(pathId),
@@ -1075,9 +1178,65 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     renderPanel(null, { pathIdOverride: pathId });
 
-    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    await waitFor(() => {
+      expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    });
     expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
       "Synthetic fixture only.",
     );
+    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
+      SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
+    );
+    expect(screen.getByTestId("security-evidence-path-pilot-stop-itsm-handoff")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/internal/integrations/itsm?"),
+    );
+  });
+
+  it("links Stop handoff to finding ITSM export when a finding is in scope", async () => {
+    const pathId = "path-with-finding";
+    const findingId = "finding-stop-1";
+    window.localStorage.setItem(
+      secureNowPilotDispositionStorageKey(pathId),
+      JSON.stringify({ outcome: "Stop", rationale: "Stop linked finding." }),
+    );
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId, pathId, title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        relatedCutPoints: [],
+        routing: [],
+        weakestHop: null,
+        explanationTemplate: null,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(findingId, { pathIdOverride: pathId });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    });
+
+    const handoff = screen.getByTestId("security-evidence-path-pilot-stop-itsm-handoff");
+    expect(handoff).toHaveTextContent("Draft finding ITSM export");
+    expect(handoff).toHaveAttribute("href", expect.stringContaining(`findingId=${findingId}`));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining("itsmCreateOpen=1"));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining(`itsmCreateFindingId=${findingId}`));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining("pilotStopPathId=path-with-finding"));
   });
 });

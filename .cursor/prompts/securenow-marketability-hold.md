@@ -26,7 +26,7 @@ Every other stop below still applies.
 - A "Start trial", "Buy", or "Sign up" control.
 - The phrases "guaranteed ROI", "guaranteed savings", "guaranteed breach prevention", "autonomous remediation", "automatically apply", "SOC 2 certified", or "observed exploit".
 - A numeric probability or a numeric confidence score.
-- A link to `/why-securenow` or `/securenow-sample` from the welcome page, the marketing footer, or the operator sidebar. SN-MKT-10 may add those two hrefs to `MarketingResourcesMenu` only. SN-MKT-13 may add them only inside the two public views named above. No other prompt adds them.
+- A link to `/why-securenow` from the welcome page, the marketing footer, or the operator sidebar. Owner decision **2026-11-02:** welcome and the footer may link the Healthcare Claims sample review and `/securenow-sample`; `/why-securenow` stays off those two surfaces. SN-MKT-10 may add `/why-securenow` and `/securenow-sample` to `MarketingResourcesMenu` only. SN-MKT-13 may add them only inside the two public views named above. No other prompt adds `/why-securenow` to welcome or the footer.
 - Rendering `MarketingPublicHeader`, the marketing footer, signup, pricing, or analytics on the security-shell render of `/why-securenow` or `/securenow-sample`.
 - Letting any marketing path other than exact `/why-securenow` and exact `/securenow-sample` (trailing slash allowed) render on the security product line. `/securenow-sample` is added by SN-MKT-09.
 - Changing the blocked-prefix matcher so `/why` also matches `/why-securenow`.

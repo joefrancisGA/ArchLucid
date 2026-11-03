@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
@@ -56,6 +56,7 @@ import {
   FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
 } from "@/lib/first-review-guide-page-copy";
 import { formatConversationListDate } from "@/lib/locale-datetime";
+import { resolveFirstReviewGuideWalkthroughNextStep } from "@/lib/first-review-guide-walkthrough-next-step";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 
@@ -213,6 +214,10 @@ function FirstReviewGuideSealedRecordProvenance(props: {
 
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
   const guide = useFirstReviewGuideState();
+  const walkthroughNextStep = useMemo(
+    () => (guide.onePrerequisite === null ? resolveFirstReviewGuideWalkthroughNextStep(guide.steps) : null),
+    [guide.onePrerequisite, guide.steps],
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
   const primaryDisabledReason: WhyDisabledCtaReason | null =
@@ -293,15 +298,29 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           <h2 id="first-review-one-prerequisite-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             One next prerequisite
           </h2>
-          {guide.requiredBlockers[0] !== undefined ? (
+          {guide.onePrerequisite !== null ? (
             <>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{guide.requiredBlockers[0].title}</p>
-              <Link className={OPERATOR_LINK.inline} href={guide.requiredBlockers[0].href}>
-                {guide.requiredBlockers[0].actionLabel}
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{guide.onePrerequisite.description}</p>
+              <Link className={OPERATOR_LINK.inline} href={guide.onePrerequisite.href}>
+                {guide.onePrerequisite.actionLabel}
               </Link>
             </>
           ) : (
-            <p className={OPERATOR_TYPOGRAPHY.helper}>Sample package and policy pack are selected.</p>
+            <>
+              <p className={OPERATOR_TYPOGRAPHY.helper}>Sample package and policy pack are selected.</p>
+              {walkthroughNextStep !== null ? (
+                <div className="space-y-1" data-testid="first-review-walkthrough-next-step">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                    Next checklist step: {walkthroughNextStep.title}
+                  </p>
+                  {walkthroughNextStep.actionHref !== null && walkthroughNextStep.actionLabel !== null ? (
+                    <Link className={OPERATOR_LINK.inline} href={walkthroughNextStep.actionHref}>
+                      {walkthroughNextStep.actionLabel}
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
           )}
         </section>
 

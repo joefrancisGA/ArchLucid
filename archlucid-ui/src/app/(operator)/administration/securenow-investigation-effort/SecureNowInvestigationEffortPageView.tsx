@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -11,14 +11,19 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_LEAD,
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
+import {
+  isSecureNowInvestigationEffortAuditCandidate,
+  isSecureNowInvestigationEffortFixtureWorksheet,
+  persistSecureNowInvestigationEffortInputs,
+  SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
+  type SecureNowInvestigationEffortInputFields,
+} from "@/lib/product-line/securenow-investigation-effort-input-storage";
+import {
+  loadSecureNowInvestigationEffortInputs,
+  persistSecureNowInvestigationEffortInputsToAudit,
+} from "@/lib/product-line/securenow-investigation-effort-sync";
 
-type EffortInputs = {
-  readonly baselineHours: string;
-  readonly afterHours: string;
-  readonly annualInvestigations: string;
-  readonly hourlyRate: string;
-  readonly annualCost: string;
-};
+type EffortInputs = SecureNowInvestigationEffortInputFields;
 
 const EMPTY_INPUTS: EffortInputs = {
   baselineHours: "",
@@ -35,6 +40,49 @@ function numberValue(value: string): number | null {
 
 export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
+  const [restoreComplete, setRestoreComplete] = useState(false);
+  const editedRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void loadSecureNowInvestigationEffortInputs().then((stored) => {
+      if (cancelled) {
+        return;
+      }
+
+      if (!editedRef.current) {
+        setInputs(stored ?? EMPTY_INPUTS);
+      }
+
+      setRestoreComplete(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!restoreComplete) {
+      return;
+    }
+
+    persistSecureNowInvestigationEffortInputs(inputs);
+
+    if (!isSecureNowInvestigationEffortAuditCandidate(inputs)) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      void persistSecureNowInvestigationEffortInputsToAudit(inputs);
+    }, 400);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [inputs, restoreComplete]);
+
   const result = useMemo(() => {
     const baselineHours = numberValue(inputs.baselineHours);
     const afterHours = numberValue(inputs.afterHours);
@@ -53,13 +101,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       return null;
     }
 
-    if (
-      baselineHours === 3
-      && afterHours === 2
-      && annualInvestigations === 20
-      && hourlyRate === 100
-      && annualCost === 10000
-    ) {
+    if (isSecureNowInvestigationEffortFixtureWorksheet(inputs)) {
       return {
         fixture: true,
         gross: 0,
@@ -80,6 +122,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   }, [inputs]);
 
   const updateInput = (field: keyof EffortInputs, value: string) => {
+    editedRef.current = true;
     setInputs((current) => ({ ...current, [field]: value }));
   };
 
@@ -100,6 +143,12 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
           </h2>
           <p className={OPERATOR_TYPOGRAPHY.helper}>
             Enter comparable operator inputs. Fixture worksheet values are rejected.
+          </p>
+          <p
+            className={OPERATOR_TYPOGRAPHY.helper}
+            data-testid="securenow-investigation-effort-input-storage-discipline"
+          >
+            {SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             {([

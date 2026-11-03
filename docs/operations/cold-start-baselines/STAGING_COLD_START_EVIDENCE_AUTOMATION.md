@@ -18,7 +18,7 @@ The stage logs are associated with the **API process**, not ACA image pull, netw
 
 Both staging paths now run the capture helper:
 
-- `.github/workflows/cd-staging-on-merge.yml` on an **eligible** CI-successful master deployment or explicitly enabled manual target SHA.
+- `.github/workflows/cd-staging-on-merge.yml` only when manually dispatched with an owner-approved immutable target SHA during the temporary CI-stabilization hold (2026-11-02).
 - `.github/workflows/cd.yml` when manually deploying with `target=staging`.
 
 The probe is placed **before existing authenticated product smoke and deployment-evidence steps**. It reads the exact API revision returned from `az containerapp update`, fetches its Azure revision metadata, polls `GET /health/ready`, then sends three authenticated `GET /api/auth/me` requests and finally checks `GET /version` for the expected commit. The API key comes from the existing staging secret as an environment variable and is **never written into logs, JSON outputs or GitHub artifacts**. The transient Azure revision metadata stays in `RUNNER_TEMP`, not an artifact.
@@ -33,7 +33,7 @@ The versioned artifact `staging-cold-start-<run-id>.json` records:
 
 These are **external HTTP wall-clock** measurements. The elapsed time to the **first observed Healthy** is a post-deployment polling **upper bound**, not a precise readiness transition time. The `/api/auth/me` request is first **from this workflow**, not provably the first request received by any replica; other traffic or probes can warm the application. `GET /version` matching the SHA does not prove that every preceding request hit the same replica. The artifact therefore reports `OBSERVED_NOT_PROVEN_FRESH_REVISION`, never `PROVEN_COLD_START`.
 
-When the staging-on-merge deployment workflow is skipped (e.g. `AUTO_DEPLOY_STAGING_MERGE` unset, CI ineligible), an **independent** `archlucid-staging-unmeasured.yml` workflow emits `NOT_DEPLOYED` without changing the original CD workflow's skipped conclusion. Failed or cancelled deployments produce `INCONCLUSIVE_DEPLOYMENT` rather than falsely claiming no deployment occurred. **Skipped CI or missing credentials must never be treated as a fast startup.** Missing revision metadata, missing timestamp, unavailable readiness, failed auth or SHA mismatch yield `INCONCLUSIVE`. The informational evidence capture cannot bypass any existing post-deploy release/rollback check.
+**Temporary hold, 2026-11-02:** The automatic CI-completion CD trigger and downstream staging-absence `workflow_run` trigger are paused to avoid GitHub Actions fanout during CI stabilization. `archlucid-staging-unmeasured.yml` can still be manually dispatched for a **verified existing** CD run; no automatic `NOT_DEPLOYED` artifact is expected for skipped CI/CD. Missing staging evidence stays **UNKNOWN**, not a passing cold-start result. A verified failed or cancelled deployment can be reported `INCONCLUSIVE_DEPLOYMENT` rather than falsely claiming no deployment occurred. **Skipped CI or missing credentials must never be treated as a fast startup.** Missing revision metadata, missing timestamp, unavailable readiness, failed auth or SHA mismatch yield `INCONCLUSIVE`. The informational evidence capture cannot bypass any existing post-deploy release/rollback check.
 
 ## Offline tests and operator instructions
 

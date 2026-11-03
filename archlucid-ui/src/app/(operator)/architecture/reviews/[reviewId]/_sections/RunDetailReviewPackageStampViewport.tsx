@@ -84,6 +84,7 @@ export function RunDetailReviewPackageStampViewport(
     structuralExecutionMode: props.structuralExecutionMode,
     findings: props.quickDecisionFindings ?? [],
     hasFindingsSnapshot: props.hasFindingsSnapshot,
+    reviewHasGoldenManifest: props.hasGoldenManifest,
   });
 
   if (props.hasGoldenManifest && feasibilityVerdict !== null) {

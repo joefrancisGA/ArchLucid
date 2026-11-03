@@ -152,6 +152,7 @@ export type SecurityEvidencePathRankDetail = {
     overall: string;
   };
   computedUtc: string;
+  nextStoredPathRankContext: string;
 };
 
 export type SecurityEvidencePathProposedRemediation = {

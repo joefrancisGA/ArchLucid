@@ -51,19 +51,7 @@ export function formatCloudResourceDisplayName(input: CloudResourceDisplayNameIn
     return normalizeSecureNowResourceNameForDisplay(displayName);
   }
 
-  const externalResourceId = input.externalResourceId?.trim() ?? "";
-
-  if (externalResourceId.length === 0) {
-    return "Resource name was not stored.";
-  }
-
-  const parsedName = formatAzureResourceDisplay(externalResourceId).primaryLabel;
-
-  if (parsedName === AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL) {
-    return "Resource name was not stored.";
-  }
-
-  return parsedName;
+  return AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
 }
 
 const EMPTY_DISPLAY: AzureResourceDisplay = {
