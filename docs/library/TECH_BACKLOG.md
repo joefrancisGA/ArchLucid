@@ -19,15 +19,15 @@ Regenerate after opening or closing summary-table rows:
 | Explainability | 1 |
 | Trustworthiness | 4 |
 | Interoperability | 3 |
-| Performance | 3 |
+| Performance | 2 |
 | Cost-effectiveness | 3 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
 | Differentiability | 1 |
 | Security | 5 |
-| **Total (unique open)** | **36** |
+| **Total (unique open)** | **35** |
 
-**By priority band:** P0 **0** | P1 **10** | P2 **17** | P3 **9**.
+**By priority band:** P0 **0** | P1 **10** | P2 **16** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -665,7 +665,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-2282** was added 2026-08-13 from an owner ask to **strengthen reviews and architectures** by drafting a structured architecture model before starting a review. **Problem:** `/architectures/{id}` review-start readiness (`validateArchitectureReviewReadiness`) unlocks **Start architecture review** on system name + 100-character free-text overview + 10-character business outcome. That is enough to persist a draft, not enough to give engines explicit constraints, assumptions, quality attributes, trust-boundary actors, failure modes, or labeled unknowns ? so reviews invent, skip, or genericize. **Reuse, do not parallel:** `ArchitectureRequest` already has `Constraints` / `RequiredCapabilities` / `Assumptions`; `ArchitectureRequestDraftService` already suggests those lists from free text; actor editor already captures trust origin + interaction contract. This row surfaces and gates those objects on the draft, then maps them onto the request at review start. **Peers not duplicated:** Done **TB-2006** (disable CTA until *current* readiness); Done **TB-2176** (brief-understanding check, not structured fields); Done **TB-766** (draft-vs-review help); Done **TB-2211** (cost constraint nodes from request `constraints` ? downstream consumer of this intake). No new GTM IDs.
 
-**TB-2302**?**TB-2304** were added 2026-08-14 from an owner ask to **log V1.1 backlog** for operator-home startup optimizations deferred after the 2026-08-14 shell-status wave. **V1 shipped (do not refile):** `GET /v1/operator/shell-status` home-bundle fields (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action); `OperatorShellStatusQueryGate` hydration + gated concern fetches; assigned-to-me badge via SQL `COUNT` (`GET /v1/governance/risk-register/assigned-to-me-count`) instead of 500-row risk-register download. **V1.1 open:** **TB-2302** (P2) `GET /v1/operator/bootstrap` mega-bundle for any remaining cold-start reads after shell-status; **TB-2303** (P3) user-preferences TanStack bridge across root `ColorModePreferenceProvider` vs operator `QueryClientProvider` (current `user-preferences.ts` TTL + in-flight dedupe stays until then); **TB-2304** (P2) operator-home proxy-trace re-measurement baseline + regression gate. **Prerequisite:** run **TB-2304** before scoping **TB-2302**. Peers: Done **TB-2023** (alerts inbox summary), **TB-2165** (Query persistence); open **TB-934**/**TB-935**. Owner ask 2026-08-14.
+**TB-2302**?**TB-2304** were added 2026-08-14 from an owner ask to **log V1.1 backlog** for operator-home startup optimizations deferred after the 2026-08-14 shell-status wave. **V1 shipped (do not refile):** `GET /v1/operator/shell-status` home-bundle fields (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action); `OperatorShellStatusQueryGate` hydration + gated concern fetches; assigned-to-me badge via SQL `COUNT` (`GET /v1/governance/risk-register/assigned-to-me-count`) instead of 500-row risk-register download. **Closed:** **TB-2304** **Done** (2026-08-19) proxy-trace baseline; **TB-2302** **Rejected** the same day (bootstrap bundling no-go); **TB-2303** **Done** (2026-08-19) shared `operatorQueryKeys.userPreferences` fetch. Peers: Done **TB-2023** (alerts inbox summary), **TB-2165** (Query persistence); open **TB-934**/**TB-935**. Owner ask 2026-08-14.
 
 **TB-2330**?**TB-2332** were added 2026-08-15 from a **residual easier-to-use audit** after Done **TB-2130**?**TB-2139**, **TB-2175**?**TB-2184**, **TB-2232**, the 2026-08-15 nav gate unification fix (`useEffectiveNavCommittedArchitectureReview`, commit `d3b4124071`), and vocabulary rename (`sealedReviewRecord`, commit `04f6e100bb`). **Do not reopen** those Done rows. **TB-2330** (P2) Vitest/CI guard that sidebar, command palette, and impact-preview reachability share one committed-review gate input (regression after Done **TB-2133**). **TB-2331** (P2) consolidate competing first-run home rails into one primary onboarding object after Done **TB-2232** canonical next-action slot. **TB-2332** (P2) collapse `ReviewsNewPathSwitcher` tabs behind job chooser for returning users after Done **TB-2136** / **TB-2283**. Owner ask 2026-08-15.
 
@@ -1642,7 +1642,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2299 | **Done** (2026-08-14) ? Impact preview before apply-change / mark-remediated; TB-2184 export impact stays; see ## TB-2299 below | Trustworthiness P1 ? **V1**; owner strengthen-reviews ask 2026-08-13 item 6; does not reopen **TB-2184**/**TB-1987** | M |
 | TB-2300 | **Done** (2026-08-14) ? Second review reuses prior package + compare default; see ## TB-2300 below | Adoption friction P1 ? **V1**; owner strengthen-reviews ask 2026-08-13 item 7; does not reopen **TB-2130**/**TB-224** | M |
 | TB-2301 | **Done** (2026-08-19) — Refresh `/why` hero product screenshot after operator Home IA drift; `why-hero-operator-home-2026-08-19.png` + `capture:why-hero-operator-home`; see ## TB-2301 below | Adoption friction P2 ? **V1.1**; owner UX pass 2026-08-14 /why hero screenshot | XS |
-| TB-2302 | `GET /v1/operator/bootstrap` cold-start mega-bundle (residual reads after shell-status) ? **V1.1**; see ## TB-2302 below | Performance P2 ? **V1.1**; operator home startup; after **TB-2304** | L |
+| TB-2302 | **Rejected** (2026-08-19, TB-2304 no-go) — operator-home bootstrap mega-bundle; proxy-trace baseline rejected a second payload; see the TB-2302 section below | Performance P2 ? **V1.1** | L |
 | TB-2303 | **Done** (2026-08-19) ? User preferences cross-tree TanStack dedupe via `operatorQueryKeys.userPreferences` + shared `getOperatorQueryClient().fetchQuery`; see ## TB-2303 below | Performance P3 ? **V1.1**; replaces module-level TTL dedupe in `user-preferences.ts` | M |
 | TB-2304 | **Done** (2026-08-19) ? Operator home startup proxy-trace baseline + regression gate; `operator-home-startup-proxy-trace-baseline.v1.json` + concern-gate drift guard; TB-2302 **no-go**; see ## TB-2304 below | Performance P2 ? **V1.1**; gates **TB-2302** scope; post shell-status wave | S |
 | TB-2330 | **Done** (2026-08-15) ? Vitest `nav-committed-review-gate-drift-guard.test.ts`; NAV_CONFIG_CONTRACT single-input rule; see ## TB-2330 below | Testability P2 ? **V1**; nav gate regression after Done **TB-2133** | S |
@@ -28084,28 +28084,15 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
-## TB-2302 ? `GET /v1/operator/bootstrap` cold-start mega-bundle (P2) ? **V1.1**
+## TB-2302 ? `GET /v1/operator/bootstrap` cold-start mega-bundle (P2) ? **Rejected (2026-08-19)**
 
-**Window:** V1.1 ? Performance (operator home cold start).
+**Window:** V1.1 — Performance (operator home cold start).
 
-**Priority:** P2.
+**Status:** **Rejected / no-go** (2026-08-19). **TB-2304** published the operator-home proxy-trace baseline and regression gate and recorded bootstrap bundling as a no-go. Do not add `GET /v1/operator/bootstrap`.
 
-**Source:** Owner ask 2026-08-14 to log deferred operator-home startup follow-ups after the shell-status optimization wave.
+**Why it stays closed:** Shell-status already carries the home bundle (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action). The trace did not justify a second mega-payload.
 
-**Problem:** Operator home still fans out multiple `/api/proxy` reads on first paint even after `GET /v1/operator/shell-status` gained home-bundle fields (featured sample, stickiness snapshot, assigned-to-me count, reviews awaiting action) and concern queries were gated on shell-status hydration. A single bootstrap response may still be justified if proxy traces show material duplicate or serial round trips remain.
-
-**Approach:**
-
-1. Run **TB-2304** first ? capture post-`shell-status` proxy trace and define an allowed call budget.
-2. Design `GET /v1/operator/bootstrap` (or extend shell-status only if that stays smaller) returning only reads that still fire on every home load.
-3. Hydrate TanStack caches from the bootstrap payload the same way `fetchAndHydrateOperatorShellStatus` does today.
-4. Keep granular endpoints for deep links and cache invalidation; bootstrap is first-paint only.
-
-**Acceptance:** Cold operator-home load meets the **TB-2304** call budget without regressing shell-status-only surfaces; OpenAPI + contract snapshots updated; Vitest hydration tests for cache seeding.
-
-**Out of scope:** Replacing long-running operations poll/SSE (**TB-2074**); full-app bootstrap for every operator route.
-
-**Peers:** V1 shipped shell-status home bundle + assigned-to-me SQL count (2026-08-14); Done **TB-2023**; open **TB-2304**.
+**Evidence:** `archlucid-ui/performance/operator-home-startup-proxy-trace-baseline.v1.json`; `docs/architecture/operator_home_startup_proxy_trace_tb2304.md`; Done **TB-2304**.
 
 **Size estimate:** L.
 
