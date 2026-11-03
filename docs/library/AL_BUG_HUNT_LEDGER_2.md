@@ -1609,6 +1609,10 @@
 
 ## Zone: sql-run-repository
 
+**Hunts:** 70 · **Bugs found:** 27 · **Consecutive dry hunts:** 8
+
+2026-11-03 thorough hunt (dry #70): cheap-disproof closed five open `(candidate)` monitor rows from dry **#69** reseed — **valid-no-repro** keyset continuation with cursor bypasses first-page hot-path cache by design (`Lists.cs` ~46–47; same class as seed **#65** offset continuation); **valid-no-repro** recent-in-scope keyset first-page cache keys include clamped take separate from unpaged 200 ceiling (`RunListRecentInScopeFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`; dry **#69** / seed **#62**); **valid-no-repro** malformed paired cursor on recent-in-scope keyset fails before `RequireScopedTenant` (keyset validation parity — regression `ListByProjectKeysetAsync_throws_keyset_validation_before_scoped_tenant`; dry **#68**); **invalid** `govWarn` open-alert aggregate without tenant predicate — run PK + FK keying (`LeftJoinAggregates_governance_open_alert_presence_keys_by_run_id_like_detail_exists`; dry **#68**); **valid-no-repro** in-memory keyset continuation echoes stored warning flags without SQL join hydration (`InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`; seed **#64**). Reseeded five follow-on `(candidate)` monitor rows from dry **#69** closed themes; scoped picker filter **208/209** (`RunAnalyzers=false`; 1 SQL integration test skipped without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
+
 **Hunts:** 69 · **Bugs found:** 27 · **Consecutive dry hunts:** 7
 
 2026-11-01 thorough hunt (dry #69): cheap-disproof closed five open `(candidate)` rows from thorough dry **#68** — **valid-no-repro** keyset vs unpaged first-page cache keys include clamped take so shapes do not collide (`RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`; seed **#64**); **valid-no-repro** recent-in-scope keyset `RecordNamedQueryLatencyMilliseconds` in `finally` on canceled connection open is observability-only (same class as `ListByProjectAsync` closed **#68**); **invalid** findings snapshot `fsWarn` aggregate without tenant predicate — outer `ScopeWhereTail` + `FK_FindingsSnapshots_Runs_RunId` block cross-tenant `HasWarnings` (`LeftJoinAggregates_groups_findings_and_open_alerts_by_run_id`); **valid-no-repro** in-memory list paths use harness scope matching instead of SQL `RequireScopedTenant` by design (`RequireScopedTenant_rejects_empty_tenant` on SQL); **valid-no-repro** `ForProjectKeysetPage` binds raw `ProjectSlug` and normalized slug like `ForProjectList` (`ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch`); seeded five follow-on `(candidate)` rows; scoped zone filter **174/174** passed, **1** SQL integration skipped (`RunAnalyzers=false`). Private beta: n/a.
@@ -1619,11 +1623,17 @@
 - [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectAsync` — does not call `PersistenceTenantScope.RequireScopedTenant` while SQL list paths do — **cheap-disproof 2026-11-01 thorough hunt #69:** in-memory harness scope; SQL guard `RequireScopedTenant_rejects_empty_tenant`.
 - [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — binds both `ProjectSlug` and `NormalizedProjectSlug` like unpaged project list — **cheap-disproof 2026-11-01 thorough hunt #69:** shared parameter builder; regression `ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch`.
 
-- [ ] (candidate) `CachingRunRepository.ListByProjectKeysetAsync` — continuation requests with cursor bypass hot-path cache while first page is cached — locus: `Lists.cs` ~46–47; input: paginate within 15s TTL after first-page cache fill (monitor dry **#69**).
-- [ ] (candidate) `CachingRunRepository.ListRecentInScopeKeysetAsync` — first-page cache key shares `RunListRecentInScopeFirstPage` shape with unpaged recent list at different default take — locus: ~68–96; input: switch dashboard list shapes within TTL (monitor).
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — malformed paired cursor throws before `PersistenceTenantScope.RequireScopedTenant` — locus: ~128–129; input: missing tenant scope plus partial cursor (monitor **#68** recycle).
-- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — open governance alert aggregate keys by `RunId` without project/workspace predicate — locus: `govWarn` subquery; input: mis-scoped alert row sharing run id (monitor dry **#68**).
-- [ ] (candidate) `InMemoryRunRepository.ListByProjectKeysetAsync` — keyset warning flags preserved on continuation without SQL left-join parity — locus: in-memory keyset assembly; input: paged list with `HasWarnings` on page 2+ (monitor seed **#64**).
+- [x] (valid-no-repro) `CachingRunRepository.ListByProjectKeysetAsync` — continuation requests with cursor bypass hot-path cache while first page is cached — **cheap-disproof 2026-11-03 thorough hunt #70:** intentional first-page-only cache; `Lists.cs` ~46–47; seed **#65** offset parity.
+- [x] (valid-no-repro) `CachingRunRepository.ListRecentInScopeKeysetAsync` — first-page cache key shares shape with unpaged recent list at different default take — **cheap-disproof 2026-11-03 thorough hunt #70:** `:take:` clamp isolates keys; regression `RunListRecentInScopeFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`.
+- [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeKeysetAsync` — malformed paired cursor throws before `PersistenceTenantScope.RequireScopedTenant` — **cheap-disproof 2026-11-03 thorough hunt #70:** keyset validation parity; regression `ListByProjectKeysetAsync_throws_keyset_validation_before_scoped_tenant`; dry **#68**.
+- [x] (invalid) `RunListWarningFlagSql.LeftJoinAggregates` — open governance alert aggregate keys by `RunId` without project/workspace predicate — **cheap-disproof 2026-11-03 thorough hunt #70:** regression `LeftJoinAggregates_governance_open_alert_presence_keys_by_run_id_like_detail_exists`; dry **#68**.
+- [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectKeysetAsync` — keyset warning flags preserved on continuation without SQL left-join parity — **cheap-disproof 2026-11-03 thorough hunt #70:** regression `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`; seed **#64**.
+
+- [ ] (candidate) `CachingRunRepository.ListByProjectKeysetAsync` — keyset cache key includes clamped take while unpaged project list caches up to 200 — locus: first-page cache keys; input: unpaged vs keyset take (monitor dry **#70** / dry **#69**).
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — `RecordNamedQueryLatencyMilliseconds` in `finally` when connection open is canceled — locus: metrics-only path; input: cancel before open (monitor dry **#70** / dry **#69**).
+- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — findings snapshot aggregate groups by `RunId` without tenant predicate — locus: `fsWarn` subquery; input: cross-tenant snapshot theory (monitor dry **#70** / dry **#69**).
+- [ ] (candidate) `InMemoryRunRepository.ListByProjectAsync` — does not call `PersistenceTenantScope.RequireScopedTenant` while SQL list paths do — locus: in-memory harness; input: empty tenant (monitor dry **#70** / dry **#69**).
+- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — binds both `ProjectSlug` and `NormalizedProjectSlug` like unpaged project list — locus: parameter builder; input: padded scope-project GUID (monitor dry **#70** / dry **#69**).
 
 **Hunts:** 68 · **Bugs found:** 27 · **Consecutive dry hunts:** 7
 
@@ -1787,13 +1797,13 @@
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 9
+- **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after LTRIM/RTRIM edge parity; proved `RunListQueryParameters` bound `@NormalizedArchitectureRequestId` / `@NormalizedSystemName` via `Normalize*` alone while InMemory paths use `RequireArchitectureRequestId` / `RequireSystemName` (Unicode trim) first, so tab-prefixed seeks missed active-run / existence / workspace collision SQL matches that InMemory counted; fixed parameter builders to require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`; 158 scoped zone tests passed (1 SQL integration skipped).
