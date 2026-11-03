@@ -106,7 +106,15 @@ public sealed class DiagramEdgeVisualKindResolverTests
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Unclassified)
             .Should()
-            .Be("Provenance was not stored.");
+            .Be("Provenance was not stored. Stored relationship: connects.");
+    }
+
+    [Fact]
+    public void Build_unclassified_empty_verb_uses_relationship_and_provenance_omission_sentences()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Unclassified)
+            .Should()
+            .Be("Relationship was not stored. Provenance was not stored.");
     }
 
     [Fact]

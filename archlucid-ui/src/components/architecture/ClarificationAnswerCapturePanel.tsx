@@ -12,7 +12,6 @@ import { clarificationAnswersMutationBlockedReason } from "@/lib/runs/clarificat
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
-import { formatReviewClarificationSourceFindingId } from "@/lib/review-clarification-questions-types";
 
 const MIN_ANSWER_CHARS = 8;
 
@@ -76,7 +75,7 @@ export function ClarificationAnswerCapturePanel(
           Answer findings-derived clarifications
         </h3>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Answers are saved on this review and start a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
+          Answers update κ on this review and trigger a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
           characters.
         </p>
       </div>
@@ -94,12 +93,14 @@ export function ClarificationAnswerCapturePanel(
                   : "Question text was stored empty."}
               </Label>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Source finding id: {formatReviewClarificationSourceFindingId(question.sourceFindingId)}
+                {question.sourceFindingId.trim().length > 0
+                  ? `Source finding id: ${question.sourceFindingId.trim()}`
+                  : "Source finding id was not stored."}
               </p>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {question.missingItem === null || question.missingItem === undefined
                   ? "Missing item was not stored."
-                  : question.missingItem.length === 0
+                  : question.missingItem.trim().length === 0
                     ? "Missing item was stored empty."
                     : question.missingItem}
               </p>

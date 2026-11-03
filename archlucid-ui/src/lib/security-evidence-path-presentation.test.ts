@@ -15,8 +15,8 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidenceProvenanceKindLabel("AiInference")).toBe("AI inference");
     expect(formatSecurityEvidencePathConfidenceBandLabel("HighlyLikely")).toBe("Highly likely");
     expect(formatSecurityEvidencePathConfidenceBandLabel("InsufficientEvidence")).toBe("Insufficient evidence");
-    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance kind was not stored.");
-    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
+    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance kind was stored empty.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was stored empty.");
     expect(formatSecurityEvidencePathConfidenceBandLabel("UnknownBand")).toBe(
       "Confidence band was not recognized.",
     );
@@ -26,10 +26,10 @@ describe("security-evidence-path-presentation", () => {
   });
 
   it("labels missing band and provenance honestly (P-13, P-14)", () => {
-    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was not stored.");
     expect(formatSecurityEvidencePathConfidenceBandLabel(null)).toBe("Confidence band was not stored.");
-    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance kind was not stored.");
     expect(formatSecurityEvidenceProvenanceKindLabel(null)).toBe("Provenance kind was not stored.");
+    expect(formatSecurityEvidencePathConfidenceBandLabel("")).toBe("Confidence band was stored empty.");
+    expect(formatSecurityEvidenceProvenanceKindLabel("")).toBe("Provenance kind was stored empty.");
   });
 
   it("maps path kinds to reader-facing labels and preserves unknown values", () => {
@@ -65,7 +65,7 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidencePathRelationshipLabel("CAN_READ")).toBe(
       "Role allows read. This is not observed use.",
     );
-    expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("Relationship type was not stored");
+    expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("Relationship type was stored empty.");
     expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe("Relationship type was not stored");
   });
 
@@ -74,6 +74,6 @@ describe("security-evidence-path-presentation", () => {
       "logs",
     );
     expect(securityEvidencePathHopNodeName("Internet")).toBe("Internet");
-    expect(securityEvidencePathHopNodeName("")).toBe("Node name was not stored.");
+    expect(securityEvidencePathHopNodeName("")).toBe("Node name was stored empty.");
   });
 });

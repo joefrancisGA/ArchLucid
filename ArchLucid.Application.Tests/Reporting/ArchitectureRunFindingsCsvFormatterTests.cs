@@ -74,6 +74,20 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void FormatSeverityForExport_labels_unstored_severity_on_finding()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Severity = FindingSeverity.Critical,
+            SeverityStored = false,
+        };
+
+        ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(finding)
+            .Should()
+            .Be("Severity was not stored.");
+    }
+
+    [Fact]
     public void BuildCsvContent_exports_evaluation_confidence_when_agent_confidence_is_absent()
     {
         ArchitectureFinding finding = new()
@@ -284,7 +298,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderStoredEmptyLabel);
         csv.Should().Contain("KEY-1,https://example.test/KEY-1");
         csv.Should().NotContain(ArchitectureRunFindingsCsvFormatter.NoItsmTrackingRowStoredLabel);
     }

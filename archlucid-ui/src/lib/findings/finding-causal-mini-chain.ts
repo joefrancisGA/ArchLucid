@@ -9,9 +9,13 @@ export const FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED = "Evidence count was not 
 
 export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
 
+export const FINDING_CAUSAL_RULE_NAME_STORED_EMPTY = "Rule name was stored empty.";
+
 export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
 export const FINDING_CAUSAL_EVIDENCE_MISSING = "Evidence was not stored";
 export const FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED = "Evidence label was not stored.";
+
+export const FINDING_CAUSAL_EVIDENCE_LABEL_STORED_EMPTY = "Evidence label was stored empty.";
 export const FINDING_CAUSAL_RECOMMENDATION_MISSING = "Recommendation was not stored";
 export const FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY = "Recommendation was stored empty.";
 
@@ -47,10 +51,14 @@ function nonEmpty(value: string | null | undefined): string | null {
 }
 
 function resolveRuleValue(input: FindingCausalMiniChainInput): string | null {
-  const explicitName = nonEmpty(input.ruleName);
+  if (input.ruleName !== null && input.ruleName !== undefined) {
+    const trimmed = input.ruleName.trim();
 
-  if (explicitName !== null) {
-    return explicitName;
+    if (trimmed.length > 0) {
+      return trimmed;
+    }
+
+    return FINDING_CAUSAL_RULE_NAME_STORED_EMPTY;
   }
 
   const ruleId = nonEmpty(input.ruleId);
@@ -69,18 +77,25 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
       : null;
 
   const traceConfidence = nonEmpty(input.traceConfidenceLabel);
-  const explicitLabel = nonEmpty(input.evidenceLabel);
 
   const parts: string[] = [];
 
-  if (count !== null && count >= 0) {
-    parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
-  } else if (input.evidenceRefCount === null) {
-    parts.push(FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED);
+  if (input.evidenceRefCount !== undefined) {
+    if (count !== null && count >= 0) {
+      parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
+    } else if (input.evidenceRefCount === null) {
+      parts.push(FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED);
+    }
   }
 
-  if (explicitLabel !== null) {
-    parts.push(explicitLabel);
+  if (input.evidenceLabel !== null && input.evidenceLabel !== undefined) {
+    const trimmedLabel = input.evidenceLabel.trim();
+
+    if (trimmedLabel.length > 0) {
+      parts.push(trimmedLabel);
+    } else {
+      parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_STORED_EMPTY);
+    }
   } else if (count !== null && count >= 0) {
     parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED);
   }

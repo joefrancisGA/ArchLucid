@@ -177,4 +177,10 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string? SponsorReportGeneratedDisclaimer
+    {
+        get;
+        init;
+    }
+
 }

@@ -207,6 +207,8 @@ function PathHopsTable(props: {
                       Open resource evidence
                     </Link>
                   </p>
+                ) : hop.cloudResourceId != null && hop.cloudResourceId.trim().length === 0 ? (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>Resource id was stored empty.</p>
                 ) : (
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>Resource evidence link was not stored.</p>
                 )}

@@ -16,4 +16,10 @@ describe("buildReviewClarificationDeltaPresentation", () => {
       }).summary,
     ).toBe("Clarification carry-forward was stored with no resolved or open questions.");
   });
+
+  it("labels missing delta when a prior run id was stored", () => {
+    expect(
+      buildReviewClarificationDeltaPresentation(null, { priorRunId: "prior-run" }).summary,
+    ).toBe("Clarification delta from the prior review was not stored.");
+  });
 });

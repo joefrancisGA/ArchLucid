@@ -19,8 +19,23 @@ export function buildPathDecisionReadiness(
   if (path.hops.some((hop) => !hop.evidenceReference.trim())) {
     issues.push("One or more hops lack a source evidence reference.");
   }
-  if (path.hops.some((hop) => hop.provenanceKind !== "ObservedFact")) {
-    issues.push("At least one hop is inferred; confirm it before treating this path as observed access.");
+  for (const hop of path.hops) {
+    const kind = hop.provenanceKind?.trim() ?? "";
+    if (kind.length === 0) {
+      issues.push("Provenance was not stored on at least one hop.");
+      continue;
+    }
+    if (kind === "HumanAssertion") {
+      issues.push("At least one hop is a human assertion, not observed access.");
+      continue;
+    }
+    if (kind === "DerivedFact") {
+      issues.push("At least one hop is derived, not observed access.");
+      continue;
+    }
+    if (kind === "DeterministicInference" || kind === "AiInference") {
+      issues.push("At least one hop is inferred; confirm it before treating this path as observed access.");
+    }
   }
   if (rank != null && (rank.pathId !== path.pathId || rank.snapshotId !== path.snapshotId)) {
     issues.push("Rank and inspected path refer to different path or snapshot identities.");

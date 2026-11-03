@@ -37,18 +37,38 @@ function triageVisibleFindings(
 function resolveTriagePrimaryActionLabel(
   finding: QuickDecisionFinding,
   hiddenLowConfidenceCount: number,
+  allOpenFindings: readonly QuickDecisionFinding[],
 ): string {
   const severity = finding.severityValue;
+  const title =
+    finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.";
 
   if (severity === null || severity === undefined || !Number.isFinite(severity)) {
-    return "Triage an open finding. Severity was not stored.";
+    return `Triage: ${title}`;
   }
 
-  if (hiddenLowConfidenceCount > 0) {
-    return "Triage highest-severity finding still shown";
+  const topSeverity = allOpenFindings.reduce<number | null>((max, row) => {
+    const value = row.severityValue;
+
+    if (value === null || value === undefined || !Number.isFinite(value)) {
+      return max;
+    }
+
+    return max === null ? value : Math.max(max, value);
+  }, null);
+
+  const tiedAtTop =
+    topSeverity !== null &&
+    severity === topSeverity &&
+    allOpenFindings.filter(
+      (row) => row.severityValue === topSeverity && !row.isMuted && !isReviewFindingDispositionClosed(row),
+    ).length > 1;
+
+  if (hiddenLowConfidenceCount > 0 || tiedAtTop || finding.enforcementTier === "Advisory") {
+    return `Triage first shown finding: ${title}`;
   }
 
-  return "Triage highest-severity finding";
+  return `Triage highest-severity finding: ${title}`;
 }
 
 /** Findings-scoped primary action for create-home Findings tab (REF). */
@@ -78,7 +98,7 @@ export function ArchitectureCreatedFindingsNextAction(
         </p>
         <Button type="button" variant={actionVariant} size="sm" className="mt-2 h-8" asChild>
           <Link href={href} prefetch={false} data-testid="architecture-findings-triage-primary-action">
-            {resolveTriagePrimaryActionLabel(highestSeverityFinding, hiddenLowConfidenceCount)}
+            {resolveTriagePrimaryActionLabel(highestSeverityFinding, hiddenLowConfidenceCount, openFindings)}
           </Link>
         </Button>
       </div>
