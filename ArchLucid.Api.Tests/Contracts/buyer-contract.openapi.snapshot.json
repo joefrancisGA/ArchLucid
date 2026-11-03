@@ -31929,14 +31929,7 @@
             "type": "string"
           },
           "tokenCounts": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RunLlmTokenCountsDto"
-              }
-            ]
+            "$ref": "#/components/schemas/RunLlmTokenCountsDto"
           }
         },
         "type": "object"
