@@ -586,6 +586,20 @@
 
 ## Zone: auth-return-path
 
+2026-11-03 thorough hunt (dry #57): cheap-disproof closed five open `(candidate)` monitor rows from seed **#56** reseed — **valid-no-repro** percent-encoded NEL `%C2%85` rejected post-decode via `ContainsControlCharacter` (same class as `TryNormalize_rejects_percent_encoded_form_feed_in_path_segment_after_decode`, `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`); **valid-no-repro** `%252F` double-encoded slash blocked by residual `%2f` scan (`TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap`, `TryNormalize_rejects_matrix_style_path_when_percent_encoded_protocol_relative_slashes_decode_in_segment`); **valid-no-repro** empty interior segment `/workspace//reviews` rejected by conservative `Contains("//")` (`TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`, seed **#56**); **valid-no-repro** U+2025 two-dot leader homoglyph pair rejected (`TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`, hit **2026-09-09** dot-leader class); **valid-no-repro** mixed `%2F`/`%2E` in same path rejected by `ContainsPercentEncodedPathSeparator` residual scan (conservative encoded separator trip; `/reviews%2F1` accept vs encoded-dot residual class). Reseeded five follow-on `(candidate)` rows from seed **#56** stale-monitor class; **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded NEL `%C2%85` in path segment — **cheap-disproof 2026-11-03 thorough hunt #57:** post-decode control rejection; regressions above.
+- [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — `%252F` double-encoded slash in path before decode cap — **cheap-disproof 2026-11-03 thorough hunt #57:** nested `%25` / `%2f` residual scan; regressions above.
+- [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — empty interior segment `/workspace//reviews` — **cheap-disproof 2026-11-03 thorough hunt #57:** conservative `//` scan; regression above.
+- [x] (valid-no-repro) `ContainsDotHomoglyph` — two-dot leader U+2025 pair mimicking `..` — **cheap-disproof 2026-11-03 thorough hunt #57:** homoglyph list; regression above.
+- [x] (valid-no-repro) `ContainsPercentEncodedPathSeparator` — mixed `%2F` path segment with `%2E` dot escape — **cheap-disproof 2026-11-03 thorough hunt #57:** residual encoded separator trip; conservative by design.
+
+- [ ] (candidate) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — locus: separator vs control scan; input: `/reviews%E2%80%A9/1` (monitor dry **#57** / seed **#54**).
+- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: decode without traversal shape; input: `/reviews%C2%AD/1` (monitor dry **#57** / seed **#54**).
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only `//` after decode — locus: conservative full-string scan; input: `/reviews?next=//evil` (monitor dry **#57** / seed **#54**).
+- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment — locus: post-decode `char.IsControl`; input: `/reviews/%0B/1` (monitor dry **#57** / seed **#54**).
+- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string scheme delimiter; input: `/reviews#foo://bar` (monitor dry **#57** / seed **#54**).
+
 2026-11-01 seed hunt (seed-only #56): re-read `AuthSignInReturnPathGuard` after trunk churn (`code-changed-since: 1`); diary header had no open `(candidate)` rows for picker (`openCandidateCount: 0`); cheap-disproof closed five stale `[ ]` rows misplaced below zone metadata (paragraph separator, soft hyphen, query `//`, vertical tab, fragment `://` — same valid-no-repro class as seed **#54** / thorough dry lane B regressions); no hunt-ready promotion; seeded five follow-on `(candidate)` rows below; scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; seed **#54** / lane B regressions.
@@ -593,14 +607,6 @@
 - [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — query-only `//` after decode — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; conservative full-string scan by design.
 - [x] (valid-no-repro) `ContainsControlCharacter` — vertical tab `%0B` in path segment — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; post-decode control rejection.
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; whole-string scheme delimiter rejection.
-
-- [ ] (candidate) `TryNormalize` — percent-encoded NEL `%C2%85` in path segment — locus: post-decode `ContainsControlCharacter`; input: `/reviews/%C2%85/1` (monitor seed **#56**).
-- [ ] (candidate) `ContainsResidualEncodedTraversal` — `%252F` double-encoded slash in path before decode cap — locus: nested `%25` residual scan; input: `/reviews/%252Fadmin` (monitor seed **#56**).
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — empty interior segment `/workspace//reviews` — locus: conservative `Contains("//")`; input: pasted empty segment (monitor seed **#56**).
-- [ ] (candidate) `ContainsDotHomoglyph` — two-dot leader U+2025 pair mimicking `..` in one segment — locus: homoglyph list vs ASCII `ContainsDotDotSegment`; input: `/reviews/‥‥/detail` (monitor seed **#56**).
-- [ ] (candidate) `ContainsPercentEncodedPathSeparator` — mixed `%2F` path segment with `%2E` dot escape in same string — locus: residual `%2e` trip after partial decode; input: `/Reviews%2F1%2E` (monitor seed **#56**).
-
-**Hunts:** 56 · **Bugs found:** 22 · **Consecutive dry hunts:** 8
 
 2026-10-21 thorough hunt (dry, lane B): repro-first on five open `(candidate)` rows; BMP NFKC scan; five regressions; scoped 201/201.
 
@@ -630,10 +636,10 @@
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 9
+- **last-hunt:** 2026-11-03
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
