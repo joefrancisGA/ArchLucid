@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -45,6 +46,8 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
             ))}
           </ol>
         </section>
+
+        <SecureNowBetaSkuContentsSection showQuoteLink={false} />
 
         <section aria-labelledby="securenow-quote-packet-links-heading" className="space-y-2">
           <h2 id="securenow-quote-packet-links-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>

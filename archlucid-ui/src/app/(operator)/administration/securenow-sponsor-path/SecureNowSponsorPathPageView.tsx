@@ -18,6 +18,7 @@ import {
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
 import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
+import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -177,6 +178,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 </Link>
               </p>
             </section>
+            <SecureNowProcurementTrustStrip />
           </>
         )}
       </main>
