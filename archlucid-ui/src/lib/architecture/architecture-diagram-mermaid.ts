@@ -2,6 +2,7 @@ import {
   ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX,
   ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
   ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX,
+  ARCHITECTURE_DIAGRAM_EMPTY_MERMAID_NOTE_PREFIX,
   ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP,
   formatArchitectureDiagramTextAlternativeOverflowNotice,
   formatArchitectureDiagramUnlabeledComponentsNotice,
@@ -137,7 +138,11 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    const emptyLabel = escapeMermaidLabel(resolveEmptyArchitectureDiagramMessage(model), []);
+    const emptyMessage = resolveEmptyArchitectureDiagramMessage(model);
+    const emptyLabel = escapeMermaidLabel(
+      `${ARCHITECTURE_DIAGRAM_EMPTY_MERMAID_NOTE_PREFIX} ${emptyMessage}`,
+      [],
+    );
     return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 

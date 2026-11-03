@@ -41,6 +41,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string? careerExportHonestyPlainText = null,
         string? sendableExportCoverPlainText = null,
         string? architectRestatementMarkdown = null,
+        int? findingsSnapshotFindingCount = null,
         string? sponsorReportGeneratedDisclaimer = null)
 
         => RunSummaryOnePagerDocumentFactory.Create(
@@ -48,6 +49,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             SponsorReport,
             topFindingTitles,
             activeTrialExportNotice,
+            findingsSnapshotFindingCount: findingsSnapshotFindingCount,
             careerExportHonestyPlainText: careerExportHonestyPlainText,
             sendableExportCoverPlainText: sendableExportCoverPlainText,
             architectRestatementMarkdown: architectRestatementMarkdown,

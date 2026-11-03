@@ -72,4 +72,27 @@ public sealed class ReviewClarificationQuestionPromptBuilderTests
 
         prompt.Should().Contain(ReviewClarificationQuestionPromptBuilder.MissingItemStoredEmptyCopy);
     }
+
+    [Fact]
+    public void Build_unknown_finding_type_uses_template_honesty()
+    {
+        string prompt = ReviewClarificationQuestionPromptBuilder.Build(
+            "CustomFindingType",
+            "subnet-a");
+
+        prompt.Should().Contain("no dedicated clarification template");
+        prompt.Should().Contain("CustomFindingType");
+    }
+
+    [Fact]
+    public void Build_guid_missing_item_uses_guid_honesty()
+    {
+        string guid = "11111111-1111-1111-1111-111111111111";
+        string prompt = ReviewClarificationQuestionPromptBuilder.Build(
+            FindingTypes.SecurityCoverageFinding,
+            guid);
+
+        prompt.Should().Contain(ReviewClarificationQuestionPromptBuilder.MissingItemGuidWithoutDisplayNameCopy);
+        prompt.Should().Contain(guid);
+    }
 }

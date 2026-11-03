@@ -113,6 +113,16 @@ public sealed class SponsorReviewPacketBuilder(
                 cancellationToken);
         }
 
+        int? findingsSnapshotFindingCount = null;
+        if (Guid.TryParse(runId.Trim(), out Guid runGuidForSnapshot))
+        {
+            RunDetailDto? exportDetail = await _authorityQueryService
+                .GetRunDetailForExportAsync(scope, runGuidForSnapshot, cancellationToken)
+                .ConfigureAwait(false);
+
+            findingsSnapshotFindingCount = exportDetail?.FindingsSnapshot?.Findings?.Count;
+        }
+
         SponsorRoiSummaryResponse roiSummary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
 
@@ -166,7 +176,8 @@ public sealed class SponsorReviewPacketBuilder(
             careerExportHonesty,
             architectRestatements,
             topDecisions.OmittedCount,
-            omittedPortfolioNextActions);
+            omittedPortfolioNextActions,
+            findingsSnapshotFindingCount);
     }
 
     private sealed record TopDecisionsExportSlice(

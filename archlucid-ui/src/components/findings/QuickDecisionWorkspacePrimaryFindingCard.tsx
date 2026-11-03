@@ -36,8 +36,9 @@ import {
 } from "@/lib/quick-decision-finding-links";
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
-  formatQuickDecisionFindingOwnerDisplay,
   formatQuickDecisionFindingCategoryLine,
+  formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -74,7 +75,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
   const finding = props.finding;
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(runId, finding);
-  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus, {
+    stored: finding.humanReviewStatusStored,
+  });
   const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(
     finding.assignedToUserId,
     "Remediation owner was not stored",
@@ -180,7 +183,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           </p>
         ) : null}
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
+          {formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title)}
         </h3>
         {(() => {
           const categoryLine = formatQuickDecisionFindingCategoryLine(finding.category);

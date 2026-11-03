@@ -178,6 +178,16 @@ public sealed class RunSummaryOnePagerExportService(
         if (string.IsNullOrWhiteSpace(sendableExportCoverPlainText))
             sendableExportCoverPlainText = null;
 
+        int? findingsSnapshotFindingCount = null;
+        if (Guid.TryParse(runId.Trim(), out Guid runGuidForSnapshot))
+        {
+            RunDetailDto? exportDetail = await _authorityQueryService
+                .GetRunDetailForExportAsync(scope, runGuidForSnapshot, cancellationToken)
+                .ConfigureAwait(false);
+
+            findingsSnapshotFindingCount = exportDetail?.FindingsSnapshot?.Findings?.Count;
+        }
+
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
@@ -187,6 +197,7 @@ public sealed class RunSummaryOnePagerExportService(
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
                 sendableExportCoverPlainText: sendableExportCoverPlainText,
                 architectRestatementMarkdown: architectRestatementMarkdownText,
+                findingsSnapshotFindingCount: findingsSnapshotFindingCount,
                 sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.GeneratedSponsorBriefDisclaimer);
 
 

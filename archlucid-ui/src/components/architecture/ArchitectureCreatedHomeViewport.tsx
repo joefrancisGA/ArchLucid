@@ -13,6 +13,7 @@ import {
   ARCHITECTURE_CREATED_MISSING_HEADING,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_OVERFLOW_LABEL,
+  ARCHITECTURE_DEFINITION_STATUS_HELPER,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
 } from "@/lib/architecture/architecture-created-home-copy";
 import {
@@ -197,8 +198,7 @@ export function ArchitectureCreatedHomeViewport(
               </ul>
               {model.missingItemsOmittedCount > 0 ? (
                 <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  {model.missingItemsOmittedCount} more gap
-                  {model.missingItemsOmittedCount === 1 ? " was" : "s were"} stored.
+                  {model.missingItemsOmittedLine}
                 </p>
               ) : null}
             </div>
@@ -217,7 +217,7 @@ export function ArchitectureCreatedHomeViewport(
               {model.definitionStatusLabel}
             </p>
             <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Based on the brief and people or systems you provided so far.
+              {ARCHITECTURE_DEFINITION_STATUS_HELPER}
             </p>
           </div>
 

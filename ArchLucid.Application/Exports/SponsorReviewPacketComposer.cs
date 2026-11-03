@@ -26,7 +26,8 @@ public static partial class SponsorReviewPacketComposer
         CareerExportCoverageHonestyInput? careerExportHonesty = null,
         IReadOnlyList<FindingArchitectRestatementExportRow>? architectRestatements = null,
         int omittedTopDecisionsCount = 0,
-        int omittedPortfolioNextActionsCount = 0)
+        int omittedPortfolioNextActionsCount = 0,
+        int? findingsSnapshotFindingCount = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -37,7 +38,7 @@ public static partial class SponsorReviewPacketComposer
 
         sb.AppendLine("# Sponsor review packet");
         sb.AppendLine();
-        sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
+        sb.AppendLine($"**Export written (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
 
         ExportSafetyNoticeMarkdown.Append(sb, ResolveIsDemoTenant(detail), activeTrialExportNotice);
         sb.AppendLine();
@@ -53,7 +54,7 @@ public static partial class SponsorReviewPacketComposer
             SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, detail.Run);
 
         AppendTopDecisionsSection(sb, topDecisions, omittedTopDecisionsCount);
-        AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles);
+        AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles, findingsSnapshotFindingCount);
         FindingArchitectRestatementExportComposer.AppendMarkdownSection(sb, architectRestatements ?? []);
         AppendPortfolioSignalsSection(sb, portfolioSignals, omittedPortfolioNextActionsCount);
         AppendRoiBasisSection(sb, roiSummary);

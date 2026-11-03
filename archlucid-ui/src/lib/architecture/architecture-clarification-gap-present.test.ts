@@ -13,7 +13,7 @@ describe("architecture-clarification-gap-present", () => {
     expect(formatGapCapturedAtLabel(null)).toBe("Captured time was not stored.");
     expect(formatGapCapturedAtLabel("")).toBe("Captured time was stored empty.");
     expect(formatGapCapturedAtLabel("not-a-date")).toBe("Captured time could not be read.");
-    expect(formatGapCapturedAtLabel("2026-01-15T12:00:00Z")).toMatch(/^captured /);
+    expect(formatGapCapturedAtLabel("2026-01-15T12:00:00Z")).toMatch(/^captured .* UTC$/);
   });
 
   it("appends captured time honesty to the gap source label", () => {
