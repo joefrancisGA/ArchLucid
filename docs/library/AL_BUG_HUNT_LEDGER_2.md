@@ -4734,6 +4734,20 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-11-03 thorough hunt (dry #19): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#18** (regression family dry **#17** / dry **#13**) — **valid-no-repro** explicit enable with `MonthlyCapUsd=0` fails consume-stage enable pre-check (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`, dry **#13**); **valid-no-repro** whitespace payment method id normalizes to omitted partial PUT (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`, dry **#11**); **valid-no-repro** webhook-settled credits omit monthly auto-refill counter by design (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`, hit **2026-10-06** / dry **#13**); **valid-no-repro** disable-only PUT preserves persisted cap (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields`); **valid-no-repro** enable with payment method merges linked customer before guard (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`, dry **#10**). Reseeded five follow-on `(candidate)` monitor rows from dry **#18** closed themes; scoped **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — **cheap-disproof 2026-11-03 thorough hunt #19:** regression in diary above; dry **#17** queue.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted partial PUT — **cheap-disproof 2026-11-03 thorough hunt #19:** `NormalizeOptionalStripeId`; dry **#11**.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook-settled credits omit monthly auto-refill counter increment — **cheap-disproof 2026-11-03 thorough hunt #19:** hit **2026-10-06**; regression above.
+- [x] (valid-no-repro) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — **cheap-disproof 2026-11-03 thorough hunt #19:** partial PUT / COALESCE; regression above.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — **cheap-disproof 2026-11-03 thorough hunt #19:** dry **#10**; regression above.
+
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded persisted Stripe customer/payment method ids trimmed before guard and persist — locus: trim before guard/charge; input: padded ids (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`; monitor dry **#19** / dry **#18** / dry **#12**).
+- [ ] (candidate) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month cap bucket rollover resets auto-refill count while cap dollars unchanged — locus: UTC month bucket; input: prior month at cap (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`; monitor dry **#19** / dry **#18**).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — concurrent enable/disable without `ExpectedRowVersion` — locus: optional OCC; input: missing row version (monitor dry **#19** / dry **#18** / dry **#7**).
+- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — locus: internal repository bind; input: empty string (monitor dry **#19** / dry **#18** / dry **#12**).
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — locus: PaymentIntent creation; input: retry after failure (monitor dry **#19** / dry **#18** / dry **#12**).
+
 2026-11-03 thorough hunt (dry #18): cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#17** (regression family dry **#16** / dry **#12**) — **valid-no-repro** padded persisted Stripe ids trim before guard/charge (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`, dry **#12**); **valid-no-repro** UTC month cap bucket rollover documented (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); **valid-no-repro** concurrent enable/disable without `ExpectedRowVersion` is optional OCC (dry **#7**); **invalid** empty-string Stripe id repository bind is internal-only — wallet PUT normalizes in consume stage (dry **#12**); **invalid** retried charge reuses Stripe idempotency key — fresh PaymentIntent per attempt (dry **#12**). Reseeded five follow-on `(candidate)` monitor rows from dry **#17** closed themes; scoped **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded persisted Stripe customer/payment method ids trimmed before guard and persist — **cheap-disproof 2026-11-03 thorough hunt #18:** regressions in diary above.
@@ -4884,9 +4898,9 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-03
 - **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
 - **related-pd-tb:** none
