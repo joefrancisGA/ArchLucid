@@ -2560,3 +2560,4 @@
 {"at":"2026-11-03T01:48:41.2924020Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T01:53:33.4563477Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T01:56:23.8676728Z","zoneId":"finding-inspect-sql","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-03T02:01:28.7604632Z","zoneId":"scope-binding-middleware","outcome":"dry","productLine":"archlucid-shared"}
