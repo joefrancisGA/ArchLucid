@@ -20,9 +20,12 @@ describe("quick-decision-finding-display", () => {
     expect(formatQuickDecisionFindingOwnerDisplay("jane.architect")).toBe("jane.architect");
   });
 
-  it("does not treat a stored finding id as the title (P-12)", () => {
+  it("does not treat a stored finding id as the title (P-04)", () => {
     expect(formatQuickDecisionFindingTitleDisplay("finding-1", "finding-1")).toBe(
-      "Finding title was not stored.",
+      "Finding title matches the finding id. A separate title was not stored.",
+    );
+    expect(formatQuickDecisionFindingTitleDisplay("finding-1", "FINDING-1")).toBe(
+      "Finding title matches the finding id. A separate title was not stored.",
     );
     expect(formatQuickDecisionFindingTitleDisplay("finding-1", "Subnet exposure")).toBe("Subnet exposure");
   });

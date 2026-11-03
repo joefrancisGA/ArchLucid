@@ -41,9 +41,12 @@ public static partial class SponsorReviewPacketComposer
             string rationale = SponsorReviewPacketExportHonestyCopy.FormatDecisionRationale(decision.Rationale);
             sb.AppendLine($"  - Rationale: {rationale}");
 
-            string evidence = string.IsNullOrWhiteSpace(decision.EvidenceHref)
-                ? SponsorReviewPacketExportHonestyCopy.SupportingEvidenceNotListedInPacket
-                : decision.EvidenceHref.Trim();
+            string evidence = decision.EvidenceHref switch
+            {
+                null => SponsorReviewPacketExportHonestyCopy.EvidenceLinkNotStored,
+                _ when string.IsNullOrWhiteSpace(decision.EvidenceHref) => SponsorReviewPacketExportHonestyCopy.EvidenceLinkNotStored,
+                _ => decision.EvidenceHref.Trim(),
+            };
             sb.AppendLine($"  - Evidence: {evidence}");
         }
 

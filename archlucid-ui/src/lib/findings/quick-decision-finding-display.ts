@@ -2,6 +2,9 @@ import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 const FINDING_TITLE_NOT_STORED = "Finding title was not stored." as const;
 
+const FINDING_TITLE_MATCHES_ID =
+  "Finding title matches the finding id. A separate title was not stored." as const;
+
 /** Avoid surfacing a stored finding id as if it were the reviewer-facing title. */
 export function formatQuickDecisionFindingTitleDisplay(
   findingId: string,
@@ -14,12 +17,12 @@ export function formatQuickDecisionFindingTitleDisplay(
     return FINDING_TITLE_NOT_STORED;
   }
 
-  if (idTrimmed.length > 0 && titleTrimmed === idTrimmed) {
-    return FINDING_TITLE_NOT_STORED;
+  if (idTrimmed.length > 0 && titleTrimmed.toLowerCase() === idTrimmed.toLowerCase()) {
+    return FINDING_TITLE_MATCHES_ID;
   }
 
   if (isUuidLike(titleTrimmed) && (idTrimmed.length === 0 || titleTrimmed === idTrimmed)) {
-    return FINDING_TITLE_NOT_STORED;
+    return FINDING_TITLE_MATCHES_ID;
   }
 
   return titleTrimmed;

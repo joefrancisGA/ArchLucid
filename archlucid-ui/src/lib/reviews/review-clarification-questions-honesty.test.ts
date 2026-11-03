@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CLARIFICATION_ANSWER_NOT_STORED_LABEL,
+  CLARIFICATION_ANSWER_STORED_EMPTY_LABEL,
   CLARIFICATION_QUESTIONS_NOT_STORED_LABEL,
   CLARIFICATION_QUESTIONS_STORED_EMPTY_LABEL,
   describeClarificationQuestionsLoadState,
+  formatGuidedIntakeClarificationAnswerStatus,
 } from "@/lib/reviews/review-clarification-questions-honesty";
 
 describe("review-clarification-questions-honesty (P-02)", () => {
@@ -22,5 +25,14 @@ describe("review-clarification-questions-honesty (P-02)", () => {
         },
       ]),
     ).toBeNull();
+  });
+
+  it("distinguishes omitted answers from stored-empty answers (P-19)", () => {
+    expect(formatGuidedIntakeClarificationAnswerStatus({ storedAnswer: null })).toBe(
+      CLARIFICATION_ANSWER_NOT_STORED_LABEL,
+    );
+    expect(formatGuidedIntakeClarificationAnswerStatus({ storedAnswer: "   " })).toBe(
+      CLARIFICATION_ANSWER_STORED_EMPTY_LABEL,
+    );
   });
 });
