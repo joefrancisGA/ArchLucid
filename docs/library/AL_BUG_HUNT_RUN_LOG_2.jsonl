@@ -2615,3 +2615,4 @@
 {"at":"2026-11-03T14:02:18.6940574Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-03T14:06:02.4794705Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-03T14:09:44.7482530Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T14:12:44.9919875Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared"}
