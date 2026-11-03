@@ -2,6 +2,7 @@ import { buildClarificationGapSourcePresentation } from "@/lib/architecture/arch
 import type { ArchitectureMissingItem } from "@/lib/architecture/architecture-created-home-model";
 import { resolveClarificationFollowUpHref, CLARIFICATION_FOLLOW_UP_REVIEW_ID_NOT_STORED } from "@/lib/architecture/resolve-clarification-follow-up-href";
 import { formatClarificationGapQuestionPromptLabel } from "@/lib/reviews/review-clarification-questions-honesty";
+import { formatReviewClarificationSourceFindingId } from "@/lib/review-clarification-questions-types";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 
 export type BuildFindingsDerivedClarificationGapsInput = {
@@ -27,9 +28,17 @@ export function buildFindingsDerivedClarificationGaps(
       questionId: question.questionId,
     });
 
+    const promptLabel = formatClarificationGapQuestionPromptLabel(question.prompt);
+    const sourceFindingIdTrimmed = question.sourceFindingId.trim();
+    const sourceFindingLabel = formatReviewClarificationSourceFindingId(question.sourceFindingId);
+    const label =
+      sourceFindingIdTrimmed.length > 0
+        ? promptLabel
+        : `${promptLabel} ${sourceFindingLabel}`;
+
     return {
       id: question.questionId,
-      label: formatClarificationGapQuestionPromptLabel(question.prompt),
+      label,
       href: followUpHref ?? "#",
       followUpUnavailableMessage:
         followUpHref === null ? CLARIFICATION_FOLLOW_UP_REVIEW_ID_NOT_STORED : null,

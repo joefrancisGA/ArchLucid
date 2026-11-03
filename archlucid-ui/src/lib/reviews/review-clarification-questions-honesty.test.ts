@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   CLARIFICATION_ANSWER_NOT_STORED_LABEL,
   CLARIFICATION_ANSWER_STORED_EMPTY_LABEL,
+  CLARIFICATION_QUESTIONS_DERIVED_EMPTY_LABEL,
+  CLARIFICATION_QUESTIONS_NOT_LOADED_LABEL,
   CLARIFICATION_QUESTIONS_NOT_STORED_LABEL,
-  CLARIFICATION_QUESTIONS_STORED_EMPTY_LABEL,
   describeClarificationQuestionsLoadState,
   formatGuidedIntakeClarificationAnswerStatus,
 } from "@/lib/reviews/review-clarification-questions-honesty";
@@ -12,7 +13,10 @@ import {
 describe("review-clarification-questions-honesty (P-02)", () => {
   it("distinguishes undefined questions from an empty stored list", () => {
     expect(describeClarificationQuestionsLoadState(undefined)).toBe(CLARIFICATION_QUESTIONS_NOT_STORED_LABEL);
-    expect(describeClarificationQuestionsLoadState([])).toBe(CLARIFICATION_QUESTIONS_STORED_EMPTY_LABEL);
+    expect(describeClarificationQuestionsLoadState([], { loading: true })).toBe(
+      CLARIFICATION_QUESTIONS_NOT_LOADED_LABEL,
+    );
+    expect(describeClarificationQuestionsLoadState([])).toBe(CLARIFICATION_QUESTIONS_DERIVED_EMPTY_LABEL);
     expect(
       describeClarificationQuestionsLoadState([
         {

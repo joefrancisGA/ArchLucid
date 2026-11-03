@@ -28,6 +28,26 @@ export function formatQuickDecisionFindingTitleDisplay(
   return titleTrimmed;
 }
 
+export function formatQuickDecisionFindingPolicyRuleIdLine(
+  policyRuleId: string | null | undefined,
+): string {
+  if (policyRuleId === null || policyRuleId === undefined) {
+    return "Policy rule id was not stored.";
+  }
+
+  if (policyRuleId.length === 0) {
+    return "Policy rule id was stored empty.";
+  }
+
+  const trimmed = policyRuleId.trim();
+
+  if (trimmed.length === 0) {
+    return "Policy rule id was stored empty.";
+  }
+
+  return `Policy rule id: ${trimmed}`;
+}
+
 export function formatQuickDecisionFindingCategoryLine(
   category: string | null | undefined,
 ): string {

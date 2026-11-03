@@ -35,6 +35,7 @@ import {
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingPolicyRuleIdLine,
   formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
@@ -103,7 +104,11 @@ export function QuickDecisionSummaryFindingRow({
           compact
           className="mb-2"
         />
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {formatQuickDecisionFindingPolicyRuleIdLine(finding.policyRuleId)}
+        </p>
+      )}
       <div className="flex flex-wrap items-start gap-2">
         {!workspaceCardMode ? (
           <SeverityTag

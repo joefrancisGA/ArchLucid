@@ -129,7 +129,11 @@ public static class ArchitectureRunFindingsCsvFormatter
         "Mute reason was not stored because the finding is not muted.";
 
     internal const string LegacyHeaderLine =
-        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EvidenceRefs,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
+        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,PolicyRuleId,Message,EvidenceRefs,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
+
+    internal const string PolicyRuleIdNotStoredLabel = "Policy rule id was not stored.";
+
+    internal const string PolicyRuleIdStoredEmptyLabel = "Policy rule id was stored empty.";
 
     internal const string TrustLabelHeaderSuffix = "TrustLabel,TrustLabelReason";
 
@@ -386,6 +390,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatSourceAgent(result, finding)),
                 ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding)),
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
+                ExportFormatterService.EscapeCsvField(FormatPolicyRuleId(finding.PolicyRuleId)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
                 ExportFormatterService.EscapeCsvField(FormatEvidenceRefs(finding.EvidenceRefs)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
@@ -595,6 +600,21 @@ public static class ArchitectureRunFindingsCsvFormatter
         }
 
         return string.IsNullOrWhiteSpace(category) ? CategoryStoredEmptyLabel : category.Trim();
+    }
+
+    internal static string FormatPolicyRuleId(string? policyRuleId)
+    {
+        if (policyRuleId is null)
+        {
+            return PolicyRuleIdNotStoredLabel;
+        }
+
+        if (policyRuleId.Length == 0 || string.IsNullOrWhiteSpace(policyRuleId))
+        {
+            return PolicyRuleIdStoredEmptyLabel;
+        }
+
+        return policyRuleId.Trim();
     }
 
     internal static string FormatClassificationForExport(FindingClassification? classification)

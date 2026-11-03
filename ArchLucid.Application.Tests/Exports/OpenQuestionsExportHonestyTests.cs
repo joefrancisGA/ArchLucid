@@ -54,8 +54,8 @@ public sealed class OpenQuestionsExportHonestyTests
 
         string markdown = sb.ToString();
 
-        markdown.Should().Contain("Key was not stored.");
-        markdown.Should().Contain("Value was not stored.");
+        markdown.Should().Contain("Key was stored empty.");
+        markdown.Should().Contain("Value was stored empty.");
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public sealed class OpenQuestionsExportHonestyTests
         string assertedSection = markdown.Split("### Inferred", StringSplitOptions.None)[0];
         assertedSection.Should().NotContain("open-questions:");
         markdown.Should().Contain(OpenQuestionsExportHonesty.WorkingDocumentExportHeading);
-        markdown.Should().Contain("open-questions: Who owns failover approvals?");
+        markdown.Should().Contain("`open-questions`: `Who owns failover approvals?`");
     }
 
     [Fact]
