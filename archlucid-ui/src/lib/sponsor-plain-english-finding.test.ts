@@ -92,7 +92,9 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       derivationSentence: FINDING_DERIVATION_NOT_AVAILABLE,
     });
 
-    expect(withoutDerivation.plainEnglish).not.toContain("How reviewers derived it");
+    expect(withoutDerivation.plainEnglish).toContain(
+      "How reviewers derived it: Derivation was not available on this finding.",
+    );
   });
 
   it("falls back to titled finding language when message is empty", () => {

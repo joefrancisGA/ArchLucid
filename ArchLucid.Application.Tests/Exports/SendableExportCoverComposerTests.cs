@@ -75,8 +75,29 @@ public sealed class SendableExportCoverComposerTests
 
         IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
 
-        lines.Should().Contain($"Policy pack: {SendableExportCoverComposer.PolicyPackVersionNotStoredLine}");
+        lines.Should().ContainSingle(line =>
+            line.StartsWith("Policy pack: azure-waf @", StringComparison.Ordinal)
+            && line.Contains(SendableExportCoverComposer.PolicyPackVersionNotStoredLine, StringComparison.Ordinal));
         lines.Should().NotContain($"Policy pack: {SendableExportCoverComposer.PolicyPackNotStoredLine}");
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_shows_stored_policy_pack_id_when_version_missing()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(ruleSetId: "azure-waf", ruleSetVersion: null);
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line => line.StartsWith("Policy pack: azure-waf @", StringComparison.Ordinal));
+        lines.Should().ContainSingle(line => line.Contains(SendableExportCoverComposer.PolicyPackVersionNotStoredLine, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_includes_sponsor_roi_amount_honesty_line()
+    {
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(CreateInput());
+
+        lines.Should().Contain($"Sponsor ROI amount: {SendableExportCoverComposer.SponsorRoiAmountNotStoredOnCoverLine}");
     }
 
     [Fact]

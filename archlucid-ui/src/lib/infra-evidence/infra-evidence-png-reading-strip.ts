@@ -60,6 +60,8 @@ export const INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_NOT_STORED = "Layout engine was no
 export const INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_STORED_EMPTY = "Layout engine was stored empty." as const;
 export const INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_NOT_STORED =
   "Completeness warnings were not stored on this PNG strip." as const;
+export const INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_STORED_EMPTY =
+  "No completeness warnings were stored on this PNG strip." as const;
 
 export type InfraEvidencePngRasterSource =
   | "server-graphviz"
@@ -300,6 +302,8 @@ export function buildInfraEvidencePngReadingStripLines(
 
   if (input.completenessWarnings === null || input.completenessWarnings === undefined) {
     lines.push(INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_NOT_STORED);
+  } else if (input.completenessWarnings.length === 0) {
+    lines.push(INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_STORED_EMPTY);
   } else if (input.completenessWarnings.length > 0) {
     lines.push(
       `Inventory completeness warnings (${input.completenessWarnings.length}). Connection lines may be missing.`,

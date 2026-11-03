@@ -10,6 +10,7 @@ import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta
 import {
   FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED,
   FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED,
+  FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED,
   type FirstReviewSpineBandSummary,
 } from "@/lib/reviews/first-review-spine-band";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
@@ -79,7 +80,9 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       ) : null}
 
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-open-gate">
-        {summary.openGateLabel === null ? (
+        {summary.openGateLabel === FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED ? (
+          FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED
+        ) : summary.openGateLabel === null ? (
           "No open gate on this review."
         ) : (
           <>

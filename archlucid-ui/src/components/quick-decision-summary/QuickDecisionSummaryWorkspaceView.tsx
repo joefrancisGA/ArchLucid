@@ -212,6 +212,7 @@ export function QuickDecisionSummaryWorkspaceView({
             onToggleAskPanel={interaction.toggleAskPanel}
             onViewReasoning={interaction.openReasoningDialog}
             onMute={interaction.openMuteDialog}
+            findingWireSnapshot={props.findingWireSnapshots?.[primaryFinding.findingId] ?? null}
           />
           {derived.advisoryNotes.length > 0 && !interaction.showAdvisory ? (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
