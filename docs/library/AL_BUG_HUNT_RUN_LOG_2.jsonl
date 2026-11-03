@@ -2568,3 +2568,4 @@
 {"at":"2026-11-03T02:20:35.5860345Z","zoneId":"persistence-identity","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T02:25:29.1561104Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T02:28:13.6849329Z","zoneId":"finding-inspect-sql","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T02:33:39.7298133Z","zoneId":"tenant-erasure","outcome":"seed-only","productLine":"archlucid-shared"}
