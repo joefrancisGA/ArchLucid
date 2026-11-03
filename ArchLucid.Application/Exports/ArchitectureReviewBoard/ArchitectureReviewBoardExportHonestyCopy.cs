@@ -35,6 +35,10 @@ internal static class ArchitectureReviewBoardExportHonestyCopy
 
     internal const string EvidenceRequiredCapabilityTitle = "Required capability";
 
+    internal const string EvidenceConstraintStoredEmpty = "Constraint was stored empty.";
+
+    internal const string EvidenceRequiredCapabilityStoredEmpty = "Required capability was stored empty.";
+
     internal const string DecisionTracesOmittedTitle = "Decision traces omitted from this export";
 
     internal static string AdditionalDecisionTracesOmittedDetail(int omittedCount) =>

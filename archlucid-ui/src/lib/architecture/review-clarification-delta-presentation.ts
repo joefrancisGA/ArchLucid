@@ -5,7 +5,20 @@ export type ReviewClarificationDeltaPresentation = {
   readonly resolvedByAssertionCount: number;
   readonly stillOpenCount: number;
   readonly summary: string | null;
+  readonly cappedListDisclaimer: string | null;
 };
+
+export const REVIEW_CLARIFICATION_DELTA_STRIP_LIST_CAP = 20;
+
+export function formatReviewClarificationDeltaStripCappedListDisclaimer(totalStoredQuestionIds: number): string | null {
+  if (totalStoredQuestionIds <= REVIEW_CLARIFICATION_DELTA_STRIP_LIST_CAP) {
+    return null;
+  }
+
+  const omitted = totalStoredQuestionIds - REVIEW_CLARIFICATION_DELTA_STRIP_LIST_CAP;
+
+  return `${omitted} additional stored question id${omitted === 1 ? "" : "s"} are not listed in this delta strip.`;
+}
 
 export function buildReviewClarificationDeltaPresentation(
   delta: ReviewClarificationDelta | null | undefined,
@@ -22,12 +35,15 @@ export function buildReviewClarificationDeltaPresentation(
         priorRunId.length > 0
           ? "Clarification delta from the prior review was not stored."
           : null,
+      cappedListDisclaimer: null,
     };
   }
 
   const resolvedByEvidenceCount = delta.resolvedByEvidenceQuestionIds.length;
   const resolvedByAssertionCount = delta.resolvedByAssertionQuestionIds.length;
   const stillOpenCount = delta.stillOpenQuestionIds.length;
+  const totalStoredQuestionIds = resolvedByEvidenceCount + resolvedByAssertionCount + stillOpenCount;
+  const cappedListDisclaimer = formatReviewClarificationDeltaStripCappedListDisclaimer(totalStoredQuestionIds);
 
   const parts: string[] = [];
 
@@ -63,5 +79,6 @@ export function buildReviewClarificationDeltaPresentation(
       parts.length > 0
         ? parts.join(" · ")
         : "Clarification carry-forward was stored with no resolved or open questions.",
+    cappedListDisclaimer,
   };
 }

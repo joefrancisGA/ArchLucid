@@ -178,7 +178,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
           ) : null}
         </label>
         <label className="grid gap-1">
-          <span className="font-medium">Remediation due (local)</span>
+          <span className="font-medium">Remediation due (stored UTC)</span>
           <input
             type="datetime-local"
             className="rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"

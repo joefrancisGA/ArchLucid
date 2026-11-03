@@ -254,7 +254,7 @@ export function QuickDecisionSummaryWorkspaceView({
           {hiddenPriorityCount > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Showing top {PRIORITY_FINDINGS_DISPLAY_LIMIT} sponsor-relevant findings.
+                Showing top {PRIORITY_FINDINGS_DISPLAY_LIMIT} open findings by severity sort.
               </p>
               <Button
                 type="button"

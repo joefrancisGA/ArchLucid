@@ -105,7 +105,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
             <p className="m-0">
               {activeWaiver.expiresAtUtc === null || activeWaiver.expiresAtUtc.trim().length === 0
                 ? "Waiver expiration was not stored."
-                : `Active waiver expires ${activeWaiver.expiresAtUtc}`}
+                : `Active waiver expiration (stored UTC): ${activeWaiver.expiresAtUtc.trim()}`}
               {" "}
               {formatQuickDecisionFindingOwnerDisplay(
                 activeWaiver.ownerUserId,

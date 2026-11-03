@@ -351,7 +351,7 @@ export function RunDetailSubmittedArchitectureSection(
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button type="button" variant="outline" size="sm" onClick={() => void copyText()}>
-              {copied ? "Copied" : "Copy"}
+              {copied ? "Copied full stored text" : "Copy full stored text"}
             </Button>
             {props.canEditSource && props.editHref !== null ? (
               <Button variant="outline" size="sm" asChild>

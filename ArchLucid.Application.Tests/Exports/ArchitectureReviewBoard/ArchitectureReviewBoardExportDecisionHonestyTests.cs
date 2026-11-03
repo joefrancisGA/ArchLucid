@@ -23,6 +23,7 @@ public sealed class ArchitectureReviewBoardExportDecisionHonestyTests
             AppliedRuleIds = ["rule-1"],
             AcceptedFindingIds = [],
             RejectedFindingIds = [],
+            CreatedUtc = new DateTime(2026, 5, 16, 10, 0, 0, DateTimeKind.Utc),
         };
 
         detail.DecisionTraces =
@@ -47,11 +48,14 @@ public sealed class ArchitectureReviewBoardExportDecisionHonestyTests
         ruleAuditRow.Detail.Should().Contain("Rule set baseline v1.0");
         ruleAuditRow.Detail.Should().Contain("Accepted finding ids were stored empty.");
         ruleAuditRow.Detail.Should().Contain("Rejected finding ids were stored empty.");
+        ruleAuditRow.Detail.Should().Contain("Required finding ids were stored empty.");
+        ruleAuditRow.RecordedAtUtcLabel.Should().Be("2026-05-16T10:00:00.0000000Z");
 
         ArchitectureReviewBoardExportDecisionRow runEventRow =
             model.ArchitectureDecisions!.Single(row => row.Title == "Run event");
 
         runEventRow.Detail.Should().Contain("Synthetic.CommitGate");
+        runEventRow.RecordedAtUtcLabel.Should().Be(ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored);
     }
 
     [Fact]

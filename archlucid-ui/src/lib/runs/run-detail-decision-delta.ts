@@ -26,6 +26,7 @@ export type RunDetailDecisionDeltaRow = {
   readonly rank: number;
   readonly findingId: string;
   readonly title: string;
+  readonly fullStoredTitle: string | null;
   readonly severityLabel: string;
   readonly policyRuleId: string | null;
   readonly evidenceRefCount: number | null;
@@ -99,20 +100,25 @@ function resolveEvidenceAnchorHint(finding: QuickDecisionFinding): string | null
 const DECISION_DELTA_TITLE_NOT_STORED = "Finding title was not stored." as const;
 const DECISION_DELTA_TITLE_STORED_EMPTY = "Finding title was stored empty." as const;
 
-function resolveDecisionDeltaTitle(finding: QuickDecisionFinding): string {
+function resolveDecisionDeltaTitle(finding: QuickDecisionFinding): { readonly title: string; readonly fullStoredTitle: string | null } {
   const title = finding.title;
 
   if (title === null || title === undefined) {
-    return DECISION_DELTA_TITLE_NOT_STORED;
+    return { title: DECISION_DELTA_TITLE_NOT_STORED, fullStoredTitle: null };
   }
 
   const trimmed = title.trim();
 
   if (trimmed.length === 0) {
-    return DECISION_DELTA_TITLE_STORED_EMPTY;
+    return { title: DECISION_DELTA_TITLE_STORED_EMPTY, fullStoredTitle: null };
   }
 
-  return truncateDecisionDeltaMessage(trimmed);
+  const preview = truncateDecisionDeltaMessage(trimmed);
+
+  return {
+    title: preview,
+    fullStoredTitle: preview.length < trimmed.length ? trimmed : null,
+  };
 }
 
 export function buildRunDetailDecisionDeltaRow(
@@ -131,10 +137,13 @@ export function buildRunDetailDecisionDeltaRow(
 
   const evidenceAnchorHint = resolveEvidenceAnchorHint(finding);
 
+  const resolvedTitle = resolveDecisionDeltaTitle(finding);
+
   return {
     rank,
     findingId: finding.findingId,
-    title: resolveDecisionDeltaTitle(finding),
+    title: resolvedTitle.title,
+    fullStoredTitle: resolvedTitle.fullStoredTitle,
     severityLabel: severityBadgeLabel(finding.severityValue),
     policyRuleId,
     evidenceRefCount:

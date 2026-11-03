@@ -131,6 +131,24 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
     }
 
     [Fact]
+    public void Create_evidence_reviewed_labels_whitespace_constraints_as_stored_empty()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+        report.Evidence!.Request.Constraints = ["Regional residency", "   "];
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.EvidenceReviewed.Should().Contain(item =>
+            item.Title == ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintTitle
+            && item.Detail == ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintStoredEmpty);
+    }
+
+    [Fact]
     public void Create_evidence_reviewed_uses_not_stored_title_for_constraint_and_capability_rows()
     {
         (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =

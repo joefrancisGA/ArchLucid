@@ -4,6 +4,8 @@ import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
+const WORK_ITEM_SEVERITY_LABEL_NOT_STORED = "Severity label was not stored." as const;
+
 export type ArchitectureWorkItemFindingLine = {
   readonly findingId: string;
   readonly title: string;
@@ -50,6 +52,31 @@ function deriveHighestFindingSeverity(findings: readonly QuickDecisionFinding[])
   const highest = Math.max(...knownSeverities);
 
   return severityBadgeLabel(highest);
+}
+
+function formatHighestFindingSeverityLine(findings: readonly QuickDecisionFinding[]): string {
+  const missingCount = findings.filter((finding) => finding.severityValue === null).length;
+  const base = deriveHighestFindingSeverity(findings);
+
+  if (missingCount <= 0 || base === "Severity was not stored.") {
+    return base;
+  }
+
+  const noun = missingCount === 1 ? "finding had" : "findings had";
+  const verb = missingCount === 1 ? "is" : "are";
+
+  return `${base} ${missingCount} ${noun} severity not stored and ${verb} omitted from the highest-severity line.`;
+}
+
+const WORK_ITEM_OVERVIEW_NOT_DESCRIPTION_PREFIX =
+  "Architecture overview, not a stored work-item description:" as const;
+
+function formatWorkItemDescription(overview: string): string {
+  if (overview.length === 0) {
+    return "Architecture overview was not stored.";
+  }
+
+  return `${WORK_ITEM_OVERVIEW_NOT_DESCRIPTION_PREFIX}\n${overview}`;
 }
 
 function resolveArchitectureWorkItemOwnerLabel(ownerLabel: string | null): string {
@@ -109,10 +136,7 @@ export function buildArchitectureWorkItemPreview(
   input: BuildArchitectureWorkItemPreviewInput,
 ): ArchitectureWorkItemPreview {
   const overview = input.architectureOverview.trim();
-  const description =
-    overview.length > 0
-      ? overview
-      : "Architecture overview was not stored.";
+  const description = formatWorkItemDescription(overview);
 
   const architectureName = input.architectureName.trim();
   const title =
@@ -125,7 +149,7 @@ export function buildArchitectureWorkItemPreview(
   return {
     title,
     description,
-    highestFindingSeverity: deriveHighestFindingSeverity(input.findings),
+    highestFindingSeverity: formatHighestFindingSeverityLine(input.findings),
     owner: resolveArchitectureWorkItemOwnerLabel(input.ownerLabel),
     findingsIncluded: mappedFindings.lines,
     findingsOmittedCount: mappedFindings.omittedCount,
@@ -150,8 +174,14 @@ function formatFindingsForClipboard(
   }
 
   const lines = findings.map(
-    (finding, index) =>
-      `${index + 1}. [${finding.severityLabel}] ${finding.title} (${finding.findingId})\n   ${finding.recommendedAction}`,
+    (finding, index) => {
+      const severityPrefix =
+        finding.severityLabel === WORK_ITEM_SEVERITY_LABEL_NOT_STORED
+          ? ""
+          : `[${finding.severityLabel}] `;
+
+      return `${index + 1}. ${severityPrefix}${finding.title} (${finding.findingId})\n   ${finding.recommendedAction}`;
+    },
   );
 
   const remainder = formatFindingsCapRemainderLine(omittedCount);

@@ -22,4 +22,16 @@ describe("buildReviewClarificationDeltaPresentation", () => {
       buildReviewClarificationDeltaPresentation(null, { priorRunId: "prior-run" }).summary,
     ).toBe("Clarification delta from the prior review was not stored.");
   });
+
+  it("adds a capped-list disclaimer when stored question ids exceed the strip cap", () => {
+    const delta = {
+      resolvedByEvidenceQuestionIds: Array.from({ length: 12 }, (_, index) => `evidence-${index}`),
+      resolvedByAssertionQuestionIds: Array.from({ length: 12 }, (_, index) => `assertion-${index}`),
+      stillOpenQuestionIds: [],
+    };
+
+    expect(buildReviewClarificationDeltaPresentation(delta).cappedListDisclaimer).toBe(
+      "4 additional stored question ids are not listed in this delta strip.",
+    );
+  });
 });
