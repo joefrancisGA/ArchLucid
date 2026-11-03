@@ -482,7 +482,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             onDismissClarificationGap={dismissClarificationGap}
             onNavigateTab={navigateTab}
             pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
-            clarificationQuestions={clarificationQuestionsQuery.data?.questions ?? []}
+            clarificationQuestions={clarificationQuestionsQuery.data?.questions}
+            clarificationQuestionsLoading={clarificationQuestionsQuery.isLoading}
+            clarificationQuestionsTotalDerivedCount={clarificationQuestionsQuery.data?.totalDerivedCount}
             clarificationRoundAvailable={clarificationQuestionsQuery.data?.clarificationRoundAvailable === true}
             clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
             clarificationQuestionsBlockedReason={clarificationQuestionsQuery.blockedReason}

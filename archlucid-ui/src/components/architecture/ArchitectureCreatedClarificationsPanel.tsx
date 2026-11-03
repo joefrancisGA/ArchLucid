@@ -32,7 +32,10 @@ import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
 } from "@/lib/review-clarification-questions-types";
-import { describeClarificationQuestionsLoadState } from "@/lib/reviews/review-clarification-questions-honesty";
+import {
+  describeClarificationQuestionsLoadState,
+  formatClarificationDerivedQuestionPreviewCapLine,
+} from "@/lib/reviews/review-clarification-questions-honesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -46,6 +49,8 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
   readonly clarificationQuestions?: readonly ReviewClarificationQuestion[];
+  readonly clarificationQuestionsLoading?: boolean;
+  readonly clarificationQuestionsTotalDerivedCount?: number | null;
   readonly clarificationRoundAvailable?: boolean;
   readonly clarificationDelta?: ReviewClarificationDelta | null;
   readonly clarificationQuestionsBlockedReason?: string | null;
@@ -132,7 +137,16 @@ export function ArchitectureCreatedClarificationsPanel(
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions);
+  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions, {
+    loading: props.clarificationQuestionsLoading === true,
+  });
+  const clarificationDerivedPreviewCapLine = formatClarificationDerivedQuestionPreviewCapLine({
+    listedCount: props.clarificationQuestions?.length ?? 0,
+    totalDerivedCount:
+      props.clarificationQuestionsLoading === true
+        ? undefined
+        : props.clarificationQuestionsTotalDerivedCount,
+  });
   const preferModelInterviewQuestions =
     props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
@@ -146,6 +160,7 @@ export function ArchitectureCreatedClarificationsPanel(
     props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const isZeroGapSuccess =
     !hasStoredClarificationQuestions
+    && !clarificationQuestionsStoredEmpty
     && !hasClarificationBlockedReason
     && !parseResult.hasPartialParseFailure
     && !hasVisibleWorkQueue
@@ -222,6 +237,16 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       ) : null}
 
+      {clarificationDerivedPreviewCapLine !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-derived-preview-cap"
+          role="status"
+        >
+          {clarificationDerivedPreviewCapLine}
+        </p>
+      ) : null}
+
       {props.clarificationQuestionsBlockedReason !== null
       && props.clarificationQuestionsBlockedReason !== undefined
       && props.clarificationQuestionsBlockedReason.trim().length > 0 ? (
@@ -283,7 +308,7 @@ export function ArchitectureCreatedClarificationsPanel(
           data-testid="architecture-clarifications-stored-empty"
           role="status"
         >
-          Clarification questions were stored empty. This panel cannot say the brief covers required context.
+          Clarification questions were derived empty. This panel cannot say the brief covers required context.
         </p>
       ) : null}
 

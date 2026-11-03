@@ -220,7 +220,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,Estimated savings were not stored.,"
+            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Policy rule id was not stored.,Rotate keys,Estimated savings were not stored.,"
             + ArchitectureRunFindingsCsvFormatter.FindingNotMutedStatusLabel
             + ","
             + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
@@ -330,6 +330,34 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         csv.Should().Contain("DeterministicRule");
         csv.Should().Contain("deterministic policy rule fired");
+        csv.Should().Contain("rule-1");
+    }
+
+    [Fact]
+    public void BuildCsvContent_policy_rule_id_omission_honesty()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-no-rule",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "Gap",
+            PolicyRuleId = null,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.PolicyRuleIdNotStoredLabel);
+        csv.Should().Contain("PolicyRuleId");
     }
 
     [Fact]

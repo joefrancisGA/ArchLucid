@@ -1,10 +1,17 @@
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
+import type { ReviewClarificationSeverity } from "@/lib/review-clarification-questions-types";
 
 export const CLARIFICATION_QUESTIONS_NOT_STORED_LABEL =
   "Clarification questions were not stored." as const;
 
-export const CLARIFICATION_QUESTIONS_STORED_EMPTY_LABEL =
-  "No clarification questions are stored." as const;
+export const CLARIFICATION_QUESTIONS_NOT_LOADED_LABEL =
+  "Clarification questions were not loaded." as const;
+
+export const CLARIFICATION_QUESTIONS_DERIVED_EMPTY_LABEL =
+  "No clarification questions were derived." as const;
+
+/** @deprecated Use {@link CLARIFICATION_QUESTIONS_DERIVED_EMPTY_LABEL} for successful empty API responses. */
+export const CLARIFICATION_QUESTIONS_STORED_EMPTY_LABEL = CLARIFICATION_QUESTIONS_DERIVED_EMPTY_LABEL;
 
 export const CLARIFICATION_QUESTION_PROMPT_NOT_STORED_LABEL =
   "Clarification question was not stored." as const;
@@ -49,16 +56,57 @@ export function formatClarificationGapQuestionPromptLabel(prompt: string): strin
 
 export function describeClarificationQuestionsLoadState(
   clarificationQuestions: readonly ReviewClarificationQuestion[] | undefined,
+  options?: { readonly loading?: boolean },
 ): string | null {
+  if (options?.loading === true) {
+    return CLARIFICATION_QUESTIONS_NOT_LOADED_LABEL;
+  }
+
   if (clarificationQuestions === undefined) {
     return CLARIFICATION_QUESTIONS_NOT_STORED_LABEL;
   }
 
   if (clarificationQuestions.length === 0) {
-    return CLARIFICATION_QUESTIONS_STORED_EMPTY_LABEL;
+    return CLARIFICATION_QUESTIONS_DERIVED_EMPTY_LABEL;
   }
 
   return null;
+}
+
+export const CLARIFICATION_DERIVED_QUESTION_COUNT_NOT_STORED_LABEL =
+  "Derived question count was not stored." as const;
+
+export function formatClarificationDerivedQuestionPreviewCapLine(input: {
+  readonly listedCount: number;
+  readonly totalDerivedCount: number | null | undefined;
+}): string | null {
+  if (input.totalDerivedCount === null || input.totalDerivedCount === undefined) {
+    return CLARIFICATION_DERIVED_QUESTION_COUNT_NOT_STORED_LABEL;
+  }
+
+  const omitted = input.totalDerivedCount - input.listedCount;
+
+  if (omitted <= 0) {
+    return null;
+  }
+
+  return `${omitted} additional derived clarification question${omitted === 1 ? "" : "s"} ${omitted === 1 ? "was" : "were"} not listed.`;
+}
+
+export function formatClarificationQuestionSeverityLabel(
+  severity: ReviewClarificationSeverity | null | undefined,
+): string {
+  if (severity === null || severity === undefined) {
+    return "Question severity was not stored.";
+  }
+
+  const trimmed = `${severity}`.trim();
+
+  if (trimmed.length === 0) {
+    return "Question severity was stored empty.";
+  }
+
+  return trimmed;
 }
 
 export function formatGuidedIntakeClarificationAnswerStatus(input: {
