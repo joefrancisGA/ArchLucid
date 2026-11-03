@@ -2649,3 +2649,4 @@
 {"at":"2026-11-03T16:40:38.9339715Z","zoneId":"scope-binding-middleware","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T16:43:02.2915776Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T16:45:33.3019191Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-03T18:46:21.9192986Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared"}
