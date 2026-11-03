@@ -14,6 +14,10 @@ namespace ArchLucid.ArtifactSynthesis.Renderers;
 public class MermaidDiagramRenderer : IDiagramRenderer
 {
     internal const string RelationshipNotStoredEdgeLabel = "Relationship was not stored";
+    internal const string QuestionableReasonNotStoredLabel = "Questionable reason was not stored.";
+    internal const string QuestionableReasonStoredEmptyLabel = "Questionable reason was stored empty.";
+    internal const string QuestionableActionNotStoredLabel = "Questionable action was not stored.";
+    internal const string QuestionableActionStoredEmptyLabel = "Questionable action was stored empty.";
 
     public string Format => "mermaid";
 
@@ -192,8 +196,8 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         if (node.QuestionableAttention is not null)
         {
-            tokens.Add($"al-questionable-reason={QuoteMetadataValue(node.QuestionableAttention.Reason)}");
-            tokens.Add($"al-questionable-action={QuoteMetadataValue(node.QuestionableAttention.RecommendedAction)}");
+            tokens.Add($"al-questionable-reason={QuoteMetadataValue(FormatQuestionableMetadataValue(node.QuestionableAttention.Reason, QuestionableReasonNotStoredLabel, QuestionableReasonStoredEmptyLabel))}");
+            tokens.Add($"al-questionable-action={QuoteMetadataValue(FormatQuestionableMetadataValue(node.QuestionableAttention.RecommendedAction, QuestionableActionNotStoredLabel, QuestionableActionStoredEmptyLabel))}");
         }
 
         foreach (string unresolvedDetail in node.UnresolvedRelationshipDetails)
@@ -210,6 +214,29 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         }
 
         return $"%% {string.Join(' ', tokens)}";
+    }
+
+    private static string FormatQuestionableMetadataValue(
+        string? value,
+        string notStoredLabel,
+        string storedEmptyLabel)
+    {
+        if (value is null)
+        {
+            return notStoredLabel;
+        }
+
+        if (value.Length == 0)
+        {
+            return notStoredLabel;
+        }
+
+        if (value.Trim().Length == 0)
+        {
+            return storedEmptyLabel;
+        }
+
+        return value.Trim();
     }
 
     private static string QuoteMetadataValue(string value)

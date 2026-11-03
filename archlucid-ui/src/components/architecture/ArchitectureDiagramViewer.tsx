@@ -98,6 +98,23 @@ const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
 const DIAGRAM_MEMBER_NAME_STORED_EMPTY = 'Diagram member name was stored empty.';
 const DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED = 'Resource name was not stored.';
 const DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY = 'Resource name was stored empty.';
+const DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_NOT_STORED =
+  'Relationship label was not stored.';
+const DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_STORED_EMPTY =
+  'Relationship label was stored empty.';
+
+function formatSelectedConnectorNotice(selection: ArchitectureDiagramConnectorSelection): string {
+  const labelHonesty =
+    selection.label === null
+      ? DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_NOT_STORED
+      : selection.label.trim().length === 0
+        ? selection.label.length === 0
+          ? DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_NOT_STORED
+          : DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_STORED_EMPTY
+        : selection.label.trim();
+
+  return `Selected connector ${selection.from} → ${selection.to}. ${labelHonesty}`;
+}
 
 function formatDiagramClickFocusHeading(focus: {
   readonly name: string;
@@ -700,6 +717,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const syncInlineViewportCameraRef = useRef<() => boolean>(() => false);
 
   fullscreenOpenRef.current = fullscreenOpen;
+
+  const selectedConnectorNotice = useMemo(
+    () => (selectedConnector === null ? null : formatSelectedConnectorNotice(selectedConnector)),
+    [selectedConnector],
+  );
+  const connectorStatusNotice = connectorFocusNotice ?? selectedConnectorNotice;
 
   useEffect(() => {
     const trimmed = mermaidSource.trim();
@@ -1460,13 +1483,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </p>
       ) : null}
 
-      {connectorFocusNotice !== null && clickFocus === null ? (
+      {connectorStatusNotice !== null && clickFocus === null ? (
         <p
           className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
           data-testid="diagram-connector-focus-notice"
           aria-live="polite"
         >
-          {connectorFocusNotice}
+          {connectorStatusNotice}
         </p>
       ) : null}
 

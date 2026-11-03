@@ -20,6 +20,9 @@ export type RunStoredEvidenceDiagramPreviewBodyProps = {
   readonly highlightShapeId?: string | null;
 };
 
+export const STORED_EVIDENCE_DIAGRAM_SOURCE_STORED_EMPTY_COPY =
+  "Diagram source was stored empty." as const;
+
 /** Renders stored diagram evidence with optional cited-shape highlight (AS-025). */
 export function RunStoredEvidenceDiagramPreviewBody(
   props: RunStoredEvidenceDiagramPreviewBodyProps,
@@ -111,6 +114,17 @@ export function RunStoredEvidenceDiagramPreviewBody(
     return (
       <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
         {honestyMessage}
+      </p>
+    );
+  }
+
+  if (diagramFormat === "mermaid" && textContent.trim().length === 0) {
+    return (
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="run-stored-evidence-diagram-source-stored-empty"
+      >
+        {STORED_EVIDENCE_DIAGRAM_SOURCE_STORED_EMPTY_COPY}
       </p>
     );
   }

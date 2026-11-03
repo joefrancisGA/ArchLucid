@@ -6,6 +6,8 @@ import {
   formatArchitectureDeskDiagramSourceRow,
   readArchitectureDeskDiagramSourcesFromContextSnapshot,
   STRUCTURED_DIAGRAM_CANONICAL_SOURCE_TYPE,
+  STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+  STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY,
 } from "@/lib/architecture-spine/read-architecture-desk-diagram-sources";
 
 describe("readArchitectureDeskDiagramSourcesFromContextSnapshot (AS-044)", () => {
@@ -125,5 +127,29 @@ describe("readArchitectureDeskDiagramSourcesFromContextSnapshot (AS-044)", () =>
     expect(analyzed).toContain("(3 nodes)");
     expect(notExtracted.toLowerCase()).toContain("not extracted");
     expect(notExtracted.toLowerCase()).not.toContain("analyzed your screenshot");
+  });
+
+  it("labels missing and stored-empty structured diagram source ids (P-16, P-17)", () => {
+    const rows = readArchitectureDeskDiagramSourcesFromContextSnapshot({
+      canonicalObjects: [
+        { sourceType: STRUCTURED_DIAGRAM_CANONICAL_SOURCE_TYPE, sourceId: "", objectId: "obj-1" },
+        { sourceType: STRUCTURED_DIAGRAM_CANONICAL_SOURCE_TYPE, sourceId: "   ", objectId: "obj-2" },
+      ],
+    });
+
+    expect(rows).toEqual([
+      {
+        sourceKey: `structured:${STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED}`,
+        label: STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        status: "analyzed",
+        nodeCount: 1,
+      },
+      {
+        sourceKey: `structured:${STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY}`,
+        label: STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY,
+        status: "analyzed",
+        nodeCount: 1,
+      },
+    ]);
   });
 });
