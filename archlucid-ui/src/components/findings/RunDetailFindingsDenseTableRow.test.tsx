@@ -5,7 +5,11 @@ import { RunDetailFindingsDenseTableRow } from "@/components/findings/RunDetailF
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import * as quickDecisionFindingLinks from "@/lib/quick-decision-finding-links";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
-import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import {
+  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+  FINDING_CLASSIFICATION_DECISION_GRADE,
+  FINDING_CLASSIFICATION_STORED_EMPTY_LABEL,
+} from "@/lib/findings/review-detail-findings-classification-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 vi.mock("next/navigation", () => ({
@@ -107,7 +111,9 @@ describe("RunDetailFindingsDenseTableRow", () => {
       </table>,
     );
 
-    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("0 linked");
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent(
+      "No evidence references were stored",
+    );
     vi.restoreAllMocks();
   });
 
@@ -129,6 +135,13 @@ describe("RunDetailFindingsDenseTableRow", () => {
   });
 
   it("labels missing confidence, review status, and evidence link", () => {
+    vi.spyOn(quickDecisionFindingLinks, "buildQuickDecisionFindingEvidenceLinks").mockReturnValue({
+      evidenceRefCount: null,
+      manifestHref: null,
+      graphHref: null,
+      viewEvidenceHref: null,
+    });
+
     render(
       <table>
         <tbody>
@@ -149,7 +162,38 @@ describe("RunDetailFindingsDenseTableRow", () => {
 
     expect(screen.getByText("Confidence level was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Human review status was not stored")).toBeInTheDocument();
-    expect(screen.getByText("Evidence link was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Evidence reference count was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Density was not stored")).toBeInTheDocument();
+    vi.restoreAllMocks();
+  });
+
+  it("shows evidence ref snippet honesty when snippets were not stored (P-09)", () => {
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow runId="run-1" finding={sampleFinding()} showDensityScore />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByTestId("finding-evidence-ref-snippets-honesty")).toHaveTextContent(
+      "Source evidence excerpts were not stored.",
+    );
+  });
+
+  it("labels stored-empty classification separately from missing classification (P-10)", () => {
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow
+            runId="run-1"
+            finding={sampleFinding({ classification: "   " })}
+            showDensityScore
+          />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByText(FINDING_CLASSIFICATION_STORED_EMPTY_LABEL)).toBeInTheDocument();
   });
 });

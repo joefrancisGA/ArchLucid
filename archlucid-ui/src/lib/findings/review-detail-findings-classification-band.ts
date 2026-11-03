@@ -20,6 +20,8 @@ export const FINDING_CLASSIFICATION_CHECKLIST_COVERAGE = "ChecklistCoverage" as 
 
 export const FINDING_CLASSIFICATION_NOT_STORED_LABEL = "Finding classification was not stored." as const;
 
+export const FINDING_CLASSIFICATION_STORED_EMPTY_LABEL = "Classification was stored empty." as const;
+
 export type KnownFindingClassification =
   | typeof FINDING_CLASSIFICATION_DECISION_GRADE
   | typeof FINDING_CLASSIFICATION_CHECKLIST_COVERAGE;

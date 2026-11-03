@@ -113,6 +113,16 @@ export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING = "Review inferred com
 export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER =
   "Inferred components are suggestions from your brief. Accepting one stores your confirmation; it is not observed infrastructure evidence." as const;
 
+export function formatArchitectureDiagramUnconfirmedInferredHeaderLine(unconfirmedInferredCount: number): string | null {
+  if (unconfirmedInferredCount <= 0) {
+    return null;
+  }
+
+  const noun = unconfirmedInferredCount === 1 ? "inferred component or line" : "inferred components and lines";
+
+  return `${unconfirmedInferredCount} ${noun} still need review before this diagram is treated as confirmed.`;
+}
+
 export const ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT =
   "Inferred review is paused while a hand-edited Mermaid version is active. Regenerate or restore a generated version to accept or remove inferred components." as const;
 

@@ -519,6 +519,28 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('shows selected connector relationship label honesty (P-03)', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="edge" data-from="app" data-to="sql"><title></title><path d="M20 20L80 20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        selectedConnector={{ from: 'app', to: 'sql', label: '   ' }}
+      />,
+    );
+
+    expect(await screen.findByTestId('diagram-connector-focus-notice')).toHaveTextContent(
+      'Relationship label was stored empty.',
+    );
+  });
+
   it('adds the authorization hint when a focused node has a May access edge', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

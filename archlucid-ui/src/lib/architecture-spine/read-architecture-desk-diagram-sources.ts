@@ -14,6 +14,10 @@ import {
 /** Matches <see cref="StructuredDiagramCanonicalSourceTypes.StructuredDiagram" /> on canonical objects. */
 export const STRUCTURED_DIAGRAM_CANONICAL_SOURCE_TYPE = "StructuredDiagram";
 
+export const STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED = "Diagram source id was not stored." as const;
+
+export const STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY = "Diagram source id was stored empty." as const;
+
 export type ArchitectureDeskDiagramSourceStatus = "analyzed" | "not-extracted";
 
 export type ArchitectureDeskDiagramSourceRow = {
@@ -71,9 +75,31 @@ function readStructuredDiagramSourceRows(contextSnapshot: Record<string, unknown
       continue;
     }
 
-    const sourceId = wire.sourceId?.trim() ?? "";
+    const sourceIdRaw = wire.sourceId;
+
+    if (sourceIdRaw === null || sourceIdRaw === undefined) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED) ?? 0) + 1,
+      );
+      continue;
+    }
+
+    if (sourceIdRaw.length === 0) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED) ?? 0) + 1,
+      );
+      continue;
+    }
+
+    const sourceId = sourceIdRaw.trim();
 
     if (sourceId.length === 0) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY) ?? 0) + 1,
+      );
       continue;
     }
 

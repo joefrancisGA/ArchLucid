@@ -236,6 +236,23 @@ describe("StoredEvidenceFileCells", () => {
     });
   });
 
+  it("uses file-name honesty copy on download aria-label (P-13)", () => {
+    render(
+      <StoredEvidenceFileCells
+        runId="run-1"
+        evidenceItemId="ev-empty-name"
+        fileName="   "
+        contentType="image/png"
+        handlers={{
+          onOpen: vi.fn(),
+          onDownload: vi.fn(),
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Download File name was stored empty." })).toBeInTheDocument();
+  });
+
   it("routes SVG open attempts through download-only handling", async () => {
     vi.mocked(downloadRunStoredEvidenceFile).mockResolvedValue();
 

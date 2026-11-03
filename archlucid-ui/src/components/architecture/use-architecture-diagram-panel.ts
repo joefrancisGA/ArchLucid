@@ -322,11 +322,14 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     void runGeneration(false);
   }, [runGeneration]);
 
+  const unconfirmedInferredCount = useMemo(
+    () => summarizeArchitectureDiagramProvenance(diagramModel).unconfirmedInferredCount,
+    [diagramModel],
+  );
+
   useEffect(() => {
-    props.onUnconfirmedInferredCountChange?.(
-      summarizeArchitectureDiagramProvenance(diagramModel).unconfirmedInferredCount,
-    );
-  }, [diagramModel, props.onUnconfirmedInferredCountChange]);
+    props.onUnconfirmedInferredCountChange?.(unconfirmedInferredCount);
+  }, [unconfirmedInferredCount, props.onUnconfirmedInferredCountChange]);
 
   const copyMermaid = useCallback(async () => {
     if (mermaidSource === null) {
@@ -474,6 +477,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     onOpenFull: props.onOpenFull,
     pagePrimaryOwnedElsewhere: props.pagePrimaryOwnedElsewhere,
     versionsCount: versions.length,
+    unconfirmedInferredCount,
   };
 }
 

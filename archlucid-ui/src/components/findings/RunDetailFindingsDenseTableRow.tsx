@@ -10,6 +10,7 @@ import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
+import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import {
   EnterpriseTableCell,
   EnterpriseTableRow,
@@ -22,6 +23,7 @@ import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insigh
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { formatQuickDecisionConfidenceWorkspaceLabel, formatQuickDecisionFindingTitleDisplay } from "@/lib/findings/quick-decision-finding-display";
 import { buildQuickDecisionFindingEvidenceLinks, formatQuickDecisionFindingEvidenceLinkLabel } from "@/lib/quick-decision-finding-links";
+import { resolveFindingEvidenceRefSnippetsWireState } from "@/lib/findings/finding-source-evidence-excerpt-copy";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -120,6 +122,10 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
           Finding id:{" "}
           {finding.findingId.trim().length > 0 ? finding.findingId : "Finding id was not stored."}
         </p>
+        <FindingEvidenceRefSnippets
+          snippets={finding.evidenceRefSnippets ?? []}
+          wireState={resolveFindingEvidenceRefSnippetsWireState(finding.evidenceRefSnippets)}
+        />
       </EnterpriseTableCell>
       {showDensityScore ? (
         <EnterpriseTableCell className="w-[5rem] align-top tabular-nums text-al-text-secondary">
