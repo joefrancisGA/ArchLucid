@@ -142,9 +142,10 @@ export function ArchitectureCreatedClarificationsPanel(
     openQuestions !== undefined && openQuestions.entities == null;
   const clarificationQuestionsStoredEmpty =
     props.clarificationQuestions !== undefined && props.clarificationQuestions.length === 0;
+  const hasStoredClarificationQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const isZeroGapSuccess =
-    props.clarificationQuestions !== undefined
-    && !clarificationQuestionsStoredEmpty
+    !hasStoredClarificationQuestions
     && !hasClarificationBlockedReason
     && !parseResult.hasPartialParseFailure
     && !hasVisibleWorkQueue
@@ -249,6 +250,15 @@ export function ArchitectureCreatedClarificationsPanel(
           questions={clarificationQuestions}
           freeTextIntent={props.sourceText}
         />
+      ) : clarificationQuestions.length > 0 ? (
+        <p
+          className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-round-unavailable"
+          role="status"
+        >
+          Clarification questions were stored on this review, but the answer round is not available yet. Saved answers
+          from a prior round may still appear in your brief.
+        </p>
       ) : null}
 
       {!isZeroGapSuccess ? (

@@ -136,6 +136,13 @@ public static partial class SponsorReviewPacketComposer
             : roiSummary.SavingsPricingBasisDescription.Trim();
         sb.AppendLine($"**Pricing basis note:** {pricingBasisNote}");
 
+        if (string.Equals(roiSummary.SavingsPricingBasis, SponsorRoiSavingsPricingBasis.Retail, StringComparison.Ordinal)
+            && roiSummary.EaDiscountMultiplier == 1.0m
+            && string.IsNullOrWhiteSpace(roiSummary.SavingsPricingBasisDescription))
+        {
+            sb.AppendLine($"**Pricing defaults:** {SponsorReviewPacketExportHonestyCopy.TenantPricingDefaultsNotStored}");
+        }
+
         if (!string.IsNullOrWhiteSpace(roiSummary.CostEvidenceFreshnessStatus))
         {
             sb.AppendLine(

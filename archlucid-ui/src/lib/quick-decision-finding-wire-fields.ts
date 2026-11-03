@@ -71,16 +71,13 @@ export function resolveQuickDecisionFindingRecommendation(fr: Record<string, unk
 
 export function resolveQuickDecisionFindingPresentation(fr: Record<string, unknown>): {
   readonly title: string;
+  readonly findingMessage: string;
   readonly recommendation: string;
 } {
   const { title, messageBody } = resolveQuickDecisionFindingTitleAndMessage(fr);
-  const recommendation =
-    messageBody.length > 0
-    && messageBody !== QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY
-      ? messageBody
-      : resolveQuickDecisionFindingRecommendation(fr);
+  const recommendation = resolveQuickDecisionFindingRecommendation(fr);
 
-  return { title, recommendation };
+  return { title, findingMessage: messageBody, recommendation };
 }
 
 export function coerceQuickDecisionFindingSeverityFromWire(raw: unknown): number | null {

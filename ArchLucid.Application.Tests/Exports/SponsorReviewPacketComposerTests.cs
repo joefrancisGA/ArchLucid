@@ -412,5 +412,91 @@ public sealed class SponsorReviewPacketComposerTests
         markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored);
         markdown.Should().Contain($"**Pricing basis note:** {SponsorReviewPacketExportHonestyCopy.PricingBasisNoteNotStored}");
         markdown.Should().Contain($"**Cost evidence freshness:** {SponsorReviewPacketExportHonestyCopy.CostEvidenceFreshnessNotStored}");
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.TenantPricingDefaultsNotStored);
+    }
+
+    [Fact]
+    public void ComposeMarkdown_portfolio_signals_include_workspace_snapshot_disclaimer_and_derived_empty_next_actions()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+        };
+
+        SponsorReviewPacketPortfolioSignals portfolioSignals = new()
+        {
+            NextActions = [],
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow,
+            portfolioSignals: portfolioSignals);
+
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.PortfolioSignalsWorkspaceSnapshotDisclaimer);
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.PortfolioNextActionsDerivedEmpty);
+    }
+
+    [Fact]
+    public void ComposeMarkdown_top_decisions_non_guid_review_id_uses_register_honesty_copy()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "not-a-guid",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "not-a-guid",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow,
+            topDecisions: [],
+            topDecisionsReviewIdNotGuid: true);
+
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.DecisionRegisterReviewIdNotGuid);
     }
 }

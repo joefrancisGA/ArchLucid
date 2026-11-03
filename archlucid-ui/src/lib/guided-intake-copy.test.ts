@@ -53,9 +53,9 @@ describe("guided-intake-copy (TB-773)", () => {
 });
 
 describe("resolveGuidedIntakeClarificationsDoneLabel", () => {
-  it("shows Start review once every clarification is handled", () => {
+  it("shows Save answers and continue once every clarification is handled", () => {
     expect(resolveGuidedIntakeClarificationsDoneLabel(true, false)).toBe(
-      GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+      GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
     );
   });
 

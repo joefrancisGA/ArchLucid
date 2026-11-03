@@ -43,6 +43,13 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine($"- **Manifest version:** {manifestVersion}");
         sb.AppendLine($"- **Review ID:** `{runId}`");
         sb.AppendLine($"- **Status:** {statusLabel}");
+
+        if (run is not null && run.Status != ArchitectureRunStatus.Committed)
+        {
+            sb.AppendLine(
+                $"- **Manifest commit status:** {SponsorReviewPacketExportHonestyCopy.ManifestStoredReviewNotCommitted}");
+        }
+
         sb.AppendLine();
     }
 

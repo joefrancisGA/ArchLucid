@@ -21,6 +21,9 @@ function clearSubjectHighlight(svg: SVGSVGElement): void {
   }
 }
 
+export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_MAP_SURFACE_NOTE =
+  "Question subject highlight is shown on the diagram plate, not on the neighborhood map." as const;
+
 export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND =
   "Question subject was not found on this diagram." as const;
 

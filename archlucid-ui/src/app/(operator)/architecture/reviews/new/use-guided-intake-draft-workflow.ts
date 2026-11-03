@@ -17,6 +17,7 @@ import {
   areGuidedIntakeClarificationsPersistedForSubmit,
   resolveGuidedIntakeClarificationProgress,
 } from "@/lib/guided-intake-clarification-progress";
+import { GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED } from "@/lib/guided-intake-copy";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -308,7 +309,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         const answer = answers[questionKey]?.trim() ?? "";
 
         if (answer.length > 0) {
-          return { kind: "ready", label: "Answered" };
+          return { kind: "draft", label: GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED };
         }
 
         return { kind: "draft", label: "Skipped" };

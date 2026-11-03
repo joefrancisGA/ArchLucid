@@ -26,7 +26,8 @@ public static partial class SponsorReviewPacketComposer
         CareerExportCoverageHonestyInput? careerExportHonesty = null,
         IReadOnlyList<FindingArchitectRestatementExportRow>? architectRestatements = null,
         int omittedTopDecisionsCount = 0,
-        int omittedPortfolioNextActionsCount = 0)
+        int omittedPortfolioNextActionsCount = 0,
+        bool topDecisionsReviewIdNotGuid = false)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -52,7 +53,7 @@ public static partial class SponsorReviewPacketComposer
         if (detail.Run is not null)
             SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, detail.Run);
 
-        AppendTopDecisionsSection(sb, topDecisions, omittedTopDecisionsCount);
+        AppendTopDecisionsSection(sb, topDecisions, omittedTopDecisionsCount, topDecisionsReviewIdNotGuid);
         AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles);
         FindingArchitectRestatementExportComposer.AppendMarkdownSection(sb, architectRestatements ?? []);
         AppendPortfolioSignalsSection(sb, portfolioSignals, omittedPortfolioNextActionsCount);

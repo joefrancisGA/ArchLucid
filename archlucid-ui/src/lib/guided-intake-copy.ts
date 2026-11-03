@@ -292,7 +292,13 @@ export const GUIDED_INTAKE_SAVE_ANSWER_LABEL = "Save answer";
 export const GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT =
   "This answer is not stored until you submit the intake." as const;
 
+export const GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED =
+  "Saved on page — not submitted" as const;
+
 export const GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL = "Save and continue";
+
+export const GUIDED_INTAKE_SAVE_AND_CONTINUE_FOOTER_HELPER =
+  "Save and continue stores each answer on this draft only. Submit the intake to persist answers on the review." as const;
 
 export function guidedIntakeClarificationsAnsweredCounter(
   answeredCount: number,
@@ -315,6 +321,8 @@ export const GUIDED_INTAKE_CLARIFICATION_SUGGEST_FROM_BRIEF_HELPER =
 
 export const GUIDED_INTAKE_REVIEW_ANSWERS_LABEL = "Review answers";
 
+export const GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL = "Save answers and continue";
+
 export const GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL = "Start review";
 
 /** Clarifications-step footer CTA — advances to create-review once every MUST is handled. */
@@ -327,7 +335,7 @@ export function resolveGuidedIntakeClarificationsDoneLabel(
   }
 
   if (allClarificationsHandled) {
-    return GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL;
+    return GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL;
   }
 
   return GUIDED_INTAKE_REVIEW_ANSWERS_LABEL;
