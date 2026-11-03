@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatSecureNowHomeSubscriptionScopeLine,
+  resolveSecureNowCloudConnectionsSubscriptionScopeLabel,
   resolveSecureNowCollectionMissingDetail,
   SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
@@ -68,5 +69,20 @@ describe("SecureNow home collection missing copy", () => {
 
   it("formats subscription scope when a label is present", () => {
     expect(formatSecureNowHomeSubscriptionScopeLine("Production")).toBe("Subscription scope: Production.");
+  });
+
+  it("derives cloud connections subscription scope from Azure connection summary", () => {
+    expect(
+      resolveSecureNowCloudConnectionsSubscriptionScopeLabel({
+        azureSubscriptionIdsPresent: false,
+        azureSubscriptionSummary: "sub-a",
+      }),
+    ).toBeNull();
+    expect(
+      resolveSecureNowCloudConnectionsSubscriptionScopeLabel({
+        azureSubscriptionIdsPresent: true,
+        azureSubscriptionSummary: "33333333-3333-3333-3333-333333333333",
+      }),
+    ).toBe("33333333-3333-3333-3333-333333333333");
   });
 });

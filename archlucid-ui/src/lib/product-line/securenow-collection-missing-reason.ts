@@ -43,3 +43,21 @@ export function shouldShowSecureNowCollectionMissingBlock(
 ): boolean {
   return !input.hasSuccessfulPull;
 }
+
+/** Buyer-safe subscription label for the collection-missing block (Azure connection scope). */
+export function resolveSecureNowCloudConnectionsSubscriptionScopeLabel(input: {
+  readonly azureSubscriptionIdsPresent: boolean;
+  readonly azureSubscriptionSummary: string | null | undefined;
+}): string | null {
+  if (!input.azureSubscriptionIdsPresent) {
+    return null;
+  }
+
+  const trimmed = input.azureSubscriptionSummary?.trim() ?? "";
+
+  if (trimmed.length === 0 || trimmed === "Connection not recorded") {
+    return null;
+  }
+
+  return trimmed;
+}
