@@ -85,9 +85,17 @@ function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel 
   );
 }
 
-/** Truncate persisted 0–100-style scores so detail extraction and trace overlays stay aligned. */
+/** Preserve fractional 0–1 scores for filtering; truncate only 0–100 integer-style scores. */
 export function normalizeEvaluationConfidenceScore(raw: unknown): number | null {
-  return typeof raw === "number" && Number.isFinite(raw) ? Math.trunc(raw) : null;
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return null;
+  }
+
+  if (raw > 0 && raw <= 1) {
+    return raw;
+  }
+
+  return Math.trunc(raw);
 }
 
 function severityValueFromTraceRow(row: FindingTraceConfidenceDto): number {

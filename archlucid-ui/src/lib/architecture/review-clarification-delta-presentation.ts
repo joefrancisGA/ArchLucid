@@ -9,13 +9,19 @@ export type ReviewClarificationDeltaPresentation = {
 
 export function buildReviewClarificationDeltaPresentation(
   delta: ReviewClarificationDelta | null | undefined,
+  options?: { readonly priorRunId?: string | null },
 ): ReviewClarificationDeltaPresentation {
   if (delta === null || delta === undefined) {
+    const priorRunId = options?.priorRunId?.trim() ?? "";
+
     return {
       resolvedByEvidenceCount: 0,
       resolvedByAssertionCount: 0,
       stillOpenCount: 0,
-      summary: "Clarification delta from the prior review was not stored.",
+      summary:
+        priorRunId.length > 0
+          ? "Clarification delta from the prior review was not stored."
+          : null,
     };
   }
 
