@@ -74,6 +74,14 @@ const REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX =
   "Typed payload remediation suggestion — not stored as a recommended action: ";
 
 function resolveFindingInspectRecommendedAction(payload: FindingInspectPayload): string | null {
+  if (payload.recommendedActionsReturned === false) {
+    return null;
+  }
+
+  if (payload.recommendedActionsReturned === true && payload.recommendedActions.length === 0) {
+    return "Recommended actions were stored empty.";
+  }
+
   const fromTable = payload.recommendedActions.find((action) => action.trim().length > 0);
 
   if (fromTable !== undefined) {

@@ -22,7 +22,7 @@ import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-e
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
-import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
+import { buildQuickDecisionFindingEvidenceLinks, formatQuickDecisionFindingEvidenceLinkLabel } from "@/lib/quick-decision-finding-links";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -151,7 +151,9 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip href={viewEvidenceHref} evidenceRefCount={evidenceRefCount} />
         ) : (
-          <span className="text-al-text-secondary">Evidence link was not stored</span>
+          <span className="text-al-text-secondary">
+            {formatQuickDecisionFindingEvidenceLinkLabel(evidenceRefCount)}
+          </span>
         )}
       </EnterpriseTableCell>
     </EnterpriseTableRow>

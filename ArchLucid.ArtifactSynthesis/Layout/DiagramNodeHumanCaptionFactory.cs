@@ -75,7 +75,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
 
         return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
-            ?? DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption;
+            ?? DiagramDataFlowHonestyLegend.FormatArmTypeWithoutCatalogLabel(node.ArmResourceType);
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)
@@ -143,6 +143,10 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
             combined = $"{combined} · No diagram link was stored.";
+        }
+        else if (node.ConnectionState is null && !string.IsNullOrWhiteSpace(node.SeedNodeId))
+        {
+            combined = $"{combined} · Connection state was not stored.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)

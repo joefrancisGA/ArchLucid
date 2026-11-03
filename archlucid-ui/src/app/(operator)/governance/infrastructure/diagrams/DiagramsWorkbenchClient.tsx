@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import { DiagramsWorkbenchSecureNowAwareDiagramViewer } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowAwareDiagramViewer";
@@ -103,6 +104,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
 import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
+import { filterInfraEvidenceDiagramOutlineByPathHops } from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
@@ -200,11 +202,14 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_LINK,
   DESIGN_TOKENS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { fetchSecurityEvidencePathDetail } from "@/lib/security-evidence-path-api";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
@@ -223,6 +228,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL,
@@ -445,6 +451,22 @@ export function DiagramsWorkbenchClient() {
   );
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraDiagramsSnapshotIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM));
+  const urlPathId = searchParams.get("pathId")?.trim() ?? "";
+  const [showRestOfSubscription, setShowRestOfSubscription] = useState(false);
+  const pathDetailQuery = useQuery({
+    queryKey: ["infra-diagrams", "path-detail", urlPathId],
+    queryFn: () => fetchSecurityEvidencePathDetail(urlPathId),
+    enabled: urlPathId.length > 0,
+    retry: false,
+  });
+  const pathFocusActive = urlPathId.length > 0 && !showRestOfSubscription;
+  const diagramsPageLead = isSecureNowProductLine(productLine)
+    ? SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD
+    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD;
+
+  useEffect(() => {
+    setShowRestOfSubscription(false);
+  }, [urlPathId]);
   const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
     searchParams.get(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM),
   );
@@ -1135,13 +1157,19 @@ export function DiagramsWorkbenchClient() {
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
   const completenessWarnings = useMemo(() => {
-    if (renderResult?.completenessWarnings !== undefined) {
+    if (renderResult !== null && renderResult.completenessWarnings !== undefined) {
       return renderResult.completenessWarnings;
     }
 
     return snapshotCompletenessWarnings;
-  }, [renderResult?.completenessWarnings, snapshotCompletenessWarnings]);
-  const completenessSummary = renderResult?.completenessSummary ?? null;
+  }, [renderResult, snapshotCompletenessWarnings]);
+  const completenessSummary = useMemo(() => {
+    if (renderResult !== null && "completenessSummary" in renderResult) {
+      return renderResult.completenessSummary ?? null;
+    }
+
+    return undefined;
+  }, [renderResult]);
 
   const renderStatusPresentation = useMemo(() => {
     if (renderStatus.length === 0 || renderStatus !== "Failed") {
@@ -1170,14 +1198,30 @@ export function DiagramsWorkbenchClient() {
     return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
   }, [includeNeverShow, mermaidOutline]);
 
+  const pathScopedMermaidOutline = useMemo(() => {
+    if (!pathFocusActive || pathDetailQuery.data == null) {
+      return visibleMermaidOutline;
+    }
+
+    return filterInfraEvidenceDiagramOutlineByPathHops(visibleMermaidOutline, pathDetailQuery.data.hops);
+  }, [pathDetailQuery.data, pathFocusActive, visibleMermaidOutline]);
+
+  const pathFocusMatchedNoNodes =
+    pathFocusActive
+    && pathDetailQuery.data != null
+    && visibleMermaidOutline != null
+    && visibleMermaidOutline.nodes.length > 0
+    && pathScopedMermaidOutline != null
+    && pathScopedMermaidOutline.nodes.length === 0;
+
   const evidenceFamilyFilterEnabled = EVIDENCE_FAMILY_FILTER_MODES.has(selectedMode);
   const availableEvidenceFamilies = useMemo(
     () => INFRA_EVIDENCE_DIAGRAM_FAMILIES.filter(
-      (family) => visibleMermaidOutline?.edges.some(
+      (family) => pathScopedMermaidOutline?.edges.some(
         (edge) => resolveInfraEvidenceDiagramFamily(edge) === family,
       ) === true,
     ),
-    [visibleMermaidOutline],
+    [pathScopedMermaidOutline],
   );
   const effectiveEvidenceFamily = useMemo(
     () => resolveSelectableInfraEvidenceDiagramFamily(selectedEvidenceFamily, availableEvidenceFamilies),
@@ -1196,11 +1240,21 @@ export function DiagramsWorkbenchClient() {
   const familyFilteredOutline = useMemo(
     () => evidenceFamilyFilterEnabled
       ? filterInfraEvidenceDiagramOutlineByFamily(
-          visibleMermaidOutline ?? { nodes: [], edges: [] },
+          pathScopedMermaidOutline ?? { nodes: [], edges: [] },
           effectiveEvidenceFamily,
         )
-      : visibleMermaidOutline,
-    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, visibleMermaidOutline],
+      : pathScopedMermaidOutline,
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, pathScopedMermaidOutline],
+  );
+  const visiblePathConnectors = useMemo(
+    () => pathFocusActive && familyFilteredOutline != null
+      ? familyFilteredOutline.edges.map((edge) => ({
+          from: edge.from,
+          to: edge.to,
+          label: edge.label,
+        }))
+      : null,
+    [familyFilteredOutline, pathFocusActive],
   );
   const visibleFamilyConnectors = useMemo(
     () => evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
@@ -1212,6 +1266,7 @@ export function DiagramsWorkbenchClient() {
       : null,
     [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, familyFilteredOutline],
   );
+  const diagramVisibleConnectors = visiblePathConnectors ?? visibleFamilyConnectors;
 
   const handleEvidenceFamilyChange = useCallback(
     (family: InfraEvidenceDiagramFamily) => {
@@ -1896,13 +1951,15 @@ export function DiagramsWorkbenchClient() {
 
         if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setModePreviews(preview.modes ?? []);
-          setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
+          setSnapshotCompletenessWarnings(
+            preview.completenessWarnings === undefined ? undefined : preview.completenessWarnings,
+          );
         }
       } catch (error: unknown) {
         if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
-          setSnapshotCompletenessWarnings([]);
+          setSnapshotCompletenessWarnings(undefined);
         }
       } finally {
         if (!cancelled) {
@@ -2193,10 +2250,17 @@ export function DiagramsWorkbenchClient() {
 
     try {
       const query = renderQuery;
+      const layoutEngine = renderResult?.layoutEngine ?? null;
+      const pngRasterSource =
+        layoutEngine === "inventory-forest" || layoutEngine === "graphviz-fdp"
+          ? ("server-graphviz" as const)
+          : ("server-mermaid-cli" as const);
       const readingStrip = {
         mode: selectedMode,
         outline: familyFilteredOutline,
-        completenessWarnings: completenessWarnings ?? [],
+        completenessWarnings,
+        layoutEngine,
+        pngRasterSource,
         executiveOverflowStripped:
           selectedMode === "executive"
           && mermaidSource.trim().length > 0
@@ -2242,7 +2306,10 @@ export function DiagramsWorkbenchClient() {
         fallbackMermaidSource: mermaidSource,
         fallbackSvgMarkup: exportableSvgMarkup,
         dark,
-        readingStrip,
+        readingStrip: {
+          ...readingStrip,
+          pngRasterSource: "browser-fallback",
+        },
       });
 
       if (result.usedBrowserFallback) {
@@ -2267,6 +2334,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     renderQuery,
+    renderResult?.layoutEngine,
     selectedSnapshotId,
     tooLargeForBrowser,
   ]);
@@ -2322,7 +2390,7 @@ export function DiagramsWorkbenchClient() {
       <OperatorPageHeader
         navHref={pathname}
         title={pageTitle}
-        subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
+        subtitle={diagramsPageLead}
         titleTestId="infra-diagrams-page-title"
         metadata={<DiagramsBreadcrumb />}
       />
@@ -2357,6 +2425,45 @@ export function DiagramsWorkbenchClient() {
         testId="infra-diagrams-page-shortcuts"
         entries={diagramsWorkbenchPageShortcutsDisclosureEntries()}
       />
+
+      {urlPathId.length > 0 ? (
+        <section
+          className={cnCard}
+          aria-labelledby="infra-diagrams-path-focus-heading"
+          data-testid="infra-diagrams-path-focus-banner"
+        >
+          <h2 id="infra-diagrams-path-focus-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Path focus requested
+          </h2>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            Path {urlPathId} is the requested SecureNow path. Path hops and cut points remain authoritative in Path inspect.
+            {pathFocusMatchedNoNodes
+              ? " No diagram nodes matched this path's hop identifiers yet."
+              : pathFocusActive
+                ? " The diagram below shows this path's hops first."
+                : " The full subscription graph is shown."}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link
+              href={`/security/remediation-factory?pathId=${encodeURIComponent(urlPathId)}`}
+              className={OPERATOR_LINK.inline}
+            >
+              Open Path inspect
+            </Link>
+            {pathFocusActive ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="securenow-diagram-show-subscription"
+                onClick={() => setShowRestOfSubscription(true)}
+              >
+                Show the rest of the subscription
+              </Button>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
@@ -3335,7 +3442,7 @@ export function DiagramsWorkbenchClient() {
             focusNonce={cameraFocusNonce}
             outline={familyFilteredOutline}
             selectedConnector={selectedConnector}
-            visibleConnectors={visibleFamilyConnectors}
+            visibleConnectors={diagramVisibleConnectors}
             onSelectConnector={handleConnectorSelect}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}

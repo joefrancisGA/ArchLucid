@@ -57,7 +57,9 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     };
 
     expect(secureNowQuestionResourceTypeLabel(packQuestion)).toBeNull();
-    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Subscription question");
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe(
+      "Policy pack question. Stored scope was not on this title.",
+    );
   });
 
   it("infers pack identity copy when policy pack source omits scopeKind", () => {
@@ -72,7 +74,9 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     };
 
     expect(secureNowQuestionResourceTypeLabel(packQuestion)).toBeNull();
-    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe(
+      "Policy pack question. Resource group was read from question text, not from stored scope.",
+    );
   });
 
   it("labels resource group pack questions distinctly", () => {
@@ -118,6 +122,8 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
       questionText: null,
     };
 
-    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Subscription question");
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe(
+      "Policy pack question. Stored scope was not on this title.",
+    );
   });
 });

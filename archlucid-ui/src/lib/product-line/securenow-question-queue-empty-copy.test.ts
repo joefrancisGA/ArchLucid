@@ -5,7 +5,7 @@ import { SECURENOW_QUESTION_QUEUE_EMPTY_FILTER } from "./securenow-question-queu
 describe("SecureNow question queue empty copy", () => {
   it("names a safe next action and keeps the empty state honest", () => {
     expect(SECURENOW_QUESTION_QUEUE_EMPTY_FILTER).toBe(
-      "No questions match this filter. Clear the filter, or open a diagram subscription that has a capture. An empty list is not a clean environment.",
+      "No diagram question yet. Name the review question, then attach it to one path.",
     );
   });
 });

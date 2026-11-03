@@ -43,7 +43,17 @@ public static class AzureInventoryRestorePointCollectionSourceParser
 
         string trimmed = value.Trim();
 
-        string working = PercentDecodeBounded.Decode(trimmed);
+        // Parse raw JSON first. Percent-decoding the whole blob first would rewrite sibling
+        // escapes such as %22 and corrupt the document before the id can be read.
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return TryReadArmIdFromJson(trimmed);
+        }
+
+        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(trimmed, out string working))
+        {
+            return null;
+        }
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {

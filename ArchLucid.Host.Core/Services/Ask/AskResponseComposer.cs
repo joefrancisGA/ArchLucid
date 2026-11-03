@@ -47,8 +47,10 @@ public sealed class AskResponseComposer(
                     ? $"Context included {decisionCount} decision(s)."
                     : prepared.Manifest is { Decisions: { Count: 0 } }
                         ? "Manifest decisions were stored empty on this answer."
-                        : "Manifest decisions were not stored on this answer."),
+                        : "Manifest decisions were not stored on this answer.")
+                + " Citations were not stored on this answer.",
             RetrievalDegraded = prepared.RetrievalDegraded,
+            IndexedSearchNotLimitedToReviewId = prepared.EffectiveRunId.HasValue,
         };
     }
 
@@ -67,6 +69,7 @@ public sealed class AskResponseComposer(
     {
         (AskResponse response, LlmAskShape? parsed) = ParseWithShape(prepared.Thread.ThreadId, raw);
         response.RetrievalDegraded = prepared.RetrievalDegraded;
+        response.IndexedSearchNotLimitedToReviewId = prepared.EffectiveRunId.HasValue;
 
         await PersistRunScopedTurnAsync(prepared, response, parsed, cancellationToken);
 
@@ -115,7 +118,7 @@ public sealed class AskResponseComposer(
         return (new AskResponse
         {
             ThreadId = threadId,
-            Answer = parsed.Answer.Trim(),
+            Answer = AppendBlankCitationIdHonesty(parsed.Answer.Trim(), parsed),
             ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
             ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
             ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
@@ -238,7 +241,7 @@ public sealed class AskResponseComposer(
         if (trimmed.StartsWith('{') && trimmed.EndsWith('}'))
             return "Ask answer was not stored.";
 
-        return trimmed;
+        return $"This reply was not parsed as an Ask answer. {trimmed}";
     }
 
     private LlmAskShape? TryDeserialize(string? json)
@@ -273,6 +276,43 @@ public sealed class AskResponseComposer(
                 referencedArtifactsNotStored = parsed?.ReferencedArtifacts is null,
             },
             ContractJson.CamelCaseCompact);
+
+    private static string AppendBlankCitationIdHonesty(string answer, LlmAskShape parsed)
+    {
+        if (!ContainsBlankCitationId(parsed))
+        {
+            return answer;
+        }
+
+        return answer.Contains("Citation id was not stored.", StringComparison.Ordinal)
+            ? answer
+            : $"{answer} Citation id was not stored on this answer.";
+    }
+
+    private static bool ContainsBlankCitationId(LlmAskShape parsed)
+    {
+        return ListContainsBlankEntry(parsed.ReferencedDecisions)
+            || ListContainsBlankEntry(parsed.ReferencedFindings)
+            || ListContainsBlankEntry(parsed.ReferencedArtifacts);
+    }
+
+    private static bool ListContainsBlankEntry(IEnumerable<string>? items)
+    {
+        if (items is null)
+        {
+            return false;
+        }
+
+        foreach (string item in items)
+        {
+            if (item is not null && item.Length > 0 && string.IsNullOrWhiteSpace(item))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static List<string> NormalizeList(IEnumerable<string>? items) =>
         items?

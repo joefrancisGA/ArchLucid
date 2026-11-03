@@ -29,8 +29,14 @@ public static class DiagramDataFlowHonestyLegend
     public const string ObservedRuntimeTimeWindowSentence =
         "Observed in logs edges reflect a bounded diagnostic time window, not the architecture.";
 
-    public const string ObservedRuntimeTimeWindowMissingSentence =
+    public const string ObservedRuntimeTimeWindowZeroSentence =
+        "Observed-in-logs edges are on this diagram, but the diagnostic time window was not stored on any edge.";
+
+    public const string ObservedRuntimeTimeWindowPartialSentence =
         "Observed-in-logs edges are on this diagram, but the diagnostic time window was not stored on every edge.";
+
+    /// <summary>Backward-compatible alias for partial-window caption tests.</summary>
+    public const string ObservedRuntimeTimeWindowMissingSentence = ObservedRuntimeTimeWindowPartialSentence;
 
     public const string PipelineDirectionMissingSentence =
         "Pipeline direction was not stored in this package. Re-collect Azure inventory to refresh pipeline metadata.";
@@ -41,6 +47,16 @@ public static class DiagramDataFlowHonestyLegend
     public const string OmittedDataFlowStagesSentencePrefix =
         "Data flow stages with no resolved nodes on this diagram (stage classification, not missing inventory census):";
 
+    public const string NoResolvedDataFlowStageSentence =
+        "No data-flow stage was resolved on this diagram.";
+
     public const string UnclassifiedArmResourceTypeCaption =
         "ARM resource type was not stored.";
+
+    public static string FormatArmTypeWithoutCatalogLabel(string armResourceType)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(armResourceType);
+
+        return $"ARM type {armResourceType.Trim()} has no catalog label.";
+    }
 }

@@ -56,10 +56,20 @@ export const INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED =
 export const INFRA_EVIDENCE_PNG_STARTING_RESOURCE_NAME_NOT_STORED =
   "Starting resource name was not stored." as const;
 
+export const INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_NOT_STORED = "Layout engine was not stored." as const;
+export const INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_STORED_EMPTY = "Layout engine was stored empty." as const;
+export const INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_NOT_STORED =
+  "Completeness warnings were not stored on this PNG strip." as const;
+
+export type InfraEvidencePngRasterSource =
+  | "server-graphviz"
+  | "server-mermaid-cli"
+  | "browser-fallback";
+
 export type InfraEvidencePngReadingStripInput = {
   readonly mode: string | null | undefined;
   readonly outline: InfraEvidenceMermaidOutline | null | undefined;
-  readonly completenessWarnings: readonly string[];
+  readonly completenessWarnings?: readonly string[] | null;
   readonly snapshotLabel?: string | null;
   readonly resourceGroupScopeName?: string | null;
   readonly dependencyNeighborhoodSeedId?: string | null;
@@ -67,6 +77,8 @@ export type InfraEvidencePngReadingStripInput = {
   readonly layoutSvg?: string | null;
   readonly executiveOverflowStripped?: boolean;
   readonly includePrivateEndpointNodes?: boolean;
+  readonly layoutEngine?: string | null;
+  readonly pngRasterSource?: InfraEvidencePngRasterSource | null;
 };
 
 const EXECUTIVE_OVERFLOW_PNG_READING_LINE =
@@ -158,10 +170,48 @@ function hasConfigurationRelationshipEdges(
   return outline?.edges.some((edge) => isConfigurationRelationshipEdge(edge)) === true;
 }
 
+function resolvePngLayoutEngineHonestyLines(input: InfraEvidencePngReadingStripInput): readonly string[] {
+  if (input.layoutEngine === undefined) {
+    return [];
+  }
+
+  if (input.layoutEngine === null) {
+    return [INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_NOT_STORED];
+  }
+
+  const trimmedEngine = input.layoutEngine.trim();
+
+  if (trimmedEngine.length === 0) {
+    return [INFRA_EVIDENCE_PNG_LAYOUT_ENGINE_STORED_EMPTY];
+  }
+
+  const lines: string[] = [];
+
+  if (input.pngRasterSource === "browser-fallback") {
+    lines.push(
+      "This PNG was saved from the browser canvas, not the server Graphviz PNG export.",
+    );
+  } else if (input.pngRasterSource === "server-graphviz") {
+    lines.push(`This PNG was redrawn with Graphviz (layout engine: ${trimmedEngine}).`);
+  } else if (input.pngRasterSource === "server-mermaid-cli") {
+    lines.push(`This PNG was rasterized from Mermaid export layout (layout engine: ${trimmedEngine}).`);
+  } else if (trimmedEngine === "inventory-forest" || trimmedEngine === "graphviz-fdp") {
+    lines.push(`This PNG was redrawn with Graphviz (layout engine: ${trimmedEngine}).`);
+  } else if (trimmedEngine === "mermaid-dagre") {
+    lines.push(`This PNG was rasterized from Mermaid export layout (layout engine: ${trimmedEngine}).`);
+  } else {
+    lines.push(`Layout engine was stored as ${trimmedEngine}.`);
+  }
+
+  return lines;
+}
+
 export function buildInfraEvidencePngReadingStripLines(
   input: InfraEvidencePngReadingStripInput,
 ): readonly string[] {
   const lines: string[] = [];
+
+  lines.push(...resolvePngLayoutEngineHonestyLines(input));
 
   if (input.snapshotLabel !== undefined) {
     lines.push(pngSnapshotLabelLine(input.snapshotLabel));
@@ -248,7 +298,9 @@ export function buildInfraEvidencePngReadingStripLines(
     lines.push(PRIVATE_ENDPOINT_ALL_STATUSES_TRAFFIC_HEDGE);
   }
 
-  if (input.completenessWarnings.length > 0) {
+  if (input.completenessWarnings === null || input.completenessWarnings === undefined) {
+    lines.push(INFRA_EVIDENCE_PNG_COMPLETENESS_WARNINGS_NOT_STORED);
+  } else if (input.completenessWarnings.length > 0) {
     lines.push(
       `Inventory completeness warnings (${input.completenessWarnings.length}). Connection lines may be missing.`,
     );

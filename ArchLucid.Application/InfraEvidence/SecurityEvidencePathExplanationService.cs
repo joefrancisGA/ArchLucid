@@ -16,7 +16,8 @@ public sealed class SecurityEvidencePathExplanationService(
     ISecurityEvidencePathExplanationRepository explanationRepository,
     IAgentCompletionClient llm,
     IPromptRedactor promptRedactor,
-    ILogger<SecurityEvidencePathExplanationService> logger) : ISecurityEvidencePathExplanationService
+    ILogger<SecurityEvidencePathExplanationService> logger,
+    ISecurityEvidencePathRankRepository? rankRepository = null) : ISecurityEvidencePathExplanationService
 {
     public const int PathExplanationMaxOutputTokens = 800;
 
@@ -76,7 +77,8 @@ public sealed class SecurityEvidencePathExplanationService(
                 await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
             IReadOnlyList<string> allowedEvidenceRefs =
-                SecurityEvidencePathExplanationValidator.SelectAllowedEvidenceRefs(pathId, hops);
+                SecurityEvidencePathExplanationValidator.SelectAllowedEvidenceRefs(pathId, hops, cutPoints);
+            string rankContext = await BuildRankContextAsync(scope, path, rankRepository, cancellationToken);
 
             HashSet<string> allowedArmIds = SecurityEvidencePathExplanationValidator.CollectAllowedArmIds(hops);
             SecurityEvidencePathExplanationTemplateResponse explanationTemplate =
@@ -93,7 +95,8 @@ public sealed class SecurityEvidencePathExplanationService(
                     path,
                     hops,
                     cutPoints,
-                    allowedEvidenceRefs);
+                    allowedEvidenceRefs,
+                    rankContext);
 
                 provenanceKind = ProvenanceKind.DeterministicInference;
                 simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
@@ -105,7 +108,8 @@ public sealed class SecurityEvidencePathExplanationService(
                     hops,
                     cutPoints,
                     explanationTemplate,
-                    allowedEvidenceRefs);
+                    allowedEvidenceRefs,
+                    rankContext);
 
                 PromptRedactionOutcome redactedPrompt = promptRedactor.Redact(userPrompt);
 
@@ -128,7 +132,8 @@ public sealed class SecurityEvidencePathExplanationService(
                             path,
                             hops,
                             cutPoints,
-                            allowedEvidenceRefs);
+                            allowedEvidenceRefs,
+                            rankContext);
                         provenanceKind = ProvenanceKind.DeterministicInference;
                         simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
                         modelOutputRejection =
@@ -153,7 +158,8 @@ public sealed class SecurityEvidencePathExplanationService(
                         path,
                         hops,
                         cutPoints,
-                        allowedEvidenceRefs);
+                        allowedEvidenceRefs,
+                        rankContext);
                     provenanceKind = ProvenanceKind.DeterministicInference;
                     simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
                     modelOutputRejection =
@@ -218,5 +224,24 @@ public sealed class SecurityEvidencePathExplanationService(
                 ErrorMessage = ex.Message,
             };
         }
+    }
+
+    private static async Task<string> BuildRankContextAsync(
+        ScopeContext scope,
+        SecurityEvidencePathRecord selectedPath,
+        ISecurityEvidencePathRankRepository? rankRepository,
+        CancellationToken cancellationToken)
+    {
+        if (rankRepository is null)
+        {
+            return SecurityEvidencePathRankContextBuilder.NoNextStoredPathSentence;
+        }
+
+        IReadOnlyList<SecurityEvidencePathRankRecord> ranks =
+            await rankRepository.ListBySnapshotAsync(
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), selectedPath.SnapshotId),
+                cancellationToken);
+
+        return SecurityEvidencePathRankContextBuilder.BuildNextStoredPathRankContext(selectedPath.PathId, ranks);
     }
 }

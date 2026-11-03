@@ -28,4 +28,6 @@ export type FindingInspectPayload = FindingInspectResponseSchema &
     reasoningSummary?: string | null;
     /** False when the inspect wire payload omitted `evidence` (distinct from an empty stored list). */
     evidenceListReturned?: boolean;
+    /** False when the inspect wire payload omitted `recommendedActions` (distinct from a stored empty list). */
+    recommendedActionsReturned?: boolean;
   };

@@ -1,9 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relative-time", () => ({
   formatRelativeTime: () => "2 hours ago",
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/use-operator-scope-query-key", () => ({
@@ -34,8 +38,21 @@ const snapshots = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshots: vi.fn(),
 }));
 
+const rankedPaths = vi.hoisted(() => ({
+  fetchRankedSecurityEvidencePaths: vi.fn(),
+}));
+
+const attackPathReports = vi.hoisted(() => ({
+  fetchSecurityEvidencePathAttackPathReport: vi.fn(),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: snapshots.fetchInfraEvidenceSnapshots,
+}));
+
+vi.mock("@/lib/security-evidence-path-api", () => ({
+  fetchRankedSecurityEvidencePaths: rankedPaths.fetchRankedSecurityEvidencePaths,
+  fetchSecurityEvidencePathAttackPathReport: attackPathReports.fetchSecurityEvidencePathAttackPathReport,
 }));
 
 import { SecureNowHomeEnvironmentContext } from "./SecureNowHomeEnvironmentContext";
@@ -66,6 +83,17 @@ function snapshot(overrides: Record<string, unknown> = {}) {
 }
 
 describe("SecureNowHomeEnvironmentContext", () => {
+  beforeEach(() => {
+    attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockReset();
+    rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 1,
+      topCutPoints: [],
+    });
+  });
+
   it("renders workspace, one subscription, and collection time without a gap", async () => {
     snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
       items: [snapshot()],
@@ -73,6 +101,13 @@ describe("SecureNowHomeEnvironmentContext", () => {
       page: 1,
       pageSize: 20,
       hasMore: false,
+    });
+    rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 1,
+      topCutPoints: [],
     });
     renderContext();
 
@@ -86,6 +121,34 @@ describe("SecureNowHomeEnvironmentContext", () => {
     );
     expect(screen.queryByText("Inventory capture completed.")).not.toBeInTheDocument();
     expect(screen.queryByText("Inventory capture failed.")).not.toBeInTheDocument();
+    expect(screen.getByTestId("securenow-home-next-step")).toHaveTextContent("One ranked path");
+    expect(screen.getByRole("link", { name: "One ranked path" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory",
+    );
+  });
+
+  it("links the next step to the first loaded ranked path id", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot()],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
+      items: [{ pathId: "path-ranked-01", snapshotId: "snap-1" }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 1,
+      topCutPoints: [],
+    });
+    renderContext();
+
+    expect(await screen.findByRole("link", { name: "One ranked path" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory?pathId=path-ranked-01",
+    );
   });
 
   it("renders a subscription count when the first page has more than one", async () => {
@@ -141,6 +204,8 @@ describe("SecureNowHomeEnvironmentContext", () => {
     const gap = await screen.findByRole("link", { name: "Inventory capture failed." });
 
     expect(gap).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent(/Reader on the subscription in scope/i);
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Subscription scope: Production.");
   });
 
   it("links an empty snapshot list to cloud connections", async () => {
@@ -156,7 +221,18 @@ describe("SecureNowHomeEnvironmentContext", () => {
     const empty = await screen.findByRole("link", { name: "No collection yet" });
 
     expect(empty).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByRole("link", { name: "First hour" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-first-hour",
+    );
+    expect(screen.getByRole("link", { name: "Scope and freshness" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
     expect(screen.getByText("Contoso — Payments")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Collection status: Missing.");
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent(/Reader on the subscription in scope/i);
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Subscription scope: not selected.");
   });
 
   it("gives a collection error one safe next action", async () => {
@@ -168,5 +244,62 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "href",
       "/integrations/cloud-connections",
     );
+  });
+
+  it("asks for a second capture before listing path deltas", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot()],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    renderContext();
+
+    expect(await screen.findByTestId("securenow-capture-delta")).toHaveTextContent(
+      "A second capture is required before path changes can be listed.",
+    );
+  });
+
+  it("lists added, gone, and unchanged path ids after two successful captures", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [
+        snapshot({ snapshotId: "snap-new", captureStatus: "Succeeded" }),
+        snapshot({
+          snapshotId: "snap-old",
+          captureStatus: "Succeeded",
+          capturedUtc: "2026-10-11T12:00:00.000Z",
+        }),
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === "snap-new") {
+        return {
+          snapshotId: "snap-new",
+          vulnerableAttackPaths: [{ pathId: "path-added" }, { pathId: "path-shared" }],
+          unevaluatedGroups: [],
+        };
+      }
+
+      return {
+        snapshotId: "snap-old",
+        vulnerableAttackPaths: [{ pathId: "path-gone" }, { pathId: "path-shared" }],
+        unevaluatedGroups: [],
+      };
+    });
+    renderContext();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("securenow-capture-delta")).toHaveTextContent("Added: path-added");
+    });
+
+    const delta = screen.getByTestId("securenow-capture-delta");
+    expect(delta).toHaveTextContent("Gone: path-gone");
+    expect(delta).toHaveTextContent("Unchanged: path-shared");
+    expect(delta).toHaveTextContent("This is not a usage claim.");
   });
 });

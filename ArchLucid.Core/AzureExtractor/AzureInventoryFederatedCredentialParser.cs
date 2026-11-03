@@ -32,8 +32,12 @@ public static class AzureInventoryFederatedCredentialParser
         }
 
         string issuer = NormalizePercentEncodedTrimmedScalar(issuerRaw);
-        string trimmedSubject = subject.Trim();
-        string trimmedPrincipalId = principalId.Trim();
+        string normalizedSubject = NormalizePercentEncodedTrimmedScalar(subject);
+        string normalizedPrincipalId = NormalizePercentEncodedTrimmedScalar(principalId);
+        string? appIdRaw = TryReadString(element, "appId");
+        string? normalizedAppId = string.IsNullOrWhiteSpace(appIdRaw)
+            ? null
+            : NormalizePercentEncodedTrimmedScalar(appIdRaw);
 
         ProvenanceKind provenanceKind = TryReadProvenanceKind(element) ?? ProvenanceKind.HumanAssertion;
 
@@ -46,14 +50,14 @@ public static class AzureInventoryFederatedCredentialParser
         row = new AzureInventoryFederatedCredentialRow
         {
             Issuer = issuer,
-            Subject = trimmedSubject,
-            PrincipalId = trimmedPrincipalId,
-            AppId = TryReadString(element, "appId"),
+            Subject = normalizedSubject,
+            PrincipalId = normalizedPrincipalId,
+            AppId = normalizedAppId,
             ParentResourceId = NormalizeOptionalArmId(TryReadString(element, "parentResourceId")),
             CredentialName = TryReadString(element, "credentialName"),
             ProvenanceKind = provenanceKind,
             EvidenceHashSha256 = TryReadEvidenceHash(element)
-                ?? ComputeDefaultEvidenceHash(issuer, trimmedSubject, trimmedPrincipalId, TryReadString(element, "appId")),
+                ?? ComputeDefaultEvidenceHash(issuer, normalizedSubject, normalizedPrincipalId, normalizedAppId),
         };
 
         return true;
@@ -129,7 +133,7 @@ public static class AzureInventoryFederatedCredentialParser
 
         string working = PercentDecodeBounded.Decode(armId.Trim());
 
-        if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        if (!working.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return working;
         }

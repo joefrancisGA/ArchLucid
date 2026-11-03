@@ -685,7 +685,46 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         result.Succeeded.Should().BeTrue(result.Error);
         result.Svg.Should().Contain(
-            "2 Source → 1 Ingestion → 3 Storage (1 with diagram neighbors, 2 no diagram neighbor on this view) → 1 Consumer · 1 resources whose stage was not stored. · Diagram neighbors are adjacency on this layout, not network isolation.");
+            "2 Source → 1 Ingestion → 3 Storage (1 with diagram neighbors, 2 no diagram neighbor on this view) → 1 Consumer → 1 Stage was not stored. · 1 resources whose stage was not stored. · Diagram neighbors are adjacency on this layout, not network isolation.");
+    }
+
+    [Fact]
+    public void Render_data_flow_stage_summary_counts_missing_neighbor_status_p02()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-storage", Label = "Storage", OrderKey = 0 },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "bus-a",
+                    Label = "bus-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.ServiceBus/namespaces",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "bus-b",
+                    Label = "bus-b",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.ServiceBus/namespaces",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 1,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("2 Storage (2 neighbor statuses were not stored.)");
     }
 
     [Fact]

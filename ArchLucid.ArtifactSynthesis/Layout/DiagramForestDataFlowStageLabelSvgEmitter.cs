@@ -52,22 +52,21 @@ internal static class DiagramForestDataFlowStageLabelSvgEmitter
                 new XAttribute("fill", LabelFill),
                 stageColumns.First().Label));
 
-            DiagramForestDataFlowColumnLayout.NodePlacement? firstUnconnected = placements
+            IEnumerable<DiagramForestDataFlowColumnLayout.NodePlacement> unconnectedPlacements = placements
                 .Where(placement =>
                     placement.ColumnIndex >= stageColumns.Min(column => column.ColumnIndex)
                     && placement.ColumnIndex <= stageColumns.Max(column => column.ColumnIndex)
                     && !connectedNodeIds.Contains(placement.Node.NodeId))
                 .OrderBy(placement => placement.ColumnIndex)
-                .ThenBy(placement => placement.Y)
-                .FirstOrDefault();
+                .ThenBy(placement => placement.Y);
 
-            if (firstUnconnected is not null)
+            foreach (DiagramForestDataFlowColumnLayout.NodePlacement unconnected in unconnectedPlacements)
             {
                 layer.Add(new XElement(
                     svgNamespace + "text",
                     new XAttribute("class", "data-flow-not-connected-label"),
-                    new XAttribute("x", FormatCoordinate(firstUnconnected.X + (firstUnconnected.Width / 2.0d))),
-                    new XAttribute("y", FormatCoordinate(firstUnconnected.Y - 5.0d)),
+                    new XAttribute("x", FormatCoordinate(unconnected.X + (unconnected.Width / 2.0d))),
+                    new XAttribute("y", FormatCoordinate(unconnected.Y - 5.0d)),
                     new XAttribute("text-anchor", "middle"),
                     new XAttribute("font-size", "10"),
                     new XAttribute("font-weight", "600"),

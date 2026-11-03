@@ -179,6 +179,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagr
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
   "Render inventory diagrams from snapshot evidence." as const;
 
+export const SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
+  "Render Azure inventory diagrams from snapshot evidence. SecureNow collection is Azure-only." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_HONESTY_LINE =
   "PNG and Mermaid exports are inventory views from the selected snapshot. They are not architecture packages, sponsor briefings, or sealed review records." as const;
 
@@ -321,6 +324,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL =
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_NO_ASSOCIATION_LABEL =
   "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_ASSOCIATION_TARGET_ID_NOT_STORED_LABEL =
+  "NSG association target id was not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL =
   "This NSG names a target that is not on this diagram." as const;

@@ -12,7 +12,8 @@ internal static partial class SecurityEvidencePathExplanationValidator
 
     public static IReadOnlyList<string> SelectAllowedEvidenceRefs(
         Guid pathId,
-        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        IReadOnlyList<SecurityEvidenceCutPointRecord>? cutPoints = null)
     {
         ArgumentNullException.ThrowIfNull(hops);
 
@@ -26,7 +27,38 @@ internal static partial class SecurityEvidencePathExplanationValidator
             refs.Add(hop.EvidenceReference.Trim());
         }
 
+        if (cutPoints is not null)
+        {
+            foreach (SecurityEvidenceCutPointRecord cutPoint in cutPoints)
+            {
+                refs.Add($"cut-point:{cutPoint.CutPointId:D}");
+            }
+        }
+
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    public static IReadOnlyList<string> FindDisallowedCitedEvidenceRefs(
+        IEnumerable<string> citedEvidenceRefs,
+        IReadOnlyCollection<string> allowedEvidenceRefs)
+    {
+        HashSet<string> allowed = allowedEvidenceRefs.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        List<string> disallowed = [];
+
+        foreach (string reference in citedEvidenceRefs)
+        {
+            if (string.IsNullOrWhiteSpace(reference))
+                continue;
+
+            string trimmed = reference.Trim();
+
+            if (!allowed.Contains(trimmed))
+            {
+                disallowed.Add(trimmed);
+            }
+        }
+
+        return disallowed;
     }
 
     public static HashSet<string> CollectAllowedArmIds(IReadOnlyList<SecurityEvidencePathHopRecord> hops)

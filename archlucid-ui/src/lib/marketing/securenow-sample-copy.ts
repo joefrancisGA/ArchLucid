@@ -9,6 +9,32 @@ export const SECURENOW_SAMPLE_HEADING = "SecureNow sample" as const;
 
 export const SECURENOW_SAMPLE_FIXTURE_LINE = "Synthetic fixture. Not a customer result." as const;
 
+export const SECURENOW_SAMPLE_FIXTURE_PATH_ID = "fixture-path-01" as const;
+
+export type SecureNowSampleFixtureHop = {
+  readonly hopOrdinal: number;
+  readonly label: string;
+};
+
+export const SECURENOW_SAMPLE_FIXTURE_HOPS: readonly SecureNowSampleFixtureHop[] = [
+  { hopOrdinal: 1, label: "Reader on the subscription" },
+  { hopOrdinal: 2, label: "Contributor on a storage account" },
+] as const;
+
+export const SECURENOW_SAMPLE_FIXTURE_CUT_POINT =
+  "Remove the standing Contributor assignment on that storage account." as const;
+
+export const SECURENOW_SAMPLE_FIXTURE_NOT_EXPLOIT_LINE =
+  "This is a possible access path. It is not an observed exploit." as const;
+
+export const SECURENOW_SAMPLE_PATH_INSPECT_HREF =
+  "/security/remediation-factory?pathId=fixture-path-01" as const;
+
+export const SECURENOW_SAMPLE_PATH_INSPECT_LABEL = "Open fixture-path-01 in Path inspect" as const;
+
+export const SECURENOW_SAMPLE_PATH_INSPECT_LEAD =
+  "Signed-in operators only. Synthetic fixture. Not a customer result." as const;
+
 export const SECURENOW_SAMPLE_WHY_LINK_HREF = "/why-securenow" as const;
 
 export const SECURENOW_SAMPLE_WHY_LINK_LABEL = "Why SecureNow" as const;

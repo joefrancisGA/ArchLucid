@@ -288,17 +288,9 @@ public static class InventoryDiagramIndirectRelationshipResolver
                 toNode is null ? string.Empty : ReadArmId(toNode),
                 toNode?.Label ?? string.Empty);
 
-            if (string.Equals(edge.EdgeType, "CAN_READ", StringComparison.OrdinalIgnoreCase))
-            {
-                return $"observed call (read) → {targetName}";
-            }
-
-            if (string.Equals(edge.EdgeType, "CAN_WRITE", StringComparison.OrdinalIgnoreCase))
-            {
-                return $"observed call (write) → {targetName}";
-            }
-
-            return $"observed call → {targetName}";
+            return InventoryDiagramRelationshipLabelTexts.FormatObservedDependencyCallLabel(
+                edge.EdgeType,
+                targetName);
         }
 
         if (string.Equals(
@@ -439,23 +431,16 @@ public static class InventoryDiagramIndirectRelationshipResolver
 
     private static string ReadResourceName(string? armResourceId, string fallbackLabel)
     {
-        if (string.IsNullOrWhiteSpace(armResourceId))
+        if (InventoryDiagramArmSegmentResourceNames.TryResolveStoredName(
+                armResourceId,
+                fallbackLabel,
+                nodeId: null,
+                out string? storedName))
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return storedName!;
         }
 
-        int lastSlash = armResourceId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
-        {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
-        }
-
-        return armResourceId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored;
     }
 
     private static string FormatDerivedThroughNicLabel(string nicName)

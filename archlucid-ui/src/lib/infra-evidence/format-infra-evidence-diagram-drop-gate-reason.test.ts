@@ -29,6 +29,9 @@ describe("formatInfraEvidenceDiagramDropGateReasonLabel", () => {
     expect(formatInfraEvidenceDiagramDropGateReasonLabel("nsg-unattached-off-diagram")).toBe(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL,
     );
+    expect(formatInfraEvidenceDiagramDropGateReasonLabel("nsg-association-target-id-not-stored")).toBe(
+      "NSG association target id was not stored.",
+    );
   });
 
   it("labels unmapped drop reason codes explicitly", () => {

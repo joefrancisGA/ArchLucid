@@ -91,7 +91,7 @@ internal static class RunSummaryOnePagerHonestyCopy
     {
         if (!agentFindingsStored)
         {
-            return string.Empty;
+            return TopFindingTitlesNotStored;
         }
 
         return nonBlankTitleCount == 0

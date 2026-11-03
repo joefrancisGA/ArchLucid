@@ -183,7 +183,8 @@ public sealed class InventoryDiagramRoleAccessApplierTests
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         ast.Edges.Should().ContainSingle().Which.Label.Should()
-            .Be("Role names were not listed on this line.");
+            .Be(
+                $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel("Reader")} · 2 distinct role names were stored on this line.");
         graph.Edges.Should().HaveCount(2);
         graph.Edges.Select(edge => edge.Properties["roleName"]).Should().BeEquivalentTo("Reader", "Owner");
     }

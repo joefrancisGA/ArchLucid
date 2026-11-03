@@ -461,8 +461,35 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.AgentResultFindingsListNotStoredReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FormatAgentResultFindingsListNotStoredReviewerLine(1));
         csv.Should().NotContain(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
+    }
+
+    [Fact]
+    public void BuildCsvContent_census_counts_multiple_null_findings_lists()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Results =
+            [
+                new AgentResult { ResultId = "r-1", TaskId = "t-1", AgentType = AgentType.Compliance },
+                new AgentResult { ResultId = "r-2", TaskId = "t-2", AgentType = AgentType.Critic },
+            ],
+        };
+
+        FieldInfo? findingsField = typeof(AgentResult).GetField(
+            "findings",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        findingsField.Should().NotBeNull();
+
+        foreach (AgentResult result in detail.Results)
+        {
+            findingsField!.SetValue(result, null);
+        }
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FormatAgentResultFindingsListNotStoredReviewerLine(2));
     }
 
     [Fact]

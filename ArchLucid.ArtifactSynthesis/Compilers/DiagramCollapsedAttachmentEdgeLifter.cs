@@ -486,7 +486,7 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
             ToNodeId = toDiagramId,
             Label = label,
             ProvenanceKind = string.IsNullOrWhiteSpace(sourceEdge.ProvenanceKind)
-                ? ProvenanceKind.DerivedFact.ToString()
+                ? null
                 : sourceEdge.ProvenanceKind,
             InferenceSource = sourceEdge.InferenceSource,
         });

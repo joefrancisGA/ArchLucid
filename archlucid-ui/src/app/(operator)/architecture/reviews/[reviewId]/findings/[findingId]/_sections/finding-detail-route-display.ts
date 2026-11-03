@@ -178,6 +178,14 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
       return SEVERITY_NOT_STORED;
     }
 
+    if (typeof payload.severity === "string") {
+      const trimmedSeverity = payload.severity.trim();
+
+      if (/^(high|medium)$/i.test(trimmedSeverity)) {
+        return trimmedSeverity.charAt(0).toUpperCase() + trimmedSeverity.slice(1).toLowerCase();
+      }
+    }
+
     const wireSeverity = coerceArchitectureFindingSeverity(payload.severity);
 
     if (wireSeverity !== null) {
@@ -320,7 +328,7 @@ export function validationRequirement(payload: FindingInspectPayload | null, _fi
     return "Audit record id was stored empty.";
   }
 
-  return "Audit record id was stored.";
+  return `Audit record id ${auditRowId.trim()} was stored.`;
 }
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */
@@ -371,6 +379,10 @@ export function findingRecommendedActionParagraph(
   if (structured !== null && structured !== undefined) {
     if (structured.trim().length > 0) {
       return formatQuickDecisionRecommendedAction(structured);
+    }
+
+    if (payload.recommendedActionsReturned === false) {
+      return "Recommended actions were not stored.";
     }
 
     if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(findingId)) {

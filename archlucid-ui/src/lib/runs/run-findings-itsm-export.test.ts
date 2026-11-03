@@ -152,6 +152,25 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
 });
 
 describe("buildQuickDecisionFindingsCsv", () => {
+  it("writes run id omission copy when run id is blank (P-09)", () => {
+    const csv = buildQuickDecisionFindingsCsv("", [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+      },
+    ]);
+
+    expect(csv).toContain("Run id was not stored.");
+  });
+
   it("distinguishes absent and empty ITSM linkage cells (P-07)", () => {
     const csvAbsent = buildQuickDecisionFindingsCsv("run-a", [
       {

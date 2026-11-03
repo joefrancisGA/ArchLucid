@@ -16,6 +16,11 @@ import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  resolveSecureNowCollectionMissingDetail,
+  SECURENOW_COLLECTION_READER_ROLE_LINE,
+  shouldShowSecureNowCollectionMissingBlock,
+} from "@/lib/product-line/securenow-collection-missing-reason";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -33,8 +38,18 @@ import type { CloudConnectionsPageViewModel } from "./use-cloud-connections-page
 export type CloudConnectionsPageShellProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps) {
-  const { showConnectionContent, cloudConnectSteps, cloudConnectEmphasizedStepId } = props;
+  const { showConnectionContent, cloudConnectSteps, cloudConnectEmphasizedStepId, productLine } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const collectionMissingInput = {
+    hasConfiguredProvider: props.hasConfiguredProvider,
+    azureSubscriptionIdsPresent: props.azureSubscriptionIdsPresent,
+    hasSuccessfulPull: props.hasSuccessfulPull,
+  };
+  const showCollectionMissing =
+    productLine === "security"
+    && showConnectionContent
+    && shouldShowSecureNowCollectionMissingBlock(collectionMissingInput);
+  const collectionMissingDetail = resolveSecureNowCollectionMissingDetail(collectionMissingInput);
 
   const checklist = showConnectionContent ? (
     <IntegrationConnectChecklist
@@ -43,6 +58,24 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
       emphasizedStepId={cloudConnectEmphasizedStepId}
       testIdPrefix="cloud-connections"
     />
+  ) : null;
+
+  const collectionStatus = showCollectionMissing ? (
+    <section
+      className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      aria-labelledby="cloud-connections-collection-status-heading"
+      data-testid="securenow-collection-missing"
+    >
+      <h2 id="cloud-connections-collection-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+        Collection status: Missing
+      </h2>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="cloud-connections-collection-missing-detail">
+        {collectionMissingDetail}
+      </p>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+        {SECURENOW_COLLECTION_READER_ROLE_LINE} SecureNow does not change Azure.
+      </p>
+    </section>
   ) : null;
 
   const orientationStrip = buyerPolishedShell ? (
@@ -79,6 +112,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           }
         />
 
+        {collectionStatus}
         {checklist}
         {orientationStrip}
         {providerList}
@@ -141,6 +175,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
             </p>
           </section>
 
+          {collectionStatus}
           {checklist}
           {providerList}
         </div>

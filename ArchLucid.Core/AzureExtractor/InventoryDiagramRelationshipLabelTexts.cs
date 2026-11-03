@@ -84,7 +84,7 @@ public static class InventoryDiagramRelationshipLabelTexts
             return $"{PublicExposureCaption} {PublicIpAddressStoredEmpty}";
         }
 
-        return $"{PublicExposureCaption} {ipAddress.Trim()}";
+        return $"{PublicExposureCaption} {ipAddress.Trim()}. Observed traffic was not stored.";
     }
 
     public static string FormatPrivateEndpointConnectionLabel(string? connectionStatus)
@@ -219,6 +219,50 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ObservedInLogsDiagnosticTimeWindowNotStored =
         "Diagnostic time window was not stored.";
 
+    public const string ObservedInLogsDiagnosticTimeWindowPartial =
+        "Diagnostic time window was stored on part of this edge only.";
+
+    public const string ConnectionRollupCollapsedHonestySuffix =
+        "Repeated connections were collapsed onto one card.";
+
+    public static string FormatFoldedPublicIpParentDetailLabel(string resourceName, string? ipAddress)
+    {
+        string name = string.IsNullOrWhiteSpace(resourceName)
+            ? "Resource name was not stored."
+            : resourceName.Trim();
+
+        if (ipAddress is null)
+        {
+            return $"Public IP: {name}. {PublicIpAddressNotStored} {PublicIpAttachedObservedTrafficNotStored}";
+        }
+
+        if (ipAddress.Length == 0 || string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return $"Public IP: {name}. {PublicIpAddressStoredEmpty} {PublicIpAttachedObservedTrafficNotStored}";
+        }
+
+        return $"Public IP: {name}. {ipAddress.Trim()}. {PublicIpAttachedObservedTrafficNotStored}";
+    }
+
+    public static string FormatObservedInLogsEdgeWindowSuffix(
+        bool hasStoredWindow,
+        bool hasPartialWindow)
+    {
+        if (hasStoredWindow)
+        {
+            return string.Empty;
+        }
+
+        return hasPartialWindow
+            ? ObservedInLogsDiagnosticTimeWindowPartial
+            : ObservedInLogsDiagnosticTimeWindowNotStored;
+    }
+
+    public static string FormatObservedInLogsEdgeWindowDates(string windowStart, string windowEnd)
+    {
+        return $"Window {windowStart.Trim()} → {windowEnd.Trim()}";
+    }
+
     public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
         "Event subscription names this destination. Observed delivery was not stored.";
 
@@ -251,12 +295,34 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public static string FormatPrivateEndpointStoredLinkEdgeLabel(string? privateEndpointName)
     {
-        if (string.IsNullOrWhiteSpace(privateEndpointName))
+        if (privateEndpointName is null)
         {
             return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
         }
 
-        return PrivateEndpointAccessWasStoredLabel;
+        if (privateEndpointName.Length == 0 || string.IsNullOrWhiteSpace(privateEndpointName))
+        {
+            return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
+        }
+
+        return $"{PrivateEndpointAccessWasStoredLabel} Private endpoint name: {privateEndpointName.Trim()}.";
+    }
+
+    public static string FormatObservedDependencyCallLabel(string? edgeType, string targetName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetName);
+
+        if (string.Equals(edgeType, "CAN_READ", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"observed call (read) → {targetName}";
+        }
+
+        if (string.Equals(edgeType, "CAN_WRITE", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"observed call (write) → {targetName}";
+        }
+
+        return $"Call direction was not stored → {targetName}";
     }
 
     public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =

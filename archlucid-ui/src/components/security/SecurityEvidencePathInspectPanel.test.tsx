@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
@@ -39,11 +39,22 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
   fetchRemediationInstances: vi.fn(async () => []),
 }));
 
+vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
+  loadSecureNowPilotDispositionForPath: vi.fn(async (pathId: string) => {
+    const { readSecureNowPilotDisposition } = await import(
+      "@/lib/product-line/securenow-pilot-disposition-storage"
+    );
+    return readSecureNowPilotDisposition(pathId);
+  }),
+  persistSecureNowPilotDispositionForPath: vi.fn(async () => null),
+}));
+
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
+import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -70,6 +81,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       isSimulator: true,
       isLoading: false,
     });
+    window.localStorage.clear();
   });
 
   it("shows the path rank reader sentence on the identity header", () => {
@@ -379,6 +391,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
           overall: "Rank driven by privilege depth and exposure.",
         },
         computedUtc: "2026-01-01T00:00:00Z",
+        nextStoredPathRankContext:
+          "Selected path path-2 outranks stored path path-3 on TechnicalExposure. This does not change the rank.",
       },
       isLoading: false,
       isError: false,
@@ -399,6 +413,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_RANK_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-rank")).toHaveTextContent("Rank 2");
+    expect(screen.getByTestId("security-evidence-path-rank-next-stored-context")).toHaveTextContent(
+      "This does not change the rank.",
+    );
     expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
       "Rank was not stored",
     );
@@ -419,7 +436,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Relationship type was not stored").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Relationship type was not stored/).length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
@@ -495,11 +512,17 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "No routing citations were stored.",
     );
     expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Weakest-hop reason was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Hop evidence was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
       "Proposed change was not stored.",
     );
   });
 
-  it("does not cite weakest-hop reason on the recommended-action evidence line", () => {
+  it("labels weakest-hop reason and hop evidence on recommended action", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
       isLoading: false,
@@ -567,10 +590,73 @@ describe("SecurityEvidencePathInspectPanel", () => {
     renderPanel("finding-1");
 
     const recommended = screen.getByTestId("security-evidence-path-recommended-action");
-    expect(recommended).toHaveTextContent("Evidence citation was not stored.");
-    expect(recommended).not.toHaveTextContent("Role assignment inferred from tag metadata.");
+    expect(recommended).toHaveTextContent("Weakest-hop reason");
+    expect(recommended).toHaveTextContent("Role assignment inferred from tag metadata.");
+    expect(recommended).toHaveTextContent("Hop evidence was not stored.");
     expect(recommended).toHaveTextContent("Disable public access.");
     expect(recommended).not.toHaveTextContent("Cut summary should not appear as proposed change.");
+  });
+
+  it("omits grounded-on copy when explanation cites zero evidence refs", async () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      explanation: {
+        explanationId: "exp-1",
+        pathId: "path-1",
+        executiveSummary: "Summary",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "WeakestHop",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: [],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: new Date().toISOString(),
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(await screen.findByTestId("security-evidence-path-explanation-output")).toHaveTextContent(
+      "Cited evidence was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-explanation-output")).not.toHaveTextContent(
+      "Grounded on 0 citations",
+    );
   });
 
   it("links hop resource evidence when cloudResourceId is present", () => {
@@ -968,5 +1054,101 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "id",
       REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
     );
+  });
+
+  it("shows a saved pilot disposition beside the inspected path", async () => {
+    const pathId = "path-local-1";
+    window.localStorage.setItem(
+      secureNowPilotDispositionStorageKey(pathId),
+      JSON.stringify({ outcome: "Stop", rationale: "Synthetic fixture only." }),
+    );
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        relatedCutPoints: [],
+        routing: [],
+        weakestHop: null,
+        explanationTemplate: null,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, { pathIdOverride: pathId });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    });
+    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
+      "Synthetic fixture only.",
+    );
+    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
+      SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
+    );
+    expect(screen.getByTestId("security-evidence-path-pilot-stop-itsm-handoff")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/internal/integrations/itsm?"),
+    );
+  });
+
+  it("links Stop handoff to finding ITSM export when a finding is in scope", async () => {
+    const pathId = "path-with-finding";
+    const findingId = "finding-stop-1";
+    window.localStorage.setItem(
+      secureNowPilotDispositionStorageKey(pathId),
+      JSON.stringify({ outcome: "Stop", rationale: "Stop linked finding." }),
+    );
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId, pathId, title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        relatedCutPoints: [],
+        routing: [],
+        weakestHop: null,
+        explanationTemplate: null,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(findingId, { pathIdOverride: pathId });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    });
+
+    const handoff = screen.getByTestId("security-evidence-path-pilot-stop-itsm-handoff");
+    expect(handoff).toHaveTextContent("Draft finding ITSM export");
+    expect(handoff).toHaveAttribute("href", expect.stringContaining(`findingId=${findingId}`));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining("itsmCreateOpen=1"));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining(`itsmCreateFindingId=${findingId}`));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining("pilotStopPathId=path-with-finding"));
   });
 });

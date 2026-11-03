@@ -137,4 +137,85 @@ public sealed class ArmResourceIdNormalizerTests
             .BeFalse();
         ancestor.Should().BeEmpty();
     }
+
+    [Fact]
+    public void TryDecodePercentEncoded_decodes_percent_encoded_arm_id()
+    {
+        const string encoded =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm%2D1";
+
+        bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(encoded, out string decoded);
+
+        succeeded.Should().BeTrue();
+        decoded.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-1");
+    }
+
+    [Fact]
+    public void TryDecodePercentEncoded_returns_input_when_no_percent_sign()
+    {
+        const string plain =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(plain, out string decoded);
+
+        succeeded.Should().BeTrue();
+        decoded.Should().Be(plain);
+    }
+
+    [Fact]
+    public void TryDecodePercentEncoded_fails_when_malformed_percent_sequences_remain()
+    {
+        // Uri.UnescapeDataString is lenient: invalid escapes like %ZZ and bare % pass through unchanged.
+        // A residual '%' after decoding means the value is malformed, so the helper reports failure.
+        const string malformed = "50%ZZ";
+
+        bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(malformed, out string decoded);
+
+        succeeded.Should().BeFalse();
+        decoded.Should().Be(malformed);
+    }
+
+    [Fact]
+    public void TryDecodePercentEncoded_handles_null_and_whitespace()
+    {
+        ArmResourceIdNormalizer.TryDecodePercentEncoded(null, out string nullDecoded)
+            .Should().BeTrue();
+        nullDecoded.Should().BeEmpty();
+
+        ArmResourceIdNormalizer.TryDecodePercentEncoded("   ", out string whitespaceDecoded)
+            .Should().BeTrue();
+        whitespaceDecoded.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void NormalizePercentDecoded_decodes_then_normalizes_percent_encoded_arm_id()
+    {
+        const string encoded =
+            "/subscriptions/Sub/resourceGroups/RG/providers/Microsoft.Sql/servers/sql1%2Fdatabases%2Fappdb";
+
+        ArmResourceIdNormalizer.NormalizePercentDecoded(encoded).Should().Be(
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql1/databases/appdb");
+    }
+
+    [Fact]
+    public void NormalizePercentDecoded_normalizes_plain_arm_id_without_decoding()
+    {
+        const string plain =
+            "/subscriptions/Sub/resourceGroups/RG/providers/Microsoft.Sql/servers/sql1/";
+
+        ArmResourceIdNormalizer.NormalizePercentDecoded(plain).Should().Be(
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql1");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("50%")]
+    [InlineData("%2Fsubscriptions%2Fsub%ZZ")]
+    public void NormalizePercentDecoded_returns_empty_for_blank_or_malformed_input(string? input)
+    {
+        ArmResourceIdNormalizer.NormalizePercentDecoded(input).Should().BeEmpty();
+    }
 }

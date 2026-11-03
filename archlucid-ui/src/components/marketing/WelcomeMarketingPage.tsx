@@ -16,7 +16,13 @@ import {
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer/buyer-polish-copy";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PricingDoc } from "@/lib/pricing-types";
-import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import {
+  PUBLIC_SAMPLE_REVIEW_HREF,
+  PUBLIC_SAMPLE_REVIEW_LABEL,
+  PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF,
+  PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL,
+} from "@/lib/marketing/public-sample-entry-links";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
@@ -110,9 +116,14 @@ export function WelcomeMarketingPage(props: {
             ))}
           </ul>
           <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
-            <Link className={MARKETING_SURFACES.inlineLink} href={CANONICAL_ANONYMOUS_PROOF_HREF}>
-              Healthcare Claims sample review
+            <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SAMPLE_REVIEW_HREF}>
+              {PUBLIC_SAMPLE_REVIEW_LABEL}
             </Link>
+            {" · "}
+            <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF}>
+              {PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL}
+            </Link>
+            . {SECURENOW_SAMPLE_FIXTURE_LINE}
             {" · "}
             <Link className={MARKETING_SURFACES.inlineLink} href="/assurance-status">
               Assurance status

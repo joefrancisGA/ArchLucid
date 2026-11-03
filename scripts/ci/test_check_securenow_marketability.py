@@ -22,6 +22,9 @@ TRACKED_PATHS = (
     "archlucid-ui/src/app/(marketing)/layout.tsx",
     "archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx",
     "archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts",
+    "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx",
+    "archlucid-ui/src/components/marketing/MarketingPublicFooter.tsx",
+    "archlucid-ui/src/lib/marketing/public-sample-entry-links.ts",
 )
 
 
@@ -90,6 +93,32 @@ class SecureNowMarketabilityTests(unittest.TestCase):
             )
             errors = validate(root)
             self.assertTrue(any("missing beat 'Audit link'" in error for error in errors))
+
+    def test_welcome_public_secure_now_link_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx"
+            path.write_text(
+                path.read_text(encoding="utf-8") + '\nconst heldLink = "/why-securenow";\n',
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("must not contain '/why-securenow'" in error for error in errors))
+
+    def test_welcome_missing_fixture_link_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx"
+            path.write_text(
+                path.read_text(encoding="utf-8")
+                .replace('href={PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF}', "")
+                .replace("PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF", ""),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("missing href='/securenow-sample'" in error for error in errors))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -39,7 +40,7 @@ import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-qu
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
 import { SECURENOW_QUESTION_QUEUE_EMPTY_FILTER } from "@/lib/product-line/securenow-question-queue-empty-copy";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import {
@@ -555,6 +556,10 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
       ) : (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {SECURENOW_QUESTION_QUEUE_EMPTY_FILTER}
+          {" "}
+          <Link className={OPERATOR_LINK.inline} href="/administration/securenow-first-hour#first-useful-answer">
+            First useful answer
+          </Link>
         </p>
       )}
     </div>

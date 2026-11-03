@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildCorePilotCommitContextFromRunItems,
@@ -16,6 +16,10 @@ import {
 import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+vi.mock("@/lib/live-operator-shell-recovery", () => ({
+  isLiveOperatorShellRecoveryContext: () => false,
+}));
+
 const emptyContext: CorePilotCommitContext = {
   hasCommittedManifest: false,
   committedReviewCount: 0,
@@ -25,6 +29,11 @@ const emptyContext: CorePilotCommitContext = {
   latestRunReadyToFinalize: false,
   sealedReviewRecord: null,
 };
+
+const readyPrerequisites = {
+  samplePackageSelected: true,
+  policyPackAssigned: true,
+} as const;
 
 describe("first-review-guide-state", () => {
   const originalSelfHosted = process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED;
@@ -38,12 +47,15 @@ describe("first-review-guide-state", () => {
   });
 
   it("reports ready to start for an empty workspace with execute permission", () => {
-    const readiness = resolveFirstReviewGuideReadiness({
+    const readiness = resolveFirstReviewGuideReadiness(
+      {
       commitContext: emptyContext,
       canExecute: true,
       finishSetupContext: null,
       finishSetupLoaded: true,
-    });
+    },
+      readyPrerequisites,
+    );
 
     expect(readiness.headline).toBe("Ready to start");
     expect(readiness.detail).toBe("Optional workspace setup can be completed later.");
@@ -197,8 +209,9 @@ describe("first-review-guide-state", () => {
       finishSetupLoaded: true,
     });
 
-    expect(actions.primaryDisabled).toBe(true);
-    expect(actions.primaryLabel).toBe("Start first review");
+    expect(actions.primaryDisabled).toBe(false);
+    expect(actions.primaryLabel).toBe("Open sample review");
+    expect(actions.secondaryLabel).toBeNull();
   });
 
   it("step 3 title avoids standalone Run job language (ARF P0-7)", () => {
@@ -242,13 +255,14 @@ describe("first-review-guide-state", () => {
       finishSetupContext: null,
       finishSetupLoaded: true,
     };
-    const readiness = resolveFirstReviewGuideReadiness(input);
+    const readiness = resolveFirstReviewGuideReadiness(input, readyPrerequisites);
     const progress = resolveFirstReviewGuideProgress(input.commitContext);
     const actions = resolveFirstReviewGuideHeaderActions(input);
 
     expect(readiness.kind).toBe("ready-to-start");
     expect(progress.phase).toBe("not-started");
-    expect(actions.primaryLabel).toBe("Start first review");
+    expect(actions.primaryLabel).toBe("Open sample review");
+    expect(actions.secondaryLabel).toBe("Start first review");
   });
 
   it("uses sealed-record header actions when the first review is complete", () => {
@@ -310,9 +324,9 @@ describe("first-review-guide-state", () => {
       finishSetupLoaded: true,
     };
 
-    expect(resolveFirstReviewGuideReadiness(input).kind).toBe("ready-to-start");
+    expect(resolveFirstReviewGuideReadiness(input, readyPrerequisites).kind).toBe("ready-to-start");
     expect(resolveFirstReviewGuideProgress(commitContext).phase).toBe("not-started");
-    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Start first review");
+    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Open sample review");
   });
 
   it("does not treat the reviewed showcase sample as a completed first review", () => {
@@ -334,14 +348,15 @@ describe("first-review-guide-state", () => {
       finishSetupLoaded: true,
     };
 
-    expect(resolveFirstReviewGuideReadiness(input).kind).toBe("ready-to-start");
-    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Start first review");
+    expect(resolveFirstReviewGuideReadiness(input, readyPrerequisites).kind).toBe("ready-to-start");
+    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Open sample review");
   });
 
   it("reports completed when a sealed record exists despite self-hosted setup blockers", () => {
     process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED = "true";
 
-    const readiness = resolveFirstReviewGuideReadiness({
+    const readiness = resolveFirstReviewGuideReadiness(
+      {
       commitContext: {
         ...emptyContext,
         hasCommittedManifest: true,
@@ -360,7 +375,9 @@ describe("first-review-guide-state", () => {
         principalAdmin: true,
       },
       finishSetupLoaded: true,
-    });
+    },
+      readyPrerequisites,
+    );
 
     expect(readiness.kind).toBe("completed");
     expect(readiness.headline).toBe("First review completed");

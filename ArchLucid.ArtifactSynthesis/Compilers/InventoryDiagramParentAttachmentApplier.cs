@@ -91,7 +91,12 @@ internal static class InventoryDiagramParentAttachmentApplier
                 continue;
             }
 
-            string childDetailLabel = BuildChildDetailLabel(diagramNode, category);
+            string childDetailLabel = BuildChildDetailLabel(
+                diagramNode,
+                category,
+                category == InventoryDiagramParentAttachmentCategory.PublicIp
+                    ? ReadPublicIpAddress(graphNode)
+                    : null);
             InventoryDiagramEvidenceCurrency? evidenceCurrencyForDetail = ReadEvidenceCurrency(graphNode);
             string formattedDetail = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrencyForDetail, childDetailLabel);
             int attachedParentCount = 0;
@@ -302,17 +307,36 @@ internal static class InventoryDiagramParentAttachmentApplier
 
     internal static string BuildChildDetailLabel(
         DiagramNode childNode,
-        InventoryDiagramParentAttachmentCategory category)
+        InventoryDiagramParentAttachmentCategory category,
+        string? publicIpAddress = null)
     {
         string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label, childNode.NodeId);
 
         return category switch
         {
-            InventoryDiagramParentAttachmentCategory.PublicIp => $"Public IP: {resourceName}",
+            InventoryDiagramParentAttachmentCategory.PublicIp =>
+                InventoryDiagramRelationshipLabelTexts.FormatFoldedPublicIpParentDetailLabel(resourceName, publicIpAddress),
             InventoryDiagramParentAttachmentCategory.RestorePointCollection => $"Restore points: {resourceName}",
             InventoryDiagramParentAttachmentCategory.AccessConnector => $"Access connector: {resourceName}",
             _ => resourceName,
         };
+    }
+
+    private static string? ReadPublicIpAddress(GraphNode graphNode)
+    {
+        if (graphNode.Properties.TryGetValue("ipAddress", out string? ipAddress)
+            && ipAddress is not null)
+        {
+            return ipAddress;
+        }
+
+        if (graphNode.Properties.TryGetValue("properties.ipAddress", out string? nestedIpAddress)
+            && nestedIpAddress is not null)
+        {
+            return nestedIpAddress;
+        }
+
+        return null;
     }
 
     private static string ReadResourceName(string? armResourceId, string fallbackLabel, string? nodeId)

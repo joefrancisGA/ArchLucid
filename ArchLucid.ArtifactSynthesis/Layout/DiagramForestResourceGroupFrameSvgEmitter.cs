@@ -105,11 +105,18 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
 
     internal const string ResourceGroupNameNotStoredCaption = "Resource group name was not stored.";
 
+    internal const string ResourceGroupNameStoredEmptyCaption = "Resource group name was stored empty.";
+
     private static string FormatResourceGroupFrameLabel(string? groupName)
     {
-        if (string.IsNullOrWhiteSpace(groupName))
+        if (groupName is null)
         {
             return ResourceGroupNameNotStoredCaption;
+        }
+
+        if (groupName.Length == 0 || string.IsNullOrWhiteSpace(groupName))
+        {
+            return ResourceGroupNameStoredEmptyCaption;
         }
 
         return groupName.Trim();

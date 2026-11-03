@@ -3,6 +3,38 @@ import { describe, expect, it } from "vitest";
 import { buildInfraEvidencePngReadingStripLines } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 
 describe("infra-evidence-png-reading-strip", () => {
+  it("labels omitted completeness warnings on the PNG strip", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "full",
+      outline: null,
+      completenessWarnings: undefined,
+    });
+
+    expect(lines.some((line) => line.includes("Completeness warnings were not stored"))).toBe(true);
+  });
+
+  it("names graphviz PNG raster and missing layout engine (P-01)", () => {
+    const graphviz = buildInfraEvidencePngReadingStripLines({
+      mode: "full",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      layoutEngine: "graphviz-fdp",
+      pngRasterSource: "server-graphviz",
+    });
+
+    expect(graphviz[0]).toContain("redrawn with Graphviz");
+    expect(graphviz[0]).toContain("graphviz-fdp");
+
+    const missingEngine = buildInfraEvidencePngReadingStripLines({
+      mode: "full",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      layoutEngine: null,
+    });
+
+    expect(missingEngine[0]).toBe("Layout engine was not stored.");
+  });
+
   it("includes the data-flow job and applicable stroke rows", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "dataFlow",

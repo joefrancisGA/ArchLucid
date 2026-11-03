@@ -568,8 +568,18 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? "Access was not stored"
             : firstRule.Access.Trim();
 
-        return
+        int inboundRuleCount = rules.Count(rule =>
+            string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase));
+
+        string label =
             $"NSG {protocol} destination port {destinationPort} source port {sourcePort} {direction} {access}. Effective path enforcement was not evaluated.";
+
+        if (inboundRuleCount > 1)
+        {
+            label += " Additional inbound rules were stored; only the first inbound rule is shown on this diagram.";
+        }
+
+        return label;
     }
 
     private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(

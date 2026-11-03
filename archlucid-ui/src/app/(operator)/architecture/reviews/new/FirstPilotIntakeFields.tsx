@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamFromRouterSearchParams, searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
@@ -71,6 +72,8 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   const { wizard } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlStandardsSelectionOpen = parseFirstPilotStandardsSelectionOpenFromSearch(
     searchParams.get("firstPilotStandardsSelectionOpen"),
   );
@@ -90,7 +93,11 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   const syncStandardsSelectionOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        firstPilotStandardsSelectionDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        firstPilotStandardsSelectionDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          open,
+          pathname,
+        ),
         { notify: false },
       );
     },
@@ -120,7 +127,7 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   useEffect(() => {
     const syncStandardsSelectionOpenFromUrl = (): void => {
       const next = parseFirstPilotStandardsSelectionOpenFromSearch(
-        new URLSearchParams(window.location.search).get("firstPilotStandardsSelectionOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "firstPilotStandardsSelectionOpen"),
       );
 
       if (standardsSelectionOpenRef.current === next) {

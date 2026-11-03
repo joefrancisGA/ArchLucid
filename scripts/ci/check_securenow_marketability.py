@@ -20,6 +20,18 @@ ROUTE_POLICY = Path("archlucid-ui/src/lib/product-line/securenow-marketing-route
 MARKETING_LAYOUT = Path("archlucid-ui/src/app/(marketing)/layout.tsx")
 RESOURCES_MENU = Path("archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx")
 REVIEWER_HOME_COPY = Path("archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts")
+WELCOME_PAGE = Path("archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx")
+MARKETING_FOOTER = Path("archlucid-ui/src/components/marketing/MarketingPublicFooter.tsx")
+PUBLIC_SAMPLE_ENTRY_LINKS = Path(
+    "archlucid-ui/src/lib/marketing/public-sample-entry-links.ts"
+)
+SAMPLE_REVIEW_HREF = "/showcase/customer-intake-modernization"
+FIXTURE_SAMPLE_LABEL = "SecureNow sample (fixture-path-01)"
+M316_DOC_TOKENS = (
+    "PROCUREMENT_PACK_INDEX.md",
+    "QUOTE_COVER.md",
+    "CONTROLLED_PILOT_OFFER.md",
+)
 
 STATUS_LINE = (
     "SecureNow beta remains NO_GO. This page explains the product. "
@@ -153,6 +165,46 @@ def validate(root: Path = ROOT) -> list[str]:
         for phrase in FORBIDDEN_PHRASES:
             if phrase.lower() in lowered:
                 errors.append(f"{REVIEWER_HOME_COPY}: contains forbidden phrase {phrase!r}")
+
+    public_sample_links = _read(root, PUBLIC_SAMPLE_ENTRY_LINKS, errors)
+    if public_sample_links:
+        for token in M316_DOC_TOKENS:
+            if token in public_sample_links:
+                errors.append(f"{PUBLIC_SAMPLE_ENTRY_LINKS}: must not reference {token}")
+
+    for relative in (WELCOME_PAGE, MARKETING_FOOTER):
+        public_entry = _read(root, relative, errors)
+        if public_entry:
+            if "/why-securenow" in public_entry:
+                errors.append(f"{relative}: welcome/footer must not contain '/why-securenow'")
+            has_sample_href = (
+                SAMPLE_REVIEW_HREF in public_entry
+                or "PUBLIC_SAMPLE_REVIEW_HREF" in public_entry
+                or (
+                    "PUBLIC_SAMPLE_REVIEW_HREF" in public_entry
+                    and "PUBLIC_SAMPLE_REVIEW_LABEL" in public_entry
+                    and "href={link.href}" in public_entry
+                )
+            )
+            if not has_sample_href:
+                errors.append(f"{relative}: missing sample review href {SAMPLE_REVIEW_HREF!r}")
+            has_fixture_href = (
+                'href="/securenow-sample"' in public_entry
+                or "href={PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF}" in public_entry
+                or (
+                    "PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF" in public_entry
+                    and "PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL" in public_entry
+                    and "href={link.href}" in public_entry
+                )
+            )
+            if not has_fixture_href:
+                errors.append(f"{relative}: missing href='/securenow-sample'")
+            has_fixture_label = FIXTURE_SAMPLE_LABEL in public_entry or "PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL" in public_entry
+            if not has_fixture_label:
+                errors.append(f"{relative}: missing fixture sample label {FIXTURE_SAMPLE_LABEL!r}")
+            for token in M316_DOC_TOKENS:
+                if token in public_entry:
+                    errors.append(f"{relative}: must not reference {token}")
 
     storyboard = _read(root, FIXTURE_STORYBOARD, errors)
     if storyboard and "Every beat below is a fixture" not in storyboard:

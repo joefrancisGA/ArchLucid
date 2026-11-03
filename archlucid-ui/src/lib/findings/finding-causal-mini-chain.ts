@@ -5,6 +5,8 @@ import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivat
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+export const FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED = "Evidence count was not stored." as const;
+
 export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
 
 export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
@@ -73,11 +75,13 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
 
   if (count !== null && count >= 0) {
     parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
+  } else if (input.evidenceRefCount === null) {
+    parts.push(FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED);
   }
 
   if (explicitLabel !== null) {
     parts.push(explicitLabel);
-  } else if (count === 0) {
+  } else if (count !== null && count >= 0) {
     parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED);
   }
 

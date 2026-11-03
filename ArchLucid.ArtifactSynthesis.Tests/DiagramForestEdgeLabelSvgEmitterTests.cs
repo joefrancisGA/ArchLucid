@@ -151,7 +151,8 @@ public sealed class DiagramForestEdgeLabelSvgEmitterTests
         group.Attribute("data-duplicate-label-suppressed")!.Value.Should().Be("true");
         group.Element(Svg + "title")!.Value.Should()
             .Contain(DiagramForestEdgeLabelSvgEmitter.DuplicateOnPathLabelSuppressedSuffix.Trim());
-        group.Descendants(Svg + "text").Should().BeEmpty();
+        group.Descendants(Svg + "text").Single().Value.Should()
+            .Be(DiagramForestEdgeLabelSvgEmitter.DuplicateOnPathVisibleLabel);
     }
 
     private static XElement Emit(

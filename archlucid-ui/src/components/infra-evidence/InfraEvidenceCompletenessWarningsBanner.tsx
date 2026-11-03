@@ -18,7 +18,7 @@ const COMPLETENESS_WARNING_PREVIEW_COUNT = 3;
 export type InfraEvidenceCompletenessWarningsBannerProps = {
   /** Undefined when the API omitted warnings; an empty array means stored empty. */
   readonly warnings?: readonly string[] | null;
-  readonly summary?: InfraEvidenceMermaidCompletenessSummary | null;
+  readonly summary?: InfraEvidenceMermaidCompletenessSummary | null | undefined;
   readonly scopeLine?: string | null;
 };
 
@@ -50,7 +50,6 @@ export function InfraEvidenceCompletenessWarningsBanner(
   }
 
   const tier1HostsIncluded = snapshotIncludesTier1AppSettingHosts(warnings);
-  const summary = props.summary;
   const statusKind = resolveInfraEvidenceCompletenessWarningsStatusTagKind(warnings);
   const previewWarnings = warnings.slice(0, COMPLETENESS_WARNING_PREVIEW_COUNT);
   const remainingWarningCount = warnings.length - previewWarnings.length;
@@ -82,12 +81,16 @@ export function InfraEvidenceCompletenessWarningsBanner(
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         {resolveInfraEvidenceCompletenessBannerLead(warnings)}
       </p>
-      {summary ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatInfraEvidenceCompletenessSummaryBannerLine(summary)}
-        </p>
+      {props.summary !== undefined ? (
+        props.summary ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {formatInfraEvidenceCompletenessSummaryBannerLine(props.summary)}
+          </p>
+        ) : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness counts were not stored.</p>
+        )
       ) : (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness counts were not stored.</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness counts were not loaded on this pass.</p>
       )}
       {tier1HostsIncluded ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

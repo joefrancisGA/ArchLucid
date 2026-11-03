@@ -216,4 +216,27 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
             .Should()
             .Contain("| Recommended next action | Hold sponsor send; resolve AI quality/simulator disclosure before forwarding. |");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_when_roi_baseline_inputs_missing_appends_per_field_honesty()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse { RoiBaselineInputs = null },
+            new PilotRunDeltas(),
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        sb.ToString().Should().Contain("Per-field ROI inputs were not stored.");
+    }
 }

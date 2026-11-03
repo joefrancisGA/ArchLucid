@@ -4,8 +4,15 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MARKETING_LAYOUT, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_SAMPLE_BEATS,
+  SECURENOW_SAMPLE_FIXTURE_CUT_POINT,
+  SECURENOW_SAMPLE_FIXTURE_HOPS,
   SECURENOW_SAMPLE_FIXTURE_LINE,
+  SECURENOW_SAMPLE_FIXTURE_NOT_EXPLOIT_LINE,
+  SECURENOW_SAMPLE_FIXTURE_PATH_ID,
   SECURENOW_SAMPLE_HEADING,
+  SECURENOW_SAMPLE_PATH_INSPECT_HREF,
+  SECURENOW_SAMPLE_PATH_INSPECT_LABEL,
+  SECURENOW_SAMPLE_PATH_INSPECT_LEAD,
   SECURENOW_SAMPLE_WHY_LINK_LABEL,
   SECURENOW_SAMPLE_WHY_LINK_LEAD,
   WHY_SECURENOW_CONVERSATION_LABEL,
@@ -48,10 +55,40 @@ export function SecureNowSampleView(): React.JSX.Element {
                   {beat.title}
                 </h2>
                 <p className={MARKETING_TYPOGRAPHY.body}>{beat.body}</p>
+                {beat.title === "One ranked path" ? (
+                  <div
+                    className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                    data-testid="securenow-sample-fixture-hops"
+                  >
+                    <p className={cn("m-0", MARKETING_TYPOGRAPHY.body)}>
+                      Path id: {SECURENOW_SAMPLE_FIXTURE_PATH_ID}. {SECURENOW_SAMPLE_FIXTURE_NOT_EXPLOIT_LINE}
+                    </p>
+                    <ol className="m-0 list-decimal space-y-1 pl-5">
+                      {SECURENOW_SAMPLE_FIXTURE_HOPS.map((hop) => (
+                        <li key={hop.hopOrdinal} className={MARKETING_TYPOGRAPHY.body}>
+                          Hop {hop.hopOrdinal}: {hop.label}
+                        </li>
+                      ))}
+                    </ol>
+                    <p className={cn("m-0", MARKETING_TYPOGRAPHY.body)}>
+                      Advisory cut point: {SECURENOW_SAMPLE_FIXTURE_CUT_POINT}
+                    </p>
+                  </div>
+                ) : null}
               </section>
             );
           })}
         </div>
+
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          {SECURENOW_SAMPLE_PATH_INSPECT_LEAD}{" "}
+          <Link
+            href={SECURENOW_SAMPLE_PATH_INSPECT_HREF}
+            className="text-al-link underline-offset-2 hover:underline"
+          >
+            {SECURENOW_SAMPLE_PATH_INSPECT_LABEL}
+          </Link>
+        </p>
 
         <p className={MARKETING_TYPOGRAPHY.body}>
           {SECURENOW_SAMPLE_WHY_LINK_LEAD}{" "}

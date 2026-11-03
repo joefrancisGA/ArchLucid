@@ -57,6 +57,34 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_id_from_raw_json_when_another_property_contains_percent_encoding()
+    {
+        string blob = $$"""{"id":"{{VirtualMachineArmId}}","tag":"a%22b"}""";
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["source"] = blob,
+                })
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
+    public void Parse_reads_id_from_a_fully_percent_encoded_json_blob()
+    {
+        string blob = Uri.EscapeDataString($$"""{"id":"{{VirtualMachineArmId}}"}""");
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["source"] = blob,
+                })
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_reads_hydrated_restore_point_source_when_value_is_percent_encoded_plain_arm_scalar()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
@@ -127,5 +155,30 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())
             .Should()
             .BeNull();
+    }
+
+    [Fact]
+    public void Parse_returns_null_instead_of_throwing_when_percent_encoding_is_malformed()
+    {
+        Dictionary<string, string> barePercent = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "50%",
+        };
+
+        Action act = () => AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent);
+
+        act.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent).Should().BeNull();
+
+        // Partially decodable: valid escapes decode, but the malformed "%ZZ" remains.
+        Dictionary<string, string> partialDecode = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%ZZ",
+        };
+
+        Action partialAct = () => AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode);
+
+        partialAct.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode).Should().BeNull();
     }
 }

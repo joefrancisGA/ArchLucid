@@ -734,7 +734,22 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
   edge: InfraEvidenceMermaidOutlineEdge,
   nodes: readonly InfraEvidenceMermaidOutlineNode[],
 ): string | null {
-  const explicit = edge.label?.trim() ?? "";
+  if (edge.label === null || edge.label === undefined) {
+    const fromNode = nodes.find((node) => node.id === edge.from);
+    const toNode = nodes.find((node) => node.id === edge.to);
+
+    if (fromNode?.outlineOnlyOnCanvas === true || toNode?.outlineOnlyOnCanvas === true) {
+      return INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL;
+    }
+
+    return null;
+  }
+
+  if (edge.label.length === 0 || edge.label.trim().length === 0) {
+    return "Edge label was stored empty.";
+  }
+
+  const explicit = edge.label.trim();
 
   if (explicit.length > 0) {
     return explicit;
@@ -745,14 +760,6 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 
   if (fromNode?.outlineOnlyOnCanvas === true || toNode?.outlineOnlyOnCanvas === true) {
     return INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL;
-  }
-
-  if (edge.label !== null && edge.label !== undefined && edge.label.length === 0) {
-    return "";
-  }
-
-  if (edge.label === null || edge.label === undefined) {
-    return null;
   }
 
   return null;

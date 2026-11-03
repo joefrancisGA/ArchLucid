@@ -43,7 +43,7 @@ public sealed class DiagramDataFlowCaptionBuilderTests
         IReadOnlyList<string> withoutWindow = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edgesWithoutWindow);
 
         withoutWindow.Should().NotContain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
-        withoutWindow.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowMissingSentence);
+        withoutWindow.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowZeroSentence);
 
         List<GraphEdge> edgesWithWindow =
         [
@@ -66,6 +66,42 @@ public sealed class DiagramDataFlowCaptionBuilderTests
         IReadOnlyList<string> withWindow = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edgesWithWindow);
 
         withWindow.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+    }
+
+    [Fact]
+    public void BuildCaptions_uses_partial_window_sentence_when_only_some_observed_edges_store_window()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> mixedWindowEdges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "observed-1",
+                FromNodeId = "web-app",
+                ToNodeId = storage.NodeId,
+                EdgeType = GraphEdgeTypes.CanRead,
+                InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+                Weight = 1,
+            },
+            new GraphEdge
+            {
+                EdgeId = "observed-2",
+                FromNodeId = "web-app-2",
+                ToNodeId = storage.NodeId,
+                EdgeType = GraphEdgeTypes.CanRead,
+                InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+                Weight = 1,
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    [AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc] = "2026-01-01T00:00:00Z",
+                    [AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc] = "2026-01-02T00:00:00Z",
+                },
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], mixedWindowEdges);
+
+        captions.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowPartialSentence);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
@@ -229,7 +230,7 @@ internal class ScimBearerAuthenticationHandler(
     // Block Elements lookalikes: upper/lower/left partial blocks and the full block
     // (U+2581 is deliberately excluded: not observed as glued placeholders).
     private const string BearerGluedBlockElementLookalikes =
-        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591";
+        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593";
 
     // Geometric Shapes and Miscellaneous Symbols lookalikes observed as comma-fold placeholders.
     private const string BearerGluedGeometricShapeLookalikes =
@@ -264,17 +265,22 @@ internal class ScimBearerAuthenticationHandler(
 
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
+        int placeholderCount = 0;
+
         foreach (char character in tail)
         {
-            if (BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
-                continue;
-
             if (char.IsWhiteSpace(character))
                 continue;
 
-            return false;
+            if (!BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
+                return false;
+
+            // Accept a single placeholder rune (the comma-folding artifact) so a run of allowlisted
+            // characters cannot pad a malformed Authorization segment past the mix guard.
+            if (++placeholderCount > 1)
+                return false;
         }
 
-        return true;
+        return placeholderCount == 1;
     }
 }

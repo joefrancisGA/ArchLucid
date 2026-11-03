@@ -13,6 +13,7 @@ import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follo
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   ASK_RETRIEVAL_DEGRADED_LABEL,
+  ASK_INDEXED_SEARCH_NOT_LIMITED_TO_REVIEW_ID,
   ASK_RETRIEVAL_MODE_NOT_STORED_LABEL,
   ASK_RETRIEVAL_NOT_DEGRADED_LABEL,
 } from "@/lib/ask-retrieval-mode-copy";
@@ -69,6 +70,8 @@ type AskTurn = {
   referencedDecisions: readonly string[] | null;
   referencedArtifacts: readonly string[] | null;
   citationRefsOmitted: boolean;
+  retrievalDegraded: boolean | null;
+  indexedSearchNotLimitedToReviewId: boolean;
 };
 
 function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
@@ -118,7 +121,6 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
-  const [retrievalDegraded, setRetrievalDegraded] = useState<boolean | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
   const previousRunIdRef = useRef(runId);
@@ -242,7 +244,6 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
     setTurns([]);
     setThreadIdState(null);
     setError(null);
-    setRetrievalDegraded(null);
     resetStream();
   }, [resetStream, runId]);
 
@@ -288,18 +289,15 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setThreadId(response.threadId);
       }
 
-      if (response.retrievalDegraded === undefined) {
-        setRetrievalDegraded(null);
-      } else {
-        setRetrievalDegraded(response.retrievalDegraded === true);
-      }
-
       const citationRefs = {
         referencedFindings: response.referencedFindings,
         referencedDecisions: response.referencedDecisions,
         referencedArtifacts: response.referencedArtifacts,
       };
       const citationRefsOmitted = askWireCitationRefsOmitted(citationRefs);
+      const turnRetrievalDegraded =
+        response.retrievalDegraded === undefined ? null : response.retrievalDegraded === true;
+      const indexedSearchNotLimitedToReviewId = response.indexedSearchNotLimitedToReviewId === true;
 
       setTurns((current) => [
         ...current,
@@ -310,6 +308,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
           referencedDecisions: citationRefsOmitted ? [] : response.referencedDecisions ?? null,
           referencedArtifacts: citationRefsOmitted ? [] : response.referencedArtifacts ?? null,
           citationRefsOmitted,
+          retrievalDegraded: turnRetrievalDegraded,
+          indexedSearchNotLimitedToReviewId,
         },
       ]);
       setQuestion("");
@@ -391,25 +391,6 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               <span className="font-medium text-al-text-primary">Review id:</span>{" "}
               {runId.length > 0 ? runId : "Review id was not stored."}
             </p>
-            {retrievalDegraded === null ? (
-              <StatusTag
-                kind="neutral"
-                label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
-                data-testid="review-ask-dock-retrieval-not-stored"
-              />
-            ) : retrievalDegraded ? (
-              <StatusTag
-                kind="needs-attention"
-                label={ASK_RETRIEVAL_DEGRADED_LABEL}
-                data-testid="review-ask-dock-retrieval-degraded"
-              />
-            ) : (
-              <StatusTag
-                kind="neutral"
-                label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
-                data-testid="review-ask-dock-retrieval-full"
-              />
-            )}
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
@@ -419,7 +400,14 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                 {turns.map((turn, index) => {
                   const citationChips = buildAskCitationActionFollowUps(
                     turn.citationRefsOmitted
-                      ? { runId }
+                      ? {
+                          runId,
+                          inspectMetadataJson: JSON.stringify({
+                            referencedFindings: null,
+                            referencedDecisions: null,
+                            referencedArtifacts: null,
+                          }),
+                        }
                       : {
                           runId,
                           referencedFindings: turn.referencedFindings,
@@ -493,6 +481,34 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                         {sourcesHonestyLabel}
                       </p>
                     ) : null}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {turn.retrievalDegraded === null ? (
+                        <StatusTag
+                          kind="neutral"
+                          label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
+                          data-testid="review-ask-dock-turn-retrieval-not-stored"
+                        />
+                      ) : turn.retrievalDegraded ? (
+                        <StatusTag
+                          kind="needs-attention"
+                          label={ASK_RETRIEVAL_DEGRADED_LABEL}
+                          data-testid="review-ask-dock-turn-retrieval-degraded"
+                        />
+                      ) : (
+                        <StatusTag
+                          kind="neutral"
+                          label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
+                          data-testid="review-ask-dock-turn-retrieval-full"
+                        />
+                      )}
+                      {turn.indexedSearchNotLimitedToReviewId ? (
+                        <StatusTag
+                          kind="neutral"
+                          label={ASK_INDEXED_SEARCH_NOT_LIMITED_TO_REVIEW_ID}
+                          data-testid="review-ask-dock-turn-indexed-search-scope"
+                        />
+                      ) : null}
+                    </div>
                   </li>
                   );
                 })}

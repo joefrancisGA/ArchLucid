@@ -9,6 +9,8 @@ import {
   type FindingTrustPresentationLabel,
 } from "@/lib/findings/finding-provenance-display";
 
+export const FINDING_TRUST_LABEL_REASON_NOT_STORED = "Trust label reason was not stored." as const;
+
 export type FindingTrustChipKind =
   | "evidence-backed"
   | "citation-missing"
@@ -126,14 +128,37 @@ function refineUngroundedKind(
   return "citation-missing";
 }
 
+function wireTrustLabelReasonStoredOnWire(input: FindingTrustPresentationInput): string | null {
+  if (typeof input.trustLabelReason !== "string") {
+    return null;
+  }
+
+  const trimmed = input.trustLabelReason.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function resolveWireTrustLabelReasonForInspect(input: FindingTrustPresentationInput): string | null {
+  if (typeof input.trustLabel !== "string" || input.trustLabel.trim().length === 0) {
+    return null;
+  }
+
+  const stored = wireTrustLabelReasonStoredOnWire(input);
+
+  if (stored !== null) {
+    return stored;
+  }
+
+  return FINDING_TRUST_LABEL_REASON_NOT_STORED;
+}
+
 function buildInspectRow(
   input: FindingTrustPresentationInput,
   provenance: { readonly origin: FindingProvenanceOriginDisplay; readonly grounding: FindingProvenanceGrounding },
 ): FindingModelProvenanceRow {
+  const derived = deriveFindingTrustLabel(input);
   const trustLabelReason =
-    typeof input.trustLabelReason === "string" && input.trustLabelReason.trim().length > 0
-      ? input.trustLabelReason.trim()
-      : null;
+    derived.source === "wire" ? resolveWireTrustLabelReasonForInspect(input) : null;
 
   return {
     origin: provenance.origin,
@@ -146,9 +171,13 @@ function buildInspectRow(
 function buildExportPresentation(
   input: FindingTrustPresentationInput,
   canonicalTrustLabel: FindingTrustPresentationLabel,
+  derivedSource: "wire" | "inferred" | "not-stored",
 ): FindingTrustExportPresentation {
-  const reason = input.trustLabelReason?.trim();
-  const hasReason = reason !== undefined && reason.length > 0;
+  const reason =
+    derivedSource === "wire"
+      ? wireTrustLabelReasonStoredOnWire(input)
+      : input.trustLabelReason?.trim() ?? null;
+  const hasReason = reason !== null && reason.length > 0;
   const exportLabel = canonicalTrustLabel === "NotStored"
     ? "Trust label was not stored."
     : canonicalTrustLabel;
@@ -189,16 +218,14 @@ export function deriveFindingTrustPresentation(
     provenance.grounding === "Not applicable"
       ? ""
       : ` Grounding: ${provenance.grounding}.`;
-  const wireReason = input.trustLabelReason?.trim();
+  const wireReason = derived.source === "wire" ? resolveWireTrustLabelReasonForInspect(input) : null;
 
   const chipSet: FindingTrustChipSet = {
     kind,
     label: provenance.origin,
     groundingLabel: provenance.grounding,
     title:
-      derived.source === "wire" && wireReason !== undefined && wireReason.length > 0
-        ? wireReason
-        : `${originExplanation}${groundingSuffix}`,
+      wireReason ?? `${originExplanation}${groundingSuffix}`,
     origin: provenance.origin,
     grounding: provenance.grounding,
     trustSource: derived.source,
@@ -208,7 +235,7 @@ export function deriveFindingTrustPresentation(
   return {
     chipSet,
     inspectRow: buildInspectRow(input, provenance),
-    export: buildExportPresentation(input, derived.label),
+    export: buildExportPresentation(input, derived.label, derived.source),
   };
 }
 

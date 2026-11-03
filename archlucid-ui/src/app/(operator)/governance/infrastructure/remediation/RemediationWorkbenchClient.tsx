@@ -11,6 +11,11 @@ import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  formatSecureNowPilotStopItsmDraftBody,
+  parseSecureNowStopItsmOutboundDraftFromSearch,
+  SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE,
+} from "@/lib/product-line/securenow-stop-itsm-handoff";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -19,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { Textarea } from "@/components/ui/textarea";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -51,6 +57,7 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { ItsmOutboundCreateIssueDialog } from "@/components/itsm/ItsmOutboundCreateIssueDialog";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -312,6 +319,11 @@ export function RemediationWorkbenchClient() {
   }, [remediationVerifyHintOpenParam]);
 
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
+  const pilotStopItsmDraft = useMemo(
+    () => parseSecureNowStopItsmOutboundDraftFromSearch(searchParams),
+    [searchParams],
+  );
+  const showPilotStopFindingItsmExport = urlFindingId.length > 0 && pilotStopItsmDraft != null;
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
   const urlCorrespondenceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM),
@@ -338,6 +350,7 @@ export function RemediationWorkbenchClient() {
   const [rankedFindings, setRankedFindings] = useState<Array<{ findingId: string; explanationSummary: string }>>([]);
   const [wavePlanner, setWavePlanner] = useState<Array<{ waveId: string; name: string; memberCount: number; targetSize: number | null }>>([]);
   const [findingIdInput, setFindingIdInput] = useState(urlFindingId);
+  const [pilotStopFindingItsmDraftBody, setPilotStopFindingItsmDraftBody] = useState("");
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionBusy, setActionBusy] = useState(false);
@@ -511,6 +524,18 @@ export function RemediationWorkbenchClient() {
   useEffect(() => {
     setFindingIdInput(urlFindingId);
   }, [urlFindingId]);
+
+  useEffect(() => {
+    if (pilotStopItsmDraft == null) {
+      setPilotStopFindingItsmDraftBody("");
+
+      return;
+    }
+
+    setPilotStopFindingItsmDraftBody(
+      formatSecureNowPilotStopItsmDraftBody(pilotStopItsmDraft.pathId, pilotStopItsmDraft.rationale),
+    );
+  }, [pilotStopItsmDraft?.pathId, pilotStopItsmDraft?.rationale, pilotStopItsmDraft]);
 
   useEffect(() => {
     if (urlInstanceId.length > 0) {
@@ -1010,6 +1035,35 @@ export function RemediationWorkbenchClient() {
               </Link>
             </>
           ) : null}
+        </section>
+      ) : null}
+
+      {showPilotStopFindingItsmExport ? (
+        <section
+          className={cnCard}
+          data-testid="infra-remediation-pilot-stop-finding-itsm-export"
+          aria-labelledby="infra-remediation-pilot-stop-finding-itsm-export-heading"
+        >
+          <h2
+            id="infra-remediation-pilot-stop-finding-itsm-export-heading"
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Pilot Stop — finding ITSM export draft
+          </h2>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE}</p>
+          <div className="space-y-2 pt-2">
+            <Label htmlFor="infra-remediation-pilot-stop-itsm-draft-body">Draft body (paste into the ticket if needed)</Label>
+            <Textarea
+              id="infra-remediation-pilot-stop-itsm-draft-body"
+              readOnly
+              value={pilotStopFindingItsmDraftBody}
+              rows={4}
+              data-testid="infra-remediation-pilot-stop-itsm-draft-body"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 pt-3">
+            <ItsmOutboundCreateIssueDialog findingId={urlFindingId} prominent />
+          </div>
         </section>
       ) : null}
 

@@ -43,6 +43,17 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
 
+    internal const string AgentResultFindingsListNotStoredReviewerLinePrefix =
+        "Findings list was not stored on";
+
+    internal static string FormatAgentResultFindingsListNotStoredReviewerLine(int nullFindingsListCount) =>
+        nullFindingsListCount switch
+        {
+            <= 0 => "Findings list was not stored on one or more agent results.",
+            1 => $"{AgentResultFindingsListNotStoredReviewerLinePrefix} 1 agent result.",
+            _ => $"{AgentResultFindingsListNotStoredReviewerLinePrefix} {nullFindingsListCount} agent results.",
+        };
+
     internal const string AgentResultFindingsListNotStoredReviewerLine =
         "Findings list was not stored on one or more agent results.";
 
@@ -145,9 +156,9 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         if (sb.Length == lengthAfterHeader)
         {
-            bool anyNullFindingsList = detail.Results.Any(result => result?.Findings is null);
-            string emptyExportLine = anyNullFindingsList
-                ? AgentResultFindingsListNotStoredReviewerLine
+            int nullFindingsListCount = detail.Results.Count(result => result?.Findings is null);
+            string emptyExportLine = nullFindingsListCount > 0
+                ? FormatAgentResultFindingsListNotStoredReviewerLine(nullFindingsListCount)
                 : NoDecisionGradeFindingsReviewerLine;
 
             sb.Insert(0, $"{emptyExportLine}\n");
