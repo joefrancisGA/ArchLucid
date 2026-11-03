@@ -9351,7 +9351,7 @@ export interface components {
             /** Format: double */
             estimatedCostUsd?: null | number | string;
             model?: string;
-            tokenCounts?: null | components["schemas"]["RunLlmTokenCountsDto"];
+            tokenCounts?: components["schemas"]["RunLlmTokenCountsDto"];
         };
         RunAgentLlmCostEstimateResponse: {
             costEstimationBasis?: string;
