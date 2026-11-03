@@ -375,7 +375,7 @@ describe("quick-decision-summary-derive", () => {
         statusKind: "neutral",
       });
       expect(humanReviewStatusDisplay(99)).toEqual({
-        label: "Human review status unknown",
+        label: "Human review status was not a recognized stored value.",
         statusKind: "neutral",
       });
     });
