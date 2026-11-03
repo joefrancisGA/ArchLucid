@@ -683,8 +683,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `OperatorInferredConnectionDismissed` | `OperatorInferredConnection.Dismissed` | `OperatorInferredConnectionService` (`InfraEvidenceOperatorInferredConnectionsController` `POST /v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/dismiss`) |
 | `SecureNowArchitectNeighborhoodRecomputed` | `SecureNowArchitect.NeighborhoodRecomputed` | `SecureNowArchitectNeighborhoodRunner` (infra-evidence neighborhood diff recompute) |
 | `SecureNowCollectionRunTriggered` | `SecureNowCollectionRun.Triggered` | `CollectionRunTriggerService` (`CollectionRunsController` `POST /v1/collection-runs:trigger`) |
-| `SecureNowPilotPathDispositionRecorded` | `SecureNowPilotPath.DispositionRecorded` | `SecureNowPilotPathDispositionService` (operator Proceed / Extend / Stop choice; tenant/workspace/project-scoped `IAuditService.LogAsync`) |
-| `SecureNowInvestigationEffortInputsRecorded` | `SecureNowInvestigationEffort.InputsRecorded` | `SecureNowInvestigationEffortInputService` (operator-entered investigation effort inputs, not customer ROI; tenant/workspace/project-scoped `IAuditService.LogAsync`) |
+| `SecureNowPilotPathDispositionRecorded` | `SecureNowPilotPath.DispositionRecorded` | `SecureNowPilotPathDispositionService` (`PUT /v1/operational-security/paths/{pathId}/pilot-disposition`; operator Proceed / Extend / Stop choice; tenant/workspace/project-scoped `IAuditService.LogAsync`) |
+| `SecureNowInvestigationEffortInputsRecorded` | `SecureNowInvestigationEffort.InputsRecorded` | `SecureNowInvestigationEffortInputService` (`PUT /v1/operational-security/investigation-effort-inputs`; operator-entered investigation effort inputs, not customer ROI; tenant/workspace/project-scoped `IAuditService.LogAsync`) |
 | `TenantProvisioned` | `TenantProvisioned` | `TenantProvisioningService` |
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
 | `TenantSuspended` | `TenantSuspended` | `TenantSuspendCommandService` → `IPlatformAuditRepository` (`dbo.PlatformAuditEvents`; `TenantsAdminController` `POST …/admin/tenants/{id}/suspend`) |
