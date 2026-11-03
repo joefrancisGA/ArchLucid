@@ -30,6 +30,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
           evidenceRefCount: 1,
           evidenceAnchorHint: "network.bicep:10 — public access enabled",
           evidenceRefCountNotStored: false,
+          fullStoredTitle: null,
           trustChipSet: trustPresentation.chipSet,
           compareDeltaTrustLabels: {
             origin: trustPresentation.chipSet.origin,

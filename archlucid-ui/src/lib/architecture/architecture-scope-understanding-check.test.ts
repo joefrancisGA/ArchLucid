@@ -61,8 +61,14 @@ describe("scopeBulletBehavior", () => {
 
 describe("actorScopeDisplayLabel", () => {
   it("uses honesty copy for blank actor labels instead of the kind word alone (P-02)", () => {
-    expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).toBe("Actor name was not stored (Both).");
+    expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).toBe("Actor name was not stored (Human and machine).");
     expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).not.toBe("Both");
+  });
+
+  it("labels other actor kinds without substituting a reviewer label (P-18)", () => {
+    expect(actorScopeDisplayLabel({ label: "", kind: "Vendor" })).toBe(
+      "Actor name was not stored (Stored actor kind Vendor has no reviewer label.).",
+    );
   });
 });
 

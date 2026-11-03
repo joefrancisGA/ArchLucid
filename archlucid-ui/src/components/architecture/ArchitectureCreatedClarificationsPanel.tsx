@@ -46,6 +46,7 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
   readonly clarificationQuestions?: readonly ReviewClarificationQuestion[];
+  readonly clarificationTotalDerivedCount?: number | null;
   readonly clarificationRoundAvailable?: boolean;
   readonly clarificationDelta?: ReviewClarificationDelta | null;
   readonly clarificationQuestionsBlockedReason?: string | null;
@@ -240,6 +241,12 @@ export function ArchitectureCreatedClarificationsPanel(
           data-testid="architecture-clarifications-delta-strip"
         >
           {deltaPresentation.summary}
+          {deltaPresentation.cappedListDisclaimer !== null ? (
+            <>
+              {" "}
+              {deltaPresentation.cappedListDisclaimer}
+            </>
+          ) : null}
         </p>
       ) : null}
 
@@ -248,6 +255,7 @@ export function ArchitectureCreatedClarificationsPanel(
           runId={props.model.runId}
           priorRunId={props.priorRunId?.trim() ?? ""}
           questions={clarificationQuestions}
+          totalDerivedCount={props.clarificationTotalDerivedCount ?? null}
           freeTextIntent={props.sourceText}
         />
       ) : clarificationQuestions.length > 0 ? (

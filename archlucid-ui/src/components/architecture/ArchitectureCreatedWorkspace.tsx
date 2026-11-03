@@ -483,6 +483,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             onNavigateTab={navigateTab}
             pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             clarificationQuestions={clarificationQuestionsQuery.data?.questions ?? []}
+            clarificationTotalDerivedCount={clarificationQuestionsQuery.data?.totalDerivedCount ?? null}
             clarificationRoundAvailable={clarificationQuestionsQuery.data?.clarificationRoundAvailable === true}
             clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
             clarificationQuestionsBlockedReason={clarificationQuestionsQuery.blockedReason}

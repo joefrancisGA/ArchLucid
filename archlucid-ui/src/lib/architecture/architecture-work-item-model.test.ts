@@ -74,6 +74,8 @@ describe("architecture-work-item-model", () => {
 
     expect(preview.highestFindingSeverity).toBe("Severity was not stored.");
     expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity label was not stored.");
+    const body = buildArchitectureWorkItemClipboardBody("markdown", preview);
+    expect(body).not.toContain("[Severity label was not stored.]");
     expect(pickNativeCreateFindingId([missingSeverity, finding({ findingId: "f-low", severityValue: 0 })])).toBe(
       "f-low",
     );
