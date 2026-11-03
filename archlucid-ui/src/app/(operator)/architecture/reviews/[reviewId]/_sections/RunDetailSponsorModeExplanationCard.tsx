@@ -143,7 +143,12 @@ export function RunDetailSponsorModeExplanationCard(
             {top.map((finding) => (
               <li key={finding.findingId}>
                 <span className="font-semibold">{severityBadgeLabel(finding.severityValue)}:</span>{" "}
-                {formatExportPreviewShortenedText(finding.title, "Finding title was not stored.")}
+                {formatExportPreviewShortenedText(
+                  finding.title,
+                  "Finding title was not stored.",
+                  96,
+                  "Finding title was stored empty.",
+                )}
               </li>
             ))}
           </ul>

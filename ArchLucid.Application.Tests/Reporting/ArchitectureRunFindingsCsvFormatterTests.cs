@@ -284,7 +284,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderStoredEmptyLabel);
         csv.Should().Contain("KEY-1,https://example.test/KEY-1");
         csv.Should().NotContain(ArchitectureRunFindingsCsvFormatter.NoItsmTrackingRowStoredLabel);
     }

@@ -38,8 +38,12 @@ export type RunDetailEvidenceInventorySectionProps = {
 };
 
 function formatIngestedLabel(iso: string | null): string {
-  if (iso === null || iso.trim().length === 0) {
+  if (iso === null) {
     return "Ingested time was not stored.";
+  }
+
+  if (iso.trim().length === 0) {
+    return "Ingested time was stored empty.";
   }
 
   const formatted = formatInstantForLocale(iso);
