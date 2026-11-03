@@ -41,6 +41,8 @@ export function formatWizardEvidenceAttachmentSummary(
 }
 
 const DEFAULT_LABEL = "Attach evidence (optional)";
+const ATTACHED_EVIDENCE_HEADING =
+  "Selected on this page. Not stored on the review until you continue." as const;
 const DEFAULT_DESCRIPTION = `${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}. Drag files here or browse.`;
 const ACCEPTED_LABEL = "Accepted:";
 
@@ -143,7 +145,7 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
         {files.length > 0 ? (
           <div className="mt-3 space-y-2" data-testid="wizard-evidence-upload-attachments">
             <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-              Attached evidence
+              {ATTACHED_EVIDENCE_HEADING}
             </p>
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
               {files.map((file, index) => (

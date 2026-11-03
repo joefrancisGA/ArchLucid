@@ -526,7 +526,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Export Mermaid$/);
+    expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Download Mermaid source$/);
     expect(screen.getByText(
       "An unchecked option leaves those resources or links out of this drawing. They can still be in the snapshot.",
     )).toBeInTheDocument();

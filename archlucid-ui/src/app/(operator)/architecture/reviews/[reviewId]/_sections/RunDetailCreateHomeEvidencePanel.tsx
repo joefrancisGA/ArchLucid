@@ -32,7 +32,7 @@ export type RunDetailCreateHomeEvidencePanelProps = {
   readonly artifacts: readonly { readonly artifactId: string; readonly name: string; readonly createdUtc: string }[];
   readonly runId: string;
   readonly buyerPolished: boolean;
-  readonly architectureDiagramStored?: boolean;
+  readonly hasGraphSnapshot?: boolean | null;
 };
 
 /** Create-home Evidence archTab — inventory + capture (pre-finalization). */
@@ -88,7 +88,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
       <RunDetailEvidenceInventorySection runId={props.runId} items={props.items} hasManifest={false} />
       <RunDetailCreateHomeEvidenceDiagramCrossLink
         runId={props.runId}
-        architectureDiagramStored={props.architectureDiagramStored === true}
+        hasGraphSnapshot={props.hasGraphSnapshot}
       />
       <RunDetailCreateHomeEvidenceCaptureRegion
         key={props.runId}

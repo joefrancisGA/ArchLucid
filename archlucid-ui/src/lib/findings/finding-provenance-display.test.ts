@@ -108,10 +108,13 @@ describe("aggregateFindingProvenance", () => {
       aiGenerated: 2,
       aiEvidenceBacked: 2,
       simulated: 0,
+      heuristic: 1,
+      missingCitation: 0,
+      realModel: 0,
       trustLabelNotStored: 0,
     });
     expect(formatFindingProvenanceAggregateLine(counts)).toBe(
-      "5 findings — 2 from deterministic rules, 2 AI-generated (2 evidence-backed)",
+      "5 findings — 2 from deterministic rules, 2 AI-generated (2 evidence-backed), 1 heuristic",
     );
   });
 
@@ -132,6 +135,9 @@ describe("aggregateFindingProvenance", () => {
       aiGenerated: 0,
       aiEvidenceBacked: 0,
       simulated: 0,
+      heuristic: 0,
+      missingCitation: 0,
+      realModel: 0,
       trustLabelNotStored: 0,
     });
     expect(formatFindingProvenanceAggregateLine(counts)).toBe(
@@ -143,8 +149,10 @@ describe("aggregateFindingProvenance", () => {
     const counts = aggregateFindingProvenance([{ evidenceRefCount: 0 }, { trustLabel: "RealModel" }]);
 
     expect(counts.trustLabelNotStored).toBe(1);
+    expect(counts.realModel).toBe(1);
     expect(counts.aiGenerated).toBe(0);
     expect(formatFindingProvenanceAggregateLine(counts)).toContain("trust label was not stored");
+    expect(formatFindingProvenanceAggregateLine(counts)).toContain("RealModel (grounding was not stored)");
   });
 });
 

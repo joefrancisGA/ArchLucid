@@ -164,10 +164,32 @@ internal static class ManifestPostureListHonesty
 
         int written = 0;
 
-        foreach (string value in values)
+        foreach (string? value in values)
         {
-            sb.AppendLine(
-                $"- {bulletLabel}: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(value, $"{bulletLabel} was not stored.", $"{bulletLabel} was stored empty.")}");
+            if (value is null)
+            {
+                sb.AppendLine($"- {bulletLabel} was not stored.");
+                written++;
+                continue;
+            }
+
+            if (value.Length == 0)
+            {
+                sb.AppendLine($"- {bulletLabel} was stored empty.");
+                written++;
+                continue;
+            }
+
+            string trimmed = value.Trim();
+
+            if (trimmed.Length == 0)
+            {
+                sb.AppendLine($"- {bulletLabel} was stored empty.");
+                written++;
+                continue;
+            }
+
+            sb.AppendLine($"- {bulletLabel}: {trimmed}");
             written++;
         }
 

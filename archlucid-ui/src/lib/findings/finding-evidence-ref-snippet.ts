@@ -91,14 +91,21 @@ export function countStoredEvidenceRefSnippets(raw: unknown): number {
 export function formatFindingEvidenceRefSnippetsHeading(
   displayedSnippets: readonly string[],
   totalStoredSnippetCount: number | null,
+  storedEvidenceRefCount?: number | null,
 ): string {
   if (displayedSnippets.length === 0) {
     return "Source evidence";
   }
 
-  if (totalStoredSnippetCount === null || totalStoredSnippetCount <= displayedSnippets.length) {
+  const resolvedTotal =
+    totalStoredSnippetCount
+    ?? (typeof storedEvidenceRefCount === "number" && Number.isFinite(storedEvidenceRefCount)
+      ? Math.trunc(storedEvidenceRefCount)
+      : null);
+
+  if (resolvedTotal === null || resolvedTotal <= displayedSnippets.length) {
     return "Source evidence";
   }
 
-  return `Source evidence (showing ${displayedSnippets.length} of ${totalStoredSnippetCount} stored refs)`;
+  return `Source evidence (showing ${displayedSnippets.length} of ${resolvedTotal} stored refs)`;
 }

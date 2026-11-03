@@ -172,6 +172,9 @@ export type FindingProvenanceAggregateCounts = {
   readonly aiGenerated: number;
   readonly aiEvidenceBacked: number;
   readonly simulated: number;
+  readonly heuristic: number;
+  readonly missingCitation: number;
+  readonly realModel: number;
   readonly trustLabelNotStored: number;
 };
 
@@ -183,6 +186,9 @@ export function aggregateFindingProvenance(
   let aiGenerated = 0;
   let aiEvidenceBacked = 0;
   let simulated = 0;
+  let heuristic = 0;
+  let missingCitation = 0;
+  let realModel = 0;
   let trustLabelNotStored = 0;
 
   for (const item of items) {
@@ -199,6 +205,12 @@ export function aggregateFindingProvenance(
       deterministicFallback += 1;
     } else if (provenance.origin === "Simulated") {
       simulated += 1;
+    } else if (provenance.origin === "Heuristic") {
+      heuristic += 1;
+    } else if (provenance.origin === "MissingCitation") {
+      missingCitation += 1;
+    } else if (provenance.origin === "RealModel") {
+      realModel += 1;
     } else if (provenance.origin === "AI-generated") {
       aiGenerated += 1;
 
@@ -215,6 +227,9 @@ export function aggregateFindingProvenance(
     aiGenerated,
     aiEvidenceBacked,
     simulated,
+    heuristic,
+    missingCitation,
+    realModel,
     trustLabelNotStored,
   };
 }
@@ -247,6 +262,22 @@ export function formatFindingProvenanceAggregateLine(counts: FindingProvenanceAg
 
   if (counts.simulated > 0) {
     parts.push(`${counts.simulated} simulated`);
+  }
+
+  if (counts.heuristic > 0) {
+    parts.push(`${counts.heuristic} heuristic${counts.heuristic === 1 ? "" : "s"}`);
+  }
+
+  if (counts.missingCitation > 0) {
+    parts.push(
+      `${counts.missingCitation} MissingCitation${counts.missingCitation === 1 ? "" : "s"}`,
+    );
+  }
+
+  if (counts.realModel > 0) {
+    parts.push(
+      `${counts.realModel} RealModel (grounding was not stored)`,
+    );
   }
 
   if (counts.trustLabelNotStored > 0) {

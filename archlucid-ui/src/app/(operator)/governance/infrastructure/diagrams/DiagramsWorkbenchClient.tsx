@@ -3216,7 +3216,7 @@ export function DiagramsWorkbenchClient() {
                 }
                 onClick={runMermaidExport}
               >
-                Export Mermaid
+                Download Mermaid source
               </Button>
             </div>
             {pngExportDisabledReason != null ? (

@@ -143,7 +143,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             ))}
           </ul>
         ) : (
-          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Asserted entries were stored empty.</p>
         )}
       </div>
       <div>
@@ -157,7 +157,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             ))}
           </ul>
         ) : (
-          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Inferred entries were stored empty.</p>
         )}
       </div>
       {mustSkipped.length > 0 ? (
@@ -176,7 +176,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
       ) : (
         <div data-testid="transparency-trail-skipped-must">
           <p className="m-0 font-medium">Skipped MUST questions (0)</p>
-          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Skipped MUST questions were stored empty.</p>
         </div>
       )}
       {shouldSkipped.length > 0 ? (
@@ -190,7 +190,12 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             ))}
           </ul>
         </div>
-      ) : null}
+      ) : (
+        <div data-testid="transparency-trail-skipped-should">
+          <p className="m-0 font-medium">Skipped SHOULD questions (0)</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Skipped SHOULD questions were stored empty.</p>
+        </div>
+      )}
       {MissingTierSkippedEntries(trail).map((entry) => (
         <p key={entry.questionKey} className="m-0">
           Question tier was not stored.

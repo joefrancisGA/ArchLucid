@@ -170,6 +170,7 @@ export function QuickDecisionSummaryCardView({
                             onToggleAskPanel={interaction.toggleAskPanel}
                             onViewReasoning={interaction.openReasoningDialog}
                             onMute={interaction.openMuteDialog}
+                            findingWireSnapshot={props.findingWireSnapshots?.[finding.findingId] ?? null}
                           />
                         ))}
                       </ol>
@@ -220,6 +221,7 @@ export function QuickDecisionSummaryCardView({
                         onToggleAskPanel={interaction.toggleAskPanel}
                         onViewReasoning={interaction.openReasoningDialog}
                         onMute={interaction.openMuteDialog}
+                        findingWireSnapshot={props.findingWireSnapshots?.[finding.findingId] ?? null}
                       />
                     ))}
                   </ol>
@@ -252,6 +254,7 @@ export function QuickDecisionSummaryCardView({
                         onToggleAskPanel={interaction.toggleAskPanel}
                         onViewReasoning={interaction.openReasoningDialog}
                         onMute={interaction.openMuteDialog}
+                        findingWireSnapshot={props.findingWireSnapshots?.[finding.findingId] ?? null}
                       />
                     ))}
                   </ol>
@@ -270,6 +273,7 @@ export function QuickDecisionSummaryCardView({
                         onToggleAskPanel={interaction.toggleAskPanel}
                         onViewReasoning={interaction.openReasoningDialog}
                         onMute={interaction.openMuteDialog}
+                        findingWireSnapshot={props.findingWireSnapshots?.[finding.findingId] ?? null}
                       />
                     ))}
                   </ol>

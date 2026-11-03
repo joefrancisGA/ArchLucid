@@ -86,7 +86,7 @@ export function ReviewDefensibilityStrip(props: ReviewDefensibilityStripProps): 
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Inspect asserted vs inferred inputs before you sign.
         {props.skippedCount !== null && props.skippedCount > 0
-          ? " Skipped MUST questions lower confidence on those dimensions."
+          ? ` Skipped MUST count (${props.skippedCount}) is on the transparency trail. A confidence change was not stored on this strip.`
           : props.skippedCount === null
             ? " Skipped MUST count was not stored. A confidence effect was not stored."
             : null}

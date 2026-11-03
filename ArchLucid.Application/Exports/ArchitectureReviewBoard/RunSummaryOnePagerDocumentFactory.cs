@@ -113,6 +113,9 @@ public static class RunSummaryOnePagerDocumentFactory
             TopFindingsScopeLine = agentFindingsStored && topTitles.Length > 0
                 ? RunSummaryOnePagerHonestyCopy.TopFindingsCriticalErrorScopeLine
                 : null,
+            TopFindingsMessagePrefixDisclaimer = agentFindingsStored && topTitles.Length > 0
+                ? RunSummaryOnePagerHonestyCopy.TopFindingsMessagePrefixDisclaimer
+                : null,
             SponsorReportGeneratedDisclaimer = string.IsNullOrWhiteSpace(sponsorReportGeneratedDisclaimer)
                 ? null
                 : sponsorReportGeneratedDisclaimer.Trim(),

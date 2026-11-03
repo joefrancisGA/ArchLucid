@@ -103,7 +103,6 @@ function resolveInferredSourceLegendFallback(
 ): InfraEvidenceDiagramLegendInferredCopy {
   const inferredEdges = (outline?.edges ?? []).filter((edge) => edge.source === "inferred");
   let hasStoredUnnamedSource = false;
-  let allSourcesMissing = inferredEdges.length > 0;
 
   for (const edge of inferredEdges) {
     const source = normalizedInferenceSource(edge);
@@ -111,8 +110,6 @@ function resolveInferredSourceLegendFallback(
     if (source.length === 0) {
       continue;
     }
-
-    allSourcesMissing = false;
 
     if (
       !isAppSettingsInferredEdge(edge)

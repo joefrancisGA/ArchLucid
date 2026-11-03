@@ -149,9 +149,7 @@ public sealed class RunSummaryOnePagerExportService(
 
         string SponsorReport = await BuildSponsorReportAsync(detail, topFindings, cancellationToken);
         IReadOnlyList<string> topTitles = topFindings
-            .Select(static f => string.IsNullOrWhiteSpace(f.Message)
-                ? ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel
-                : f.Message.Trim())
+            .Select(static f => RunSummaryOnePagerHonestyCopy.FormatTopFindingListLine(f.Message))
             .ToArray();
 
         IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
@@ -198,7 +196,7 @@ public sealed class RunSummaryOnePagerExportService(
                 sendableExportCoverPlainText: sendableExportCoverPlainText,
                 architectRestatementMarkdown: architectRestatementMarkdownText,
                 findingsSnapshotFindingCount: findingsSnapshotFindingCount,
-                sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.GeneratedSponsorBriefDisclaimer);
+                sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.SponsorReportGeneratedForExportDisclaimer);
 
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);

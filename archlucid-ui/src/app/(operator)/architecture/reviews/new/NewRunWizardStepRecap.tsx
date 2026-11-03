@@ -28,6 +28,10 @@ const DESCRIPTION_PREVIEW_CHARS = 180;
 const CONSTRAINTS_PREVIEW_CHARS = 120;
 const CAPABILITIES_PREVIEW_CHARS = 120;
 
+function firstNonEmptyLine(value: string): string {
+  return value.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? value;
+}
+
 function truncate(value: string, limit: number): { readonly preview: string; readonly clipped: boolean } {
   if (value.length <= limit) {
     return { preview: value, clipped: false };
@@ -197,7 +201,9 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     constraintsTouched && constraintsNonEmpty.length === 0 && !hasBlankConstraintEntry;
   const capabilitiesStoredEmpty =
     capabilitiesTouched && capabilitiesNonEmpty.length === 0 && !hasBlankCapabilityEntry;
-  const briefPreview = truncate(description, DESCRIPTION_PREVIEW_CHARS);
+  const briefPreview = truncate(firstNonEmptyLine(description), DESCRIPTION_PREVIEW_CHARS);
+  const briefHasMultipleStoredLines =
+    description.split(/\r?\n/).filter((line) => line.trim().length > 0).length > 1;
   const constraintsPreview = truncate(constraintsNonEmpty, CONSTRAINTS_PREVIEW_CHARS);
   const capabilitiesPreview = truncate(capabilitiesNonEmpty, CAPABILITIES_PREVIEW_CHARS);
 
@@ -299,8 +305,11 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
                 : briefDisplay.includes("filled from starter")
                   ? briefDisplay
                   : briefPreview.preview}
-              {briefPreview.clipped && !briefDisplay.includes("filled from starter") ? (
-                <span className="text-neutral-600 dark:text-neutral-400"> Full brief was stored.</span>
+              {(briefPreview.clipped || briefHasMultipleStoredLines) && !briefDisplay.includes("filled from starter") ? (
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  {" "}
+                  Full brief was stored; recap shows the first line only.
+                </span>
               ) : null}
             </>
           ) : (

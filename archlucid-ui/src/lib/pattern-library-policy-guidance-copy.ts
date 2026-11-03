@@ -7,6 +7,6 @@ export const PATTERN_LIBRARY_POLICY_RULES_GUIDANCE_LEAD =
   "Sample rule themes from the pattern catalog — not live policy rules assigned in your workspace.";
 
 export const PATTERN_LIBRARY_POLICY_PACKS_GUIDANCE_LEAD =
-  "Sample pack names from the pattern catalog — open the hub to review packs assigned in your workspace.";
+  "Sample pack names from the pattern catalog — not live policy packs assigned in your workspace. Open the hub to review assigned packs.";
 
 export const PATTERN_LIBRARY_POLICY_PACKS_HUB_LINK_LABEL = "Open policy packs hub";

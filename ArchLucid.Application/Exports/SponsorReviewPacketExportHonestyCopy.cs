@@ -10,6 +10,8 @@ internal static class SponsorReviewPacketExportHonestyCopy
 {
     internal const string DecisionTitleNotStored = "Decision title was not stored.";
     internal const string DecisionTitleStoredEmpty = "Decision title was stored empty.";
+    internal const string DecisionCategoryNotStored = "Decision category was not stored.";
+    internal const string DecisionCategoryStoredEmpty = "Decision category was stored empty.";
     internal const string SelectedOptionNotStored = "Selected option was not stored.";
     internal const string SelectedOptionStoredEmpty = "Selected option was stored empty.";
     internal const string NextActionNotStored = "Next action was not stored.";
@@ -26,6 +28,9 @@ internal static class SponsorReviewPacketExportHonestyCopy
     internal const string PortfolioSignalsNotStored = "Portfolio signals were not stored.";
     internal const string ConfidenceNotStored = "Confidence was not stored.";
     internal const string EvidenceLinkNotStored = "Evidence link was not stored.";
+
+    internal const string DecisionRegisterRowHasNoEvidenceLinkField =
+        "This packet does not include a decision evidence link because the register row has no evidence-link field.";
     internal const string SupportingEvidenceNotListedInPacket =
         "Supporting evidence ids and rationale were not listed in this packet.";
 
@@ -56,6 +61,17 @@ internal static class SponsorReviewPacketExportHonestyCopy
             return DecisionTitleStoredEmpty;
 
         return string.IsNullOrWhiteSpace(raw) ? DecisionTitleNotStored : raw.Trim();
+    }
+
+    internal static string FormatDecisionCategory(string? raw)
+    {
+        if (raw is null)
+            return DecisionCategoryNotStored;
+
+        if (raw.Length == 0)
+            return DecisionCategoryStoredEmpty;
+
+        return string.IsNullOrWhiteSpace(raw) ? DecisionCategoryNotStored : raw.Trim();
     }
 
     internal static string FormatSelectedOption(string? raw)

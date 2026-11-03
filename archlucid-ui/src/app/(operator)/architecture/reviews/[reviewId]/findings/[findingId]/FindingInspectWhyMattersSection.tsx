@@ -151,13 +151,17 @@ export function FindingInspectWhyMattersSection({
   return (
     <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{whyHeading}</h2>
-      {whyThisMattersNarrative ? (
-        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {whyThisMattersNarrative}
-        </p>
-      ) : (
+      {whyThisMattersNarrative === null ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Why-this-matters rationale was not stored.
+        </p>
+      ) : whyThisMattersNarrative.trim().length === 0 ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Why-this-matters rationale was stored empty.
+        </p>
+      ) : (
+        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          {whyThisMattersNarrative}
         </p>
       )}
       <dl className={cn("mt-3 space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -173,7 +177,12 @@ export function FindingInspectWhyMattersSection({
                   {primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)}
                 </Link>
               ) : (
-                primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)
+                <>
+                  {primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)}
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Rule id was not stored.
+                  </p>
+                </>
               )}
             </dd>
           </div>

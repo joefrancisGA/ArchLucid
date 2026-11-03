@@ -48,6 +48,15 @@ describe("buildDiagramWalkthrough", () => {
     );
   });
 
+  it("does not treat zero parsed relationships as proof of no links", () => {
+    const summary = buildDiagramWalkthrough({
+      nodes: [{ id: "a", label: "A", resourceType: null, resourceGroup: null }],
+      edges: [],
+    });
+
+    expect(summary).toContain("No relationships were parsed from this diagram snapshot.");
+  });
+
   it("splits relationship counts by evidence source", () => {
     const summary = buildDiagramWalkthrough({
       nodes: [{ id: "a", label: "A", resourceType: null, resourceGroup: null }],

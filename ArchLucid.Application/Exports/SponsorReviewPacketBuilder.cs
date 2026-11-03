@@ -201,7 +201,8 @@ public sealed class SponsorReviewPacketBuilder(
             : "does not have a stored manifest on this export";
 
         return
-            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the first-five preview. "
+            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the first-five preview "
+            + "(Critical and Error only within that five-item preview; Warning, Info, and findings whose severity was not stored are outside those counts). "
             + "Use the ROI basis by disposition section to separate estimated potential from realized remediated value before sponsor sign-off.";
     }
 
@@ -228,6 +229,7 @@ public sealed class SponsorReviewPacketBuilder(
             rows.Add(new SponsorReviewPacketDecisionRow
             {
                 Title = entry.Title,
+                Category = entry.Category,
                 SelectedOption = entry.SelectedOption,
                 ConfidenceLabel = SponsorReviewPacketExportHonestyCopy.FormatDecisionConfidenceLabel(
                     entry.BuyerConfidenceSource,

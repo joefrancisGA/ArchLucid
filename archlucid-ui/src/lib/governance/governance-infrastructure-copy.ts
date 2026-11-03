@@ -183,7 +183,7 @@ export const SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
   "Render Azure inventory diagrams from snapshot evidence. SecureNow collection is Azure-only." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_HONESTY_LINE =
-  "PNG and Mermaid exports are inventory views from the selected snapshot. They are not architecture packages, sponsor briefings, or sealed review records." as const;
+  "PNG export is a raster of the diagram viewport. Download Mermaid source saves the Mermaid text shown here — not graph JSON or a sealed review record. Neither export is an architecture package or sponsor briefing." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
@@ -199,7 +199,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_RECOVERY = {
     "Server-side PNG rendering is unavailable in this environment and the browser could not safely rasterize the diagram.",
   whatIsIntact: "The in-browser diagram and Mermaid export remain available.",
   nextStep:
-    "Use Export Mermaid, screenshot the diagram viewport, or ask your operator to enable Mermaid CLI on the API host.",
+    "Use Download Mermaid source, screenshot the diagram viewport, or ask your operator to enable Mermaid CLI on the API host.",
 } as const;
 
 /** Shown after a successful browser PNG fallback when the API host lacks mmdc. */

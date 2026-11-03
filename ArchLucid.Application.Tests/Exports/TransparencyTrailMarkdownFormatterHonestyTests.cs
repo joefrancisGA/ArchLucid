@@ -78,6 +78,21 @@ public sealed class TransparencyTrailMarkdownFormatterHonestyTests
     }
 
     [Fact]
+    public void FormatAssertedTrailExportLine_appends_question_wording_honesty_for_answer_entries()
+    {
+        AssertedTrailEntry entry = new()
+        {
+            Key = "answer.businessOutcome",
+            Value = "Ship",
+            QuestionId = "q-1",
+        };
+
+        TransparencyTrailMarkdownFormatter.FormatAssertedTrailExportLine(entry)
+            .Should()
+            .Contain(TransparencyTrailMarkdownFormatter.QuestionWordingNotStoredOnAnswerSuffix);
+    }
+
+    [Fact]
     public void FormatAssertedTrailQuestionIdSuffix_labels_stored_empty_question_id()
     {
         TransparencyTrailMarkdownFormatter.FormatAssertedTrailQuestionIdSuffix("   ")

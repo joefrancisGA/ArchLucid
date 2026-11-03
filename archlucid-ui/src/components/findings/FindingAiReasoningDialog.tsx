@@ -24,6 +24,10 @@ export type FindingAiReasoningDialogProps = {
   snapshot: FindingWireSnapshot | null;
 };
 
+const EVALUATION_CONFIDENCE_SCORE_NOT_PROBABILITY_NOTE =
+  "This score is not a calibrated probability." as const;
+const EVIDENCE_REFS_NOT_STORED_NOTE = "Evidence refs were not stored on this finding payload." as const;
+
 function parseWireForKeyFields(
   wireJson: string,
 ): { evaluationConfidenceScore?: unknown; confidenceLevel?: unknown; evidenceRefs?: unknown } | null {
@@ -123,6 +127,11 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
                         </dd>
                       </div>
                     ) : null}
+                    {keys.evaluationConfidenceScore !== undefined && keys.evaluationConfidenceScore !== null ? (
+                      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                        {EVALUATION_CONFIDENCE_SCORE_NOT_PROBABILITY_NOTE}
+                      </p>
+                    ) : null}
                     {keys.confidenceLevel !== undefined && keys.confidenceLevel !== null ? (
                       <div className="flex flex-wrap gap-x-2">
                         <dt className="font-semibold text-neutral-700 dark:text-neutral-300">confidenceLevel</dt>
@@ -142,7 +151,11 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
                           </ul>
                         </dd>
                       </div>
-                    ) : null}
+                    ) : (
+                      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                        {EVIDENCE_REFS_NOT_STORED_NOTE}
+                      </p>
+                    )}
                   </dl>
                 </section>
               ) : (

@@ -48,6 +48,7 @@ import {
   severityKindFromNumericValue,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { resolveFindingAiReasoningButtonLabel } from "@/lib/quick-decision-wire-snapshots";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -67,6 +68,7 @@ type QuickDecisionSummaryFindingRowProps = {
   readonly onToggleAskPanel: (finding: QuickDecisionFinding) => void;
   readonly onViewReasoning: (finding: QuickDecisionFinding) => void;
   readonly onMute: (finding: QuickDecisionFinding) => void;
+  readonly findingWireSnapshot?: import("@/lib/quick-decision-wire-snapshots").FindingWireSnapshot | null;
 };
 
 export function QuickDecisionSummaryFindingRow({
@@ -79,6 +81,7 @@ export function QuickDecisionSummaryFindingRow({
   onToggleAskPanel,
   onViewReasoning,
   onMute,
+  findingWireSnapshot,
 }: QuickDecisionSummaryFindingRowProps): ReactElement {
   const findingIdTrimmed = finding.findingId.trim();
   const hasStoredFindingId = findingIdTrimmed.length > 0;
@@ -193,7 +196,7 @@ export function QuickDecisionSummaryFindingRow({
             onViewReasoning(finding);
           }}
         >
-          View AI reasoning
+          {resolveFindingAiReasoningButtonLabel(findingWireSnapshot)}
         </Button>
         <Button
           type="button"

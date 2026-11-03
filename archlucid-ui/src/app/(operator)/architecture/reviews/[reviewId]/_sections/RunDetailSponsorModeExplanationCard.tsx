@@ -46,8 +46,15 @@ function formatNarrativeSummaryLine(explanationSummary: RunExplanationSummary | 
   const fromExplanation = explanationSummary.explanation?.summary;
 
   if (fromOverall !== null && fromOverall !== undefined && fromOverall.trim().length > 0) {
+    const nonEmptyLineCount = fromOverall.split(/\r?\n/).filter((line) => line.trim().length > 0).length;
+    const firstLine = firstNonEmptyLine(fromOverall);
+    const additionalLinesNote =
+      nonEmptyLineCount > 1
+        ? " First stored line only. Additional narrative lines were stored and are not shown on this card."
+        : "";
+
     return {
-      line: firstNonEmptyLine(fromOverall),
+      line: `${firstLine}${additionalLinesNote}`,
       sourceLabel: "Stored overall assessment narrative (not the shorter explanation summary field).",
     };
   }

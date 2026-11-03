@@ -31,6 +31,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string FindingMessageNotStoredLabel = "Finding message was not stored.";
 
+    internal const string EvidenceRefsOnRowEmptyLabel = "No evidence references were on this finding row.";
+
     internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
 
     internal const string TrustLabelStoredEmptyLabel = "Trust label was stored empty.";
@@ -127,7 +129,7 @@ public static class ArchitectureRunFindingsCsvFormatter
         "Mute reason was not stored because the finding is not muted.";
 
     internal const string LegacyHeaderLine =
-        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,PolicyRuleId,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
+        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,PolicyRuleId,Message,EvidenceRefs,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
     internal const string PolicyRuleIdNotStoredLabel = "Policy rule id was not stored.";
 
@@ -390,6 +392,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
                 ExportFormatterService.EscapeCsvField(FormatPolicyRuleId(finding.PolicyRuleId)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
+                ExportFormatterService.EscapeCsvField(FormatEvidenceRefs(finding.EvidenceRefs)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(FormatMuteReason(finding.IsMuted, finding.MuteReason)),
@@ -627,6 +630,26 @@ public static class ArchitectureRunFindingsCsvFormatter
         }
 
         return DecisionGradeFindingExportFilter.FindingClassificationNotStoredLabel;
+    }
+
+    private static string FormatEvidenceRefs(IReadOnlyList<string>? evidenceRefs)
+    {
+        if (evidenceRefs is null)
+        {
+            return EvidenceRefsOnRowEmptyLabel;
+        }
+
+        if (evidenceRefs.Count == 0)
+        {
+            return EvidenceRefsOnRowEmptyLabel;
+        }
+
+        List<string> trimmed = evidenceRefs
+            .Select(static reference => reference.Trim())
+            .Where(static reference => reference.Length > 0)
+            .ToList();
+
+        return trimmed.Count == 0 ? EvidenceRefsOnRowEmptyLabel : string.Join("; ", trimmed);
     }
 
     private static string FormatMessage(string? message)

@@ -21,9 +21,14 @@ export const ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED = "Actor name was not stored." 
 
 function actorKindScopeLabel(kind: string): string {
   const trimmedKind = kind.trim();
+
+  if (trimmedKind.length === 0) {
+    return "";
+  }
+
   const match = ACTOR_KIND_OPTIONS.find((option) => option.value === trimmedKind);
 
-  return match?.label ?? trimmedKind;
+  return match?.label ?? `Stored actor kind ${trimmedKind} has no reviewer label.`;
 }
 
 /** Labels each actor for scope mirroring — never substitutes kind for a missing name. */

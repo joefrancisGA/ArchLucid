@@ -75,6 +75,7 @@ export function composeRunDetailEvidenceTab(
       blockingFindingId={primaryConcernFindingId}
       blockingFindingTitle={primaryConcernLabel}
       approvalBlocked={blockingApprovalCount !== null && blockingApprovalCount > 0}
+      approvalBlockerUsesStoredFinding={false}
       pagePrimaryOwnedElsewhere
     />
   );

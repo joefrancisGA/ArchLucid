@@ -12,6 +12,9 @@ internal static class MarkdownPackageExportHonestyCopy
     internal const string DiagramStoredNotObservedTrafficDisclaimer =
         "Diagram lines reflect stored inventory relationships. This is not observed traffic.";
 
+    internal const string DiagramManifestGraphCaption =
+        "This diagram is the stored manifest graph. It is not an Azure inventory diagram and it is not observed traffic.";
+
     internal const string ArchitectureSummaryNotStored = "Architecture summary was not stored.";
 
     internal const string EvidencePackageIdNotStored = "Evidence package id was not stored.";

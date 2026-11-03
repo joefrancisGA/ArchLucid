@@ -10,6 +10,9 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const FINDING_INSPECT_AUDIT_RECORD_NOT_STORED = "Audit record was not stored." as const;
 
+export const FINDING_INSPECT_AUDIT_TRAIL_LINK_HONESTY =
+  "Open the workspace audit list. This link does not select the stored event." as const;
+
 export type FindingInspectAuditSectionProps = {
   readonly auditRowId: string | null | undefined;
   readonly demoFillGaps: boolean;
@@ -29,6 +32,9 @@ export function FindingInspectAuditSection({
           <div className={cn("m-0 mt-2 flex flex-wrap items-center gap-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             <span>Recorded in the audit trail for this review.</span>
             <CopyIdButton value={auditRowId} aria-label="Copy audit event ID" />
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_INSPECT_AUDIT_TRAIL_LINK_HONESTY}
+            </span>
             <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
               View in audit trail
             </Link>
@@ -36,6 +42,9 @@ export function FindingInspectAuditSection({
         ) : (
           <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             Durable audit event id: <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{auditRowId}</span>
+            <span className={cn("ml-2 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_INSPECT_AUDIT_TRAIL_LINK_HONESTY}
+            </span>
             <span className="ml-2">
               <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
                 View in audit trail

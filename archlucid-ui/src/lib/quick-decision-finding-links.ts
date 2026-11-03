@@ -23,6 +23,13 @@ export const QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO =
 
 export const QUICK_DECISION_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
+export const QUICK_DECISION_EVIDENCE_GRAPH_NAV_DISCLAIMER =
+  "Graph link opens layout adjacency on this review, not a stored per-reference evidence URL." as const;
+
+export function quickDecisionEvidenceGraphLinkAccessibleLabel(visibleLabel: string): string {
+  return `${visibleLabel}. ${QUICK_DECISION_EVIDENCE_GRAPH_NAV_DISCLAIMER}`;
+}
+
 export function formatQuickDecisionFindingEvidenceLinkLabel(
   evidenceRefCount: number | null,
 ): string {
