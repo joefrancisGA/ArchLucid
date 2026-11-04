@@ -346,6 +346,22 @@ describe("persistTokenResponse", () => {
     expect(isLikelySignedIn()).toBe(false);
   });
 
+  it("strips soft hyphens from access_token before syncing to the BFF session cookie", async () => {
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockResolvedValue();
+
+    const base = accessTokenWithSubjectClaim();
+    const parts = base.split(".");
+    const accessTokenWithSoftHyphen = `${parts[0]}.${parts[1]}.sig\u00AD`;
+
+    persistTokenResponse({ access_token: accessTokenWithSoftHyphen, expires_in: 3600 });
+
+    await vi.waitUntil(() => syncMock.mock.calls.length > 0);
+
+    expect(syncMock.mock.calls[0]?.[0]?.access_token).toBe(`${parts[0]}.${parts[1]}.sig`);
+  });
+
   it("maps boolean false expires_in from malformed token JSON to the default lifetime", () => {
     persistTokenResponse({
       access_token: accessTokenWithSubjectClaim(),
@@ -863,6 +879,36 @@ describe("consumePkceState", () => {
     expect(consumePkceState("desk\u0008state")).toBeNull();
   });
 
+  it("rejects PKCE consume when tampered session state contains interior form-feed control characters", () => {
+    storePkceState("desk\u000Cstate", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u000Cstate")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session state contains interior bell control characters", () => {
+    storePkceState("desk\u0007state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u0007state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior backspace control characters", () => {
+    storePkceState("primary-state", "ver\u0008ifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior form-feed control characters", () => {
+    storePkceState("primary-state", "ver\u000Cifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session verifier contains interior bell control characters", () => {
+    storePkceState("primary-state", "ver\u0007ifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
   it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
     storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
 
@@ -888,6 +934,18 @@ describe("consumePkceState", () => {
 
   it("rejects PKCE consume when tampered session nonce contains interior form-feed control characters", () => {
     storePkceState("primary-state", "primary-verifier", "nonce\u000Cvalue", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session nonce contains interior backspace control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u0008value", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
+
+  it("rejects PKCE consume when tampered session nonce contains interior bell control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u0007value", "primary");
 
     expect(consumePkceState("primary-state")).toBeNull();
   });

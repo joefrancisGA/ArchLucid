@@ -4454,6 +4454,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-04 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed pass after empty open-hypothesis queue; cheap-disproof closed five header `(candidate)` monitor rows from pass-22 reseed — **valid-no-repro** bell PKCE `state` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior bell control characters`), **valid-no-repro** pipe-only JSON `error_description` (`oauth-callback-messages.test.ts` parity), **valid-no-repro** pipe-only authorize `error_description` (percent-encoded parity), **valid-no-repro** token-endpoint HTTP 200 JSON roots `10`/`11`/`12` (`parseOidcTokenResponse` rejects non-object roots; regressions added), **valid-no-repro** BFF refresh HTTP `515`/`516`/`517` soft-fail without session clear (parity regressions added). Reseeded five follow-on `(candidate)` monitor rows below; scoped `src/lib/oidc` vitest (see run). Private beta: n/a.
+
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) — **cheap-disproof 2026-11-04 seed hunt:** regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — pipe-only JSON `error_description` — **cheap-disproof 2026-11-04 seed hunt:** existing pipe-only regression.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — pipe-only authorize `error_description` — **cheap-disproof 2026-11-04 seed hunt:** existing pipe-only regression.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `10`/`11`/`12` — **cheap-disproof 2026-11-04 seed hunt:** regressions `throws when a successful token response body is the JSON number 10/11/12`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `515`/`516`/`517` — **cheap-disproof 2026-11-04 seed hunt:** soft-fail parity regressions added.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `code_verifier` session value with interior bell (`U+0007`) before callback — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered verifier key; monitor; pass 23 reseed.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — plus-only (`U+002B`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint `"++"`; monitor; pass 23 reseed.
+- [ ] (candidate) `decodeOAuthErrorDescription` — plus-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: `%2B%2B`; monitor; pass 23 reseed.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `13` — locus: `parseOidcTokenResponse`; input: numeric root `13`; monitor; pass 23 reseed.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `518` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `518`; monitor; pass 23 reseed.
+
 2026-11-03 seed hunt (seed→hit): promoted `trimTokenFormParams` **leaving non-trim C0 control bytes on authorization `code` and `code_verifier` token POST fields** — `CallbackClient` already normalized callback `code`, but `exchangeAuthorizationCode` still used `normalizeOidcOAuthFormString` (ECMAScript `.trim()` drops vertical tab but not backspace), so callers of the token client could post padded codes and hit `invalid_grant`; apply `normalizeOidcOpaqueOAuthString` to `code` and `code_verifier` in `trimTokenFormParams`; regression `strips trailing control characters from authorization codes before token exchange`; cheap-disproof closed five hunt #121 monitor `(candidate)` rows below; scoped `src/lib/oidc` vitest 1033/1033. Private beta: token exchange at the shared OIDC client boundary strips accidental control bytes on authorization codes and PKCE verifiers so sign-in stays aligned with callback normalization under JwtBearer.
 
 - [x] (proven) `postTokenForm` / `trimTokenFormParams` — authorization `code` with trailing backspace (`U+0008`) posted verbatim to the token endpoint — **hit 2026-11-03 seed hunt:** `normalizeOidcOpaqueOAuthString` on `code` and `code_verifier`; regression `strips trailing control characters from authorization codes before token exchange`.
@@ -7708,10 +7722,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 102
+- **hunts:** 103
 - **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-03
+- **last-hunt:** 2026-11-04
 - **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
