@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -87,6 +87,75 @@ describe("first-review-spine-band", () => {
         reviewHasGoldenManifest: false,
       }),
     ).toEqual({ label: "Uncommitted review", reviewTab: "review-package" });
+  });
+
+  it("resolveRunDetailVisitDefaultReviewTab returns findings when uncited findings remain", () => {
+    const findings = [finding({ findingId: "f-1", title: "Uncited", evidenceRefCount: 0 })];
+    const summary = deriveFirstReviewSpineBandSummary({
+      feasibilityVerdict: null,
+      structuralExecutionMode: "Simulator",
+      findings,
+      reviewHasGoldenManifest: true,
+    });
+
+    expect(
+      resolveRunDetailVisitDefaultReviewTab({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: true,
+      }),
+    ).toBe("findings");
+    expect(summary?.openGateReviewTab).toBe("findings");
+  });
+
+  it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns the highest-severity uncited finding", () => {
+    const findings = [
+      finding({ findingId: "low", title: "Low", severityValue: 1, evidenceRefCount: 0 }),
+      finding({ findingId: "high", title: "High", severityValue: 3, evidenceRefCount: 0 }),
+    ];
+
+    expect(resolveFirstUncitedFindingId(findings)).toBe("high");
+    expect(
+      resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe("high");
+  });
+
+  it("resolveRunDetailVisitDefaultReviewHashWhenUrlSilent targets review-package spine for uncommitted reviews", () => {
+    const findings = [
+      finding({
+        findingId: "checklist",
+        title: "Checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        evidenceRefCount: 2,
+      }),
+    ];
+
+    expect(
+      resolveRunDetailVisitDefaultReviewHashWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe("run-detail-first-review-spine-review-package");
+  });
+
+  it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns open disposition when findings are cited", () => {
+    const findings = [
+      finding({ findingId: "cited-open", title: "Open DG", severityValue: 3, evidenceRefCount: 2 }),
+      finding({ findingId: "cited-closed", title: "Closed", severityValue: 2, evidenceRefCount: 1, humanReviewStatus: "Approved" }),
+    ];
+
+    expect(resolveFirstOpenDispositionFindingId(findings)).toBe("cited-open");
+    expect(
+      resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe("cited-open");
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {

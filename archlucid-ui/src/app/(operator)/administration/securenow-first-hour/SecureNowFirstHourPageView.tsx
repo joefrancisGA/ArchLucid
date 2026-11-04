@@ -3,6 +3,7 @@ import Link from "next/link";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SecureNowFirstHourCollectionSetupSection } from "@/components/product-line/SecureNowFirstHourCollectionSetupSection";
 import {
   SECURENOW_FIRST_HOUR_GUARDRAIL,
   SECURENOW_FIRST_HOUR_HEADING,
@@ -20,6 +21,8 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_FIRST_HOUR_HEADING} subtitle={SECURENOW_FIRST_HOUR_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        <SecureNowFirstHourCollectionSetupSection />
+
         <section aria-labelledby="securenow-first-hour-steps-heading" className="space-y-2">
           <h2 id="securenow-first-hour-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Four steps

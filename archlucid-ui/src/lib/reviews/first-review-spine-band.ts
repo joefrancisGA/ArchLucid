@@ -20,6 +20,7 @@ import { formatStructuralExecutionModeLabel } from "@/lib/structural-execution-m
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 export type FirstReviewSpineBandSummary = {
   readonly gateOutcomeLabel: string;
@@ -59,6 +60,56 @@ export function countUncitedFindings(findings: readonly QuickDecisionFinding[]):
   }
 
   return uncited;
+}
+
+/** Highest-severity uncited finding for open-gate deep links when the URL is silent. */
+export function resolveFirstUncitedFindingId(findings: readonly QuickDecisionFinding[]): string | null {
+  const uncited = findings.filter((finding) => isUncitedFinding(finding));
+
+  if (uncited.length === 0) {
+    return null;
+  }
+
+  const sorted = [...uncited].sort((left, right) =>
+    compareFindingSeverity(left.severityValue, right.severityValue),
+  );
+
+  return sorted[0]?.findingId ?? null;
+}
+
+export function resolveRunDetailVisitDefaultFindingIdWhenUrlSilent(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+}): string | null {
+  if (!input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  if (countUncitedFindings(input.findings) > 0) {
+    return resolveFirstUncitedFindingId(input.findings);
+  }
+
+  return resolveFirstOpenDispositionFindingId(input.findings);
+}
+
+/** Highest-severity decision-grade finding without a recorded disposition. */
+export function resolveFirstOpenDispositionFindingId(
+  findings: readonly QuickDecisionFinding[],
+): string | null {
+  const open = findings.filter(
+    (finding) =>
+      isDecisionGradeFinding(finding) && !quickDecisionFindingHasRecordedDisposition(finding),
+  );
+
+  if (open.length === 0) {
+    return null;
+  }
+
+  const sorted = [...open].sort((left, right) =>
+    compareFindingSeverity(left.severityValue, right.severityValue),
+  );
+
+  return sorted[0]?.findingId ?? null;
 }
 
 function resolveTopDecisionGradeFinding(
@@ -172,6 +223,53 @@ export function resolveFirstReviewOpenGate(input: {
   }
 
   return { label: null, reviewTab: null };
+}
+
+export function resolveRunDetailVisitDefaultReviewTab(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): ReviewDetailTabId | null {
+  if (!input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const uncitedCount = countUncitedFindings(input.findings);
+  const dispositionStats = countDispositionStats(input.findings);
+  const openGate = resolveFirstReviewOpenGate({
+    uncitedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    reviewHasGoldenManifest: input.reviewHasGoldenManifest,
+  });
+
+  return openGate.reviewTab;
+}
+
+export const FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX = "run-detail-first-review-spine-" as const;
+
+export function resolveFirstReviewSpineOpenGateSectionId(
+  reviewTab: FirstReviewOpenGateReviewTab | null,
+): string | null {
+  if (reviewTab === null) {
+    return null;
+  }
+
+  return `${FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX}${reviewTab}`;
+}
+
+/** Scroll target for silent URL open gate when the review package tab is the first action. */
+export function resolveRunDetailVisitDefaultReviewHashWhenUrlSilent(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): string | null {
+  const defaultTab = resolveRunDetailVisitDefaultReviewTab(input);
+
+  if (defaultTab === "review-package") {
+    return resolveFirstReviewSpineOpenGateSectionId("review-package");
+  }
+
+  return null;
 }
 
 export function deriveFirstReviewSpineBandSummary(input: {

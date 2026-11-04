@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   scheduleScrollToReviewDetailSection,
   scrollToReviewDetailSection,
+  scrollToReviewFinding,
 } from "./review-detail-section-scroll";
 
 describe("scrollToReviewDetailSection", () => {
@@ -79,5 +80,40 @@ describe("scrollToReviewDetailSection", () => {
     vi.advanceTimersByTime(50);
 
     expect(target.scrollIntoView).toHaveBeenCalledOnce();
+  });
+
+  it("expands disclosure on first-review spine review-package anchor", () => {
+    document.body.innerHTML = `
+      <section id="run-detail-first-review-spine-review-package">
+        <details data-workspace-disclosure>
+          <summary>Review package</summary>
+        </details>
+      </section>
+    `;
+
+    const disclosure = document.querySelector("details");
+
+    expect(disclosure?.open).toBe(false);
+    expect(scrollToReviewDetailSection("run-detail-first-review-spine-review-package")).toBe(true);
+    expect(disclosure?.open).toBe(true);
+  });
+});
+
+describe("scrollToReviewFinding", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+  });
+
+  it("finds cards by data-finding-id", () => {
+    const card = document.createElement("article");
+    card.setAttribute("data-finding-id", "finding-abc");
+    card.scrollIntoView = vi.fn();
+    card.focus = vi.fn();
+    document.body.appendChild(card);
+
+    expect(scrollToReviewFinding("finding-abc")).toBe(true);
+    expect(card.scrollIntoView).toHaveBeenCalled();
+    expect(card.focus).toHaveBeenCalled();
   });
 });

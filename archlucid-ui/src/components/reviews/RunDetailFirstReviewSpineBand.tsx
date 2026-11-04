@@ -13,6 +13,7 @@ import {
   FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED,
   FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE,
   FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED,
+  resolveFirstReviewSpineOpenGateSectionId,
   type FirstReviewSpineBandSummary,
 } from "@/lib/reviews/first-review-spine-band";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
@@ -45,11 +46,13 @@ function gateOutcomeStatusKind(
 /** Unified first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBandProps): ReactElement {
   const { summary } = props;
+  const openGateSectionId = resolveFirstReviewSpineOpenGateSectionId(summary.openGateReviewTab);
 
   return (
     <section
+      id={openGateSectionId ?? undefined}
       className={cn(
-        "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
+        "scroll-mt-24 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
         props.className,
       )}
       data-testid="run-detail-first-review-spine-band"
