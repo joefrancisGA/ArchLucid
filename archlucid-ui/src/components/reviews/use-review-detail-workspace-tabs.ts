@@ -107,7 +107,12 @@ export function useReviewDetailWorkspaceTabs(
   }, [isWorkingMode, lifecycle, props.tabLifecycle]);
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? resolveReviewWorkspaceTabFromSearchParams(searchParams, resolved, lifecycle)
+      ? resolveReviewWorkspaceTabFromSearchParams(
+          searchParams,
+          resolved,
+          lifecycle,
+          props.visitDefaultReviewTabWhenUrlSilent,
+        )
       : resolveReviewDetailTabFromLocation(null, null);
   const searchParamPresenter = readPresenterModeFromSearchParams(searchParams);
   const searchParamWorkbenchFocus = useMemo((): ReviewWorkbenchColumnId | null => {
@@ -156,7 +161,20 @@ export function useReviewDetailWorkspaceTabs(
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {
-      const nextTab = readReviewDetailTabFromWindowLocation();
+      const params = new URLSearchParams(window.location.search);
+      const nextTab =
+        props.tabLifecycle !== undefined
+          ? resolveReviewWorkspaceTabFromSearchParams(
+              params,
+              resolveReviewWorkspaceVisibleTabs({
+                ...props.tabLifecycle,
+                lifecycle,
+                workingDesk: isWorkingMode,
+              }),
+              lifecycle,
+              props.visitDefaultReviewTabWhenUrlSilent,
+            )
+          : readReviewDetailTabFromWindowLocation();
 
       setActiveTab((current) => (current === nextTab ? current : nextTab));
 
@@ -184,7 +202,7 @@ export function useReviewDetailWorkspaceTabs(
     return () => {
       window.removeEventListener("popstate", syncActiveTabFromUrl);
     };
-  }, []);
+  }, [isWorkingMode, lifecycle, props.tabLifecycle, props.visitDefaultReviewTabWhenUrlSilent]);
 
   const navigateTab = useCallback(
     (tab: ReviewDetailTabId, options?: { readonly findingId?: string | null; readonly workbenchFocus?: ReviewWorkbenchColumnId | null }) => {

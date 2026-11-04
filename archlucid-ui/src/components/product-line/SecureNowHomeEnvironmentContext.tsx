@@ -25,11 +25,11 @@ import {
   formatScopeSwitcherTriggerLabel,
   isSampleWorkspacePresentationScope,
 } from "@/lib/scope-switcher-display";
+import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import {
-  formatSecureNowHomeSubscriptionScopeLine,
-  SECURENOW_COLLECTION_MISSING_STATUS_LINE,
-  SECURENOW_COLLECTION_READER_ROLE_LINE,
-} from "@/lib/product-line/securenow-collection-missing-reason";
+  resolveSecureNowHomeCollectionSetupFallbackInput,
+  useSecureNowCollectionSetupInput,
+} from "@/hooks/use-securenow-collection-setup-input";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
@@ -141,15 +141,25 @@ function ContextLink(props: { readonly href: string; readonly children: string }
   );
 }
 
-function SecureNowHomeReaderRoleHint(props: { readonly subscriptionLabel: string | null }): React.JSX.Element {
+function SecureNowHomeCollectionSetupBlock(props: {
+  readonly snapshotCaptureSucceeded: boolean | null;
+  readonly subscriptionLabelPresent: boolean;
+}): React.JSX.Element {
+  const setupQuery = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: props.snapshotCaptureSucceeded,
+  });
+  const collectionInput =
+    setupQuery.collectionInput
+    ?? resolveSecureNowHomeCollectionSetupFallbackInput({
+      snapshotCaptureSucceeded: props.snapshotCaptureSucceeded,
+      subscriptionLabelPresent: props.subscriptionLabelPresent,
+    });
+
   return (
-    <div className="space-y-0.5" data-testid="securenow-home-reader-role-hint">
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_MISSING_STATUS_LINE}</p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_READER_ROLE_LINE}</p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        {formatSecureNowHomeSubscriptionScopeLine(props.subscriptionLabel)}
-      </p>
-    </div>
+    <SecureNowCollectionSetupChecklist
+      input={collectionInput}
+      testIdPrefix="securenow-home"
+    />
   );
 }
 
@@ -270,7 +280,10 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
         <ContextLink href="/administration/securenow-first-hour">First hour</ContextLink>
         </p>
-        <SecureNowHomeReaderRoleHint subscriptionLabel={null} />
+        <SecureNowHomeCollectionSetupBlock
+          snapshotCaptureSucceeded={false}
+          subscriptionLabelPresent={false}
+        />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
           Next step:{" "}
           <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
@@ -287,7 +300,13 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const subscriptions = subscriptionPhrase(snapshotRows);
   const collectedAt = snapshot.capturedUtc === null ? null : formatRelativeTime(snapshot.capturedUtc);
   const gap = collectionGapDescription(snapshot);
+  const snapshotCaptureSucceeded =
+    snapshot !== null && gap === null && isInfraEvidenceSnapshotCaptureSucceeded(snapshot.captureStatus);
   const next = nextStep(gap !== null, firstRankedPathId);
+  const showCollectionSetup =
+    gap !== null
+    || snapshot === null
+    || !isInfraEvidenceSnapshotCaptureSucceeded(snapshot.captureStatus);
 
   return (
     <div className="space-y-1" data-testid="securenow-home-environment-context">
@@ -297,7 +316,12 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {collectedAt !== null ? <ContextLink href={DRIFT_HREF}>{collectedAt}</ContextLink> : null}
         {gap !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{gap}</ContextLink> : null}
       </p>
-      {gap !== null ? <SecureNowHomeReaderRoleHint subscriptionLabel={subscriptions} /> : null}
+      {showCollectionSetup ? (
+        <SecureNowHomeCollectionSetupBlock
+          snapshotCaptureSucceeded={snapshotCaptureSucceeded}
+          subscriptionLabelPresent={subscriptions !== null}
+        />
+      ) : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
         Next step:{" "}
         <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
