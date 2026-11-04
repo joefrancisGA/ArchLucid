@@ -13,6 +13,35 @@ public static class DiagramNodeHumanCaptionFactory
     public const string ResourceNameNotStoredCaption = "Resource name was not stored";
     public const string ResourceNameStoredEmptyCaption = "Resource name was stored empty.";
 
+    private static string FormatSiteKindCaptionWithCommaRemainder(string typeCaption, string? armResourceKind)
+    {
+        string? remainder = TryReadSiteKindCommaRemainder(armResourceKind);
+
+        if (remainder is null)
+        {
+            return typeCaption;
+        }
+
+        return $"{typeCaption} · Site kind remainder {remainder} is not shown in the type label.";
+    }
+
+    private static string? TryReadSiteKindCommaRemainder(string? armResourceKind)
+    {
+        if (string.IsNullOrWhiteSpace(armResourceKind))
+        {
+            return null;
+        }
+
+        string[] parts = armResourceKind.Split(',', 2, StringSplitOptions.TrimEntries);
+
+        if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[1]))
+        {
+            return null;
+        }
+
+        return parts[1].Trim();
+    }
+
     public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
     {
         ArgumentNullException.ThrowIfNull(node);
@@ -48,7 +77,8 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.ArmResourceType?.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase) == true)
         {
-            string? siteKind = node.ArmResourceKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0];
+            string? rawKind = node.ArmResourceKind;
+            string? siteKind = rawKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0];
 
             if (string.IsNullOrWhiteSpace(siteKind))
             {
@@ -57,16 +87,16 @@ public static class DiagramNodeHumanCaptionFactory
 
             if (siteKind.Equals("functionapp", StringComparison.OrdinalIgnoreCase))
             {
-                return "Function App";
+                return FormatSiteKindCaptionWithCommaRemainder("Function App", rawKind);
             }
 
             if (siteKind.Equals("app", StringComparison.OrdinalIgnoreCase)
                 || siteKind.Equals("api", StringComparison.OrdinalIgnoreCase))
             {
-                return "App Service";
+                return FormatSiteKindCaptionWithCommaRemainder("App Service", rawKind);
             }
 
-            return $"Site kind {siteKind} has no reviewer label.";
+            return FormatSiteKindCaptionWithCommaRemainder($"Site kind {siteKind} has no reviewer label.", rawKind);
         }
 
         if (string.IsNullOrWhiteSpace(node.ArmResourceType))
@@ -129,10 +159,11 @@ public static class DiagramNodeHumanCaptionFactory
                 $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress, node.RollupMultipleHiddenPublicIpAddresses)}";
         }
 
-        if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
-            && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
+        if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned)
         {
-            combined = $"{combined} · No stored association: {node.ConnectionStateMessage.Trim()}.";
+            combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
+                ? $"{combined} · Orphaned association message was not stored."
+                : $"{combined} · No stored association: {node.ConnectionStateMessage.Trim()}.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
@@ -143,10 +174,6 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
             combined = $"{combined} · No diagram link was stored.";
-        }
-        else if (node.ConnectionState is null && !string.IsNullOrWhiteSpace(node.SeedNodeId))
-        {
-            combined = $"{combined} · Connection state was not stored.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)

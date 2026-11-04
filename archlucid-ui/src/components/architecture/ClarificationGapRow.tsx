@@ -117,11 +117,18 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
 
       {props.item.category === "clarification" ? (
         <div className="flex shrink-0 flex-wrap gap-2">
-          <GapActionLink
-            href={props.answerHref}
-            label={`Answer · ${REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}`}
-            onNavigateTab={props.onNavigateTab}
-          />
+          {props.item.followUpUnavailableMessage != null &&
+          props.item.followUpUnavailableMessage.length > 0 ? (
+            <p className={cn("m-0 max-w-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {props.item.followUpUnavailableMessage}
+            </p>
+          ) : (
+            <GapActionLink
+              href={props.answerHref}
+              label={`Answer · ${REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}`}
+              onNavigateTab={props.onNavigateTab}
+            />
+          )}
           {showDismiss ? (
             <Button
               type="button"

@@ -101,9 +101,18 @@ export function buildMadrMarkdownFromRun(
   const dateLine = reviewCapturedDateLine(input.createdUtc);
   const exp = input.explanation;
 
+  const runIdLine =
+    input.runId.trim().length > 0
+      ? `ArchLucid review / run id: \`${input.runId.trim()}\``
+      : "Review id was not stored.";
+  const projectIdLine =
+    input.projectId.trim().length > 0
+      ? `Project id: \`${input.projectId.trim()}\``
+      : "Project id was not stored.";
+
   const contextReviewSignals: string[] = [
-    `ArchLucid review / run id: \`${input.runId}\``,
-    `Project id: \`${input.projectId}\``,
+    runIdLine,
+    projectIdLine,
     `Review captured (UTC date): ${dateLine}`,
   ];
 
@@ -165,7 +174,7 @@ export function buildMadrMarkdownFromRun(
     input.findings.length === 0
       ? input.omittedMutedFindingCount !== undefined && input.omittedMutedFindingCount > 0
         ? "_Muted findings were stored on this review and are not included in this ADR export._\n"
-        : "_Findings were not included in this export._\n"
+        : "_Findings were not stored on this export._\n"
       : `${input.findings
           .map((f, i) => {
             const rec = formatFindingRecommendationLine(f.recommendation);

@@ -113,7 +113,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                       <>
                         {item.fileName}
                         <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                          Evidence item id was not stored.
+                          File name is a label without a stored evidence item. Evidence item id was not stored.
                         </span>
                       </>
                     ) : item.evidenceItemId.length > 0 ? (
@@ -135,7 +135,11 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                       </>
                     )}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{formatIngestedLabel(item.ingestedUtc)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {item.evidenceItemId === null || item.evidenceItemId === undefined
+                      ? RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY
+                      : formatIngestedLabel(item.ingestedUtc)}
+                  </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}
             </EnterpriseTableBody>

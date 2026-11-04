@@ -283,7 +283,7 @@ export async function buildRunDetailPresentation(
     hasFindingsSnapshot,
     findingsSummaryLine: formatDecisionSnapshotFindingsLine(
       reviewStatusSummary.openFindingsCount,
-      blockingApprovalCount ?? 0,
+      blockingApprovalCount,
       reviewStatusSummary.findingsRequiringActionCount,
       hasFindingsSnapshot,
     ),

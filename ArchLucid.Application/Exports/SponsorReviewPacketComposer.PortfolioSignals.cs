@@ -10,14 +10,16 @@ public static partial class SponsorReviewPacketComposer
     private static void AppendTopDecisionsSection(
         StringBuilder sb,
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions,
-        int omittedTopDecisionsCount = 0)
+        int omittedTopDecisionsCount = 0,
+        bool reviewIdNotGuid = false)
     {
         sb.AppendLine("## First five decisions (not ranked)");
         sb.AppendLine();
 
         if (topDecisions is null || topDecisions.Count == 0)
         {
-            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored}");
+            sb.AppendLine(
+                $"- {(reviewIdNotGuid ? SponsorReviewPacketExportHonestyCopy.DecisionRegisterReviewIdNotGuid : SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored)}");
             sb.AppendLine();
             return;
         }
@@ -27,6 +29,9 @@ public static partial class SponsorReviewPacketComposer
             string title = SponsorReviewPacketExportHonestyCopy.FormatDecisionTitle(decision.Title);
             string selectedOption = SponsorReviewPacketExportHonestyCopy.FormatSelectedOption(decision.SelectedOption);
             sb.AppendLine($"- **{title}** — {selectedOption}");
+
+            string category = SponsorReviewPacketExportHonestyCopy.FormatDecisionCategory(decision.Category);
+            sb.AppendLine($"  - Decision category: {category}");
 
             string confidence = string.IsNullOrWhiteSpace(decision.ConfidenceLabel)
                 ? SponsorReviewPacketExportHonestyCopy.ConfidenceNotStored
@@ -41,9 +46,13 @@ public static partial class SponsorReviewPacketComposer
             string rationale = SponsorReviewPacketExportHonestyCopy.FormatDecisionRationale(decision.Rationale);
             sb.AppendLine($"  - Rationale: {rationale}");
 
-            string evidence = string.IsNullOrWhiteSpace(decision.EvidenceHref)
-                ? SponsorReviewPacketExportHonestyCopy.SupportingEvidenceNotListedInPacket
-                : decision.EvidenceHref.Trim();
+            string evidence = decision.EvidenceHref switch
+            {
+                null => SponsorReviewPacketExportHonestyCopy.DecisionRegisterRowHasNoEvidenceLinkField,
+                _ when string.IsNullOrWhiteSpace(decision.EvidenceHref) =>
+                    SponsorReviewPacketExportHonestyCopy.DecisionRegisterRowHasNoEvidenceLinkField,
+                _ => decision.EvidenceHref.Trim(),
+            };
             sb.AppendLine($"  - Evidence: {evidence}");
         }
 
@@ -62,6 +71,9 @@ public static partial class SponsorReviewPacketComposer
         int omittedPortfolioNextActionsCount = 0)
     {
         sb.AppendLine("## Portfolio signals (snapshot at export)");
+        sb.AppendLine();
+        sb.AppendLine(
+            $"- {SponsorReviewPacketExportHonestyCopy.PortfolioSignalsWorkspaceSnapshotDisclaimer}");
         sb.AppendLine();
 
         if (portfolioSignals is null)
@@ -92,7 +104,8 @@ public static partial class SponsorReviewPacketComposer
 
         if (nextActions.Count == 0)
         {
-            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.NextActionNotStored}");
+            sb.AppendLine(
+                $"- {(portfolioSignals.NextActions.Count == 0 ? SponsorReviewPacketExportHonestyCopy.PortfolioNextActionsDerivedEmpty : SponsorReviewPacketExportHonestyCopy.NextActionNotStored)}");
         }
         else
         {

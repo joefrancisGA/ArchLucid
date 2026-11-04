@@ -150,7 +150,7 @@ export function mergeCapturedEvidenceUploadOutcomes(
   ingestedUtc: string | null,
   evidenceItemIds: readonly string[] = [],
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
-  const map = new Map(existing.map((item) => [item.fileName.toLowerCase(), item]));
+  const items = [...existing];
   let evidenceIdIndex = 0;
 
   for (const outcome of outcomes) {
@@ -160,13 +160,21 @@ export function mergeCapturedEvidenceUploadOutcomes(
 
     const fileName = resolveCapturedEvidenceFileName(outcome.fileName ?? "");
     const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
+    const rowKey =
+      evidenceItemId !== null && evidenceItemId.trim().length > 0
+        ? evidenceItemId.trim()
+        : fileName === RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY
+          ? `upload:missing-name:${evidenceIdIndex}`
+          : `upload:${fileName}:${evidenceIdIndex}`;
 
     evidenceIdIndex += 1;
 
-    const mapKey = fileName.trim().length > 0 ? fileName.toLowerCase() : `upload:${evidenceIdIndex}`;
+    if (items.some((item) => item.key === rowKey)) {
+      continue;
+    }
 
-    map.set(mapKey, {
-      key: evidenceItemId ?? `upload:${mapKey}`,
+    items.push({
+      key: rowKey,
       fileName,
       ingestedUtc,
       evidenceItemId,
@@ -174,7 +182,7 @@ export function mergeCapturedEvidenceUploadOutcomes(
     });
   }
 
-  return [...map.values()].sort((left, right) =>
+  return items.sort((left, right) =>
     left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }),
   );
 }

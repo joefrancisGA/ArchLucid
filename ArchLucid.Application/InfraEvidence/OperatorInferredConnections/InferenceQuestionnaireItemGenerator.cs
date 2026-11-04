@@ -245,7 +245,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
                         payloadHashes,
                         utcNow,
                         ruleName: CatalogTemplateRuleName,
-                        questionText: $"Does {FormatSourceResourceLabel(fromLabel)} connect to database {ReadResourceName(database.AzureResourceId)} on {normalizedHost}?",
+                        questionText: FormatCatalogTemplateQuestionText(fromLabel, database, normalizedHost),
                         fromArmId: row.SiteResourceId,
                         fromLabel: fromLabel,
                         toHost: normalizedHost,
@@ -435,6 +435,29 @@ public sealed class InferenceQuestionnaireItemGenerator(
                     toCloudResourceId: apiApp.CloudResourceId);
             }
         }
+    }
+
+    private static string FormatCatalogTemplateQuestionText(
+        string? fromLabel,
+        AzureInventoryResourceRecord database,
+        string normalizedHost)
+    {
+        string databaseName = ReadResourceName(database.AzureResourceId);
+
+        if (databaseName.Length == 0)
+        {
+            return
+                $"Does {FormatSourceResourceLabel(fromLabel)} connect to a database whose name was not stored on {normalizedHost}?";
+        }
+
+        if (string.IsNullOrWhiteSpace(databaseName))
+        {
+            return
+                $"Does {FormatSourceResourceLabel(fromLabel)} connect to a database whose name was stored empty on {normalizedHost}?";
+        }
+
+        return
+            $"Does {FormatSourceResourceLabel(fromLabel)} connect to database {databaseName} on {normalizedHost}?";
     }
 
     private static bool TryAddItem(

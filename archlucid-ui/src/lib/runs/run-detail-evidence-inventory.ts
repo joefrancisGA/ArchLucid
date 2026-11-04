@@ -13,6 +13,11 @@ export type RunStoredEvidenceCatalogEntry = {
 
 export const RUN_DETAIL_EVIDENCE_KIND_NOT_STORED = "Evidence kind was not stored." as const;
 
+export const RUN_DETAIL_EVIDENCE_DUPLICATE_STORED_FILE_NAME =
+  "More than one stored file uses this name; this row is not linked to a single file." as const;
+
+export const RUN_DETAIL_EVIDENCE_KIND_STORED_EMPTY = "Evidence kind was stored empty." as const;
+
 export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
   "Findings cite evidence, but source names were not stored." as const;
 
@@ -37,7 +42,8 @@ export function formatRunDetailEvidenceSourceNameDisplay(sourceName: string): st
   return sourceName.trim();
 }
 
-export const SUBMITTED_EVIDENCE_LIST_NOT_STORED = "Submitted evidence list was not stored." as const;
+export const RUN_DETAIL_EVIDENCE_ARCHITECTURE_BRIEF_SOURCE_HONESTY =
+  "Submitted architecture text, not a stored file name." as const;
 
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;
@@ -75,14 +81,24 @@ function resolveStoredEvidenceKindFromCatalog(
 ): string {
   const catalogMatch = resolveStoredEvidenceCatalogMatch(sourceName, catalog);
 
+  if (catalogMatch === "duplicate-name") {
+    return RUN_DETAIL_EVIDENCE_DUPLICATE_STORED_FILE_NAME;
+  }
+
   if (catalogMatch === null || catalog === undefined) {
     return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
   }
 
   const entry = catalog.find((row) => row.evidenceItemId === catalogMatch.evidenceItemId);
-  const contentType = entry?.contentType?.trim() ?? "";
+  const rawContentType = entry?.contentType;
 
-  return contentType.length > 0 ? contentType : RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  if (rawContentType === undefined) {
+    return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  }
+
+  const contentType = rawContentType.trim();
+
+  return contentType.length > 0 ? contentType : RUN_DETAIL_EVIDENCE_KIND_STORED_EMPTY;
 }
 
 export function formatRunDetailEvidenceCitingFindingCount(
@@ -132,14 +148,16 @@ function resolveEvidenceSnippetSourceName(
 ): string {
   const extracted = extractSourceName(snippet);
 
-  if (resolveStoredEvidenceCatalogMatch(extracted, catalog) !== null) {
+  const catalogMatch = resolveStoredEvidenceCatalogMatch(extracted, catalog);
+
+  if (catalogMatch !== null && catalogMatch !== "duplicate-name") {
     return extracted;
   }
 
   const normalizedExtracted = extracted.trim().toLowerCase();
 
   if (normalizedExtracted.length > 0 && /\.[a-z0-9]{1,12}$/i.test(extracted.trim())) {
-    return extracted;
+    return RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED;
   }
 
   if (
@@ -151,8 +169,12 @@ function resolveEvidenceSnippetSourceName(
 
   const trimmedSnippet = snippet.trim();
 
-  if (trimmedSnippet.length > 0 && resolveStoredEvidenceCatalogMatch(trimmedSnippet, catalog) !== null) {
-    return trimmedSnippet;
+  if (trimmedSnippet.length > 0) {
+    const snippetMatch = resolveStoredEvidenceCatalogMatch(trimmedSnippet, catalog);
+
+    if (snippetMatch !== null && snippetMatch !== "duplicate-name") {
+      return trimmedSnippet;
+    }
   }
 
   return RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED;
@@ -169,7 +191,7 @@ type InventoryRowAccumulator = {
 function resolveStoredEvidenceCatalogMatch(
   sourceName: string,
   catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
-): { readonly evidenceItemId: string } | null {
+): { readonly evidenceItemId: string } | "duplicate-name" | null {
   if (catalog === undefined || catalog.length === 0) {
     return null;
   }
@@ -178,6 +200,10 @@ function resolveStoredEvidenceCatalogMatch(
   const fileNameMatches = catalog.filter(
     (entry) => entry.originalFileName.trim().toLowerCase() === normalizedSource,
   );
+
+  if (fileNameMatches.length > 1) {
+    return "duplicate-name";
+  }
 
   if (fileNameMatches.length === 1) {
     return { evidenceItemId: fileNameMatches[0]!.evidenceItemId };
@@ -203,11 +229,11 @@ function resolveInventoryKindForSourceName(
 
   const catalogMatch = resolveStoredEvidenceCatalogMatch(sourceName, catalog);
 
-  if (catalogMatch !== null) {
-    return { inventoryKind: "stored-file", evidenceItemId: catalogMatch.evidenceItemId };
+  if (catalogMatch === "duplicate-name" || catalogMatch === null) {
+    return { inventoryKind: "citation", evidenceItemId: null };
   }
 
-  return { inventoryKind: "citation", evidenceItemId: null };
+  return { inventoryKind: "stored-file", evidenceItemId: catalogMatch.evidenceItemId };
 }
 
 function addInventoryRow(
@@ -352,7 +378,7 @@ export function countRunDetailEvidenceInventoryItems(
 export type EvidenceScopeCoverageInput = {
   readonly inventoryCount: number;
   readonly findingsCoverageSummaryLine: string;
-  readonly linkedFindingCount: number;
+  readonly linkedFindingCount: number | null;
   readonly openFindingCount: number;
   readonly findingsSnapshotStored?: boolean;
 };
@@ -363,7 +389,12 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
     return input.findingsCoverageSummaryLine;
   }
 
-  if (input.openFindingCount > 0 && input.linkedFindingCount > 0) {
+  if (
+    input.openFindingCount > 0
+    && input.linkedFindingCount !== null
+    && input.linkedFindingCount !== undefined
+    && input.linkedFindingCount > 0
+  ) {
     const linkedCount = input.linkedFindingCount;
     const findingNoun = linkedCount === 1 ? "finding with" : "findings with";
 

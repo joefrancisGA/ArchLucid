@@ -10,19 +10,20 @@ import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
+import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import {
   EnterpriseTableCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
-import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
+import { formatQuickDecisionConfidenceWorkspaceLabel, formatQuickDecisionFindingTitleDisplay } from "@/lib/findings/quick-decision-finding-display";
 import { buildQuickDecisionFindingEvidenceLinks, formatQuickDecisionFindingEvidenceLinkLabel } from "@/lib/quick-decision-finding-links";
+import { resolveFindingEvidenceRefSnippetsWireState } from "@/lib/findings/finding-source-evidence-excerpt-copy";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -84,7 +85,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
             event.stopPropagation();
           }}
         >
-          {finding.title.trim().length > 0 ? finding.title : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
+          {formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title)}
         </Link>
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
@@ -121,6 +122,10 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
           Finding id:{" "}
           {finding.findingId.trim().length > 0 ? finding.findingId : "Finding id was not stored."}
         </p>
+        <FindingEvidenceRefSnippets
+          snippets={finding.evidenceRefSnippets ?? []}
+          wireState={resolveFindingEvidenceRefSnippetsWireState(finding.evidenceRefSnippets)}
+        />
       </EnterpriseTableCell>
       {showDensityScore ? (
         <EnterpriseTableCell className="w-[5rem] align-top tabular-nums text-al-text-secondary">

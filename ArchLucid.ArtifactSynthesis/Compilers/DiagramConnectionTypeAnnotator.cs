@@ -11,6 +11,8 @@ internal static class DiagramConnectionTypeAnnotator
 {
     public const string RelationshipNotStoredLabel = "Relationship was not stored";
 
+    public const string RelationshipStoredEmptyLabel = "Relationship was stored empty.";
+
     public const string RelationshipLabelNotStoredLabel = "Relationship label was not stored.";
 
     public static void Annotate(DiagramAst ast)
@@ -24,14 +26,19 @@ internal static class DiagramConnectionTypeAnnotator
                 continue;
             }
 
-            if (!string.IsNullOrWhiteSpace(edge.Label))
+            if (edge.Label is null || edge.Label.Length == 0)
             {
+                edge.Label = IsPrivateEndpointDiagramEdge(edge)
+                    ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                    : RelationshipNotStoredLabel;
                 continue;
             }
 
-            edge.Label = IsPrivateEndpointDiagramEdge(edge)
-                ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
-                : RelationshipNotStoredLabel;
+            if (string.IsNullOrWhiteSpace(edge.Label))
+            {
+                edge.Label = RelationshipStoredEmptyLabel;
+                continue;
+            }
         }
     }
 

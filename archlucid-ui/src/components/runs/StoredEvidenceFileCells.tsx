@@ -275,7 +275,7 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
         variant="outline"
         size="sm"
         data-testid={`run-detail-evidence-download-${props.evidenceItemId}`}
-        aria-label={`Download ${props.fileName}`}
+        aria-label={`Download ${fileNameDisplay}`}
         onClick={() =>
           props.handlers.onDownload({
             evidenceItemId: props.evidenceItemId,

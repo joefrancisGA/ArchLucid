@@ -20,7 +20,7 @@ export const EVIDENCE_REFERENCE_LABEL = "Evidence reference";
 export const EVIDENCE_REFERENCE_HELP =
   "Artifact URI, ticket ID, audit correlation ID, or finalized review record citation that supports this exception.";
 
-export const EXPIRATION_LABEL = "Expiration (local time)";
+export const EXPIRATION_LABEL = "Expiration (stored UTC)";
 
 export const EXPIRATION_HELP =
   "Stored in UTC. The Finalized review record is not modified — expiration applies to the exception only.";

@@ -14,18 +14,6 @@ import {
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
-import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
-
-const zeroGapLoadedClarificationQuestions: readonly ReviewClarificationQuestion[] = [
-  {
-    questionId: "q-resolved-1",
-    prompt: "Who owns data retention for this workload?",
-    sourceFindingId: "finding-gap-1",
-    sourceFindingType: "ClarificationGap",
-    severity: "Info",
-    missingItem: "retention-owner",
-  },
-];
 
 describe("ArchitectureCreatedClarificationsPanel", () => {
   it("preserves missing section, omitted entity collection, and empty entity count states", () => {
@@ -219,6 +207,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
         clarificationQuestions={[]}
+        clarificationQuestionsTotalDerivedCount={0}
       />,
     );
 
@@ -253,7 +242,6 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
-        clarificationQuestions={zeroGapLoadedClarificationQuestions}
       />,
     );
 
@@ -290,7 +278,6 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
-        clarificationQuestions={zeroGapLoadedClarificationQuestions}
       />,
     );
 
@@ -329,7 +316,6 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
         pagePrimaryOwnedElsewhere
-        clarificationQuestions={zeroGapLoadedClarificationQuestions}
       />,
     );
 

@@ -106,7 +106,9 @@ export function buildRunDetailEvidencePresentation(
     lastUpdatedLabel:
       lastEvaluatedUtc !== null
         ? formatInstantForLocale(lastEvaluatedUtc)
-        : "Last updated time was not stored.",
+        : "Completed time was not stored.",
+    homeTimestampPrefix:
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0 ? "Completed" : "Updated",
     workspaceStatus: input.workspaceStatus,
     assessmentInProgress: model.showProgressTracker,
     hasArtifacts: model.artifacts.length > 0,
@@ -146,7 +148,7 @@ export function buildRunDetailEvidencePresentation(
       governanceGateLabel: model.governanceGateLabel,
       aggregateRiskPosture: model.explanationSummary?.riskPosture ?? null,
     }),
-    createHomeActivityProvenanceAsOfLabel: "Not recorded",
+    createHomeActivityProvenanceAsOfLabel: "Provenance as-of was not loaded on this page.",
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome
       ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)

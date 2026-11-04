@@ -33,6 +33,9 @@ public static class SendableExportCoverComposer
 
     public const string PolicyPackVersionNotStoredLine = "Policy pack version was not stored.";
 
+    public const string SponsorRoiAmountNotStoredOnCoverLine =
+        "Sponsor ROI amount was not stored on this cover.";
+
     public const string ReviewIdNotStoredLine = "Review id was not stored.";
 
     public const string ReviewRecordStatusNotStoredLine = "Review record status was not stored.";
@@ -49,7 +52,7 @@ public static class SendableExportCoverComposer
 
         FeasibilityVerdict? verdict = input.CoverageContext.Verdict;
 
-        if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is not null && IsSendableCoverGateOutcomeStored(verdict.Kind))
         {
             lines.Add(
                 $"Gate outcome: {FormatVerdictKindLabel(verdict.Kind)} — treat exports as a reasoned decision record, not approval to proceed.");
@@ -69,6 +72,7 @@ public static class SendableExportCoverComposer
             lines.Add($"Semantic support: {SemanticSupportBandLaneBAsyncHonestyLine}");
         }
 
+        lines.Add($"Sponsor ROI amount: {SponsorRoiAmountNotStoredOnCoverLine}");
         lines.Add($"Sponsor ROI: {SponsorRoiNonSummingHeadlineLine}");
 
         return lines;
@@ -124,19 +128,19 @@ public static class SendableExportCoverComposer
                 $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
         }
 
-        List<string> parts = [];
-
-        if (id.Length == 0)
+        if (id.Length > 0 && version.Length == 0)
         {
-            parts.Add(PolicyPackIdNotStoredLine);
+            return FormattableString.Invariant(
+                $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PolicyPackVersionNotStoredLine}");
         }
 
-        if (version.Length == 0)
+        if (id.Length == 0 && version.Length > 0)
         {
-            parts.Add(PolicyPackVersionNotStoredLine);
+            return FormattableString.Invariant(
+                $"{PolicyPackIdNotStoredLine} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
         }
 
-        return parts.Count > 0 ? string.Join(' ', parts) : PolicyPackNotStoredLine;
+        return PolicyPackNotStoredLine;
     }
 
     internal static string FormatReviewRecordStatusMarkdownLine(string? reviewRecordStatus)
@@ -153,9 +157,15 @@ public static class SendableExportCoverComposer
             : "- **Review record status:** Review record status was stored empty.";
     }
 
+    internal static bool IsSendableCoverGateOutcomeStored(FeasibilityVerdictKind kind) =>
+        kind is FeasibilityVerdictKind.Feasible
+            or FeasibilityVerdictKind.SoftInfeasible
+            or FeasibilityVerdictKind.HardInfeasible;
+
     private static string FormatVerdictKindLabel(FeasibilityVerdictKind kind) =>
         kind switch
         {
+            FeasibilityVerdictKind.Feasible => "Feasible",
             FeasibilityVerdictKind.SoftInfeasible => "Soft infeasible",
             FeasibilityVerdictKind.HardInfeasible => "Hard infeasible",
             _ => kind.ToString(),

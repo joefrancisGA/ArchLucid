@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveLastEvaluatedLabel, formatReviewGovernanceDecisionRecordedByDisplay } from "./review-metadata";
+import { deriveLastEvaluatedLabel, formatArchitectureCreatedHomeOwnerDisplay, formatReviewGovernanceDecisionRecordedByDisplay } from "./review-metadata";
 
 describe("formatReviewGovernanceDecisionRecordedByDisplay", () => {
   it("replaces uuid approver ids with recorded-by honesty copy", () => {
@@ -14,6 +14,16 @@ describe("formatReviewGovernanceDecisionRecordedByDisplay", () => {
     expect(formatReviewGovernanceDecisionRecordedByDisplay("")).toBe(
       "Governance decision recorder was stored empty.",
     );
+  });
+});
+
+describe("formatArchitectureCreatedHomeOwnerDisplay", () => {
+  it("does not show a user id as the owner name", () => {
+    expect(formatArchitectureCreatedHomeOwnerDisplay("550e8400-e29b-41d4-a716-446655440000")).toBe(
+      "Owner name was not stored.",
+    );
+    expect(formatArchitectureCreatedHomeOwnerDisplay("alex@example.com")).toBe("Owner: alex@example.com");
+    expect(formatArchitectureCreatedHomeOwnerDisplay(null)).toBe("Owner was not stored.");
   });
 });
 

@@ -27,9 +27,11 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   )
     ? " Declared, probable, and inferred relationships are on this inventory diagram. They are not observed Azure connections."
     : "";
-  const relationshipSummary = relationshipSourceSummary.length > 0
-    ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
-    : ` ${edgeCount} relationships.`;
+  const relationshipSummary = edgeCount === 0
+    ? " No relationships were parsed from this diagram snapshot. That is not a stored finding that these resources have no links."
+    : relationshipSourceSummary.length > 0
+      ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
+      : ` ${edgeCount} relationships.`;
 
   return `${nodeCount} resources in stored inventory across ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
 }

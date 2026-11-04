@@ -12,6 +12,7 @@ import {
   ARCHITECTURE_DIAGRAM_EDIT_ACTION,
   ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT,
   ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
+  ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE,
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
   formatArchitectureDiagramUnlabeledComponentsNotice,
@@ -190,6 +191,14 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE}
             </p>
+            {!panel.liveModelSynced && panel.diagramModel !== null ? (
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="architecture-diagram-saved-mermaid-honesty"
+              >
+                {ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE}
+              </p>
+            ) : null}
             <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">
               {formatArchitectureDiagramMermaidSourceForDisclosure(panel.mermaidSource)}
             </pre>

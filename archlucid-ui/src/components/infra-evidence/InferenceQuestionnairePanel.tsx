@@ -53,6 +53,17 @@ function formatInferenceQuestionText(questionText: string | null | undefined): s
   return trimmed;
 }
 
+function isInferenceQuestionTextMissing(questionText: string | null | undefined): boolean {
+  if (questionText === null || questionText === undefined) {
+    return true;
+  }
+
+  return questionText.trim().length === 0;
+}
+
+const INFERENCE_QUESTION_TEXT_MISSING_HONESTY =
+  "Yes and No stay disabled until stored question text is available on this item." as const;
+
 function formatInferenceFromLabel(fromLabel: string | null | undefined): string {
   if (fromLabel === null || fromLabel === undefined) {
     return "Source resource was not stored.";
@@ -146,11 +157,22 @@ export function InferenceQuestionnairePanel(
 
   const requiresCatalogChoice =
     currentItem?.ruleName === "SQL catalog missing" || currentItem?.ruleName === "Tenant catalog template";
+  const storedToCatalog =
+    currentItem?.toCatalog === null || currentItem?.toCatalog === undefined
+      ? null
+      : currentItem.toCatalog.length === 0 || currentItem.toCatalog.trim().length === 0
+        ? ""
+        : currentItem.toCatalog.trim();
   const isDataPlaneQuestion = currentItem?.ruleName === "Unmapped data-plane role";
+  const questionTextMissing =
+    currentItem !== null && currentItem !== undefined
+      ? isInferenceQuestionTextMissing(currentItem.questionText)
+      : false;
 
   const canSubmit =
     choice != null
     && !submitting
+    && !(questionTextMissing && (choice === "yes" || choice === "no"))
     && (choice === "skip"
       || choice === "no"
       || choice === "nothing"
@@ -325,6 +347,11 @@ export function InferenceQuestionnairePanel(
               </>
             ) : (
               <>
+                {questionTextMissing ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {INFERENCE_QUESTION_TEXT_MISSING_HONESTY}
+                  </p>
+                ) : null}
                 <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
@@ -332,6 +359,7 @@ export function InferenceQuestionnairePanel(
                     variant={choice === "yes" ? "primary" : "outline"}
                     onClick={() => setChoice("yes")}
                     data-testid="inference-questionnaire-yes"
+                    disabled={questionTextMissing}
                   >
                     Yes
                   </Button>
@@ -341,6 +369,7 @@ export function InferenceQuestionnairePanel(
                     variant={choice === "no" ? "primary" : "outline"}
                     onClick={() => setChoice("no")}
                     data-testid="inference-questionnaire-no"
+                    disabled={questionTextMissing}
                   >
                     No
                   </Button>
@@ -365,7 +394,7 @@ export function InferenceQuestionnairePanel(
             )}
 
             {choice === "yes" && requiresCatalogChoice ? (
-              currentItem.toCatalog != null ? (
+              storedToCatalog !== null && storedToCatalog.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
                   <select
@@ -375,7 +404,7 @@ export function InferenceQuestionnairePanel(
                     onChange={(event) => setSelectedCatalog(event.target.value)}
                     data-testid="inference-questionnaire-catalog"
                   >
-                    <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
+                    <option value={storedToCatalog}>{storedToCatalog}</option>
                   </select>
                 </div>
               ) : (
@@ -383,7 +412,9 @@ export function InferenceQuestionnairePanel(
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="inference-questionnaire-catalog-missing"
                 >
-                  Database name was not stored.
+                  {storedToCatalog === ""
+                    ? "Database name was stored empty."
+                    : "Database name was not stored."}
                 </p>
               )
             ) : null}

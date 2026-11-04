@@ -83,6 +83,27 @@ describe("FindingDerivationLine (TB-2154)", () => {
     );
   });
 
+  it("labels zero evidence references without Open finding summary (P-13)", () => {
+    const derivation = buildFindingDerivationSentence({
+      ruleName: "Ingress rule",
+      severityLabel: "High",
+      evidenceRefCount: 0,
+    });
+
+    render(
+      <FindingDerivationLine
+        derivation={derivation}
+        evidenceHref="/architecture/reviews/run-1/findings/finding-1/evidence-trace"
+        evidenceRefCount={0}
+        testId="derivation-test"
+      />,
+    );
+
+    expect(screen.getByTestId("derivation-test-evidence-link")).toHaveTextContent(
+      "0 evidence references were stored",
+    );
+  });
+
   it("labels a missing evidence href in compact mode (P-12)", () => {
     const derivation = buildFindingDerivationSentence({
       ruleName: "Ingress rule",

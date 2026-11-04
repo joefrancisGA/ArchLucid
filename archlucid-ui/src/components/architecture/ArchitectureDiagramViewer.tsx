@@ -81,6 +81,7 @@ import {
 } from '@/lib/help/help-mermaid';
 import {
   applySecureNowQuestionSubjectHighlight,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_MAP_SURFACE_NOTE,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY,
@@ -95,6 +96,54 @@ const ZOOM_STEP = 0.1;
 const DIAGRAM_EDGE_ENDPOINT_NOT_STORED = 'Edge endpoint was not stored.';
 const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
 const DIAGRAM_MEMBER_NAME_STORED_EMPTY = 'Diagram member name was stored empty.';
+const DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED = 'Resource name was not stored.';
+const DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY = 'Resource name was stored empty.';
+const DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_NOT_STORED =
+  'Relationship label was not stored.';
+const DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_STORED_EMPTY =
+  'Relationship label was stored empty.';
+
+function formatSelectedConnectorNotice(selection: ArchitectureDiagramConnectorSelection): string {
+  const labelHonesty =
+    selection.label === null
+      ? DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_NOT_STORED
+      : selection.label.trim().length === 0
+        ? selection.label.length === 0
+          ? DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_NOT_STORED
+          : DIAGRAM_SELECTED_CONNECTOR_RELATIONSHIP_LABEL_STORED_EMPTY
+        : selection.label.trim();
+
+  return `Selected connector ${selection.from} → ${selection.to}. ${labelHonesty}`;
+}
+
+function formatDiagramClickFocusHeading(focus: {
+  readonly name: string;
+  readonly memberNames?: readonly string[];
+}): string {
+  if (focus.memberNames !== undefined) {
+    const trimmedName = focus.name.trim();
+
+    if (trimmedName.length > 0) {
+      return trimmedName;
+    }
+
+    return focus.name.length === 0
+      ? DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED
+      : DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY;
+  }
+
+  const trimmed = focus.name.trim();
+
+  if (trimmed.length > 0) {
+    return `Showing connections for ${trimmed}.`;
+  }
+
+  if (focus.name.length === 0) {
+    return `Showing connections for ${DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_NOT_STORED}.`;
+  }
+
+  return `Showing connections for ${DIAGRAM_CLICK_FOCUS_RESOURCE_NAME_STORED_EMPTY}.`;
+}
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
 const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
@@ -637,7 +686,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [questionSubjectBanner, setQuestionSubjectBanner] = useState<
-    "not-stored" | "stored-empty" | "not-found" | null
+    "not-stored" | "stored-empty" | "not-found" | "map-surface" | null
   >(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
@@ -670,6 +719,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const syncInlineViewportCameraRef = useRef<() => boolean>(() => false);
 
   fullscreenOpenRef.current = fullscreenOpen;
+
+  const selectedConnectorNotice = useMemo(
+    () => (selectedConnector === null ? null : formatSelectedConnectorNotice(selectedConnector)),
+    [selectedConnector],
+  );
+  const connectorStatusNotice = connectorFocusNotice ?? selectedConnectorNotice;
 
   useEffect(() => {
     const trimmed = mermaidSource.trim();
@@ -837,6 +892,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       return;
     }
 
+    if (effectiveSurface === "map") {
+      applySecureNowQuestionSubjectHighlight(svg, null);
+      setQuestionSubjectBanner("map-surface");
+      return;
+    }
+
     if (questionSubjectNodeId.length === 0) {
       applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
       setQuestionSubjectBanner("not-stored");
@@ -851,7 +912,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
     const subjectFound = applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
     setQuestionSubjectBanner(subjectFound ? null : "not-found");
-  }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
+  }, [effectiveSurface, questionSubjectNodeId, sanitizedSvg, focusNonce]);
 
   const syncInlineViewportCamera = useCallback((): boolean => {
     const host = svgHostRef.current;
@@ -1203,7 +1264,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
-      const title = node.querySelector('title')?.textContent?.trim() ?? "";
+      const title = node.querySelector('title')?.textContent ?? "";
       const memberNamesAttribute = node.getAttribute('data-member-names');
       const memberNames =
         memberNamesAttribute !== null
@@ -1221,7 +1282,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           : undefined;
       setClickFocus({
         id,
-        name: title.trim(),
+        name: title,
         memberNames,
       });
     };
@@ -1424,13 +1485,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </p>
       ) : null}
 
-      {connectorFocusNotice !== null && clickFocus === null ? (
+      {connectorStatusNotice !== null && clickFocus === null ? (
         <p
           className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
           data-testid="diagram-connector-focus-notice"
           aria-live="polite"
         >
-          {connectorFocusNotice}
+          {connectorStatusNotice}
         </p>
       ) : null}
 
@@ -1441,11 +1502,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           aria-live="polite"
         >
           <p className="m-0">
-            {clickFocus.memberNames !== undefined
-              ? clickFocus.name.length > 0
-                ? clickFocus.name
-                : "Resource name was not stored."
-              : `Diagram click focus (not stored metadata): connections for ${clickFocus.name.trim().length > 0 ? clickFocus.name : "Resource name was not stored."}.`}
+            {formatDiagramClickFocusHeading(clickFocus)}
           </p>
           {focusedNodeConnectionHint !== null ? (
             <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
@@ -1453,8 +1510,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           {clickFocus.memberNames !== undefined ? (
             clickFocus.memberNames.length > 0 ? (
               <ul className="m-0 mt-1 list-disc pl-5" data-testid="diagram-click-focus-cluster-members">
-                {clickFocus.memberNames.map((memberName) => (
-                  <li key={memberName}>{memberName}</li>
+                {clickFocus.memberNames.map((memberName, memberIndex) => (
+                  <li key={`${memberIndex}-${memberName}`}>{memberName}</li>
                 ))}
               </ul>
             ) : (
@@ -1526,9 +1583,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             {ARCHITECTURE_DIAGRAM_MAP_LABEL}
           </Button>
           <span className={cn('text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}>
-            {(activeNeighborhood.title ?? "").trim().length > 0
-              ? activeNeighborhood.title
-              : "Neighborhood title was not stored."}
+            {activeNeighborhood.title === null || activeNeighborhood.title === undefined
+              ? "Neighborhood title was not stored."
+              : activeNeighborhood.title.trim().length > 0
+                ? activeNeighborhood.title
+                : "Neighborhood title was stored empty."}
           </span>
         </div>
       ) : null}
@@ -1546,6 +1605,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED
             : questionSubjectBanner === "stored-empty"
               ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY
+              : questionSubjectBanner === "map-surface"
+                ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_MAP_SURFACE_NOTE
               : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
         </p>
       ) : null}

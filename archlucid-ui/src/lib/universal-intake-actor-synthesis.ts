@@ -53,18 +53,10 @@ function formatActorPairSentence(role: string, touch: string): string {
   const touchLabel = touch.trim();
 
   if (touchLabel.length === 0) {
-    return roleLabel;
+    return `${roleLabel} was named in source text`;
   }
 
-  if (/\b(?:browser|ui|workspace)\b/i.test(touchLabel)) {
-    return `${roleLabel} use ${touchLabel}`;
-  }
-
-  if (/\b(?:https?|api)\b/i.test(touchLabel)) {
-    return `${roleLabel} call ${touchLabel}`;
-  }
-
-  return `${roleLabel}: ${touchLabel}`;
+  return `${roleLabel} was named in source text with touchpoint ${touchLabel}`;
 }
 
 function synthesizeFromActorTableLines(lines: readonly string[]): string | null {

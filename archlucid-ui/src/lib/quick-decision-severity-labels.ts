@@ -9,10 +9,23 @@ export function firstRecommendationSentence(text: string): string {
     return "";
   }
 
-  const match = /^[\s\S]*?[.!?](?=\s|$)/.exec(t);
+  for (let index = 0; index < t.length; index += 1) {
+    const ch = t[index];
 
-  if (match !== null) {
-    return match[0].trim();
+    if (ch !== "." && ch !== "!" && ch !== "?") {
+      continue;
+    }
+
+    const sliceStart = Math.max(0, index - 3);
+    const window = t.slice(sliceStart, index + 1).toLowerCase();
+
+    if (window.endsWith("e.g.") || window.endsWith("i.e.")) {
+      continue;
+    }
+
+    if (index + 1 >= t.length || /\s/u.test(t[index + 1] ?? "")) {
+      return t.slice(0, index + 1).trim();
+    }
   }
 
   return t;
@@ -182,6 +195,37 @@ export function humanReviewStatusDisplay(
         statusKind: "neutral",
       };
   }
+}
+
+/** Helper copy under Decision state on the findings workspace primary card. */
+export function quickDecisionDecisionStateHelper(
+  reviewStatus: FindingHumanReviewStatusDisplay | null,
+  options?: { readonly stored?: boolean },
+): string {
+  if (options?.stored === false) {
+    return "No human review decision is stored on this finding.";
+  }
+
+  if (reviewStatus === null) {
+    return "No human review decision is stored on this finding.";
+  }
+
+  switch (reviewStatus.label) {
+    case "Pending review":
+      return "Human review is still open. Opening this card does not record a new decision.";
+    case "Approved":
+    case "Rejected":
+    case "Overridden":
+      return "The decision recorded for this finding. Opening this card does not change it.";
+    case "No human review required":
+      return "This finding did not require human review when stored.";
+    default:
+      return "The decision recorded for this finding. Opening this card does not record a new decision.";
+  }
+}
+
+export function formatQuickDecisionFindingOwnerStoredEmptyHelper(): string {
+  return "An owner field was stored empty on this finding.";
 }
 
 function normalizedSeverity(severityValue: number): number | null {

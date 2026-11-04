@@ -2,6 +2,9 @@ import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 const FINDING_TITLE_NOT_STORED = "Finding title was not stored." as const;
 
+const FINDING_TITLE_MATCHES_ID =
+  "Finding title matches the finding id. A separate title was not stored." as const;
+
 /** Avoid surfacing a stored finding id as if it were the reviewer-facing title. */
 export function formatQuickDecisionFindingTitleDisplay(
   findingId: string,
@@ -14,15 +17,35 @@ export function formatQuickDecisionFindingTitleDisplay(
     return FINDING_TITLE_NOT_STORED;
   }
 
-  if (idTrimmed.length > 0 && titleTrimmed === idTrimmed) {
-    return FINDING_TITLE_NOT_STORED;
+  if (idTrimmed.length > 0 && titleTrimmed.toLowerCase() === idTrimmed.toLowerCase()) {
+    return FINDING_TITLE_MATCHES_ID;
   }
 
   if (isUuidLike(titleTrimmed) && (idTrimmed.length === 0 || titleTrimmed === idTrimmed)) {
-    return FINDING_TITLE_NOT_STORED;
+    return FINDING_TITLE_MATCHES_ID;
   }
 
   return titleTrimmed;
+}
+
+export function formatQuickDecisionFindingPolicyRuleIdLine(
+  policyRuleId: string | null | undefined,
+): string {
+  if (policyRuleId === null || policyRuleId === undefined) {
+    return "Policy rule id was not stored.";
+  }
+
+  if (policyRuleId.length === 0) {
+    return "Policy rule id was stored empty.";
+  }
+
+  const trimmed = policyRuleId.trim();
+
+  if (trimmed.length === 0) {
+    return "Policy rule id was stored empty.";
+  }
+
+  return `Policy rule id: ${trimmed}`;
 }
 
 export function formatQuickDecisionFindingCategoryLine(
@@ -58,6 +81,33 @@ export function formatQuickDecisionFindingOwnerDisplay(
   }
 
   return owner;
+}
+
+export function formatQuickDecisionFindingOwnerHelper(
+  assignedToUserId: string | null | undefined,
+  emptyLabel = "Owner was not stored.",
+): string {
+  if (assignedToUserId === null || assignedToUserId === undefined) {
+    return "No owner name is stored on this finding.";
+  }
+
+  if (assignedToUserId.trim().length === 0) {
+    return "Remediation owner was stored empty.";
+  }
+
+  const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(assignedToUserId, emptyLabel);
+
+  if (ownerDisplay === emptyLabel || ownerDisplay === "Owner was stored empty.") {
+    return ownerDisplay === "Owner was stored empty."
+      ? "Remediation owner was stored empty."
+      : "No owner name is stored on this finding.";
+  }
+
+  if (ownerDisplay === "Owner display name was not stored.") {
+    return "Owner id was stored without a display name.";
+  }
+
+  return "The person recorded as responsible for this finding.";
 }
 
 export function isKnownQuickDecisionConfidenceLevel(

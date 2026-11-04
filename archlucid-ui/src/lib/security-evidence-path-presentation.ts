@@ -43,20 +43,28 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
-  const trimmed = band?.trim() ?? "";
+  if (band === null || band === undefined) {
+    return "Confidence band was not stored.";
+  }
+
+  const trimmed = band.trim();
 
   if (trimmed.length === 0) {
-    return "Confidence band was not stored.";
+    return "Confidence band was stored empty.";
   }
 
   return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Confidence band was not recognized.";
 }
 
 export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | undefined): string {
-  const trimmed = kind?.trim() ?? "";
+  if (kind === null || kind === undefined) {
+    return "Provenance kind was not stored.";
+  }
+
+  const trimmed = kind.trim();
 
   if (trimmed.length === 0) {
-    return "Provenance kind was not stored.";
+    return "Provenance kind was stored empty.";
   }
 
   return PROVENANCE_KIND_LABELS[trimmed] ?? "Provenance kind was not recognized.";
@@ -75,10 +83,14 @@ const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
 };
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
-  const trimmed = edgeType?.trim() ?? "";
+  if (edgeType === null || edgeType === undefined) {
+    return "Relationship type was not stored";
+  }
+
+  const trimmed = edgeType.trim();
 
   if (trimmed.length === 0) {
-    return "Relationship type was not stored";
+    return "Relationship type was stored empty.";
   }
 
   const mapped = PATH_RELATIONSHIP_LABELS[trimmed];

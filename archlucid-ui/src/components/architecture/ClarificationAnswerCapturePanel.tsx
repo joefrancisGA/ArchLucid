@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,11 @@ import { applyKnowledgeModelClarificationAnswers } from "@/lib/api/knowledge-mod
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { clarificationAnswersMutationBlockedReason } from "@/lib/runs/clarification-answers-mutation-blocked-reason";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatClarificationMissingItemDisplay } from "@/lib/reviews/clarification-missing-item-display";
+import { formatClarificationQuestionSeverityLabel } from "@/lib/reviews/review-clarification-questions-honesty";
+import { formatQuickDecisionFindingTitleDisplay } from "@/lib/findings/quick-decision-finding-display";
+import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 
 const MIN_ANSWER_CHARS = 8;
@@ -19,6 +24,7 @@ export type ClarificationAnswerCapturePanelProps = {
   readonly runId: string;
   readonly priorRunId: string;
   readonly questions: readonly ReviewClarificationQuestion[];
+  readonly totalDerivedCount: number | null;
   readonly freeTextIntent: string;
 };
 
@@ -75,8 +81,22 @@ export function ClarificationAnswerCapturePanel(
           Answer findings-derived clarifications
         </h3>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {props.totalDerivedCount === null
+            ? "Derived question count was not stored. "
+            : props.totalDerivedCount !== null && props.totalDerivedCount > props.questions.length
+              ? `Showing ${props.questions.length} of ${props.totalDerivedCount} findings-derived questions. `
+              : null}
           Answers are saved on this review and start a scoped re-review. Each answer needs at least {MIN_ANSWER_CHARS}{" "}
           characters.
+          {props.priorRunId.trim().length > 0 ? (
+            <>
+              {" "}
+              Clarification carry-forward references prior review{" "}
+              <span className="font-mono">{props.priorRunId.trim()}</span>; answers apply to this review only.
+            </>
+          ) : (
+            <> Prior review id was not stored on this clarification round.</>
+          )}
         </p>
       </div>
 
@@ -84,6 +104,15 @@ export function ClarificationAnswerCapturePanel(
         {props.questions.map((question) => {
           const answer = answers[question.questionId] ?? "";
           const answerId = `clarification-answer-${question.questionId}`;
+          const sourceFindingIdTrimmed = question.sourceFindingId.trim();
+          const sourceFindingHref =
+            sourceFindingIdTrimmed.length > 0
+              ? getFindingDetailHref(props.runId, sourceFindingIdTrimmed)
+              : null;
+          const sourceFindingLinkLabel =
+            sourceFindingHref !== null
+              ? formatQuickDecisionFindingTitleDisplay(sourceFindingIdTrimmed, sourceFindingIdTrimmed)
+              : null;
 
           return (
             <li key={question.questionId} className="space-y-2">
@@ -93,11 +122,22 @@ export function ClarificationAnswerCapturePanel(
                   : "Question text was stored empty."}
               </Label>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {question.missingItem === null || question.missingItem === undefined
-                  ? "Missing item was not stored."
-                  : question.missingItem.length === 0
-                    ? "Missing item was stored empty."
-                    : question.missingItem}
+                {formatClarificationQuestionSeverityLabel(question.severity)}
+              </p>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {sourceFindingHref !== null && sourceFindingLinkLabel !== null ? (
+                  <>
+                    Source finding:{" "}
+                    <Link href={sourceFindingHref} className={OPERATOR_LINK.inline}>
+                      {sourceFindingLinkLabel}
+                    </Link>
+                  </>
+                ) : (
+                  "Source finding id was not stored."
+                )}
+              </p>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {formatClarificationMissingItemDisplay(question.missingItem)}
               </p>
               <Textarea
                 id={answerId}

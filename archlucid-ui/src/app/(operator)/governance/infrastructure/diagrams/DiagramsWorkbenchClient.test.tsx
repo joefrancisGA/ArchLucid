@@ -526,7 +526,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Export Mermaid$/);
+    expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Download Mermaid source$/);
     expect(screen.getByText(
       "An unchecked option leaves those resources or links out of this drawing. They can still be in the snapshot.",
     )).toBeInTheDocument();
@@ -3010,6 +3010,108 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await within(nodesPanel).findByText("vm-c")).toBeInTheDocument();
     expect(searchParams.get("pathId")).toBe("path-1");
+  });
+
+  it("shows next-action copy when path hops do not match diagram nodes", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  nodea[unrelated-node]",
+      metrics: {
+        nodeCount: 1,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 0,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 80,
+        layoutEstimate: 40,
+      },
+      fallbackArtifacts: [],
+    }));
+    fetchSecurityEvidencePathDetailMock.mockResolvedValue({
+      pathId: "path-unmatched",
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      hops: [
+        {
+          hopOrdinal: 1,
+          fromNodeLabel:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/unknown",
+          toNodeLabel: "vault",
+          edgeType: "Allows",
+          provenanceKind: "ObservedFact",
+          hopConfidenceBand: "High",
+          inferenceSource: null,
+          evidenceReference: "hop:1",
+          cloudResourceId: null,
+        },
+      ],
+      routing: [],
+      weakestHop: null,
+      relatedCutPoints: [],
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&pathId=path-unmatched",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("securenow-diagram-path-focus-no-nodes-next")).toHaveTextContent(
+      "Show the rest of the subscription",
+    );
+  });
+
+  it("states hop-label match basis when path hops lack cloudResourceId", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid:
+        "flowchart LR\n  nodea[vm-a] --> nodeb[vm-b]\n  nodeb --> nodec[vm-c]",
+      metrics: {
+        nodeCount: 3,
+        edgeCount: 2,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+    fetchSecurityEvidencePathDetailMock.mockResolvedValue({
+      pathId: "path-1",
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      hops: [
+        {
+          hopOrdinal: 1,
+          fromNodeLabel:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-a",
+          toNodeLabel:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-b",
+          edgeType: "Allows",
+          provenanceKind: "ObservedFact",
+          hopConfidenceBand: "High",
+          inferenceSource: null,
+          evidenceReference: "hop:1",
+          cloudResourceId: null,
+        },
+      ],
+      routing: [],
+      weakestHop: null,
+      relatedCutPoints: [],
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&pathId=path-1",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("securenow-diagram-path-focus-match-basis")).toHaveTextContent(
+      "hop labels",
+    );
   });
 
   it("hides the subscription expansion control when pathId is absent", async () => {

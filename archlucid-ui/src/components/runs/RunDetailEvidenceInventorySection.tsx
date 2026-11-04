@@ -24,6 +24,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatRunDetailEvidenceCitingFindingCount,
   formatRunDetailEvidenceSourceNameDisplay,
+  RUN_DETAIL_EVIDENCE_ARCHITECTURE_BRIEF_SOURCE_HONESTY,
   type RunDetailEvidenceInventoryItem,
 } from "@/lib/runs/run-detail-evidence-inventory";
 import { enrichRunDetailEvidenceInventoryWithCatalog } from "@/lib/runs/run-stored-evidence-inventory-enrich";
@@ -38,8 +39,12 @@ export type RunDetailEvidenceInventorySectionProps = {
 };
 
 function formatIngestedLabel(iso: string | null): string {
-  if (iso === null || iso.trim().length === 0) {
+  if (iso === null) {
     return "Ingested time was not stored.";
+  }
+
+  if (iso.trim().length === 0) {
+    return "Ingested time was stored empty.";
   }
 
   const formatted = formatInstantForLocale(iso);
@@ -86,6 +91,17 @@ function renderSourceCell(
         <span className="font-medium text-al-text-primary">{displaySourceName}</span>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Cited — original not stored
+        </p>
+      </div>
+    );
+  }
+
+  if (item.inventoryKind === "architecture-brief") {
+    return (
+      <div>
+        <span className="font-medium text-al-text-primary">{displaySourceName}</span>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {RUN_DETAIL_EVIDENCE_ARCHITECTURE_BRIEF_SOURCE_HONESTY}
         </p>
       </div>
     );

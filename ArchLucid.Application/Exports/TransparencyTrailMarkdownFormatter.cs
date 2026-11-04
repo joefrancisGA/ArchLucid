@@ -29,6 +29,9 @@ public static class TransparencyTrailMarkdownFormatter
 
     public const string SkippedQuestionsNotRecordedLabel = SkippedQuestionsNotRecordedCopy;
 
+    public const string QuestionWordingNotStoredOnAnswerSuffix =
+        " — Question wording was not stored on this answer.";
+
     public static bool IsComplete(TransparencyTrail? trail)
     {
         if (trail is null)
@@ -188,7 +191,27 @@ public static class TransparencyTrailMarkdownFormatter
         string questionId = FormatAssertedTrailQuestionIdSuffix(entry.QuestionId);
         string recordedUtc = FormatAssertedTrailRecordedUtcSuffix(entry.RecordedUtc);
 
-        return $"{line}{responder}{questionId}{recordedUtc}";
+        return $"{line}{responder}{questionId}{recordedUtc}{FormatAssertedTrailQuestionWordingSuffix(entry)}";
+    }
+
+    internal static string FormatAssertedTrailQuestionWordingSuffix(AssertedTrailEntry entry)
+    {
+        if (!IsAnswerExportAssertedEntry(entry))
+        {
+            return string.Empty;
+        }
+
+        return QuestionWordingNotStoredOnAnswerSuffix;
+    }
+
+    private static bool IsAnswerExportAssertedEntry(AssertedTrailEntry entry)
+    {
+        if (entry.Key.StartsWith("answer.", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(entry.QuestionId);
     }
 
     internal static string FormatAssertedTrailResponderSuffix(string? responderLabel)

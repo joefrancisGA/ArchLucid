@@ -127,6 +127,21 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links[0]?.label).toContain("not in the loaded decision-grade findings index");
   });
 
+  it("collectCitedReviewIdsFromAskAnswerRefs only cites review id artifacts, not other artifact UUIDs", () => {
+    const runId = "11111111-1111-4111-8111-111111111111";
+    const artifactId = "22222222-2222-4222-8222-222222222222";
+
+    const cited = collectCitedReviewIdsFromAskAnswerRefs(runId, {
+      referencedFindings: [],
+      referencedDecisions: [],
+      referencedArtifacts: [artifactId, runId],
+    });
+
+    expect(cited.has(runId.toLowerCase())).toBe(true);
+    expect(cited.has(artifactId.toLowerCase())).toBe(false);
+    expect(cited.size).toBe(1);
+  });
+
   it("normalizes known demo aliases to the showcase spine", () => {
     const links = buyerAskGroundingLinksForRun("claims-intake-modernization-run");
 

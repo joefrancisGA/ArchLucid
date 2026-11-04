@@ -2,6 +2,17 @@ import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-inf
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
 import type { SecurityEvidencePathHop } from "@/lib/security-evidence-path-types";
 
+export type SecureNowPathHopDiagramMatchBasis =
+  | "cloudResourceId"
+  | "hopLabels"
+  | "none"
+  | "unfiltered";
+
+export type FilterInfraEvidenceDiagramOutlineByPathHopsResult = {
+  readonly outline: InfraEvidenceMermaidOutline | null;
+  readonly matchBasis: SecureNowPathHopDiagramMatchBasis;
+};
+
 function normalizeMatchToken(value: string): string {
   return value.trim().toLowerCase();
 }
@@ -77,12 +88,16 @@ function filterOutlineToMatchedNodes(
 }
 
 /** Keeps hop endpoints and edges between matched nodes for SecureNow path-focused diagrams. */
-export function filterInfraEvidenceDiagramOutlineByPathHops(
+export function filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(
   outline: InfraEvidenceMermaidOutline | null,
   hops: readonly SecurityEvidencePathHop[],
-): InfraEvidenceMermaidOutline | null {
-  if (outline == null || hops.length === 0) {
-    return outline;
+): FilterInfraEvidenceDiagramOutlineByPathHopsResult {
+  if (outline == null) {
+    return { outline: null, matchBasis: "none" };
+  }
+
+  if (hops.length === 0) {
+    return { outline, matchBasis: "unfiltered" };
   }
 
   const cloudResourceTokens = new Set<string>();
@@ -106,17 +121,30 @@ export function filterInfraEvidenceDiagramOutlineByPathHops(
     );
 
     if (cloudResourceMatchedNodeIds.size > 0) {
-      return filterOutlineToMatchedNodes(outline, cloudResourceMatchedNodeIds);
+      return {
+        outline: filterOutlineToMatchedNodes(outline, cloudResourceMatchedNodeIds),
+        matchBasis: "cloudResourceId",
+      };
     }
   }
 
   if (labelTokens.size === 0) {
-    return outline;
+    return { outline, matchBasis: "unfiltered" };
   }
 
   const labelMatchedNodeIds = new Set(
     outline.nodes.filter((node) => nodeMatchesPathHop(node, labelTokens)).map((node) => node.id),
   );
 
-  return filterOutlineToMatchedNodes(outline, labelMatchedNodeIds);
+  return {
+    outline: filterOutlineToMatchedNodes(outline, labelMatchedNodeIds),
+    matchBasis: labelMatchedNodeIds.size > 0 ? "hopLabels" : "none",
+  };
+}
+
+export function filterInfraEvidenceDiagramOutlineByPathHops(
+  outline: InfraEvidenceMermaidOutline | null,
+  hops: readonly SecurityEvidencePathHop[],
+): InfraEvidenceMermaidOutline | null {
+  return filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(outline, hops).outline;
 }

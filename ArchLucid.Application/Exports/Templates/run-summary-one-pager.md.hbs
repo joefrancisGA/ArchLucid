@@ -48,10 +48,23 @@
 
 ### Sponsor report
 
+{{#if SponsorReportGeneratedDisclaimer}}
+
+> {{SponsorReportGeneratedDisclaimer}}
+{{/if}}
+
 {{SponsorReport}}
 
 ### Top findings
 
+{{#if TopFindingsScopeLine}}
+{{TopFindingsScopeLine}}
+
+{{/if}}
+{{#if TopFindingsMessagePrefixDisclaimer}}
+{{TopFindingsMessagePrefixDisclaimer}}
+
+{{/if}}
 {{#each TopFindingTitles}}
 - {{this}}
 {{else}}

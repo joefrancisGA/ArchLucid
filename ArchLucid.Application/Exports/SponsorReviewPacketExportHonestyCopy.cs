@@ -10,12 +10,27 @@ internal static class SponsorReviewPacketExportHonestyCopy
 {
     internal const string DecisionTitleNotStored = "Decision title was not stored.";
     internal const string DecisionTitleStoredEmpty = "Decision title was stored empty.";
+    internal const string DecisionCategoryNotStored = "Decision category was not stored.";
+    internal const string DecisionCategoryStoredEmpty = "Decision category was stored empty.";
     internal const string SelectedOptionNotStored = "Selected option was not stored.";
     internal const string SelectedOptionStoredEmpty = "Selected option was stored empty.";
     internal const string NextActionNotStored = "Next action was not stored.";
+    internal const string PortfolioNextActionsDerivedEmpty =
+        "No portfolio next actions were derived from stored disposition amounts.";
+    internal const string PortfolioSignalsWorkspaceSnapshotDisclaimer =
+        "Portfolio signal counts reflect the workspace snapshot at export time, not live portal totals.";
+    internal const string DecisionRegisterReviewIdNotGuid =
+        "Review ID is not a GUID; decisions for this review were not listed from the register.";
+    internal const string ManifestStoredReviewNotCommitted =
+        "Manifest is stored on this review but the review is not committed.";
+    internal const string TenantPricingDefaultsNotStored =
+        "Retail savings basis and 1.0 EA discount multiplier are defaults when tenant pricing settings were not stored.";
     internal const string PortfolioSignalsNotStored = "Portfolio signals were not stored.";
     internal const string ConfidenceNotStored = "Confidence was not stored.";
     internal const string EvidenceLinkNotStored = "Evidence link was not stored.";
+
+    internal const string DecisionRegisterRowHasNoEvidenceLinkField =
+        "This packet does not include a decision evidence link because the register row has no evidence-link field.";
     internal const string SupportingEvidenceNotListedInPacket =
         "Supporting evidence ids and rationale were not listed in this packet.";
 
@@ -46,6 +61,17 @@ internal static class SponsorReviewPacketExportHonestyCopy
             return DecisionTitleStoredEmpty;
 
         return string.IsNullOrWhiteSpace(raw) ? DecisionTitleNotStored : raw.Trim();
+    }
+
+    internal static string FormatDecisionCategory(string? raw)
+    {
+        if (raw is null)
+            return DecisionCategoryNotStored;
+
+        if (raw.Length == 0)
+            return DecisionCategoryStoredEmpty;
+
+        return string.IsNullOrWhiteSpace(raw) ? DecisionCategoryNotStored : raw.Trim();
     }
 
     internal static string FormatSelectedOption(string? raw)
@@ -82,6 +108,33 @@ internal static class SponsorReviewPacketExportHonestyCopy
         }
 
         return string.IsNullOrWhiteSpace(raw) ? DecisionRationaleNotStored : raw.Trim();
+    }
+
+    internal static string FormatDecisionConfidenceLabel(string? buyerConfidenceSource, string? confidenceSource, double? confidence)
+    {
+        string? raw = !string.IsNullOrWhiteSpace(buyerConfidenceSource)
+            ? buyerConfidenceSource
+            : confidenceSource;
+
+        if (!string.IsNullOrWhiteSpace(raw))
+        {
+            string trimmed = raw.Trim();
+
+            if (double.TryParse(trimmed, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _))
+            {
+                return $"Confidence {trimmed} was stored without a reviewer label.";
+            }
+
+            return trimmed;
+        }
+
+        if (confidence is not null && double.IsFinite(confidence.Value))
+        {
+            return
+                $"Confidence {confidence.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} was stored without a reviewer label.";
+        }
+
+        return ConfidenceNotStored;
     }
 
     internal static string FormatTopFindingTitle(ArchitectureFinding finding)

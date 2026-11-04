@@ -6,6 +6,7 @@ import {
   QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO,
   buildQuickDecisionFindingEvidenceLinks,
   formatQuickDecisionFindingEvidenceLinkLabel,
+  quickDecisionEvidenceGraphLinkAccessibleLabel,
   quickDecisionRecommendationSnippet,
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
@@ -57,6 +58,17 @@ describe("quickDecisionRecommendationSnippet", () => {
   it("labels whitespace recommendations as stored empty", () => {
     expect(quickDecisionRecommendationSnippet(finding({ recommendation: " " }))).toBe(
       "Recommended action was stored empty.",
+    );
+  });
+  it("shows stored count when evidence link target is missing (P-05)", () => {
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(2)).toBe(
+      "2 evidence references were stored — Evidence link was not stored.",
+    );
+  });
+
+  it("adds graph navigation disclaimer to accessible labels (P-03)", () => {
+    expect(quickDecisionEvidenceGraphLinkAccessibleLabel("Evidence: 2 linked")).toContain(
+      "Graph link opens layout adjacency",
     );
   });
 });

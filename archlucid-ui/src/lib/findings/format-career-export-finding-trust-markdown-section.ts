@@ -32,9 +32,11 @@ export function formatCareerExportFindingTrustMarkdownSection(
     const trustLine = formatFindingTrustExportLine(finding);
     const title =
       finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.";
+    const findingIdLabel =
+      finding.findingId.trim().length > 0 ? finding.findingId.trim() : "Finding id was not stored.";
 
     lines.push(
-      `- **${finding.findingId}** — ${title}: ${trustLine ?? "Trust label was not stored."}`,
+      `- **${findingIdLabel}** — ${title}: ${trustLine ?? "Trust label was not stored."}`,
     );
   }
 

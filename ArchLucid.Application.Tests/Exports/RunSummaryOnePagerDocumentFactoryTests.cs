@@ -131,6 +131,43 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
     }
 
     [Fact]
+    public void Create_omits_findings_with_unstored_severity_from_counts()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Info,
+                            Message = "Stored severity",
+                            SeverityStored = true,
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            Message = "Unstored severity",
+                            SeverityStored = false,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.CriticalCount.Should().Be(0);
+        model.LowCount.Should().Be(1);
+        model.SeverityCountsFootnote.Should().Contain("severity not stored");
+    }
+
+    [Fact]
     public void Create_sets_top_findings_empty_copy_when_no_titles()
     {
         ArchitectureRunDetail detail = new()
@@ -222,5 +259,41 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
             RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", ["One"]);
 
         model.TopHighCriticalRemainderLine.Should().Contain("2 more Critical or Error finding(s)");
+    }
+
+    [Fact]
+    public void Create_labels_sealed_finding_count_not_stored_when_snapshot_id_without_count()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1", FindingsSnapshotId = snapshotId },
+            AgentResultsIncludedInDetail = false,
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.SealedFindingsSection.Should().Contain(RunSummaryOnePagerHonestyCopy.SealedFindingCountNotStored);
+    }
+
+    [Fact]
+    public void Create_uses_findings_snapshot_count_when_provided()
+    {
+        Guid snapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-2", FindingsSnapshotId = snapshotId },
+            AgentResultsIncludedInDetail = true,
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(
+                detail,
+                "Summary.",
+                [],
+                findingsSnapshotFindingCount: 7);
+
+        model.SealedFindingsSection.Should().Contain("7 finding(s)");
     }
 }

@@ -170,13 +170,55 @@ export function deriveHasSubmittedArchitectureDescription(run: RunSummary, headl
 }
 
 export function deriveReviewOwnerLabel(run: RunDetail["run"]): string | null {
-  const decisionBy = run.operatorGovernanceDecisionByUserId?.trim() ?? "";
+  return formatReviewOwnerDisplay(run.operatorGovernanceDecisionByUserId);
+}
 
-  if (decisionBy.length > 0) {
-    return decisionBy;
+export const REVIEW_OWNER_NAME_NOT_STORED_LABEL = "Owner name was not stored." as const;
+
+/** Create-home Owner line — never surfaces a raw user id as a display name. */
+export function formatReviewOwnerDisplay(
+  operatorGovernanceDecisionByUserId: string | null | undefined,
+): string | null {
+  if (operatorGovernanceDecisionByUserId === null || operatorGovernanceDecisionByUserId === undefined) {
+    return null;
   }
 
-  return null;
+  if (operatorGovernanceDecisionByUserId.length === 0) {
+    return "Owner was stored empty.";
+  }
+
+  const trimmed = operatorGovernanceDecisionByUserId.trim();
+
+  if (trimmed.length === 0) {
+    return "Owner was stored empty.";
+  }
+
+  if (isUuidLike(trimmed)) {
+    return REVIEW_OWNER_NAME_NOT_STORED_LABEL;
+  }
+
+  return trimmed;
+}
+
+/** Create-home Owner line — never prints a raw user id as the owner name. */
+export function formatArchitectureCreatedHomeOwnerDisplay(
+  ownerLabel: string | null,
+): string {
+  if (ownerLabel === null) {
+    return "Owner was not stored.";
+  }
+
+  const trimmed = ownerLabel.trim();
+
+  if (trimmed.length === 0) {
+    return "Owner was stored empty.";
+  }
+
+  if (isUuidLike(trimmed)) {
+    return "Owner name was not stored.";
+  }
+
+  return `Owner: ${trimmed}`;
 }
 
 /** Buyer-facing approver on review metadata — never surfaces a raw user id as a display name. */

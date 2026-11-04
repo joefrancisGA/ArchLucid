@@ -16,10 +16,12 @@ public static class RunSummaryOnePagerDocumentFactory
         string SponsorReport,
         IReadOnlyList<string> topFindingTitles,
         string? activeTrialExportNotice = null,
-        int sealedFindingCount = 0,
+        int sealedFindingCount = -1,
+        int? findingsSnapshotFindingCount = null,
         string? careerExportHonestyPlainText = null,
         string? sendableExportCoverPlainText = null,
-        string? architectRestatementMarkdown = null)
+        string? architectRestatementMarkdown = null,
+        string? sponsorReportGeneratedDisclaimer = null)
 
     {
         ArgumentNullException.ThrowIfNull(detail);
@@ -27,7 +29,21 @@ public static class RunSummaryOnePagerDocumentFactory
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
         bool agentFindingsStored = detail.AgentResultsIncludedInDetail;
-        (SeverityCounts counts, int mutedFindingCount) = CountBySeverity(detail);
+        (SeverityCounts counts, int mutedFindingCount, int unstoredSeverityCount) = CountBySeverity(detail);
+        List<string> severityFootnotes = [];
+
+        if (mutedFindingCount > 0)
+        {
+            severityFootnotes.Add($"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted).");
+        }
+
+        string unstoredSeverityFootnote =
+            RunSummaryOnePagerHonestyCopy.FormatUnstoredSeverityOmittedFromCounts(unstoredSeverityCount);
+
+        if (unstoredSeverityFootnote.Length > 0)
+        {
+            severityFootnotes.Add(unstoredSeverityFootnote);
+        }
         string[] topTitles = topFindingTitles
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())
@@ -38,6 +54,11 @@ public static class RunSummaryOnePagerDocumentFactory
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
         bool hasSealedSnapshot = detail.Run.FindingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty;
+        int resolvedSealedFindingCount = RunSummaryOnePagerHonestyCopy.ResolveSealedFindingCount(
+            detail.Run.FindingsSnapshotId,
+            agentFindingsStored,
+            sealedFindingCount,
+            findingsSnapshotFindingCount);
         (string? executionModeNoticeTitle, string? executionModeNoticeBody) =
             BoardExportExecutionModeNoticeResolver.TryGetNotice(detail.Run);
 
@@ -49,7 +70,7 @@ public static class RunSummaryOnePagerDocumentFactory
             RunIdDisplay = RunSummaryOnePagerHonestyCopy.ResolveRunId(runId),
             SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
                 detail.Run.FindingsSnapshotId,
-                hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0),
+                hasSealedSnapshot ? resolvedSealedFindingCount : 0),
             AgentFindingsCountsStored = agentFindingsStored,
             AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
             CriticalCount = counts.Critical,
@@ -57,9 +78,7 @@ public static class RunSummaryOnePagerDocumentFactory
             MediumCount = counts.Medium,
             LowCount = counts.Low,
             MutedFindingCount = mutedFindingCount,
-            SeverityCountsFootnote = mutedFindingCount > 0
-                ? $"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted)."
-                : string.Empty,
+            SeverityCountsFootnote = severityFootnotes.Count > 0 ? string.Join(" ", severityFootnotes) : string.Empty,
             SponsorReport = string.IsNullOrWhiteSpace(SponsorReport)
                 ? RunSummaryOnePagerHonestyCopy.SponsorReportNotStored
                 : SponsorReport.Trim(),
@@ -76,7 +95,7 @@ public static class RunSummaryOnePagerDocumentFactory
             FindingsSnapshotId = hasSealedSnapshot
                 ? detail.Run.FindingsSnapshotId!.Value.ToString("D")
                 : null,
-            SealedFindingCount = hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0,
+            SealedFindingCount = hasSealedSnapshot ? Math.Max(-1, resolvedSealedFindingCount) : 0,
             SimulatorRehearsalTitle = executionModeNoticeTitle,
             SimulatorRehearsalBody = executionModeNoticeBody,
             CareerExportHonestyPlainText = string.IsNullOrWhiteSpace(careerExportHonestyPlainText)
@@ -91,6 +110,15 @@ public static class RunSummaryOnePagerDocumentFactory
             TopHighCriticalRemainderLine = topHighCriticalRemainder > 0
                 ? $"{topHighCriticalRemainder} {RunSummaryOnePagerHonestyCopy.TopHighCriticalRemainderLine}"
                 : null,
+            TopFindingsScopeLine = agentFindingsStored && topTitles.Length > 0
+                ? RunSummaryOnePagerHonestyCopy.TopFindingsCriticalErrorScopeLine
+                : null,
+            TopFindingsMessagePrefixDisclaimer = agentFindingsStored && topTitles.Length > 0
+                ? RunSummaryOnePagerHonestyCopy.TopFindingsMessagePrefixDisclaimer
+                : null,
+            SponsorReportGeneratedDisclaimer = string.IsNullOrWhiteSpace(sponsorReportGeneratedDisclaimer)
+                ? null
+                : sponsorReportGeneratedDisclaimer.Trim(),
 
         };
     }
@@ -109,6 +137,9 @@ public static class RunSummaryOnePagerDocumentFactory
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
                 if (finding is null || finding.IsMuted)
+                    continue;
+
+                if (!finding.SeverityStored)
                     continue;
 
                 if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
@@ -137,6 +168,9 @@ public static class RunSummaryOnePagerDocumentFactory
                 if (finding is null || finding.IsMuted)
                     continue;
 
+                if (!finding.SeverityStored)
+                    continue;
+
                 if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
                     findings.Add(finding);
             }
@@ -149,14 +183,16 @@ public static class RunSummaryOnePagerDocumentFactory
             .ToArray();
     }
 
-    private static (SeverityCounts counts, int mutedFindingCount) CountBySeverity(ArchitectureRunDetail detail)
+    private static (SeverityCounts counts, int mutedFindingCount, int unstoredSeverityCount) CountBySeverity(
+        ArchitectureRunDetail detail)
     {
         SeverityCounts counts = new();
         int mutedFindingCount = 0;
+        int unstoredSeverityCount = 0;
 
         if (!detail.AgentResultsIncludedInDetail)
         {
-            return (counts, mutedFindingCount);
+            return (counts, mutedFindingCount, unstoredSeverityCount);
         }
 
         foreach (AgentResult result in detail.Results)
@@ -169,6 +205,12 @@ public static class RunSummaryOnePagerDocumentFactory
                 if (finding.IsMuted)
                 {
                     mutedFindingCount++;
+                    continue;
+                }
+
+                if (!finding.SeverityStored)
+                {
+                    unstoredSeverityCount++;
                     continue;
                 }
 
@@ -190,7 +232,7 @@ public static class RunSummaryOnePagerDocumentFactory
             }
         }
 
-        return (counts, mutedFindingCount);
+        return (counts, mutedFindingCount, unstoredSeverityCount);
     }
 
     private sealed class SeverityCounts

@@ -20,6 +20,27 @@ describe("buildFindingsDerivedClarificationGaps (P-12)", () => {
       ],
     });
 
-    expect(gaps[0]?.label).toBe("Clarification question was not stored.");
+    expect(gaps[0]?.label).toBe("Question text was stored empty.");
+    expect(gaps[0]?.followUpUnavailableMessage).toBeNull();
+  });
+
+  it("blocks follow-up link when review id is blank (P-18)", () => {
+    const gaps = buildFindingsDerivedClarificationGaps({
+      runId: "   ",
+      clarificationPriorRunId: null,
+      gapSourceCapturedAtUtc: null,
+      questions: [
+        {
+          questionId: "q-1",
+          prompt: "Who owns recovery?",
+          sourceFindingId: "f-1",
+          sourceFindingType: "PolicyCoverageFinding",
+          severity: "Warning",
+          missingItem: "item-a",
+        },
+      ],
+    });
+
+    expect(gaps[0]?.followUpUnavailableMessage).toContain("Review id was not stored");
   });
 });

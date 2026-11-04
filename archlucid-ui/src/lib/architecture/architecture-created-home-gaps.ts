@@ -20,11 +20,24 @@ export type ArchitectureMissingItem = {
   readonly href: string;
   readonly category: ClarificationGapCategory;
   readonly source: ClarificationGapSource;
+  readonly followUpUnavailableMessage?: string | null;
 };
 
 const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_OUTCOME_CHARS = 10;
 const MAX_MISSING_ITEMS = 6;
+
+function formatPageCheckGapLabel(fieldLabel: string, trimmedValue: string, minimumChars: number): string {
+  if (trimmedValue.length === 0) {
+    return `${fieldLabel} was not stored on this page`;
+  }
+
+  if (trimmedValue.length < minimumChars) {
+    return `${fieldLabel} was stored but is below the intake minimum on this page`;
+  }
+
+  return `${fieldLabel} was not stored on this page`;
+}
 
 function capMissingItems(items: readonly ArchitectureMissingItem[]): {
   readonly items: readonly ArchitectureMissingItem[];
@@ -53,10 +66,12 @@ function buildGapSource(
 
 function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): string {
   if (input.clarificationRoundAvailable === true) {
-    return resolveClarificationFollowUpHref({
-      runId: input.runId,
-      priorRunId: input.clarificationPriorRunId ?? input.runId,
-    });
+    return (
+      resolveClarificationFollowUpHref({
+        runId: input.runId,
+        priorRunId: input.clarificationPriorRunId ?? null,
+      }) ?? buildArchitectureCorrectionHref(input.runId, input.correctionHref)
+    );
   }
 
   return buildArchitectureCorrectionHref(input.runId, input.correctionHref);
@@ -76,7 +91,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   ) {
     items.push({
       id: "system-name",
-      label: "System name not stored or below intake minimum on this page",
+      label: formatPageCheckGapLabel("System name", normalizedArchitectureName, 1),
       href: clarifyHref,
       category: "clarification",
       source,
@@ -86,7 +101,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.gapAssertion.businessOutcome && input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     items.push({
       id: "business-outcome",
-      label: "Business outcome not stored or below intake minimum on this page",
+      label: formatPageCheckGapLabel("Business outcome", input.businessOutcome.trim(), MIN_OUTCOME_CHARS),
       href: clarifyHref,
       category: "clarification",
       source,
@@ -96,7 +111,11 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.architectureOverview.trim().length < MIN_STRONG_OVERVIEW_CHARS) {
     items.push({
       id: "architecture-overview",
-      label: "Architecture overview not stored or below intake minimum on this page",
+      label: formatPageCheckGapLabel(
+        "Architecture overview",
+        input.architectureOverview.trim(),
+        MIN_STRONG_OVERVIEW_CHARS,
+      ),
       href: clarifyHref,
       category: "clarification",
       source,
@@ -116,7 +135,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
       id: "people-systems",
       label: hasStoredSystemName
         ? "People and systems list was stored empty on this page"
-        : "People and systems not listed on this page yet",
+        : "People and systems were not stored on this page",
       href: clarifyHref,
       category: "clarification",
       source,
@@ -169,7 +188,7 @@ export function buildMissingItemsWithOmitted(input: BuildArchitectureCreatedHome
       buildFindingsDerivedClarificationGaps({
         runId: input.runId,
         questions: findingsQuestions,
-        clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
+        clarificationPriorRunId: input.clarificationPriorRunId ?? null,
         gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
       }),
     );

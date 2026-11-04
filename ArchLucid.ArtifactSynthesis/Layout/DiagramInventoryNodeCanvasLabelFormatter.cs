@@ -16,7 +16,9 @@ public static class DiagramInventoryNodeCanvasLabelFormatter
     {
         if (string.IsNullOrWhiteSpace(resourceName))
         {
-            return ["Resource name was not stored."];
+            return resourceName is { Length: 0 }
+                ? ["Resource name was not stored."]
+                : ["Resource name was stored empty."];
         }
 
         string trimmed = resourceName.Trim();

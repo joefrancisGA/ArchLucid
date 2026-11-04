@@ -474,6 +474,30 @@ describe('ArchitectureDiagramViewer', () => {
     expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('storage-b');
   });
 
+  it('labels whitespace-only rollup titles as stored empty', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-rollup" data-member-names="storage-a"><title>   </title><rect class="node-card" width="80" height="20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-rollup')!);
+
+    expect(await screen.findByTestId('diagram-click-focus-status')).toHaveTextContent(
+      'Resource name was stored empty.',
+    );
+  });
+
   it('reports connector clicks and dims other connectors when selected', async () => {
     const onSelectConnector = vi.fn();
     const forestLayoutSvg = [
@@ -517,6 +541,28 @@ describe('ArchitectureDiagramViewer', () => {
       expect(selectedEdge).not.toHaveClass('diagram-click-dim');
       expect(host.querySelector('g.edge[data-from="app"][data-to="storage"]')).toHaveClass('diagram-click-dim');
     });
+  });
+
+  it('shows selected connector relationship label honesty (P-03)', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="edge" data-from="app" data-to="sql"><title></title><path d="M20 20L80 20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        selectedConnector={{ from: 'app', to: 'sql', label: '   ' }}
+      />,
+    );
+
+    expect(await screen.findByTestId('diagram-connector-focus-notice')).toHaveTextContent(
+      'Relationship label was stored empty.',
+    );
   });
 
   it('adds the authorization hint when a focused node has a May access edge', async () => {

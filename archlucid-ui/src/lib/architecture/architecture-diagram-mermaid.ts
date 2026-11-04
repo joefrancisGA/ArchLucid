@@ -2,9 +2,11 @@ import {
   ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX,
   ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
   ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX,
+  ARCHITECTURE_DIAGRAM_EMPTY_MERMAID_NOTE_PREFIX,
   ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP,
   formatArchitectureDiagramTextAlternativeOverflowNotice,
   formatArchitectureDiagramUnlabeledComponentsNotice,
+  formatArchitectureDiagramDanglingConnectionsOmittedLine,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
@@ -36,6 +38,15 @@ export const RECORDED_ARCHITECTURE_COMPONENTS_REMOVED_FROM_DIAGRAM =
 
 export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
   "A connection was left off this diagram because an endpoint was not on the diagram." as const;
+
+function countDanglingArchitectureDiagramEdges(
+  activeEdges: ArchitectureDiagramModel["edges"],
+  activeNodeIds: ReadonlySet<string>,
+): number {
+  return activeEdges.filter(
+    (edge) => !activeNodeIds.has(edge.sourceId) || !activeNodeIds.has(edge.targetId),
+  ).length;
+}
 
 function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
   if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
@@ -127,7 +138,11 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    const emptyLabel = escapeMermaidLabel(resolveEmptyArchitectureDiagramMessage(model), []);
+    const emptyMessage = resolveEmptyArchitectureDiagramMessage(model);
+    const emptyLabel = escapeMermaidLabel(
+      `${ARCHITECTURE_DIAGRAM_EMPTY_MERMAID_NOTE_PREFIX} ${emptyMessage}`,
+      [],
+    );
     return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
@@ -138,11 +153,8 @@ export function architectureDiagramModelToMermaid(
   }
 
   const activeEdges = model.edges.filter((edge) => !edge.removed);
-  const danglingEdgeOmitted = activeEdges.some(
-    (edge) =>
-      !activeNodes.some((node) => node.id === edge.sourceId)
-      || !activeNodes.some((node) => node.id === edge.targetId),
-  );
+  const activeNodeIds = new Set(activeNodes.map((node) => node.id));
+  const danglingConnectionCount = countDanglingArchitectureDiagramEdges(activeEdges, activeNodeIds);
 
   for (const edge of activeEdges) {
     const sourceExists = activeNodes.some((node) => node.id === edge.sourceId);
@@ -161,8 +173,11 @@ export function architectureDiagramModelToMermaid(
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
   }
 
-  if (danglingEdgeOmitted) {
-    const omissionLabel = escapeMermaidLabel(ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED, peerResourceNames);
+  if (danglingConnectionCount > 0) {
+    const omissionLabel = escapeMermaidLabel(
+      formatArchitectureDiagramDanglingConnectionsOmittedLine(danglingConnectionCount),
+      peerResourceNames,
+    );
     lines.push(`  diagramOmissionNote["${omissionLabel}"]:::inferredNode`);
   }
 
@@ -177,9 +192,14 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
   const omittedConnectionCount = activeEdges.length - renderedEdges.length;
-  const danglingEdgeOmitted = activeEdges.some(
-    (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
+  const danglingConnectionCount = countDanglingArchitectureDiagramEdges(
+    activeEdges,
+    new Set(nodeLabelById.keys()),
   );
+  const danglingEdgeLine =
+    danglingConnectionCount > 0
+      ? formatArchitectureDiagramDanglingConnectionsOmittedLine(danglingConnectionCount)
+      : null;
   const boundaryLine =
     model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
   const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
@@ -190,7 +210,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const tailParts = [
     boundaryLine,
     skippedUnlabeledLine,
-    danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null,
+    danglingEdgeLine,
     ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
@@ -199,19 +219,20 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   if (activeNodes.length === 0) {
     const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
     const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
+    const nonEntityTail = tailParts.filter(
+      (line) => !(model.entitySectionHonestyLines ?? []).includes(line),
+    );
 
     if (omittedSectionLines.length > 0) {
-      return omittedSectionLines.join(". ");
+      const head = omittedSectionLines.join(". ");
+
+      return nonEntityTail.length > 0 ? [head, ...nonEntityTail].join(". ") : head;
     }
 
     const head =
       sectionHonesty.length > 0
         ? [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ")
         : resolveEmptyArchitectureDiagramMessage(model);
-
-    const nonEntityTail = tailParts.filter(
-      (line) => !(model.entitySectionHonestyLines ?? []).includes(line),
-    );
 
     return nonEntityTail.length > 0 ? [head, ...nonEntityTail].join(". ") : head;
   }
@@ -223,12 +244,10 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
   const edgeLinesAll = renderedEdges.map((edge) => {
-    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
-      nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
-    );
-    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
-      nodeLabelById.get(edge.targetId) ?? edge.targetId,
-    );
+    const sourceRaw = nodeLabelById.get(edge.sourceId);
+    const targetRaw = nodeLabelById.get(edge.targetId);
+    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(sourceRaw ?? "");
+    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(targetRaw ?? "");
     const inferred =
       edge.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
@@ -250,9 +269,8 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   );
   const edgeLines = cappedEdgeLines;
 
-  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
   const omittedConnectionLine =
-    omittedConnectionCount > 0
+    danglingConnectionCount === 0 && omittedConnectionCount > 0
       ? `${ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX} ${omittedConnectionCount}`
       : null;
 

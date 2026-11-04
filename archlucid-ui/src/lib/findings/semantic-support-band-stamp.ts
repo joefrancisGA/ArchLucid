@@ -252,6 +252,7 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
         finding.title,
         "Finding title was not stored.",
         96,
+        "Finding title was stored empty.",
       ),
     });
   }

@@ -66,31 +66,25 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
         foreach (string c in report.Evidence?.Request.Constraints ?? [])
         {
-            if (string.IsNullOrWhiteSpace(c))
-            {
-                continue;
-            }
-
             items.Add(
                 new ArchitectureReviewBoardExportEvidenceItem
                 {
                     Title = ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintTitle,
-                    Detail = c.Trim(),
+                    Detail = string.IsNullOrWhiteSpace(c)
+                        ? ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintStoredEmpty
+                        : c.Trim(),
                 });
         }
 
         foreach (string cap in report.Evidence?.Request.RequiredCapabilities ?? [])
         {
-            if (string.IsNullOrWhiteSpace(cap))
-            {
-                continue;
-            }
-
             items.Add(
                 new ArchitectureReviewBoardExportEvidenceItem
                 {
                     Title = ArchitectureReviewBoardExportHonestyCopy.EvidenceRequiredCapabilityTitle,
-                    Detail = cap.Trim(),
+                    Detail = string.IsNullOrWhiteSpace(cap)
+                        ? ArchitectureReviewBoardExportHonestyCopy.EvidenceRequiredCapabilityStoredEmpty
+                        : cap.Trim(),
                 });
         }
 
@@ -107,6 +101,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             string title = FormatDecisionTraceTitle(trace);
             string detailText = string.Empty;
 
+            string? recordedAtUtcLabel = null;
+
             if (trace is RunEventTraceDto runEvent)
             {
                 RunEventTracePayload payload = runEvent.RunEvent;
@@ -117,6 +113,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                     ? "Event description was not stored."
                     : payload.EventDescription.Trim();
                 detailText = $"{eventType}: {eventDescription}";
+                recordedAtUtcLabel = FormatDecisionTraceRecordedAtUtcLabel(null);
             }
             else if (trace is RuleAuditTraceDto ruleAudit)
             {
@@ -136,15 +133,29 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                     payload.RejectedFindingIds,
                     "Rejected finding ids were not stored.",
                     "Rejected finding ids were stored empty.");
+                string requiredFindings = FormatRuleAuditFindingIdList(
+                    payload.RequiredFindingIds,
+                    "Required finding ids were not stored.",
+                    "Required finding ids were stored empty.");
+                string allowedFindings = FormatRuleAuditFindingIdList(
+                    payload.AllowedFindingIds,
+                    "Allowed finding ids were not stored.",
+                    "Allowed finding ids were stored empty.");
+                string preferredFindings = FormatRuleAuditFindingIdList(
+                    payload.PreferredFindingIds,
+                    "Preferred finding ids were not stored.",
+                    "Preferred finding ids were stored empty.");
                 detailText =
-                    $"Rule set {ruleSetId} v{ruleSetVersion}; applied rules: {appliedRules}; accepted findings: {acceptedFindings}; rejected findings: {rejectedFindings}.";
+                    $"Rule set {ruleSetId} v{ruleSetVersion}; applied rules: {appliedRules}; accepted findings: {acceptedFindings}; rejected findings: {rejectedFindings}; required findings: {requiredFindings}; allowed findings: {allowedFindings}; preferred findings: {preferredFindings}.";
+                recordedAtUtcLabel = FormatDecisionTraceRecordedAtUtcLabel(payload.CreatedUtc);
             }
 
             rows.Add(
                 new ArchitectureReviewBoardExportDecisionRow
                 {
                     Title = title,
-                    Detail = string.IsNullOrWhiteSpace(detailText) ? "Decision detail was not stored." : detailText
+                    Detail = string.IsNullOrWhiteSpace(detailText) ? "Decision detail was not stored." : detailText,
+                    RecordedAtUtcLabel = recordedAtUtcLabel,
                 });
 
             if (rows.Count >= MaxArchitectureDecisionTraceRows)
@@ -206,5 +217,15 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         }
 
         return string.Join(", ", findingIds);
+    }
+
+    private static string FormatDecisionTraceRecordedAtUtcLabel(DateTime? createdUtc)
+    {
+        if (createdUtc is null || createdUtc.Value == default)
+        {
+            return ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored;
+        }
+
+        return createdUtc.Value.ToUniversalTime().ToString("O");
     }
 }

@@ -113,6 +113,16 @@ public sealed class SponsorReviewPacketBuilder(
                 cancellationToken);
         }
 
+        int? findingsSnapshotFindingCount = null;
+        if (Guid.TryParse(runId.Trim(), out Guid runGuidForSnapshot))
+        {
+            RunDetailDto? exportDetail = await _authorityQueryService
+                .GetRunDetailForExportAsync(scope, runGuidForSnapshot, cancellationToken)
+                .ConfigureAwait(false);
+
+            findingsSnapshotFindingCount = exportDetail?.FindingsSnapshot?.Findings?.Count;
+        }
+
         SponsorRoiSummaryResponse roiSummary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
 
@@ -166,12 +176,15 @@ public sealed class SponsorReviewPacketBuilder(
             careerExportHonesty,
             architectRestatements,
             topDecisions.OmittedCount,
-            omittedPortfolioNextActions);
+            omittedPortfolioNextActions,
+            findingsSnapshotFindingCount,
+            topDecisions.ReviewIdNotGuid);
     }
 
     private sealed record TopDecisionsExportSlice(
         IReadOnlyList<SponsorReviewPacketDecisionRow> Rows,
-        int OmittedCount);
+        int OmittedCount,
+        bool ReviewIdNotGuid = false);
 
     private static string BuildDeterministicSponsorReport(
         ArchitectureRunDetail detail,
@@ -183,12 +196,13 @@ public sealed class SponsorReviewPacketBuilder(
         string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(
             detail.Manifest?.SystemName);
 
-        string committedStatusClause = detail.IsCommitted
-            ? "is committed"
-            : "is not committed";
+        string committedStatusClause = detail.Manifest is not null
+            ? "has a stored manifest"
+            : "does not have a stored manifest on this export";
 
         return
-            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the first-five preview. "
+            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the first-five preview "
+            + "(Critical and Error only within that five-item preview; Warning, Info, and findings whose severity was not stored are outside those counts). "
             + "Use the ROI basis by disposition section to separate estimated potential from realized remediated value before sponsor sign-off.";
     }
 
@@ -197,7 +211,7 @@ public sealed class SponsorReviewPacketBuilder(
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
-            return new TopDecisionsExportSlice([], 0);
+            return new TopDecisionsExportSlice([], 0, ReviewIdNotGuid: true);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchitectureDecisionRegisterResponse register = await _decisionRegisterService
@@ -215,8 +229,12 @@ public sealed class SponsorReviewPacketBuilder(
             rows.Add(new SponsorReviewPacketDecisionRow
             {
                 Title = entry.Title,
+                Category = entry.Category,
                 SelectedOption = entry.SelectedOption,
-                ConfidenceLabel = entry.BuyerConfidenceSource ?? entry.ConfidenceSource,
+                ConfidenceLabel = SponsorReviewPacketExportHonestyCopy.FormatDecisionConfidenceLabel(
+                    entry.BuyerConfidenceSource,
+                    entry.ConfidenceSource,
+                    entry.Confidence),
                 EvidenceHref = string.Empty,
                 SupportingFindingIdsSummary =
                     SponsorReviewPacketExportHonestyCopy.FormatSupportingFindingIdsSummary(entry.SupportingFindingIds),

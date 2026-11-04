@@ -20,6 +20,8 @@ export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = AZURE_RESOURCE_NAME_NOT_ST
 
 export const SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL = "Node name was not stored" as const;
 
+export const SECURE_NOW_RESOURCE_NAME_STORED_EMPTY_LABEL = "Resource name was stored empty." as const;
+
 export function isSecureNowResourceDisplayNameMissing(resourceName: string | null | undefined): boolean {
   const trimmed = resourceName?.trim() ?? "";
 

@@ -31,6 +31,12 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string FindingMessageNotStoredLabel = "Finding message was not stored.";
 
+    internal const string EvidenceRefsOnRowEmptyLabel = "No evidence references were on this finding row.";
+
+    internal const string EvidenceRefsNotStoredLabel = "Evidence refs were not stored.";
+
+    internal const string EvidenceRefsStoredEmptyLabel = "Evidence refs were stored empty.";
+
     internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
 
     internal const string TrustLabelStoredEmptyLabel = "Trust label was stored empty.";
@@ -75,7 +81,13 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string DispositionNotStoredLabel = "Disposition was not stored.";
 
+    internal const string DispositionNotStoredOnTrackingRowLabel =
+        "Disposition was not stored on the ITSM tracking row.";
+
     internal const string RevisitTimeNotStoredLabel = "Revisit time was not stored.";
+
+    internal const string RevisitTimeNotStoredOnTrackingRowLabel =
+        "Revisit time was not stored on the ITSM tracking row.";
 
     internal const string FindingIdNotStoredLabel = "Finding id was not stored.";
 
@@ -99,11 +111,19 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string ExternalProviderNotStoredLabel = "ITSM provider was not stored.";
 
+    internal const string ExternalProviderStoredEmptyLabel = "ITSM provider was stored empty.";
+
     internal const string ExternalKeyNotStoredLabel = "ITSM external key was not stored.";
+
+    internal const string ExternalKeyStoredEmptyLabel = "ITSM external key was stored empty.";
 
     internal const string ExternalUrlNotStoredLabel = "ITSM external URL was not stored.";
 
+    internal const string ExternalUrlStoredEmptyLabel = "ITSM external URL was stored empty.";
+
     internal const string LinkedTicketsSummaryNotStoredLabel = "ITSM linked tickets summary was not stored.";
+
+    internal const string LinkedTicketsSummaryStoredEmptyLabel = "ITSM linked tickets summary was stored empty.";
 
     internal const string NoItsmTrackingRowStoredLabel = "No ITSM tracking row was stored for this finding.";
 
@@ -113,7 +133,11 @@ public static class ArchitectureRunFindingsCsvFormatter
         "Mute reason was not stored because the finding is not muted.";
 
     internal const string LegacyHeaderLine =
-        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
+        "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,PolicyRuleId,Message,EvidenceRefs,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
+
+    internal const string PolicyRuleIdNotStoredLabel = "Policy rule id was not stored.";
+
+    internal const string PolicyRuleIdStoredEmptyLabel = "Policy rule id was stored empty.";
 
     internal const string TrustLabelHeaderSuffix = "TrustLabel,TrustLabelReason";
 
@@ -295,6 +319,19 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     public static string FormatFindingStatus(bool isMuted) => isMuted ? "muted" : FindingNotMutedStatusLabel;
 
+    internal static string FormatSeverityForExport(ArchitectureFinding finding)
+    {
+        if (!finding.SeverityStored)
+        {
+            return "Severity was not stored.";
+        }
+
+        string stored = finding.Severity.ToString();
+        string reviewerLabel = MapReviewerSeverityLabel(finding.Severity);
+
+        return $"Stored severity: {stored}. Reviewer label: {reviewerLabel}.";
+    }
+
     internal static string FormatSeverityForExport(FindingSeverity severity)
     {
         string stored = severity.ToString();
@@ -354,10 +391,12 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatFindingId(finding.FindingId)),
                 ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
                 ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
-                ExportFormatterService.EscapeCsvField(FormatSourceAgent(result)),
-                ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding.Severity)),
+                ExportFormatterService.EscapeCsvField(FormatSourceAgent(result, finding)),
+                ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding)),
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
+                ExportFormatterService.EscapeCsvField(FormatPolicyRuleId(finding.PolicyRuleId)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
+                ExportFormatterService.EscapeCsvField(FormatEvidenceRefs(finding.EvidenceRefs)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(FormatMuteReason(finding.IsMuted, finding.MuteReason)),
@@ -440,8 +479,18 @@ public static class ArchitectureRunFindingsCsvFormatter
         return muteReason.Trim();
     }
 
-    private static string FormatSourceAgent(AgentResult result)
+    private static string FormatSourceAgent(AgentResult result, ArchitectureFinding finding)
     {
+        if (!finding.SourceAgentStored)
+        {
+            return SourceAgentNotStoredLabel;
+        }
+
+        if (finding.SourceAgent != default)
+        {
+            return finding.SourceAgent.ToString();
+        }
+
         AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
 
         return agentType == default ? SourceAgentNotStoredLabel : agentType.ToString();
@@ -458,9 +507,11 @@ public static class ArchitectureRunFindingsCsvFormatter
                 : ExternalProviderNotStoredLabel;
         }
 
-        return string.IsNullOrWhiteSpace(tracking.Provider)
+        return tracking.Provider is null
             ? ExternalProviderNotStoredLabel
-            : tracking.Provider.Trim();
+            : string.IsNullOrWhiteSpace(tracking.Provider)
+                ? ExternalProviderStoredEmptyLabel
+                : tracking.Provider.Trim();
     }
 
     private static string FormatTrackingExternalKey(
@@ -474,9 +525,11 @@ public static class ArchitectureRunFindingsCsvFormatter
                 : ExternalKeyNotStoredLabel;
         }
 
-        return string.IsNullOrWhiteSpace(tracking.ExternalKey)
+        return tracking.ExternalKey is null
             ? ExternalKeyNotStoredLabel
-            : tracking.ExternalKey.Trim();
+            : string.IsNullOrWhiteSpace(tracking.ExternalKey)
+                ? ExternalKeyStoredEmptyLabel
+                : tracking.ExternalKey.Trim();
     }
 
     private static string FormatTrackingExternalUrl(
@@ -490,9 +543,11 @@ public static class ArchitectureRunFindingsCsvFormatter
                 : ExternalUrlNotStoredLabel;
         }
 
-        return string.IsNullOrWhiteSpace(tracking.ExternalUrl)
+        return tracking.ExternalUrl is null
             ? ExternalUrlNotStoredLabel
-            : tracking.ExternalUrl.Trim();
+            : string.IsNullOrWhiteSpace(tracking.ExternalUrl)
+                ? ExternalUrlStoredEmptyLabel
+                : tracking.ExternalUrl.Trim();
     }
 
     private static string FormatLinkedTicketsSummary(
@@ -506,9 +561,11 @@ public static class ArchitectureRunFindingsCsvFormatter
                 : LinkedTicketsSummaryNotStoredLabel;
         }
 
-        return string.IsNullOrWhiteSpace(tracking.ItsmLinkedTicketsSummary)
+        return tracking.ItsmLinkedTicketsSummary is null
             ? LinkedTicketsSummaryNotStoredLabel
-            : tracking.ItsmLinkedTicketsSummary.Trim();
+            : string.IsNullOrWhiteSpace(tracking.ItsmLinkedTicketsSummary)
+                ? LinkedTicketsSummaryStoredEmptyLabel
+                : tracking.ItsmLinkedTicketsSummary.Trim();
     }
 
     private static string FormatEstimatedUsdSavings(ArchitectureFinding finding)
@@ -549,6 +606,21 @@ public static class ArchitectureRunFindingsCsvFormatter
         return string.IsNullOrWhiteSpace(category) ? CategoryStoredEmptyLabel : category.Trim();
     }
 
+    internal static string FormatPolicyRuleId(string? policyRuleId)
+    {
+        if (policyRuleId is null)
+        {
+            return PolicyRuleIdNotStoredLabel;
+        }
+
+        if (policyRuleId.Length == 0 || string.IsNullOrWhiteSpace(policyRuleId))
+        {
+            return PolicyRuleIdStoredEmptyLabel;
+        }
+
+        return policyRuleId.Trim();
+    }
+
     internal static string FormatClassificationForExport(FindingClassification? classification)
     {
         if (classification == FindingClassification.DecisionGradeFinding)
@@ -562,6 +634,26 @@ public static class ArchitectureRunFindingsCsvFormatter
         }
 
         return DecisionGradeFindingExportFilter.FindingClassificationNotStoredLabel;
+    }
+
+    private static string FormatEvidenceRefs(IReadOnlyList<string>? evidenceRefs)
+    {
+        if (evidenceRefs is null)
+        {
+            return EvidenceRefsNotStoredLabel;
+        }
+
+        if (evidenceRefs.Count == 0)
+        {
+            return EvidenceRefsStoredEmptyLabel;
+        }
+
+        List<string> trimmed = evidenceRefs
+            .Select(static reference => reference.Trim())
+            .Where(static reference => reference.Length > 0)
+            .ToList();
+
+        return trimmed.Count == 0 ? EvidenceRefsStoredEmptyLabel : string.Join("; ", trimmed);
     }
 
     private static string FormatMessage(string? message)
@@ -609,7 +701,11 @@ public static class ArchitectureRunFindingsCsvFormatter
     private static string FormatDisposition(RunFindingExternalTrackingProjection? tracking)
     {
         if (tracking is null || tracking.LatestDisposition is null)
-            return DispositionNotStoredLabel;
+        {
+            return tracking is null
+                ? DispositionNotStoredLabel
+                : DispositionNotStoredOnTrackingRowLabel;
+        }
 
         return tracking.LatestDisposition.Value.ToString();
     }
@@ -617,7 +713,11 @@ public static class ArchitectureRunFindingsCsvFormatter
     private static string FormatRevisitDueUtc(RunFindingExternalTrackingProjection? tracking)
     {
         if (tracking is null || tracking.RevisitDueUtc is null)
-            return RevisitTimeNotStoredLabel;
+        {
+            return tracking is null
+                ? RevisitTimeNotStoredLabel
+                : RevisitTimeNotStoredOnTrackingRowLabel;
+        }
 
         return tracking.RevisitDueUtc.Value.ToString("O", CultureInfo.InvariantCulture);
     }

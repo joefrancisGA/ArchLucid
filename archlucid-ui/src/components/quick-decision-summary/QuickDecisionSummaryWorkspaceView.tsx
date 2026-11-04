@@ -212,6 +212,7 @@ export function QuickDecisionSummaryWorkspaceView({
             onToggleAskPanel={interaction.toggleAskPanel}
             onViewReasoning={interaction.openReasoningDialog}
             onMute={interaction.openMuteDialog}
+            findingWireSnapshot={props.findingWireSnapshots?.[primaryFinding.findingId] ?? null}
           />
           {derived.advisoryNotes.length > 0 && !interaction.showAdvisory ? (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
@@ -254,7 +255,7 @@ export function QuickDecisionSummaryWorkspaceView({
           {hiddenPriorityCount > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Showing top {PRIORITY_FINDINGS_DISPLAY_LIMIT} sponsor-relevant findings.
+                Showing top {PRIORITY_FINDINGS_DISPLAY_LIMIT} open findings by severity sort.
               </p>
               <Button
                 type="button"

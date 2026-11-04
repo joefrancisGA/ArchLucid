@@ -106,10 +106,12 @@ function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): Q
       ? 0
       : lowConfidenceFindings.length;
   const hiddenLowConfidenceHint = formatHiddenLowConfidenceHint(hiddenLowConfidenceCount);
-  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
+  const { policyViolations, advisoryNotes, enforcementTierUnspecified } =
+    partitionQuickDecisionFindings(trustedFindings);
   const {
     policyViolations: lowConfidencePolicyViolations,
     advisoryNotes: lowConfidenceAdvisoryNotes,
+    enforcementTierUnspecified: lowConfidenceEnforcementTierUnspecified,
   } = partitionQuickDecisionFindings(lowConfidenceFindings);
   const topGroups = groupQuickDecisionFindingsByPolicyPack(
     policyViolations,
@@ -154,8 +156,10 @@ function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): Q
     hiddenLowConfidenceHint,
     policyViolations,
     advisoryNotes,
+    enforcementTierUnspecified,
     lowConfidencePolicyViolations,
     lowConfidenceAdvisoryNotes,
+    lowConfidenceEnforcementTierUnspecified,
     topGroups,
     policyPackSummary,
     policyPackImpact,

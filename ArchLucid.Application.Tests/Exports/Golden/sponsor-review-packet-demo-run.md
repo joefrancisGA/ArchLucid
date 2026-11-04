@@ -1,6 +1,6 @@
 # Sponsor review packet
 
-**Generated (UTC):** 2026-05-16 14:00:00 Z
+**Export written (UTC):** 2026-05-16 14:00:00 Z. This is the packet write time, not a stored review time.
 
 ## Manifest summary
 
@@ -13,11 +13,14 @@
 
 **Simulator** — **Not real-mode AI** — deterministic simulator; do not claim live model quality.
 
-## Top decisions
+## First five decisions (not ranked)
 
 - **PHI ingress classification** — Enforce boundary classifier before persistence
+  - Decision category: Security
   - Confidence: Rule audit (0.92)
-  - Evidence: Evidence link was not stored.
+  - Supporting finding ids: Supporting finding ids were not stored.
+  - Rationale: Decision rationale was not stored.
+  - Evidence: This packet does not include a decision evidence link because the register row has no evidence-link field.
 
 ## Review summary
 
@@ -45,9 +48,14 @@ Findings snapshot id was not stored.
 
 ### Sponsor report
 
+
 Proceed with claims intake modernization under monitored PHI minimization controls — sponsor-facing KPIs remain on track.
 
 ### Top findings
+
+This list includes Critical and Error findings only.
+
+Each bullet below is the stored finding message, not a recommended action or title.
 
 - PHI minimization risk at intake boundary
 - Under-provisioned OCR worker autoscale floor
@@ -59,6 +67,8 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 _This sponsor summary combines sealed snapshot copy (when stored), agent-stream severity counts, and sponsor report prose. Review before sharing with sponsors._
 
 ## Portfolio signals (snapshot at export)
+
+- Portfolio signal counts reflect the workspace snapshot at export time, not live portal totals.
 
 - **Findings resolved (30d):** 2
 - **Findings discovered (30d):** 3

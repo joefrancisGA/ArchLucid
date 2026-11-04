@@ -1,7 +1,7 @@
 export const SECURENOW_SCENARIO_WALKS_HEADING = "Fixture walks" as const;
 
 export const SECURENOW_SCENARIO_WALKS_LEAD =
-  "Five fixture walks. Not customer evidence. SecureNow beta remains NO_GO." as const;
+  "Six fixture walks. Not customer evidence. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_SCENARIO_WALKS_GUARDRAIL =
   "A fixture walkthrough is not a customer outcome and not a starter proof pack." as const;
@@ -42,5 +42,11 @@ export const SECURENOW_SCENARIO_WALKS: readonly SecureNowScenarioWalk[] = [
     buyerJob:
       "Show a unit fixture where removing a Contributor assignment removes probable privilege paths between snapshots.",
     honestLabel: "Unit fixture, not a sponsor demo.",
+  },
+  {
+    id: "fixture-path-02",
+    buyerJob:
+      "Walk a second synthetic ranked path (fixture-path-02) with a different hop pair on the public sample page.",
+    honestLabel: "Synthetic fixture. Not a customer result.",
   },
 ] as const;

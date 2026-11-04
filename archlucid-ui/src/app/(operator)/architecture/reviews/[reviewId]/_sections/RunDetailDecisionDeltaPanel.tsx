@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleBadge";
+import { CopyStoredTextButton } from "@/components/CopyStoredTextButton";
 import { FindingTrustChipFromSet } from "@/components/findings/FindingTrustChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -68,6 +69,9 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
                 >
                   {row.title}
                 </Link>
+                {row.fullStoredTitle !== null ? (
+                  <CopyStoredTextButton value={row.fullStoredTitle} />
+                ) : null}
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-2">

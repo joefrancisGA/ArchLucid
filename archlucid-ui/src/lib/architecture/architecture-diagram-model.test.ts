@@ -230,6 +230,7 @@ describe("buildArchitectureDiagramModel", () => {
     );
 
     expect(model.edges).toEqual([]);
+    expect(model.unmatchedDataFlows.some((flow) => flow.includes("Duplicate component name"))).toBe(true);
   });
 
   it("does not add the review title as a system node when it is not already listed (P-10)", () => {

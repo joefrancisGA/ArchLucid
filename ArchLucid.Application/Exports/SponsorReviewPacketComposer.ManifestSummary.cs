@@ -34,15 +34,20 @@ public static partial class SponsorReviewPacketComposer
             : "Review ID was not stored.";
         string statusLabel = run is null
             ? "Review status was not stored."
-            : run.Status == ArchitectureRunStatus.Committed
-                ? "Committed"
-                : run.Status.ToString();
+            : FormatReviewStatusForSponsorPacket(run.Status);
 
         string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
         sb.AppendLine($"- **System:** {systemName}");
         sb.AppendLine($"- **Manifest version:** {manifestVersion}");
         sb.AppendLine($"- **Review ID:** `{runId}`");
         sb.AppendLine($"- **Status:** {statusLabel}");
+
+        if (run is not null && run.Status != ArchitectureRunStatus.Committed)
+        {
+            sb.AppendLine(
+                $"- **Manifest commit status:** {SponsorReviewPacketExportHonestyCopy.ManifestStoredReviewNotCommitted}");
+        }
+
         sb.AppendLine();
     }
 
@@ -50,14 +55,35 @@ public static partial class SponsorReviewPacketComposer
         StringBuilder sb,
         ArchitectureRunDetail detail,
         string SponsorReport,
-        IReadOnlyList<string> topFindingTitles)
+        IReadOnlyList<string> topFindingTitles,
+        int? findingsSnapshotFindingCount = null)
     {
         RunSummaryOnePagerDocumentModel onePager =
-            RunSummaryOnePagerDocumentFactory.Create(detail, SponsorReport, topFindingTitles);
+            RunSummaryOnePagerDocumentFactory.Create(
+                detail,
+                SponsorReport,
+                topFindingTitles,
+                findingsSnapshotFindingCount: findingsSnapshotFindingCount);
 
         sb.AppendLine("## Review summary");
         sb.AppendLine();
         sb.AppendLine(RunSummaryOnePagerMarkdownRenderer.Render(onePager).TrimEnd());
         sb.AppendLine();
     }
+
+    private static string FormatReviewStatusForSponsorPacket(ArchitectureRunStatus status) =>
+        status switch
+        {
+            ArchitectureRunStatus.Committed => "Finalized",
+            ArchitectureRunStatus.ReadyForCommit => "Ready to finalize",
+            ArchitectureRunStatus.Failed => "Failed",
+            ArchitectureRunStatus.FailedPartial => "Failed (partial results)",
+            ArchitectureRunStatus.PartiallyCompleted => "Partially completed",
+            ArchitectureRunStatus.ExecutionCompletedQualityRejected => "Quality rejected",
+            ArchitectureRunStatus.Retrying => "Retrying",
+            ArchitectureRunStatus.WaitingForResults => "Waiting for results",
+            ArchitectureRunStatus.TasksGenerated => "Tasks generated",
+            ArchitectureRunStatus.Created => "Created",
+            _ => status.ToString(),
+        };
 }

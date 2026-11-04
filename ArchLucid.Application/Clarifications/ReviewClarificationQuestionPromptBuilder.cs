@@ -29,8 +29,11 @@ public static class ReviewClarificationQuestionPromptBuilder
         if (string.Equals(findingType, "RequiredCapabilityCoverageFinding", StringComparison.OrdinalIgnoreCase))
             return $"Which topology, security, or requirement evidence satisfies required capability {item}?";
 
-        return $"What evidence or design detail resolves assessment gap {item}?";
+        return $"Finding type '{findingType.Trim()}' has no dedicated clarification template. What evidence or design detail resolves assessment gap {item}?";
     }
+
+    internal const string MissingItemGuidWithoutDisplayNameCopy =
+        "Missing item was a GUID without a display name.";
 
     internal const string MissingItemNotStoredCopy = "Missing item was not stored.";
 
@@ -54,6 +57,11 @@ public static class ReviewClarificationQuestionPromptBuilder
             || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return $"Resource name was not stored. Stored reference: '{trimmed}'.";
+        }
+
+        if (Guid.TryParse(trimmed, out _))
+        {
+            return $"{MissingItemGuidWithoutDisplayNameCopy} Stored reference: '{trimmed}'.";
         }
 
         return $"'{trimmed}'";

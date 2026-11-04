@@ -87,6 +87,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly explanationUsesStaticDemo?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly parentArchitectureId?: string | null;
+  readonly findingsMissingFindingIdCount?: number;
 };
 
 function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
@@ -357,6 +358,7 @@ export function RunDetailRunExplanationCollapsible(
           withheldListLoadState={props.withheldListLoadState ?? null}
           structuralExecutionMode={structuralExecutionMode}
           parentArchitectureId={parentArchitectureId}
+          findingsMissingFindingIdCount={props.findingsMissingFindingIdCount}
         />
 
         {showCoverageAndCuration ? (

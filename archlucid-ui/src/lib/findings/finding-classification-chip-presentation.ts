@@ -1,6 +1,7 @@
 import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
+  FINDING_CLASSIFICATION_STORED_EMPTY_LABEL,
   isUnrecognizedFindingClassification,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
@@ -48,6 +49,10 @@ export function resolveFindingClassificationLabel(
     }
 
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;
+  }
+
+  if (typeof classification === "string" && classification.trim().length === 0) {
+    return FINDING_CLASSIFICATION_STORED_EMPTY_LABEL;
   }
 
   if (isUnrecognizedFindingClassification(classification)) {

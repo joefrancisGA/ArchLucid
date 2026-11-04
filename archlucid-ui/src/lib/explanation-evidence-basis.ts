@@ -115,6 +115,7 @@ export function resolveExplanationEvidenceBasisBadges(
     (input.faithfulnessSupportRatio === null || input.faithfulnessSupportRatio === undefined)
     && input.citationCount !== null
     && input.citationCount !== undefined
+    && input.citationCount > 0
   ) {
     badges.push(
       badge(
@@ -137,12 +138,17 @@ export function resolveExplanationEvidenceBasisBadges(
         ),
       );
     } else {
+      const ratio = normalizeFiniteRatio(input.faithfulnessSupportRatio);
+      const zeroCitationDetail =
+        ratio !== null
+          ? "Faithfulness support was stored. No persisted citations were stored for this explanation."
+          : "No persisted citations were stored for this explanation.";
       badges.push(
         badge(
           "manual-review-required",
           "Manual review required",
           input.citationCount === 0
-            ? "No persisted citations were stored for this explanation."
+            ? zeroCitationDetail
             : "No persisted citation or support ratio is available for this explanation.",
           true,
         ),

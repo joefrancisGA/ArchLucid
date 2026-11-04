@@ -38,5 +38,5 @@ export function buyerFindingSeverityDisplayLabel(severityRaw: string | null | un
     return "Severity label was not a recognized stored value.";
   }
 
-  return trimmed;
+  return `Severity label was not a recognized stored value. Stored token: ${trimmed}.`;
 }

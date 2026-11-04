@@ -74,6 +74,20 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void FormatSeverityForExport_labels_unstored_severity_on_finding()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Severity = FindingSeverity.Critical,
+            SeverityStored = false,
+        };
+
+        ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(finding)
+            .Should()
+            .Be("Severity was not stored.");
+    }
+
+    [Fact]
     public void BuildCsvContent_exports_evaluation_confidence_when_agent_confidence_is_absent()
     {
         ArchitectureFinding finding = new()
@@ -206,7 +220,9 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,Estimated savings were not stored.,"
+            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Policy rule id was not stored.,Rotate keys,"
+            + ArchitectureRunFindingsCsvFormatter.EvidenceRefsStoredEmptyLabel
+            + ",Estimated savings were not stored.,"
             + ArchitectureRunFindingsCsvFormatter.FindingNotMutedStatusLabel
             + ","
             + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
@@ -284,7 +300,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderStoredEmptyLabel);
         csv.Should().Contain("KEY-1,https://example.test/KEY-1");
         csv.Should().NotContain(ArchitectureRunFindingsCsvFormatter.NoItsmTrackingRowStoredLabel);
     }
@@ -316,6 +332,34 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         csv.Should().Contain("DeterministicRule");
         csv.Should().Contain("deterministic policy rule fired");
+        csv.Should().Contain("rule-1");
+    }
+
+    [Fact]
+    public void BuildCsvContent_policy_rule_id_omission_honesty()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-no-rule",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "Gap",
+            PolicyRuleId = null,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.PolicyRuleIdNotStoredLabel);
+        csv.Should().Contain("PolicyRuleId");
     }
 
     [Fact]
@@ -493,6 +537,80 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_distinguishes_null_empty_and_whitespace_only_evidence_refs()
+    {
+        ArchitectureFinding nullRefs = new()
+        {
+            FindingId = "f-null-refs",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Message = "Gap",
+        };
+        FieldInfo? evidenceRefsField = typeof(ArchitectureFinding).GetField(
+            "evidenceRefs",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        evidenceRefsField.Should().NotBeNull();
+        evidenceRefsField!.SetValue(nullRefs, null);
+
+        ArchitectureFinding emptyRefs = new()
+        {
+            FindingId = "f-empty-refs",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Message = "Gap",
+        };
+
+        ArchitectureFinding whitespaceRefs = new()
+        {
+            FindingId = "f-ws-refs",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Message = "Gap",
+        };
+        whitespaceRefs.EvidenceRefs.Add("   ");
+        whitespaceRefs.EvidenceRefs.Add("");
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [nullRefs, emptyRefs, whitespaceRefs],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.EvidenceRefsNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.EvidenceRefsStoredEmptyLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_joins_stored_evidence_refs()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-evidence",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Message = "Gap",
+        };
+        finding.EvidenceRefs.Add("doc:manifest#services");
+        finding.EvidenceRefs.Add(" trace:path-1 ");
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain("doc:manifest#services; trace:path-1");
+    }
+
+    [Fact]
     public void BuildCsvContent_labels_omitted_scalar_fields_as_not_stored()
     {
         ArchitectureFinding finding = new()
@@ -518,6 +636,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.CategoryNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.EvidenceRefsStoredEmptyLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelReasonNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ConfidenceScoreNotStoredLabel);

@@ -24,6 +24,9 @@ export const ARCHITECTURE_DEFINITION_STATUS_LABELS = {
   "insufficient-context": "Brief below minimum length",
 } as const;
 
+export const ARCHITECTURE_CREATED_CONTEXT_BAR_PURPOSE_TRUNCATED_SUFFIX =
+  " (Full business purpose was stored.)" as const;
+
 export const ARCHITECTURE_DEFINITION_STATUS_HELPER =
   "Status reflects stored brief length and fields, not a quality grade." as const;
 
@@ -34,7 +37,26 @@ export const ARCHITECTURE_CREATED_PRIMARY_ACTIONS = {
   viewAssessmentProgress: "View assessment progress",
 } as const;
 
+export const ARCHITECTURE_CREATED_OPEN_ASSESSMENT_ACTIVITY_LABEL = "Open assessment activity" as const;
+
 export const ARCHITECTURE_CREATED_OVERFLOW_LABEL = "More actions" as const;
+
+export function formatArchitectureCreatedMissingItemsOmittedLine(
+  omittedCount: number,
+  usesFindingsDerivedClarificationGaps: boolean,
+): string {
+  if (omittedCount <= 0) {
+    return "";
+  }
+
+  const noun = omittedCount === 1 ? "gap" : "gaps";
+
+  if (usesFindingsDerivedClarificationGaps) {
+    return `${omittedCount} more clarification ${noun} were stored but are not listed here.`;
+  }
+
+  return `${omittedCount} more page-check ${noun} are not listed here.`;
+}
 
 export const ARCHITECTURE_SUMMARY_LABELS = {
   businessPurpose: "Business purpose",

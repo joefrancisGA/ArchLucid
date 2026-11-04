@@ -11,7 +11,8 @@ export const FINDING_JOB_VIEW_LANE_LEADS: Readonly<Record<FindingJobView, string
     "Exploratory or adversarial signal — verify with evidence before treating as publishable fact.",
   "resolve-contradictions": "Diagram vs narrative conflict — reconcile before finalize.",
   "coverage-gaps": "Requirement or coverage gap — map to an explicit design decision.",
-  "disposition-closed": "Disposition recorded — triage lane is closed for this finding.",
+  "disposition-closed":
+    "Disposition is recorded on this finding. The triage lane label is informational — it does not reopen the finding.",
 };
 
 export function findingJobViewLaneLead(jobView: FindingJobView): string {

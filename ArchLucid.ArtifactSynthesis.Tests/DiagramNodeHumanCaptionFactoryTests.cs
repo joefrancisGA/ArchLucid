@@ -123,6 +123,20 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
     }
 
     [Fact]
+    public void TryFormatDataFlowTypeCaption_notes_comma_remainder_on_site_kind()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "site-1",
+            ArmResourceType = "Microsoft.Web/sites",
+            ArmResourceKind = "app,linux",
+        };
+
+        DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node).Should()
+            .Contain("Site kind remainder linux is not shown in the type label.");
+    }
+
+    [Fact]
     public void Create_labels_whitespace_only_resource_name_as_stored_empty()
     {
         DiagramNode node = new()
@@ -183,6 +197,16 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
 
         DiagramNodeHumanCaptionFactory.Create(orphaned).CombinedPlainText.Should()
             .Contain("No stored association: no subnet association.");
+
+        DiagramNode orphanedWithoutMessage = new()
+        {
+            NodeId = "orphan-2",
+            Label = "nic-2",
+            ConnectionState = InventoryDiagramConnectionState.Orphaned,
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(orphanedWithoutMessage).CombinedPlainText.Should()
+            .Contain("Orphaned association message was not stored.");
     }
 
     [Fact]
@@ -210,6 +234,6 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
-            .Be("resource-b · Resource type was not stored · Connection state was not stored.");
+            .Be("resource-b · Resource type was not stored");
     }
 }

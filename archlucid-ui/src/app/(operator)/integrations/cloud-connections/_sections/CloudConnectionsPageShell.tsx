@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -13,7 +15,7 @@ import {
 } from "@/lib/cloud-connections-copy";
 import { CLOUD_CONNECTIONS_CLAIM_DISCIPLINE } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -36,6 +38,9 @@ import {
   cloudConnectionsPageSubtitle,
 } from "./cloud-connections-page-copy";
 import type { CloudConnectionsPageViewModel } from "./use-cloud-connections-page";
+
+const SECURENOW_FIRST_HOUR_HREF = "/administration/securenow-first-hour" as const;
+const SECURENOW_COLLECTION_SELF_SERVICE_HREF = "/administration/securenow-self-service#collection" as const;
 
 export type CloudConnectionsPageShellProps = CloudConnectionsPageViewModel;
 
@@ -86,6 +91,25 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
       </p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
         {SECURENOW_COLLECTION_READER_ROLE_LINE} SecureNow does not change Azure.
+      </p>
+      <p
+        className={cn("m-0 mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="cloud-connections-collection-missing-recovery-links"
+      >
+        <Link
+          href={SECURENOW_FIRST_HOUR_HREF}
+          className={OPERATOR_LINK.inline}
+          data-testid="cloud-connections-collection-missing-first-hour-link"
+        >
+          First hour
+        </Link>
+        <Link
+          href={SECURENOW_COLLECTION_SELF_SERVICE_HREF}
+          className={OPERATOR_LINK.inline}
+          data-testid="cloud-connections-collection-missing-collection-check-link"
+        >
+          Collection check
+        </Link>
       </p>
     </section>
   ) : null;

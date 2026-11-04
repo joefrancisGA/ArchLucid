@@ -6,17 +6,22 @@ import {
   QUICK_DECISION_FINDING_TITLE_NOT_STORED,
   resolveQuickDecisionFindingPresentation,
 } from "@/lib/quick-decision-finding-wire-fields";
+import {
+  formatQuickDecisionFindingMessageDisplay,
+  QUICK_DECISION_FINDING_MESSAGE_NOT_STORED,
+} from "@/lib/quick-decision-finding-links";
 
 describe("quick-decision-finding-wire-fields", () => {
-  it("prefers title then message for the card title and uses message as recommendation when both exist", () => {
+  it("prefers title then message for the card title and keeps message separate from recommendation", () => {
     const result = resolveQuickDecisionFindingPresentation({
       title: "Stored title",
       message: "Stored detail body.",
-      reasoningTrace: "Trace only.",
+      recommendedActions: ["Rotate keys."],
     });
 
     expect(result.title).toBe("Stored title");
-    expect(result.recommendation).toBe("Stored detail body.");
+    expect(result.findingMessage).toBe("Stored detail body.");
+    expect(result.recommendation).toBe("Rotate keys.");
   });
 
   it("uses explicit not-stored title when wire omits title and message", () => {
@@ -48,7 +53,8 @@ describe("quick-decision-finding-wire-fields", () => {
       }),
     ).toMatchObject({
       title: QUICK_DECISION_FINDING_TITLE_NOT_STORED,
-      recommendation: "Port 22 is open",
+      findingMessage: "Port 22 is open",
+      recommendation: "Trace body.",
     });
   });
 
@@ -59,7 +65,14 @@ describe("quick-decision-finding-wire-fields", () => {
     });
 
     expect(result.title).toBe("Finding title was stored empty.");
-    expect(result.recommendation).toBe("Port 22 is open");
+    expect(result.findingMessage).toBe("Port 22 is open");
+    expect(result.recommendation).toBe(QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED);
+  });
+
+  it("formats finding message display copy for omission and stored-empty", () => {
+    expect(formatQuickDecisionFindingMessageDisplay("")).toBe(QUICK_DECISION_FINDING_MESSAGE_NOT_STORED);
+    expect(formatQuickDecisionFindingMessageDisplay("   ")).toBe(QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY);
+    expect(formatQuickDecisionFindingMessageDisplay("Body")).toBe("Body");
   });
 
   it("uses stored-empty message copy when wire message is whitespace only", () => {

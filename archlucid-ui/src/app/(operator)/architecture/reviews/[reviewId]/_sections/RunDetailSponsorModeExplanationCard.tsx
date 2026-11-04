@@ -34,22 +34,47 @@ function firstNonEmptyLine(value: string): string {
   return value.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? value;
 }
 
-function formatNarrativeSummaryLine(explanationSummary: RunExplanationSummary | null): string {
+function formatNarrativeSummaryLine(explanationSummary: RunExplanationSummary | null): {
+  readonly line: string;
+  readonly sourceLabel: string;
+} {
   if (explanationSummary === null) {
-    return "Narrative summary was not stored.";
+    return { line: "Narrative summary was not stored.", sourceLabel: "Narrative summary was not stored." };
   }
 
-  const raw = explanationSummary.overallAssessment ?? explanationSummary.explanation?.summary;
+  const fromOverall = explanationSummary.overallAssessment;
+  const fromExplanation = explanationSummary.explanation?.summary;
 
-  if (raw === null || raw === undefined) {
-    return "Narrative summary was not stored.";
+  if (fromOverall !== null && fromOverall !== undefined && fromOverall.trim().length > 0) {
+    const nonEmptyLineCount = fromOverall.split(/\r?\n/).filter((line) => line.trim().length > 0).length;
+    const firstLine = firstNonEmptyLine(fromOverall);
+    const additionalLinesNote =
+      nonEmptyLineCount > 1
+        ? " First stored line only. Additional narrative lines were stored and are not shown on this card."
+        : "";
+
+    return {
+      line: `${firstLine}${additionalLinesNote}`,
+      sourceLabel: "Stored overall assessment narrative (not the shorter explanation summary field).",
+    };
   }
 
-  if (raw.trim().length === 0) {
-    return "Narrative summary was stored empty.";
+  if (fromExplanation !== null && fromExplanation !== undefined && fromExplanation.trim().length > 0) {
+    return {
+      line: firstNonEmptyLine(fromExplanation),
+      sourceLabel: "Stored explanation summary (overall assessment narrative was not stored).",
+    };
   }
 
-  return firstNonEmptyLine(raw);
+  if (fromOverall !== null && fromOverall !== undefined && fromOverall.trim().length === 0) {
+    return { line: "Narrative summary was stored empty.", sourceLabel: "Overall assessment narrative was stored empty." };
+  }
+
+  if (fromExplanation !== null && fromExplanation !== undefined && fromExplanation.trim().length === 0) {
+    return { line: "Narrative summary was stored empty.", sourceLabel: "Explanation summary was stored empty." };
+  }
+
+  return { line: "Narrative summary was not stored.", sourceLabel: "Narrative summary was not stored." };
 }
 
 function visibleSponsorFindings(findings: readonly QuickDecisionFinding[]): QuickDecisionFinding[] {
@@ -78,8 +103,9 @@ export function RunDetailSponsorModeExplanationCard(
   const { explanationSummary, findings, buyerPolishedArtifactTable } = props;
   const visibleFindings = visibleSponsorFindings(findings);
   const top = topFindings(findings);
+  const narrativeSummary = formatNarrativeSummaryLine(explanationSummary);
 
-  if (explanationSummary === null && top.length === 0) {
+  if (explanationSummary === null && findings.length === 0) {
     return null;
   }
 
@@ -108,9 +134,17 @@ export function RunDetailSponsorModeExplanationCard(
         </h3>
       </header>
 
-      <p className={cn("m-0 mt-3 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-        {formatNarrativeSummaryLine(explanationSummary)}
-      </p>
+      <div className="mt-3 space-y-1">
+        <p className={cn("m-0 font-semibold text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
+          Narrative summary
+        </p>
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {narrativeSummary.sourceLabel}
+        </p>
+        <p className={cn("m-0 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          {narrativeSummary.line}
+        </p>
+      </div>
 
       <dl className={cn("mt-3 grid gap-2 sm:grid-cols-3", OPERATOR_TYPOGRAPHY.helper)}>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
@@ -143,7 +177,12 @@ export function RunDetailSponsorModeExplanationCard(
             {top.map((finding) => (
               <li key={finding.findingId}>
                 <span className="font-semibold">{severityBadgeLabel(finding.severityValue)}:</span>{" "}
-                {formatExportPreviewShortenedText(finding.title, "Finding title was not stored.")}
+                {formatExportPreviewShortenedText(
+                  finding.title,
+                  "Finding title was not stored.",
+                  96,
+                  "Finding title was stored empty.",
+                )}
               </li>
             ))}
           </ul>

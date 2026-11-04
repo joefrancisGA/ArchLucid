@@ -4,11 +4,16 @@ export function formatExportPreviewShortenedText(
   value: string | null | undefined,
   notStoredLabel: string,
   maxChars = 96,
+  storedEmptyLabel?: string,
 ): string {
-  const trimmed = value?.trim() ?? "";
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    return notStoredLabel;
+    return storedEmptyLabel ?? notStoredLabel;
   }
 
   if (trimmed.length <= maxChars) {

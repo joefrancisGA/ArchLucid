@@ -26,5 +26,6 @@ describe("SecureNowQuotePacketPageView", () => {
     }
 
     expect(screen.getByTestId("securenow-quote-packet-page")).not.toHaveTextContent("$");
+    expect(screen.getByTestId("securenow-beta-sku-contents-section")).toBeInTheDocument();
   });
 });

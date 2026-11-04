@@ -65,6 +65,10 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(screen.getByTestId("securenow-investigation-effort-input-storage-discipline")).toHaveTextContent(
       SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
     );
+    expect(screen.getByTestId("securenow-investigation-effort-synthetic-example")).toHaveTextContent(
+      "Synthetic worksheet walkthrough",
+    );
+    expect(screen.getByTestId("securenow-investigation-effort-synthetic-example")).toHaveTextContent("1,350");
   });
 
   it("keeps incomplete and fixture inputs out of the ROI result", () => {
@@ -72,6 +76,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
 
     expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
       "ROI not calculated.",
+    );
+    expect(screen.getByTestId("securenow-investigation-effort-result-reason")).toHaveTextContent(
+      "Enter all five inputs with positive numbers.",
     );
 
     fireEvent.change(screen.getByLabelText("Baseline hours (B)"), { target: { value: "3" } });

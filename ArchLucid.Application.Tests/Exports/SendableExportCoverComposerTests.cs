@@ -75,8 +75,29 @@ public sealed class SendableExportCoverComposerTests
 
         IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
 
-        lines.Should().Contain($"Policy pack: {SendableExportCoverComposer.PolicyPackVersionNotStoredLine}");
+        lines.Should().ContainSingle(line =>
+            line.StartsWith("Policy pack: azure-waf @", StringComparison.Ordinal)
+            && line.Contains(SendableExportCoverComposer.PolicyPackVersionNotStoredLine, StringComparison.Ordinal));
         lines.Should().NotContain($"Policy pack: {SendableExportCoverComposer.PolicyPackNotStoredLine}");
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_shows_stored_policy_pack_id_when_version_missing()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(ruleSetId: "azure-waf", ruleSetVersion: null);
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line => line.StartsWith("Policy pack: azure-waf @", StringComparison.Ordinal));
+        lines.Should().ContainSingle(line => line.Contains(SendableExportCoverComposer.PolicyPackVersionNotStoredLine, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_includes_sponsor_roi_amount_honesty_line()
+    {
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(CreateInput());
+
+        lines.Should().Contain($"Sponsor ROI amount: {SendableExportCoverComposer.SponsorRoiAmountNotStoredOnCoverLine}");
     }
 
     [Fact]
@@ -90,19 +111,38 @@ public sealed class SendableExportCoverComposerTests
         sb.ToString().Should().Contain("**Review record status:** `Committed`");
     }
 
+    [Fact]
+    public void RenderPlainTextLines_shows_stored_feasible_gate_outcome()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            verdict: new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.Feasible,
+                Summary = "Proceed with constraints.",
+            });
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line =>
+            line.StartsWith("Gate outcome: Feasible", StringComparison.Ordinal)
+            && !line.Contains(SendableExportCoverComposer.GateOutcomeNotStoredLine, StringComparison.Ordinal));
+    }
+
     private static CareerExportCoverageHonestyInput CreateInput(
         FindingsSnapshot? findingsSnapshot = null,
         string? ruleSetId = "azure-waf",
         string? ruleSetVersion = "2024.1",
-        string? reviewRecordStatus = null) =>
+        string? reviewRecordStatus = null,
+        FeasibilityVerdict? verdict = null) =>
         new(
             new SponsorReviewCoverageHonestyContext(
                 RunId: "run-1",
-                Verdict: new FeasibilityVerdict
-                {
-                    Kind = FeasibilityVerdictKind.SoftInfeasible,
-                    Summary = "Sample gate summary",
-                },
+                Verdict: verdict
+                       ?? new FeasibilityVerdict
+                       {
+                           Kind = FeasibilityVerdictKind.SoftInfeasible,
+                           Summary = "Sample gate summary",
+                       },
                 AnalysisStagesComplete: true,
                 ActorNodeCount: 1),
             EnginesSucceeded: 4,

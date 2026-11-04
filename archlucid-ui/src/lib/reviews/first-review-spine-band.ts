@@ -144,6 +144,8 @@ export const FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED =
 
 export const FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED = "Dispositions were not stored." as const;
 
+export const FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED = "Open gate was not stored." as const;
+
 export type FirstReviewOpenGateReviewTab = "findings" | "review-package";
 
 export function resolveFirstReviewOpenGate(input: {
@@ -194,7 +196,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
       topFindingId: null,
       showTopFindingRow: false,
       topFindingPolicyMapped: false,
-      openGateLabel: null,
+      openGateLabel: FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED,
       openGateHref: null,
       openGateReviewTab: null,
       topFindingSeverityLabel: null,

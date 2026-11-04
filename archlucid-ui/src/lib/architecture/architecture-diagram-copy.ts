@@ -9,6 +9,9 @@ export const ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE =
 export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
   "Draft diagram — confirm or edit before treating this as authoritative." as const;
 
+export const ARCHITECTURE_DIAGRAM_EMPTY_MERMAID_NOTE_PREFIX =
+  "Diagram note, not a component:" as const;
+
 export const ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING = "A diagram could not be generated yet." as const;
 
 export const ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION =
@@ -34,6 +37,9 @@ export const ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION = "View Mermaid source" as
 
 export const ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE =
   "Technical diagram source for review or export — not the finalized architecture record." as const;
+
+export const ARCHITECTURE_DIAGRAM_SAVED_MERMAID_VS_GENERATED_MODEL_NOTICE =
+  "Saved Mermaid source is shown below. The rendered diagram follows the generated model when they differ." as const;
 
 export const ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION = "Copy Mermaid source" as const;
 
@@ -107,6 +113,16 @@ export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING = "Review inferred com
 export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER =
   "Inferred components are suggestions from your brief. Accepting one stores your confirmation; it is not observed infrastructure evidence." as const;
 
+export function formatArchitectureDiagramUnconfirmedInferredHeaderLine(unconfirmedInferredCount: number): string | null {
+  if (unconfirmedInferredCount <= 0) {
+    return null;
+  }
+
+  const noun = unconfirmedInferredCount === 1 ? "inferred component or line" : "inferred components and lines";
+
+  return `${unconfirmedInferredCount} ${noun} still need review before this diagram is treated as confirmed.`;
+}
+
 export const ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT =
   "Inferred review is paused while a hand-edited Mermaid version is active. Regenerate or restore a generated version to accept or remove inferred components." as const;
 
@@ -150,6 +166,8 @@ export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name wa
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED = "Flow name was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_STORED_EMPTY = "Flow name was stored empty." as const;
+
 export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
   "Entities were not stored." as const;
 
@@ -163,6 +181,12 @@ export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
   "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
 
 export const ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP = 48;
+
+export function formatArchitectureDiagramDanglingConnectionsOmittedLine(omittedConnectionCount: number): string {
+  const noun = omittedConnectionCount === 1 ? "connection was" : "connections were";
+
+  return `${omittedConnectionCount} ${noun} left off this diagram because an endpoint was not on the diagram.`;
+}
 
 export function formatArchitectureDiagramTextAlternativeOverflowNotice(
   omittedNodeCount: number,
@@ -219,6 +243,27 @@ export function formatTrustBoundaryDisplayLabel(label: string): string {
   return label.trim();
 }
 
+export function isArchitectureDiagramTrustBoundaryOmissionLabel(label: string): boolean {
+  return (
+    label === ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED
+    || label === ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY
+  );
+}
+
+export const ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_NOT_STORED =
+  "People and systems: Actor name was not stored — not drawn on the diagram." as const;
+
+export const ARCHITECTURE_DIAGRAM_PEOPLE_AND_SYSTEMS_ACTOR_NAME_STORED_EMPTY =
+  "People and systems: Actor name was stored empty — not drawn on the diagram." as const;
+
+export function formatPeopleAndSystemsVendorKindNoDiagramRoleNote(actorLabel: string): string {
+  const label = actorLabel.trim();
+
+  return label.length > 0
+    ? `People and systems: ${label} was not drawn because stored kind Vendor has no diagram role.`
+    : "People and systems: Stored kind Vendor has no diagram role — not drawn on the diagram.";
+}
+
 export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
   return `Review title: ${reviewTitle}. This title is not a collected system.`;
 }
@@ -232,34 +277,45 @@ export function formatPeopleAndSystemsActorKindOmissionNote(actorLabel: string):
 }
 
 export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
-  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+  const trimmed = flow.trim();
+
+  if (trimmed.startsWith(ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX)) {
+    return trimmed;
+  }
+
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${trimmed}`;
+}
+
+function formatUnmatchedArchitectureDataFlowDetailSuffix(detail: string | null | undefined): string {
+  if (detail === null || detail === undefined) {
+    return ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED;
+  }
+
+  const trimmedDetail = detail.trim();
+
+  if (trimmedDetail.length === 0) {
+    return ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY;
+  }
+
+  return trimmedDetail;
 }
 
 export function formatUnmatchedArchitectureDataFlowEntity(
   entity: { readonly label: string; readonly detail?: string | null },
 ): string {
   const flowText = entity.label.trim();
-
-  if (flowText.length === 0) {
-    const detailSuffix =
-      entity.detail === null || entity.detail === undefined
-        ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED
-        : entity.detail.trim().length === 0
-          ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY
-          : ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED;
-
-    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED} (${detailSuffix})`;
-  }
+  const flowNameLabel =
+    flowText.length > 0
+      ? flowText
+      : ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_STORED_EMPTY;
 
   if (entity.detail === null || entity.detail === undefined) {
-    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowNameLabel} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;
   }
 
-  if (entity.detail.trim().length === 0) {
-    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY})`;
-  }
+  const detailSuffix = formatUnmatchedArchitectureDataFlowDetailSuffix(entity.detail);
 
-  return formatUnmatchedArchitectureDataFlowLine(flowText);
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowNameLabel} (${detailSuffix})`;
 }
 
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =

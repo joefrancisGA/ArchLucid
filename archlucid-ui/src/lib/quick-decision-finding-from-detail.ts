@@ -16,11 +16,67 @@ import {
   normalizeFindingHumanReviewStatus,
 } from "@/lib/quick-decision-severity-labels";
 
+export const RUN_DETAIL_FINDINGS_MISSING_FINDING_ID_LINE =
+  "findings were stored without a finding id and are not listed." as const;
+
+export function formatRunDetailFindingsMissingFindingIdLine(count: number): string {
+  return `${count} ${RUN_DETAIL_FINDINGS_MISSING_FINDING_ID_LINE}`;
+}
+
+function resolveFindingIdFromWire(fr: Record<string, unknown>): string {
+  const findingIdRaw =
+    typeof fr.findingId === "string"
+      ? fr.findingId.trim()
+      : typeof fr.id === "string"
+        ? fr.id.trim()
+        : "";
+
+  return findingIdRaw;
+}
+
+/** Counts finding objects under `results[].findings` that omit a usable finding id. */
+export function countRunDetailFindingsMissingFindingId(detail: RunDetail): number {
+  const raw = detail as Record<string, unknown>;
+  const results = raw.results;
+
+  if (!Array.isArray(results)) {
+    return 0;
+  }
+
+  let missing = 0;
+
+  for (const r of results) {
+    if (r === null || typeof r !== "object") {
+      continue;
+    }
+
+    const findings = (r as Record<string, unknown>).findings;
+
+    if (!Array.isArray(findings)) {
+      continue;
+    }
+
+    for (const f of findings) {
+      if (f === null || typeof f !== "object") {
+        continue;
+      }
+
+      if (resolveFindingIdFromWire(f as Record<string, unknown>).length === 0) {
+        missing += 1;
+      }
+    }
+  }
+
+  return missing;
+}
+
 /** Inputs derived only from GET run detail `results[].findings` (ArchitectureFinding). */
 export type QuickDecisionFinding = {
   findingId: string;
   title: string;
   category?: string | null;
+  /** Stored ArchitectureFinding message body when present (distinct from recommended action). */
+  findingMessage?: string;
   recommendation: string;
   /** Raw `FindingSeverity` enum numeric from API (higher = more severe). */
   severityValue: number | null;
@@ -85,9 +141,17 @@ function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel 
   );
 }
 
-/** Truncate persisted 0–100-style scores so detail extraction and trace overlays stay aligned. */
+/** Preserve fractional 0–1 scores for filtering; truncate only 0–100 integer-style scores. */
 export function normalizeEvaluationConfidenceScore(raw: unknown): number | null {
-  return typeof raw === "number" && Number.isFinite(raw) ? Math.trunc(raw) : null;
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return null;
+  }
+
+  if (raw > 0 && raw <= 1) {
+    return raw;
+  }
+
+  return Math.trunc(raw);
 }
 
 function severityValueFromTraceRow(row: FindingTraceConfidenceDto): number {
@@ -151,6 +215,7 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
   return {
     findingId,
     title,
+    findingMessage: "",
     recommendation,
     severityValue: severityValueFromTraceRow(row),
     findingOrder: order,
@@ -161,7 +226,8 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     evaluationConfidenceScore: normalizeEvaluationConfidenceScore(row.evaluationConfidenceScore),
     traceConfidenceLabel: traceLabel,
     evidenceRefCount,
-    enforcementTier: "PolicyViolation",
+    enforcementTier: null,
+    enforcementTierStored: false,
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
     classification: row.classification ?? null,
     treatment:
@@ -202,12 +268,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       }
 
       const fr = f as Record<string, unknown>;
-      const findingIdRaw =
-        typeof fr.findingId === "string"
-          ? fr.findingId.trim()
-          : typeof fr.id === "string"
-            ? fr.id.trim()
-            : "";
+      const findingIdRaw = resolveFindingIdFromWire(fr);
 
       if (findingIdRaw.length === 0) {
         continue;
@@ -224,7 +285,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         const trimmed = categoryRaw.trim();
         category = trimmed.length > 0 ? trimmed : "";
       }
-      const { title, recommendation } = resolveQuickDecisionFindingPresentation(fr);
+      const { title, findingMessage, recommendation } = resolveQuickDecisionFindingPresentation(fr);
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
           ? fr.reasoningTrace.trim()
@@ -353,6 +414,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
             : category.length > 0
               ? category
               : "",
+        findingMessage,
         recommendation,
         severityValue,
         severityStored,

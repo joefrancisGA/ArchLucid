@@ -71,7 +71,7 @@ export type RunDetailPageViewChrome = {
   readonly governanceCtaEl: React.JSX.Element | null;
   readonly tabbedWorkspaceEl: React.JSX.Element;
   readonly reviewPackageDoThisNextEvidenceProps: {
-    readonly evidenceCoverageLinkedCount: number;
+    readonly evidenceCoverageLinkedCount: number | null;
     readonly evidenceCoverageTotalCount: number;
     readonly governanceDecisionRecorded: boolean;
     readonly pipelineDiagnosticContext: RunDetailPageModel["pipelineDiagnosticContext"];
@@ -313,7 +313,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-        blockingFindingCount={blockingApprovalCount ?? 0}
+        blockingFindingCount={blockingApprovalCount}
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
         manifestStatus={m.manifestSummary?.status ?? null}

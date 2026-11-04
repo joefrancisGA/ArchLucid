@@ -182,4 +182,22 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
 
     expect(chain.steps[1]?.value).toBeNull();
   });
+
+  it("labels whitespace-only recommended actions as stored empty (P-20)", () => {
+    const payload = {
+      findingId: "f1",
+      typedPayload: null,
+      decisionRuleId: "rule-1",
+      decisionRuleName: "Inspect rule",
+      evidence: [],
+      recommendedActions: ["   "],
+      auditRowId: null,
+      runId: "run-1",
+      manifestVersion: null,
+    } as FindingInspectPayload;
+
+    const chain = findingCausalMiniChainFromInspectPayload(payload);
+
+    expect(chain.steps[2]?.value).toBe(FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY);
+  });
 });

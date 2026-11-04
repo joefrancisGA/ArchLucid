@@ -8,6 +8,7 @@ import {
   formatStoredTextPreview,
   STORED_TEXT_PREVIEW_CONTINUATION,
 } from "@/lib/format-stored-text-preview";
+import { ACTOR_KIND_OPTIONS } from "@/lib/draft-intake-actor-labels";
 import type {
   DeriveScopeUnderstandingBulletsInput,
   ReconcileScopeUnderstandingBulletsInput,
@@ -18,22 +19,31 @@ import type {
 
 export const ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED = "Actor name was not stored." as const;
 
-export const PEOPLE_IN_SCOPE_STORED_EMPTY = "People in scope were stored empty." as const;
+function actorKindScopeLabel(kind: string): string {
+  const trimmedKind = kind.trim();
 
-export const SYSTEMS_IN_SCOPE_STORED_EMPTY = "Systems in scope were stored empty." as const;
+  if (trimmedKind.length === 0) {
+    return "";
+  }
 
-export const SCOPE_BRIEF_INFERRED_LINE_PREFIX =
-  "Derived from intake, not a separate confirmed answer: " as const;
+  const match = ACTOR_KIND_OPTIONS.find((option) => option.value === trimmedKind);
+
+  return match?.label ?? `Stored actor kind ${trimmedKind} has no reviewer label.`;
+}
 
 /** Labels each actor for scope mirroring — never substitutes kind for a missing name. */
 export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   const trimmedLabel = actor.label?.trim() ?? "";
 
   if (trimmedLabel.length > 0) {
+    if (actor.kind === "Both") {
+      return `${trimmedLabel} (stored kind Both)`;
+    }
+
     return trimmedLabel;
   }
 
-  const kind = actor.kind.trim();
+  const kind = actorKindScopeLabel(actor.kind.trim());
 
   if (kind.length === 0) {
     return ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED;
@@ -47,6 +57,13 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
 
   return `Actor name was not stored (${kind}).`;
 }
+
+export const PEOPLE_IN_SCOPE_STORED_EMPTY = "People in scope were stored empty." as const;
+
+export const SYSTEMS_IN_SCOPE_STORED_EMPTY = "Systems in scope were stored empty." as const;
+
+export const SCOPE_BRIEF_INFERRED_LINE_PREFIX =
+  "Derived from intake, not a separate confirmed answer: " as const;
 
 /** Confirmed-scope line shown on guided intake confirm — prefixes inferred rows. */
 export function scopeBriefLineDisplay(bullet: ScopeUnderstandingBullet): string {

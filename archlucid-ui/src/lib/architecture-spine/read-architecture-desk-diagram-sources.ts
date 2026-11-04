@@ -7,11 +7,16 @@ import {
   ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import {
+  PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
   readPixelDiagramNotVerifiableSourcesFromContextSnapshot,
 } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 
 /** Matches <see cref="StructuredDiagramCanonicalSourceTypes.StructuredDiagram" /> on canonical objects. */
 export const STRUCTURED_DIAGRAM_CANONICAL_SOURCE_TYPE = "StructuredDiagram";
+
+export const STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED = "Diagram source id was not stored." as const;
+
+export const STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY = "Diagram source id was stored empty." as const;
 
 export type ArchitectureDeskDiagramSourceStatus = "analyzed" | "not-extracted";
 
@@ -70,9 +75,31 @@ function readStructuredDiagramSourceRows(contextSnapshot: Record<string, unknown
       continue;
     }
 
-    const sourceId = wire.sourceId?.trim() ?? "";
+    const sourceIdRaw = wire.sourceId;
+
+    if (sourceIdRaw === null || sourceIdRaw === undefined) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED) ?? 0) + 1,
+      );
+      continue;
+    }
+
+    if (sourceIdRaw.length === 0) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED) ?? 0) + 1,
+      );
+      continue;
+    }
+
+    const sourceId = sourceIdRaw.trim();
 
     if (sourceId.length === 0) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY) ?? 0) + 1,
+      );
       continue;
     }
 
@@ -89,15 +116,33 @@ function readStructuredDiagramSourceRows(contextSnapshot: Record<string, unknown
     }));
 }
 
+const PIXEL_DIAGRAM_MISSING_FILE_NAME_SOURCE_KEY = "pixel:file-name-not-stored" as const;
+
 function readPixelDiagramSourceRows(contextSnapshot: unknown): ArchitectureDeskDiagramSourceRow[] {
   const pixelSources = readPixelDiagramNotVerifiableSourcesFromContextSnapshot(contextSnapshot);
   const seenFileNames = new Set<string>();
+  let sawMissingFileName = false;
   const rows: ArchitectureDeskDiagramSourceRow[] = [];
 
   for (const source of pixelSources) {
+    if (source.fileName === null || source.fileName.trim().length === 0) {
+      if (sawMissingFileName) {
+        continue;
+      }
+
+      sawMissingFileName = true;
+      rows.push({
+        sourceKey: PIXEL_DIAGRAM_MISSING_FILE_NAME_SOURCE_KEY,
+        label: PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
+        status: "not-extracted",
+        nodeCount: null,
+      });
+      continue;
+    }
+
     const fileName = source.fileName.trim();
 
-    if (fileName.length === 0 || seenFileNames.has(fileName)) {
+    if (seenFileNames.has(fileName)) {
       continue;
     }
 

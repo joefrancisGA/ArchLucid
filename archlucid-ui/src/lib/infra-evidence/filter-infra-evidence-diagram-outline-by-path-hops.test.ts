@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { filterInfraEvidenceDiagramOutlineByPathHops } from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
+import {
+  filterInfraEvidenceDiagramOutlineByPathHops,
+  filterInfraEvidenceDiagramOutlineByPathHopsWithBasis,
+} from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import type { SecurityEvidencePathHop } from "@/lib/security-evidence-path-types";
 
@@ -91,5 +94,22 @@ describe("filterInfraEvidenceDiagramOutlineByPathHops", () => {
 
     expect(filtered?.nodes.map((node) => node.id)).toEqual(["node-a"]);
     expect(filtered?.edges).toHaveLength(0);
+  });
+
+  it("reports cloudResourceId match basis when ids match nodes", () => {
+    const result = filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(outline, [
+      {
+        ...hops[0],
+        cloudResourceId: "node-a",
+      },
+    ]);
+
+    expect(result.matchBasis).toBe("cloudResourceId");
+  });
+
+  it("reports hopLabels match basis when only labels match", () => {
+    const result = filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(outline, hops);
+
+    expect(result.matchBasis).toBe("hopLabels");
   });
 });

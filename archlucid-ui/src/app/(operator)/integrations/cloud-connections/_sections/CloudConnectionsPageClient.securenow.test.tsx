@@ -70,5 +70,14 @@ describe("CloudConnectionsPageClient (SecureNow collection missing)", () => {
     expect(screen.getByTestId("cloud-connections-collection-missing-detail")).toHaveTextContent(
       /capture failed or has not finished/i,
     );
+
+    expect(screen.getByTestId("cloud-connections-collection-missing-first-hour-link")).toHaveAttribute(
+      "href",
+      "/administration/securenow-first-hour",
+    );
+    expect(screen.getByTestId("cloud-connections-collection-missing-collection-check-link")).toHaveAttribute(
+      "href",
+      "/administration/securenow-self-service#collection",
+    );
   });
 });

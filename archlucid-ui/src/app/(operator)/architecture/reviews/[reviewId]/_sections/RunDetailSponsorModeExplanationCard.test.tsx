@@ -77,6 +77,23 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     expect(screen.getByText(/not a legal or compliance attestation/i)).toBeInTheDocument();
   });
 
+  it("shows only the first line of a multi-line narrative (P-01)", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={{
+          ...summary,
+          overallAssessment: "First line of overall assessment.\nSecond line must not appear in recap.",
+        }}
+        findings={[finding()]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText(/First line of overall assessment\./)).toBeInTheDocument();
+    expect(screen.queryByText(/Second line must not appear/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Stored overall assessment narrative/i)).toBeInTheDocument();
+  });
+
   it("omits disposition-closed findings from top sponsor talking points", () => {
     render(
       <RunDetailSponsorModeExplanationCard
@@ -162,5 +179,26 @@ describe("RunDetailSponsorModeExplanationCard", () => {
 
     expect(evidenceBasisBlock).not.toBeNull();
     expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations were not stored.")).toBeInTheDocument();
+  });
+
+  it("renders when only muted findings remain (P-08)", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={null}
+        findings={[
+          finding({
+            findingId: "muted",
+            title: "Muted finding",
+            isMuted: true,
+            severityValue: 4,
+          }),
+        ]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(
+      screen.getByText(/Only muted or closed findings remain on this review/i),
+    ).toBeInTheDocument();
   });
 });

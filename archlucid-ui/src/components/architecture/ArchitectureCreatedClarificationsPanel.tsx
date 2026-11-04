@@ -32,7 +32,10 @@ import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
 } from "@/lib/review-clarification-questions-types";
-import { describeClarificationQuestionsLoadState } from "@/lib/reviews/review-clarification-questions-honesty";
+import {
+  describeClarificationQuestionsLoadState,
+  formatClarificationDerivedQuestionPreviewCapLine,
+} from "@/lib/reviews/review-clarification-questions-honesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -46,6 +49,8 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
   readonly clarificationQuestions?: readonly ReviewClarificationQuestion[];
+  readonly clarificationQuestionsLoading?: boolean;
+  readonly clarificationQuestionsTotalDerivedCount?: number | null;
   readonly clarificationRoundAvailable?: boolean;
   readonly clarificationDelta?: ReviewClarificationDelta | null;
   readonly clarificationQuestionsBlockedReason?: string | null;
@@ -132,7 +137,16 @@ export function ArchitectureCreatedClarificationsPanel(
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions);
+  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions, {
+    loading: props.clarificationQuestionsLoading === true,
+  });
+  const clarificationDerivedPreviewCapLine = formatClarificationDerivedQuestionPreviewCapLine({
+    listedCount: props.clarificationQuestions?.length ?? 0,
+    totalDerivedCount:
+      props.clarificationQuestionsLoading === true
+        ? undefined
+        : props.clarificationQuestionsTotalDerivedCount,
+  });
   const preferModelInterviewQuestions =
     props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
@@ -142,6 +156,8 @@ export function ArchitectureCreatedClarificationsPanel(
     openQuestions !== undefined && openQuestions.entities == null;
   const clarificationQuestionsStoredEmpty =
     props.clarificationQuestions !== undefined && props.clarificationQuestions.length === 0;
+  const hasStoredClarificationQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const isZeroGapSuccess =
     props.clarificationQuestions !== undefined
     && !clarificationQuestionsStoredEmpty
@@ -151,7 +167,9 @@ export function ArchitectureCreatedClarificationsPanel(
     && !showIntakeOpenQuestions
     && !openQuestionsEntitiesOmitted;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
+  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta, {
+    priorRunId: props.priorRunId ?? null,
+  });
   const clarificationQuestions = props.clarificationQuestions ?? [];
   const pathname = usePathname() ?? "/";
   const readAnsweredBriefOpenFromUrl = (): boolean =>
@@ -219,6 +237,16 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       ) : null}
 
+      {clarificationDerivedPreviewCapLine !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-derived-preview-cap"
+          role="status"
+        >
+          {clarificationDerivedPreviewCapLine}
+        </p>
+      ) : null}
+
       {props.clarificationQuestionsBlockedReason !== null
       && props.clarificationQuestionsBlockedReason !== undefined
       && props.clarificationQuestionsBlockedReason.trim().length > 0 ? (
@@ -237,19 +265,36 @@ export function ArchitectureCreatedClarificationsPanel(
           data-testid="architecture-clarifications-delta-strip"
         >
           {deltaPresentation.summary}
+          {deltaPresentation.cappedListDisclaimer !== null ? (
+            <>
+              {" "}
+              {deltaPresentation.cappedListDisclaimer}
+            </>
+          ) : null}
         </p>
       ) : null}
 
       {props.clarificationRoundAvailable === true ? (
         <ClarificationAnswerCapturePanel
           runId={props.model.runId}
-          priorRunId={props.priorRunId ?? props.model.runId}
+          priorRunId={props.priorRunId?.trim() ?? ""}
           questions={clarificationQuestions}
+          totalDerivedCount={props.clarificationQuestionsTotalDerivedCount ?? null}
           freeTextIntent={props.sourceText}
         />
+      ) : clarificationQuestions.length > 0 ? (
+        <p
+          className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-round-unavailable"
+          role="status"
+        >
+          Clarification questions were stored on this review, but the answer round is not available yet. Saved answers
+          from a prior round may still appear in your brief.
+        </p>
       ) : null}
 
-      {!isZeroGapSuccess ? (
+      {!isZeroGapSuccess
+      && (hasVisibleWorkQueue || hasStoredClarificationQuestions || showIntakeOpenQuestions) ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           These clarifications are still open. Answer them or add evidence before sharing with sponsors or creating
           work items.
@@ -271,7 +316,7 @@ export function ArchitectureCreatedClarificationsPanel(
           data-testid="architecture-clarifications-stored-empty"
           role="status"
         >
-          Clarification questions were stored empty. This panel cannot say the brief covers required context.
+          Clarification questions were derived empty. This panel cannot say the brief covers required context.
         </p>
       ) : null}
 

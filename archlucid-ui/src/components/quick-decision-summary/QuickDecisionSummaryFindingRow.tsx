@@ -35,6 +35,7 @@ import {
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingPolicyRuleIdLine,
   formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
@@ -47,6 +48,7 @@ import {
   severityKindFromNumericValue,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { resolveFindingAiReasoningButtonLabel } from "@/lib/quick-decision-wire-snapshots";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -66,6 +68,7 @@ type QuickDecisionSummaryFindingRowProps = {
   readonly onToggleAskPanel: (finding: QuickDecisionFinding) => void;
   readonly onViewReasoning: (finding: QuickDecisionFinding) => void;
   readonly onMute: (finding: QuickDecisionFinding) => void;
+  readonly findingWireSnapshot?: import("@/lib/quick-decision-wire-snapshots").FindingWireSnapshot | null;
 };
 
 export function QuickDecisionSummaryFindingRow({
@@ -78,6 +81,7 @@ export function QuickDecisionSummaryFindingRow({
   onToggleAskPanel,
   onViewReasoning,
   onMute,
+  findingWireSnapshot,
 }: QuickDecisionSummaryFindingRowProps): ReactElement {
   const findingIdTrimmed = finding.findingId.trim();
   const hasStoredFindingId = findingIdTrimmed.length > 0;
@@ -100,7 +104,11 @@ export function QuickDecisionSummaryFindingRow({
           compact
           className="mb-2"
         />
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {formatQuickDecisionFindingPolicyRuleIdLine(finding.policyRuleId)}
+        </p>
+      )}
       <div className="flex flex-wrap items-start gap-2">
         {!workspaceCardMode ? (
           <SeverityTag
@@ -111,7 +119,13 @@ export function QuickDecisionSummaryFindingRow({
           />
         ) : null}
         {showTierBadge ? (
-          <StatusTag kind="neutral" label={findingEnforcementTierLabel(finding.enforcementTier)} className="shrink-0" />
+          <StatusTag
+            kind="neutral"
+            label={findingEnforcementTierLabel(
+              finding.enforcementTierStored === false ? null : finding.enforcementTier,
+            )}
+            className="shrink-0"
+          />
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
@@ -188,7 +202,7 @@ export function QuickDecisionSummaryFindingRow({
             onViewReasoning(finding);
           }}
         >
-          View AI reasoning
+          {resolveFindingAiReasoningButtonLabel(findingWireSnapshot)}
         </Button>
         <Button
           type="button"
