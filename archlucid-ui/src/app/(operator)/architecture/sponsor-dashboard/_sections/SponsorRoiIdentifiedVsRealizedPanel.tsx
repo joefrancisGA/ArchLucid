@@ -20,6 +20,7 @@ import {
   formatRoiCostEvidenceFreshnessWarning,
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
+import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
 
 type SponsorRoiIdentifiedVsRealizedPanelProps = {
   readonly summary: SponsorRoiSummary;
@@ -57,6 +58,12 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Do not treat identified potential as realized value until findings are remediated through approval.
+        </p>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="exec-roi-headline-model-estimate-line"
+        >
+          {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
         </p>
       </div>
 

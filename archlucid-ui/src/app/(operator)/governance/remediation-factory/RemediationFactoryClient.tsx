@@ -64,6 +64,11 @@ import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-h
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
+  remediationFactoryPathViewLabel,
+  resolveRemediationFactoryPathViewForRankedPath,
+  type RemediationFactoryPathView,
+} from "@/lib/governance/remediation-factory-path-view";
+import {
   SECURENOW_PATH_RANKED_PATHS_LEAD,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -242,7 +247,7 @@ export function RemediationFactoryClient() {
     rankedPage,
     syncSelection,
     selectFinding,
-    selectPath,
+    selectPath: selectPathFromUrlState,
     setRankedPage,
     ...urlState
   } = useRemediationFactoryUrlState(productLine);
@@ -351,6 +356,19 @@ export function RemediationFactoryClient() {
     const query = params.toString();
     router.replace(query.length > 0 ? `?${query}` : window.location.pathname, { scroll: false });
   }, [router, searchParams]);
+
+  const selectPath = useCallback(
+    (nextPathId: string) => {
+      const row = rankedPathsRef.current.find((entry) => entry.pathId === nextPathId);
+
+      if (row !== undefined) {
+        setPathView(resolveRemediationFactoryPathViewForRankedPath(row));
+      }
+
+      selectPathFromUrlState(nextPathId);
+    },
+    [selectPathFromUrlState, setPathView],
+  );
 
   const refreshing =
     rankedQuery.isFetching
@@ -692,22 +710,32 @@ export function RemediationFactoryClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
           These filters narrow the path list only. Counts are for paths on this page.
         </p>
-        <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
-          {PATH_VIEWS.map((view) => (
-            <Button
-              key={view.value}
-              type="button"
-              size="sm"
-              variant={pathView === view.value ? "default" : "outline"}
-              aria-pressed={pathView === view.value}
-              onClick={() => setPathView(view.value)}
-            >
-              {rankedPathsQuery.isSuccess
-                ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
-                : view.label}
-            </Button>
-          ))}
-        </div>
+        {selectedPathId === null ? (
+          <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
+            {PATH_VIEWS.map((view) => (
+              <Button
+                key={view.value}
+                type="button"
+                size="sm"
+                variant={pathView === view.value ? "default" : "outline"}
+                aria-pressed={pathView === view.value}
+                onClick={() => setPathView(view.value)}
+              >
+                {rankedPathsQuery.isSuccess
+                  ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
+                  : view.label}
+              </Button>
+            ))}
+          </div>
+        ) : (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="remediation-ranked-path-view-selected-only"
+          >
+            Path view: {remediationFactoryPathViewLabel(pathView as RemediationFactoryPathView)} (matches selected
+            path).
+          </p>
+        )}
         {rankedPathsQuery.isLoading ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
         ) : rankedPathsQuery.isError ? (

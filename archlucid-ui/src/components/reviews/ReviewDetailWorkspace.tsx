@@ -64,6 +64,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly suppressPresenterSurface?: boolean;
   /** When the URL omits reviewTab, open the first-review spine gate tab when present. */
   readonly visitDefaultReviewTabWhenUrlSilent?: ReviewDetailTabId | null;
+  /** When the URL omits findingId, focus the first uncited finding for the open gate. */
+  readonly visitDefaultFindingIdWhenUrlSilent?: string | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
