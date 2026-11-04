@@ -29,14 +29,14 @@ describe("SecureNow accessibility surfaces — axe", () => {
   });
 
   it.each([
-    ["first hour", <SecureNowFirstHourPageView />],
-    ["compliance notes", <SecureNowComplianceNotesPageView />],
-    ["self-service", <SecureNowSelfServicePageView />],
-    ["return reasons", <SecureNowReturnReasonsPageView />],
-    ["pilot decision", <SecureNowPilotDecisionPageView />],
-    ["investigation effort", <SecureNowInvestigationEffortPageView />],
-    ["public synthetic sample", <SecureNowSampleView />],
-    ["public SKU card", <SecureNowSkuCardView />],
+    ["first hour", <SecureNowFirstHourPageView key="first-hour" />],
+    ["compliance notes", <SecureNowComplianceNotesPageView key="compliance-notes" />],
+    ["self-service", <SecureNowSelfServicePageView key="self-service" />],
+    ["return reasons", <SecureNowReturnReasonsPageView key="return-reasons" />],
+    ["pilot decision", <SecureNowPilotDecisionPageView key="pilot-decision" />],
+    ["investigation effort", <SecureNowInvestigationEffortPageView key="investigation-effort" />],
+    ["public synthetic sample", <SecureNowSampleView key="public-synthetic-sample" />],
+    ["public SKU card", <SecureNowSkuCardView key="public-sku-card" />],
   ])("has no serious axe violations on the SecureNow %s page", async (_label, view) => {
     const { container } = render(view);
 
