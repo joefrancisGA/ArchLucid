@@ -3944,6 +3944,20 @@
 
 ## Zone: scim-users
 
+2026-11-04 thorough hunt (dry #64): cheap-disproof closed five open `(candidate)` monitor rows from seed **#63** — **valid-no-repro** zero-length PUT body maps to SCIM `invalidSyntax` before service replace (regression `ReplaceAsync_empty_http_body_returns_invalid_syntax_without_calling_service`); **valid-no-repro** cooperative cancel during PUT/PATCH JSON deserialize rethrows before `invalidSyntax` (regressions `ReplaceAsync_propagates_operation_canceled_during_json_deserialize`, `PatchAsync_propagates_operation_canceled_during_json_deserialize`; dry **#48**); **valid-no-repro** `count=0` list query returns empty SCIM page without HTTP 500 (regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; Application `ListAsync_count_zero_returns_empty_page_with_total_results`); **valid-no-repro** POST body JSON `null` literal maps to SCIM `invalidSyntax` via `ParseUser` object guard before persist (regression `CreateAsync_null_json_literal_returns_invalid_syntax_without_side_effects`; deserialize succeeds then fails closed in service); reseeded five follow-on `(candidate)` monitor rows; scoped filter **61/61** (46 Application + 15 Api cancellation unit; SQL integration skipped). Private beta: n/a.
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — empty HTTP body maps to SCIM `invalidSyntax` before service replace — **cheap-disproof 2026-11-04 thorough hunt #64:** regression `ReplaceAsync_empty_http_body_returns_invalid_syntax_without_calling_service`; seed **#63**.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-04 thorough hunt #64:** regression `ReplaceAsync_propagates_operation_canceled_during_json_deserialize`; seed **#63**.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — **cheap-disproof 2026-11-04 thorough hunt #64:** regression `PatchAsync_propagates_operation_canceled_during_json_deserialize`; seed **#63**.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` query returns empty SCIM list page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #64:** regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; seed **#63**.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — JSON `null` literal POST body maps to SCIM `invalidSyntax` before service create — **cheap-disproof 2026-11-04 thorough hunt #64:** regression `CreateAsync_null_json_literal_returns_invalid_syntax_without_side_effects`; seed **#63**.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — empty HTTP body maps to SCIM `invalidSyntax` before service patch — locus: JSON deserialize ~171–178; input: zero-length PATCH body (monitor gap; seed **#64**).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — JSON `null` literal PUT body maps to SCIM `invalidSyntax` before persist — locus: deserialize + `ParseUser`; input: body `null` (monitor seed **#64**).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — JSON `null` literal PATCH body maps to SCIM `invalidSyntax` before patch apply — locus: deserialize + patch evaluator; input: body `null` (monitor seed **#64**).
+- [ ] (candidate) `ScimUsersController.ListAsync` — negative `count` query returns empty SCIM list page without HTTP 500 — locus: service `Math.Clamp`; input: `count=-1` (monitor seed **#64**; Application `ListAsync_negative_count_clamped_to_empty_page`).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — JSON array POST body maps to SCIM `invalidSyntax` before insert — locus: `ParseUser` object guard; input: `[]` (monitor seed **#64**; thorough hunt **#47** class).
+
 2026-11-04 thorough hunt (dry #63): cheap-disproof closed five open `(candidate)` monitor rows from seed **#62** — **valid-no-repro** post-patch `GetAsync` cancel propagates without SCIM envelope (intentional host cancel; regression `PatchAsync_propagates_operation_canceled_from_post_patch_get`); **valid-no-repro** list cancel during service `ListAsync` (no controller catch; regression `ListAsync_propagates_operation_canceled_from_service_list`; hunt **#351**); **valid-no-repro** zero-length POST body maps to SCIM `invalidSyntax` before service create (regression `CreateAsync_empty_http_body_returns_invalid_syntax_without_calling_service`; `{}` path remains `CreateAsync_empty_user_object_throws_parse_exception`); **valid-no-repro** DELETE on PATCH-inactive user does not decrement enterprise seat again (regression `DeactivateAsync_when_user_already_inactive_does_not_decrement_seat_again`; seed **#46** class); **valid-no-repro** `startIndex` beyond `totalResults` returns empty page without 500 (regression `ListAsync_start_index_above_total_returns_empty_page`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **56/56** (46 Application + 10 Api cancellation unit; SQL integration skipped). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — **cheap-disproof 2026-11-04 thorough hunt #63:** regression `PatchAsync_propagates_operation_canceled_from_post_patch_get`; seed **#62**.
@@ -3951,12 +3965,6 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — empty HTTP body maps to SCIM `invalidSyntax` before service create — **cheap-disproof 2026-11-04 thorough hunt #63:** regression `CreateAsync_empty_http_body_returns_invalid_syntax_without_calling_service`; seed **#62**.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — deactivate on already-inactive user does not double-decrement enterprise SCIM seat — **cheap-disproof 2026-11-04 thorough hunt #63:** regression `DeactivateAsync_when_user_already_inactive_does_not_decrement_seat_again`; seed **#62**.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` beyond `totalResults` returns empty page without 500 — **cheap-disproof 2026-11-04 thorough hunt #63:** regression `ListAsync_start_index_above_total_returns_empty_page`; seed **#62**.
-
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — empty HTTP body maps to SCIM `invalidSyntax` before service replace — locus: JSON deserialize ~125–130; input: zero-length PUT body (monitor gap: no Replace empty-body Api test; seed **#63**).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — cooperative cancel during PUT JSON deserialize rethrows before `invalidSyntax` — locus: ~128–130; input: cancel during body read (monitor gap: no Replace deserialize cancel Api test; seed **#63**).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — cooperative cancel during PATCH JSON deserialize rethrows before `invalidSyntax` — locus: ~176–178; input: cancel during body read (monitor gap: no Patch deserialize cancel Api test; seed **#63**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count=0` query returns empty SCIM list page without HTTP 500 — locus: service `Math.Clamp`; input: `count=0` (monitor seed **#63**; Application `ListAsync_count_zero_returns_empty_page_with_total_results`).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — JSON `null` literal POST body maps to SCIM `invalidSyntax` before service create — locus: deserialize + `ParseUser` object guard ~83–92; input: body `null` (monitor seed **#63**).
 
 2026-11-04 seed hunt (seed-only #62): re-read `ScimUsersController`, `ScimUserService.ListAsync`, and `ScimUsersControllerCancellationTests` after seed **#61** monitor reseed; cheap-disproof closed five open `(candidate)` rows from seed **#61** — **valid-no-repro** post-patch `GetAsync` cancel (intentional host cancel; parity `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`; no dedicated Patch post-get Api test); **valid-no-repro** list cancel during service `ListAsync` (no controller catch; hunt **#351**); **valid-no-repro** PUT/PATCH JSON deserialize cancel rethrows before `invalidSyntax` (~125–130 / ~171–178; dry **#48**); **valid-no-repro** oversized `count` clamped without 500 (`ListAsync_count_above_max_clamped_to_200_items`; service `Math.Clamp` ~20); **valid-no-repro** `startIndex` above tenant cardinality returns empty `Resources` with stable `totalResults` (`ListAsync_start_index_above_total_returns_empty_page`; seed **#61**); seeded five follow-on `(candidate)` monitor rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -4293,9 +4301,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-04
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
