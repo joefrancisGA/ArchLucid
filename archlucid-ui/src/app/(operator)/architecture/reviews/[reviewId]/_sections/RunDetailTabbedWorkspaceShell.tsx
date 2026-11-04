@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
+import { resolveRunDetailVisitDefaultReviewTab } from "@/lib/reviews/first-review-spine-band";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import {
@@ -44,6 +45,12 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     withheldFindings,
     catalogAdvisoryEngineFailureCount,
   } = presentation;
+
+  const visitDefaultReviewTabWhenUrlSilent = resolveRunDetailVisitDefaultReviewTab({
+    findings: quickDecisionFindings,
+    hasFindingsSnapshot: model.resolvedDetail.findingsSnapshot !== null,
+    reviewHasGoldenManifest: Boolean(model.manifestId),
+  });
 
   const activePanelLeadEl = (
     <RunDetailReviewPackageDoThisNextResolvedDeferred
@@ -143,6 +150,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         tabActivityAt={resolved.tabActivityAt}
         tabCounts={resolved.tabCounts}
         panels={resolved.panels}
+        visitDefaultReviewTabWhenUrlSilent={visitDefaultReviewTabWhenUrlSilent}
       />
     </Suspense>
   );

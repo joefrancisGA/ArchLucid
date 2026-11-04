@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
@@ -41,13 +41,15 @@ describe("SponsorRoiSystemsIncludedSection", () => {
     );
 
     expect(screen.getByTestId("exec-roi-systems-included-section")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Systems included (per-system detail)"));
+
     expect(screen.getByText("Billing API")).toBeInTheDocument();
     expect(screen.getByText("Portal")).toBeInTheDocument();
     expect(screen.getByTestId("exec-roi-system-savings-run-billing-001")).toHaveTextContent("$30,000");
     expect(screen.getByTestId("exec-roi-system-savings-run-portal-002")).toHaveTextContent("$25,000");
     expect(
       screen.getAllByRole("button", { name: `Help: ${ROI_SYSTEM_ROW_MATH_TOOLTIP_LABEL}` }),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   it("shows amount not returned when per-system savings are omitted", () => {
@@ -68,6 +70,8 @@ describe("SponsorRoiSystemsIncludedSection", () => {
         />
       </TooltipProvider>,
     );
+
+    fireEvent.click(screen.getByText("Systems included (per-system detail)"));
 
     expect(screen.getByTestId("exec-roi-system-savings-run-legacy-003")).toHaveTextContent("Amount not returned");
   });

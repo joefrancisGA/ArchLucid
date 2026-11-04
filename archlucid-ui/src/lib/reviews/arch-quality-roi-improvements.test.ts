@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -87,6 +87,25 @@ describe("first-review-spine-band", () => {
         reviewHasGoldenManifest: false,
       }),
     ).toEqual({ label: "Uncommitted review", reviewTab: "review-package" });
+  });
+
+  it("resolveRunDetailVisitDefaultReviewTab returns findings when uncited findings remain", () => {
+    const findings = [finding({ findingId: "f-1", title: "Uncited", evidenceRefCount: 0 })];
+    const summary = deriveFirstReviewSpineBandSummary({
+      feasibilityVerdict: null,
+      structuralExecutionMode: "Simulator",
+      findings,
+      reviewHasGoldenManifest: true,
+    });
+
+    expect(
+      resolveRunDetailVisitDefaultReviewTab({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: true,
+      }),
+    ).toBe("findings");
+    expect(summary?.openGateReviewTab).toBe("findings");
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {

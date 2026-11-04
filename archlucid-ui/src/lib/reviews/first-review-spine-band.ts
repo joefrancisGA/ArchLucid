@@ -20,6 +20,7 @@ import { formatStructuralExecutionModeLabel } from "@/lib/structural-execution-m
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 export type FirstReviewSpineBandSummary = {
   readonly gateOutcomeLabel: string;
@@ -166,6 +167,26 @@ export function resolveFirstReviewOpenGate(input: {
   }
 
   return { label: null, reviewTab: null };
+}
+
+export function resolveRunDetailVisitDefaultReviewTab(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): ReviewDetailTabId | null {
+  if (!input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const uncitedCount = countUncitedFindings(input.findings);
+  const dispositionStats = countDispositionStats(input.findings);
+  const openGate = resolveFirstReviewOpenGate({
+    uncitedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    reviewHasGoldenManifest: input.reviewHasGoldenManifest,
+  });
+
+  return openGate.reviewTab;
 }
 
 export function deriveFirstReviewSpineBandSummary(input: {

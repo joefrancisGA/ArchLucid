@@ -62,6 +62,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly presenterFindingActions?: ReactNode | null;
   /** IR-012: Working architecture-linked reviews redirect presenter to inhabited findings. */
   readonly suppressPresenterSurface?: boolean;
+  /** When the URL omits reviewTab, open the first-review spine gate tab when present. */
+  readonly visitDefaultReviewTabWhenUrlSilent?: ReviewDetailTabId | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
