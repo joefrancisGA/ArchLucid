@@ -87,7 +87,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             RunId = runId,
             RequestId = detail.Run.RequestId,
             SystemName = report.Manifest?.SystemName ?? report.Evidence?.SystemName ?? detail.Manifest?.SystemName,
-            ManifestVersion = detail.Run.CurrentManifestVersion ?? detail.Manifest?.Metadata.ManifestVersion,
+            ManifestVersion = ArchitectureReviewBoardExportManifestVersionResolver.Resolve(detail),
             SponsorReport = report.Summary,
             HttpCorrelationId = httpCorrelationId,
             ExtractorTimestampUtcLabel = extractorTimestampUtcLabel,

@@ -2665,3 +2665,4 @@
 {"at":"2026-11-03T20:39:24.5489752Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-04T13:28:01.4682283Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs"]}
 {"at":"2026-11-04T13:40:16.4566752Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs","ArchLucid.Application/Exports/"]}
+{"at":"2026-11-04T13:59:27.1251530Z","outcome":"hit","productLine":"archlucid-shared","zoneId":"tenant-data-export","paths":["ArchLucid.Application/Exports/ArchitectureReviewBoard/ArchitectureReviewBoardExportDocumentFactory.StableId.cs","ArchLucid.Application/Exports/ArchitectureReviewBoard/ArchitectureReviewBoardExportManifestVersionResolver.cs"]}

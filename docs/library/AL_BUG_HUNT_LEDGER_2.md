@@ -8733,6 +8733,21 @@
 
 ## Zone: tenant-data-export
 
+2026-11-04 thorough hunt (hit #969): promoted failing regression `GenerateReportAsync_html_uses_not_stored_copy_for_missing_sponsor_and_manifest_version` — `ArchitectureReviewBoardExportDocumentFactory` set `ManifestVersion` from `detail.Run.CurrentManifestVersion` before manifest metadata, so whitespace-only `detail.Manifest.Metadata.ManifestVersion` still rendered the run-header stamp (`v9`) in HTML board exports instead of `Manifest version was not stored.`; added `ArchitectureReviewBoardExportManifestVersionResolver` so stored manifest metadata is authoritative when a manifest is present; cheap-disproof closed five open `(candidate)` rows from dry **#968** — **valid-no-repro** cooperative cancel on run ZIP export, compare-records sealed guard, and artifact push pre-DNS paths (host cancel class); **valid-no-repro** JSON string `"0e0"` on `is_sample_run` truncates to zero and does not bypass career block (~212–221); **invalid** percent-encoded newline in blob host — `Uri.TryCreate` rejects before account-label guard; reseeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **43/43** (12/12 Application ArchitectureReviewExport; 11/11 Api ExportsController; 20/20 Core blob policy); `RunAnalyzers=false`. Private beta: architecture review HTML/DOCX/PDF board exports no longer substitute the run header manifest stamp when the sealed manifest stored an empty or whitespace-only manifest version—operators see honest “not stored” copy instead of a misleading version line.
+
+- [x] (proven) `ArchitectureReviewBoardExportDocumentFactory` / `ArchitectureReviewExportService.GenerateReportAsync` — whitespace-only stored manifest version shows run-header stamp in HTML — **hit 2026-11-04 thorough hunt #969:** metadata-authoritative resolver; regression `GenerateReportAsync_html_uses_not_stored_copy_for_missing_sponsor_and_manifest_version`.
+- [x] (valid-no-repro) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — **cheap-disproof 2026-11-04 thorough hunt #969:** host cancel; dry **#968** monitor.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — **cheap-disproof 2026-11-04 thorough hunt #969:** host cancel; dry **#968** monitor.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"0e0"` on `is_sample_run` — **cheap-disproof 2026-11-04 thorough hunt #969:** numeric string branch truncates to zero; does not bypass block.
+- [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-04 thorough hunt #969:** host cancel; dry **#968** monitor.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with newline percent-encoded in storage account label — **cheap-disproof 2026-11-04 thorough hunt #969:** `https://127.0.0.1%0a.blob.core.windows.net/...` fails absolute HTTPS parse before policy.
+
+- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during HTML builder after document model assembly — locus: HTML export path; input: cancel mid-`BuildAsync` (monitor).
+- [ ] (candidate) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — locus: run ZIP export path; input: cancel mid-generate (monitor).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"0.000"` on `is_sample_run` — locus: string numeric branch ~188–195; input: fractional zero token (monitor).
+- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during sealed-manifest guard on left export record id — locus: compare-summary route; input: cancel before facade (monitor).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with carriage-return percent-encoded in account label — locus: absolute HTTPS parse; input: `https://127.0.0.1%0d.blob.core.windows.net/c?sas=1` (monitor).
+
 2026-11-04 thorough hunt (dry #968): cheap-disproof closed five open `(candidate)` monitor rows after failing-repro attempts — **valid-no-repro** cooperative cancel on run ZIP export, compare-records sealed guard, and artifact push pre-DNS paths (host cancel class; hit **#967**); **valid-no-repro** JSON string `"-0.0"` on `is_sample_run` truncates to zero and does not bypass career block (~212–221); **invalid** percent-encoded tab in blob host — `Uri.TryCreate` rejects before account-label guard (`DestinationSasUrl must be an absolute HTTPS URL`); **valid-no-repro** decimal (`2130706433`) and short-form (`127.1`) blob account labels already rejected via `PrivateNetworkAddressGuard` on extracted account label (parity hit **#967**); reseeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **42/43** (11/12 Application ArchitectureReviewExport — 1 pre-existing HTML sponsor copy assertion; 11/11 Api ExportsController; 20/20 Core blob policy); `RunAnalyzers=false`. Private beta: n/a.
 
 - [x] (valid-no-repro) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — **cheap-disproof 2026-11-04 thorough hunt #968:** host cancel; monitor reseed from hit **#967**.
@@ -8970,13 +8985,13 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 968
-- **bugs-found:** 62
-- **consecutive-dry-hunts:** 1
+- **hunts:** 969
+- **bugs-found:** 63
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-04
-- **last-bug:** 2026-11-04 — IPv4 literal blob account label bypassed export push SSRF guard
+- **last-bug:** 2026-11-04 — board export used run manifest stamp when stored manifest version was whitespace-only
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
