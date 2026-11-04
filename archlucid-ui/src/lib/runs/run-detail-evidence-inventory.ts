@@ -21,6 +21,8 @@ export const RUN_DETAIL_EVIDENCE_KIND_STORED_EMPTY = "Evidence kind was stored e
 export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
   "Findings cite evidence, but source names were not stored." as const;
 
+export const SUBMITTED_EVIDENCE_LIST_NOT_STORED = "Submitted evidence list was not stored." as const;
+
 export const CITING_FINDING_COUNT_NOT_STORED = "Citing finding count was not stored." as const;
 
 export const CITING_FINDING_COUNT_NOT_STORED_FOR_ARCHITECTURE_BRIEF =
@@ -402,7 +404,7 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
   }
 
   if (input.findingsSnapshotStored === false) {
-    return "Submitted evidence list was not stored.";
+    return SUBMITTED_EVIDENCE_LIST_NOT_STORED;
   }
 
   if (input.findingsSnapshotStored === true) {

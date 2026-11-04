@@ -157,7 +157,7 @@ export function RunTrustEvidenceCardSection(props: {
   const technicalRows = fields.filter((field) => field.technical !== null);
   const topFindingPointers = splitTrustEvidenceDetail(card.topFinding?.evidencePointersSummary);
   const approvalBlocker = resolveApprovalBlockerPresentation({
-    approvalBlocked,
+    approvalBlocked: approvalBlocked === true,
     blockingFindingId,
     blockingFindingTitle,
     usesStoredApprovalBlocker: approvalBlockerUsesStoredFinding,
