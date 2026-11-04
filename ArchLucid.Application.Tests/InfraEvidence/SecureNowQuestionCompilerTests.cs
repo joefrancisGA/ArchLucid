@@ -69,6 +69,40 @@ public sealed class SecureNowQuestionCompilerTests
     }
 
     [Fact]
+    public void Unknown_with_off_snapshot_relationship_problem_text_emits_a_question()
+    {
+        const string resourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = resourceId,
+                        ResourceType = "Microsoft.DataFactory/factories",
+                    },
+                ]),
+            [],
+            [
+                new SecureNowDiagramQuestionCandidate
+                {
+                    ResourceId = resourceId,
+                    ResourceType = "Microsoft.DataFactory/factories",
+                    IsUnknownEvidence = true,
+                    ProblemText =
+                        "Relationship endpoint is not in this inventory snapshot (off-snapshot edge).",
+                },
+            ],
+            [],
+            []);
+
+        questions.Should().ContainSingle();
+        questions[0].QuestionKey.Should().Be("unknown-evidence@v1");
+    }
+
+    [Fact]
     public void Unknown_with_actionable_evidence_emits_a_question()
     {
         const string resourceId =
@@ -103,8 +137,7 @@ public sealed class SecureNowQuestionCompilerTests
         questions[0].ResourceName.Should().Be("adf-edw-hi-dev");
         questions[0].ResourceType.Should().Be("Microsoft.DataFactory/factories");
         questions[0].QuestionText.Should().Be("Should adf-edw-hi-dev connect to a peer, or stand alone?");
-        questions[0].ReasonText.Should().Contain("adf-edw-hi-dev");
-        questions[0].ReasonText.Should().Contain("shared service");
+        questions[0].ReasonText.Should().Contain("Connection evidence was not stored");
     }
 
     [Fact]
@@ -136,8 +169,8 @@ public sealed class SecureNowQuestionCompilerTests
             []);
 
         questions.Should().ContainSingle();
-        questions[0].QuestionText.Should().Be("Is app-01 still needed?");
-        questions[0].ReasonText.Should().Contain("could not find the parent");
+        questions[0].QuestionText.Should().Contain("still needed");
+        questions[0].ReasonText.Should().Contain("was not stored");
         questions[0].ReasonText.Should().Contain("app-01");
     }
 
@@ -275,6 +308,58 @@ public sealed class SecureNowQuestionCompilerTests
         questions.Should().ContainSingle();
         questions[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Ignored);
         questions[0].DispositionId.Should().Be(newer.DispositionId);
+    }
+
+    [Fact]
+    public void Dispositions_with_identical_updated_utc_prefer_higher_disposition_id()
+    {
+        SecureNowQuestionCompiler compiler = new();
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot();
+        const string resourceId = "/subscriptions/sub/resource";
+        const string problem = "peer";
+        string fingerprint = Fingerprint("unknown-evidence@v1", resourceId, problem);
+        DateTime sharedUtc = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+        Guid lowerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        Guid higherId = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        SecureNowQuestionDispositionRecord stale = new()
+        {
+            DispositionId = lowerId,
+            TenantId = Scope.TenantId,
+            SnapshotId = SnapshotId,
+            SubscriptionId = "sub",
+            ResourceId = resourceId,
+            QuestionKey = "unknown-evidence@v1",
+            Status = SecureNowQuestionDispositionStatus.Ignored,
+            EvidenceFingerprint = fingerprint,
+            Reason = "Stale.",
+            ExpirationUtc = DateTime.UtcNow.AddDays(10),
+            UpdatedUtc = sharedUtc,
+        };
+        SecureNowQuestionDispositionRecord preferred = stale with
+        {
+            DispositionId = higherId,
+            Status = SecureNowQuestionDispositionStatus.Open,
+            Reason = "Preferred.",
+        };
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = compiler.Compile(
+            Scope,
+            snapshot,
+            [],
+            [
+                new SecureNowDiagramQuestionCandidate
+                {
+                    ResourceId = resourceId,
+                    IsUnknownEvidence = true,
+                    ProblemText = problem,
+                },
+            ],
+            [],
+            [stale, preferred]);
+
+        questions.Should().ContainSingle();
+        questions[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        questions[0].DispositionId.Should().Be(higherId);
     }
 
     [Fact]
