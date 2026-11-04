@@ -483,6 +483,8 @@ public sealed class TenantErasureCommandService(
             return true;
 
         DateTimeOffset? priorUntil = tenant.LegalHoldUntilUtc;
+        string? priorReason = tenant.LegalHoldReason;
+        string? priorSetByUserId = tenant.LegalHoldSetByUserId;
 
         bool cleared = await _tenantRepository.TryClearTenantErasureLegalHoldAsync(tenantId, cancellationToken);
 
@@ -536,14 +538,29 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeClearAuditAppend.LegalHoldUntilUtc is not null)
             return true;
 
-        await AppendPlatformAuditAsync(
-            AuditEventTypes.TenantErasureLegalHoldCleared,
-            tenantId,
-            actorUserId,
-            actorUserName,
-            correlationId,
-            new { priorLegalHoldUntilUtc = priorUntil, legalHoldUntilUtc = (DateTimeOffset?)null },
-            cancellationToken);
+        try
+        {
+            await AppendPlatformAuditAsync(
+                AuditEventTypes.TenantErasureLegalHoldCleared,
+                tenantId,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                new { priorLegalHoldUntilUtc = priorUntil, legalHoldUntilUtc = (DateTimeOffset?)null },
+                cancellationToken,
+                CreateClearLegalHoldAuditEventId(tenantId, priorUntil!.Value));
+        }
+        catch
+        {
+            await RollbackClearLegalHoldAfterFailedAuditAsync(
+                tenantId,
+                priorUntil!.Value,
+                priorReason,
+                priorSetByUserId,
+                cancellationToken);
+
+            throw;
+        }
 
         return true;
     }
@@ -650,6 +667,37 @@ public sealed class TenantErasureCommandService(
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
             $"{AuditEventTypes.TenantErasureApproved}:{tenantId:N}:{approvedUtc.UtcDateTime.Ticks}"));
         return new Guid(hash.AsSpan(0, 16));
+    }
+
+    private static Guid CreateClearLegalHoldAuditEventId(Guid tenantId, DateTimeOffset priorLegalHoldUntilUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureLegalHoldCleared}:{tenantId:N}:{priorLegalHoldUntilUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+
+    /// <summary>
+    /// Clear-hold removes hold metadata before audit append. Re-apply the prior hold so operator
+    /// retries can complete the audit append without treating the tenant as already cleared.
+    /// </summary>
+    private async Task RollbackClearLegalHoldAfterFailedAuditAsync(
+        Guid tenantId,
+        DateTimeOffset priorUntilUtc,
+        string? priorReason,
+        string? priorSetByUserId,
+        CancellationToken cancellationToken)
+    {
+        string setBy = string.IsNullOrWhiteSpace(priorSetByUserId)
+            ? "system:tenant-erasure-rollback"
+            : priorSetByUserId.Trim();
+
+        await _tenantRepository.TrySetTenantErasureLegalHoldAsync(
+            tenantId,
+            priorUntilUtc,
+            _timeProvider.GetUtcNow(),
+            NormalizeLegalHoldReason(priorReason),
+            setBy,
+            cancellationToken);
     }
 
     /// <summary>
