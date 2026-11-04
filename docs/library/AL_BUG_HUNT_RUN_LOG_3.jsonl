@@ -2696,3 +2696,4 @@
 {"at":"2026-11-04T00:24:00.0000000Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-11-04T00:25:47.3721116Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/lib/infra-evidence/securenow-question-resource-identity-display.ts","archlucid-ui/src/lib/infra-evidence/securenow-question-resource-identity-display.test.ts"]}
 {"at":"2026-11-04T00:33:02.6921606Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/SecureNowQuestionCompiler.cs","ArchLucid.Application.Tests/InfraEvidence/SecureNowQuestionCompilerTests.cs"]}
+{"at":"2026-11-04T00:36:28.5028404Z","zoneId":"securenow-question-queue","outcome":"dry","productLine":"securenow"}
