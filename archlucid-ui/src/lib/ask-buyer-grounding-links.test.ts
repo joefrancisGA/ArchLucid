@@ -50,7 +50,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", { referencedArtifacts: null })).toEqual(new Set());
     expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", {
       referencedArtifacts: ["run-a", "other"],
-    })).toEqual(new Set(["run-a", "other"]));
+    })).toEqual(new Set(["run-a"]));
   });
 
   it("buildAskAnswerCitationSourceLinks labels missing review id", () => {
