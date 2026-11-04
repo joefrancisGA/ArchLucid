@@ -62,6 +62,36 @@ export function countUncitedFindings(findings: readonly QuickDecisionFinding[]):
   return uncited;
 }
 
+/** Highest-severity uncited finding for open-gate deep links when the URL is silent. */
+export function resolveFirstUncitedFindingId(findings: readonly QuickDecisionFinding[]): string | null {
+  const uncited = findings.filter((finding) => isUncitedFinding(finding));
+
+  if (uncited.length === 0) {
+    return null;
+  }
+
+  const sorted = [...uncited].sort((left, right) =>
+    compareFindingSeverity(left.severityValue, right.severityValue),
+  );
+
+  return sorted[0]?.findingId ?? null;
+}
+
+export function resolveRunDetailVisitDefaultFindingIdWhenUrlSilent(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+}): string | null {
+  if (!input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  if (countUncitedFindings(input.findings) === 0) {
+    return null;
+  }
+
+  return resolveFirstUncitedFindingId(input.findings);
+}
+
 function resolveTopDecisionGradeFinding(
   findings: readonly QuickDecisionFinding[],
 ): QuickDecisionFinding | null {

@@ -179,6 +179,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.activeTab).toBe("findings");
   });
 
+  it("writes findingId when the open gate is an uncited finding and the URL is silent", () => {
+    searchParamsHarness.applyQuery("");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "finding-uncited-1",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toContain("reviewTab=findings");
+    expect(window.location.search).toContain("findingId=finding-uncited-1");
+  });
+
   it("switches the active tab when a mounted workspace hash changes tabs", () => {
     const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
       wrapper: SearchParamsRerenderHost,

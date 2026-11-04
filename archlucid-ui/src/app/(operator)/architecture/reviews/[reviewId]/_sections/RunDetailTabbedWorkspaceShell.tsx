@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
-import { resolveRunDetailVisitDefaultReviewTab } from "@/lib/reviews/first-review-spine-band";
+import { resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent } from "@/lib/reviews/first-review-spine-band";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import {
@@ -50,6 +50,10 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     findings: quickDecisionFindings,
     hasFindingsSnapshot: model.resolvedDetail.findingsSnapshot !== null,
     reviewHasGoldenManifest: Boolean(model.manifestId),
+  });
+  const visitDefaultFindingIdWhenUrlSilent = resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+    findings: quickDecisionFindings,
+    hasFindingsSnapshot: model.resolvedDetail.findingsSnapshot !== null,
   });
 
   const activePanelLeadEl = (
@@ -151,6 +155,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         tabCounts={resolved.tabCounts}
         panels={resolved.panels}
         visitDefaultReviewTabWhenUrlSilent={visitDefaultReviewTabWhenUrlSilent}
+        visitDefaultFindingIdWhenUrlSilent={visitDefaultFindingIdWhenUrlSilent}
       />
     </Suspense>
   );

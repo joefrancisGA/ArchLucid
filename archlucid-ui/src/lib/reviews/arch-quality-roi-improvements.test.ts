@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveFirstUncitedFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -106,6 +106,21 @@ describe("first-review-spine-band", () => {
       }),
     ).toBe("findings");
     expect(summary?.openGateReviewTab).toBe("findings");
+  });
+
+  it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns the highest-severity uncited finding", () => {
+    const findings = [
+      finding({ findingId: "low", title: "Low", severityValue: 1, evidenceRefCount: 0 }),
+      finding({ findingId: "high", title: "High", severityValue: 3, evidenceRefCount: 0 }),
+    ];
+
+    expect(resolveFirstUncitedFindingId(findings)).toBe("high");
+    expect(
+      resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe("high");
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {

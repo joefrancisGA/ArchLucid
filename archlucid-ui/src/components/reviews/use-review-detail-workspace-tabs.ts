@@ -83,8 +83,14 @@ export function useReviewDetailWorkspaceTabs(
 ): UseReviewDetailWorkspaceTabsResult {
   const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
-  const initialFindingId = null;
+  const initialFindingIdFromParams = useMemo((): string | null => {
+    const trimmed = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+
+    return trimmed.length > 0 ? trimmed : null;
+  }, [searchParams]);
+  const initialFindingId = initialFindingIdFromParams;
   const initialWorkbenchFocus = null;
+  const visitDefaultAppliedRef = useRef(false);
   const [presenterMode, setPresenterModeState] = useState(false);
   const presenterModeRef = useRef(presenterMode);
   presenterModeRef.current = presenterMode;
@@ -137,6 +143,38 @@ export function useReviewDetailWorkspaceTabs(
   workbenchFocusColumnRef.current = workbenchFocusColumn;
   const tabActivityAt = props.tabActivityAt ?? {};
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);
+
+  useEffect(() => {
+    if (visitDefaultAppliedRef.current) {
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const reviewTabPresent = (params.get(REVIEW_DETAIL_TAB_PARAM)?.trim() ?? "").length > 0;
+    const findingPresent = (params.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "").length > 0;
+
+    if (reviewTabPresent || findingPresent) {
+      visitDefaultAppliedRef.current = true;
+
+      return;
+    }
+
+    const findingId = props.visitDefaultFindingIdWhenUrlSilent?.trim() ?? "";
+
+    if (findingId.length === 0 || props.visitDefaultReviewTabWhenUrlSilent !== "findings") {
+      visitDefaultAppliedRef.current = true;
+
+      return;
+    }
+
+    visitDefaultAppliedRef.current = true;
+    writeReviewDetailTabToUrl("findings", { findingId });
+    setActiveTab("findings");
+  }, [props.visitDefaultFindingIdWhenUrlSilent, props.visitDefaultReviewTabWhenUrlSilent]);
 
   useEffect(() => {
     setActiveTab((current) => (current === searchParamTab ? current : searchParamTab));
