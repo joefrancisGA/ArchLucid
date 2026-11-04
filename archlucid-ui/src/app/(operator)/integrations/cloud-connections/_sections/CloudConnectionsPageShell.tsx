@@ -25,6 +25,7 @@ import {
   SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
+import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -83,6 +84,13 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="cloud-connections-collection-missing-detail">
         {collectionMissingDetail}
       </p>
+      <div className="mt-3">
+        <SecureNowCollectionSetupChecklist
+          input={collectionMissingInput}
+          testIdPrefix="cloud-connections"
+          titleHeadingLevel="helper"
+        />
+      </div>
       <p
         className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="cloud-connections-collection-missing-subscription-scope"

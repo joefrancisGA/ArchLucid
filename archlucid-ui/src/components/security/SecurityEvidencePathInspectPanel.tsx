@@ -43,9 +43,6 @@ import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
   SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
-  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD,
-  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT,
-  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_SUBSTRATE,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
   SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON,
   SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
@@ -208,8 +205,6 @@ function PathHopsTable(props: {
                       Open resource evidence
                     </Link>
                   </p>
-                ) : hop.cloudResourceId != null && hop.cloudResourceId.trim().length === 0 ? (
-                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>Resource id was stored empty.</p>
                 ) : (
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>Resource evidence link was not stored.</p>
                 )}
@@ -382,22 +377,6 @@ function PathExplanationSection(props: {
         <StatusTag kind="neutral" label={explanationTag} />
       </div>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{explanationLead}</p>
-      {!props.useSimulator ? (
-        <p
-          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="security-evidence-path-explanation-real-mode-hint"
-        >
-          {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_HINT}
-        </p>
-      ) : null}
-      {!props.useSimulator ? (
-        <p
-          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="security-evidence-path-explanation-real-mode-substrate"
-        >
-          {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_SUBSTRATE}
-        </p>
-      ) : null}
       <Button
         type="button"
         variant="outline"
@@ -414,9 +393,6 @@ function PathExplanationSection(props: {
       {showCitationRejection ? (
         <div data-testid="security-evidence-path-explanation-citation-rejection">
           <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG} />
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-            {SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD}
-          </p>
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{citationRejection}</p>
         </div>
       ) : null}

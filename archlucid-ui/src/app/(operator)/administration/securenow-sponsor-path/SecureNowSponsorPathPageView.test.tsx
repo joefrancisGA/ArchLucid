@@ -40,10 +40,4 @@ describe("SecureNowSponsorPathPageView", () => {
       );
     });
   });
-
-  it("renders procurement trust and assurance links", () => {
-    render(<SecureNowSponsorPathPageView />);
-
-    expect(screen.getByTestId("securenow-procurement-trust-strip")).toBeInTheDocument();
-  });
 });

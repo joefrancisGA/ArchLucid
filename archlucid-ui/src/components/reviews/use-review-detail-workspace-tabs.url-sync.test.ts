@@ -163,6 +163,22 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.activeTab).toBe("findings");
   });
 
+  it("opens on the first-review gate tab when reviewTab is absent", () => {
+    searchParamsHarness.applyQuery("");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
+
+    const { result } = renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(result.current.activeTab).toBe("findings");
+  });
+
   it("switches the active tab when a mounted workspace hash changes tabs", () => {
     const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
       wrapper: SearchParamsRerenderHost,
