@@ -57,6 +57,17 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
     pendingDocumentFilesRef.current = pendingDocumentFiles;
   }, [pendingDocumentFiles]);
 
+  useEffect(() => {
+    if (runId !== null) {
+      return;
+    }
+
+    pendingEvidenceUploadGenerationRef.current += 1;
+    setEvidenceUploadState("idle");
+    setEvidenceUploadProgressPercent(null);
+    setEvidenceUploadError(null);
+  }, [runId]);
+
   const setPendingDocumentFilesWithUploadGeneration = useCallback((next: SetStateAction<File[]>) => {
     pendingEvidenceUploadGenerationRef.current += 1;
     setPendingDocumentFiles(next);

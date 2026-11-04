@@ -420,4 +420,44 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
       expect(result.current.pendingEvidenceFile).toBe(file);
     });
   });
+
+  it("clears uploading chrome when runId is cleared during an in-flight upload", async () => {
+    let resolveUpload!: (value: { ok: true }) => void;
+    const uploadPromise = new Promise<{ ok: true }>((resolve) => {
+      resolveUpload = resolve;
+    });
+
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+    vi.mocked(uploadWizardPendingInventoryEvidence).mockReturnValue(uploadPromise);
+
+    const file = buildAwsInventoryZipFile();
+
+    const { result, rerender } = renderHook(
+      ({ runId }) =>
+        useNewRunWizardPendingEvidence({
+          runId,
+          autoUploadOnCreate: true,
+          onInventoryFileSelected: vi.fn(),
+        }),
+      { initialProps: { runId: "run-abandon" as string | null } },
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(file);
+    });
+
+    await waitFor(() => {
+      expect(result.current.evidenceUploadState).toBe("uploading");
+    });
+
+    rerender({ runId: null });
+
+    expect(result.current.evidenceUploadState).toBe("idle");
+
+    await act(async () => {
+      resolveUpload({ ok: true });
+      await uploadPromise;
+      await Promise.resolve();
+    });
+  });
 });
