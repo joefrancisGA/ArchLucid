@@ -2671,3 +2671,4 @@
 {"at":"2026-11-04T14:23:57.4124021Z","productLine":"archlucid-shared","zoneId":"tenant-erasure","outcome":"seed-only"}
 {"at":"2026-11-04T16:14:07.5403872Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api.Tests/Scim/ScimUsersControllerCancellationTests.cs","ArchLucid.Application.Tests/Scim/ScimUsersServiceUnitTests.cs"]}
 {"at":"2026-11-04T16:21:16.2053586Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api.Tests/Scim/ScimUsersControllerCancellationTests.cs"]}
+{"at":"2026-11-04T16:36:46.8179602Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs","ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
