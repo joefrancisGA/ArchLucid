@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useMemo } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
@@ -14,8 +15,10 @@ import {
   FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE,
   FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED,
   resolveFirstReviewSpineOpenGateSectionId,
+  resolveFirstReviewOpenGateReviewHref,
   type FirstReviewSpineBandSummary,
 } from "@/lib/reviews/first-review-spine-band";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +30,11 @@ export type RunDetailFirstReviewSpineBandProps = {
   readonly isSample?: boolean | null;
   readonly manifestVersion?: string | null;
   readonly sampleSponsorParagraph?: string | null;
+  readonly openGateNavigationInput?: {
+    readonly findings: readonly QuickDecisionFinding[];
+    readonly hasFindingsSnapshot: boolean;
+    readonly reviewHasGoldenManifest: boolean;
+  } | null;
 };
 
 function gateOutcomeStatusKind(
@@ -47,6 +55,23 @@ function gateOutcomeStatusKind(
 export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBandProps): ReactElement {
   const { summary } = props;
   const openGateSectionId = resolveFirstReviewSpineOpenGateSectionId(summary.openGateReviewTab);
+  const trimmedRunId = props.runId?.trim() ?? "";
+  const openGateHref = useMemo((): string | null => {
+    if (summary.openGateReviewTab === null || trimmedRunId.length === 0) {
+      return null;
+    }
+
+    if (props.openGateNavigationInput !== null && props.openGateNavigationInput !== undefined) {
+      return resolveFirstReviewOpenGateReviewHref({
+        runId: trimmedRunId,
+        findings: props.openGateNavigationInput.findings,
+        hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+        reviewHasGoldenManifest: props.openGateNavigationInput.reviewHasGoldenManifest,
+      });
+    }
+
+    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=${summary.openGateReviewTab}`;
+  }, [props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
 
   return (
     <section
@@ -96,7 +121,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             Open gate: {summary.openGateLabel}.{" "}
             {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
               <Link
-                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=${summary.openGateReviewTab ?? "findings"}`}
+                href={openGateHref ?? `/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=${summary.openGateReviewTab ?? "findings"}`}
                 className={OPERATOR_LINK.inline}
               >
                 Open the gate

@@ -83,6 +83,12 @@ export function PilotScorecardRoiPanel({
         <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-scorecard-roi-non-summing">
           {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
+        <p
+          className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-scorecard-assumptions-model-honesty"
+        >
+          {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+        </p>
         <PolicyPackInfluenceHonestyChip className="mt-2" />
         <div className="mt-4 grid gap-3">
           <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>

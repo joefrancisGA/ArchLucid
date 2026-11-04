@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstReviewOpenGateReviewHref, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -141,6 +141,53 @@ describe("first-review-spine-band", () => {
         reviewHasGoldenManifest: false,
       }),
     ).toBe("run-detail-first-review-spine-review-package");
+  });
+
+  it("resolveRunDetailVisitDefaultReviewHashWhenUrlSilent targets findings spine for uncited open gate", () => {
+    const findings = [finding({ findingId: "u", title: "Uncited", evidenceRefCount: 0 })];
+
+    expect(
+      resolveRunDetailVisitDefaultReviewHashWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: true,
+      }),
+    ).toBe("run-detail-first-review-spine-findings");
+  });
+
+  it("resolveFirstReviewOpenGateReviewHref includes findingId and spine hash for uncited gate", () => {
+    const findings = [finding({ findingId: "finding-1", title: "Uncited", evidenceRefCount: 0, severityValue: 3 })];
+
+    expect(
+      resolveFirstReviewOpenGateReviewHref({
+        runId: "run-abc",
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe(
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("resolveFirstReviewOpenGateReviewHref includes review-package spine hash for uncommitted reviews", () => {
+    const findings = [
+      finding({
+        findingId: "checklist",
+        title: "Checklist",
+        classification: "ChecklistFinding",
+        evidenceRefCount: 2,
+      }),
+    ];
+
+    expect(
+      resolveFirstReviewOpenGateReviewHref({
+        runId: "run-abc",
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe("/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package");
   });
 
   it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns open disposition when findings are cited", () => {

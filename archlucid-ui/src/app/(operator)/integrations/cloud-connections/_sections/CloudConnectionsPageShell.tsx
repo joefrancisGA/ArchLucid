@@ -59,11 +59,17 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     productLine === "security"
     && showConnectionContent
     && shouldShowSecureNowCollectionMissingBlock(collectionMissingInput);
+  const collectionSetupComplete = isSecureNowCollectionSetupComplete(collectionMissingInput);
   const showCollectionReady =
     productLine === "security"
     && showConnectionContent
     && !showCollectionMissing
-    && isSecureNowCollectionSetupComplete(collectionMissingInput);
+    && collectionSetupComplete;
+  const showCollectionInProgress =
+    productLine === "security"
+    && showConnectionContent
+    && !showCollectionMissing
+    && !collectionSetupComplete;
   const collectionMissingDetail = resolveSecureNowCollectionMissingDetail(collectionMissingInput);
   const collectionMissingSubscriptionLabel = resolveSecureNowCloudConnectionsSubscriptionScopeLabel({
     azureSubscriptionIdsPresent: props.azureSubscriptionIdsPresent,
@@ -136,6 +142,13 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     />
   ) : null;
 
+  const collectionInProgress = showCollectionInProgress ? (
+    <SecureNowCollectionSetupStatusSection
+      testIdPrefix="cloud-connections"
+      collectionInput={collectionMissingInput}
+    />
+  ) : null;
+
   const orientationStrip = buyerPolishedShell ? (
     <div data-testid="cloud-connections-orientation-bottom">
       <CloudConnectionsEvidenceOrientationStrip />
@@ -171,6 +184,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
         />
 
         {collectionStatus}
+        {collectionInProgress}
         {collectionReady}
         {checklist}
         {orientationStrip}
@@ -235,6 +249,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           </section>
 
           {collectionStatus}
+          {collectionInProgress}
           {collectionReady}
           {checklist}
           {providerList}

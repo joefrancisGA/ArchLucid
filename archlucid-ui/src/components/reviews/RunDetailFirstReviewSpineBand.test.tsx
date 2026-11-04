@@ -44,13 +44,18 @@ describe("RunDetailFirstReviewSpineBand", () => {
           openGateLabel: "Uncommitted review",
           openGateReviewTab: "review-package",
         })}
+        openGateNavigationInput={{
+          findings: [],
+          hasFindingsSnapshot: true,
+          reviewHasGoldenManifest: false,
+        }}
       />,
     );
 
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent("Uncommitted review");
     expect(screen.getByRole("link", { name: "Open the gate" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-abc?reviewTab=review-package",
+      "/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
     );
   });
 
