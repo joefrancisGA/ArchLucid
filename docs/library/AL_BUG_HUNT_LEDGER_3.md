@@ -11987,6 +11987,20 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-04 seed hunt pass 4 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed after three same-day `useGuidedIntakePriorRunPrefill` hits — **`state-machine-gap`** prefill lifecycle class saturated; no new hunt-ready mechanism in prefill without synonym duplication. Reread pending-evidence auto-upload, guided session restore, and rerun auto-submit hooks; cheap-disproof closed five pass-24 monitor rows below (inventory platform detection generation + `runId` clear regressions in `use-new-run-wizard-pending-evidence.test.ts`; rerun auto-submit + session-restore suites; no failing repro on attached-file re-copy or embedded mode URL write this pass). Focused hook vitest **17/17** (pending-evidence 11, prefill 4, rerun auto-submit 1, session-restore 1). Reseeded five pass-25 `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — `inventoryPlatformDetectionPending` may block auto-upload after `runId` cleared mid-detection — **cheap-disproof 2026-11-04 seed hunt pass 4:** detection generation + stale ZIP replacement regressions; `runId` clear resets upload chrome without leaving permanent uploading state.
+- [x] (valid-no-repro) `useGuidedIntakePriorRunPrefill` — `priorAttachedFileNames` may re-copy on every re-enable without field guard — **cheap-disproof 2026-11-04 seed hunt pass 4:** intentional rerun attachment replay; no operator report; defer unless duplicate UI harm proven.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` — rerun auto-submit may fire twice when `canSubmit` flickers — **cheap-disproof 2026-11-04 seed hunt pass 4:** `rerunAutoSubmitPriorRunIdRef` dedupes per `priorRunId`; rerun auto-submit regression suite.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` — session restore confirm bookmark vs `draftId` hydrate race — **cheap-disproof 2026-11-04 seed hunt pass 4:** session-restore regression `rewinds restored confirm bookmarks to clarifications when draftId is present`.
+- [x] (valid-no-repro) `useNewRunWizardMode.persistWizardMode` — embedded path switcher may merge stale toolbar query on auto full-mode pin — **cheap-disproof 2026-11-04 seed hunt pass 4:** hunt **#192–#193** URL write helpers; monitor row retained as pass-25 lens only.
+
+- [ ] (candidate) `GuidedIntakeEvidenceSection` — prior-package attachment labels may disagree with `evidenceFiles` after operator removes uploads — locus: scope step evidence panel; input: prefill names + manual delete; monitor; pass 25 reseed.
+- [ ] (candidate) `useNewRunWizardSubmit.recheckUnresolvedRun` — recheck may resume before pending evidence upload generation bumps — locus: quick-family create resume; input: unresolved recheck + pending ZIP; monitor; pass 25 reseed.
+- [ ] (candidate) `ReviewsNewDeferredIntentCallout` — deferred intent banner may disagree with path switcher `pathMode` after soft navigation — locus: deferred shell vs switcher; input: intent query + path change; monitor; pass 25 reseed.
+- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — `hydrateClarificationsFromDraft` may run twice on restore + URL step sync — locus: draft hydrate vs session restore; input: restored draft on confirm slide; monitor; pass 25 reseed.
+- [ ] (candidate) `NewRunWizardClient` — evidence brief step test ids vs live step rail — locus: full wizard integration tests; input: baseline quick-start path; monitor harness drift; pass 25 reseed.
+
 2026-11-04 seed hunt pass 3 (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **inverted `.catch` guard (`!appliedRef.current`) so rejected prior-package loads never surfaced `GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE`** — operators saw a blank scope-step banner after fetch failures; guard now skips only when cancelled or already applied; regression `surfaces load-failure copy when prior-package fetch rejects`; scoped prefill vitest **4/4**. Private beta: invited operators on rerun-guided intake see honest copy when the prior package cannot be loaded instead of silent failure on step 0.
 
 - [x] (proven) `useGuidedIntakePriorRunPrefill` — rejected fetch left `priorRunPrefillCopiedFromLine` null — **hit 2026-11-04 seed hunt pass 3:** fix `.catch` guard; regression above.
@@ -12245,7 +12259,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-04
