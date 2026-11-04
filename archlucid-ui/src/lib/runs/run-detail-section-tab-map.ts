@@ -17,6 +17,8 @@ export const RUN_DETAIL_SECTION_TAB: Readonly<Record<string, ReviewDetailTabId>>
   "manifest-summary": "policies",
   "governance-decision": "decisions-remediation",
   "review-package": "review-package",
+  "run-detail-first-review-spine-review-package": "review-package",
+  "run-detail-first-review-spine-findings": "findings",
   "sponsor-handoff": "review-package",
   "sponsor-handoff-extended": "review-package",
   "run-actions": "review-package",

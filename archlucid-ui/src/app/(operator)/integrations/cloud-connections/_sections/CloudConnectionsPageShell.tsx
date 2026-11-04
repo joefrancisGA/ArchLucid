@@ -26,6 +26,8 @@ import {
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
+import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -57,6 +59,11 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     productLine === "security"
     && showConnectionContent
     && shouldShowSecureNowCollectionMissingBlock(collectionMissingInput);
+  const showCollectionReady =
+    productLine === "security"
+    && showConnectionContent
+    && !showCollectionMissing
+    && isSecureNowCollectionSetupComplete(collectionMissingInput);
   const collectionMissingDetail = resolveSecureNowCollectionMissingDetail(collectionMissingInput);
   const collectionMissingSubscriptionLabel = resolveSecureNowCloudConnectionsSubscriptionScopeLabel({
     azureSubscriptionIdsPresent: props.azureSubscriptionIdsPresent,
@@ -122,6 +129,13 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     </section>
   ) : null;
 
+  const collectionReady = showCollectionReady ? (
+    <SecureNowCollectionSetupStatusSection
+      testIdPrefix="cloud-connections"
+      collectionInput={collectionMissingInput}
+    />
+  ) : null;
+
   const orientationStrip = buyerPolishedShell ? (
     <div data-testid="cloud-connections-orientation-bottom">
       <CloudConnectionsEvidenceOrientationStrip />
@@ -157,6 +171,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
         />
 
         {collectionStatus}
+        {collectionReady}
         {checklist}
         {orientationStrip}
         {providerList}
@@ -220,6 +235,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           </section>
 
           {collectionStatus}
+          {collectionReady}
           {checklist}
           {providerList}
         </div>

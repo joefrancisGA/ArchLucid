@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -15,14 +16,19 @@ import { cn } from "@/lib/utils";
 export type SecureNowCollectionSetupStatusSectionProps = {
   readonly testIdPrefix: string;
   readonly sectionId?: string;
+  /** When set, skips the cloud-connection fetch and uses this snapshot (for example cloud connections page props). */
+  readonly collectionInput?: SecureNowCollectionMissingInput;
 };
 
 export function SecureNowCollectionSetupStatusSection(
   props: SecureNowCollectionSetupStatusSectionProps,
 ): React.JSX.Element {
-  const { collectionInput, isPending } = useSecureNowCollectionSetupInput({
+  const hookResult = useSecureNowCollectionSetupInput({
     snapshotCaptureSucceeded: null,
+    enabled: props.collectionInput === undefined,
   });
+  const collectionInput = props.collectionInput ?? hookResult.collectionInput;
+  const isPending = props.collectionInput === undefined && hookResult.isPending;
 
   if (isPending || collectionInput === null) {
     return (

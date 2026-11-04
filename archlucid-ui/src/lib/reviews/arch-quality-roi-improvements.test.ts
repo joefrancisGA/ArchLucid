@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -121,6 +121,26 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe("high");
+  });
+
+  it("resolveRunDetailVisitDefaultReviewHashWhenUrlSilent targets review-package spine for uncommitted reviews", () => {
+    const findings = [
+      finding({
+        findingId: "checklist",
+        title: "Checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        evidenceRefCount: 2,
+      }),
+    ];
+
+    expect(
+      resolveRunDetailVisitDefaultReviewHashWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe("run-detail-first-review-spine-review-package");
   });
 
   it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns open disposition when findings are cited", () => {

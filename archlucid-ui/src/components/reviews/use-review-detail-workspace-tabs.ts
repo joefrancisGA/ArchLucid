@@ -24,7 +24,7 @@ import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-li
 import {
   resolveReviewWorkspaceTabFromSearchParams,
   resolveReviewWorkspaceVisibleTabs} from "@/lib/resolve-review-workspace-visible-tabs";
-import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
+import { scheduleScrollToReviewDetailSection, scheduleScrollToReviewFinding } from "@/lib/review-detail-section-scroll";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -156,25 +156,51 @@ export function useReviewDetailWorkspaceTabs(
     const params = new URLSearchParams(window.location.search);
     const reviewTabPresent = (params.get(REVIEW_DETAIL_TAB_PARAM)?.trim() ?? "").length > 0;
     const findingPresent = (params.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "").length > 0;
+    const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
-    if (reviewTabPresent || findingPresent) {
+    if (reviewTabPresent || findingPresent || hashPresent) {
       visitDefaultAppliedRef.current = true;
 
       return;
     }
 
-    const findingId = props.visitDefaultFindingIdWhenUrlSilent?.trim() ?? "";
+    const defaultTab = props.visitDefaultReviewTabWhenUrlSilent ?? null;
 
-    if (findingId.length === 0 || props.visitDefaultReviewTabWhenUrlSilent !== "findings") {
+    if (defaultTab === null) {
       visitDefaultAppliedRef.current = true;
 
       return;
     }
 
     visitDefaultAppliedRef.current = true;
-    writeReviewDetailTabToUrl("findings", { findingId });
-    setActiveTab("findings");
-  }, [props.visitDefaultFindingIdWhenUrlSilent, props.visitDefaultReviewTabWhenUrlSilent]);
+
+    if (defaultTab === "findings") {
+      const findingId = props.visitDefaultFindingIdWhenUrlSilent?.trim() ?? "";
+
+      if (findingId.length > 0) {
+        writeReviewDetailTabToUrl("findings", { findingId });
+        setActiveTab("findings");
+        scheduleScrollToReviewFinding(findingId);
+
+        return;
+      }
+    }
+
+    const defaultHash = props.visitDefaultReviewHashWhenUrlSilent?.trim() ?? "";
+
+    writeReviewDetailTabToUrl(defaultTab, {
+      hash: defaultHash.length > 0 ? defaultHash : undefined,
+    });
+    setActiveTab(defaultTab);
+
+    if (defaultHash.length > 0) {
+      scheduleScrollToReviewDetailSection(defaultHash);
+    }
+  }, [
+    props.visitDefaultFindingIdWhenUrlSilent,
+    props.visitDefaultReviewHashWhenUrlSilent,
+    props.visitDefaultReviewTabWhenUrlSilent,
+  ]);
 
   useEffect(() => {
     setActiveTab((current) => (current === searchParamTab ? current : searchParamTab));

@@ -43,6 +43,7 @@ describe("SponsorRoiProofStatusStrip", () => {
       SPONSOR_ROI_PROOF_STATUS_HELP_HREF,
     );
     expect(screen.getByTestId("exec-roi-proof-baseline-settings-link")).toHaveAttribute("href", "/administration/baseline");
+    expect(screen.getByTestId("exec-roi-proof-model-estimate-honesty")).toHaveTextContent(/model estimates/i);
     expect(screen.getByText(/Per-system rows do not sum to headline/i)).toBeInTheDocument();
   });
 

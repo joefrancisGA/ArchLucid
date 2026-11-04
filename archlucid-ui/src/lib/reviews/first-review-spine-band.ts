@@ -239,6 +239,33 @@ export function resolveRunDetailVisitDefaultReviewTab(input: {
   return openGate.reviewTab;
 }
 
+export const FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX = "run-detail-first-review-spine-" as const;
+
+export function resolveFirstReviewSpineOpenGateSectionId(
+  reviewTab: FirstReviewOpenGateReviewTab | null,
+): string | null {
+  if (reviewTab === null) {
+    return null;
+  }
+
+  return `${FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX}${reviewTab}`;
+}
+
+/** Scroll target for silent URL open gate when the review package tab is the first action. */
+export function resolveRunDetailVisitDefaultReviewHashWhenUrlSilent(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): string | null {
+  const defaultTab = resolveRunDetailVisitDefaultReviewTab(input);
+
+  if (defaultTab === "review-package") {
+    return resolveFirstReviewSpineOpenGateSectionId("review-package");
+  }
+
+  return null;
+}
+
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly structuralExecutionMode: StructuralExecutionModeInput;

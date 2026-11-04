@@ -197,6 +197,30 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).toContain("findingId=finding-uncited-1");
   });
 
+  it("opens review-package with spine hash when uncommitted review is the open gate", () => {
+    searchParamsHarness.applyQuery("");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
+
+    const { result } = renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          tabLifecycle: {
+            manifestId: null,
+            showProgressTracker: true,
+            runCompleted: false,
+          },
+          visitDefaultReviewTabWhenUrlSilent: "review-package",
+          visitDefaultReviewHashWhenUrlSilent: "run-detail-first-review-spine-review-package",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(result.current.activeTab).toBe("review-package");
+    expect(window.location.search).toContain("reviewTab=review-package");
+    expect(window.location.hash).toBe("#run-detail-first-review-spine-review-package");
+  });
+
   it("switches the active tab when a mounted workspace hash changes tabs", () => {
     const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
       wrapper: SearchParamsRerenderHost,

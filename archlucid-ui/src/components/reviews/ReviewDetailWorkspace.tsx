@@ -66,6 +66,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly visitDefaultReviewTabWhenUrlSilent?: ReviewDetailTabId | null;
   /** When the URL omits findingId, focus the first uncited finding for the open gate. */
   readonly visitDefaultFindingIdWhenUrlSilent?: string | null;
+  /** When the URL omits hash, scroll to the first-review spine open-gate section when present. */
+  readonly visitDefaultReviewHashWhenUrlSilent?: string | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
