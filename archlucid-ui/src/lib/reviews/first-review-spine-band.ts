@@ -146,6 +146,12 @@ export const FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED = "Dispositions were not
 
 export const FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED = "Open gate was not stored." as const;
 
+export const FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED =
+  "Evidence reference count was not stored. This spine does not call the gate clear." as const;
+
+export const FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE =
+  "No uncited finding or open decision-grade disposition is stored, and a committed package is stored. This is not an approval to build." as const;
+
 export type FirstReviewOpenGateReviewTab = "findings" | "review-package";
 
 export function resolveFirstReviewOpenGate(input: {

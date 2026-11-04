@@ -941,7 +941,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("Left edge");
         result.Svg.Should().NotContain("Eyebrow color");
         result.Svg.Should().Contain("Network");
-        result.Svg.Should().Contain("Peering");
+        result.Svg.Should().Contain("Dashed peering line");
 
         root.Descendants()
             .Where(element =>
@@ -1303,7 +1303,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("class=\"private-endpoint-access\"");
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
         result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
-        result.Svg.Should().Contain("Private endpoint access");
+        result.Svg.Should().Contain("Private endpoint link was stored. Observed use was not stored.");
         result.Svg.Should().NotContain("class=\"edge-label\"");
         ParsePrivateEndpointLockTranslateX(result.Svg).Should().BeLessThan(ParsePrivateEndpointArrowStartX(result.Svg));
     }

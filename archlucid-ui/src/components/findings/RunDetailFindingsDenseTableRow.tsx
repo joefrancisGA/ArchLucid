@@ -21,7 +21,7 @@ import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
-import { formatQuickDecisionConfidenceWorkspaceLabel, formatQuickDecisionFindingTitleDisplay } from "@/lib/findings/quick-decision-finding-display";
+import { formatQuickDecisionConfidenceWorkspaceLabel, formatQuickDecisionFindingDensityScoreDisplay, formatQuickDecisionFindingTitleDisplay } from "@/lib/findings/quick-decision-finding-display";
 import { buildQuickDecisionFindingEvidenceLinks, formatQuickDecisionFindingEvidenceLinkLabel } from "@/lib/quick-decision-finding-links";
 import { resolveFindingEvidenceRefSnippetsWireState } from "@/lib/findings/finding-source-evidence-excerpt-copy";
 import {
@@ -131,7 +131,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         <EnterpriseTableCell className="w-[5rem] align-top tabular-nums text-al-text-secondary">
           {finding.insightDensityScore !== null && finding.insightDensityScore !== undefined ? (
             <span data-testid={`run-detail-findings-density-${finding.findingId}`}>
-              {Math.trunc(finding.insightDensityScore)}
+              {formatQuickDecisionFindingDensityScoreDisplay(finding.insightDensityScore)}
             </span>
           ) : (
             "Density was not stored"

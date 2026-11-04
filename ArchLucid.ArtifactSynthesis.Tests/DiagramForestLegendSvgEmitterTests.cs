@@ -93,7 +93,28 @@ public sealed class DiagramForestLegendSvgEmitterTests
             anchorX: 0,
             anchorY: 0);
 
-        layout.Group.ToString(SaveOptions.DisableFormatting).Should().Contain("Private endpoint access");
+        layout.Group.ToString(SaveOptions.DisableFormatting).Should().Contain(
+            "Private endpoint link was stored. Observed use was not stored.");
+    }
+
+    [Fact]
+    public void Emit_includes_peering_row_when_flagged()
+    {
+        DiagramForestLegendSvgEmitter.LegendLayout layout = DiagramForestLegendSvgEmitter.Emit(
+            Svg,
+            new DiagramForestLegendSvgEmitter.LegendInput(
+                UsedKinds: [],
+                HasPrivateEndpointAccess: false,
+                HasStoredSolidRelationshipConnectors: false,
+                HasUnclassifiedConnectors: false,
+                HasDashedPeeringEdges: true,
+                HasResourceGroupFrames: false,
+                RollupNodes: []),
+            anchorX: 0,
+            anchorY: 0);
+
+        layout.Group.ToString(SaveOptions.DisableFormatting).Should().Contain(
+            "Dashed peering line. Read the line label for peering state. This legend row is not observed traffic.");
     }
 
     [Fact]
