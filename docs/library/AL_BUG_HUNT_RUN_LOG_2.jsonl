@@ -2663,3 +2663,4 @@
 {"at":"2026-11-03T20:23:20.0265491Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T20:32:15.4740652Z","zoneId":"scope-binding-middleware","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T20:39:24.5489752Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-04T13:28:01.4682283Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs"]}
