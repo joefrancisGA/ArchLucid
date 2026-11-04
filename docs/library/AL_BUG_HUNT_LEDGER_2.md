@@ -8733,6 +8733,21 @@
 
 ## Zone: tenant-data-export
 
+2026-11-04 thorough hunt (hit #970): promoted failing factory regression `Create_when_stored_manifest_system_name_whitespace_ignores_analysis_evidence_system_name` — `ArchitectureReviewBoardExportDocumentFactory` coalesced `report.Manifest?.SystemName ?? report.Evidence?.SystemName` before `detail.Manifest`, so when the stored manifest system name was whitespace-only but analysis evidence still carried a request/system label, board exports used the evidence name instead of system-name not-stored honesty; added `ArchitectureReviewBoardExportSystemNameResolver` so run-detail stored manifest is authoritative when present; cheap-disproof closed five open `(candidate)` rows from hit **#969** — **valid-no-repro** cooperative cancel during HTML builder and run ZIP export paths (host cancel class); **valid-no-repro** JSON string `"0.000"` on `is_sample_run` truncates to zero (~212–221); **valid-no-repro** compare-summary sealed-guard cancel on left export id (host cancel); **invalid** percent-encoded carriage return in blob host — `Uri.TryCreate` rejects before account-label guard; reseeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **58/58** (27 Application ArchitectureReviewExport + board factory honesty; 11/11 Api ExportsController; 20/20 Core blob policy); `RunAnalyzers=false`. Private beta: architecture review board HTML/DOCX/PDF exports no longer substitute analysis evidence system names when the sealed manifest stored a blank system name—operators see honest “system name was not stored” copy instead of a stale intake label.
+
+- [x] (proven) `ArchitectureReviewBoardExportDocumentFactory` — whitespace-only stored manifest system name replaced by analysis evidence system name — **hit 2026-11-04 thorough hunt #970:** stored-manifest resolver; regression `Create_when_stored_manifest_system_name_whitespace_ignores_analysis_evidence_system_name`.
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during HTML builder after document model assembly — **cheap-disproof 2026-11-04 thorough hunt #970:** host cancel; monitor from hit **#969**.
+- [x] (valid-no-repro) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — **cheap-disproof 2026-11-04 thorough hunt #970:** host cancel; monitor from hit **#969**.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"0.000"` on `is_sample_run` — **cheap-disproof 2026-11-04 thorough hunt #970:** numeric string branch truncates to zero; does not bypass block.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during sealed-manifest guard on left export record id — **cheap-disproof 2026-11-04 thorough hunt #970:** host cancel; monitor from hit **#969**.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with carriage-return percent-encoded in storage account label — **cheap-disproof 2026-11-04 thorough hunt #970:** `https://127.0.0.1%0d.blob.core.windows.net/...` fails absolute HTTPS parse before policy.
+
+- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during PDF builder after document model assembly — locus: PDF export path; input: cancel mid-`BuildAsync` (monitor).
+- [ ] (candidate) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — locus: run ZIP export path; input: cancel mid-generate (monitor).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"00.0"` on `is_sample_run` — locus: string numeric branch ~188–195; input: multi-digit fractional zero token (monitor).
+- [ ] (candidate) `ExportsController.GetExportRecord` — cooperative cancel during sealed-manifest guard before metadata read — locus: export-record read route; input: cancel before facade (monitor).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with vertical-tab percent-encoded in account label — locus: absolute HTTPS parse; input: `https://127.0.0.1%0b.blob.core.windows.net/c?sas=1` (monitor).
+
 2026-11-04 thorough hunt (hit #969): promoted failing regression `GenerateReportAsync_html_uses_not_stored_copy_for_missing_sponsor_and_manifest_version` — `ArchitectureReviewBoardExportDocumentFactory` set `ManifestVersion` from `detail.Run.CurrentManifestVersion` before manifest metadata, so whitespace-only `detail.Manifest.Metadata.ManifestVersion` still rendered the run-header stamp (`v9`) in HTML board exports instead of `Manifest version was not stored.`; added `ArchitectureReviewBoardExportManifestVersionResolver` so stored manifest metadata is authoritative when a manifest is present; cheap-disproof closed five open `(candidate)` rows from dry **#968** — **valid-no-repro** cooperative cancel on run ZIP export, compare-records sealed guard, and artifact push pre-DNS paths (host cancel class); **valid-no-repro** JSON string `"0e0"` on `is_sample_run` truncates to zero and does not bypass career block (~212–221); **invalid** percent-encoded newline in blob host — `Uri.TryCreate` rejects before account-label guard; reseeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **43/43** (12/12 Application ArchitectureReviewExport; 11/11 Api ExportsController; 20/20 Core blob policy); `RunAnalyzers=false`. Private beta: architecture review HTML/DOCX/PDF board exports no longer substitute the run header manifest stamp when the sealed manifest stored an empty or whitespace-only manifest version—operators see honest “not stored” copy instead of a misleading version line.
 
 - [x] (proven) `ArchitectureReviewBoardExportDocumentFactory` / `ArchitectureReviewExportService.GenerateReportAsync` — whitespace-only stored manifest version shows run-header stamp in HTML — **hit 2026-11-04 thorough hunt #969:** metadata-authoritative resolver; regression `GenerateReportAsync_html_uses_not_stored_copy_for_missing_sponsor_and_manifest_version`.
@@ -8985,11 +9000,11 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 969
-- **bugs-found:** 63
+- **hunts:** 970
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-04
-- **last-bug:** 2026-11-04 — board export used run manifest stamp when stored manifest version was whitespace-only
+- **last-bug:** 2026-11-04 — board export used analysis evidence system name when stored manifest system name was whitespace-only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
