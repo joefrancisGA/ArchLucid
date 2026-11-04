@@ -136,7 +136,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
   useEffect(() => {
     appliedRef.current = false;
     setPriorRunPrefillCopiedFromLine(null);
-  }, [priorRunId]);
+  }, [priorRunId, enabled]);
 
   useEffect(() => {
     if (!enabled || priorRunId === null || appliedRef.current) {

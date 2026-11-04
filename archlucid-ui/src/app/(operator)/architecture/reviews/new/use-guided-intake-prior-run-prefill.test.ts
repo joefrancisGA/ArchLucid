@@ -139,4 +139,49 @@ describe("useGuidedIntakePriorRunPrefill", () => {
       expect(setSystemName).toHaveBeenCalledWith("Second package");
     });
   });
+
+  it("loads prior-package prefill again when enabled becomes true after source-architecture suppression", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue({
+      ...priorPackagePrefill,
+      systemName: "Rerun package",
+    });
+
+    const setSystemName = vi.fn();
+    const baseProps = {
+      priorRunId: "run-rerun",
+      enabled: true,
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName,
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames: vi.fn(),
+    };
+
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), {
+      initialProps: baseProps,
+    });
+
+    await waitFor(() => {
+      expect(setSystemName).toHaveBeenCalledWith("Rerun package");
+    });
+
+    expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledTimes(1);
+    setSystemName.mockClear();
+    tryLoadPriorPackageGuidedIntakePrefill.mockClear();
+
+    rerender({ ...baseProps, enabled: false });
+    rerender({ ...baseProps, enabled: true });
+
+    await waitFor(() => {
+      expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-rerun");
+      expect(setSystemName).toHaveBeenCalledWith("Rerun package");
+    });
+  });
 });
