@@ -85,11 +85,31 @@ export function resolveRunDetailVisitDefaultFindingIdWhenUrlSilent(input: {
     return null;
   }
 
-  if (countUncitedFindings(input.findings) === 0) {
+  if (countUncitedFindings(input.findings) > 0) {
+    return resolveFirstUncitedFindingId(input.findings);
+  }
+
+  return resolveFirstOpenDispositionFindingId(input.findings);
+}
+
+/** Highest-severity decision-grade finding without a recorded disposition. */
+export function resolveFirstOpenDispositionFindingId(
+  findings: readonly QuickDecisionFinding[],
+): string | null {
+  const open = findings.filter(
+    (finding) =>
+      isDecisionGradeFinding(finding) && !quickDecisionFindingHasRecordedDisposition(finding),
+  );
+
+  if (open.length === 0) {
     return null;
   }
 
-  return resolveFirstUncitedFindingId(input.findings);
+  const sorted = [...open].sort((left, right) =>
+    compareFindingSeverity(left.severityValue, right.severityValue),
+  );
+
+  return sorted[0]?.findingId ?? null;
 }
 
 function resolveTopDecisionGradeFinding(

@@ -287,6 +287,7 @@ export function RemediationFactoryClient() {
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
   const [simulatorFindingId, setSimulatorFindingId] = useState<string | null>(null);
+  const [pathViewFiltersExpanded, setPathViewFiltersExpanded] = useState(false);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
@@ -307,6 +308,12 @@ export function RemediationFactoryClient() {
   useEffect(() => {
     setRankedPage(1);
   }, [pathView, setRankedPage]);
+
+  useEffect(() => {
+    if (selectedPathId === null) {
+      setPathViewFiltersExpanded(false);
+    }
+  }, [selectedPathId]);
 
   const visibleRankedPaths = useMemo(() => {
     switch (pathView) {
@@ -710,7 +717,7 @@ export function RemediationFactoryClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
           These filters narrow the path list only. Counts are for paths on this page.
         </p>
-        {selectedPathId === null ? (
+        {selectedPathId === null || pathViewFiltersExpanded ? (
           <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
             {PATH_VIEWS.map((view) => (
               <Button
@@ -728,13 +735,24 @@ export function RemediationFactoryClient() {
             ))}
           </div>
         ) : (
-          <p
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="remediation-ranked-path-view-selected-only"
-          >
-            Path view: {remediationFactoryPathViewLabel(pathView as RemediationFactoryPathView)} (matches selected
-            path).
-          </p>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="remediation-ranked-path-view-selected-only"
+            >
+              Path view: {remediationFactoryPathViewLabel(pathView as RemediationFactoryPathView)} (matches selected
+              path).
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="remediation-ranked-path-view-change"
+              onClick={() => setPathViewFiltersExpanded(true)}
+            >
+              Change path view
+            </Button>
+          </div>
         )}
         {rankedPathsQuery.isLoading ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
