@@ -81,4 +81,26 @@ describe("CloudConnectionsPageClient (SecureNow collection missing)", () => {
       "/administration/securenow-self-service#collection",
     );
   });
+
+  it("shows collection ready when capture succeeded and setup is complete", async () => {
+    listTier2Connections.mockResolvedValueOnce([
+      {
+        connectionId: "azure-1",
+        subscriptionIds: "33333333-3333-3333-3333-333333333333",
+        updatedUtc: "2026-01-02T00:00:00Z",
+      },
+    ]);
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connections-collection-ready")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("securenow-collection-missing")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-collection-ready-path-inspect-link")).toHaveAttribute(
+      "href",
+      "/security/remediation-factory",
+    );
+  });
 });
