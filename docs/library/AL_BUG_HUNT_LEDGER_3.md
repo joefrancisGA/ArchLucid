@@ -11987,6 +11987,10 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-04 seed hunt pass 3 (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **inverted `.catch` guard (`!appliedRef.current`) so rejected prior-package loads never surfaced `GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE`** — operators saw a blank scope-step banner after fetch failures; guard now skips only when cancelled or already applied; regression `surfaces load-failure copy when prior-package fetch rejects`; scoped prefill vitest **4/4**. Private beta: invited operators on rerun-guided intake see honest copy when the prior package cannot be loaded instead of silent failure on step 0.
+
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — rejected fetch left `priorRunPrefillCopiedFromLine` null — **hit 2026-11-04 seed hunt pass 3:** fix `.catch` guard; regression above.
+
 2026-11-04 seed hunt pass 2 (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **`appliedRef` stuck when `enabled` toggled off for linked source architecture then back on** — guided intake disables prior-run prefill while `sourceArchitectureId` is present; clearing the link re-enabled prefill but `appliedRef` still blocked reload for the same `priorRunId`; reset apply gate when `enabled` changes (with existing `priorRunId` reset); regression `loads prior-package prefill again when enabled becomes true after source-architecture suppression`; scoped prefill + rerun auto-submit vitest **5/5**. Private beta: invited operators who briefly attach a source architecture on a rerun-guided intake path still get prior-package field copy after the link is cleared.
 
 - [x] (proven) `useGuidedIntakePriorRunPrefill` — prefill skipped permanently after `enabled` false→true with same `priorRunId` — **hit 2026-11-04 seed hunt pass 2:** reset on `[priorRunId, enabled]`; regression above.
@@ -12241,8 +12245,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 67
-- **bugs-found:** 38
+- **hunts:** 68
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-04
 - **last-bug:** 2026-11-04 — guided prior-run prefill did not reload when priorRunId changed without remount

@@ -11,7 +11,7 @@ vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
   tryLoadPriorPackageGuidedIntakePrefill,
 }));
 
-import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-prefill";
+import { useGuidedIntakePriorRunPrefill, GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE } from "./use-guided-intake-prior-run-prefill";
 
 const existingScopeBullet: ScopeUnderstandingBullet = {
   id: "scope-1",
@@ -71,13 +71,10 @@ describe("useGuidedIntakePriorRunPrefill", () => {
     expect(setScopeGateOpen).not.toHaveBeenCalled();
   });
 
-  it("handles a rejected prior-package load", () => {
-    const catchHandler = vi.fn();
-    tryLoadPriorPackageGuidedIntakePrefill.mockReturnValueOnce({
-      then: vi.fn(() => ({ catch: catchHandler })),
-    });
+  it("surfaces load-failure copy when prior-package fetch rejects", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockRejectedValueOnce(new Error("network"));
 
-    renderHook(() =>
+    const { result } = renderHook(() =>
       useGuidedIntakePriorRunPrefill({
         priorRunId: "run-1",
         freeTextIntent: "",
@@ -95,7 +92,9 @@ describe("useGuidedIntakePriorRunPrefill", () => {
       }),
     );
 
-    expect(catchHandler).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(result.current.priorRunPrefillCopiedFromLine).toBe(GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE);
+    });
   });
 
   it("loads prior-package prefill again when priorRunId changes without remounting the hook", async () => {
