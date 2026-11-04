@@ -128,7 +128,7 @@ public sealed class CommitOutputIntegrityService(
                 await _runRepository.GetByIdAsync(scope, runGuidForHeader, cancellationToken).ConfigureAwait(false);
         }
 
-        IReadOnlyList<string> architectureVersionPinReasons =
+        (IReadOnlyList<string> architectureVersionPinReasons, Persistence.Models.RunRecord? architecturePinResolvedHeader) =
             await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
                 scope,
                 runId,
@@ -142,6 +142,8 @@ public sealed class CommitOutputIntegrityService(
 
         if (architectureVersionPinReasons.Count > 0)
             throw new ConflictException(architectureVersionPinReasons[0]);
+
+        runHeader ??= architecturePinResolvedHeader;
 
         if (runHeader is not null)
         {
