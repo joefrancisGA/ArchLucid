@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_SELF_SERVICE_GUARDRAIL,
@@ -16,13 +17,22 @@ export function SecureNowSelfServicePageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_SELF_SERVICE_HEADING} subtitle={SECURENOW_SELF_SERVICE_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        <SecureNowCollectionSetupStatusSection
+          testIdPrefix="securenow-self-service"
+          sectionId="collection"
+        />
+
         <section aria-labelledby="securenow-self-service-steps-heading" className="space-y-2">
           <h2 id="securenow-self-service-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Four checks
           </h2>
           <ol className="list-decimal space-y-3 pl-5">
             {SECURENOW_SELF_SERVICE_STEPS.map((step) => (
-              <li key={step.title} id={step.id} className={OPERATOR_TYPOGRAPHY.body}>
+              <li
+                key={step.title}
+                id={step.id === "collection" ? undefined : step.id}
+                className={OPERATOR_TYPOGRAPHY.body}
+              >
                 <span className="font-medium">{step.title}</span>
                 <span> — {step.body}</span>
                 {step.href ? (

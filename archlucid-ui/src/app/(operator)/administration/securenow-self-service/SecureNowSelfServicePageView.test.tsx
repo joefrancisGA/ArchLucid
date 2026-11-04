@@ -1,13 +1,25 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SecureNowSelfServicePageView } from "./SecureNowSelfServicePageView";
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: true,
+      azureSubscriptionIdsPresent: false,
+      hasSuccessfulPull: false,
+    },
+    isPending: false,
+  }),
+}));
 
 describe("SecureNowSelfServicePageView", () => {
   it("renders the four checks and support mailto", () => {
     render(<SecureNowSelfServicePageView />);
 
     expect(screen.getByTestId("securenow-self-service-page")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-self-service-collection-setup")).toBeInTheDocument();
     for (const title of [
       "Collection missing or stale",
       "Connector will not finish",

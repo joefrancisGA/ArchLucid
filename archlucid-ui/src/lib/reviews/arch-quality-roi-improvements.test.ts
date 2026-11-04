@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveFirstUncitedFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -121,6 +121,21 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe("high");
+  });
+
+  it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns open disposition when findings are cited", () => {
+    const findings = [
+      finding({ findingId: "cited-open", title: "Open DG", severityValue: 3, evidenceRefCount: 2 }),
+      finding({ findingId: "cited-closed", title: "Closed", severityValue: 2, evidenceRefCount: 1, humanReviewStatus: "Approved" }),
+    ];
+
+    expect(resolveFirstOpenDispositionFindingId(findings)).toBe("cited-open");
+    expect(
+      resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe("cited-open");
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {
