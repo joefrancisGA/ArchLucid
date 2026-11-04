@@ -8733,6 +8733,21 @@
 
 ## Zone: tenant-data-export
 
+2026-11-04 thorough hunt (hit #967): promoted failing regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects` — `AllowedRunExportBlobDestinationUrlPolicy` only ran `PrivateNetworkAddressGuard` on full `IdnHost`, so `https://127.0.0.1.blob.core.windows.net/...` passed the Azure suffix allowlist while the storage account label was loopback; added `TryGetAzureBlobStorageAccountLabel` + `IsForbiddenAzureBlobAccountLabel` (bracketed IPv6 account labels parity); cheap-disproof closed five open `(candidate)` monitor rows from seed **#966** — **valid-no-repro** cooperative cancel paths (host cancel class); **valid-no-repro** JSON string `"0.0"` on `is_sample_run` parses to zero and does not bypass block; **invalid** backslash-delimited blob URL — `Uri.TryCreate` rejects or normalizes before policy; reseeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **43/43** (`RunAnalyzers=false`). Private beta: run export push to blob rejects loopback/private IPv4 literals masquerading as Azure storage account names, closing an SSRF footgun on the pilot export-push API.
+
+- [x] (proven) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — IPv4 literal as Azure blob storage account label — **hit 2026-11-04 thorough hunt #967:** account-label guard; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`.
+- [x] (valid-no-repro) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — **cheap-disproof 2026-11-04 thorough hunt #967:** host cancel; seed **#966**.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — **cheap-disproof 2026-11-04 thorough hunt #967:** host cancel; seed **#966**.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"0.0"` on `is_sample_run` treated as non-blocking — **cheap-disproof 2026-11-04 thorough hunt #967:** `0.0` truncates to zero; intentional non-block.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with backslash-delimited Windows-style path on Azure host — **cheap-disproof 2026-11-04 thorough hunt #967:** not an absolute HTTPS URL accepted by `Uri.TryCreate`.
+- [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-04 thorough hunt #967:** host cancel; seed **#966**.
+
+- [ ] (candidate) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — locus: run ZIP export path; input: cancel mid-generate (monitor).
+- [ ] (candidate) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — locus: compare route; input: cancel before facade (monitor).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — locus: string numeric branch ~188–195; input: negative zero fractional token (monitor).
+- [ ] (candidate) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — locus: artifact push path; input: cancel before DNS (monitor).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with tab character in storage account label — locus: account-label extraction; input: `https://127.0.0.1%09.blob.core.windows.net/c?sas=1` (monitor).
+
 2026-11-03 seed hunt (seed-only #966): re-read export controllers, `RunExportQueryFacade`, career posture resolver, and blob destination policy after seed **#965** monitor reseed; cheap-disproof closed five open `(candidate)` rows from seed **#965** — **valid-no-repro** artifact push DNS validation cancel propagates mid-`TryGetRejectionReasonAfterDnsResolveAsync` (parity `PushRunExport` / seed **#960**); **valid-no-repro** compare-summary sealed-manifest guard cancel on right-hand export id (host cancel; seed **#960** paired-gate class); **valid-no-repro** JSON string `"+1"` on `is_sample_run` coerces to whole-number `1` and blocks sample workspace (`NumberStyles.Float` ~188–195; not a bypass); **valid-no-repro** export history facade cancel during run-scoped career gate propagates (`GetRunExportHistoryAsync` throws path; regression family dry **#958**); **valid-no-repro** double-leading-slash blob path — `Uri.TryCreate` + host-only Azure suffix allowlist unchanged (not non-blob SSRF); seeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **41/43** (11/12 Application ArchitectureReviewExport — 1 pre-existing HTML sponsor copy assertion; 11/11 Api ExportsController; 19/20 Core blob policy — 1 pre-existing IPv4 literal account-label expectation); `RunAnalyzers=false`. Private beta: n/a.
 
 - [ ] (candidate) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — locus: run ZIP export path; input: cancel mid-generate (monitor seed **#966**).
@@ -8941,11 +8956,11 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 966
-- **bugs-found:** 61
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-10-31 — phonetic small-cap Latin boolean tokens on `is_sample_run` bypassed CLI sample-workspace block
+- **hunts:** 967
+- **bugs-found:** 62
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-04
+- **last-bug:** 2026-11-04 — IPv4 literal blob account label bypassed export push SSRF guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
