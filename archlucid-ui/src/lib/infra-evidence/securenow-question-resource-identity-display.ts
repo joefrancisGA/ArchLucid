@@ -21,7 +21,7 @@ export function secureNowQuestionResourceTypeLabel(question: SecureNowQuestion):
   }
 
   if (question.resourceType.trim().length === 0) {
-    return "Resource type was not stored";
+    return "Resource type was stored empty.";
   }
 
   return formatDiagramArmTypeFriendlyName(question.resourceType) ?? "Resource type was not stored";
@@ -35,13 +35,27 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
       return "Resource group question";
     }
 
+    if (normalizedScope === "resource") {
+      return "Resource-scoped question";
+    }
+
     if (normalizedScope === "subscription") {
       return "Subscription question";
     }
 
-    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
-      ? "Resource group question"
-      : "Subscription question";
+    const inferredScope = secureNowQuestionPackScopeKindFromPrompt(question.questionText ?? "");
+
+    if (inferredScope === "ResourceGroup") {
+      return "Resource group question";
+    }
+
+    return "Policy pack question. Stored scope was not on this title.";
+  }
+
+  const scope = question.scopeKind?.trim().toLowerCase() ?? "";
+
+  if (scope === "resource" && (question.resourceName === null || question.resourceName === undefined)) {
+    return "Resource-scoped question (resource name was not stored).";
   }
 
   if (question.resourceName === null || question.resourceName === undefined) {
