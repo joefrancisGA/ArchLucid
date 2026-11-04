@@ -467,15 +467,16 @@ public sealed class FinalizeReadinessService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         IReadOnlyList<string> architectureVersionPinReasons =
-            await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
+            (await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
                 scope,
                 runId,
                 request,
                 _runRepository,
                 _architectureVersionRepository,
                 _architectureKnowledgeModelAccess,
+                runRecord,
                 cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwait(false)).BlockingReasons;
 
         foreach (string reason in architectureVersionPinReasons)
         {
