@@ -17,6 +17,7 @@ import {
   type SecureNowArchitectOutcomeQueryState,
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -597,6 +598,8 @@ export function RemediationFactoryClient() {
           </div>
         }
       />
+
+      <SecureNowRemediationFactoryCollectionSetupBanner />
 
       <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstReviewOpenGateReviewHref, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstReviewOpenGateReviewHref, resolveFirstReviewFindingsWorkspaceHref, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -203,6 +203,41 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe("cited-open");
+  });
+
+  it("resolveFirstReviewOpenGateReviewHref returns null when findings snapshot was not stored", () => {
+    expect(
+      resolveFirstReviewOpenGateReviewHref({
+        runId: "run-abc",
+        findings: [],
+        hasFindingsSnapshot: false,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBeNull();
+  });
+
+  it("resolveFirstReviewFindingsWorkspaceHref includes findingId and findings spine hash", () => {
+    const findings = [finding({ findingId: "dg-1", title: "Open DG", severityValue: 2, evidenceRefCount: 2 })];
+
+    expect(
+      resolveFirstReviewFindingsWorkspaceHref({
+        runId: "run-abc",
+        findings,
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe(
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=dg-1#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("resolveFirstReviewFindingsWorkspaceHref returns null when findings snapshot was not stored", () => {
+    expect(
+      resolveFirstReviewFindingsWorkspaceHref({
+        runId: "run-abc",
+        findings: [],
+        hasFindingsSnapshot: false,
+      }),
+    ).toBeNull();
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {

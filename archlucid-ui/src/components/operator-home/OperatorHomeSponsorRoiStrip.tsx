@@ -127,19 +127,27 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
           </p>
         </>
       ) : (
-        <p
-          className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}
-          data-testid="operator-home-roi-strip-non-summing"
-        >
-          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
-          <Link
-            href="/insights/architecture-scorecard"
-            className={OPERATOR_LINK.optional}
-            data-testid="operator-home-roi-strip-open-scorecard"
+        <>
+          <p
+            className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}
+            data-testid="operator-home-roi-strip-non-summing"
           >
-            See architecture scorecard
-          </Link>
-        </p>
+            {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}{" "}
+            <Link
+              href="/insights/architecture-scorecard"
+              className={OPERATOR_LINK.optional}
+              data-testid="operator-home-roi-strip-open-scorecard"
+            >
+              See architecture scorecard
+            </Link>
+          </p>
+          <p
+            className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+            data-testid="operator-home-roi-strip-model-estimate"
+          >
+            {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+          </p>
+        </>
       )}
       <p
         className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}

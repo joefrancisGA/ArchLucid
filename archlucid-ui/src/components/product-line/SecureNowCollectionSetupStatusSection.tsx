@@ -7,6 +7,7 @@ import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collecti
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
   formatSecureNowCollectionSetupProgressSummary,
   isSecureNowCollectionSetupComplete,
@@ -66,6 +67,14 @@ export function SecureNowCollectionSetupStatusSection(
               data-testid={`${props.testIdPrefix}-collection-ready-path-inspect-link`}
             >
               Open Path inspect
+            </Link>
+            {" · "}
+            <Link
+              href={CLOUD_CONNECTIONS_PATH}
+              className={OPERATOR_LINK.inline}
+              data-testid={`${props.testIdPrefix}-collection-ready-cloud-connections-link`}
+            >
+              Cloud connections
             </Link>
           </p>
         </div>

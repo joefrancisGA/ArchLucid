@@ -314,6 +314,29 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
   });
 }
 
+/** Findings workspace deep link for disposition and open-gate follow-up (findingId + spine hash). */
+export function resolveFirstReviewFindingsWorkspaceHref(input: {
+  readonly runId: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+
+  if (trimmedRunId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const findingId = resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+    findings: input.findings,
+    hasFindingsSnapshot: true,
+  });
+
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    findingId,
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
+}
+
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly structuralExecutionMode: StructuralExecutionModeInput;
