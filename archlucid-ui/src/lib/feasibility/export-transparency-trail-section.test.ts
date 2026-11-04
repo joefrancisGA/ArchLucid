@@ -62,6 +62,8 @@ describe("formatTransparencyTrailMarkdownSection", () => {
     expect(missing).toContain("Question id was not stored.");
     expect(missing).toContain("Answer recorded time was not stored.");
     expect(storedEmpty).toContain("Responder was stored empty.");
+    expect(storedEmpty).toContain("Question id was stored empty.");
+    expect(storedEmpty).toContain("Answer recorded time was stored empty.");
     expect(storedEmpty).not.toContain("Responder was not stored.");
   });
 

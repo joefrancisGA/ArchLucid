@@ -4,20 +4,12 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
 {
     private const string RelationshipNotStored = "Relationship was not stored.";
 
-    private const string UnclassifiedRelationshipAndProvenanceNotStored =
-        "Relationship was not stored. Provenance was not stored.";
-
     public static string Build(string humanizedVerb, DiagramEdgeVisualKind visualKind)
     {
         string trimmedVerb = humanizedVerb?.Trim() ?? string.Empty;
 
         if (trimmedVerb.Length == 0)
         {
-            if (visualKind == DiagramEdgeVisualKind.Unclassified)
-            {
-                return UnclassifiedRelationshipAndProvenanceNotStored;
-            }
-
             return RelationshipNotStored;
         }
 
@@ -43,12 +35,12 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
                 return trimmedVerb;
             }
 
-            return $"likely · {trimmedVerb}";
+            return $"inferred · {trimmedVerb}";
         }
 
         if (visualKind == DiagramEdgeVisualKind.Unclassified)
         {
-            return $"Provenance was not stored. Stored relationship: {trimmedVerb}.";
+            return "Provenance was not stored.";
         }
 
         return trimmedVerb;

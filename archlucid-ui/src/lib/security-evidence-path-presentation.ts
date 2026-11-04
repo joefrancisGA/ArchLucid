@@ -43,28 +43,20 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
-  if (band === null || band === undefined) {
-    return "Confidence band was not stored.";
-  }
-
-  const trimmed = band.trim();
+  const trimmed = band?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Confidence band was stored empty.";
+    return "Confidence band was not stored.";
   }
 
   return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Confidence band was not recognized.";
 }
 
 export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | undefined): string {
-  if (kind === null || kind === undefined) {
-    return "Provenance kind was not stored.";
-  }
-
-  const trimmed = kind.trim();
+  const trimmed = kind?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Provenance kind was stored empty.";
+    return "Provenance kind was not stored.";
   }
 
   return PROVENANCE_KIND_LABELS[trimmed] ?? "Provenance kind was not recognized.";
@@ -83,14 +75,14 @@ const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
 };
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
-  if (edgeType === null || edgeType === undefined) {
+  const trimmed = edgeType?.trim() ?? "";
+
+  if (trimmed.length === 0) {
     return "Relationship type was not stored";
   }
 
-  const trimmed = edgeType.trim();
-
-  if (trimmed.length === 0) {
-    return "Relationship type was stored empty.";
+  if (trimmed === "Relationship type was not stored") {
+    return trimmed;
   }
 
   const mapped = PATH_RELATIONSHIP_LABELS[trimmed];
@@ -99,7 +91,7 @@ export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | n
     return mapped;
   }
 
-  return `Relationship type ${trimmed} has no reviewer label.`;
+  return `Relationship type ${trimmed} was not recognized.`;
 }
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {

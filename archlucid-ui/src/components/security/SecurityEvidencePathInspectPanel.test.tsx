@@ -59,7 +59,6 @@ import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
-  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -444,6 +443,12 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getAllByText(/Relationship type was not stored/).length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent(
+      "Inference source: Inference source was not stored.",
+    );
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent(
+      "Inference source: tag:owner",
+    );
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
@@ -720,7 +725,6 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     const rejection = await screen.findByTestId("security-evidence-path-explanation-citation-rejection");
     expect(rejection).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG);
-    expect(rejection).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_LEAD);
     expect(rejection).toHaveTextContent("Model cited hop-99 which is not on this path.");
   });
 
@@ -1036,9 +1040,6 @@ describe("SecurityEvidencePathInspectPanel", () => {
     });
 
     renderPanel("finding-1");
-
-    expect(screen.getByTestId("security-evidence-path-explanation-real-mode-hint")).toBeInTheDocument();
-    expect(screen.getByTestId("security-evidence-path-explanation-real-mode-substrate")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
 

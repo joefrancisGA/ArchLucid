@@ -34,7 +34,6 @@ export type BuildArchitectureCreatedHomeModelInput = {
   readonly artifactBundleKnown?: boolean;
   readonly ownerLabel: string | null;
   readonly lastUpdatedLabel: string;
-  readonly homeTimestampPrefix?: string;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly assessmentInProgress: boolean;
   readonly hasArtifacts: boolean;
@@ -118,29 +117,6 @@ function formatBusinessPurposeSummary(value: string): string {
   return `${visible}… (Full business purpose was stored.)`;
 }
 
-export function deriveDefinitionStatus(
-  input: BuildArchitectureCreatedHomeModelInput,
-): ArchitectureDefinitionStatusKind {
-  const overviewLength = input.architectureOverview.trim().length;
-  const hasOutcome = input.businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
-  const normalizedName = input.architectureName.trim();
-  const hasNamedSystem =
-    normalizedName.length > 0 &&
-    normalizedName.toLowerCase() !== "untitled architecture" &&
-    normalizedName !== UNTITLED_ARCHITECTURE_LABEL;
-  const hasPeopleOrSystems = input.peopleAndSystems.length > 0;
-
-  if (overviewLength >= MIN_STRONG_OVERVIEW_CHARS && hasOutcome && (hasNamedSystem || hasPeopleOrSystems)) {
-    return "strong-foundation";
-  }
-
-  if (overviewLength >= MIN_CLARIFICATION_OVERVIEW_CHARS || hasOutcome) {
-    return "needs-clarification";
-  }
-
-  return "insufficient-context";
-}
-
 export const ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY =
   "Primary users were stored empty." as const;
 
@@ -172,6 +148,29 @@ function formatActorSummaryLabel(entry: ActorSummaryEntry): string {
   }
 
   return label;
+}
+
+export function deriveDefinitionStatus(
+  input: BuildArchitectureCreatedHomeModelInput,
+): ArchitectureDefinitionStatusKind {
+  const overviewLength = input.architectureOverview.trim().length;
+  const hasOutcome = input.businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
+  const normalizedName = input.architectureName.trim();
+  const hasNamedSystem =
+    normalizedName.length > 0 &&
+    normalizedName.toLowerCase() !== "untitled architecture" &&
+    normalizedName !== UNTITLED_ARCHITECTURE_LABEL;
+  const hasPeopleOrSystems = input.peopleAndSystems.length > 0;
+
+  if (overviewLength >= MIN_STRONG_OVERVIEW_CHARS && hasOutcome && (hasNamedSystem || hasPeopleOrSystems)) {
+    return "strong-foundation";
+  }
+
+  if (overviewLength >= MIN_CLARIFICATION_OVERVIEW_CHARS || hasOutcome) {
+    return "needs-clarification";
+  }
+
+  return "insufficient-context";
 }
 
 export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): ArchitectureSummaryField[] {

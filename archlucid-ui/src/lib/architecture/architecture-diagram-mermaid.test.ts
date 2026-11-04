@@ -50,7 +50,7 @@ const modelWithBoundary: ArchitectureDiagramModel = {
 };
 
 describe("architectureDiagramModelToMermaid", () => {
-  it("marks accepted inferred nodes with inferred styling and suffix (P-01, P-02)", () => {
+  it("marks accepted inferred nodes with an accepted-inference class and suffix (P-06, P-07)", () => {
     const model: ArchitectureDiagramModel = {
       nodes: [
         {
@@ -70,7 +70,8 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(model);
 
-    expect(mermaid).toContain(":::inferredNode");
+    expect(mermaid).toContain(":::acceptedInferenceNode");
+    expect(mermaid).toContain("classDef acceptedInferenceNode");
     expect(mermaid).not.toContain(":::assertedNode");
     expect(mermaid.replace(/\\n/g, " ")).toContain("(accepted inference on this diagram)");
   });
@@ -233,9 +234,6 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(
       architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
-    ).toContain("Diagram note, not a component:");
-    expect(
-      architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
     ).toContain("No diagram components were stored.");
     expect(architectureDiagramModelToTextAlternative(empty)).toBe(
       "No diagram components were stored.",
@@ -322,7 +320,7 @@ describe("architectureDiagramModelToMermaid", () => {
     };
 
     expect(architectureDiagramModelToTextAlternative(dangling)).toContain(
-      "1 connection was left off this diagram because an endpoint was not on the diagram.",
+      "A connection was left off this diagram because an endpoint was not on the diagram.",
     );
 
     const mermaid = architectureDiagramModelToMermaid(dangling);
@@ -395,43 +393,5 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(alt).toContain("No diagram components were stored.");
     expect(alt).toContain("Gateway -> Unknown sink");
-  });
-
-  it("appends stored-empty section honesty and flows when users were omitted (P-02)", () => {
-    const model: ArchitectureDiagramModel = {
-      nodes: [],
-      edges: [],
-      trustBoundaryLabels: [],
-      skippedUnlabeledEntityCount: 0,
-      unmatchedDataFlows: ["Gateway -> Unknown sink"],
-      entitySectionHonestyLines: ["Users and stakeholders: Entities were not stored."],
-      diagramHonestyNotes: ["Trust boundary names were stored without component membership: Corporate network."],
-    };
-
-    const alt = architectureDiagramModelToTextAlternative(model);
-
-    expect(alt).toContain("Users and stakeholders: Entities were not stored.");
-    expect(alt).toContain("Trust boundary names were stored without component membership: Corporate network.");
-    expect(alt).toContain("Gateway -> Unknown sink");
-  });
-
-  it("does not double-prefix unmatched data flow lines (P-01)", () => {
-    const prefixed =
-      "Data flow was not matched to diagram components: Gateway -> Unknown sink";
-    const model: ArchitectureDiagramModel = {
-      nodes: [],
-      edges: [],
-      trustBoundaryLabels: [],
-      skippedUnlabeledEntityCount: 0,
-      unmatchedDataFlows: [prefixed],
-      entitySectionHonestyLines: [],
-    };
-
-    const alt = architectureDiagramModelToTextAlternative(model);
-
-    expect(alt).not.toContain(
-      "Data flow was not matched to diagram components: Data flow was not matched to diagram components:",
-    );
-    expect(alt).toContain(prefixed);
   });
 });

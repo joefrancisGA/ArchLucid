@@ -129,7 +129,7 @@ function buildHeaderLines(input: CareerArtifactHonestyInput): readonly string[] 
 
   const classificationLine = formatCareerExportClassificationBandLine(input.classificationCounts);
 
-  if (classificationLine !== null && !lines.some((line) => line.includes("Decision-grade:"))) {
+  if (classificationLine !== null && !lines.some((line) => line === classificationLine)) {
     lines.push(classificationLine);
   }
 
@@ -143,9 +143,9 @@ function buildHeaderLines(input: CareerArtifactHonestyInput): readonly string[] 
   const skippedMustKeys = listSkippedMustQuestionKeys(trail);
 
   if (skippedMustKeys.length > 0) {
-    const skippedMustLine = `Skipped required questions: ${skippedMustKeys.join(", ")}`;
+    const skippedMustLine = `Skipped MUST questions: ${skippedMustKeys.join(", ")}`;
 
-    if (!lines.some((line) => line.startsWith("Skipped required questions:"))) {
+    if (!lines.some((line) => line.startsWith("Skipped MUST questions:"))) {
       lines.push(skippedMustLine);
     }
   }

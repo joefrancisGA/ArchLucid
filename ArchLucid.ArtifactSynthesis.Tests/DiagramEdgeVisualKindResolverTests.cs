@@ -106,15 +106,7 @@ public sealed class DiagramEdgeVisualKindResolverTests
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Unclassified)
             .Should()
-            .Be("Provenance was not stored. Stored relationship: connects.");
-    }
-
-    [Fact]
-    public void Build_unclassified_empty_verb_uses_relationship_and_provenance_omission_sentences()
-    {
-        DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Unclassified)
-            .Should()
-            .Be("Relationship was not stored. Provenance was not stored.");
+            .Be("Provenance was not stored.");
     }
 
     [Fact]
@@ -126,11 +118,11 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void Build_probable_verb_gets_probable_prefix()
+    public void Build_inferred_verb_uses_inferred_prefix_without_likely()
     {
-        DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Probable)
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Inferred)
             .Should()
-            .Be("probable · connects");
+            .Be("inferred · connects");
     }
 
     [Fact]

@@ -197,7 +197,7 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(markdown).toMatch(/Measurement floor/i);
     expect(markdown).toMatch(/Decision-grade: 4/i);
     expect(markdown).toMatch(/Checklist: 2/i);
-    expect(markdown).toMatch(/Skipped required questions/i);
+    expect(markdown).toMatch(/Skipped MUST questions/i);
     expect(markdown).toMatch(/drRpo/);
   });
 
@@ -352,5 +352,23 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(formatCareerExportClassificationBandLine({ decisionGrade: 1, checklist: 0 })).toMatch(
       /Decision-grade: 1/i,
     );
+  });
+
+  it("distinguishes omitted finding bands from a stored-empty band collection", () => {
+    expect(formatCareerExportClassificationBandLine(null)).toBe("Finding bands were not stored.");
+    expect(formatCareerExportClassificationBandLine({ decisionGrade: 0, checklist: 0 })).toBe(
+      "Finding bands were stored empty.",
+    );
+    expect(
+      formatCareerExportHonestyMarkdown({
+        runId: "run-1",
+        progressSummary: null,
+        manifestSummary: null,
+        graphSnapshot: null,
+        enginesSucceeded: 16,
+        workingDesk: true,
+        classificationCounts: { decisionGrade: 0, checklist: 0 },
+      }),
+    ).toContain("Finding bands were stored empty.");
   });
 });

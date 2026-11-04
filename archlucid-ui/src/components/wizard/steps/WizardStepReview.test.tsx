@@ -252,6 +252,20 @@ describe("WizardStepReview", () => {
     expect(screen.queryByText("Required capabilities were not stored.")).not.toBeInTheDocument();
   });
 
+  it("summarizes an attachment whose file name was not stored", () => {
+    render(
+      <DirectWizardFormProvider
+        values={{
+          documents: [{ name: "", contentType: "text/markdown", content: "stored body" }],
+        }}
+      >
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("1 attached document (1 document name was not stored)")).toBeInTheDocument();
+  });
+
   it("labels untouched quick-start preset fields as starter-profile fills", () => {
     const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
 
