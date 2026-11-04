@@ -8739,7 +8739,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: alert-simulation
 
-**Hunts:** 41 · **Bugs found:** 10 · **Consecutive dry hunts:** 12
+**Hunts:** 42 · **Bugs found:** 10 · **Consecutive dry hunts:** 13
+
+2026-11-04 thorough hunt (dry, hunt 354): no rotation at pick time (`shouldRotate: false`; **`commit-output-integrity`**, **`run-execute-ownership`**, and **`orchestrator-transient-retry`** among parked low-yield zones). Picker returned **`alert-simulation`** (~one eligible unparked zone). Cheap-disproof closed three open `(candidate)` rows in `### Hypotheses` — **invalid** post-simulation audit `InvalidOperationException` → HTTP 400 (audit runs after the validation `try`/`catch`; `DurableAuditLogRetry.TryLogAsync` soft-fails; regression `Simulate_returns_ok_when_simulation_succeeds_but_audit_log_throws`), **valid-no-repro** cancellation during post-simulation audit ( `OperationCanceledException` rethrows from `TryLogAsync`; cancelled HTTP requests are not guaranteed a success body after disconnect), **invalid** comparison-adapter `InvalidOperationException` → controller 400 vs primary-only (production `IComparisonService.Compare` contract does not throw for scoped manifest pairs; fail-fast 400 is injected-adapter behavior only). Reseeded five follow-on `(candidate)` monitor rows in `### Hypotheses`; scoped **40/40** Persistence `AlertSimulationContextProviderTests` + **2/2** Api `AlertSimulationControllerSimulateTests` (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected alert controller and context provider; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8831,10 +8833,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-10-08
+- **consecutive-dry-hunts:** 13
+- **last-hunt:** 2026-11-04
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -8843,9 +8845,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `AlertSimulationController.Simulate` — a successful simulation can be converted to an HTTP 400 when the post-simulation audit call throws `InvalidOperationException` — locus: audit await inside the broad validation catch ~48–66; input: valid simulation request followed by an audit provider failure.
-- [ ] (candidate) `AlertSimulationController.Simulate` — cancellation during post-simulation audit can discard an already-computed simulation result — locus: audit call reuses `ct` after `SimulateAsync` ~48–66; input: client disconnect after simulation completes but before audit persistence completes.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — comparison-adapter `InvalidOperationException` is surfaced to the controller’s generic validation response rather than producing a primary-only simulation context — locus: comparison call ~174–177 and controller catch ~65–68; input: valid scoped runs whose comparison adapter rejects a manifest pair.
+- [ ] (candidate) `AlertSimulationController.CompareCandidates` — transient audit write failure fails the entire HTTP response because audit uses `LogAsync` directly instead of `DurableAuditLogRetry.TryLogAsync` — locus: `_auditService.LogAsync` ~56–67; input: successful `CompareCandidatesAsync` followed by retryable SQL audit failure (monitor; hunt 354 reseed).
+- [ ] (candidate) `DurableAuditLogRetry.TryLogAsync` — cancellation during inter-attempt backoff after simulation completes propagates `OperationCanceledException` and prevents `Simulate` from returning `Ok(result)` — locus: `Task.Delay` with shared `ct` ~105 and OCE rethrow ~83–85; input: client abort while audit retries are backing off (monitor; hunt 354 reseed).
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — batch sealed-hash skip sets `comparedDetail` null but output `ComparedToRunId` still reflects the nullable request parameter when comparison is omitted — locus: `ComparedToRunId = comparison is null ? null : comparedToRunId` ~204; input: recent-run sweep with compare-to hash failure under `skipOnSealedHashFailure: true` (monitor; hunt 354 reseed).
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — partial batch results when cancellation fires mid-`foreach` over recent runs — locus: batch loop ~74–82; input: `ct` cancelled after some contexts built but before the sweep finishes (monitor; hunt 354 reseed).
+- [ ] (candidate) `AlertSimulationController.CompareCandidates` — audit event omits tenant/workspace/project scope fields that `Simulate` stamps on its audit row — locus: `AuditEvent` construction ~57–66 vs `Simulate` ~62–76; input: multi-tenant audit correlation expecting scoped ids on candidate comparison (monitor; hunt 354 reseed).
+
+- [x] (invalid) `AlertSimulationController.Simulate` — a successful simulation can be converted to an HTTP 400 when the post-simulation audit call throws `InvalidOperationException` — locus: audit await inside the broad validation catch ~48–66; input: valid simulation request followed by an audit provider failure. — **cheap-disproof 2026-11-04 thorough hunt (hunt 354):** audit is after the validation `catch`; `TryLogAsync` suppresses audit failures; regression `Simulate_returns_ok_when_simulation_succeeds_but_audit_log_throws`.
+- [x] (valid-no-repro) `AlertSimulationController.Simulate` — cancellation during post-simulation audit can discard an already-computed simulation result — locus: audit call reuses `ct` after `SimulateAsync` ~81–87; input: client disconnect after simulation completes but before audit persistence completes. — **cheap-disproof 2026-11-04 thorough hunt (hunt 354):** `OperationCanceledException` propagates from `DurableAuditLogRetry`; cancelled requests are not guaranteed a 200 body — intentional HTTP abort semantics.
+- [x] (invalid) `AlertSimulationContextProvider.BuildContextAsync` — comparison-adapter `InvalidOperationException` is surfaced to the controller’s generic validation response rather than producing a primary-only simulation context — locus: comparison call ~174–177 and controller catch ~55–59; input: valid scoped runs whose comparison adapter rejects a manifest pair. — **cheap-disproof 2026-11-04 thorough hunt (hunt 354):** production comparison service does not throw for valid manifest pairs; primary-only fallback applies to scope/hash guards, not injected adapter faults.
 
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — comparison arguments may be passed in current-vs-baseline order opposite to the `IComparisonService` contract, reversing “added/removed” findings in A/B output — **cheap-disproof 2026-10-08 thorough hunt #40:** `IComparisonService.Compare` defines `(baseManifest, targetManifest)` and `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings` verifies `Compare(comparedManifest, primaryManifest)`.
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison request with `comparedToRunId == runId` performs a self-comparison instead of rejecting or omitting the redundant baseline — **cheap-disproof 2026-10-08 thorough hunt #40:** the branch is reachable but no incorrect user-visible result was demonstrated; the request contract permits an optional baseline and the comparison service receives identical manifests.

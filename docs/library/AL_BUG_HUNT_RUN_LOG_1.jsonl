@@ -3640,3 +3640,4 @@
 {"at":"2026-11-04T12:55:31.1535140Z","zoneId":"run-execute-ownership","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/ExecuteOwnership/"]}
 {"at":"2026-11-04T13:02:28.3853601Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs"]}
 {"at":"2026-11-04T13:07:20.8455690Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs"]}
+{"at":"2026-11-04T13:12:45.0000000Z","zoneId":"alert-simulation","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Alerts/AlertSimulationController.Simulate.cs","ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs"]}
