@@ -311,6 +311,58 @@ public sealed class SecureNowQuestionCompilerTests
     }
 
     [Fact]
+    public void Dispositions_with_identical_updated_utc_prefer_higher_disposition_id()
+    {
+        SecureNowQuestionCompiler compiler = new();
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot();
+        const string resourceId = "/subscriptions/sub/resource";
+        const string problem = "peer";
+        string fingerprint = Fingerprint("unknown-evidence@v1", resourceId, problem);
+        DateTime sharedUtc = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+        Guid lowerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        Guid higherId = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        SecureNowQuestionDispositionRecord stale = new()
+        {
+            DispositionId = lowerId,
+            TenantId = Scope.TenantId,
+            SnapshotId = SnapshotId,
+            SubscriptionId = "sub",
+            ResourceId = resourceId,
+            QuestionKey = "unknown-evidence@v1",
+            Status = SecureNowQuestionDispositionStatus.Ignored,
+            EvidenceFingerprint = fingerprint,
+            Reason = "Stale.",
+            ExpirationUtc = DateTime.UtcNow.AddDays(10),
+            UpdatedUtc = sharedUtc,
+        };
+        SecureNowQuestionDispositionRecord preferred = stale with
+        {
+            DispositionId = higherId,
+            Status = SecureNowQuestionDispositionStatus.Open,
+            Reason = "Preferred.",
+        };
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = compiler.Compile(
+            Scope,
+            snapshot,
+            [],
+            [
+                new SecureNowDiagramQuestionCandidate
+                {
+                    ResourceId = resourceId,
+                    IsUnknownEvidence = true,
+                    ProblemText = problem,
+                },
+            ],
+            [],
+            [stale, preferred]);
+
+        questions.Should().ContainSingle();
+        questions[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        questions[0].DispositionId.Should().Be(higherId);
+    }
+
+    [Fact]
     public void A_matching_disposition_is_joined_without_creating_a_second_row()
     {
         SecureNowQuestionCompiler compiler = new();

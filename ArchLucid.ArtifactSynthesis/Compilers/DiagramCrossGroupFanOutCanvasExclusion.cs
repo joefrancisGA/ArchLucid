@@ -3,11 +3,12 @@ using ArchLucid.ArtifactSynthesis.Models;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-/// Hides cross-group <c>applies</c> and <c>likely ·</c> fan-out edges from painted canvases unless opted in.
+/// Hides cross-group <c>applies</c> and inferred fan-out edges from painted canvases unless opted in.
 /// </summary>
 internal static class DiagramCrossGroupFanOutCanvasExclusion
 {
     private const string LikelyPrefix = "likely ·";
+    private const string InferredPrefix = "inferred ·";
 
     public static IEnumerable<DiagramEdge> FilterCanvasEdges(
         IReadOnlyList<DiagramNode> nodes,
@@ -66,7 +67,8 @@ internal static class DiagramCrossGroupFanOutCanvasExclusion
             return true;
         }
 
-        return trimmed.StartsWith(LikelyPrefix, StringComparison.Ordinal);
+        return trimmed.StartsWith(LikelyPrefix, StringComparison.Ordinal)
+            || trimmed.StartsWith(InferredPrefix, StringComparison.Ordinal);
     }
 
     private static string? NormalizeResourceGroup(string? armResourceGroup)

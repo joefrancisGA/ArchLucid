@@ -98,6 +98,10 @@ function nodeClassNames(node: ArchitectureDiagramNode): string {
     return "assertedNode";
   }
 
+  if (node.accepted) {
+    return "acceptedInferenceNode";
+  }
+
   return "inferredNode";
 }
 
@@ -105,12 +109,14 @@ function mermaidClassDefLines(dark: boolean): string[] {
   if (dark) {
     return [
       "  classDef assertedNode fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f8fafc",
+      "  classDef acceptedInferenceNode fill:#164e63,stroke:#67e8f9,stroke-width:1px,stroke-dasharray:5 5,color:#f8fafc",
       "  classDef inferredNode fill:#1e293b,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 5,color:#f8fafc",
     ];
   }
 
   return [
     "  classDef assertedNode fill:#ecfeff,stroke:#0f766e,stroke-width:2px,color:#0f172a",
+    "  classDef acceptedInferenceNode fill:#ecfeff,stroke:#0891b2,stroke-width:1px,stroke-dasharray:5 5,color:#0f172a",
     "  classDef inferredNode fill:#f8fafc,stroke:#64748b,stroke-width:1px,stroke-dasharray:5 5,color:#0f172a",
   ];
 }

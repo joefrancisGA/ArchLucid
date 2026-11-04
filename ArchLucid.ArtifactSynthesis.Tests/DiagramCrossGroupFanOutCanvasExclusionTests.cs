@@ -39,27 +39,29 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
     }
 
     [Fact]
-    public void FilterCanvasEdges_excludes_only_cross_group_applies_and_likely_prefix()
+    public void FilterCanvasEdges_excludes_only_cross_group_applies_and_inferred_prefixes()
     {
         DiagramNode left = Node("left", "rg-a");
         DiagramNode right = Node("right", "rg-b");
         IReadOnlyList<DiagramNode> nodes = [left, right];
         DiagramEdge sameGroupLikely = Edge("left", "left", InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel);
         DiagramEdge crossGroupLikely = Edge("left", "right", "likely · applies");
+        DiagramEdge crossGroupInferred = Edge("left", "right", "inferred · connects");
         DiagramEdge crossGroupConnects = Edge("left", "right", "connects");
 
         IReadOnlyList<DiagramEdge> filtered = DiagramCrossGroupFanOutCanvasExclusion
-            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: false)
+            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupInferred, crossGroupConnects], includeCrossGroupFanOut: false)
             .ToList();
 
         filtered.Should().Contain(sameGroupLikely);
         filtered.Should().Contain(crossGroupConnects);
         filtered.Should().NotContain(crossGroupLikely);
+        filtered.Should().NotContain(crossGroupInferred);
 
         DiagramCrossGroupFanOutCanvasExclusion
-            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupConnects], includeCrossGroupFanOut: true)
+            .FilterCanvasEdges(nodes, [sameGroupLikely, crossGroupLikely, crossGroupInferred, crossGroupConnects], includeCrossGroupFanOut: true)
             .Should()
-            .ContainInOrder(sameGroupLikely, crossGroupLikely, crossGroupConnects);
+            .ContainInOrder(sameGroupLikely, crossGroupLikely, crossGroupInferred, crossGroupConnects);
     }
 
     [Fact]

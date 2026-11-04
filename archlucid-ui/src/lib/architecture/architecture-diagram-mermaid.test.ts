@@ -50,7 +50,7 @@ const modelWithBoundary: ArchitectureDiagramModel = {
 };
 
 describe("architectureDiagramModelToMermaid", () => {
-  it("marks accepted inferred nodes with inferred styling and suffix (P-01, P-02)", () => {
+  it("marks accepted inferred nodes with an accepted-inference class and suffix (P-06, P-07)", () => {
     const model: ArchitectureDiagramModel = {
       nodes: [
         {
@@ -70,7 +70,8 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(model);
 
-    expect(mermaid).toContain(":::inferredNode");
+    expect(mermaid).toContain(":::acceptedInferenceNode");
+    expect(mermaid).toContain("classDef acceptedInferenceNode");
     expect(mermaid).not.toContain(":::assertedNode");
     expect(mermaid.replace(/\\n/g, " ")).toContain("(accepted inference on this diagram)");
   });

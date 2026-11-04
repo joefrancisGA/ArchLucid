@@ -9,6 +9,11 @@
   Hunt-ready hypotheses are a small tie-break; candidate templates do not score.
   Precision (proven / (proven + invalid)) is a small bonus after two attempts.
   This script does not write the ledger — the agent updates it after the hunt.
+  A zone whose own run-log tail has 3 or more consecutive dry, seed-only, or
+  held-for-triage outcomes is parked. Other zones do not clear that park.
+  A later hit does. A hint is the only automatic re-entry. Ledger cooling,
+  hit-rate cooldown, class saturation, and file escalation are not hunted
+  when nothing else is eligible.
 
 .PARAMETER LedgerPath
   Ledger markdown path. Default: docs/library/AL_BUG_HUNT_LEDGER.md under the repo root.
@@ -405,6 +410,81 @@ function Get-ZoneRunLogHitStats {
         hitRate24h   = $hitRate24h
         cooledByRate = ($hits7d -ge 8) -or ($hunts24h -ge 5 -and $hitRate24h -ge 0.7)
     }
+}
+
+function Get-LowYieldParkMinimumStreak {
+    # Same band as al-bug-zone-rotation.ps1. Rotation skips one pick; this park sticks.
+    return 3
+}
+
+function Test-LowYieldHuntOutcome {
+    param([string] $Outcome)
+
+    switch ($Outcome) {
+        'dry' { return $true }
+        'seed-only' { return $true }
+        'held-for-triage' { return $true }
+        default { return $false }
+    }
+}
+
+function Get-ZoneLowYieldStreak {
+    param(
+        [string] $ZoneId,
+        [object[]] $RunLogEntries
+    )
+
+    # File order is chronological. Hunts on other zones must not reset this tail.
+    [int]$streak = 0
+    $entries = @($RunLogEntries)
+
+    for ($index = $entries.Count - 1; $index -ge 0; $index--) {
+        $entry = $entries[$index]
+
+        if ($null -eq $entry) {
+            continue
+        }
+
+        if (-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) {
+            continue
+        }
+
+        if ([string]$entry.zoneId -ne $ZoneId) {
+            continue
+        }
+
+        [string]$outcome = ''
+
+        if (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'outcome') {
+            $outcome = [string]$entry.outcome
+        }
+
+        if ($outcome -eq 'hit') {
+            break
+        }
+
+        if (-not (Test-LowYieldHuntOutcome -Outcome $outcome)) {
+            break
+        }
+
+        $streak++
+    }
+
+    return $streak
+}
+
+function Test-ZoneParkedByLowYield {
+    param($Zone)
+
+    if ($null -eq $Zone) {
+        return $false
+    }
+
+    if ($Zone.PSObject.Properties.Name -contains 'ParkedByLowYield') {
+        return [bool]$Zone.ParkedByLowYield
+    }
+
+    return $false
 }
 
 function Get-DefaultEscapeLogPath {
@@ -1235,6 +1315,8 @@ function Read-AlBugHuntLedger {
             ThoroughHunts          = 0
             SeedOnly24h            = 0
             SeedOnlySaturated      = $false
+            LowYieldStreak         = 0
+            ParkedByLowYield       = $false
             EscalatedFiles         = @()
             CooldownFallback       = $false
         }
@@ -1369,6 +1451,10 @@ function Get-ZoneScoreBreakdown {
         [void]$why.Add("$dry consecutive dry hunts")
     }
 
+    if ($Zone.PSObject.Properties.Name -contains 'LowYieldStreak' -and [int]$Zone.LowYieldStreak -gt 0) {
+        [void]$why.Add(("{0} low-yield streak" -f [int]$Zone.LowYieldStreak))
+    }
+
     if ($Zone.CooledByHitRate) {
         if (@($Zone.OpenHypotheses).Count -eq 0) {
             [void]$why.Add('hit-rate cooldown waived (hypothesis list empty)')
@@ -1443,6 +1529,8 @@ function Set-ZoneComputedFields {
         $zone.SeedOnly24h = Get-SeedOnlyHuntCount24h -ZoneId $zone.Id -RunLogEntries $RunLogEntries -NowUtc $NowUtc
         # Eight matches the hit-rate cooldown band. Repeated seed-only runs are not evidence of a fresh defect.
         $zone.SeedOnlySaturated = ([int]$zone.SeedOnly24h -ge 8)
+        $zone.LowYieldStreak = Get-ZoneLowYieldStreak -ZoneId $zone.Id -RunLogEntries $RunLogEntries
+        $zone.ParkedByLowYield = ([int]$zone.LowYieldStreak -ge (Get-LowYieldParkMinimumStreak))
         $zone.Hits7d = $runStats.hits7d
         $zone.HitRate24h = $runStats.hitRate24h
         $zone.CooledByHitRate = [bool]$runStats.cooledByRate
@@ -1531,17 +1619,21 @@ function Test-ZoneForcedCooling {
 function Get-EligibleZones {
     param($Zones)
 
-    $hasOpen = @($Zones | Where-Object { $_.Status -eq 'open' -or $_.Status -eq 'unseeded' }).Count -gt 0
+    # A parked zone is not available work. Counting it would cool every other zone.
     $hasUnsaturatedOpen = @(
         $Zones | Where-Object {
             ($_.Status -eq 'open' -or $_.Status -eq 'unseeded') -and
-            -not [bool]$_.SeedOnlySaturated
+            -not [bool]$_.SeedOnlySaturated -and
+            -not (Test-ZoneParkedByLowYield -Zone $_)
         }
     ).Count -gt 0
     $eligible = New-Object System.Collections.ArrayList
-    $demotedOpen = New-Object System.Collections.ArrayList
 
     foreach ($zone in $Zones) {
+        if (Test-ZoneParkedByLowYield -Zone $zone) {
+            continue
+        }
+
         $effectiveStatus = $zone.Status
 
         if (Test-ZoneForcedCooling -Zone $zone -HasUnsaturatedOpen $hasUnsaturatedOpen) {
@@ -1556,29 +1648,14 @@ function Get-EligibleZones {
                 [void]$eligible.Add($zone)
             }
             'cooling' {
-                # Ledger cooling waits while any open or unseeded zone still has work.
-                # Open zones demoted only by a cooldown are remembered for the fallback below.
-                if (-not $hasOpen) {
-                    [void]$eligible.Add($zone)
-                }
-                elseif ($zone.Status -eq 'open' -or $zone.Status -eq 'unseeded') {
-                    [void]$demotedOpen.Add($zone)
-                }
+                # Ledger cooling, hit-rate cooldown, class saturation, and file
+                # escalation stay out until the operator names the zone.
             }
             'exhausted' {
                 if ($zone.CommitCount -gt 0) {
                     [void]$eligible.Add($zone)
                 }
             }
-        }
-    }
-
-    # Demoting every open zone used to leave eligibleCount at 0 while status stayed open.
-    # Admit those zones instead of reporting the catalog exhausted.
-    if ($eligible.Count -eq 0) {
-        foreach ($zone in $demotedOpen) {
-            $zone.CooldownFallback = $true
-            [void]$eligible.Add($zone)
         }
     }
 
@@ -1913,15 +1990,25 @@ function ConvertTo-PickResult {
         [int] $EligibleCount,
         [bool] $ExhaustedAll,
         [bool] $HintOverride,
-        [bool] $RefreshRequested
+        [bool] $RefreshRequested,
+        [string[]] $ParkedZoneIds = @()
     )
 
+    $parkedIds = ConvertTo-ObjectArray -Value $ParkedZoneIds
+
     if ($null -eq $Zone) {
+        $why = New-Object System.Collections.ArrayList
+        [void]$why.Add('no eligible hunt zone')
+
+        if (@($parkedIds).Count -gt 0) {
+            [void]$why.Add(('low-yield park: {0}' -f (@($parkedIds) -join ', ')))
+        }
+
         return [pscustomobject]@{
             zoneId                 = $null
             status                 = $null
             score                  = 0.0
-            why                    = @('no eligible hunt zone')
+            why                    = ConvertTo-ObjectArray -Value $why
             openHypotheses         = @()
             huntReadyHypotheses    = @()
             candidateHypotheses    = @()
@@ -1944,6 +2031,9 @@ function ConvertTo-PickResult {
             openCandidateCount     = 0
             candidateSpam          = $false
             consecutiveDryHunts    = 0
+            lowYieldStreak         = 0
+            parkedByLowYield       = $false
+            parkedZoneIds          = $parkedIds
             lastHunt               = 'never'
             exhausted              = $true
             reopened               = $false
@@ -1968,18 +2058,15 @@ function ConvertTo-PickResult {
     }
 
     $why = ConvertTo-ObjectArray -Value $Zone.Why
-    $cooldownFallback = $false
-
-    if ($Zone.PSObject.Properties.Name -contains 'CooldownFallback') {
-        $cooldownFallback = [bool]$Zone.CooldownFallback
-    }
-
-    if ($cooldownFallback) {
-        $why = @('cooldown fallback (every open zone was demoted)') + @($why)
-    }
 
     if ($HintOverride) {
-        $why = @('hint override') + @($why)
+        $hintWhy = @('hint override')
+
+        if (Test-ZoneParkedByLowYield -Zone $Zone) {
+            $hintWhy += 'low-yield park waived by hint'
+        }
+
+        $why = $hintWhy + @($why)
     }
 
     $huntReadyCount = @($Zone.HuntReadyHypotheses).Count
@@ -2013,6 +2100,9 @@ function ConvertTo-PickResult {
         openCandidateCount     = $openCandidateCount
         candidateSpam          = [bool]$candidateSpam
         consecutiveDryHunts    = $Zone.ConsecutiveDryHunts
+        lowYieldStreak         = if ($Zone.PSObject.Properties.Name -contains 'LowYieldStreak') { [int]$Zone.LowYieldStreak } else { 0 }
+        parkedByLowYield       = [bool](Test-ZoneParkedByLowYield -Zone $Zone)
+        parkedZoneIds          = $parkedIds
         lastHunt               = $Zone.LastHunt
         exhausted              = ($Zone.Status -eq 'exhausted' -and -not $Zone.Reopened)
         reopened               = [bool]$Zone.Reopened
@@ -2031,19 +2121,33 @@ function ConvertTo-PickResult {
         mutationScore          = $Zone.MutationScore
         mutationScoreMissing   = [bool]$Zone.MutationScoreMissing
         escalatedFiles         = ConvertTo-ObjectArray -Value $Zone.EscalatedFiles
-        cooldownFallback       = $cooldownFallback
+        cooldownFallback       = $false
     }
 }
 
 function Write-ZonePreview {
     param($Result)
 
+    $parked = @($Result.parkedZoneIds | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+
     if ($null -eq $Result.zoneId) {
         Write-Host ''
         Write-Host '## Next /al-bug zone'
         Write-Host ''
-        Write-Host 'No eligible hunt zone remains (all exhausted without git churn).'
-        Write-Host 'Update `docs/library/AL_BUG_HUNT_LEDGER.md` or wait for production-path commits.'
+
+        if ($parked.Count -gt 0) {
+            Write-Host 'No eligible hunt zone remains. These zones are parked on a low-yield streak of 3 or more (dry, seed-only, or held-for-triage). They stay out until you name one with -Hint:'
+
+            foreach ($parkedId in $parked) {
+                Write-Host ("- {0}" -f $parkedId)
+            }
+
+            Write-Host 'A later hit on a named zone clears its park. Git churn does not.'
+            return
+        }
+
+        Write-Host 'No eligible hunt zone remains. Ledger cooling, hit-rate cooldown, class saturation, and file escalation are not hunted automatically.'
+        Write-Host 'Name a zone with -Hint to hunt it, or wait for an untried zone or an exhausted zone with production commits.'
         return
     }
 
@@ -2071,6 +2175,8 @@ function Write-ZonePreview {
     Write-Host ("| Impact | {0} |" -f $(if ($null -eq $Result.impact) { 'n/a' } else { $Result.impact }))
     Write-Host ("| Cooled | {0} |" -f $Result.cooledByHitRate)
     Write-Host ("| Cooldown fallback | {0} |" -f $Result.cooldownFallback)
+    Write-Host ("| Low-yield streak | {0} |" -f $Result.lowYieldStreak)
+    Write-Host ("| Parked zones | {0} |" -f $(if ($parked.Count -eq 0) { 'none' } else { $parked -join ', ' }))
     Write-Host ("| Hunts | {0} |" -f $Result.hunts)
     Write-Host ("| Bugs found (raw) | {0} |" -f $Result.bugsFound)
     Write-Host ("| Bugs found (effective) | {0} |" -f $Result.effectiveBugs)
@@ -2313,12 +2419,20 @@ elseif ($eligible.Count -gt 0) {
 }
 
 $exhaustedAll = ($null -eq $picked)
+$parkedZoneIds = @(
+    foreach ($zone in @($zones)) {
+        if (Test-ZoneParkedByLowYield -Zone $zone) {
+            [string]$zone.Id
+        }
+    }
+)
 $result = ConvertTo-PickResult `
     -Zone $picked `
     -EligibleCount @($eligible).Count `
     -ExhaustedAll $exhaustedAll `
     -HintOverride $hintOverride `
-    -RefreshRequested ([bool]$Refresh)
+    -RefreshRequested ([bool]$Refresh) `
+    -ParkedZoneIds $parkedZoneIds
 
 $result | Add-Member -NotePropertyName saturatedClasses -NotePropertyValue (ConvertTo-ObjectArray -Value $saturatedClasses) -Force
 Add-AlBugZoneSetResultFields -Result $result -RequestedSet $Set -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot | Out-Null

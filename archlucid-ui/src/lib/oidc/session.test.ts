@@ -885,6 +885,12 @@ describe("consumePkceState", () => {
     expect(consumePkceState("desk\u000Cstate")).toBeNull();
   });
 
+  it("rejects PKCE consume when tampered session state contains interior bell control characters", () => {
+    storePkceState("desk\u0007state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("desk\u0007state")).toBeNull();
+  });
+
   it("rejects PKCE consume when tampered session verifier contains interior backspace control characters", () => {
     storePkceState("primary-state", "ver\u0008ifier", "primary-nonce", "primary");
 

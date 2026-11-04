@@ -118,6 +118,39 @@ function formatBusinessPurposeSummary(value: string): string {
   return `${visible}… (Full business purpose was stored.)`;
 }
 
+export const ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY =
+  "Primary users were stored empty." as const;
+
+export const ARCHITECTURE_CREATED_MAJOR_SYSTEMS_STORED_EMPTY =
+  "Major systems were stored empty." as const;
+
+export const ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED = "Actor kind was not stored." as const;
+
+export const ARCHITECTURE_CREATED_ACTOR_STORED_AS_BOTH = " (stored as Both)" as const;
+
+type ActorSummaryEntry = BuildArchitectureCreatedHomeModelInput["peopleAndSystems"][number];
+
+function formatActorSummaryLabel(entry: ActorSummaryEntry): string {
+  const trimmed = entry.label.trim();
+
+  if (trimmed.length === 0) {
+    return "";
+  }
+
+  let label =
+    entry.fromSubmittedParse === true ? formatParsedSubmittedArchitectureName(trimmed) : trimmed;
+
+  if (entry.fromSubmittedParse === true) {
+    label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
+  } else if (entry.kind.trim().length === 0) {
+    label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
+  } else if (entry.kind === "Both") {
+    label = `${label}${ARCHITECTURE_CREATED_ACTOR_STORED_AS_BOTH}`;
+  }
+
+  return label;
+}
+
 export function deriveDefinitionStatus(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureDefinitionStatusKind {

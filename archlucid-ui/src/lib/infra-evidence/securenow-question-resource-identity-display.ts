@@ -40,13 +40,13 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
     }
 
     if (normalizedScope === "subscription") {
-      return "Policy pack question. Stored scope was not on this title.";
+      return "Subscription question";
     }
 
     const inferredScope = secureNowQuestionPackScopeKindFromPrompt(question.questionText ?? "");
 
     if (inferredScope === "ResourceGroup") {
-      return "Policy pack question. Resource group was read from question text, not from stored scope.";
+      return "Resource group question";
     }
 
     return "Policy pack question. Stored scope was not on this title.";

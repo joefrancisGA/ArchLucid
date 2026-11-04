@@ -123,7 +123,7 @@ The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --reb
 
 **Before** hunting, editing production code, or claiming a bug, score the ledger and **display the picker preview in chat**.
 
-When using **`/al-bug1`**–**`/al-bug4`**, run **`scripts/agent/al-bug-zone-rotation.ps1 -Set <N> -PreviewPick -SkipGitPicker`** (or the set skill’s equivalent) **before** hunting when the user did not pass a hint. Rotation avoids the default zone after **three** consecutive **dry**, **seed-only**, or **held-for-triage** outcomes on the same zone in that set’s run log; the picker then receives **`-AvoidZoneId`**. User hints disable avoidance.
+When using **`/al-bug1`**–**`/al-bug4`**, run **`scripts/agent/al-bug-zone-rotation.ps1 -Set <N> -PreviewPick -SkipGitPicker`** (or the set skill’s equivalent) **before** hunting when the user did not pass a hint. The picker parks any zone whose **own** run-log tail has **three** consecutive **dry**, **seed-only**, or **held-for-triage** outcomes. Hunts on other zones do not clear that park. A later **hit** does. Parked zones stay out of automatic picks until a **hint** names them (`-Hint` / the zone id in the hunt message). Rotation still passes **`-AvoidZoneId`** for the current tail zone; the picker park is what keeps the zone out on the next hunts. User hints disable avoidance and are the only re-entry.
 
 ```powershell
 .\scripts\agent\al-bug-pick-zone.ps1 -Preview
@@ -133,7 +133,7 @@ Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when th
 
 The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
 
-Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision. **Speed is capped at 1**; `bugs-found` cannot exceed `hunts` for scoring. High recent hit-rate zones **cool** while they still have open hypotheses. A zone whose hypothesis list is already empty stays eligible so the seed reread can run. Escalation matches concrete production files: a directory path does not cool every zone under that prefix. When every open zone is demoted, JSON `cooldownFallback` is `true` and the picker still returns the best demoted zone. That is a hunt, not exhaustion.
+Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision. **Speed is capped at 1**; `bugs-found` cannot exceed `hunts` for scoring. High recent hit-rate zones **cool** while they still have open hypotheses. A zone whose hypothesis list is already empty stays eligible so the seed reread can run. Escalation matches concrete production files: a directory path does not cool every zone under that prefix. A low-yield park (three consecutive dry, seed-only, or held-for-triage outcomes on that zone’s own run-log tail) removes the zone from automatic picks. JSON `parkedZoneIds` lists them. JSON `cooldownFallback` stays **false**: ledger `cooling`, hit-rate cooldown, class saturation, and file escalation are not selected when every other zone is demoted. That stop is exhaustion of the automatic catalog. A hint still selects the named zone.
 
 Rules:
 
@@ -143,7 +143,7 @@ Rules:
 - **Announce the kind immediately** after the picker table (the picker also prints a Kind banner). Copy one of:
   - `This /al-bug run is a **seed hunt** for zone \`<zoneId>\`. It reseeds hypotheses from the source files. It is not a thorough defect hunt unless a newly promoted hunt-ready row is proven in this same run.`
   - `This /al-bug run is a **thorough defect hunt** for zone \`<zoneId>\`. Cheap-disproof and failing-repro attempts run to completion even if other /al-bug messages are queued.`
-- If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
+- If JSON `exhaustedAll` is `true`, **stop**. Report `parkedZoneIds` when it is non-empty, and say that a hint is required to hunt a parked or cooled zone. Do not invent a new zone.
 - If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
 - The script does **not** write the ledger. After the hunt, edit the picker JSON `ledgerPath` (the set ledger that owns the zone).
 
@@ -159,7 +159,7 @@ Set `status` to `cooling` when yield has dropped but exhaustion is not complete.
 
 If every **hunt-ready** hypothesis was tested and **none** produced a failing repro: increment `hunts` and `consecutive-dry-hunts`, set `last-hunt` to today, tick attempted rows with **`(valid-no-repro)`** or **`(invalid)`** (see Phase 1.1c), **stop**. Do not invent another bug in the same files or jump to another zone.
 
-A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`. After **8** seed-only outcomes for one zone in 24 hours, the picker skips that zone while any other open or unseeded zone is below that threshold. A hint still selects the saturated zone.
+A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`. After **8** seed-only outcomes for one zone in 24 hours, the picker skips that zone while any other open or unseeded zone is below that threshold and is not parked. Three consecutive seed-only outcomes also park the zone until a hint or a later hit. A hint still selects the parked or saturated zone. When every non-parked open zone is seed-saturated, those zones stay eligible.
 
 ---
 

@@ -65,9 +65,16 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
 
       if (invariantKeys === null || invariantKeys === undefined) {
         lines.push("- Citation invariant keys were not stored.");
+      } else if (invariantKeys.length === 0) {
+        lines.push("- Citation invariant keys were stored empty.");
       }
     }
 
+    lines.push("");
+  } else {
+    lines.push("### Authority citations");
+    lines.push("");
+    lines.push("Authority citations were stored empty.");
     lines.push("");
   }
 
@@ -78,6 +85,9 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
     lines.push("");
   } else if (unsatCore.length > 0) {
     lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
+    lines.push("");
+  } else {
+    lines.push("**Unsat core:** Unsat core was stored empty.");
     lines.push("");
   }
 
@@ -117,15 +127,26 @@ function formatProposedRelaxationLines(verdict: ManifestFeasibilityVerdict): str
 
   const lines: string[] = ["### Proposed relaxations", ""];
 
+  if (proposedRelaxations.length === 0) {
+    lines.push("Proposed relaxations were stored empty.");
+    lines.push("");
+
+    return lines;
+  }
+
   for (const relaxation of proposedRelaxations) {
     const invariantKey =
       relaxation.invariantKey === null || relaxation.invariantKey === undefined
         ? "Relaxation invariant key was not stored."
-        : relaxation.invariantKey;
+        : relaxation.invariantKey.trim().length === 0
+          ? "Relaxation invariant key was stored empty."
+          : relaxation.invariantKey.trim();
     const tradeOffDescription =
       relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
         ? "Trade-off description was not stored."
-        : relaxation.tradeOffDescription;
+        : relaxation.tradeOffDescription.trim().length === 0
+          ? "Trade-off description was stored empty."
+          : relaxation.tradeOffDescription.trim();
 
     lines.push(`- **${invariantKey}**: ${tradeOffDescription}`);
   }
@@ -182,6 +203,7 @@ export function formatFeasibilityVerdictMarkdownSection(
       hasHardInfeasibleCitation(verdict)
       || verdict.hardCitations === null
       || verdict.hardCitations === undefined
+      || verdict.hardCitations.length === 0
       || verdict.hardCitations.length > 0
     )
   ) {

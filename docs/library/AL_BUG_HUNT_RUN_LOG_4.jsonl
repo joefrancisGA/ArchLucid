@@ -3755,3 +3755,9 @@
 {"at":"2026-11-03T12:59:34.2294655Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T13:04:01.2232317Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-03T13:08:28.5872384Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-04T00:02:49.3231210Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-04T01:16:21.0797365Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-11-04T01:18:53.4840803Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-11-04T01:38:00.0000000Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-11-04T01:43:29.8298019Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs"]}
+{"at":"2026-11-04T12:56:00.0000000Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}

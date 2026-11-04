@@ -77,13 +77,13 @@ export function formatTransparencyTrailMarkdownSection(
           ? ` — Question id: ${entry.questionId}`
           : entry.questionId === null || entry.questionId === undefined
             ? " — Question id was not stored."
-            : "";
+            : " — Question id was stored empty.";
       const recordedUtc =
         typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
           ? ` — Answer recorded time: ${entry.recordedUtc}`
           : entry.recordedUtc === null || entry.recordedUtc === undefined
             ? " — Answer recorded time was not stored."
-            : "";
+            : " — Answer recorded time was stored empty.";
 
       lines.push(`- ${formatAssertedTrailLine(entry)}${responder}${questionId}${recordedUtc}`);
     }

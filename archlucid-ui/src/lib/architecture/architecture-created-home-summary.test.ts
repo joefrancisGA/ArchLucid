@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED,
+  ARCHITECTURE_CREATED_INTEGRATION_NAMES_NOT_STORED,
   ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
   ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
   ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
+  ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY,
   buildSummaryFields,
 } from "@/lib/architecture/architecture-created-home-summary";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-summary";
@@ -78,7 +80,7 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
 
     expect(fields).toContainEqual({
       label: "Key integrations",
-      value: "Key integrations were stored empty.",
+      value: ARCHITECTURE_CREATED_INTEGRATION_NAMES_NOT_STORED,
     });
   });
 
@@ -91,7 +93,20 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
 
     expect(fields).toContainEqual({
       label: "Key integrations",
-      value: "Payment gateway (submitted text, not operator-asserted)",
+      value: "Payment gateway",
+    });
+  });
+
+  it("labels blank actor names as stored-empty while preserving an unknown kind", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        peopleAndSystems: [{ label: "   ", kind: "Human" }],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Primary users",
+      value: ARCHITECTURE_CREATED_PRIMARY_USERS_STORED_EMPTY,
     });
   });
 

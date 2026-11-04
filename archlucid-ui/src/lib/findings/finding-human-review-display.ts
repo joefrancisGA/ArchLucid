@@ -26,9 +26,15 @@ export function formatFindingHumanReviewStatusLabel(
     case 4:
       return "Human review overridden";
     default:
-      return status === null || status === undefined || (typeof status === "string" && status.trim().length === 0)
-        ? "Human review status was not stored"
-        : `Human review status ${String(status)} has no reviewer label.`;
+      if (status === null || status === undefined) {
+        return "Human review status was not stored";
+      }
+
+      if (typeof status === "string" && status.trim().length === 0) {
+        return "Human review status was stored empty";
+      }
+
+      return `Human review status ${String(status)} has no reviewer label.`;
   }
 }
 

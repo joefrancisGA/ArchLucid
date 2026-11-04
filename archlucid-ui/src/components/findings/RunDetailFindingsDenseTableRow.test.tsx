@@ -196,4 +196,16 @@ describe("RunDetailFindingsDenseTableRow", () => {
 
     expect(screen.getByText(FINDING_CLASSIFICATION_STORED_EMPTY_LABEL)).toBeInTheDocument();
   });
+
+  it("shows confidence scope beside the dense-row confidence badge", () => {
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow runId="run-1" finding={sampleFinding()} showDensityScore />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByRole("status", { name: /High confidence.*Recorded trace confidence/i })).toBeInTheDocument();
+  });
 });

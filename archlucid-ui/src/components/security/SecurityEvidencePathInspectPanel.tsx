@@ -219,6 +219,14 @@ function PathHopsTable(props: {
                     {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
                   </p>
                 ) : null}
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                  Inference source:{" "}
+                  {hop.inferenceSource === null
+                    ? "Inference source was not stored."
+                    : hop.inferenceSource.trim().length === 0
+                      ? "Inference source was stored empty."
+                      : hop.inferenceSource.trim()}
+                </p>
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag
