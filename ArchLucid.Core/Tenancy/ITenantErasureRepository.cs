@@ -5,6 +5,9 @@ public interface ITenantErasureRepository
 {
     Task<bool> TryApproveTenantErasureAsync(Guid tenantId, DateTimeOffset approvedUtc, string approvedByUserId, CancellationToken ct);
 
+    /// <summary>Clears erasure approval while quarantine remains so a failed approve audit can be retried.</summary>
+    Task<bool> TryRevertTenantErasureApprovalAsync(Guid tenantId, CancellationToken ct);
+
     /// <summary>
     ///     Starts erasure quarantine when not already offboarded: sets <c>OffboardedUtc</c>, <c>ErasureEligibleUtc</c>.
     /// </summary>

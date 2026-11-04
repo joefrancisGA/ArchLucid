@@ -442,14 +442,26 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeApproveAuditAppend.OffboardedUtc is null)
             return true;
 
-        await AppendPlatformAuditAsync(
-            AuditEventTypes.TenantErasureApproved,
-            tenantId,
-            actorUserId,
-            actorUserName,
-            correlationId,
-            new { approvedUtc = now },
-            cancellationToken);
+        DateTimeOffset approvedUtc = tenantBeforeApproveAuditAppend.TenantErasureApprovedUtc ?? now;
+
+        try
+        {
+            await AppendPlatformAuditAsync(
+                AuditEventTypes.TenantErasureApproved,
+                tenantId,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                new { approvedUtc },
+                cancellationToken,
+                CreateApproveAuditEventId(tenantId, approvedUtc));
+        }
+        catch
+        {
+            await _tenantRepository.TryRevertTenantErasureApprovalAsync(tenantId, cancellationToken);
+
+            throw;
+        }
 
         return true;
     }
@@ -630,6 +642,13 @@ public sealed class TenantErasureCommandService(
     {
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
             $"{AuditEventTypes.TenantErasureQuarantineRestored}:{tenantId:N}:{priorOffboardedUtc.UtcDateTime.Ticks}:{priorErasureEligibleUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+
+    private static Guid CreateApproveAuditEventId(Guid tenantId, DateTimeOffset approvedUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureApproved}:{tenantId:N}:{approvedUtc.UtcDateTime.Ticks}"));
         return new Guid(hash.AsSpan(0, 16));
     }
 
