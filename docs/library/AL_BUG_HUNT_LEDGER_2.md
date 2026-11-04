@@ -3968,6 +3968,20 @@
 
 ## Zone: scim-users
 
+2026-11-04 thorough hunt (dry #66): cheap-disproof closed five open `(candidate)` monitor rows from seed **#65** — **valid-no-repro** PUT JSON array `[]` maps to SCIM `invalidSyntax` via `ParseUser` object guard (regression `ReplaceAsync_json_array_put_body_returns_invalid_syntax_via_service_parse_guard`); **valid-no-repro** PATCH JSON array `[]` maps to SCIM `invalidSyntax` before patch apply (regression `PatchAsync_json_array_patch_body_returns_invalid_syntax_via_service_parse_guard`); **valid-no-repro** POST JSON string primitive maps to SCIM `invalidSyntax` before insert (regression `CreateAsync_json_primitive_post_body_returns_invalid_syntax_via_service_parse_guard`); **valid-no-repro** `count=0` list query returns empty SCIM page without HTTP 500 (regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; dry **#64**); **valid-no-repro** `startIndex=0` query clamped to RFC 1-based first page without HTTP 500 (regression `ListAsync_start_index_zero_clamped_to_first_page_without_error`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **70/70** (46 Application + 24 Api cancellation unit; SQL integration skipped). Private beta: n/a.
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — JSON array PUT body maps to SCIM `invalidSyntax` before persist — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ReplaceAsync_json_array_put_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — JSON array PATCH body maps to SCIM `invalidSyntax` before patch apply — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `PatchAsync_json_array_patch_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — JSON primitive POST body maps to SCIM `invalidSyntax` before insert — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `CreateAsync_json_primitive_post_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` query returns empty SCIM list page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=0` query clamped to first page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ListAsync_start_index_zero_clamped_to_first_page_without_error`; seed **#65**.
+
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — JSON primitive PUT body maps to SCIM `invalidSyntax` before persist — locus: deserialize + `ParseUser` object guard; input: quoted string literal (monitor seed **#66**).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — JSON number PATCH body maps to SCIM `invalidSyntax` before patch apply — locus: patch evaluator object guard; input: body `42` (monitor seed **#66**).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — JSON number POST body maps to SCIM `invalidSyntax` before insert — locus: `ParseUser` object guard; input: body `1` (monitor seed **#66**).
+- [ ] (candidate) `ScimUsersController.ListAsync` — negative `startIndex` query clamped to first page without HTTP 500 — locus: controller ~39–40; input: `startIndex=-1` (monitor seed **#66**).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — JSON number PUT body maps to SCIM `invalidSyntax` before persist — locus: `ParseUser` object guard; input: body `0` (monitor seed **#66**).
+
 2026-11-04 thorough hunt (dry #65): cheap-disproof closed five open `(candidate)` monitor rows from seed **#64** — **valid-no-repro** zero-length PATCH body maps to SCIM `invalidSyntax` before service patch (regression `PatchAsync_empty_http_body_returns_invalid_syntax_without_calling_service`); **valid-no-repro** PUT/PATCH JSON `null` literal maps to SCIM `invalidSyntax` via service parse guard (regressions `ReplaceAsync_null_json_literal_returns_invalid_syntax_without_calling_service`, `PatchAsync_null_json_literal_returns_invalid_syntax_without_calling_service`); **valid-no-repro** negative `count` list query returns empty SCIM page without HTTP 500 (regression `ListAsync_negative_count_returns_empty_scim_list_page_without_error`; Application `ListAsync_negative_count_clamped_to_empty_page`); **valid-no-repro** POST JSON array `[]` maps to SCIM `invalidSyntax` via `ParseUser` object guard (regression `CreateAsync_json_array_body_returns_invalid_syntax_via_service_parse_guard`; thorough hunt **#47** class); reseeded five follow-on `(candidate)` monitor rows; scoped filter **66/66** (46 Application + 20 Api cancellation unit; SQL integration skipped). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty HTTP body maps to SCIM `invalidSyntax` before service patch — **cheap-disproof 2026-11-04 thorough hunt #65:** regression `PatchAsync_empty_http_body_returns_invalid_syntax_without_calling_service`; seed **#64**.
@@ -3976,11 +3990,11 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` query returns empty SCIM list page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #65:** regression `ListAsync_negative_count_returns_empty_scim_list_page_without_error`; seed **#64**.
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — JSON array POST body maps to SCIM `invalidSyntax` before insert — **cheap-disproof 2026-11-04 thorough hunt #65:** regression `CreateAsync_json_array_body_returns_invalid_syntax_via_service_parse_guard`; seed **#64**.
 
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — JSON array PUT body maps to SCIM `invalidSyntax` before persist — locus: deserialize + `ParseUser` object guard; input: body `[]` (monitor seed **#65**; POST array class dry **#65**).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — JSON array PATCH body maps to SCIM `invalidSyntax` before patch apply — locus: deserialize + patch evaluator object guard; input: body `[]` (monitor seed **#65**).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — JSON primitive POST body maps to SCIM `invalidSyntax` before insert — locus: `ParseUser` object guard; input: quoted string literal (monitor seed **#65**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count=0` query returns empty SCIM list page without HTTP 500 — locus: service `Math.Clamp`; input: `count=0` (monitor Api gap; Application `ListAsync_count_zero_returns_empty_page_with_total_results`; seed **#65**).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex=0` query clamped to first page without HTTP 500 — locus: controller ~39–40; input: `startIndex=0` (monitor seed **#65**; Application list normalization).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — JSON array PUT body maps to SCIM `invalidSyntax` before persist — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ReplaceAsync_json_array_put_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — JSON array PATCH body maps to SCIM `invalidSyntax` before patch apply — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `PatchAsync_json_array_patch_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — JSON primitive POST body maps to SCIM `invalidSyntax` before insert — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `CreateAsync_json_primitive_post_body_returns_invalid_syntax_via_service_parse_guard`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` query returns empty SCIM list page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; seed **#65**.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=0` query clamped to first page without HTTP 500 — **cheap-disproof 2026-11-04 thorough hunt #66:** regression `ListAsync_start_index_zero_clamped_to_first_page_without_error`; seed **#65**.
 
 2026-11-04 thorough hunt (dry #64): cheap-disproof closed five open `(candidate)` monitor rows from seed **#63** — **valid-no-repro** zero-length PUT body maps to SCIM `invalidSyntax` before service replace (regression `ReplaceAsync_empty_http_body_returns_invalid_syntax_without_calling_service`); **valid-no-repro** cooperative cancel during PUT/PATCH JSON deserialize rethrows before `invalidSyntax` (regressions `ReplaceAsync_propagates_operation_canceled_during_json_deserialize`, `PatchAsync_propagates_operation_canceled_during_json_deserialize`; dry **#48**); **valid-no-repro** `count=0` list query returns empty SCIM page without HTTP 500 (regression `ListAsync_count_zero_returns_empty_scim_list_page_without_error`; Application `ListAsync_count_zero_returns_empty_page_with_total_results`); **valid-no-repro** POST body JSON `null` literal maps to SCIM `invalidSyntax` via `ParseUser` object guard before persist (regression `CreateAsync_null_json_literal_returns_invalid_syntax_without_side_effects`; deserialize succeeds then fails closed in service); reseeded five follow-on `(candidate)` monitor rows; scoped filter **61/61** (46 Application + 15 Api cancellation unit; SQL integration skipped). Private beta: n/a.
 
@@ -4339,9 +4353,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-11-04
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
