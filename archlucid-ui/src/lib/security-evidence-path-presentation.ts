@@ -9,17 +9,17 @@ const PATH_CONFIDENCE_BAND_LABELS: Readonly<Record<string, string>> = {
 };
 
 const PROVENANCE_KIND_LABELS: Readonly<Record<string, string>> = {
-  ObservedFact: "Observed fact",
+  ObservedFact: "Read from collected evidence. Not observed traffic by itself.",
   DerivedFact: "Derived fact",
   DeterministicInference: "Deterministic inference",
   AiInference: "AI inference",
   HumanAssertion: "Human assertion",
 };
 
-  const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
-  IntendedReachability: "Intended reachability",
+const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
+  IntendedReachability: "Intended reachability. Observed reachability was not stored.",
   Privilege: "Privilege",
-  CapabilityToFlow: "May access",
+  CapabilityToFlow: "May access. Observed use was not stored.",
 };
 
 export function formatSecurityEvidencePathKindLabel(kind: string | null | undefined): string {
@@ -53,6 +53,14 @@ export function formatSecurityEvidencePathConfidenceBandLabel(band: string | nul
     return "Confidence band was stored empty.";
   }
 
+  if (trimmed === "Confirmed") {
+    return "Stored band: Confirmed. Not observed traffic.";
+  }
+
+  if (trimmed === "HighlyLikely") {
+    return "Stored band: Highly likely. Not a probability and not observed traffic.";
+  }
+
   return PATH_CONFIDENCE_BAND_LABELS[trimmed] ?? "Confidence band was not recognized.";
 }
 
@@ -76,9 +84,9 @@ const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
   USES_IDENTITY: "Identity is assigned. Use of that identity was not stored.",
   MEMBER_OF: "Group membership was stored. Observed use of that membership was not stored.",
   PossibleMovement: "Possible movement. An observed move was not stored.",
-  UnrestrictedEgress: "unrestricted egress (declared NSG allow)",
-  InsufficientEvidenceEgress: "egress not fully verified",
-  SharedControlFanOut: "shared control fan-out",
+  UnrestrictedEgress: "Declared NSG allow. Observed egress was not stored.",
+  InsufficientEvidenceEgress: "Egress was not stored as verified. This is not a partial pass.",
+  SharedControlFanOut: "Shared control fan-out. This line is not one observed path.",
   PublicNetworkAccess: "Public network hop. Observed traffic was not stored.",
 };
 
@@ -104,7 +112,7 @@ export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | n
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {
   ObservedFact: "This hop was read from collected evidence.",
-  DerivedFact: "This hop was calculated from collected evidence.",
+  DerivedFact: "This hop was calculated from collected evidence. It is not a separately observed hop.",
   DeterministicInference: "A fixed rule produced this hop.",
   AiInference: "A model proposed this hop. It is not an observed fact.",
   HumanAssertion: "A person recorded this hop.",

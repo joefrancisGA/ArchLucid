@@ -20,4 +20,10 @@ describe("run-detail-create-home-evidence-copy", () => {
   it("labels the diagram cross-link CTA as Open diagram tab", () => {
     expect(RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL).toBe("Open diagram tab");
   });
+
+  it("states generated diagrams are stored but not uploaded captures", () => {
+    expect(resolveRunDetailCreateHomeEvidenceDiagramCrossLinkHelper(true)).toContain(
+      "not an uploaded capture",
+    );
+  });
 });

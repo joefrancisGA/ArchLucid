@@ -106,7 +106,7 @@ export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
   "Add people and systems manually, or enter an architecture overview to generate suggestions.";
 
 export const GUIDED_INTAKE_ACTORS_EMPTY_STATE =
-  "No people or systems are listed yet. Trust-boundary and privileged-access findings need actors from this step.";
+  "No people or systems are stored on this draft yet. That is not a claim the system has none. Trust-boundary and privileged-access findings need actors from this step.";
 
 /**
  *     Interaction is a timing axis, but its first option is named after a channel

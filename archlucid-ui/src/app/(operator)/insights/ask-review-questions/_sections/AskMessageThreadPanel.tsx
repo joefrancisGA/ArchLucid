@@ -264,7 +264,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             {runId.trim().length > 0 ? (
               <div className="space-y-2" data-testid="ask-empty-thread-starters">
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {buyerPolishedShell ? "Try a starter question" : "Starter questions for this review"}
+                  {buyerPolishedShell ? "Try a starter question" : "Starter prompts. These questions are not stored on this review."}
                 </p>
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="Starter questions">
                   {ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS.map((line) => (

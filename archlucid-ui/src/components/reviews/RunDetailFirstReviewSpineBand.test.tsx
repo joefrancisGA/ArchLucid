@@ -57,6 +57,21 @@ describe("RunDetailFirstReviewSpineBand", () => {
   it("shows no open gate when the summary is clear", () => {
     render(<RunDetailFirstReviewSpineBand runId="run-abc" summary={baseSummary({})} />);
 
-    expect(screen.getByTestId("review-open-gate")).toHaveTextContent("No open gate on this review.");
+    expect(screen.getByTestId("review-open-gate")).toHaveTextContent(
+      "No uncited finding or open decision-grade disposition is stored, and a committed package is stored. This is not an approval to build.",
+    );
+  });
+
+  it("does not call the gate clear when evidence reference count was not stored", () => {
+    render(
+      <RunDetailFirstReviewSpineBand
+        runId="run-abc"
+        summary={baseSummary({ evidenceReferenceCountNotStored: true, openGateLabel: null })}
+      />,
+    );
+
+    expect(screen.getByTestId("review-open-gate")).toHaveTextContent(
+      "Evidence reference count was not stored. This spine does not call the gate clear.",
+    );
   });
 });

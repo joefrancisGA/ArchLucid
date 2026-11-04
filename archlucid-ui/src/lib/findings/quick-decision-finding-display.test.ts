@@ -33,6 +33,15 @@ describe("quick-decision-finding-display", () => {
   it("labels confidence null, blank, and unexpected values (P-12)", () => {
     expect(formatQuickDecisionConfidenceWorkspaceLabel(null)).toBe("Confidence level was not stored.");
     expect(formatQuickDecisionConfidenceWorkspaceLabel("   ")).toBe("Confidence was stored empty.");
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("High")).toBe(
+      "Stored confidence is High. Not a probability and not an approval.",
+    );
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("Medium")).toBe(
+      "Stored confidence is Medium. Not a probability and not an approval.",
+    );
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("Low")).toBe(
+      "Stored confidence is Low. Not a probability and not an approval.",
+    );
     expect(formatQuickDecisionConfidenceWorkspaceLabel("Uncertain")).toBe(
       "Confidence Uncertain has no reviewer label.",
     );
