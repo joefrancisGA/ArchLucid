@@ -4454,7 +4454,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
-2026-11-04 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed pass after empty open-hypothesis queue; cheap-disproof closed five header `(candidate)` monitor rows from pass-22 reseed — **valid-no-repro** bell PKCE `state` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior bell control characters`), **valid-no-repro** pipe-only JSON `error_description` (`oauth-callback-messages.test.ts` parity), **valid-no-repro** pipe-only authorize `error_description` (percent-encoded parity), **valid-no-repro** token-endpoint HTTP 200 JSON roots `10`/`11`/`12` (`parseOidcTokenResponse` rejects non-object roots; regressions added), **valid-no-repro** BFF refresh HTTP `515`/`516`/`517` soft-fail without session clear (parity regressions added). Reseeded five follow-on `(candidate)` monitor rows below; scoped `src/lib/oidc` vitest (see run). Private beta: n/a.
+2026-11-04 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed pass after empty open-hypothesis queue; cheap-disproof closed five header `(candidate)` monitor rows from pass-22 reseed — **valid-no-repro** bell PKCE `state` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior bell control characters`), **valid-no-repro** pipe-only JSON `error_description` (`oauth-callback-messages.test.ts` parity), **valid-no-repro** pipe-only authorize `error_description` (percent-encoded parity), **valid-no-repro** token-endpoint HTTP 200 JSON roots `10`/`11`/`12` (`parseOidcTokenResponse` rejects non-object roots; regressions added), **valid-no-repro** BFF refresh HTTP `515`/`516`/`517` soft-fail without session clear (parity regressions added). Reseeded five follow-on `(candidate)` monitor rows below; scoped `src/lib/oidc` vitest **1040/1040**. Private beta: n/a.
 
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) — **cheap-disproof 2026-11-04 seed hunt:** regression above.
 - [x] (valid-no-repro) `readOAuthJsonErrorDescription` — pipe-only JSON `error_description` — **cheap-disproof 2026-11-04 seed hunt:** existing pipe-only regression.
@@ -11987,6 +11987,10 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-04 seed hunt (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **`appliedRef` stuck after first `priorRunId`, blocking prefill when operators change `rerun=` without remounting** — reset apply gate and status line when `priorRunId` changes; regression `loads prior-package prefill again when priorRunId changes without remounting the hook`; wizard test mocks return `{ priorRunPrefillCopiedFromLine: null }`; scoped prefill + rerun auto-submit + session-restore vitest **5/5**. Private beta: invited operators switching guided intake rerun links in-app get fresh prior-package field copy instead of the first package stuck on screen.
+
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — `appliedRef` prevents reload when `priorRunId` changes in-place — **hit 2026-11-04 seed hunt:** reset on `priorRunId` change; regression above.
+
 2026-11-03 thorough hunt (hit): promoted `useNewRunWizardPendingEvidence` **leaving evidence upload chrome stuck on `"uploading"` when `runId` cleared mid-flight** — path switches or wizard remounts can drop the created run id while auto-upload is still in flight; the hook never invalidated the upload generation or reset upload state on `runId === null`, so operators returning to quick start saw a permanent uploading banner; bump upload generation and reset upload chrome when `runId` clears; regression `clears uploading chrome when runId is cleared during an in-flight upload`; cheap-disproof closed four sibling `(candidate)` rows from hunt **#196** (session restore vs path switcher uses distinct `WIZARD_SESSION_IDS`; deferred intent callout reads live `useSearchParams`; guided draft submit invalidation best-effort regression retained; quick-family recheck ordering covered in `wizard-form-create-run-submit.test.ts`); scoped pending-evidence vitest **11/11**. Private beta: invited operators on `/architecture/reviews/new` no longer see a stuck pre-submit evidence upload spinner after leaving quick start while an automatic upload was still running.
 
 - [x] (proven) `useNewRunWizardPendingEvidence` — `"uploading"` stuck after navigation clears `runId` mid-upload — **hit 2026-11-03 thorough hunt:** upload generation bump + idle reset on `runId === null`; regression above.
@@ -12233,11 +12237,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 65
-- **bugs-found:** 36
+- **hunts:** 66
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-03
-- **last-bug:** 2026-11-03 — pending evidence upload chrome stuck uploading when runId cleared mid-flight
+- **last-hunt:** 2026-11-04
+- **last-bug:** 2026-11-04 — guided prior-run prefill did not reload when priorRunId changed without remount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

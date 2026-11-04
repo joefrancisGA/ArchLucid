@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
@@ -96,5 +96,47 @@ describe("useGuidedIntakePriorRunPrefill", () => {
     );
 
     expect(catchHandler).toHaveBeenCalledOnce();
+  });
+
+  it("loads prior-package prefill again when priorRunId changes without remounting the hook", async () => {
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValueOnce({
+      ...priorPackagePrefill,
+      systemName: "First package",
+    });
+    tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValueOnce({
+      ...priorPackagePrefill,
+      systemName: "Second package",
+    });
+
+    const setSystemName = vi.fn();
+    const initialProps = {
+      priorRunId: "run-first",
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      actorSet: { actors: [] },
+      scopeBullets: [] as readonly ScopeUnderstandingBullet[],
+      setFreeTextIntent: vi.fn(),
+      setBusinessOutcome: vi.fn(),
+      setSystemName,
+      setActorSet: vi.fn(),
+      setScopeBullets: vi.fn(),
+      setScopeGateOpen: vi.fn(),
+      setPriorAttachedFileNames: vi.fn(),
+    };
+
+    const { rerender } = renderHook((props) => useGuidedIntakePriorRunPrefill(props), { initialProps });
+
+    await waitFor(() => {
+      expect(setSystemName).toHaveBeenCalledWith("First package");
+    });
+
+    setSystemName.mockClear();
+    rerender({ ...initialProps, priorRunId: "run-second" });
+
+    await waitFor(() => {
+      expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-second");
+      expect(setSystemName).toHaveBeenCalledWith("Second package");
+    });
   });
 });
