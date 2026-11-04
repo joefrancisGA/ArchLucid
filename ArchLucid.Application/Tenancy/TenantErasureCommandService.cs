@@ -205,20 +205,34 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeRestoreAuditAppend.OffboardedUtc is not null)
             return true;
 
-        await AppendPlatformAuditAsync(
-            AuditEventTypes.TenantErasureQuarantineRestored,
-            tenantId,
-            actorUserId,
-            actorUserName,
-            correlationId,
-            new
-            {
-                priorOffboardedUtc = priorOffboarded,
-                priorErasureEligibleUtc = priorEligible,
-                offboardedUtc = (DateTimeOffset?)null,
-                erasureEligibleUtc = (DateTimeOffset?)null
-            },
-            cancellationToken);
+        try
+        {
+            await AppendPlatformAuditAsync(
+                AuditEventTypes.TenantErasureQuarantineRestored,
+                tenantId,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                new
+                {
+                    priorOffboardedUtc = priorOffboarded,
+                    priorErasureEligibleUtc = priorEligible,
+                    offboardedUtc = (DateTimeOffset?)null,
+                    erasureEligibleUtc = (DateTimeOffset?)null
+                },
+                cancellationToken,
+                CreateRestoreAuditEventId(tenantId, priorOffboarded!.Value, priorEligible!.Value));
+        }
+        catch
+        {
+            await RollbackRestoreQuarantineAfterFailedAuditAsync(
+                tenantId,
+                priorOffboarded!.Value,
+                priorEligible!.Value,
+                cancellationToken);
+
+            throw;
+        }
 
         return true;
     }
@@ -607,6 +621,35 @@ public sealed class TenantErasureCommandService(
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
             $"{AuditEventTypes.TenantErasureOffboarded}:{tenantId:N}:{offboardedUtc.UtcDateTime.Ticks}:{erasureEligibleUtc.UtcDateTime.Ticks}"));
         return new Guid(hash.AsSpan(0, 16));
+    }
+
+    private static Guid CreateRestoreAuditEventId(
+        Guid tenantId,
+        DateTimeOffset priorOffboardedUtc,
+        DateTimeOffset priorErasureEligibleUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureQuarantineRestored}:{tenantId:N}:{priorOffboardedUtc.UtcDateTime.Ticks}:{priorErasureEligibleUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+
+    /// <summary>
+    /// Restore clears quarantine before audit append. Re-apply offboard markers and suspend so
+    /// operator retries can complete the audit append without treating the tenant as already restored.
+    /// </summary>
+    private async Task RollbackRestoreQuarantineAfterFailedAuditAsync(
+        Guid tenantId,
+        DateTimeOffset priorOffboardedUtc,
+        DateTimeOffset priorErasureEligibleUtc,
+        CancellationToken cancellationToken)
+    {
+        await _tenantRepository.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            priorOffboardedUtc,
+            priorErasureEligibleUtc,
+            cancellationToken);
+
+        await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
     }
 
     private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? normalizedReason)

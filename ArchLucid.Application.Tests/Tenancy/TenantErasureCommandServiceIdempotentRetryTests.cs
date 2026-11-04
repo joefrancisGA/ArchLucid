@@ -2079,6 +2079,84 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TryRestoreQuarantineAsync_retries_failed_restore_audit_with_same_event_id_when_quarantine_rollback_reapplies()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 6, 12, 0, 0, TimeSpan.Zero);
+        DateTimeOffset offboardedUtc = now.AddDays(-1);
+        DateTimeOffset eligibleUtc = now.AddDays(29);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Restore Audit Retry Org",
+            "restore-audit-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            offboardedUtc,
+            eligibleUtc,
+            CancellationToken.None);
+        await tenants.SuspendTenantAsync(tenantId, CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new();
+        List<Guid> restoreAuditEventIds = [];
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantErasureQuarantineRestored)
+                    restoreAuditEventIds.Add(auditEvent.EventId);
+            })
+            .Returns<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+                auditEvent.EventType == AuditEventTypes.TenantErasureQuarantineRestored
+                && restoreAuditEventIds.Count == 1
+                    ? Task.FromException(new InvalidOperationException("Audit storage unavailable."))
+                    : Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.TryRestoreQuarantineAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None));
+
+        TenantRecord? afterFailed = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        afterFailed.Should().NotBeNull();
+        afterFailed!.OffboardedUtc.Should().Be(offboardedUtc);
+        afterFailed.ErasureEligibleUtc.Should().Be(eligibleUtc);
+        afterFailed.SuspendedUtc.Should().NotBeNull();
+
+        (await sut.TryRestoreQuarantineAsync(
+                tenantId,
+                "admin@example.com",
+                "Admin",
+                "corr",
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureQuarantineRestored),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+        restoreAuditEventIds.Should().HaveCount(2);
+        restoreAuditEventIds[1].Should().Be(restoreAuditEventIds[0]);
+    }
+
+    [Fact]
     public async Task TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry()
     {
         Guid tenantId = Guid.NewGuid();
