@@ -179,7 +179,7 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.activeTab).toBe("findings");
   });
 
-  it("writes findingId when the open gate is an uncited finding and the URL is silent", () => {
+  it("writes findingId and spine hash when the open gate is an uncited finding and the URL is silent", () => {
     searchParamsHarness.applyQuery("");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc");
 
@@ -189,12 +189,14 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
           ...baseProps,
           visitDefaultReviewTabWhenUrlSilent: "findings",
           visitDefaultFindingIdWhenUrlSilent: "finding-uncited-1",
+          visitDefaultReviewHashWhenUrlSilent: "run-detail-first-review-spine-findings",
         }),
       { wrapper: SearchParamsRerenderHost },
     );
 
     expect(window.location.search).toContain("reviewTab=findings");
     expect(window.location.search).toContain("findingId=finding-uncited-1");
+    expect(window.location.hash).toBe("#run-detail-first-review-spine-findings");
   });
 
   it("opens review-package with spine hash when uncommitted review is the open gate", () => {

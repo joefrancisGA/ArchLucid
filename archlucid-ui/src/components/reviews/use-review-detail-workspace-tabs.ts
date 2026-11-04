@@ -176,14 +176,23 @@ export function useReviewDetailWorkspaceTabs(
 
     if (defaultTab === "findings") {
       const findingId = props.visitDefaultFindingIdWhenUrlSilent?.trim() ?? "";
+      const defaultHash = props.visitDefaultReviewHashWhenUrlSilent?.trim() ?? "";
+
+      writeReviewDetailTabToUrl("findings", {
+        findingId: findingId.length > 0 ? findingId : undefined,
+        hash: defaultHash.length > 0 ? defaultHash : undefined,
+      });
+      setActiveTab("findings");
+
+      if (defaultHash.length > 0) {
+        scheduleScrollToReviewDetailSection(defaultHash);
+      }
 
       if (findingId.length > 0) {
-        writeReviewDetailTabToUrl("findings", { findingId });
-        setActiveTab("findings");
         scheduleScrollToReviewFinding(findingId);
-
-        return;
       }
+
+      return;
     }
 
     const defaultHash = props.visitDefaultReviewHashWhenUrlSilent?.trim() ?? "";

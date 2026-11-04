@@ -86,6 +86,11 @@ export function RunDetailReviewPackageStampViewport(
     hasFindingsSnapshot: props.hasFindingsSnapshot,
     reviewHasGoldenManifest: props.hasGoldenManifest,
   });
+  const openGateNavigationInput = {
+    findings: props.quickDecisionFindings ?? [],
+    hasFindingsSnapshot: props.hasFindingsSnapshot !== false,
+    reviewHasGoldenManifest: props.hasGoldenManifest,
+  };
 
   if (props.hasGoldenManifest && feasibilityVerdict !== null) {
     return (
@@ -98,6 +103,7 @@ export function RunDetailReviewPackageStampViewport(
             isSample={props.isSample}
             manifestVersion={props.manifestVersion}
             sampleSponsorParagraph={feasibilityVerdict.summary}
+            openGateNavigationInput={openGateNavigationInput}
           />
         ) : null}
         {!pipelineTerminalFailure ? (
@@ -178,6 +184,7 @@ export function RunDetailReviewPackageStampViewport(
           summary={firstReviewSpineSummary}
           unmappedFindingCount={props.unmappedFindingCount}
           runId={props.runId}
+          openGateNavigationInput={openGateNavigationInput}
         />
       ) : null}
       {!pipelineTerminalFailure ? (

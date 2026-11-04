@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
 import {
   REVIEW_SCORECARD_NOT_MEASURED_LABEL,
   type ReviewScorecardMetricState,
@@ -246,6 +247,12 @@ export function ScorecardSavingsHero({
         <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{secondaryLabel}</p>
       ) : null}
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{detail}</p>
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="scorecard-savings-hero-model-honesty"
+      >
+        {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+      </p>
       {empty && actionHref !== null && actionLabel !== null && actionLabel.length > 0 ? (
         <div className="pt-1">
           <Button asChild variant="primary" size="sm" data-testid="scorecard-configure-roi-assumptions-cta">

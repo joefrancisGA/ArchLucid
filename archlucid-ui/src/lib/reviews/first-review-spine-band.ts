@@ -21,6 +21,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 export type FirstReviewSpineBandSummary = {
   readonly gateOutcomeLabel: string;
@@ -265,11 +266,52 @@ export function resolveRunDetailVisitDefaultReviewHashWhenUrlSilent(input: {
 }): string | null {
   const defaultTab = resolveRunDetailVisitDefaultReviewTab(input);
 
-  if (defaultTab === "review-package") {
-    return resolveFirstReviewSpineOpenGateSectionId("review-package");
+  if (defaultTab === "review-package" || defaultTab === "findings") {
+    return resolveFirstReviewSpineOpenGateSectionId(defaultTab);
   }
 
   return null;
+}
+
+/** Deep link for the first-review spine open gate (matches silent URL visit defaults). */
+export function resolveFirstReviewOpenGateReviewHref(input: {
+  readonly runId: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+
+  if (trimmedRunId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const uncitedCount = countUncitedFindings(input.findings);
+  const dispositionStats = countDispositionStats(input.findings);
+  const openGate = resolveFirstReviewOpenGate({
+    uncitedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    reviewHasGoldenManifest: input.reviewHasGoldenManifest,
+  });
+
+  if (openGate.reviewTab === null) {
+    return null;
+  }
+
+  const tab: ReviewDetailTabId = openGate.reviewTab;
+  const findingId =
+    tab === "findings"
+      ? resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+          findings: input.findings,
+          hasFindingsSnapshot: true,
+        })
+      : null;
+  const hash = resolveFirstReviewSpineOpenGateSectionId(openGate.reviewTab);
+
+  return buildReviewDetailTabHref(trimmedRunId, tab, {
+    findingId,
+    hash,
+  });
 }
 
 export function deriveFirstReviewSpineBandSummary(input: {
