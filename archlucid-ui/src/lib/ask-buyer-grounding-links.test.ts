@@ -43,6 +43,12 @@ describe("buyerAskGroundingLinksForRun", () => {
     );
   });
 
+  it("nests Open review when architecture id is supplied without a finding", () => {
+    const links = buyerAskGroundingLinksForRun("run-42", { architectureId: "architecture-identity-001" });
+
+    expect(links![0]?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-42");
+  });
+
   it("returns null when the run id is empty", () => {
     expect(buyerAskGroundingLinksForRun("")).toBeNull();
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();

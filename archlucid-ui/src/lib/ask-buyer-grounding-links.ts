@@ -9,6 +9,7 @@ import {
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -24,6 +25,7 @@ export type BuyerAskGroundingLink = {
 export type BuyerAskGroundingLinksForRunOptions = {
   /** When set, Open review targets the findings workspace for that finding. */
   readonly primaryFindingId?: string | null;
+  readonly architectureId?: string | null;
 };
 
 /** Open review cite — findings workspace when a cited finding is known, else review home. */
@@ -37,7 +39,7 @@ export function resolveAskBuyerOpenReviewHref(
     return resolveQuickDecisionFindingWorkspaceHref(runId, findingId);
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId)}`;
+  return resolveSystemNotJobWorkingReviewOpenHref(runId, options?.architectureId ?? null);
 }
 
 function firstNonEmptyFindingId(findingIds: readonly string[] | null | undefined): string | null {

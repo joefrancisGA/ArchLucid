@@ -25,6 +25,7 @@ import {
   GOVERNANCE_SIGNED_RECORDS_LIST_SKIP_LINK_LABEL,
 } from "@/lib/governance-signed-records-list-page-copy";
 import { SIGNED_RECORDS_LIST_CLAIM_DISCIPLINE } from "@/lib/signed-records-list-evidence-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -160,7 +161,7 @@ export default function SignedRecordsListClient() {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
           >
             Open review
           </Link>

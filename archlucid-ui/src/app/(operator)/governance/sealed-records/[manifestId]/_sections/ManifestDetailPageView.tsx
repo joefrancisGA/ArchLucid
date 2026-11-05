@@ -40,6 +40,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   SEALED_RECORD_DETAIL_BUYER_START_HERE_HELPER,
   SEALED_RECORD_DETAIL_PAGE_LEAD,
@@ -272,7 +273,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(listScopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(listScopedRunId)}
           >
             Open review
           </Link>

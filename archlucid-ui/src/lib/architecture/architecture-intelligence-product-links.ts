@@ -1,3 +1,5 @@
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
+
 export type ArchitectureIntelligenceProductLinks = {
   readonly reviewHref: string;
   readonly findingsHref: string;
@@ -17,7 +19,7 @@ export function buildArchitectureIntelligenceProductLinks(
   const encoded = encodeURIComponent(trimmed);
 
   return {
-    reviewHref: `/architecture/reviews/${encoded}`,
+    reviewHref: resolveScopedInsightOpenReviewHrefWithDeskContinuity(trimmed),
     findingsHref: `/governance/findings?runId=${encoded}`,
     advisoryHref: `/governance/advisory-scans?runId=${encoded}`,
   };
