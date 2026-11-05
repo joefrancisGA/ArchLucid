@@ -119,4 +119,25 @@ describe("resolveCompareUpdatedReviewOpenHref", () => {
       "/architecture/architectures/architecture-identity-001/reviews/run-42",
     );
   });
+
+  it("matches CompareForm scope banner Open updated review href resolution", () => {
+    const lifecycleRecords = [
+      {
+        state: "PreviouslyIdentifiedStillPresent" as const,
+        resolutionBasis: null,
+        priorFindingId: "finding-prior",
+        currentFindingId: "finding-updated",
+        correlationMethod: "dedupe" as const,
+        severity: "High" as const,
+        category: "Storage",
+        message: "msg",
+        sourceAgent: "agent",
+        latestDisposition: null,
+      },
+    ];
+
+    expect(
+      resolveCompareUpdatedReviewOpenHref("run-b", "architecture-identity-001", lifecycleRecords),
+    ).toContain("findingId=finding-updated");
+  });
 });

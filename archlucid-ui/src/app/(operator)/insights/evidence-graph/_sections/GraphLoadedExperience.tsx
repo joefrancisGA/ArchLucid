@@ -36,7 +36,7 @@ import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
 import type { GraphViewModel } from "@/types/graph";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { resolveEvidenceGraphReviewPackageHref } from "@/lib/evidence-graph-review-package-href";
 
 export type GraphLoadedExperienceProps = {
   buyerPolishedShell: boolean;
@@ -97,10 +97,12 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
   const buyerTrailPresentation = demoUi || (buyerPolishedShell && showcaseRun);
-  const reviewPackageHref =
-    runTrim.length > 0
-      ? resolveSystemNotJobWorkingReviewOpenHref(runTrim, props.pinnedArchitectureId)
-      : "/architecture/reviews";
+  const reviewPackageHref = resolveEvidenceGraphReviewPackageHref({
+    runId: runTrim,
+    pathname,
+    queryArchitectureId: searchParams.get("architectureId"),
+    pinnedArchitectureId: props.pinnedArchitectureId,
+  });
 
   function ensureGraphExportAllowed(): boolean {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
