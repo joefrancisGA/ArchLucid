@@ -10,6 +10,7 @@ import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-cop
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -133,6 +134,7 @@ export type AskAnswerCitationRefs = {
 export type BuildAskAnswerCitationSourceLinksOptions = {
   /** When set, finding ids missing from this index omit href and use honesty copy. */
   readonly indexedFindingIds?: ReadonlySet<string>;
+  readonly architectureId?: string | null;
 };
 
 const ASK_FINDING_CITATION_NOT_IN_INDEX_SUFFIX =
@@ -204,10 +206,11 @@ export function buildAskAnswerCitationSourceLinks(
 
     if (trimmed.toLowerCase() === runId.toLowerCase()) {
       const primaryFindingId = firstNonEmptyFindingId(refs.referencedFindings);
+      const architectureId = options.architectureId ?? readCachedLastOpenArchitectureId();
 
       links.push({
         label: `Review id ${runId}`,
-        href: resolveAskBuyerOpenReviewHref(runId, { primaryFindingId }),
+        href: resolveAskBuyerOpenReviewHref(runId, { primaryFindingId, architectureId }),
       });
       continue;
     }
