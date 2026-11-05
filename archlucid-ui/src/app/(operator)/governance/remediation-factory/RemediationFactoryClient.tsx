@@ -110,6 +110,8 @@ import {
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
   resolveRemediationFactoryPriorityQueueEmptyState,
   resolveRemediationFactoryRankedPathsEmptyState,
+  resolveRemediationFactorySimulatorSelectPrompt,
+  resolveRemediationFactoryArchitectSnapshotsEmptyState,
 } from "./remediation-factory-empty-states";
 import {
   buildRemediationFactoryExecutiveMetricPresentations,
@@ -279,6 +281,24 @@ export function RemediationFactoryClient() {
     }
 
     return resolveRemediationFactoryPriorityQueueEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const simulatorSelectEmptyState = useMemo((): typeof REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT;
+    }
+
+    return resolveRemediationFactorySimulatorSelectPrompt(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const architectSnapshotsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY;
+    }
+
+    return resolveRemediationFactoryArchitectSnapshotsEmptyState(
       isSecureNowCollectionSetupComplete(collectionInput),
     );
   }, [collectionInput, collectionInputPending, productLine]);
@@ -675,7 +695,7 @@ export function RemediationFactoryClient() {
         hasUrlSnapshotPair={urlState.hasSnapshotPair}
         onSnapshotPairChange={urlState.setSnapshotPair}
         onQueryStateChange={setOutcomeQueryState}
-        snapshotsEmptyPreset={REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY}
+        snapshotsEmptyPreset={architectSnapshotsEmptyState}
       />
 
       <RemediationFactoryAttackPathReportSection
@@ -854,7 +874,7 @@ export function RemediationFactoryClient() {
           <StatusTag kind="neutral" label="Simulator — not a live scanner feed" />
         </div>
         {selectedFindingId == null ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT} />
+          <EnterpriseCompactEmptyState {...simulatorSelectEmptyState} />
         ) : (
           <>
             <p className={OPERATOR_TYPOGRAPHY.helper}>

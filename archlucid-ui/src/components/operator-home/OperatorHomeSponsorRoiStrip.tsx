@@ -126,6 +126,10 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
           >
             {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
           </p>
+          <SecureNowSponsorRoiCollectionScopeHonestyLine
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}
+            testId="operator-home-roi-strip-collection-scope-honesty"
+          />
         </>
       ) : (
         <>
@@ -148,6 +152,10 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
           >
             {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
           </p>
+          <SecureNowSponsorRoiCollectionScopeHonestyLine
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}
+            testId="operator-home-roi-strip-collection-scope-honesty"
+          />
         </>
       )}
       <p
@@ -160,7 +168,6 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
         </Link>
       </p>
       <PolicyPackInfluenceHonestyChip className="mt-2" />
-      <SecureNowSponsorRoiCollectionScopeHonestyLine className="mt-2 text-al-text-secondary" />
     </section>
   );
 }

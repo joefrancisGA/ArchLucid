@@ -6,6 +6,7 @@ import {
   governanceFindingQueuePrimaryInspectHref,
   governanceFindingQueueRowNeedsDispositionRecording,
   governanceFindingQueueRowReviewHrefForRow,
+  governanceFindingQueueRowTitleInspectHref,
   navigateGovernanceFindingDetail,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
@@ -60,6 +61,17 @@ describe("governanceFindingQueuePrimaryInspectHref", () => {
 
     expect(governanceFindingQueueRowReviewHrefForRow(row)).toBe(
       "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("routes title links through primary inspect for open decision-grade rows", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
+    });
+
+    expect(governanceFindingQueueRowTitleInspectHref(row)).toBe(
+      governanceFindingQueuePrimaryInspectHref(row),
     );
   });
 });

@@ -41,6 +41,7 @@ import {
 import {
   governanceFindingDetailKeyboardActivate,
   governanceFindingInspectHref,
+  governanceFindingQueueRowTitleInspectHref,
   navigateGovernanceFindingDetail,
   type GovernanceFindingInspectHrefOptions,
 } from "@/components/governance/findings/governance-findings-navigation";
@@ -73,6 +74,7 @@ function GovernanceFindingRowComponent({
   const buyerVariant = variant === "buyer";
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
+  const titleInspectHref = governanceFindingQueueRowTitleInspectHref(row, inspectHrefOptions);
   const evidenceTraceHref =
     row.recordKind === "finding"
       ? governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)
@@ -116,7 +118,7 @@ function GovernanceFindingRowComponent({
             ) : null}
             <Link
               className={OPERATOR_LINK.inline}
-              href={governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)}
+              href={titleInspectHref}
               onClick={(event) => {
                 if (row.recordKind === "finding" && onOpenFinding !== undefined) {
                   event.preventDefault();
@@ -223,7 +225,7 @@ function GovernanceFindingRowComponent({
         <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
           <Link
             className={OPERATOR_LINK.inline}
-            href={governanceFindingInspectHref(row.runId, row.findingId, inspectHrefOptions)}
+            href={titleInspectHref}
           >
             {row.title}
           </Link>

@@ -54,6 +54,7 @@ import {
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChrome";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
+import { resolveSearchReviewEvidencePrimaryFindingId } from "@/lib/insights/search-review-evidence-cite-grounding";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
 import { WorkingNestedSearchUnboundEmptyState } from "@/components/insights/WorkingNestedSearchUnboundEmptyState";
@@ -140,6 +141,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     queryConfigured: query.trim().length > 0,
     searchComplete: hasSearched && results.length > 0,
   });
+  const searchCitePrimaryFindingId = resolveSearchReviewEvidencePrimaryFindingId(results);
 
   if (isDemo) {
     return (
@@ -191,7 +193,12 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       ) : (
         <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       )}
-      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+      {scopedRunId.length > 0 ? (
+        <SearchReviewEvidenceCiteStrip
+          runId={scopedRunId}
+          primaryFindingId={searchCitePrimaryFindingId}
+        />
+      ) : null}
 
       {showNestedSearchUnboundEmpty ? (
         <WorkingNestedSearchUnboundEmptyState
