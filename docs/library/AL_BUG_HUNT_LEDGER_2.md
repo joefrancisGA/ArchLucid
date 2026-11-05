@@ -22048,15 +22048,29 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
-**Hunts:** 61 · **Bugs found:** 43 · **Consecutive dry hunts:** 2
+**Hunts:** 62 · **Bugs found:** 43 · **Consecutive dry hunts:** 3
+
+2026-11-05 thorough hunt (dry #62): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`itsm-inbound-webhooks`** is **2/3** before this record). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#61** reseed (recycled dry **#60** / hit **#55**–**#59** themes) — **invalid** outer whitespace on `policyPackId` finding property (`PackIdsEquivalent` trims before `Guid.TryParse`; hit **#55** / dry **#60**), **valid-no-repro** interior tab embedded in `PolicyRuleId` vs exact compliance key (outer trim only; distinct tokens fail closed; hit **#59** / dry **#60**), **valid-no-repro** padded `ComplianceRuleKeys` on assignment snapshot (catalog-normalized execute keys; hit **#54** / dry **#60**), **valid-no-repro** minimum Critical with Warning-only finding and warn-only `["Critical"]` (threshold label contract; dry **#57** / hit **#59** / dry **#60**), **valid-no-repro** compliance key with interior double-space vs finding token (catalog key shape; hit **#54** / dry **#60**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#61** closed themes); scoped filter **899/908** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: n/a.
+
+- [ ] (candidate) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — ASCII space after `policy-pack:` prefix before pack token — locus: `PackIdsEquivalent` suffix trim; input: `policy-pack: {N}`; reachability: monitor dry **#62** / dry **#61** / hit **#58**.
+- [ ] (candidate) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric string `"2"` maps via enum ordinal not label — locus: `Enum.TryParse` + `IsDefined`; input: `"2"` threshold metadata; reachability: monitor dry **#62** / dry **#61** / hit **#58**.
+- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — CR/LF padding on run `CurrentManifestVersion` — locus: version-reader path; input: embedded newline in version label; reachability: monitor dry **#62** / dry **#61** / dry **#219**.
+- [ ] (candidate) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — complete findings snapshot marks `Evaluated` without pack evaluation signal — locus: complete-snapshot branch; input: complete snapshot + unrelated findings; reachability: monitor dry **#62** / dry **#61** / dry **#933**.
+- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — trailing whitespace on overlay pack display name — locus: ordinal catalog `Contains`; input: padded overlay name; reachability: monitor dry **#62** / dry **#61** / dry **#217**.
+
+- [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property bypasses assignment match — **cheap-disproof 2026-11-05 thorough hunt #62:** dry **#61** monitor queue; `PackIdsEquivalent` trim; hit **#55** / dry **#60**.
+- [x] (valid-no-repro) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab embedded in `PolicyRuleId` vs exact compliance key — **cheap-disproof 2026-11-05 thorough hunt #62:** dry **#61** monitor queue; outer trim + token boundary; hit **#59** / dry **#60**.
+- [x] (valid-no-repro) `CommittedGovernancePackAssignmentSnapshot.ComplianceRuleKeys` — padded rule-key entries on assignment snapshot — **cheap-disproof 2026-11-05 thorough hunt #62:** dry **#61** monitor queue; catalog-normalized keys; hit **#54** / dry **#60**.
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — minimum Critical threshold with Warning-only finding and warn-only `["Critical"]` — **cheap-disproof 2026-11-05 thorough hunt #62:** dry **#61** monitor queue; threshold label contract; dry **#57** / hit **#59** / dry **#60**.
+- [x] (valid-no-repro) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — compliance key with interior double-space vs finding token — **cheap-disproof 2026-11-05 thorough hunt #62:** dry **#61** monitor queue; catalog key shape; hit **#54** / dry **#60**.
 
 2026-11-05 thorough hunt (dry #61): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`itsm-inbound-webhooks`** is **1/3** before this record). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#60** reseed (recycled hit **#58** themes) — **valid-no-repro** ASCII space after `policy-pack:` prefix (`PackIdsEquivalent` suffix trim; regression `MatchesAssignment_treats_ascii_space_after_policy_pack_prefix_as_pack_attributed`; hit **#58**), **valid-no-repro** numeric `"2"` threshold metadata (`Enum.TryParse` + `IsDefined` maps to `Error`; hit **#58** / dry **#57**), **valid-no-repro** CR/LF padding on run `CurrentManifestVersion` (version-reader path; regression `PreviewActivationAsync_loads_manifest_by_version_when_run_current_manifest_version_has_trailing_newline`; hit **#58** / dry **#219**), **valid-no-repro** complete findings snapshot marks `Evaluated` without pack signal (intentional contract; regression `ApplyOutcomes_marks_evaluated_when_complete_without_pack_signal`; hit **#58** / dry **#933**), **valid-no-repro** trailing whitespace on overlay pack display name (ordinal catalog `Contains`; hit **#58** / dry **#217**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#60** closed themes); scoped filter **899/908** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: n/a.
 
-- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property bypasses assignment match — locus: `PackIdsEquivalent` trim; input: padded N/D property token; reachability: monitor dry **#60** / hit **#55**.
-- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab embedded in `PolicyRuleId` vs exact compliance key — locus: outer trim only; input: `"cis\t-azure-1.2"` vs key `cis-azure-1.2`; reachability: monitor dry **#60** / hit **#59**.
-- [ ] (candidate) `CommittedGovernancePackAssignmentSnapshot.ComplianceRuleKeys` — padded rule-key entries on assignment snapshot — locus: strict equality on snapshot keys; input: `" cis-azure-1.2 "` in committed execute JSON; reachability: monitor dry **#60** / hit **#54**.
-- [ ] (candidate) `PreCommitGateEvaluator.Evaluate` — minimum Critical threshold with Warning-only finding and warn-only `["Critical"]` — locus: threshold label vs finding severity mix; input: Warning finding + Critical floor; reachability: monitor dry **#60** / dry **#57** / hit **#59**.
-- [ ] (candidate) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — compliance key with interior double-space vs finding token — locus: catalog key shape; input: finding id containing spaced variant of assigned key; reachability: monitor dry **#60** / hit **#54**.
+- [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property bypasses assignment match — **cheap-disproof 2026-11-05 thorough hunt #62:** closed dry **#61** queue; see dry **#62** diary.
+- [x] (valid-no-repro) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab embedded in `PolicyRuleId` vs exact compliance key — **cheap-disproof 2026-11-05 thorough hunt #62:** closed dry **#61** queue; see dry **#62** diary.
+- [x] (valid-no-repro) `CommittedGovernancePackAssignmentSnapshot.ComplianceRuleKeys` — padded rule-key entries on assignment snapshot — **cheap-disproof 2026-11-05 thorough hunt #62:** closed dry **#61** queue; see dry **#62** diary.
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — minimum Critical threshold with Warning-only finding and warn-only `["Critical"]` — **cheap-disproof 2026-11-05 thorough hunt #62:** closed dry **#61** queue; see dry **#62** diary.
+- [x] (valid-no-repro) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — compliance key with interior double-space vs finding token — **cheap-disproof 2026-11-05 thorough hunt #62:** closed dry **#61** queue; see dry **#62** diary.
 
 - [x] (valid-no-repro) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — ASCII space after `policy-pack:` prefix before pack token — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** monitor queue; `PackIdsEquivalent` suffix trim; hit **#58** regression.
 - [x] (valid-no-repro) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric string `"2"` maps via enum ordinal not label — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** monitor queue; defined enum parse path; hit **#58** diary.
@@ -22268,9 +22282,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 43
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-05
 - **last-bug:** 2026-11-01 — un-normalized PolicyRuleId let a padded rule id containing an assigned compliance key match via substring
 - **related-pd-tb:** none
@@ -22284,11 +22298,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — minimum Critical with Warning-only finding — **cheap-disproof 2026-11-05 thorough hunt #60:** see dry **#60** diary.
 - [x] (valid-no-repro) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — interior double-space in compliance key token — **cheap-disproof 2026-11-05 thorough hunt #60:** see dry **#60** diary.
 
-- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property — monitor dry **#60** / hit **#55**; see dry **#61** reseed.
-- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab in `PolicyRuleId` vs exact compliance key — monitor dry **#60** / hit **#59**; see dry **#61** reseed.
-- [ ] (candidate) `CommittedGovernancePackAssignmentSnapshot.ComplianceRuleKeys` — padded rule-key entries — monitor dry **#60** / hit **#54**; see dry **#61** reseed.
-- [ ] (candidate) `PreCommitGateEvaluator.Evaluate` — minimum Critical with Warning-only finding — monitor dry **#60** / dry **#57** / hit **#59**; see dry **#61** reseed.
-- [ ] (candidate) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — interior double-space in compliance key token — monitor dry **#60** / hit **#54**; see dry **#61** reseed.
+- [ ] (candidate) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — ASCII space after `policy-pack:` prefix — monitor dry **#62** / dry **#61** / hit **#58**; see dry **#62** reseed.
+- [ ] (candidate) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric `"2"` ordinal threshold — monitor dry **#62** / dry **#61** / hit **#58**; see dry **#62** reseed.
+- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — CR/LF manifest version padding — monitor dry **#62** / dry **#61** / dry **#219**; see dry **#62** reseed.
+- [ ] (candidate) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — complete snapshot without pack signal — monitor dry **#62** / dry **#61** / dry **#933**; see dry **#62** reseed.
+- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — trailing whitespace overlay name — monitor dry **#62** / dry **#61** / dry **#217**; see dry **#62** reseed.
+
+- [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — outer whitespace on `policyPackId` finding property — **cheap-disproof 2026-11-05 thorough hunt #62:** see dry **#62** diary.
+- [x] (valid-no-repro) `PolicyPackFindingMatcher.MatchesAssignment` — interior tab in `PolicyRuleId` vs exact compliance key — **cheap-disproof 2026-11-05 thorough hunt #62:** see dry **#62** diary.
+- [x] (valid-no-repro) `CommittedGovernancePackAssignmentSnapshot.ComplianceRuleKeys` — padded rule-key entries — **cheap-disproof 2026-11-05 thorough hunt #62:** see dry **#62** diary.
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — minimum Critical with Warning-only finding — **cheap-disproof 2026-11-05 thorough hunt #62:** see dry **#62** diary.
+- [x] (valid-no-repro) `PolicyPackFindingMatcher.RuleKeyAppearsAsToken` — interior double-space in compliance key token — **cheap-disproof 2026-11-05 thorough hunt #62:** see dry **#62** diary.
 
 - [x] (valid-no-repro) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — ASCII space after `policy-pack:` prefix — **cheap-disproof 2026-11-05 thorough hunt #61:** see dry **#61** diary.
 - [x] (valid-no-repro) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric `"2"` ordinal threshold — **cheap-disproof 2026-11-05 thorough hunt #61:** see dry **#61** diary.
