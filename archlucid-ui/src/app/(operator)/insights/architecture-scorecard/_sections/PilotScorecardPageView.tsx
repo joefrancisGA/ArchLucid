@@ -46,6 +46,7 @@ import {
   isReviewScorecardSampleMode,
 } from "@/lib/review-scorecard-empty-state";
 import { resolveReviewScorecardDisplayData } from "@/lib/review-scorecard-sample-data";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import {
   resolveScorecardScoringEmphasizedStepId,
@@ -94,6 +95,13 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const sampleMode = isReviewScorecardSampleMode(searchParams);
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+  const scopedOpenReviewHref = useMemo(
+    () =>
+      resolveScopedInsightOpenReviewHref(scopedRunId, {
+        architectureId: readCachedLastOpenArchitectureId(),
+      }),
+    [scopedRunId],
+  );
 
   const onPickReviewForScoring = useCallback(
     (reviewId: string) => {
@@ -369,7 +377,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={scopedOpenReviewHref}
           >
             Open review
           </Link>

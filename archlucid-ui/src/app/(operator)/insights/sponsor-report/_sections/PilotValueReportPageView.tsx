@@ -13,6 +13,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY }
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import {
   parseValueReportHowItWorksOpenFromSearch,
@@ -228,7 +229,7 @@ export function PilotValueReportPageView(props: Props) {
             {" · "}
             <Link
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={resolveScopedInsightOpenReviewHref(scopedRunId)}
             >
               Open review
           </Link>
