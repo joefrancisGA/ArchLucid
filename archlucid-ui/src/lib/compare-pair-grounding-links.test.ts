@@ -43,6 +43,19 @@ describe("comparePairGroundingForRuns", () => {
     expect(grounding.updated?.links[0]?.href).toContain("findingId=finding-updated");
   });
 
+  it("nests Open review on both sides when architecture id is supplied", () => {
+    const grounding = comparePairGroundingForRuns("run-a", "run-b", {
+      architectureId: "architecture-identity-001",
+    });
+
+    expect(grounding.baseline?.links[0]?.href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-a",
+    );
+    expect(grounding.updated?.links[0]?.href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-b",
+    );
+  });
+
   it("resolveComparePairPrimaryFindingIds reads first prior and current ids", () => {
     const ids = resolveComparePairPrimaryFindingIds([
       {

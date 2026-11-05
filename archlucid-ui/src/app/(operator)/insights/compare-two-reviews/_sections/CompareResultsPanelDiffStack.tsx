@@ -29,6 +29,7 @@ import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/comp
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { resolveComparePairPrimaryFindingIds } from "@/lib/compare-pair-grounding-links";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
@@ -127,6 +128,8 @@ export function CompareResultsPanelDiffStack({
 
   const leftRunId = viewModel.leftTrim;
   const rightRunId = viewModel.rightTrim;
+  const compareArchitectureId =
+    searchParams.get("architectureId")?.trim() ?? readCachedLastOpenArchitectureId() ?? null;
 
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
   const [endToEndExportBusy, setEndToEndExportBusy] = useState(false);
@@ -268,9 +271,12 @@ export function CompareResultsPanelDiffStack({
         <ComparePairEvidenceCiteStrip
           baselineRunId={citeBaselineRunId}
           updatedRunId={citeUpdatedRunId}
-          groundingOptions={resolveComparePairPrimaryFindingIds(
-            viewModel.findingCorrelationState.lifecycleRecords,
-          )}
+          groundingOptions={{
+            ...resolveComparePairPrimaryFindingIds(
+              viewModel.findingCorrelationState.lifecycleRecords,
+            ),
+            architectureId: compareArchitectureId,
+          }}
         />
       ) : null}
 

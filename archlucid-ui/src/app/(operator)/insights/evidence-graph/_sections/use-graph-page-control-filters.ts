@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import type { GraphReviewPickerState } from "@/lib/graph-page-state";
 import {
   resolveSystemNotJobWorkingReviewArchitectureId,
@@ -45,7 +46,7 @@ export function useGraphPageControlFilters(props: GraphPageControlsProps): Graph
     props.reviewPickerState === "no-selection";
 
   const workingReviewArchitectureId = resolveSystemNotJobWorkingReviewArchitectureId({
-    pinnedArchitectureId: props.pinnedArchitectureId,
+    pinnedArchitectureId: props.pinnedArchitectureId ?? readCachedLastOpenArchitectureId(),
     pathname,
     queryArchitectureId: searchParams.get("architectureId"),
   });
