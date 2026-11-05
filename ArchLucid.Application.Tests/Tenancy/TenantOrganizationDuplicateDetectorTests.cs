@@ -962,4 +962,31 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_exported_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug exported elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_copied_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug copied incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_removed_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug removed automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
 }
