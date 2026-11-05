@@ -22,6 +22,7 @@ export type ComparePairGrounding = {
 export type ComparePairGroundingForRunsOptions = {
   readonly baselinePrimaryFindingId?: string | null;
   readonly updatedPrimaryFindingId?: string | null;
+  readonly architectureId?: string | null;
 };
 
 function sideGrounding(

@@ -14,6 +14,8 @@ import {
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveSponsorSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import { cn } from "@/lib/utils";
@@ -51,6 +53,7 @@ export function SponsorRoiSystemsIncludedSection(
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-systems-included-non-summing">
           {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
+        <SecureNowSponsorRoiCollectionScopeHonestyLine testId="exec-roi-systems-included-collection-honesty" />
 
         <EnterpriseTable ariaLabel="Per-system estimated savings">
           <EnterpriseTableHead>
@@ -80,7 +83,7 @@ export function SponsorRoiSystemsIncludedSection(
                   <EnterpriseTableCell>{system.systemName}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <Link
-                      href={`/architecture/reviews/${encodeURIComponent(system.runId)}`}
+                      href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(system.runId)}
                       className={OPERATOR_BODY_INLINE_LINK_CLASS}
                     >
                       {system.runId}

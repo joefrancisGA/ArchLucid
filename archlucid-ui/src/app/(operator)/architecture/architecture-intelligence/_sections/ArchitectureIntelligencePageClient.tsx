@@ -27,6 +27,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
@@ -135,7 +136,7 @@ export function ArchitectureIntelligencePageClient() {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(activeRunId)}
           >
             Open review
           </Link>
