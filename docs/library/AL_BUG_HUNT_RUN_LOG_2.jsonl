@@ -2707,3 +2707,4 @@
 {"at":"2026-11-05T14:37:05.8467669Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/","ArchLucid.Persistence/Billing/","ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs"]}
 {"at":"2026-11-05T18:02:48.8398280Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
 {"at":"2026-11-05T23:03:22.5241985Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
+{"at":"2026-11-05T23:08:50.1515226Z","zoneId":"itsm-inbound-webhooks","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs","ArchLucid.Application/Integrations/Itsm/","ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
