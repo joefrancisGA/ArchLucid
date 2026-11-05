@@ -105,7 +105,7 @@ export function buyerAskGroundingLinksForRun(
     },
     {
       label: BUYER_SURFACE_VOCABULARY.phiMinimizationRisk,
-      href: `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`,
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID),
     },
     {
       label: BUYER_SURFACE_VOCABULARY.evidenceGraph,

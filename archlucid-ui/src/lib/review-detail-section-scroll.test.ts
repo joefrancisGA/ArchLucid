@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   scheduleScrollToReviewDetailSection,
+  scheduleScrollToReviewFinding,
   scrollToReviewDetailSection,
   scrollToReviewFinding,
 } from "./review-detail-section-scroll";
@@ -115,5 +116,24 @@ describe("scrollToReviewFinding", () => {
     expect(scrollToReviewFinding("finding-abc")).toBe(true);
     expect(card.scrollIntoView).toHaveBeenCalled();
     expect(card.focus).toHaveBeenCalled();
+  });
+
+  it("keeps retrying finding scroll until the findings row mounts", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = "";
+
+    scheduleScrollToReviewFinding("finding-deferred");
+    vi.advanceTimersByTime(450);
+
+    const card = document.createElement("article");
+    card.setAttribute("data-finding-id", "finding-deferred");
+    card.scrollIntoView = vi.fn();
+    card.focus = vi.fn();
+    document.body.appendChild(card);
+
+    vi.advanceTimersByTime(50);
+
+    expect(card.scrollIntoView).toHaveBeenCalledOnce();
+    vi.useRealTimers();
   });
 });

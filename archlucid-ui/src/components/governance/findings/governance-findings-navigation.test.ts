@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   governanceFindingDetailKeyboardActivate,
+  governanceFindingQueueFindingsWorkspaceHref,
   governanceFindingQueuePrimaryInspectHref,
   governanceFindingQueueRowNeedsDispositionRecording,
   governanceFindingQueueRowReviewHrefForRow,
   navigateGovernanceFindingDetail,
 } from "@/components/governance/findings/governance-findings-navigation";
+import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
 function queueRow(overrides: Partial<GovernanceFindingQueueRow>): GovernanceFindingQueueRow {
@@ -91,5 +93,29 @@ describe("navigateGovernanceFindingDetail row overload", () => {
     );
 
     expect(pushed).toEqual([governanceFindingQueuePrimaryInspectHref(row)]);
+  });
+});
+
+describe("governance queue review landing URL", () => {
+  it("preserves findings tab, findingId, and spine hash for queue disposition handoff", () => {
+    const href = governanceFindingQueueFindingsWorkspaceHref("run-1", "finding-9");
+    const url = new URL(href, "https://example.test");
+
+    expect(url.pathname).toBe("/architecture/reviews/run-1");
+    expect(url.searchParams.get("reviewTab")).toBe("findings");
+    expect(url.searchParams.get("findingId")).toBe("finding-9");
+    expect(url.hash).toBe(`#${resolveFirstReviewSpineOpenGateSectionId("findings")}`);
+  });
+
+  it("matches primary inspect href for open decision-grade queue rows", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
+      findingId: "finding-9",
+    });
+
+    expect(governanceFindingQueuePrimaryInspectHref(row)).toBe(
+      governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId),
+    );
   });
 });

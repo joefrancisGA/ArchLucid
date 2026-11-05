@@ -179,7 +179,7 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
-    expect(chips.some((c) => c.label === "Open evidence")).toBe(false);
+    expect(chips.some((c) => c.label === "Open evidence trace")).toBe(false);
     expect(chips.some((c) => c.label.includes("unrelated-bundle"))).toBe(true);
   });
 
@@ -237,7 +237,10 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.filter((c) => c.kind === "finding")).toHaveLength(1);
+    expect(chips.filter((c) => c.kind === "disposition")).toHaveLength(1);
     expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
+    expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition", "evidence"]);
+    expect(chips[2]?.label).toBe("Open evidence trace");
   });
 });
 
