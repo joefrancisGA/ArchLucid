@@ -108,6 +108,7 @@ import {
   REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
   REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+  resolveRemediationFactoryPathInspectSelectPrompt,
   resolveRemediationFactoryPriorityQueueEmptyState,
   resolveRemediationFactoryRankedPathsEmptyState,
   resolveRemediationFactorySimulatorSelectPrompt,
@@ -299,6 +300,15 @@ export function RemediationFactoryClient() {
     }
 
     return resolveRemediationFactoryArchitectSnapshotsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const pathInspectSelectEmptyState = useMemo((): typeof REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT;
+    }
+
+    return resolveRemediationFactoryPathInspectSelectPrompt(
       isSecureNowCollectionSetupComplete(collectionInput),
     );
   }, [collectionInput, collectionInputPending, productLine]);
@@ -860,7 +870,7 @@ export function RemediationFactoryClient() {
         panelRef={pathInspectPanelRef}
         selectedFinding={selectedFinding}
         selectedPath={selectedPath}
-        selectPromptPreset={REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT}
+        selectPromptPreset={pathInspectSelectEmptyState}
       />
 
       <section

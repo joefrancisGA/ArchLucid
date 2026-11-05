@@ -95,6 +95,22 @@ export function resolveRemediationFactoryArchitectSnapshotsEmptyState(
   };
 }
 
+/** When collection is incomplete, nudge cloud setup before path inspect work. */
+export function resolveRemediationFactoryPathInspectSelectPrompt(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+    ],
+  };
+}
+
 export const REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT: EnterpriseCompactEmptyStateProps = {
   title: "Select a queue row",
   description: SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,

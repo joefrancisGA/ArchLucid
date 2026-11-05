@@ -4,7 +4,9 @@ import {
   REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
   REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+  REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT,
   resolveRemediationFactoryArchitectSnapshotsEmptyState,
+  resolveRemediationFactoryPathInspectSelectPrompt,
   resolveRemediationFactoryPriorityQueueEmptyState,
   resolveRemediationFactoryRankedPathsEmptyState,
   resolveRemediationFactorySimulatorSelectPrompt,
@@ -53,6 +55,21 @@ describe("resolveRemediationFactorySimulatorSelectPrompt", () => {
 
   it("keeps the default prompt when collection is complete", () => {
     expect(resolveRemediationFactorySimulatorSelectPrompt(true)).toEqual(REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT);
+  });
+});
+
+describe("resolveRemediationFactoryPathInspectSelectPrompt", () => {
+  it("adds Open collection when setup is incomplete", () => {
+    const state = resolveRemediationFactoryPathInspectSelectPrompt(false);
+
+    expect(state.actions?.[0]?.label).toBe("Open collection");
+    expect(state.actions?.[0]?.href).toBe(CLOUD_CONNECTIONS_PATH);
+  });
+
+  it("keeps the default prompt when collection is complete", () => {
+    expect(resolveRemediationFactoryPathInspectSelectPrompt(true)).toEqual(
+      REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT,
+    );
   });
 });
 

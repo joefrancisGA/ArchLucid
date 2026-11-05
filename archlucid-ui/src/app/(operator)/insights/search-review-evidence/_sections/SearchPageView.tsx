@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import { resolveAskBuyerOpenReviewHref } from "@/lib/ask-buyer-grounding-links";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -142,6 +143,9 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     searchComplete: hasSearched && results.length > 0,
   });
   const searchCitePrimaryFindingId = resolveSearchReviewEvidencePrimaryFindingId(results);
+  const scopedOpenReviewHref = resolveAskBuyerOpenReviewHref(scopedRunId, {
+    primaryFindingId: searchCitePrimaryFindingId,
+  });
 
   if (isDemo) {
     return (
@@ -222,7 +226,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={scopedOpenReviewHref}
             >
               Open review
             </Link>
