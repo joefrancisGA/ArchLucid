@@ -29,8 +29,17 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).not.toBeNull();
     expect(links!.length).toBe(3);
     expect(links![0]?.label).toBe("Open review");
+    expect(links![0]?.href).toBe("/architecture/reviews/some-other-run");
     expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/governance/audit?"))).toBe(true);
+  });
+
+  it("grounds Open review in the findings workspace when a cited finding is known", () => {
+    const links = buyerAskGroundingLinksForRun("run-a", { primaryFindingId: "finding-9" });
+
+    expect(links![0]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
   });
 
   it("returns null when the run id is empty", () => {
@@ -71,6 +80,25 @@ describe("buyerAskGroundingLinksForRun", () => {
       { label: "Review id run-a", href: "/architecture/reviews/run-a" },
       {
         label: "Artifact id artifact-other. A link to that artifact was not stored.",
+      },
+    ]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks grounds review id cite when findings are also stored", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: ["finding-1"],
+      referencedDecisions: [],
+      referencedArtifacts: ["run-a"],
+    });
+
+    expect(links).toEqual([
+      {
+        label: "Finding id finding-1",
+        href: "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      },
+      {
+        label: "Review id run-a",
+        href: "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
       },
     ]);
   });

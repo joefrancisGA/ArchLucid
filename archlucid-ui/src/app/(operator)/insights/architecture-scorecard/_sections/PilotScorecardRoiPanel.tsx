@@ -202,6 +202,10 @@ export function PilotScorecardRoiPanel({
           >
             {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
           </p>
+          <SecureNowSponsorRoiCollectionScopeHonestyLine
+            className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            testId="review-scorecard-estimate-collection-scope-honesty"
+          />
           <PolicyPackInfluenceHonestyChip className="mt-2" />
           {annualSavingsLabel !== null ? (
             <div className="mt-4 space-y-3">

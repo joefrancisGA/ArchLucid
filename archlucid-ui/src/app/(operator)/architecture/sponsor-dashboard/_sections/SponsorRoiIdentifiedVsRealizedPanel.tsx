@@ -21,6 +21,7 @@ import {
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
 import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 
 type SponsorRoiIdentifiedVsRealizedPanelProps = {
   readonly summary: SponsorRoiSummary;
@@ -65,6 +66,10 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
         >
           {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
         </p>
+        <SecureNowSponsorRoiCollectionScopeHonestyLine
+          className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          testId="exec-roi-collection-scope-honesty"
+        />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">

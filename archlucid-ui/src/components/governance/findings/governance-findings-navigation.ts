@@ -153,18 +153,57 @@ export function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow)
 
 export function navigateGovernanceFindingDetail(
   router: AppRouterInstance,
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function navigateGovernanceFindingDetail(
+  router: AppRouterInstance,
   runId: string,
   findingId: string,
   options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function navigateGovernanceFindingDetail(
+  router: AppRouterInstance,
+  runIdOrRow: string | GovernanceFindingQueueRow,
+  findingIdOrOptions?: string | GovernanceFindingInspectHrefOptions,
+  options?: GovernanceFindingInspectHrefOptions,
 ): void {
+  if (typeof runIdOrRow !== "string") {
+    const href = governanceFindingQueuePrimaryInspectHref(runIdOrRow, findingIdOrOptions as GovernanceFindingInspectHrefOptions | undefined);
+
+    if (href === null) {
+      return;
+    }
+
+    router.push(href);
+
+    return;
+  }
+
+  const runId = runIdOrRow;
+  const findingId = findingIdOrOptions as string;
+
   router.push(governanceFindingInspectHref(runId, findingId, options));
 }
 
 export function governanceFindingDetailKeyboardActivate(
   event: KeyboardEvent,
   router: AppRouterInstance,
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function governanceFindingDetailKeyboardActivate(
+  event: KeyboardEvent,
+  router: AppRouterInstance,
   runId: string,
   findingId: string,
+  options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function governanceFindingDetailKeyboardActivate(
+  event: KeyboardEvent,
+  router: AppRouterInstance,
+  runIdOrRow: string | GovernanceFindingQueueRow,
+  findingIdOrOptions?: string | GovernanceFindingInspectHrefOptions,
   options?: GovernanceFindingInspectHrefOptions,
 ): void {
   if (event.key !== "Enter" && event.key !== " ") {
@@ -172,5 +211,17 @@ export function governanceFindingDetailKeyboardActivate(
   }
 
   event.preventDefault();
-  navigateGovernanceFindingDetail(router, runId, findingId, options);
+
+  if (typeof runIdOrRow !== "string") {
+    navigateGovernanceFindingDetail(router, runIdOrRow, findingIdOrOptions as GovernanceFindingInspectHrefOptions | undefined);
+
+    return;
+  }
+
+  navigateGovernanceFindingDetail(
+    router,
+    runIdOrRow,
+    findingIdOrOptions as string,
+    options,
+  );
 }

@@ -107,6 +107,7 @@ import {
   REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
   REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+  resolveRemediationFactoryPriorityQueueEmptyState,
   resolveRemediationFactoryRankedPathsEmptyState,
 } from "./remediation-factory-empty-states";
 import {
@@ -264,6 +265,15 @@ export function RemediationFactoryClient() {
     }
 
     return resolveRemediationFactoryRankedPathsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const priorityQueueEmptyState = useMemo((): typeof REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY;
+    }
+
+    return resolveRemediationFactoryPriorityQueueEmptyState(
       isSecureNowCollectionSetupComplete(collectionInput),
     );
   }, [collectionInput, collectionInputPending, productLine]);
@@ -713,7 +723,7 @@ export function RemediationFactoryClient() {
             />
           </>
         ) : ranked.length === 0 ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY} />
+          <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
         ) : (
           <RemediationFactoryPriorityTable
             rows={ranked}
