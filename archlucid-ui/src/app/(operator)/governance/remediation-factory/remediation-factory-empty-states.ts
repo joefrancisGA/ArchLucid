@@ -29,6 +29,88 @@ export const REMEDIATION_FACTORY_RANKED_PATHS_EMPTY: EnterpriseCompactEmptyState
   testId: "remediation-factory-ranked-paths-empty",
 };
 
+/** When collection is incomplete, cloud setup is the primary recovery path before manual upload. */
+export function resolveRemediationFactoryRankedPathsEmptyState(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+      { label: "Upload inventory", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, variant: "outline" },
+    ],
+  };
+}
+
+/** When collection is incomplete, cloud setup is the primary recovery path before starting a review. */
+export function resolveRemediationFactoryPriorityQueueEmptyState(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+      { label: "Start an architecture review", href: REVIEWS_NEW_PATH, variant: "outline" },
+    ],
+  };
+}
+
+/** When collection is incomplete, nudge cloud setup before running the priority simulator. */
+export function resolveRemediationFactorySimulatorSelectPrompt(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+    ],
+  };
+}
+
+/** When collection is incomplete, prefer cloud setup before snapshot comparison. */
+export function resolveRemediationFactoryArchitectSnapshotsEmptyState(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+    ],
+  };
+}
+
+/** When collection is incomplete, nudge cloud setup before path inspect work. */
+export function resolveRemediationFactoryPathInspectSelectPrompt(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+    ],
+  };
+}
+
 export const REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT: EnterpriseCompactEmptyStateProps = {
   title: "Select a queue row",
   description: SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,

@@ -21,6 +21,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 export type FirstReviewSpineBandSummary = {
   readonly gateOutcomeLabel: string;
@@ -197,6 +198,12 @@ export const FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED = "Dispositions were not
 
 export const FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED = "Open gate was not stored." as const;
 
+export const FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED =
+  "Evidence reference count was not stored. This spine does not call the gate clear." as const;
+
+export const FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE =
+  "No uncited finding or open decision-grade disposition is stored, and a committed package is stored. This is not an approval to build." as const;
+
 export type FirstReviewOpenGateReviewTab = "findings" | "review-package";
 
 export function resolveFirstReviewOpenGate(input: {
@@ -237,6 +244,116 @@ export function resolveRunDetailVisitDefaultReviewTab(input: {
   });
 
   return openGate.reviewTab;
+}
+
+export const FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX = "run-detail-first-review-spine-" as const;
+
+export function resolveFirstReviewSpineOpenGateSectionId(
+  reviewTab: FirstReviewOpenGateReviewTab | null,
+): string | null {
+  if (reviewTab === null) {
+    return null;
+  }
+
+  return `${FIRST_REVIEW_SPINE_OPEN_GATE_SECTION_ID_PREFIX}${reviewTab}`;
+}
+
+/** Scroll target for silent URL open gate when the review package tab is the first action. */
+export function resolveRunDetailVisitDefaultReviewHashWhenUrlSilent(input: {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): string | null {
+  const defaultTab = resolveRunDetailVisitDefaultReviewTab(input);
+
+  if (defaultTab === "review-package" || defaultTab === "findings") {
+    return resolveFirstReviewSpineOpenGateSectionId(defaultTab);
+  }
+
+  return null;
+}
+
+/** Deep link for the first-review spine open gate (matches silent URL visit defaults). */
+export function resolveFirstReviewOpenGateReviewHref(input: {
+  readonly runId: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly reviewHasGoldenManifest: boolean;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+
+  if (trimmedRunId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const uncitedCount = countUncitedFindings(input.findings);
+  const dispositionStats = countDispositionStats(input.findings);
+  const openGate = resolveFirstReviewOpenGate({
+    uncitedCount,
+    openDecisionGradeDispositionCount: dispositionStats.openDecisionGradeCount,
+    reviewHasGoldenManifest: input.reviewHasGoldenManifest,
+  });
+
+  if (openGate.reviewTab === null) {
+    return null;
+  }
+
+  const tab: ReviewDetailTabId = openGate.reviewTab;
+  const findingId =
+    tab === "findings"
+      ? resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+          findings: input.findings,
+          hasFindingsSnapshot: true,
+        })
+      : null;
+  const hash = resolveFirstReviewSpineOpenGateSectionId(openGate.reviewTab);
+
+  return buildReviewDetailTabHref(trimmedRunId, tab, {
+    findingId,
+    hash,
+  });
+}
+
+/** Findings workspace deep link for disposition and open-gate follow-up (findingId + spine hash). */
+export function resolveFirstReviewFindingsWorkspaceHref(input: {
+  readonly runId: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+
+  if (trimmedRunId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const findingId = resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+    findings: input.findings,
+    hasFindingsSnapshot: true,
+  });
+
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    findingId,
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
+}
+
+/** Deep link to the spine top decision-grade finding on the findings workspace tab. */
+export function resolveFirstReviewTopFindingInspectHref(input: {
+  readonly runId: string;
+  readonly topFindingId: string | null;
+  readonly hasFindingsSnapshot: boolean;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+  const findingId = input.topFindingId?.trim() ?? "";
+
+  if (trimmedRunId.length === 0 || findingId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    findingId,
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
 }
 
 export function deriveFirstReviewSpineBandSummary(input: {

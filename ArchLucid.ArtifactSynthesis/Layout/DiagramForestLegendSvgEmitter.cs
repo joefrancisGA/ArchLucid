@@ -60,7 +60,7 @@ public static class DiagramForestLegendSvgEmitter
 
         if (input.HasPrivateEndpointAccess)
         {
-            rows.Add("Private endpoint access");
+            rows.Add("Private endpoint link was stored. Observed use was not stored.");
         }
 
         if (input.HasStoredSolidRelationshipConnectors)
@@ -75,7 +75,7 @@ public static class DiagramForestLegendSvgEmitter
 
         if (input.HasDashedPeeringEdges)
         {
-            rows.Add("Peering");
+            rows.Add("Dashed peering line. Read the line label for peering state. This legend row is not observed traffic.");
         }
 
         if (input.HasResourceGroupFrames)
@@ -134,7 +134,7 @@ public static class DiagramForestLegendSvgEmitter
                 continue;
             }
 
-            if (string.Equals(row, "Private endpoint access", StringComparison.Ordinal))
+            if (string.Equals(row, "Private endpoint link was stored. Observed use was not stored.", StringComparison.Ordinal))
             {
                 group.Add(PrivateEndpointAccessGlyph(svgNamespace, LeftPadding, y - 10.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 24.0d, y, row, bold: false));
@@ -155,7 +155,10 @@ public static class DiagramForestLegendSvgEmitter
                 continue;
             }
 
-            if (string.Equals(row, "Peering", StringComparison.Ordinal))
+            if (string.Equals(
+                    row,
+                    "Dashed peering line. Read the line label for peering state. This legend row is not observed traffic.",
+                    StringComparison.Ordinal))
             {
                 group.Add(DashedLine(svgNamespace, LeftPadding, y - 4.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));

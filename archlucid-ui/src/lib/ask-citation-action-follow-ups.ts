@@ -4,7 +4,7 @@ import type { GovernanceFindingInspectHrefOptions } from "@/components/governanc
 import {
   getFindingEvidenceTraceHref,
   resolveQuickDecisionFindingDispositionHref,
-  resolveQuickDecisionFindingInspectHref,
+  resolveQuickDecisionFindingWorkspaceHref,
 } from "@/lib/findings/finding-evidence-navigation";
 import { ASK_CITATION_REFS_NOT_STORED_MARKER } from "@/lib/ask-review-artifact-status-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -176,6 +176,10 @@ export const ASK_CITATION_REFERENCED_ARTIFACTS_LIST_NOT_STORED =
 export const ASK_CITATION_FOLLOW_UPS_EMPTY_STORED_COPY =
   "No finding, evidence, or decision id was stored on this answer." as const;
 
+/** Shown under Ask citation chips — workspace links vs evidence-trace inspect. */
+export const ASK_CITATION_FOLLOW_UPS_WORKSPACE_PATH_HELPER =
+  "Open finding and Record disposition go to the review findings workspace. Open evidence trace is the read-only evidence path — not the same destination." as const;
+
 export function resolveAskCitationFollowUpsEmptyNote(input: {
   readonly citationRefsOmitted: boolean;
   readonly citationRefsStoredEmpty: boolean;
@@ -263,23 +267,24 @@ export function buildAskCitationActionFollowUps(
     pushChip(chips, {
       kind: "finding",
       label: `Open ${BUYER_SURFACE_VOCABULARY.finding.toLowerCase()}`,
-      href: resolveQuickDecisionFindingInspectHref(runId, findingId, inspectHrefOptions),
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
     });
-    if (findingHasEvidenceTraceCitation(input, findingId)) {
-      pushChip(chips, {
-        kind: "evidence",
-        label: "Open evidence",
-        href: getFindingEvidenceTraceHref(runId, findingId),
-        citationId: findingId,
-      });
-    }
     pushChip(chips, {
       kind: "disposition",
       label: "Record disposition",
       href: resolveQuickDecisionFindingDispositionHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
     });
+
+    if (findingHasEvidenceTraceCitation(input, findingId)) {
+      pushChip(chips, {
+        kind: "evidence",
+        label: "Open evidence trace",
+        href: getFindingEvidenceTraceHref(runId, findingId),
+        citationId: findingId,
+      });
+    }
   }
 
   if (findingIds.length === 0 && hasBlankFindingReference(input)) {

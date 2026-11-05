@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import { resolveAskBuyerOpenReviewHref } from "@/lib/ask-buyer-grounding-links";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -54,6 +55,7 @@ import {
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChrome";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
+import { resolveSearchReviewEvidencePrimaryFindingId } from "@/lib/insights/search-review-evidence-cite-grounding";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
 import { WorkingNestedSearchUnboundEmptyState } from "@/components/insights/WorkingNestedSearchUnboundEmptyState";
@@ -140,6 +142,10 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     queryConfigured: query.trim().length > 0,
     searchComplete: hasSearched && results.length > 0,
   });
+  const searchCitePrimaryFindingId = resolveSearchReviewEvidencePrimaryFindingId(results);
+  const scopedOpenReviewHref = resolveAskBuyerOpenReviewHref(scopedRunId, {
+    primaryFindingId: searchCitePrimaryFindingId,
+  });
 
   if (isDemo) {
     return (
@@ -191,7 +197,12 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       ) : (
         <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       )}
-      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+      {scopedRunId.length > 0 ? (
+        <SearchReviewEvidenceCiteStrip
+          runId={scopedRunId}
+          primaryFindingId={searchCitePrimaryFindingId}
+        />
+      ) : null}
 
       {showNestedSearchUnboundEmpty ? (
         <WorkingNestedSearchUnboundEmptyState
@@ -215,7 +226,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={scopedOpenReviewHref}
             >
               Open review
             </Link>

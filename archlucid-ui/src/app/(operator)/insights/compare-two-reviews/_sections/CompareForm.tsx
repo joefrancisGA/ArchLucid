@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { ComparePageHeaderActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageHeaderActions";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -47,6 +48,9 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
+import { useCompareFindingCorrelation } from "./useCompareFindingCorrelation";
+import { resolveAskBuyerOpenReviewHref } from "@/lib/ask-buyer-grounding-links";
+import { resolveComparePairPrimaryFindingIds } from "@/lib/compare-pair-grounding-links";
 import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type CompareFormProps = {
@@ -119,6 +123,29 @@ export function CompareForm(props: CompareFormProps = {}) {
     showContinueLastComparisonRow,
     architectureId,
   } = useCompareForm({ basePathname: props.basePathname });
+
+  const compareScopeCorrelation = useCompareFindingCorrelation(
+    golden?.baseRunId ?? (leftTrim.length > 0 ? leftTrim : null),
+    golden?.targetRunId ?? (rightTrim.length > 0 ? rightTrim : null),
+  );
+
+  const compareUpdatedReviewOpenHref = useMemo(() => {
+    const fallbackHref = resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId);
+
+    if (rightTrim.trim().length === 0) {
+      return fallbackHref;
+    }
+
+    const { updatedPrimaryFindingId } = resolveComparePairPrimaryFindingIds(
+      compareScopeCorrelation.lifecycleRecords,
+    );
+
+    if (updatedPrimaryFindingId === null || updatedPrimaryFindingId.trim().length === 0) {
+      return fallbackHref;
+    }
+
+    return resolveAskBuyerOpenReviewHref(rightTrim, { primaryFindingId: updatedPrimaryFindingId });
+  }, [architectureId, compareScopeCorrelation.lifecycleRecords, rightTrim]);
 
   const pageBody = (
     <>
@@ -238,7 +265,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId)}
+              href={compareUpdatedReviewOpenHref}
             >
               Open updated review
             </Link>

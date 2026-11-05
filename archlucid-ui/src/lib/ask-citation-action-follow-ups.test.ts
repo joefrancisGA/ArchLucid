@@ -36,9 +36,11 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition"]);
-    expect(chips[0]?.href).toBe("/architecture/reviews/run-a/findings/finding-123");
+    expect(chips[0]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-123#run-detail-first-review-spine-findings",
+    );
     expect(chips[1]?.href).toBe(
-      "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-123#run-detail-first-review-spine-findings",
     );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
     expect(chips[1]?.label.toLowerCase()).toContain("disposition");
@@ -74,7 +76,7 @@ describe("buildAskCitationActionFollowUps", () => {
       citations,
     });
 
-    expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(
+    expect(chips.some((c) => c.kind === "finding" && c.href.includes("reviewTab=findings&findingId=sensitive-data-minimization-risk"))).toBe(
       true,
     );
     expect(chips.some((c) => c.kind === "evidence")).toBe(false);
@@ -177,7 +179,7 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
-    expect(chips.some((c) => c.label === "Open evidence")).toBe(false);
+    expect(chips.some((c) => c.label === "Open evidence trace")).toBe(false);
     expect(chips.some((c) => c.label.includes("unrelated-bundle"))).toBe(true);
   });
 
@@ -235,7 +237,10 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.filter((c) => c.kind === "finding")).toHaveLength(1);
+    expect(chips.filter((c) => c.kind === "disposition")).toHaveLength(1);
     expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
+    expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition", "evidence"]);
+    expect(chips[2]?.label).toBe("Open evidence trace");
   });
 });
 

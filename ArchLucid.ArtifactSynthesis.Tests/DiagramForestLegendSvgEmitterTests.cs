@@ -100,6 +100,46 @@ public sealed class DiagramForestLegendSvgEmitterTests
     }
 
     [Fact]
+    public void Emit_includes_private_endpoint_access_row_when_flagged()
+    {
+        DiagramForestLegendSvgEmitter.LegendLayout layout = DiagramForestLegendSvgEmitter.Emit(
+            Svg,
+            new DiagramForestLegendSvgEmitter.LegendInput(
+                UsedKinds: [],
+                HasPrivateEndpointAccess: true,
+                HasStoredSolidRelationshipConnectors: true,
+                HasUnclassifiedConnectors: false,
+                HasDashedPeeringEdges: false,
+                HasResourceGroupFrames: false,
+                RollupNodes: []),
+            anchorX: 0,
+            anchorY: 0);
+
+        layout.Group.ToString(SaveOptions.DisableFormatting).Should().Contain(
+            "Private endpoint link was stored. Observed use was not stored.");
+    }
+
+    [Fact]
+    public void Emit_includes_peering_row_when_flagged()
+    {
+        DiagramForestLegendSvgEmitter.LegendLayout layout = DiagramForestLegendSvgEmitter.Emit(
+            Svg,
+            new DiagramForestLegendSvgEmitter.LegendInput(
+                UsedKinds: [],
+                HasPrivateEndpointAccess: false,
+                HasStoredSolidRelationshipConnectors: false,
+                HasUnclassifiedConnectors: false,
+                HasDashedPeeringEdges: true,
+                HasResourceGroupFrames: false,
+                RollupNodes: []),
+            anchorX: 0,
+            anchorY: 0);
+
+        layout.Group.ToString(SaveOptions.DisableFormatting).Should().Contain(
+            "Dashed peering line. Read the line label for peering state. This legend row is not observed traffic.");
+    }
+
+    [Fact]
     public void Emit_labels_rollup_member_name_null_vs_empty()
     {
         DiagramNode rollup = new()

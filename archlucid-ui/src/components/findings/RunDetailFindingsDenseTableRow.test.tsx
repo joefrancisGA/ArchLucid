@@ -52,6 +52,9 @@ describe("RunDetailFindingsDenseTableRow", () => {
     expect(screen.getByTestId("run-detail-findings-density-honesty-finding-1")).toHaveTextContent(
       INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE,
     );
+    expect(screen.getByTestId("run-detail-findings-density-finding-1")).toHaveTextContent(
+      "Stored engine score 88. Not a buyer percentage.",
+    );
     expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent(
       "Semantic support band was not stored",
     );

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstReviewOpenGateReviewHref, resolveFirstReviewFindingsWorkspaceHref, resolveFirstReviewTopFindingInspectHref, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -123,6 +123,73 @@ describe("first-review-spine-band", () => {
     ).toBe("high");
   });
 
+  it("resolveRunDetailVisitDefaultReviewHashWhenUrlSilent targets review-package spine for uncommitted reviews", () => {
+    const findings = [
+      finding({
+        findingId: "checklist",
+        title: "Checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        evidenceRefCount: 2,
+      }),
+    ];
+
+    expect(
+      resolveRunDetailVisitDefaultReviewHashWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe("run-detail-first-review-spine-review-package");
+  });
+
+  it("resolveRunDetailVisitDefaultReviewHashWhenUrlSilent targets findings spine for uncited open gate", () => {
+    const findings = [finding({ findingId: "u", title: "Uncited", evidenceRefCount: 0 })];
+
+    expect(
+      resolveRunDetailVisitDefaultReviewHashWhenUrlSilent({
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: true,
+      }),
+    ).toBe("run-detail-first-review-spine-findings");
+  });
+
+  it("resolveFirstReviewOpenGateReviewHref includes findingId and spine hash for uncited gate", () => {
+    const findings = [finding({ findingId: "finding-1", title: "Uncited", evidenceRefCount: 0, severityValue: 3 })];
+
+    expect(
+      resolveFirstReviewOpenGateReviewHref({
+        runId: "run-abc",
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe(
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("resolveFirstReviewOpenGateReviewHref includes review-package spine hash for uncommitted reviews", () => {
+    const findings = [
+      finding({
+        findingId: "checklist",
+        title: "Checklist",
+        classification: "ChecklistFinding",
+        evidenceRefCount: 2,
+      }),
+    ];
+
+    expect(
+      resolveFirstReviewOpenGateReviewHref({
+        runId: "run-abc",
+        findings,
+        hasFindingsSnapshot: true,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBe("/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package");
+  });
+
   it("resolveRunDetailVisitDefaultFindingIdWhenUrlSilent returns open disposition when findings are cited", () => {
     const findings = [
       finding({ findingId: "cited-open", title: "Open DG", severityValue: 3, evidenceRefCount: 2 }),
@@ -136,6 +203,53 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe("cited-open");
+  });
+
+  it("resolveFirstReviewOpenGateReviewHref returns null when findings snapshot was not stored", () => {
+    expect(
+      resolveFirstReviewOpenGateReviewHref({
+        runId: "run-abc",
+        findings: [],
+        hasFindingsSnapshot: false,
+        reviewHasGoldenManifest: false,
+      }),
+    ).toBeNull();
+  });
+
+  it("resolveFirstReviewFindingsWorkspaceHref includes findingId and findings spine hash", () => {
+    const findings = [finding({ findingId: "dg-1", title: "Open DG", severityValue: 2, evidenceRefCount: 2 })];
+
+    expect(
+      resolveFirstReviewFindingsWorkspaceHref({
+        runId: "run-abc",
+        findings,
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe(
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=dg-1#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("resolveFirstReviewFindingsWorkspaceHref returns null when findings snapshot was not stored", () => {
+    expect(
+      resolveFirstReviewFindingsWorkspaceHref({
+        runId: "run-abc",
+        findings: [],
+        hasFindingsSnapshot: false,
+      }),
+    ).toBeNull();
+  });
+
+  it("resolveFirstReviewTopFindingInspectHref targets the stored top finding on the findings workspace", () => {
+    expect(
+      resolveFirstReviewTopFindingInspectHref({
+        runId: "run-abc",
+        topFindingId: "top-dg",
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe(
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-dg#run-detail-first-review-spine-findings",
+    );
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {
