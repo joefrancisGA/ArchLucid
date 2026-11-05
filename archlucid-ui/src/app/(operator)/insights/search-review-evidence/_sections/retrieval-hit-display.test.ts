@@ -154,6 +154,24 @@ describe("buildRetrievalHitActionLink", () => {
     });
   });
 
+  it("nests run-level Open review when architecture id is supplied", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        sourceType: "ManifestTopology",
+        sourceId: SAMPLE_RUN_ID,
+        documentId: `topology-${SAMPLE_RUN_ID}`,
+        findingId: undefined,
+      }),
+      undefined,
+      { architectureId: "architecture-identity-001" },
+    );
+
+    expect(link).toEqual({
+      href: "/architecture/architectures/architecture-identity-001/reviews/" + SAMPLE_RUN_ID,
+      label: "Open review",
+    });
+  });
+
   it("links provenance graph hits to the evidence graph", () => {
     const link = buildRetrievalHitActionLink(
       hit({

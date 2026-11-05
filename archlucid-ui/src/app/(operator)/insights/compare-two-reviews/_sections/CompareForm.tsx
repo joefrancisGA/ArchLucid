@@ -49,9 +49,7 @@ import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
 import { useCompareFindingCorrelation } from "./useCompareFindingCorrelation";
-import { resolveAskBuyerOpenReviewHref } from "@/lib/ask-buyer-grounding-links";
-import { resolveComparePairPrimaryFindingIds } from "@/lib/compare-pair-grounding-links";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { resolveCompareUpdatedReviewOpenHref } from "@/lib/compare-pair-grounding-links";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -129,23 +127,15 @@ export function CompareForm(props: CompareFormProps = {}) {
     golden?.targetRunId ?? (rightTrim.length > 0 ? rightTrim : null),
   );
 
-  const compareUpdatedReviewOpenHref = useMemo(() => {
-    const fallbackHref = resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId);
-
-    if (rightTrim.trim().length === 0) {
-      return fallbackHref;
-    }
-
-    const { updatedPrimaryFindingId } = resolveComparePairPrimaryFindingIds(
-      compareScopeCorrelation.lifecycleRecords,
-    );
-
-    if (updatedPrimaryFindingId === null || updatedPrimaryFindingId.trim().length === 0) {
-      return fallbackHref;
-    }
-
-    return resolveAskBuyerOpenReviewHref(rightTrim, { primaryFindingId: updatedPrimaryFindingId });
-  }, [architectureId, compareScopeCorrelation.lifecycleRecords, rightTrim]);
+  const compareUpdatedReviewOpenHref = useMemo(
+    () =>
+      resolveCompareUpdatedReviewOpenHref(
+        rightTrim,
+        architectureId,
+        compareScopeCorrelation.lifecycleRecords,
+      ),
+    [architectureId, compareScopeCorrelation.lifecycleRecords, rightTrim],
+  );
 
   const pageBody = (
     <>

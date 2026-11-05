@@ -391,6 +391,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             key={hit.chunkId}
             hit={hit}
             scopedRunId={scopedRunId.length > 0 ? scopedRunId : undefined}
+            architectureId={pinnedArchitectureId}
           />
         ))}
       </div>

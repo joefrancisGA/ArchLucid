@@ -3,6 +3,7 @@ import {
   EVIDENCE_GRAPH_OPEN_ACTION_LABEL,
 } from "@/lib/evidence-graph-operator-source-link";
 import { resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { reviewSignedRecordPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -147,9 +148,13 @@ export function resolveRetrievalHitRunId(hit: RetrievalHit, scopedRunId?: string
   return null;
 }
 
-function reviewPackageHref(runId: string): RetrievalHitActionLink {
+export type BuildRetrievalHitActionLinkOptions = {
+  readonly architectureId?: string | null;
+};
+
+function reviewPackageHref(runId: string, options?: BuildRetrievalHitActionLinkOptions): RetrievalHitActionLink {
   return {
-    href: `/architecture/reviews/${encodeURIComponent(runId)}`,
+    href: resolveScopedInsightOpenReviewHref(runId, { architectureId: options?.architectureId }),
     label: "Open review",
   };
 }
@@ -165,6 +170,7 @@ function manifestHref(manifestId: string): RetrievalHitActionLink {
 export function buildRetrievalHitActionLink(
   hit: RetrievalHit,
   scopedRunId?: string,
+  options?: BuildRetrievalHitActionLinkOptions,
 ): RetrievalHitActionLink | null {
   const runId = resolveRetrievalHitRunId(hit, scopedRunId);
   const findingId = normalizeGuid(hit.findingId);
@@ -205,7 +211,7 @@ export function buildRetrievalHitActionLink(
   }
 
   if (sourceType === "ManifestTopology" && runId !== null) {
-    return reviewPackageHref(runId);
+    return reviewPackageHref(runId, options);
   }
 
   if (decisionId.length > 0 && runId !== null) {
@@ -216,7 +222,7 @@ export function buildRetrievalHitActionLink(
   }
 
   if (runId !== null) {
-    return reviewPackageHref(runId);
+    return reviewPackageHref(runId, options);
   }
 
   return null;

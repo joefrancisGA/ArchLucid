@@ -88,6 +88,9 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
   const findingInspectHref = hasStoredRunId ? governanceFindingQueuePrimaryInspectHref(row) : null;
+  const rowViewActionHref =
+    findingInspectHref ??
+    (hasStoredRunId ? governanceFindingInspectHref(row.runId, row.findingId) : null);
   const findingEvidenceTraceHref =
     hasStoredRunId && row.recordKind === "finding"
       ? governanceFindingInspectHref(row.runId, row.findingId)
@@ -236,9 +239,10 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
       <EnterpriseTableCell>
         {buyerPolishedShell ? (
           <div className="flex flex-col gap-2">
+            {rowViewActionHref !== null ? (
             <Button asChild variant="primary" size="sm" className="h-8">
               <Link
-                href={governanceFindingInspectHref(row.runId, row.findingId)}
+                href={rowViewActionHref}
                 prefetch={false}
                 onClick={() => {
                   onOpenRow?.();
@@ -247,6 +251,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                 {row.recordKind === "decision" ? "View decision" : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA}
               </Link>
             </Button>
+            ) : null}
             {row.recordKind === "finding" ? (
               <CopyGovernanceQueueWorkItemButton
                 runId={row.runId}

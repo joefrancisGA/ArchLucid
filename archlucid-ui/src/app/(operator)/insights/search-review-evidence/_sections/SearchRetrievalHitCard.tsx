@@ -21,15 +21,16 @@ import type { RetrievalHit } from "./retrieval-hit";
 export type SearchRetrievalHitCardProps = {
   readonly hit: RetrievalHit;
   readonly scopedRunId?: string;
+  readonly architectureId?: string | null;
 };
 
 export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
-  const { hit, scopedRunId } = props;
+  const { hit, scopedRunId, architectureId } = props;
   const sourceLabel = retrievalHitSourceTypeLabel(hit.sourceType);
   const relevanceTier = retrievalHitRelevanceTier(hit.score);
   const relevanceLabel = retrievalHitRelevanceLabel(relevanceTier);
   const storedReviewId = retrievalHitStoredReviewId(hit);
-  const actionLink = buildRetrievalHitActionLink(hit, scopedRunId);
+  const actionLink = buildRetrievalHitActionLink(hit, scopedRunId, { architectureId });
   const evidenceTrailHref = buildRetrievalHitEvidenceTrailHref(hit, scopedRunId);
 
   return (
