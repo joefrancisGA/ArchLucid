@@ -88,7 +88,7 @@ export function RunDetailReviewPackageStampViewport(
   });
   const openGateNavigationInput = {
     findings: props.quickDecisionFindings ?? [],
-    hasFindingsSnapshot: props.hasFindingsSnapshot !== false,
+    hasFindingsSnapshot: props.hasFindingsSnapshot === true,
     reviewHasGoldenManifest: props.hasGoldenManifest,
   };
 

@@ -15,6 +15,7 @@ import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-re
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { governanceFindingQueueRowReviewHref } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 
 export type GovernanceFindingInspectHrefOptions = {
@@ -109,6 +110,15 @@ export function governanceFindingQueuePrimaryInspectHref(
   }
 
   return governanceFindingInspectHref(row.runId, row.findingId, options);
+}
+
+/** Review column link: findings workspace when this row still needs disposition recording. */
+export function governanceFindingQueueRowReviewHrefForRow(row: GovernanceFindingQueueRow): string {
+  if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+  }
+
+  return governanceFindingQueueRowReviewHref(row.runId);
 }
 
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   governanceFindingQueuePrimaryInspectHref,
   governanceFindingQueueRowNeedsDispositionRecording,
+  governanceFindingQueueRowReviewHrefForRow,
 } from "@/components/governance/findings/governance-findings-navigation";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
@@ -44,6 +45,17 @@ describe("governanceFindingQueuePrimaryInspectHref", () => {
     expect(governanceFindingQueueRowNeedsDispositionRecording(row)).toBe(false);
     expect(governanceFindingQueuePrimaryInspectHref(row)).toBe(
       "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
+    );
+  });
+
+  it("routes the review column to findings workspace when disposition is open", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
+    });
+
+    expect(governanceFindingQueueRowReviewHrefForRow(row)).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
     );
   });
 });
