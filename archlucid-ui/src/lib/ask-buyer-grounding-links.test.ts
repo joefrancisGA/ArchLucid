@@ -95,6 +95,22 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).toEqual([{ label: "Artifact citation was stored empty." }]);
   });
 
+  it("buildAskAnswerCitationSourceLinks links indexed findings to the review findings workspace", () => {
+    const links = buildAskAnswerCitationSourceLinks(
+      "run-a",
+      {
+        referencedFindings: ["known-finding"],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      },
+      { indexedFindingIds: new Set(["known-finding"]) },
+    );
+
+    expect(links[0]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=known-finding#run-detail-first-review-spine-findings",
+    );
+  });
+
   it("buildAskAnswerCitationSourceLinks omits href when finding is missing from index", () => {
     const links = buildAskAnswerCitationSourceLinks(
       "run-a",

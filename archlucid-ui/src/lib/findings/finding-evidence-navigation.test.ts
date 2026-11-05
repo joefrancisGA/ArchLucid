@@ -9,6 +9,7 @@ import {
   resolveFindingsQueueNavHref,
   resolveQuickDecisionFindingInspectHref,
   resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingWorkspaceHref,
 } from "@/lib/findings/finding-evidence-navigation";
 
 describe("finding-evidence-navigation", () => {
@@ -51,6 +52,12 @@ describe("finding-evidence-navigation", () => {
 
   it("routes disposition CTAs to the findings workspace when not in nested working findings", () => {
     expect(resolveQuickDecisionFindingDispositionHref("run-1", "finding-9")).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("routes workspace finding links to the review findings tab with spine hash", () => {
+    expect(resolveQuickDecisionFindingWorkspaceHref("run-1", "finding-9")).toBe(
       "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
     );
   });

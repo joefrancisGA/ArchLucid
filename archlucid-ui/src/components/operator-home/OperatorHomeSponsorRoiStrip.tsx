@@ -18,6 +18,7 @@ import {
 } from "@/lib/design-tokens";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveSponsorHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
@@ -159,6 +160,7 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
         </Link>
       </p>
       <PolicyPackInfluenceHonestyChip className="mt-2" />
+      <SecureNowSponsorRoiCollectionScopeHonestyLine className="mt-2 text-al-text-secondary" />
     </section>
   );
 }

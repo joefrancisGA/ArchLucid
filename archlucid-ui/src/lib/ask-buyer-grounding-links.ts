@@ -1,6 +1,6 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -138,7 +138,7 @@ export function buildAskAnswerCitationSourceLinks(
 
     links.push({
       label: `Finding id ${trimmed}`,
-      href: resolveQuickDecisionFindingInspectHref(runId, trimmed),
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, trimmed),
     });
   }
 
