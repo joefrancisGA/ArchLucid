@@ -7,19 +7,20 @@ import unittest
 WORKFLOW = Path(__file__).resolve().parents[3] / ".github" / "workflows" / "ci.yml"
 
 
-class Rc41CiWiringTests(unittest.TestCase):
-    def test_full_non_deploying_ci_pushes_target_rc41_only(self) -> None:
+class Rc43CiWiringTests(unittest.TestCase):
+    def test_full_non_deploying_ci_pushes_target_rc43_only(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC41\]$")
+        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43\]$")
+        self.assertNotIn("branches: [RC41]", workflow)
         self.assertNotIn("branches: [RC40]", workflow)
         self.assertNotIn("branches: [RC36]", workflow)
 
-    def test_live_azure_openai_cannot_run_on_rc41(self) -> None:
+    def test_live_azure_openai_cannot_run_on_rc43(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("github.ref != 'refs/heads/RC41'", workflow)
-        self.assertNotIn("github.ref != 'refs/heads/RC40'", workflow)
+        self.assertIn("github.ref != 'refs/heads/RC43'", workflow)
+        self.assertNotIn("github.ref != 'refs/heads/RC41'", workflow)
+        self.assertNotIn("refs/heads/RC40", workflow)
         self.assertNotIn("refs/heads/RC36", workflow)
-
 
     def test_vitest_cohorts_cover_every_test_file_without_skips(self) -> None:
         """Four required shards must collectively run all 64 disjoint cohorts."""
@@ -36,7 +37,7 @@ class Rc41CiWiringTests(unittest.TestCase):
         ]
         self.assertEqual(cohorts, list(range(1, 65)))
 
-    def test_rc41_diagnostics_do_not_hide_openapi_failure(self) -> None:
+    def test_rc43_diagnostics_do_not_hide_openapi_failure(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
 
         def job_block(job_name: str) -> str:
@@ -51,13 +52,17 @@ class Rc41CiWiringTests(unittest.TestCase):
         self.assertIn("bash scripts/ci/check_openapi_contract_snapshot.sh", snapshot)
         self.assertIn("- openapi-contract-snapshot", build)
         self.assertIn("!cancelled()", build)
-        self.assertIn("github.ref == 'refs/heads/RC41'", build)
+        self.assertIn("github.ref == 'refs/heads/RC43'", build)
         self.assertIn("needs.openapi-contract-snapshot.result == 'success'", build)
-        for prerequisite in ("gitleaks", "ci-path-lanes", "terraform-validate-private",
-                             "terraform-validate-public-stacks", "guards-pre-corset"):
+        for prerequisite in (
+            "gitleaks",
+            "ci-path-lanes",
+            "terraform-validate-private",
+            "terraform-validate-public-stacks",
+            "guards-pre-corset",
+        ):
             self.assertIn(f"needs.{prerequisite}.result == 'success'", build)
         self.assertIn("bash scripts/ci/run_dotnet_fast_core_build.sh", build)
-
 
 
 if __name__ == "__main__":

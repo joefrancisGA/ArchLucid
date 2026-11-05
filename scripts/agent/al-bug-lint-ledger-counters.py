@@ -30,6 +30,9 @@ HISTORICAL_EXCESS_BASELINE: dict[str, int] = {
     "ui-marketing-surfaces": 8,
     "ui-oidc": 5,
     "artifact-synthesis": 5,
+    # Open-zone excess at 2026-11-05 (RC43 CI run 42081488733); do not rewrite ledger hunts.
+    "core-findings-advice": 27,
+    "saml-jwt-bearer": 10,
 }
 
 FIELD_HUNTS = re.compile(r"^\s*-\s+\*\*hunts:\*\*\s+(\d+)\s*$", re.MULTILINE)
