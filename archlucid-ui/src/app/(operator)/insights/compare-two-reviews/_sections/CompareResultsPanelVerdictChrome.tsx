@@ -25,7 +25,7 @@ import {
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
-import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
+import { resolveComparePairPrimaryFindingIds } from "@/lib/compare-pair-grounding-links";
 import { CompareClassificationBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareClassificationBandDeltaPanel";
 import { CompareTreatmentBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareTreatmentBandDeltaPanel";
 import { CompareRoiHeadlineDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRoiHeadlineDeltaPanel";
@@ -34,6 +34,7 @@ import { ComparePackAssignmentDeltaPanel } from "@/app/(operator)/insights/compa
 import { CompareExecutionModeDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareExecutionModeDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
+import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 
@@ -149,6 +150,7 @@ export function CompareResultsPanelVerdictChrome({
           baselinePickedSummary={leftPickedSummary}
           targetPickedSummary={rightPickedSummary}
           manifestDiffs={result?.manifestComparison?.diffs}
+          groundingOptions={resolveComparePairPrimaryFindingIds(findingCorrelationState.lifecycleRecords)}
         />
       ) : null}
 

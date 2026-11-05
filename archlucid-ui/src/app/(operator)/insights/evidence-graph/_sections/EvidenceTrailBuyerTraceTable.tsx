@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { getFindingEvidenceTraceHref, resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
 import Link from "next/link";
 
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -112,7 +112,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               </Link>
               <Link
                 className="underline"
-                href={`/architecture/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}`}
+                href={resolveQuickDecisionFindingWorkspaceHref(runTrim, row.findingId)}
                 prefetch={false}
               >
                 Finding record

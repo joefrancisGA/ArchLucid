@@ -31,6 +31,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor-report-pilot-roi-measurement-help";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -279,7 +280,7 @@ export function RoiSummaryPageView(props: Props) {
               {" · "}
               <Link
                 className={OPERATOR_LINK.inline}
-                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+                href={resolveScopedInsightOpenReviewHref(scopedRunId)}
               >
                 Open review
               </Link>

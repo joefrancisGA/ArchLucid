@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { useSponsorRoiEnvironmentSavingsQuery } from "@/hooks/use-sponsor-roi-environment-savings-query";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -74,6 +75,7 @@ export function SponsorRoiEnvironmentSavingsSection() {
         ) : null}
         {!loading && failure === null && slices.length > 0 ? (
           <div className="space-y-3" data-testid="exec-roi-environment-pie">
+            <SecureNowSponsorRoiCollectionScopeHonestyLine testId="exec-roi-environment-collection-scope-honesty" />
             <div className="flex h-4 overflow-hidden rounded-full" aria-hidden="true">
               {slices
                 .map((slice, index) => ({ slice, index, savings: finiteEnvironmentSavingsUsd(slice.estimatedUsdSavings) }))

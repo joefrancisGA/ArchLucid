@@ -167,7 +167,10 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
   const findingInspectHref = hasStoredRunId
     ? governanceFindingQueuePrimaryInspectHref(row)
     : null;
-  const evidenceTraceHref = row.recordKind === "finding" ? findingInspectHref : null;
+  const findingEvidenceTraceHref =
+    hasStoredRunId && row.recordKind === "finding"
+      ? governanceFindingInspectHref(row.runId, row.findingId)
+      : null;
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
 
   return (
@@ -200,7 +203,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           <div className="mt-1">
             <FindingDerivationLine
               derivation={findingDerivation}
-              evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+              evidenceHref={findingEvidenceTraceHref ?? evidenceChipHref}
               evidenceRefCount={row.evidenceRefCount}
               testId={`governance-table-derivation-${row.findingId}`}
               compact

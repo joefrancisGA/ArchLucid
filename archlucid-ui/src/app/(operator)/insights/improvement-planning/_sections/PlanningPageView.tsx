@@ -22,6 +22,7 @@ import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocab
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN } from "@/lib/planning-empty-orientation-copy";
 import {
   IMPROVEMENT_PLANNING_DEMO_DESCRIPTION,
@@ -183,7 +184,7 @@ export function PlanningPageView(props: Props) {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHref(scopedRunId)}
           >
             Open review
           </Link>

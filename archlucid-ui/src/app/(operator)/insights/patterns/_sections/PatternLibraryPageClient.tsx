@@ -12,6 +12,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   PATTERN_LIBRARY_EMPTY_BUILDING_BODY,
   PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
@@ -243,7 +244,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
               {" · "}
               <Link
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+                href={resolveScopedInsightOpenReviewHref(scopedRunId)}
               >
                 Open review
               </Link>
