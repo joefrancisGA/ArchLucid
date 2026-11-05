@@ -16,6 +16,7 @@ import {
   FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED,
   resolveFirstReviewSpineOpenGateSectionId,
   resolveFirstReviewOpenGateReviewHref,
+  resolveFirstReviewFindingsWorkspaceHref,
   type FirstReviewSpineBandSummary,
 } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
@@ -73,6 +74,28 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
     return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=${summary.openGateReviewTab}`;
   }, [props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
 
+  const findingsWorkspaceHref = useMemo((): string | null => {
+    if (trimmedRunId.length === 0) {
+      return null;
+    }
+
+    if (props.openGateNavigationInput === null || props.openGateNavigationInput === undefined) {
+      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=findings`;
+    }
+
+    return resolveFirstReviewFindingsWorkspaceHref({
+      runId: trimmedRunId,
+      findings: props.openGateNavigationInput.findings,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+    });
+  }, [props.openGateNavigationInput, trimmedRunId]);
+
+  const openGateLinkEnabled =
+    openGateHref !== null
+    && (props.openGateNavigationInput === null
+      || props.openGateNavigationInput === undefined
+      || props.openGateNavigationInput.hasFindingsSnapshot !== false);
+
   return (
     <section
       id={openGateSectionId ?? undefined}
@@ -120,12 +143,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           <>
             Open gate: {summary.openGateLabel}.{" "}
             {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-              <Link
-                href={openGateHref ?? `/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=${summary.openGateReviewTab ?? "findings"}`}
-                className={OPERATOR_LINK.inline}
-              >
-                Open the gate
-              </Link>
+              openGateLinkEnabled ? (
+                <Link href={openGateHref ?? "#"} className={OPERATOR_LINK.inline}>
+                  Open the gate
+                </Link>
+              ) : (
+                "Findings snapshot was not stored — open gate link withheld."
+              )
             ) : (
               "Review id was not stored."
             )}
@@ -185,13 +209,17 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         >
           Record dispositions on open decision-grade findings before sponsor send.{" "}
           {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-            <Link
-              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=findings`}
-              className={OPERATOR_LINK.inline}
-              data-testid="run-detail-first-review-spine-disposition-findings-link"
-            >
-              Open this review&apos;s findings
-            </Link>
+            findingsWorkspaceHref !== null ? (
+              <Link
+                href={findingsWorkspaceHref}
+                className={OPERATOR_LINK.inline}
+                data-testid="run-detail-first-review-spine-disposition-findings-link"
+              >
+                Open this review&apos;s findings
+              </Link>
+            ) : (
+              "Findings snapshot was not stored."
+            )
           ) : (
             <>Review id was not stored.</>
           )}

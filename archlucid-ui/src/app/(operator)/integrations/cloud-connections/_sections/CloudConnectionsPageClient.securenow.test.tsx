@@ -102,5 +102,10 @@ describe("CloudConnectionsPageClient (SecureNow collection missing)", () => {
       "href",
       "/security/remediation-factory",
     );
+    expect(screen.getByTestId("cloud-connections-collection-ready-cloud-connections-link")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
+    expect(screen.queryByTestId("cloud-connections-setup-progress")).not.toBeInTheDocument();
   });
 });
