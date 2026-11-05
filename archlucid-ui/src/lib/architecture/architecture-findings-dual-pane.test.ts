@@ -104,7 +104,25 @@ describe("architecture-findings-dual-pane SoT", () => {
 
     expect(sync.matchKind).toBe("none");
     expect(sync.matchedNodeId).toBeNull();
-    expect(formatLinkedComponentStatus(sync)).toMatch(/No matching diagram component/);
+    expect(formatLinkedComponentStatus(sync)).toMatch(/No stored diagram link/);
+  });
+
+  it("reports stored node id missing from diagram without title overlap highlight", () => {
+    const sync = resolveFindingDiagramSelectionSync(
+      {
+        findingId: "f-missing",
+        title: "Harden Claims API authentication",
+        relatedNodeIds: ["missing-node"],
+      },
+      nodes,
+    );
+
+    expect(sync.matchKind).toBe("none");
+    expect(sync.matchedNodeId).toBeNull();
+    expect(sync.storedDiagramNodeIdNotOnDiagram).toBe(true);
+    expect(formatLinkedComponentStatus(sync)).toBe(
+      "Stored diagram node id was not on this diagram.",
+    );
   });
 
   it("builds diagram and findings deep links", () => {

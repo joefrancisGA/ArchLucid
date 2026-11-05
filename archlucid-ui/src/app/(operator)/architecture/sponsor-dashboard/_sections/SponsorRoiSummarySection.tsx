@@ -27,6 +27,7 @@ import {
   type SponsorRoiSummary,
 } from "@/lib/sponsor-report-markdown";
 import { SponsorRoiIdentifiedVsRealizedPanel } from "./SponsorRoiIdentifiedVsRealizedPanel";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { SponsorRoiBoardPackEvidenceBanner } from "./SponsorRoiBoardPackEvidenceBanner";
 import { SponsorRoiProofStatusStrip } from "./SponsorRoiProofStatusStrip";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
@@ -411,6 +412,10 @@ export function SponsorRoiSummarySection({
             <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Systemic issue trends (last 6 months)
             </h3>
+            <SecureNowSponsorRoiCollectionScopeHonestyLine
+              className="mt-2"
+              testId="exec-roi-summary-trend-collection-scope-honesty"
+            />
             <div className="mt-3">
               <SponsorRoiSystemicIssueTrendChartDeferred
                 series={displayData.historicalTrends ?? []}

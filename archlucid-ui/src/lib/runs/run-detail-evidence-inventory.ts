@@ -411,7 +411,7 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
     return "Submitted source list was stored empty.";
   }
 
-  return "No submitted source documents are listed for this review.";
+  return "Findings snapshot was not stored, so the submitted source list cannot be confirmed.";
 }
 
 /** Single Evidence-tab readiness verdict — inventory gaps override a complete trust-evidence rollup. */

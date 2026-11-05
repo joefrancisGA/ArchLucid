@@ -73,3 +73,57 @@ export function scheduleScrollToReviewDetailHashFromLocation(): void {
 
   scheduleScrollToReviewDetailSection(sectionId);
 }
+
+function resolveReviewFindingScrollTarget(findingId: string): HTMLElement | null {
+  const normalizedId = findingId.trim();
+
+  if (normalizedId.length === 0) {
+    return null;
+  }
+
+  const byDataFindingId = document.querySelector<HTMLElement>(
+    `[data-finding-id="${CSS.escape(normalizedId)}"]`,
+  );
+
+  if (byDataFindingId !== null) {
+    return byDataFindingId;
+  }
+
+  return document.querySelector<HTMLElement>(
+    `[data-review-detail-finding-id="${CSS.escape(normalizedId)}"]`,
+  );
+}
+
+/** Scroll to a findings row/card when `findingId` is present in the URL. */
+export function scrollToReviewFinding(findingId: string): boolean {
+  const target = resolveReviewFindingScrollTarget(findingId);
+
+  if (target === null) {
+    return false;
+  }
+
+  target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  if (
+    !target.matches("a, button, input, select, textarea, [tabindex]:not([tabindex='-1'])")
+  ) {
+    if (!target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+  }
+
+  target.focus({ preventScroll: true });
+
+  return true;
+}
+
+/** Retry finding scroll while the findings panel mounts after client navigation. */
+export function scheduleScrollToReviewFinding(findingId: string, attempt = 0): void {
+  const scrolled = scrollToReviewFinding(findingId);
+
+  if (scrolled || attempt >= 40) {
+    return;
+  }
+
+  window.setTimeout(() => scheduleScrollToReviewFinding(findingId, attempt + 1), 50);
+}

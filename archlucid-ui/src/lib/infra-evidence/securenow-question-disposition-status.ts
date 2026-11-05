@@ -37,9 +37,23 @@ type SecureNowQuestionDispositionStatusCanonical =
   | "dismissed"
   | "other";
 
+function secureNowQuestionDispositionStatusWasStoredEmpty(
+  status: string | null | undefined,
+): boolean {
+  if (status === null || status === undefined) {
+    return false;
+  }
+
+  return status.trim().length === 0;
+}
+
 function secureNowQuestionDispositionStatusCanonical(
   status: string | null | undefined,
 ): SecureNowQuestionDispositionStatusCanonical {
+  if (secureNowQuestionDispositionStatusWasStoredEmpty(status)) {
+    return "other";
+  }
+
   const trimmed = secureNowQuestionDispositionStatusTrimmed(status);
   if (trimmed === null) {
     return "missing";
@@ -155,15 +169,35 @@ export function secureNowQuestionCountsAsAnsweredFilterRow(
     || secureNowQuestionDispositionFieldContributesToInference(question.answerText);
 }
 
+function secureNowQuestionDispositionReviewerAnswerMetadataLabel(
+  question: SecureNowQuestionDispositionChromeFields,
+): string | null {
+  if (!secureNowQuestionCountsAsAnsweredFilterRow(question)) {
+    return null;
+  }
+
+  if (secureNowQuestionDispositionStatusCanonical(question.status) === "open") {
+    return "Open. Answer metadata is stored.";
+  }
+
+  return "Question status was not stored. Answer metadata is stored.";
+}
+
 export function secureNowQuestionDispositionReviewerStatusLabel(
   question: SecureNowQuestionDispositionChromeFields,
 ): string {
   const trimmed = secureNowQuestionDispositionStatusTrimmed(question.status);
   const canonical = secureNowQuestionDispositionStatusCanonical(question.status);
 
+  if (secureNowQuestionDispositionStatusWasStoredEmpty(question.status)) {
+    return "Question status was stored empty.";
+  }
+
   if (canonical === "missing") {
-    if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
-      return "Answered";
+    const answerMetadataLabel = secureNowQuestionDispositionReviewerAnswerMetadataLabel(question);
+
+    if (answerMetadataLabel !== null) {
+      return answerMetadataLabel;
     }
 
     if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
@@ -181,9 +215,25 @@ export function secureNowQuestionDispositionReviewerStatusLabel(
     return "Dismissed";
   }
 
-  if (canonical === "open" || canonical === "other") {
-    if (secureNowQuestionCountsAsAnsweredFilterRow(question)) {
-      return "Answered";
+  if (canonical === "open") {
+    const answerMetadataLabel = secureNowQuestionDispositionReviewerAnswerMetadataLabel(question);
+
+    if (answerMetadataLabel !== null) {
+      return answerMetadataLabel;
+    }
+
+    if (secureNowQuestionCountsAsDismissedFilterRow(question)) {
+      return "Dismissed";
+    }
+
+    return "Open";
+  }
+
+  if (canonical === "other") {
+    const answerMetadataLabel = secureNowQuestionDispositionReviewerAnswerMetadataLabel(question);
+
+    if (answerMetadataLabel !== null) {
+      return answerMetadataLabel;
     }
 
     if (secureNowQuestionCountsAsDismissedFilterRow(question)) {

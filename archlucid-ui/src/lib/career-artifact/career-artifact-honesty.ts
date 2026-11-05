@@ -55,15 +55,12 @@ const DEMO_SAMPLE_EXTERNAL_BLOCK_REASON =
 const SAMPLE_WORKING_EXPORT_BLOCK_REASON =
   "Sample workspace — career export is blocked until you run a production review.";
 
-const SKIPPED_MUST_FINALIZE_BLOCK_REASON =
-  "Required intake questions are unanswered — resolve skipped MUST questions before sealing.";
-
 function formatSkippedMustBlockedReason(skippedMustCount: number): string {
   if (skippedMustCount === 1) {
-    return "1 required question is unanswered.";
+    return "1 MUST question was skipped. Skipped is not a stored answer.";
   }
 
-  return `${skippedMustCount} required questions are unanswered.`;
+  return `${skippedMustCount} MUST questions were skipped. Skipped is not a stored answer.`;
 }
 
 function resolveTrailBlockedReason(
@@ -104,7 +101,7 @@ function resolveSkippedMustBlockedReason(
     return formatSkippedMustBlockedReason(skippedMustCount);
   }
 
-  return SKIPPED_MUST_FINALIZE_BLOCK_REASON;
+  return formatSkippedMustBlockedReason(skippedMustCount);
 }
 
 function resolveDemoSampleBlockedReason(input: CareerArtifactHonestyInput): string | null {

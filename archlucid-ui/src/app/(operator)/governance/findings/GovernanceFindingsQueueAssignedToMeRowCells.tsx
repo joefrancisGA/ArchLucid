@@ -16,6 +16,8 @@ import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingInspectHref,
+  governanceFindingQueuePrimaryInspectHref,
+  governanceFindingQueueRowReviewHrefForRow,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
 import { cn } from "@/lib/utils";
@@ -35,7 +37,6 @@ import {
 import {
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
-  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
@@ -50,8 +51,12 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
   const findingInspectHref = hasStoredRunId
-    ? governanceFindingInspectHref(row.runId, row.findingId)
+    ? governanceFindingQueuePrimaryInspectHref(row)
     : null;
+  const findingEvidenceTraceHref =
+    hasStoredRunId && row.recordKind === "finding"
+      ? governanceFindingInspectHref(row.runId, row.findingId)
+      : null;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -124,7 +129,7 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
           >
             <FindingDerivationLine
               derivation={findingDerivation}
-              evidenceHref={findingInspectHref}
+              evidenceHref={findingEvidenceTraceHref}
               testId={`governance-table-derivation-line-${row.findingId}`}
               compact
             />
@@ -133,7 +138,7 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {row.runId.trim().length > 0 ? (
-          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
+          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHrefForRow(row)}>
             {row.runLabel}
           </Link>
         ) : (

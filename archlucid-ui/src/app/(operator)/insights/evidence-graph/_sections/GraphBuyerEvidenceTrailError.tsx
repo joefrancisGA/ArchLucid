@@ -21,6 +21,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { evidenceGraphBlockedReason } from "@/lib/graph/evidence-graph-blocked-reason";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -56,7 +57,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
   const runTrim = runId.trim();
   const reviewPackageHref =
     runTrim.length > 0
-      ? `/architecture/reviews/${encodeURIComponent(runTrim)}`
+      ? resolveScopedInsightOpenReviewHrefWithDeskContinuity(runTrim)
       : "/architecture/reviews";
 
   const blockedReason = evidenceGraphBlockedReason(failure);

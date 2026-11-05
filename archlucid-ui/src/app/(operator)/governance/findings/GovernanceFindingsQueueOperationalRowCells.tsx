@@ -31,6 +31,8 @@ import { resolveGovernanceQueueDueDate } from "@/lib/governance/governance-queue
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingInspectHref,
+  governanceFindingQueuePrimaryInspectHref,
+  governanceFindingQueueRowReviewHrefForRow,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
@@ -54,7 +56,6 @@ import {
   governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
-  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
@@ -164,9 +165,12 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
   const findingInspectHref = hasStoredRunId
-    ? governanceFindingInspectHref(row.runId, row.findingId)
+    ? governanceFindingQueuePrimaryInspectHref(row)
     : null;
-  const evidenceTraceHref = row.recordKind === "finding" ? findingInspectHref : null;
+  const findingEvidenceTraceHref =
+    hasStoredRunId && row.recordKind === "finding"
+      ? governanceFindingInspectHref(row.runId, row.findingId)
+      : null;
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
 
   return (
@@ -199,7 +203,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           <div className="mt-1">
             <FindingDerivationLine
               derivation={findingDerivation}
-              evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+              evidenceHref={findingEvidenceTraceHref ?? evidenceChipHref}
               evidenceRefCount={row.evidenceRefCount}
               testId={`governance-table-derivation-${row.findingId}`}
               compact
@@ -262,7 +266,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {row.runId.trim().length > 0 ? (
-          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
+          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHrefForRow(row)}>
             {row.runLabel}
           </Link>
         ) : (

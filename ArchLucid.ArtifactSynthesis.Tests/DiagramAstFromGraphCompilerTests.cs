@@ -466,7 +466,7 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         DiagramForestLayoutResult svg = new DiagramForestLayoutSvgRenderer().Render(ast);
         svg.Svg.Should().Contain("class=\"private-endpoint-lock\"");
-        svg.Svg.Should().Contain("Private endpoint access");
+        svg.Svg.Should().Contain("Private endpoint link was stored. Observed use was not stored.");
         svg.Svg.Should().NotContain(">pe-sql<");
     }
 

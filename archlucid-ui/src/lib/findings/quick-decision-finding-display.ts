@@ -144,8 +144,18 @@ export function formatQuickDecisionConfidenceWorkspaceLabel(
   }
 
   if (isKnownQuickDecisionConfidenceLevel(trimmed)) {
-    return trimmed;
+    return `Stored confidence is ${trimmed}. Not a probability and not an approval.`;
   }
 
   return `Confidence ${trimmed} has no reviewer label.`;
+}
+
+export function formatQuickDecisionFindingDensityScoreDisplay(
+  insightDensityScore: number | null | undefined,
+): string {
+  if (insightDensityScore === null || insightDensityScore === undefined) {
+    return "Density was not stored";
+  }
+
+  return `Stored engine score ${Math.trunc(insightDensityScore)}. Not a buyer percentage.`;
 }

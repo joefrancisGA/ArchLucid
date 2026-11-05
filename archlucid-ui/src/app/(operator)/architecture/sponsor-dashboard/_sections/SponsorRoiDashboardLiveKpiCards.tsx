@@ -12,6 +12,7 @@ import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -322,6 +323,11 @@ export function SponsorRoiDashboardLiveKpiCards({
       </Card>
 
       {!executiveDetails ? (
+      <>
+      <SecureNowSponsorRoiCollectionScopeHonestyLine
+        className="sm:col-span-2 lg:col-span-3"
+        testId="exec-kpi-live-collection-scope-honesty"
+      />
       <Card data-testid="exec-kpi-cost-evidence-freshness">
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
@@ -343,6 +349,7 @@ export function SponsorRoiDashboardLiveKpiCards({
           <KpiFootnote text={costFreshness.footnote} runbookHref={costFreshness.runbookHref} />
         </CardContent>
       </Card>
+      </>
       ) : null}
     </>
   );

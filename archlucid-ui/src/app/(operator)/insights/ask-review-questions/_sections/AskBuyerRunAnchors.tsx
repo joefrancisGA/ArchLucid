@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL, BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -11,6 +12,7 @@ import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@
 export type AskBuyerRunAnchorsProps = {
   buyerPolishedShell: boolean;
   runId: string;
+  pinnedArchitectureId?: string;
 };
 
 export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
@@ -25,7 +27,10 @@ export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
 
   return (
     <p className={cn("m-0 flex flex-wrap gap-x-4 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-      <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(canonical)}`}>
+      <Link
+        className={OPERATOR_LINK.nav}
+        href={resolveScopedInsightOpenReviewHref(canonical, { architectureId: props.pinnedArchitectureId })}
+      >
         Open review
       </Link>
       {canonical === SHOWCASE_STATIC_DEMO_RUN_ID ? (

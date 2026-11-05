@@ -2,6 +2,8 @@ import { governanceFindingInspectHref } from "@/components/governance/findings/g
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 
 /** Canonical App Router segment for finding evidence trace pages. */
 export const FINDING_EVIDENCE_TRACE_SEGMENT = "evidence-trace";
@@ -87,9 +89,22 @@ export function getFindingEvidenceTraceHref(
 /** In-page anchor for the disposition workflow on the evidence trace surface. */
 export const FINDING_GOVERNANCE_DISPOSITION_HASH = "governance-disposition-heading";
 
-/** Deep link to record disposition on the evidence trace governance panel. */
+/** Findings workspace deep link for recording disposition (review tab + finding selection + spine hash). */
+export function resolveReviewFindingsWorkspaceDispositionHref(runId: string, findingId: string): string {
+  return buildReviewDetailTabHref(runId.trim(), "findings", {
+    findingId: findingId.trim(),
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
+}
+
+/** Review findings tab deep link for Ask / insights citation follow-ups (findingId + spine hash). */
+export function resolveReviewFindingsWorkspaceFindingHref(runId: string, findingId: string): string {
+  return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId);
+}
+
+/** Deep link to record disposition on the review findings workspace. */
 export function getFindingGovernanceDispositionHref(runId: string, findingId: string): string {
-  return `${getFindingEvidenceTraceHref(runId, findingId)}#${FINDING_GOVERNANCE_DISPOSITION_HASH}`;
+  return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId);
 }
 
 export type QuickDecisionFindingNavOptions = {
@@ -113,6 +128,21 @@ export function resolveQuickDecisionFindingInspectHref(
   }
 
   return getFindingDetailHref(runId, findingId);
+}
+
+/** Ask and insights citations land on the review findings workspace unless nested working findings applies. */
+export function resolveQuickDecisionFindingWorkspaceHref(
+  runId: string,
+  findingId: string,
+  options?: QuickDecisionFindingNavOptions,
+): string {
+  const architectureId = options?.architectureId?.trim() ?? "";
+
+  if (options?.isWorkingMode === true && architectureId.length > 0) {
+    return resolveQuickDecisionFindingInspectHref(runId, findingId, options);
+  }
+
+  return resolveReviewFindingsWorkspaceFindingHref(runId, findingId);
 }
 
 /** IP-005 — disposition CTA lands on the inhabited finding card when architecture is known. */

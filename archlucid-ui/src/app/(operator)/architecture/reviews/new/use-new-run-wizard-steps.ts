@@ -165,12 +165,14 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
   const wizardCompleteSetupSteps = resolveNewRunWizardCompleteSetupSteps({
     identityConfigured: stepIndex >= 2 && (options.watchedWizardValues?.systemName?.trim().length ?? 0) > 0,
-    evidenceConfigured: stepIndex > 1 || options.hasPendingEvidence,
+    evidenceConfigured: options.hasPendingEvidence,
+    evidenceStepPastWithoutFile: stepIndex > 1 && !options.hasPendingEvidence,
     reviewStarted: options.runId !== null,
   });
   const wizardCompleteSetupEmphasizedStepId = resolveNewRunWizardCompleteSetupEmphasizedStepId({
     identityConfigured: stepIndex >= 2 && (options.watchedWizardValues?.systemName?.trim().length ?? 0) > 0,
-    evidenceConfigured: stepIndex > 1 || options.hasPendingEvidence,
+    evidenceConfigured: options.hasPendingEvidence,
+    evidenceStepPastWithoutFile: stepIndex > 1 && !options.hasPendingEvidence,
     reviewStarted: options.runId !== null,
   });
 

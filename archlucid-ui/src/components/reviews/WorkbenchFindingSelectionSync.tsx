@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import { writeReviewDetailFindingIdToUrl } from "@/lib/review-detail-workspace-tabs";
+import { scheduleScrollToReviewFinding } from "@/lib/review-detail-section-scroll";
 
 /** Applies selected-finding visual state to finding cards in the workbench findings column (PT-12). */
 export function WorkbenchFindingSelectionSync(props: { readonly enabled?: boolean }): null {
@@ -50,8 +51,7 @@ export function WorkbenchFindingSelectionSync(props: { readonly enabled?: boolea
       card.setAttribute("data-workbench-selected", selected ? "true" : "false");
 
       if (selected) {
-        card.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        card.focus({ preventScroll: true });
+        scheduleScrollToReviewFinding(findingId);
       }
     }
   }, [props.enabled, reconcileSelectedFindingId, selectedFindingId]);

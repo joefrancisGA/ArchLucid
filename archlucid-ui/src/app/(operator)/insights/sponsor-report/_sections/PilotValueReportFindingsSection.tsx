@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatPilotOutcomesAnalysisCoverage } from "@/lib/pilot-outcomes-agent-type-labels";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { cn } from "@/lib/utils";
 import {
   parsePilotOutcomesTechnicalDetailsOpenFromSearch,
@@ -221,7 +222,7 @@ export function PilotValueReportFindingsSection(props: Props) {
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Highest severity was not stored</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Open actions were not stored</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>
-                  <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
+                  <Link href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(row.runId)} className={OPERATOR_LINK.inline}>
                     Open review
                   </Link>
                 </EnterpriseTableCell>

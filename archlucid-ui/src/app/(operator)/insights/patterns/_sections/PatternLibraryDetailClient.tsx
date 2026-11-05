@@ -9,6 +9,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
 import {
   derivePatternLibrarySummary,
@@ -162,7 +163,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
           >
             Open review
           </Link>

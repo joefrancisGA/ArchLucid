@@ -10,7 +10,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseTable } from "@/components/ui/enterprise-table";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  governanceFindingInspectHref,
+  navigateGovernanceFindingDetail,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
@@ -195,7 +195,7 @@ export function GovernanceFindingsQueueDesktopTable(
         return;
       }
 
-      router.push(governanceFindingInspectHref(row.runId, row.findingId));
+      navigateGovernanceFindingDetail(router, row);
       onRowOpened?.(row);
     },
   });
