@@ -4,6 +4,7 @@ import {
   comparePairGroundingForRuns,
   comparePairGroundingHasLinks,
   resolveComparePairPrimaryFindingIds,
+  resolveCompareUpdatedReviewOpenHref,
 } from "@/lib/compare-pair-grounding-links";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
@@ -74,5 +75,35 @@ describe("comparePairGroundingForRuns", () => {
       baselinePrimaryFindingId: "finding-prior",
       updatedPrimaryFindingId: "finding-new",
     });
+  });
+});
+
+describe("resolveCompareUpdatedReviewOpenHref", () => {
+  it("matches cite-strip Open review when lifecycle has an updated finding", () => {
+    const lifecycleRecords = [
+      {
+        state: "PreviouslyIdentifiedStillPresent" as const,
+        resolutionBasis: null,
+        priorFindingId: "finding-prior",
+        currentFindingId: "finding-updated",
+        correlationMethod: "dedupe" as const,
+        severity: "High" as const,
+        category: "Storage",
+        message: "msg",
+        sourceAgent: "agent",
+        latestDisposition: null,
+      },
+    ];
+    const grounding = comparePairGroundingForRuns("run-a", "run-b", resolveComparePairPrimaryFindingIds(lifecycleRecords));
+    const bannerHref = resolveCompareUpdatedReviewOpenHref("run-b", "architecture-identity-001", lifecycleRecords);
+
+    expect(bannerHref).toBe(grounding.updated?.links[0]?.href);
+    expect(bannerHref).toContain("findingId=finding-updated");
+  });
+
+  it("falls back to working nested open when no updated finding is correlated", () => {
+    expect(resolveCompareUpdatedReviewOpenHref("run-42", "architecture-identity-001", [])).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-42",
+    );
   });
 });

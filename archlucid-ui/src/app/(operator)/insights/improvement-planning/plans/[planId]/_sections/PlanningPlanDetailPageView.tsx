@@ -10,7 +10,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDetailHubVocabularyRail";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { PLANNING_PATH, planningPlanDetailHref } from "@/lib/planning-route";
 import {
   PLANNING_PLAN_DETAIL_LOAD_RETRY_LABEL,
@@ -85,7 +85,7 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={resolveScopedInsightOpenReviewHref(scopedRunId)}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
           >
             Open review
           </Link>

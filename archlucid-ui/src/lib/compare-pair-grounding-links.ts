@@ -1,10 +1,12 @@
 import {
   buyerAskGroundingLinksForRun,
+  resolveAskBuyerOpenReviewHref,
   type BuyerAskGroundingLink,
   type BuyerAskGroundingLinksForRunOptions,
 } from "@/lib/ask-buyer-grounding-links";
 import type { CompareFindingLifecycleRecord } from "@/lib/compare-finding-lifecycle";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type ComparePairSideGrounding = {
   readonly runId: string;
@@ -74,6 +76,28 @@ export function resolveComparePairPrimaryFindingIds(
   }
 
   return { baselinePrimaryFindingId, updatedPrimaryFindingId };
+}
+
+/** Compare scope banner Open updated review — aligned with cite-strip primary finding resolution. */
+export function resolveCompareUpdatedReviewOpenHref(
+  updatedRunId: string,
+  architectureId: string | null | undefined,
+  lifecycleRecords: readonly CompareFindingLifecycleRecord[],
+): string {
+  const trimmedUpdatedRunId = updatedRunId.trim();
+  const fallbackHref = resolveSystemNotJobWorkingReviewOpenHref(trimmedUpdatedRunId, architectureId);
+
+  if (trimmedUpdatedRunId.length === 0) {
+    return fallbackHref;
+  }
+
+  const { updatedPrimaryFindingId } = resolveComparePairPrimaryFindingIds(lifecycleRecords);
+
+  if (updatedPrimaryFindingId === null || updatedPrimaryFindingId.trim().length === 0) {
+    return fallbackHref;
+  }
+
+  return resolveAskBuyerOpenReviewHref(trimmedUpdatedRunId, { primaryFindingId: updatedPrimaryFindingId });
 }
 
 /** Pair-scoped Sources for compare — baseline and updated each get review / evidence / audit cites. */
