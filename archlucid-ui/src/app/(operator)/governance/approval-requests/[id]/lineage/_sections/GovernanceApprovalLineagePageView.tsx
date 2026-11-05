@@ -22,6 +22,7 @@ import {
   APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
   APPROVAL_LINEAGE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-lineage-evidence-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -122,7 +123,7 @@ export function GovernanceApprovalLineagePageView({
   }
 
   const scopedRunId = data.approvalRequest.runId.trim();
-  const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(scopedRunId)}`;
+  const reviewPackageHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId);
   const WorkspaceShell = buyerPolishedShell ? "section" : "div";
 
   return (

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -58,10 +59,10 @@ export function FindingInspectFindingBody({
     (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && isOperatorExperienceFullShellEnv();
   const reviewContextHref =
     surface === "sponsor"
-      ? `/architecture/reviews/${encodeURIComponent(runId)}`
+      ? resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId)
       : isDemoRunIdEligibleForStaticFallback(runId)
         ? getShowcaseManifestHref()
-        : `/architecture/reviews/${encodeURIComponent(runId)}`;
+        : resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId);
   const reviewContextLabel =
     surface === "sponsor"
       ? "Open risk review"

@@ -22,12 +22,14 @@ export type ComparePairGrounding = {
 export type ComparePairGroundingForRunsOptions = {
   readonly baselinePrimaryFindingId?: string | null;
   readonly updatedPrimaryFindingId?: string | null;
+  readonly architectureId?: string | null;
 };
 
 function sideGrounding(
   runIdRaw: string,
   sideLabel: "Baseline" | "Updated",
   primaryFindingId?: string | null,
+  architectureId?: string | null,
 ): ComparePairSideGrounding | null {
   const runId = canonicalizeDemoRunId(runIdRaw.trim());
 
@@ -35,12 +37,10 @@ function sideGrounding(
     return null;
   }
 
-  const askOptions: BuyerAskGroundingLinksForRunOptions | undefined =
-    primaryFindingId !== undefined && primaryFindingId !== null
-      ? { primaryFindingId }
-      : primaryFindingId === null
-        ? { primaryFindingId: null }
-        : undefined;
+  const askOptions: BuyerAskGroundingLinksForRunOptions =
+    primaryFindingId !== undefined
+      ? { primaryFindingId, architectureId }
+      : { architectureId };
 
   const links = buyerAskGroundingLinksForRun(runId, askOptions);
 
@@ -101,7 +101,10 @@ export function resolveCompareUpdatedReviewOpenHref(
     return fallbackHref;
   }
 
-  return resolveAskBuyerOpenReviewHref(trimmedUpdatedRunId, { primaryFindingId: updatedPrimaryFindingId });
+  return resolveAskBuyerOpenReviewHref(trimmedUpdatedRunId, {
+    primaryFindingId: updatedPrimaryFindingId,
+    architectureId,
+  });
 }
 
 /** Pair-scoped Sources for compare — baseline and updated each get review / evidence / audit cites. */
@@ -111,8 +114,18 @@ export function comparePairGroundingForRuns(
   options?: ComparePairGroundingForRunsOptions,
 ): ComparePairGrounding {
   return {
-    baseline: sideGrounding(baselineRunId, "Baseline", options?.baselinePrimaryFindingId),
-    updated: sideGrounding(updatedRunId, "Updated", options?.updatedPrimaryFindingId),
+    baseline: sideGrounding(
+      baselineRunId,
+      "Baseline",
+      options?.baselinePrimaryFindingId,
+      options?.architectureId,
+    ),
+    updated: sideGrounding(
+      updatedRunId,
+      "Updated",
+      options?.updatedPrimaryFindingId,
+      options?.architectureId,
+    ),
   };
 }
 

@@ -27,7 +27,7 @@ import {
 } from "@/lib/impact-preview-page-copy";
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE } from "@/lib/system-not-job-impact-preview-envelope-entry";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
@@ -264,7 +264,9 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={resolveSystemNotJobWorkingReviewOpenHref(props.scopedRunId, pinnedArchitectureId)}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(props.scopedRunId, {
+              architectureId: pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null,
+            })}
           >
             Open review
           </Link>

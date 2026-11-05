@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
@@ -74,6 +75,8 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
       ? null
       : supportingFindingIds.length;
 
+  const primarySupportingFindingId = supportingFindingIds?.find((id) => id.trim().length > 0)?.trim() ?? "";
+
   return (
     <Card data-testid={`decision-register-card-${decision.decisionId}`}>
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
@@ -105,7 +108,13 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
               </span>
             </dt>
             <dd className="m-0">
-              <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${decision.runId}`}>
+              <Link
+                className={OPERATOR_LINK.nav}
+                href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(decision.runId, {
+                  primaryFindingId:
+                    primarySupportingFindingId.length > 0 ? primarySupportingFindingId : undefined,
+                })}
+              >
                 Open review
               </Link>
             </dd>

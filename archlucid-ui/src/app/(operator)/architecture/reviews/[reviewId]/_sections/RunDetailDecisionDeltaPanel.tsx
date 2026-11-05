@@ -6,6 +6,7 @@ import { FindingPolicyRuleBadge } from "@/components/findings/FindingPolicyRuleB
 import { CopyStoredTextButton } from "@/components/CopyStoredTextButton";
 import { FindingTrustChipFromSet } from "@/components/findings/FindingTrustChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
+import { resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
@@ -63,7 +64,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
                 </span>
                 <SeverityTag severity={row.severityLabel} label={row.severityLabel} />
                 <Link
-                  href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
+                  href={resolveQuickDecisionFindingWorkspaceHref(runId, row.findingId)}
                   prefetch={false}
                   className={cn(OPERATOR_LINK.inline, "min-w-0 flex-1 font-medium")}
                 >
