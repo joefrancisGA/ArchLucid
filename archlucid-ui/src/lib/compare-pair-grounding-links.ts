@@ -93,7 +93,11 @@ export function resolveCompareUpdatedReviewOpenHref(
 
   const { updatedPrimaryFindingId } = resolveComparePairPrimaryFindingIds(lifecycleRecords);
 
-  if (updatedPrimaryFindingId === null || updatedPrimaryFindingId.trim().length === 0) {
+  if (
+    updatedPrimaryFindingId === undefined ||
+    updatedPrimaryFindingId === null ||
+    updatedPrimaryFindingId.trim().length === 0
+  ) {
     return fallbackHref;
   }
 
