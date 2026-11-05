@@ -2705,3 +2705,4 @@
 {"at":"2026-11-05T13:28:26.4916122Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Exports/","ArchLucid.Api/Controllers/Authority/ExportsController.cs"]}
 {"at":"2026-11-05T13:36:59.0007602Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Exports/","ArchLucid.Api/Controllers/Authority/ExportsController.cs"]}
 {"at":"2026-11-05T14:37:05.8467669Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/","ArchLucid.Persistence/Billing/","ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs"]}
+{"at":"2026-11-05T18:02:48.8398280Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}

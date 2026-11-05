@@ -630,13 +630,29 @@
 
 ## Zone: auth-return-path
 
+2026-11-05 thorough hunt (dry #61): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#60** — **valid-no-repro** stray `%` suffix after decode cap on `/reviews/active%` (`ContainsTrailingPercentAfterDecodeCap`; hit **#1222** / regression `TryNormalize_rejects_residual_percent_after_decode_cap`; `TryNormalize_rejects_benign_query_percent_literal_when_decode_leaves_malformed_escape`), **valid-no-repro** percent-encoded soft hyphen `%C2%ADsegment` in path (`TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; dry **#60** / seed **#55**), **valid-no-repro** ASCII BEL `%07` in path segment after decode (post-decode `ContainsControlCharacter` / `char.IsControl`; same class as `%0C` / `%0D` regressions), **invalid** percent-encoded fullwidth at `%EF%BC%A0` only in query — `ContainsAtSignInPath` scans path portion only by design (parity fragment-only `@` acceptance in `TryNormalize_accepts_fullwidth_commercial_at_in_fragment_not_path_portion`; seed **#54** query `@` diary), **valid-no-repro** mid-path `%2F%2F` decoding to interior `//` (`TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`; input `/app%2F%2Freviews/1`; seed **#56**). Reseeded five follow-on `(candidate)` monitor rows from dry **#60** closed themes; zone **cooling** (`consecutive-dry-hunts` 13); scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `ContainsTrailingPercentAfterDecodeCap` — stray `%` suffix after decode cap — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; hit **#1222** diary; regressions above.
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path segment (URL form) — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; regression `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`.
+- [x] (valid-no-repro) `ContainsControlCharacter` — ASCII BEL `%07` in path segment after decode — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; post-decode control class; parity `%0C` / `%0D` regressions.
+- [x] (invalid) `ContainsAtSignInPath` — percent-encoded fullwidth at `%EF%BC%A0` only in query — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; path-only `@` homoglyph gate by design.
+- [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — mid-path `%2F%2F` before decode completes — **cheap-disproof 2026-11-05 thorough hunt #61:** dry **#60** queue; regression `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`.
+
+- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop; input: `/reviews%E2%80%A9/1` (monitor dry **#61** / dry **#59**).
+- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: decode without open-redirect shape; input: safe relative segment (monitor dry **#61** / dry **#59**).
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only decoded `//` without scheme — locus: conservative full-string scan; input: `/reviews?next=//evil.example` (monitor dry **#61** / seed **#54**).
+- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment after decode — locus: post-decode `char.IsControl`; input: `/reviews/%0Bsegment` (monitor dry **#61** / seed **#54**).
+- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string scheme delimiter rejection; input: `/reviews#foo://bar` (monitor dry **#61** / seed **#54**).
+
+- [x] (superseded) dry **#60** open `(candidate)` queue — **superseded 2026-11-05 thorough hunt #61:** closed at zone header; see hunt **#61** reseed.
+
 2026-11-03 thorough hunt (dry #60): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`billing-webhooks`** is **1/3** before this record). Attempted failing repro on five open `(candidate)` monitor rows from dry **#59** reseed; cheap-disproof closed all five **valid-no-repro** — percent-encoded paragraph separator `%E2%80%A9` (`TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`; dry **#58** / seed **#54**); percent-encoded soft hyphen literal path (`TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; seed **#55**); query-only `//` (`TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring` with `/reviews?next=//evil.example`; seed **#54**); vertical tab `%0B` post-decode control rejection (same `ContainsControlCharacter` / `char.IsControl` class as `%0C` / `%0D` regressions; seed **#54**); fragment `://` (`TryNormalize_rejects_when_fragment_contains_open_redirect_substrings` with `/reviews#foo://bar`; seed **#54**). Reseeded five follow-on `(candidate)` rows below (distinct monitor class from dry **#59** queue); scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `ContainsTrailingPercentAfterDecodeCap` — stray `%` suffix after decode cap — locus: `ContainsTrailingPercentAfterDecodeCap`; input: `/reviews/active%` (truncated percent-encoding on sign-in returnPath query).
-- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path segment (URL form) — locus: `Uri.UnescapeDataString` loop; input: `/reviews%C2%ADsegment/1` (browser-encoded hyphenated slug).
-- [ ] (candidate) `ContainsControlCharacter` — ASCII BEL `%07` in path segment after decode — locus: post-decode `char.IsControl`; input: `/reviews/%07tone` (control class distinct from FF/VT/CR regressions).
-- [ ] (candidate) `ContainsAtSignInPath` — percent-encoded fullwidth at `%EF%BC%A0` only in query — locus: path-only `@` scan vs whole-string checks; input: `/reviews?next=%EF%BC%A0host/path`.
-- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — mid-path `%2F%2F` before decode completes — locus: decoded `Contains("//")`; input: `/app%2F%2Freviews/1` (matrix-style pasted relative path).
+- [x] (valid-no-repro) `ContainsTrailingPercentAfterDecodeCap` — stray `%` suffix after decode cap — **cheap-disproof 2026-11-05 thorough hunt #61:** see zone header.
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path segment (URL form) — **cheap-disproof 2026-11-05 thorough hunt #61:** see zone header.
+- [x] (valid-no-repro) `ContainsControlCharacter` — ASCII BEL `%07` in path segment after decode — **cheap-disproof 2026-11-05 thorough hunt #61:** see zone header.
+- [x] (invalid) `ContainsAtSignInPath` — percent-encoded fullwidth at `%EF%BC%A0` only in query — **cheap-disproof 2026-11-05 thorough hunt #61:** see zone header.
+- [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — mid-path `%2F%2F` before decode completes — **cheap-disproof 2026-11-05 thorough hunt #61:** see zone header.
 
 - [x] (valid-no-repro) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — **cheap-disproof 2026-11-03 thorough hunt #60:** dry **#59** queue; regression `TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`.
 - [x] (valid-no-repro) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — **cheap-disproof 2026-11-03 thorough hunt #60:** dry **#59** queue; regression `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`.
@@ -710,14 +726,14 @@
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 12
-- **last-hunt:** 2026-11-03
+- **consecutive-dry-hunts:** 13
+- **last-hunt:** 2026-11-05
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
-**Hunts:** 60 · **Bugs found:** 22 · **Consecutive dry hunts:** 12
+**Hunts:** 61 · **Bugs found:** 22 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
 
