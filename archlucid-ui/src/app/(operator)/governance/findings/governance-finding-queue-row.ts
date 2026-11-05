@@ -1,4 +1,5 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { components } from "@/lib/api-types/schemas.generated";
 import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
@@ -55,9 +56,9 @@ export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQu
   return row.runId.trim().length > 0;
 }
 
-/** Review hub href for a queue row run id; trims padding before encoding. */
+/** Review hub href for a queue row run id; nested when architecture context is known. */
 export function governanceFindingQueueRowReviewHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+  return resolveGovernanceScopedReviewOpenHref({ runId });
 }
 
 /** Optional API policy rule keys must be non-empty after trim before traceability chrome renders. */

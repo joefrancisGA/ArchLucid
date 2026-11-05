@@ -1,14 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import {
-  formatGovernanceQueueRecordRoleHonesty,
-  GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY,
-} from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { governanceFindingQueueRowReviewHref } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
-describe("governance-finding-queue-row (P-16)", () => {
-  it("explains decision rows do not use finding severity or confidence", () => {
-    expect(formatGovernanceQueueRecordRoleHonesty("decision")).toBe(
-      GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY,
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => null),
+}));
+
+describe("governanceFindingQueueRowReviewHref", () => {
+  it("falls back to flat review when desk cache is empty", () => {
+    expect(governanceFindingQueueRowReviewHref("run-queue-1")).toBe("/architecture/reviews/run-queue-1");
+  });
+
+  it("opens nested review when desk continuity cache is set", () => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-queue-001");
+
+    expect(governanceFindingQueueRowReviewHref("run-queue-2")).toBe(
+      "/architecture/architectures/architecture-queue-001/reviews/run-queue-2",
     );
   });
 });

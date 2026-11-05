@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
+import { ArchLucidBetaSkuContentsSection } from "@/components/product-line/ArchLucidBetaSkuContentsSection";
 import { Button } from "@/components/ui/button";
 import { GetStartedPageChrome } from "@/components/marketing/get-started/GetStartedPageChrome";
 import { GetStartedScopeDisclosure } from "@/components/marketing/get-started/GetStartedScopeDisclosure";
@@ -307,6 +308,8 @@ export function GetStartedPageClient(): ReactElement {
               {GET_STARTED_REAL_REVIEW_NOTE}
             </p>
           </section>
+
+          <ArchLucidBetaSkuContentsSection showQuoteLink={false} />
 
           <section
             aria-labelledby="next-heading"

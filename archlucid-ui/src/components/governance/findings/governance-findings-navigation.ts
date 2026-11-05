@@ -9,7 +9,7 @@ import {
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
-import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
@@ -144,7 +144,7 @@ export function governanceFindingManifestRecordHref(runId: string, manifestId: s
     return signedRecordDetailPath(normalizedManifestId);
   }
 
-  return resolveWorkingRunReviewLocator({ runId }).href;
+  return resolveGovernanceScopedReviewOpenHref({ runId });
 }
 
 export function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {
