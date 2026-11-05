@@ -16,7 +16,7 @@ import {
 } from "@/lib/compare/compare-provenance-delta-summary";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveAskBuyerOpenReviewHref } from "@/lib/ask-buyer-grounding-links";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import type { ComparePairGroundingForRunsOptions } from "@/lib/compare-pair-grounding-links";
 import { summarizeCompareHardCitationDelta } from "@/lib/livelihood-grade-no-compare-hard-citation-delta";
 import type { DiffItem, RunSummary } from "@/types/authority";
@@ -214,8 +214,9 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
         Open packages:{" "}
         <Link
           className={OPERATOR_LINK.inline}
-          href={resolveAskBuyerOpenReviewHref(summary.baseline.runId, {
+          href={resolveScopedInsightOpenReviewHref(summary.baseline.runId, {
             primaryFindingId: props.groundingOptions?.baselinePrimaryFindingId,
+            architectureId: props.groundingOptions?.architectureId,
           })}
         >
           Baseline review
@@ -223,8 +224,9 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
         {" · "}
         <Link
           className={OPERATOR_LINK.inline}
-          href={resolveAskBuyerOpenReviewHref(summary.target.runId, {
+          href={resolveScopedInsightOpenReviewHref(summary.target.runId, {
             primaryFindingId: props.groundingOptions?.updatedPrimaryFindingId,
+            architectureId: props.groundingOptions?.architectureId,
           })}
         >
           Updated review
