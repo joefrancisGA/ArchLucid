@@ -25,4 +25,18 @@ describe("new-run-wizard-complete-setup-checklist", () => {
 
     expect(steps.find((step) => step.id === "start")?.complete).toBe(true);
   });
+
+  it("shows no evidence file stored when past evidence step without a pending file (P-19)", () => {
+    const steps = resolveNewRunWizardCompleteSetupSteps({
+      identityConfigured: true,
+      evidenceConfigured: false,
+      evidenceStepPastWithoutFile: true,
+      reviewStarted: false,
+    });
+
+    expect(steps.find((step) => step.id === "evidence")?.complete).toBe(false);
+    expect(steps.find((step) => step.id === "evidence")?.incompleteStatusLabel).toBe(
+      "No evidence file stored.",
+    );
+  });
 });

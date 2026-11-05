@@ -6,6 +6,7 @@ export type IntegrationConnectChecklistStep = {
   readonly id: string;
   readonly label: string;
   readonly complete: boolean;
+  readonly incompleteStatusLabel?: string;
 };
 
 export type IntegrationConnectChecklistProps = {
@@ -43,9 +44,8 @@ export function IntegrationConnectChecklist(props: IntegrationConnectChecklistPr
           const emphasized = step.id === props.emphasizedStepId;
           const statusLabel = step.complete
             ? "Done"
-            : emphasized
-              ? ENTERPRISE_STATUS_LABELS["in-progress"]
-              : "Pending";
+            : step.incompleteStatusLabel ??
+              (emphasized ? ENTERPRISE_STATUS_LABELS["in-progress"] : "Pending");
 
           return (
             <li

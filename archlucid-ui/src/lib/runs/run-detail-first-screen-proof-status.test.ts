@@ -73,7 +73,7 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     });
 
     expect(strictHold.disposition).toBe("HOLD");
-    expect(strictHold.whySafeToSendBullets.join(" ")).toContain("Strict AI quality");
+    expect(strictHold.whySafeToSendBullets.join(" ")).toContain("Strict AI quality evidence is not satisfied");
     expect(strictHold.whySafeToSendBullets.join(" ").toLowerCase()).not.toContain("pilotstrict");
 
     const roiHold = buildRunDetailFirstScreenProofSummary({
@@ -203,5 +203,36 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
 
     expect(summary.governedCoverageLabel).toBe("8 of 10 governed (80.0%)");
     expect(summary.governedCoverageLabel).not.toContain("evidence-backed");
+  });
+
+  it("uses ROI freshness label on READY instead of dollar-claims bullet (P-03)", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      structuralExecutionMode: "Real",
+      roiSourceFreshnessDisposition: "pass",
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(summary.disposition).toBe("READY");
+    expect(summary.whySafeToSendBullets.join(" ")).toContain("PASS — server ROI freshness status");
+    expect(summary.whySafeToSendBullets.join(" ")).not.toContain("No unsourced projected dollar claims");
+  });
+
+  it("lists execution mode omission as its own READY bullet (P-04)", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(summary.disposition).toBe("READY");
+    expect(summary.whySafeToSendBullets).toContain("Execution mode was not stored.");
+    expect(summary.whySafeToSendBullets).toContain("Strict sponsor proof is satisfied.");
+    expect(summary.whySafeToSendBullets.join(" ")).not.toContain(
+      "Execution mode is Execution mode was not stored.",
+    );
   });
 });

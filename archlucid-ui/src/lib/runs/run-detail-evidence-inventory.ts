@@ -21,6 +21,8 @@ export const RUN_DETAIL_EVIDENCE_KIND_STORED_EMPTY = "Evidence kind was stored e
 export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
   "Findings cite evidence, but source names were not stored." as const;
 
+export const SUBMITTED_EVIDENCE_LIST_NOT_STORED = "Submitted evidence list was not stored." as const;
+
 export const CITING_FINDING_COUNT_NOT_STORED = "Citing finding count was not stored." as const;
 
 export const CITING_FINDING_COUNT_NOT_STORED_FOR_ARCHITECTURE_BRIEF =
@@ -409,7 +411,7 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
     return "Submitted source list was stored empty.";
   }
 
-  return "No submitted source documents are listed for this review.";
+  return "Findings snapshot was not stored, so the submitted source list cannot be confirmed.";
 }
 
 /** Single Evidence-tab readiness verdict — inventory gaps override a complete trust-evidence rollup. */

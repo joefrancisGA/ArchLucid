@@ -49,7 +49,9 @@ export function useNewRunWizardTrackStream(options: {
       const manifestPhrase =
         pollSummary.hasGoldenManifest === undefined
           ? "Finalized review record status was not stored"
-          : `Finalized review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}`;
+          : pollSummary.hasGoldenManifest
+            ? "Finalized review record snapshot is present"
+            : "Finalized review record snapshot is not present";
 
       return `Review ${runId} polled: ${snapshotStatusPhrase("context", pollSummary.hasContextSnapshot)}, ${snapshotStatusPhrase("graph", pollSummary.hasGraphSnapshot)}, ${snapshotStatusPhrase("findings", pollSummary.hasFindingsSnapshot)}, ${manifestPhrase}.`;
     }

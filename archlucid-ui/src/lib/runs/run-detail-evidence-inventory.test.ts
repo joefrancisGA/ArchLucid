@@ -275,6 +275,15 @@ describe("run-detail-evidence-inventory", () => {
         findingsSnapshotStored: true,
       }),
     ).toBe("Submitted source list was stored empty.");
+
+    expect(
+      deriveEvidenceScopeCoverageLine({
+        inventoryCount: 0,
+        findingsCoverageSummaryLine: "",
+        linkedFindingCount: 0,
+        openFindingCount: 0,
+      }),
+    ).toBe("Findings snapshot was not stored, so the submitted source list cannot be confirmed.");
   });
 
   it("replaces findings coverage copy when inventory is empty but findings cite pointers", () => {

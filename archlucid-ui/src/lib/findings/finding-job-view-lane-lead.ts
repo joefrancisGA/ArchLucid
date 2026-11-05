@@ -5,7 +5,8 @@ export const FINDING_JOB_VIEW_LANE_LEADS: Readonly<Record<FindingJobView, string
   "needs-my-decision": "No narrower triage lane was stored. Disposition or human review is still open.",
   "needs-governance": "Needs approval evidence or human review sign-off before finalize.",
   deferred: "Deferred — revisit before you finalize the review record.",
-  "ready-for-sponsor-packet": "Meets sponsor-packet trust bar once disposition is recorded.",
+  "ready-for-sponsor-packet":
+    "Sponsor-packet trust checks match this finding. This lane does not record a new disposition.",
   "answer-these-questions": "Reads as blocked or unverified — answer intake gaps before treating severity as final.",
   "verify-hypotheses":
     "Exploratory or adversarial signal — verify with evidence before treating as publishable fact.",
