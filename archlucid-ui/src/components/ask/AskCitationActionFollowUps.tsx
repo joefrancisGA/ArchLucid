@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  ASK_CITATION_FOLLOW_UPS_WORKSPACE_PATH_HELPER,
   resolveAskCitationFollowUpsEmptyNote,
   type AskCitationActionFollowUp,
 } from "@/lib/ask-citation-action-follow-ups";
@@ -54,7 +55,13 @@ export function AskCitationActionFollowUps(props: AskCitationActionFollowUpsProp
       aria-label="Cited finding follow-ups"
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-        Open cited evidence
+        Open cited finding in review
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="ask-citation-action-workspace-path-helper"
+      >
+        {ASK_CITATION_FOLLOW_UPS_WORKSPACE_PATH_HELPER}
       </p>
       <div className="flex flex-wrap gap-2">
         {chips.map((chip) =>

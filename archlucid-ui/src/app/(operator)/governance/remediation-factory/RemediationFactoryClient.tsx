@@ -20,6 +20,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -145,6 +146,10 @@ function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetri
           {REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE}
         </h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_SCOPE}</p>
+        <SecureNowSponsorRoiCollectionScopeHonestyLine
+          className={OPERATOR_TYPOGRAPHY.helper}
+          testId="remediation-executive-metrics-collection-scope-honesty"
+        />
       </header>
       <EnterpriseTable ariaLabel="Executive remediation metrics">
         <EnterpriseTableHead>
