@@ -8,6 +8,7 @@ import {
   getFindingGovernanceDispositionHref,
   resolveFindingsQueueNavHref,
   resolveQuickDecisionFindingInspectHref,
+  resolveQuickDecisionFindingDispositionHref,
 } from "@/lib/findings/finding-evidence-navigation";
 
 describe("finding-evidence-navigation", () => {
@@ -17,9 +18,9 @@ describe("finding-evidence-navigation", () => {
     );
   });
 
-  it("builds the approval disposition deep link for evidence trace", () => {
+  it("builds the findings workspace disposition deep link", () => {
     expect(getFindingGovernanceDispositionHref("run-1", "finding-9")).toBe(
-      "/architecture/reviews/run-1/findings/finding-9/evidence-trace#governance-disposition-heading",
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
     );
   });
 
@@ -46,6 +47,12 @@ describe("finding-evidence-navigation", () => {
         isWorkingMode: true,
       }),
     ).toBe(`${architectureNestedFindingsPath("arch-001")}?runId=run-1&focusedFinding=finding-9`);
+  });
+
+  it("routes disposition CTAs to the findings workspace when not in nested working findings", () => {
+    expect(resolveQuickDecisionFindingDispositionHref("run-1", "finding-9")).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
   });
 
   it("SG-027: keeps governance queue when Working parent is unknown", () => {

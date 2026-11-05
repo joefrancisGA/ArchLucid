@@ -32,6 +32,7 @@ import { governanceQueueStatusTagKind } from "@/components/governance/findings/g
 import {
   governanceFindingInspectHref,
   governanceFindingQueuePrimaryInspectHref,
+  governanceFindingQueueRowReviewHrefForRow,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
@@ -55,7 +56,6 @@ import {
   governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
-  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
@@ -263,7 +263,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {row.runId.trim().length > 0 ? (
-          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
+          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHrefForRow(row)}>
             {row.runLabel}
           </Link>
         ) : (

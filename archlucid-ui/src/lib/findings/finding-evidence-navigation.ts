@@ -2,6 +2,8 @@ import { governanceFindingInspectHref } from "@/components/governance/findings/g
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 
 /** Canonical App Router segment for finding evidence trace pages. */
 export const FINDING_EVIDENCE_TRACE_SEGMENT = "evidence-trace";
@@ -87,9 +89,17 @@ export function getFindingEvidenceTraceHref(
 /** In-page anchor for the disposition workflow on the evidence trace surface. */
 export const FINDING_GOVERNANCE_DISPOSITION_HASH = "governance-disposition-heading";
 
-/** Deep link to record disposition on the evidence trace governance panel. */
+/** Findings workspace deep link for recording disposition (review tab + finding selection + spine hash). */
+export function resolveReviewFindingsWorkspaceDispositionHref(runId: string, findingId: string): string {
+  return buildReviewDetailTabHref(runId.trim(), "findings", {
+    findingId: findingId.trim(),
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
+}
+
+/** Deep link to record disposition on the review findings workspace. */
 export function getFindingGovernanceDispositionHref(runId: string, findingId: string): string {
-  return `${getFindingEvidenceTraceHref(runId, findingId)}#${FINDING_GOVERNANCE_DISPOSITION_HASH}`;
+  return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId);
 }
 
 export type QuickDecisionFindingNavOptions = {

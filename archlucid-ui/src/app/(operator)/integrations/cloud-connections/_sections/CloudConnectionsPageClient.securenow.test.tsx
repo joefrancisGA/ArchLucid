@@ -71,6 +71,7 @@ describe("CloudConnectionsPageClient (SecureNow collection missing)", () => {
       /capture failed or has not finished/i,
     );
     expect(screen.getByTestId("cloud-connections-collection-setup-checklist")).toBeInTheDocument();
+    expect(screen.queryByText("Connect cloud inventory")).not.toBeInTheDocument();
 
     expect(screen.getByTestId("cloud-connections-collection-missing-first-hour-link")).toHaveAttribute(
       "href",

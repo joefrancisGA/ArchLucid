@@ -76,10 +76,12 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     azureSubscriptionSummary: props.azureSubscriptionScopeLabel,
   });
 
-  const showSecureNowCollectionStatusAsideFromMissing =
-    productLine === "security" && (showCollectionInProgress || showCollectionReady);
+  const showSecureNowCollectionBlock =
+    productLine === "security"
+    && showConnectionContent
+    && (showCollectionMissing || showCollectionInProgress || showCollectionReady);
 
-  const checklist = showConnectionContent && !showSecureNowCollectionStatusAsideFromMissing ? (
+  const checklist = showConnectionContent && !showSecureNowCollectionBlock ? (
     <IntegrationConnectChecklist
       title="Connect cloud inventory"
       steps={cloudConnectSteps}
