@@ -112,6 +112,22 @@ export function governanceFindingQueuePrimaryInspectHref(
   return governanceFindingInspectHref(row.runId, row.findingId, options);
 }
 
+/** Title link for queue rows — primary inspect when disposition is open, else evidence-trace inspect. */
+export function governanceFindingQueueRowTitleInspectHref(
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): string {
+  if (row.recordKind === "finding") {
+    const primary = governanceFindingQueuePrimaryInspectHref(row, options);
+
+    if (primary !== null) {
+      return primary;
+    }
+  }
+
+  return governanceFindingInspectHref(row.runId, row.findingId, options);
+}
+
 /** Review column link: findings workspace when this row still needs disposition recording. */
 export function governanceFindingQueueRowReviewHrefForRow(row: GovernanceFindingQueueRow): string {
   if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
