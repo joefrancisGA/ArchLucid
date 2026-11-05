@@ -20,6 +20,7 @@ import {
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_STATUS_NOT_STORED_TITLE,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE,
@@ -77,7 +78,9 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
             title={
               props.catalogAvailable === false
                 ? RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE
-                : RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE
+                : props.catalogAvailable === undefined
+                  ? RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_STATUS_NOT_STORED_TITLE
+                  : RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE
             }
             description={
               props.catalogAvailable === false

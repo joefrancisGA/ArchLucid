@@ -8,6 +8,9 @@ export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HELPER =
 
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE = "No files uploaded yet" as const;
 
+export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_STATUS_NOT_STORED_TITLE =
+  "Upload catalog status was not stored." as const;
+
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE =
   "Upload catalog was not available." as const;
 

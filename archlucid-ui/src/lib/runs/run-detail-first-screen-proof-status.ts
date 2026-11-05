@@ -161,8 +161,19 @@ function buildWhySafeToSendBullets(
   const executionMode = structuralExecutionModeLabel(payload);
 
   if (disposition === "READY") {
-    bullets.push(`Execution mode is ${executionMode} with strict AI quality checks satisfied.`);
-    if (roiLabel.startsWith("Classified") || roiLabel.startsWith("HOLD")) {
+    if (
+      executionMode === "Execution mode was not stored."
+      || executionMode === "Execution mode was stored empty."
+    ) {
+      bullets.push(executionMode);
+      bullets.push("Strict sponsor proof is satisfied.");
+    } else {
+      bullets.push(`Execution mode is ${executionMode} with strict AI quality checks satisfied.`);
+    }
+
+    if (roiLabel.includes("server ROI freshness status")) {
+      bullets.push(roiLabel);
+    } else if (roiLabel.startsWith("Classified") || roiLabel.startsWith("HOLD")) {
       bullets.push(roiLabel);
     } else if (roiLabel === "ROI source basis was not stored.") {
       bullets.push(roiLabel);
@@ -175,7 +186,11 @@ function buildWhySafeToSendBullets(
   }
 
   if (!strictSafe) {
-    bullets.push("Strict AI quality evidence is not satisfied for export-ready agent output.");
+    if (!isStrictSponsorProofFlagStored(payload)) {
+      bullets.push("Strict sponsor proof was not stored.");
+    } else {
+      bullets.push("Strict AI quality evidence is not satisfied for export-ready agent output.");
+    }
   }
 
   if (roiLabel.startsWith("HOLD")) {

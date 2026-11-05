@@ -200,7 +200,8 @@ export function SocraticIntakeWizardStepClarifications(
               className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="guided-intake-clarification-suggested-draft-count"
             >
-              {suggestedDraftCount} suggested from your architecture brief — review and save each.
+              {suggestedDraftCount} suggested from your{" "}
+              {hasRephrasedSuggestions ? "architecture brief" : "evidence corpus"} — review and save each.
             </p>
           ) : null}
 
