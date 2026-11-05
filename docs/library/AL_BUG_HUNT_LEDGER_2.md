@@ -8855,6 +8855,22 @@
 ---
 
 ## Zone: tenant-data-export
+2026-11-05 thorough hunt (dry #975): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#974** — **valid-no-repro** cooperative cancel during DOCX builder after document model assembly (host cancel class; hunt **#972** diary), **valid-no-repro** cooperative cancel on artifact push sealed-manifest hash guard before blob policy (host cancel; hunt **#969** / dry **#968**), **valid-no-repro** JSON string `"-0.0"` on `is_sample_run` truncates to zero and does not bypass career block (~188–195; dry **#968**), **valid-no-repro** cooperative cancel on compare-summary sealed-manifest guard for left export id (host cancel; hunt **#973** / **#970**), **invalid** newline percent-encoded blob account label — `Uri.TryCreate` rejects before account-label guard (hunt **#969** diary). Reseeded five follow-on `(candidate)` monitor rows below; scoped zone test-filter **43/43** (12/12 Application ArchitectureReviewExport; 11/11 Api ExportsController; 20/20 Core blob policy); `RunAnalyzers=false`. Private beta: n/a.
+
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during DOCX builder after document model assembly — **cheap-disproof 2026-11-05 thorough hunt #975:** dry **#974** reseed queue; host cancel class.
+- [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-05 thorough hunt #975:** dry **#974** reseed queue; host cancel.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — **cheap-disproof 2026-11-05 thorough hunt #975:** numeric string branch truncates to zero; does not bypass block.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during sealed-manifest guard on left export record id — **cheap-disproof 2026-11-05 thorough hunt #975:** dry **#974** reseed queue; host cancel.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with newline percent-encoded in account label — **cheap-disproof 2026-11-05 thorough hunt #975:** `https://127.0.0.1%0a.blob.core.windows.net/c?sas=1` fails absolute HTTPS parse before policy.
+
+- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during HTML builder after document model assembly — locus: HTML export path; input: cancel mid-`BuildAsync` (monitor; hunt #975 reseed).
+- [ ] (candidate) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — locus: run ZIP export path; input: cancel mid-generate (monitor; hunt #975 reseed).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"00.0"` on `is_sample_run` — locus: string numeric branch ~188–195; input: multi-digit fractional zero token (monitor; hunt #975 reseed).
+- [ ] (candidate) `ExportsController.GetExportRecord` — cooperative cancel during sealed-manifest guard before metadata read — locus: export-record read route; input: cancel before facade (monitor; hunt #975 reseed).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with vertical-tab percent-encoded in account label — locus: absolute HTTPS parse; input: `https://127.0.0.1%0b.blob.core.windows.net/c?sas=1` (monitor; hunt #975 reseed).
+
+- [x] (superseded) dry **#974** open `(candidate)` queue — **superseded 2026-11-05 thorough hunt #975:** closed at zone header; see hunt **#975** reseed.
+
 2026-11-05 thorough hunt (dry #974): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#973** — **valid-no-repro** cooperative cancel during PDF builder after document model assembly (host cancel class; hunt **#971** diary), **valid-no-repro** cooperative cancel on `GetExportRecord` sealed-manifest guard (host cancel; hunt **#971**), **valid-no-repro** JSON string `"0e0"` on `is_sample_run` truncates to zero and does not bypass career block (~188–195; hunt **#969**), **valid-no-repro** cooperative cancel on compare-records sealed-manifest guard for right-hand export id (host cancel; hunt **#972**), **invalid** carriage-return percent-encoded blob account label — `Uri.TryCreate` rejects before account-label guard (hunt **#970** diary). Reseeded five follow-on `(candidate)` monitor rows below; scoped zone test-filter **43/43** (12/12 Application ArchitectureReviewExport; 11/11 Api ExportsController; 20/20 Core blob policy); `RunAnalyzers=false`. Private beta: n/a.
 
 - [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during PDF builder after document model assembly — **cheap-disproof 2026-11-05 thorough hunt #974:** dry **#973** reseed queue; host cancel class.
@@ -8863,11 +8879,11 @@
 - [x] (valid-no-repro) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — **cheap-disproof 2026-11-05 thorough hunt #974:** dry **#973** reseed queue; host cancel.
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with carriage-return percent-encoded in account label — **cheap-disproof 2026-11-05 thorough hunt #974:** `https://127.0.0.1%0d.blob.core.windows.net/c?sas=1` fails absolute HTTPS parse before policy.
 
-- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during DOCX builder after document model assembly — locus: DOCX export path; input: cancel mid-`BuildAsync` (monitor; hunt #974 reseed).
-- [ ] (candidate) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — locus: artifact push path; input: cancel before DNS (monitor; hunt #974 reseed).
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — locus: string numeric branch ~188–195; input: signed fractional zero token (monitor; hunt #974 reseed).
-- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during sealed-manifest guard on left export record id — locus: compare-summary route; input: cancel before facade (monitor; hunt #974 reseed).
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with newline percent-encoded in account label — locus: absolute HTTPS parse; input: `https://127.0.0.1%0a.blob.core.windows.net/c?sas=1` (monitor; hunt #974 reseed).
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during DOCX builder after document model assembly — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
+- [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during sealed-manifest guard on left export record id — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with newline percent-encoded in account label — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
 
 - [x] (superseded) dry **#973** open `(candidate)` queue — **superseded 2026-11-05 thorough hunt #974:** closed at zone header; see hunt **#974** reseed.
 
@@ -8962,7 +8978,7 @@
 - [x] (valid-no-repro) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — **cheap-disproof 2026-11-05 thorough hunt #972:** see zone header.
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"0e0"` on `is_sample_run` — **cheap-disproof 2026-11-05 thorough hunt #974:** see zone header.
 - [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-05 thorough hunt #972:** see zone header.
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with newline percent-encoded in account label — locus: absolute HTTPS parse; input: `https://127.0.0.1%0a.blob.core.windows.net/c?sas=1` (monitor).
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with newline percent-encoded in account label — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
 
 2026-11-04 thorough hunt (hit #967): promoted failing regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects` — `AllowedRunExportBlobDestinationUrlPolicy` only ran `PrivateNetworkAddressGuard` on full `IdnHost`, so `https://127.0.0.1.blob.core.windows.net/...` passed the Azure suffix allowlist while the storage account label was loopback; added `TryGetAzureBlobStorageAccountLabel` + `IsForbiddenAzureBlobAccountLabel` (bracketed IPv6 account labels parity); cheap-disproof closed five open `(candidate)` monitor rows from seed **#966** — **valid-no-repro** cooperative cancel paths (host cancel class); **valid-no-repro** JSON string `"0.0"` on `is_sample_run` parses to zero and does not bypass block; **invalid** backslash-delimited blob URL — `Uri.TryCreate` rejects or normalizes before policy; reseeded five follow-on `(candidate)` monitor rows; scoped zone test-filter **43/43** (`RunAnalyzers=false`). Private beta: run export push to blob rejects loopback/private IPv4 literals masquerading as Azure storage account names, closing an SSRF footgun on the pilot export-push API.
 
@@ -8975,7 +8991,7 @@
 
 - [x] (valid-no-repro) `RunsExportController.Export` — cooperative cancel during `GenerateReportAsync` after sealed-manifest guard — **cheap-disproof 2026-11-05 thorough hunt #971:** see zone header.
 - [x] (valid-no-repro) `ExportsController.CompareExportRecords` — cooperative cancel during sealed-manifest guard on right-hand export record id — **cheap-disproof 2026-11-05 thorough hunt #972:** see zone header.
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — locus: string numeric branch ~188–195; input: negative zero fractional token (monitor).
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"-0.0"` on `is_sample_run` — **cheap-disproof 2026-11-05 thorough hunt #975:** see zone header.
 - [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — cooperative cancel during sealed-manifest hash guard before blob policy — **cheap-disproof 2026-11-05 thorough hunt #972:** see zone header.
 - [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — blob URL with tab character in storage account label — locus: account-label extraction; input: `https://127.0.0.1%09.blob.core.windows.net/c?sas=1` (monitor).
 
