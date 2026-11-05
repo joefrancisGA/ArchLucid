@@ -1,42 +1,49 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  architectureNestedFindingsPath,
-  reviewDetailPath,
-} from "@/lib/architecture/architecture-routes";
-
-import {
-  governanceFindingInspectHref,
-  governanceFindingManifestRecordHref,
+  governanceFindingQueuePrimaryInspectHref,
+  governanceFindingQueueRowNeedsDispositionRecording,
 } from "@/components/governance/findings/governance-findings-navigation";
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
-describe("governanceFindingInspectHref (IR-004)", () => {
-  it("returns nested findings focusedFinding href when Working architecture id is known", () => {
-    const href = governanceFindingInspectHref("run-1", "finding-9", {
-      architectureId: "arch-1",
-      isWorkingMode: true,
+function queueRow(overrides: Partial<GovernanceFindingQueueRow>): GovernanceFindingQueueRow {
+  return {
+    runId: "run-1",
+    runLabel: "Run 1",
+    manifestId: "",
+    findingId: "finding-1",
+    title: "Exposure path",
+    severity: "High",
+    category: "Storage",
+    status: "Open",
+    recommended: "Fix",
+    recordKind: "finding",
+    ...overrides,
+  };
+}
+
+describe("governanceFindingQueuePrimaryInspectHref", () => {
+  it("routes open decision-grade rows to the findings workspace deep link", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
     });
 
-    expect(href).toBe(
-      `${architectureNestedFindingsPath("arch-1")}?runId=run-1&focusedFinding=finding-9`,
+    expect(governanceFindingQueueRowNeedsDispositionRecording(row)).toBe(true);
+    expect(governanceFindingQueuePrimaryInspectHref(row)).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
     );
   });
 
-  it("keeps evidence trace href when architecture id is unknown", () => {
-    const href = governanceFindingInspectHref("run-1", "finding-9");
+  it("keeps evidence-trace inspect when disposition is already recorded", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: "Accepted",
+    });
 
-    expect(href).toContain("/architecture/reviews/run-1/findings/finding-9/evidence-trace");
-  });
-});
-
-describe("governanceFindingManifestRecordHref", () => {
-  it.each(["", "   ", " — "])("routes absent manifest ID %j to its review", (manifestId) => {
-    expect(governanceFindingManifestRecordHref("run-1", manifestId)).toBe(reviewDetailPath("run-1"));
-  });
-
-  it("routes a manifest ID to its signed record", () => {
-    expect(governanceFindingManifestRecordHref("run-1", "manifest-1")).toBe(
-      "/governance/sealed-records/manifest-1",
+    expect(governanceFindingQueueRowNeedsDispositionRecording(row)).toBe(false);
+    expect(governanceFindingQueuePrimaryInspectHref(row)).toBe(
+      "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
     );
   });
 });

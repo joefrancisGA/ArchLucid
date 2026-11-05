@@ -31,6 +31,7 @@ import { resolveGovernanceQueueDueDate } from "@/lib/governance/governance-queue
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingInspectHref,
+  governanceFindingQueuePrimaryInspectHref,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
@@ -164,7 +165,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
   const findingInspectHref = hasStoredRunId
-    ? governanceFindingInspectHref(row.runId, row.findingId)
+    ? governanceFindingQueuePrimaryInspectHref(row)
     : null;
   const evidenceTraceHref = row.recordKind === "finding" ? findingInspectHref : null;
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);

@@ -337,6 +337,25 @@ export function resolveFirstReviewFindingsWorkspaceHref(input: {
   });
 }
 
+/** Deep link to the spine top decision-grade finding on the findings workspace tab. */
+export function resolveFirstReviewTopFindingInspectHref(input: {
+  readonly runId: string;
+  readonly topFindingId: string | null;
+  readonly hasFindingsSnapshot: boolean;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+  const findingId = input.topFindingId?.trim() ?? "";
+
+  if (trimmedRunId.length === 0 || findingId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    findingId,
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
+}
+
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly structuralExecutionMode: StructuralExecutionModeInput;

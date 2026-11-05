@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolvePreCommitGatePreviewView } from "@/lib/governance/pre-commit-gate-preview";
-import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstReviewOpenGateReviewHref, resolveFirstReviewFindingsWorkspaceHref, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
+import { deriveFirstReviewSpineBandSummary, countUncitedFindings, resolveFirstReviewOpenGate, resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent, resolveFirstReviewOpenGateReviewHref, resolveFirstReviewFindingsWorkspaceHref, resolveFirstReviewTopFindingInspectHref, resolveFirstUncitedFindingId, resolveFirstOpenDispositionFindingId, FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -238,6 +238,18 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: false,
       }),
     ).toBeNull();
+  });
+
+  it("resolveFirstReviewTopFindingInspectHref targets the stored top finding on the findings workspace", () => {
+    expect(
+      resolveFirstReviewTopFindingInspectHref({
+        runId: "run-abc",
+        topFindingId: "top-dg",
+        hasFindingsSnapshot: true,
+      }),
+    ).toBe(
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-dg#run-detail-first-review-spine-findings",
+    );
   });
 
   it("deriveFirstReviewSpineBandSummary surfaces the first open gate on the stamp spine", () => {
