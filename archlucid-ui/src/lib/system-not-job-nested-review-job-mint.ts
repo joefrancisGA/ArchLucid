@@ -18,7 +18,7 @@ export type SystemNotJobNestedReviewJobMintRow = {
  * when architecture id is known (SY-80 ratchet already blocks inbox; this shrinks peer leftovers).
  */
 export const SYSTEM_NOT_JOB_NESTED_REVIEW_JOB_MINT_ROWS: readonly SystemNotJobNestedReviewJobMintRow[] = [
-  // Pragmatic batches 23–25 closed scoped Open review surfaces listed here through 2026-11-05.
+  // Pragmatic batches 23–26 closed scoped Open review surfaces listed here through 2026-11-05.
 ] as const;
 
 /** Unlinked legacy reviews keep peer inbox URLs — only nested when architecture id is known. */

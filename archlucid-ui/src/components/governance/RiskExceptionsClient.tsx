@@ -12,6 +12,7 @@ import { RiskExceptionsLoadFailure } from "@/app/(operator)/governance/exception
 import { RiskExceptionsLoadingSkeleton } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadingSkeleton";
 import { riskExceptionsPageSubtitle } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import {
   GOVERNANCE_RISK_EXCEPTIONS_BUYER_START_HERE_HELPER,
   GOVERNANCE_RISK_EXCEPTIONS_LOAD_ERROR,
@@ -226,7 +227,7 @@ export default function RiskExceptionsClient() {
                 {" · "}
                 <Link
                   className={OPERATOR_LINK.inline}
-                  href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+                  href={resolveGovernanceScopedReviewOpenHref({ runId: scopedRunId })}
                 >
                   Open review
                 </Link>
