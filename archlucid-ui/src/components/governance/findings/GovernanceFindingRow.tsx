@@ -90,14 +90,14 @@ function GovernanceFindingRowComponent({
           rowIsDecision
             ? () => {
                 onOpenRow?.();
-                navigateGovernanceFindingDetail(router, row.runId, row.findingId);
+                navigateGovernanceFindingDetail(router, row, inspectHrefOptions);
               }
             : undefined
         }
         onKeyDown={
           rowIsDecision
             ? (event) => {
-                governanceFindingDetailKeyboardActivate(event, router, row.runId, row.findingId);
+                governanceFindingDetailKeyboardActivate(event, router, row, inspectHrefOptions);
                 onOpenRow?.();
               }
             : undefined

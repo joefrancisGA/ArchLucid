@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  governanceFindingDetailKeyboardActivate,
   governanceFindingQueuePrimaryInspectHref,
   governanceFindingQueueRowNeedsDispositionRecording,
   governanceFindingQueueRowReviewHrefForRow,
+  navigateGovernanceFindingDetail,
 } from "@/components/governance/findings/governance-findings-navigation";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
@@ -57,5 +59,37 @@ describe("governanceFindingQueuePrimaryInspectHref", () => {
     expect(governanceFindingQueueRowReviewHrefForRow(row)).toBe(
       "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
     );
+  });
+});
+
+describe("navigateGovernanceFindingDetail row overload", () => {
+  it("uses primary inspect href for open decision-grade rows", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
+    });
+    const pushed: string[] = [];
+    const router = { push: (href: string) => pushed.push(href) };
+
+    navigateGovernanceFindingDetail(router as never, row);
+
+    expect(pushed).toEqual([governanceFindingQueuePrimaryInspectHref(row)]);
+  });
+
+  it("keyboard activate on row pushes primary inspect href", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
+    });
+    const pushed: string[] = [];
+    const router = { push: (href: string) => pushed.push(href) };
+
+    governanceFindingDetailKeyboardActivate(
+      { key: "Enter", preventDefault: () => undefined } as never,
+      router as never,
+      row,
+    );
+
+    expect(pushed).toEqual([governanceFindingQueuePrimaryInspectHref(row)]);
   });
 });

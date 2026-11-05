@@ -230,9 +230,35 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     lastMessage !== null &&
     lastMessage.role.toLowerCase() === "assistant";
 
+  const askPrimaryCitationFindingId = useMemo((): string | null => {
+    const trailing = messages.length > 0 ? messages[messages.length - 1] : null;
+    const fromMetadata =
+      trailing !== null && trailing.role.toLowerCase() === "assistant"
+        ? parseAskCitationRefsFromMessageMetadata(trailing.metadataJson)
+        : null;
+
+    const findings =
+      lastAskReferencedFindings.length > 0
+        ? lastAskReferencedFindings
+        : (fromMetadata?.referencedFindings ?? []);
+
+    for (const findingId of findings) {
+      const trimmed = findingId.trim();
+
+      if (trimmed.length > 0) {
+        return trimmed;
+      }
+    }
+
+    return null;
+  }, [lastAskReferencedFindings, messages]);
+
   const askAssistantGroundingLinks = useMemo(
-    () => (buyerPolishedShell ? buyerAskGroundingLinksForRun(runId) : null),
-    [buyerPolishedShell, runId],
+    () =>
+      buyerPolishedShell
+        ? buyerAskGroundingLinksForRun(runId, { primaryFindingId: askPrimaryCitationFindingId })
+        : null,
+    [askPrimaryCitationFindingId, buyerPolishedShell, runId],
   );
 
   const architectureBind = useWorkingInsightsArchitectureBind({

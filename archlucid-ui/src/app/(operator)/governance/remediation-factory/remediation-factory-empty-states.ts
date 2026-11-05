@@ -46,6 +46,23 @@ export function resolveRemediationFactoryRankedPathsEmptyState(
   };
 }
 
+/** When collection is incomplete, cloud setup is the primary recovery path before starting a review. */
+export function resolveRemediationFactoryPriorityQueueEmptyState(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+      { label: "Start an architecture review", href: REVIEWS_NEW_PATH, variant: "outline" },
+    ],
+  };
+}
+
 export const REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT: EnterpriseCompactEmptyStateProps = {
   title: "Select a queue row",
   description: SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
