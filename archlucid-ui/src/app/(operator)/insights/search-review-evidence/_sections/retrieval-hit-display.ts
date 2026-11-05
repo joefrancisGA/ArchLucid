@@ -2,7 +2,7 @@ import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   EVIDENCE_GRAPH_OPEN_ACTION_LABEL,
 } from "@/lib/evidence-graph-operator-source-link";
-import { findingInspectHref } from "@/lib/findings/finding-policy-evidence-citations";
+import { resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { reviewSignedRecordPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -174,14 +174,14 @@ export function buildRetrievalHitActionLink(
 
   if (findingId.length > 0 && runId !== null) {
     return {
-      href: findingInspectHref(runId, findingId),
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, findingId),
       label: "Open finding",
     };
   }
 
   if (sourceType === "ManifestFinding" && sourceId.length > 0 && runId !== null) {
     return {
-      href: findingInspectHref(runId, sourceId),
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, sourceId),
       label: "Open finding",
     };
   }

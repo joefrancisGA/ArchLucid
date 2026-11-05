@@ -108,7 +108,7 @@ describe("resolveRetrievalHitRunId", () => {
 });
 
 describe("buildRetrievalHitActionLink", () => {
-  it("links findings to inspect route", () => {
+  it("links findings to the review findings workspace", () => {
     const link = buildRetrievalHitActionLink(
       hit({
         findingId: "sensitive-data-minimization-risk",
@@ -117,7 +117,7 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/architecture/reviews/${SAMPLE_RUN_ID}/findings/sensitive-data-minimization-risk/evidence-trace`,
+      href: `/architecture/reviews/${SAMPLE_RUN_ID}?reviewTab=findings&findingId=sensitive-data-minimization-risk#run-detail-first-review-spine-findings`,
       label: "Open finding",
     });
   });
