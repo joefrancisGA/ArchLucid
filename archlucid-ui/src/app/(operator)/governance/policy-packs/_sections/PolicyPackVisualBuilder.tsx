@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolvePolicyPackScopedOpenReviewHref } from "@/lib/policy-pack-scoped-open-review-href";
 import { showSuccess } from "@/lib/toast";
 
 import { PolicyPackVisualConditionEditor } from "./PolicyPackVisualConditionEditor";
@@ -136,7 +137,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
               {" · "}
               <Link
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={`/architecture/reviews/${encodeURIComponent(builder.scopedReviewId)}`}
+                href={resolvePolicyPackScopedOpenReviewHref(builder.scopedReviewId)}
               >
                 Open review
               </Link>

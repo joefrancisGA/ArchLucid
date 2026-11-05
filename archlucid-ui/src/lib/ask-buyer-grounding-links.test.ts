@@ -163,6 +163,20 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links[0]?.label).toContain("not in the loaded decision-grade findings index");
   });
 
+  it("buildAskAnswerCitationSourceLinks nests review artifact href when architecture is supplied", () => {
+    const links = buildAskAnswerCitationSourceLinks(
+      "run-a",
+      {
+        referencedFindings: [],
+        referencedDecisions: [],
+        referencedArtifacts: ["run-a"],
+      },
+      { architectureId: "architecture-identity-001" },
+    );
+
+    expect(links[0]?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-a");
+  });
+
   it("collectCitedReviewIdsFromAskAnswerRefs only cites review id artifacts, not other artifact UUIDs", () => {
     const runId = "11111111-1111-4111-8111-111111111111";
     const artifactId = "22222222-2222-4222-8222-222222222222";
