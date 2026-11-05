@@ -36,9 +36,11 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition"]);
-    expect(chips[0]?.href).toBe("/architecture/reviews/run-a/findings/finding-123");
+    expect(chips[0]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-123#run-detail-first-review-spine-findings",
+    );
     expect(chips[1]?.href).toBe(
-      "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-123#run-detail-first-review-spine-findings",
     );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
     expect(chips[1]?.label.toLowerCase()).toContain("disposition");
@@ -74,7 +76,7 @@ describe("buildAskCitationActionFollowUps", () => {
       citations,
     });
 
-    expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(
+    expect(chips.some((c) => c.kind === "finding" && c.href.includes("reviewTab=findings&findingId=sensitive-data-minimization-risk"))).toBe(
       true,
     );
     expect(chips.some((c) => c.kind === "evidence")).toBe(false);

@@ -97,6 +97,11 @@ export function resolveReviewFindingsWorkspaceDispositionHref(runId: string, fin
   });
 }
 
+/** Review findings tab deep link for Ask / insights citation follow-ups (findingId + spine hash). */
+export function resolveReviewFindingsWorkspaceFindingHref(runId: string, findingId: string): string {
+  return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId);
+}
+
 /** Deep link to record disposition on the review findings workspace. */
 export function getFindingGovernanceDispositionHref(runId: string, findingId: string): string {
   return resolveReviewFindingsWorkspaceDispositionHref(runId, findingId);
@@ -123,6 +128,21 @@ export function resolveQuickDecisionFindingInspectHref(
   }
 
   return getFindingDetailHref(runId, findingId);
+}
+
+/** Ask and insights citations land on the review findings workspace unless nested working findings applies. */
+export function resolveQuickDecisionFindingWorkspaceHref(
+  runId: string,
+  findingId: string,
+  options?: QuickDecisionFindingNavOptions,
+): string {
+  const architectureId = options?.architectureId?.trim() ?? "";
+
+  if (options?.isWorkingMode === true && architectureId.length > 0) {
+    return resolveQuickDecisionFindingInspectHref(runId, findingId, options);
+  }
+
+  return resolveReviewFindingsWorkspaceFindingHref(runId, findingId);
 }
 
 /** IP-005 — disposition CTA lands on the inhabited finding card when architecture is known. */

@@ -17,6 +17,8 @@ import {
   type SecureNowArchitectOutcomeQueryState,
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
@@ -105,6 +107,7 @@ import {
   REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
   REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+  resolveRemediationFactoryRankedPathsEmptyState,
 } from "./remediation-factory-empty-states";
 import {
   buildRemediationFactoryExecutiveMetricPresentations,
@@ -252,6 +255,18 @@ export function RemediationFactoryClient() {
     setRankedPage,
     ...urlState
   } = useRemediationFactoryUrlState(productLine);
+  const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+  });
+  const rankedPathsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_RANKED_PATHS_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
+    }
+
+    return resolveRemediationFactoryRankedPathsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsPageSize = REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE;
@@ -785,7 +800,7 @@ export function RemediationFactoryClient() {
               </p>
             ) : null}
             {visibleRankedPaths.length === 0 ? (
-              <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
+              <EnterpriseCompactEmptyState {...rankedPathsEmptyState} />
             ) : (
               <RemediationFactoryRankedPathsTable
                 rows={visibleRankedPaths}

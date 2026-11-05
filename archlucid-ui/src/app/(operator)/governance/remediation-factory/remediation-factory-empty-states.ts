@@ -29,6 +29,23 @@ export const REMEDIATION_FACTORY_RANKED_PATHS_EMPTY: EnterpriseCompactEmptyState
   testId: "remediation-factory-ranked-paths-empty",
 };
 
+/** When collection is incomplete, cloud setup is the primary recovery path before manual upload. */
+export function resolveRemediationFactoryRankedPathsEmptyState(
+  collectionSetupComplete: boolean,
+): EnterpriseCompactEmptyStateProps {
+  if (collectionSetupComplete) {
+    return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
+  }
+
+  return {
+    ...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
+    actions: [
+      { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "primary" },
+      { label: "Upload inventory", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, variant: "outline" },
+    ],
+  };
+}
+
 export const REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT: EnterpriseCompactEmptyStateProps = {
   title: "Select a queue row",
   description: SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
