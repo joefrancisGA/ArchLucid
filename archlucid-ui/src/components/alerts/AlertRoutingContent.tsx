@@ -29,6 +29,7 @@ import {
   ALERT_ROUTING_TAB_PAGE_LEAD,
 } from "@/lib/alert-routing-tab-copy";
 import { useAlertRoutingContent } from "@/components/alerts/use-alert-routing-content";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 export function AlertRoutingContent() {
   const buyerPolishedShell = useProductionEvalChrome();
@@ -155,7 +156,7 @@ export function AlertRoutingContent() {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(routing.scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(routing.scopedRunId)}
           >
             Open review
           </Link>

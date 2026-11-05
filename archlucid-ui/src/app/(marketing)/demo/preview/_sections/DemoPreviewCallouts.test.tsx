@@ -1,12 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { DEMO_PREVIEW_SIGNIN_ACTION } from "@/lib/demo-preview-page-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 
 import { DemoPreviewEvaluationCta, DemoPreviewSignInCallout } from "./DemoPreviewCallouts";
 
-const reviewReturnPath = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => "architecture-showcase-callout-001"),
+}));
+
+const reviewReturnPath = resolveShowcaseOperatorReviewHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 const expectedSignInHref = `/auth/signin?returnUrl=${encodeURIComponent(reviewReturnPath)}`;
 
 describe("DemoPreviewSignInCallout", () => {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { AlertRulesBuyerChrome } from "@/components/alerts/AlertRulesBuyerChrome";
@@ -162,7 +163,7 @@ export function AlertRulesContent() {
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(list.scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(list.scopedRunId)}
           >
             Open review
           </Link>

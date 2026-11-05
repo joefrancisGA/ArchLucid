@@ -13,6 +13,7 @@ import { FIRST_REVIEW_GUIDE_COMPLETED_MESSAGE } from "@/lib/buyer/buyer-polish-c
 import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 
 import { hasSealedReviewRecord } from "@/lib/first-review-guide-persistence";
 
@@ -90,7 +91,7 @@ function reviewDetailHref(runId: string, scope: FirstReviewGuideHrefScope): stri
   const trimmedRunId = runId.trim();
 
   if (trimmedRunId === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return reviewDetailPath(trimmedRunId);
+    return resolveShowcaseOperatorReviewHref(trimmedRunId);
   }
 
   if (scope.workingMode && scope.architectureId !== null) {
