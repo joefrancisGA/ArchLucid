@@ -48,6 +48,7 @@ import {
   parseRecurrenceSchedulesHowItWorksOpenFromSearch,
   recurrenceSchedulesHowItWorksDisclosureHrefFromSearch,
 } from "@/lib/governance/recurrence-schedules-how-it-works-disclosure-url";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 
 import { RecurrenceSchedulesListSection } from "./RecurrenceSchedulesListSection";
 import { RecurrenceSchedulesBuyerChrome } from "./RecurrenceSchedulesBuyerChrome";
@@ -249,7 +250,7 @@ export default function RecurrenceSchedulesClient() {
               {" · "}
               <Link
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+                href={resolveGovernanceScopedReviewOpenHref({ runId: scopedRunId })}
               >
                 Open review
               </Link>
