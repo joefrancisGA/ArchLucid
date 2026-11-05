@@ -91,6 +91,15 @@ export function SecureNowCollectionSetupStatusSection(
             testIdPrefix={props.testIdPrefix}
             titleHeadingLevel="helper"
           />
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link
+              href={CLOUD_CONNECTIONS_PATH}
+              className={OPERATOR_LINK.inline}
+              data-testid={`${props.testIdPrefix}-collection-in-progress-cloud-connections-link`}
+            >
+              Cloud connections
+            </Link>
+          </p>
         </>
       )}
     </section>

@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { cn } from "@/lib/utils";
 
@@ -46,15 +45,6 @@ export function OperatorHomeSecureNowCollectionSetupSection(): React.JSX.Element
       aria-labelledby="operator-home-collection-setup-heading"
     >
       <SecureNowCollectionSetupStatusSection testIdPrefix="operator-home" sectionId="operator-home-collection-setup" />
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link
-          href={CLOUD_CONNECTIONS_PATH}
-          className={OPERATOR_LINK.inline}
-          data-testid="operator-home-cloud-connections-link"
-        >
-          Cloud connections
-        </Link>
-      </p>
     </section>
   );
 }

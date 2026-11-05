@@ -17,6 +17,7 @@ import {
   resolveFirstReviewSpineOpenGateSectionId,
   resolveFirstReviewOpenGateReviewHref,
   resolveFirstReviewFindingsWorkspaceHref,
+  resolveFirstReviewTopFindingInspectHref,
   type FirstReviewSpineBandSummary,
 } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
@@ -57,30 +58,29 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
   const { summary } = props;
   const openGateSectionId = resolveFirstReviewSpineOpenGateSectionId(summary.openGateReviewTab);
   const trimmedRunId = props.runId?.trim() ?? "";
+  const hasOpenGateNavigationInput =
+    props.openGateNavigationInput !== null && props.openGateNavigationInput !== undefined;
+
   const openGateHref = useMemo((): string | null => {
     if (summary.openGateReviewTab === null || trimmedRunId.length === 0) {
       return null;
     }
 
-    if (props.openGateNavigationInput !== null && props.openGateNavigationInput !== undefined) {
-      return resolveFirstReviewOpenGateReviewHref({
-        runId: trimmedRunId,
-        findings: props.openGateNavigationInput.findings,
-        hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
-        reviewHasGoldenManifest: props.openGateNavigationInput.reviewHasGoldenManifest,
-      });
-    }
-
-    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=${summary.openGateReviewTab}`;
-  }, [props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
-
-  const findingsWorkspaceHref = useMemo((): string | null => {
-    if (trimmedRunId.length === 0) {
+    if (!hasOpenGateNavigationInput) {
       return null;
     }
 
-    if (props.openGateNavigationInput === null || props.openGateNavigationInput === undefined) {
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=findings`;
+    return resolveFirstReviewOpenGateReviewHref({
+      runId: trimmedRunId,
+      findings: props.openGateNavigationInput.findings,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      reviewHasGoldenManifest: props.openGateNavigationInput.reviewHasGoldenManifest,
+    });
+  }, [hasOpenGateNavigationInput, props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
+
+  const findingsWorkspaceHref = useMemo((): string | null => {
+    if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
+      return null;
     }
 
     return resolveFirstReviewFindingsWorkspaceHref({
@@ -88,13 +88,24 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       findings: props.openGateNavigationInput.findings,
       hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
     });
-  }, [props.openGateNavigationInput, trimmedRunId]);
+  }, [hasOpenGateNavigationInput, props.openGateNavigationInput, trimmedRunId]);
+
+  const topFindingInspectHref = useMemo((): string | null => {
+    if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
+      return null;
+    }
+
+    return resolveFirstReviewTopFindingInspectHref({
+      runId: trimmedRunId,
+      topFindingId: summary.topFindingId,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+    });
+  }, [hasOpenGateNavigationInput, props.openGateNavigationInput, summary.topFindingId, trimmedRunId]);
 
   const openGateLinkEnabled =
     openGateHref !== null
-    && (props.openGateNavigationInput === null
-      || props.openGateNavigationInput === undefined
-      || props.openGateNavigationInput.hasFindingsSnapshot !== false);
+    && hasOpenGateNavigationInput
+    && props.openGateNavigationInput?.hasFindingsSnapshot !== false;
 
   return (
     <section
@@ -147,8 +158,10 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
                 <Link href={openGateHref ?? "#"} className={OPERATOR_LINK.inline}>
                   Open the gate
                 </Link>
-              ) : (
+              ) : hasOpenGateNavigationInput && props.openGateNavigationInput?.hasFindingsSnapshot === false ? (
                 "Findings snapshot was not stored — open gate link withheld."
+              ) : (
+                "Open gate link withheld until review context is available."
               )
             ) : (
               "Review id was not stored."
@@ -237,7 +250,17 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             : summary.topFindingSeverityLabel !== null
               ? `${summary.topFindingSeverityLabel} `
               : ""}
-          {summary.topFindingTitle}
+          {topFindingInspectHref !== null ? (
+            <Link
+              href={topFindingInspectHref}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-top-finding-link"
+            >
+              {summary.topFindingTitle}
+            </Link>
+          ) : (
+            summary.topFindingTitle
+          )}
         </p>
       ) : null}
 
