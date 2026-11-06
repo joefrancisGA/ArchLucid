@@ -51,7 +51,7 @@ export function sponsorArtifactOpenActionLabel(artifactType: string): string {
     ReferenceArchitectureMarkdown: "Open reference architecture",
   };
 
-  return map[normalizedType] ?? "Open artifact (type was not recognized)";
+  return map[normalizedType] ?? "Open output";
 }
 
 /** Buyer/sponsor table: matching download verb per artifact role. */
@@ -120,11 +120,14 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
   }
 
   const line = raw.toLowerCase();
-  const mentionsSponsorAudience = line.includes("sponsor") || line.includes("sponsor");
+  const mentionsExecutiveAudience = line.includes("executives") || line.includes("executive");
+  const mentionsSponsorAudience = line.includes("sponsor");
   const mentionsArchitect = line.includes("architect");
   const mentionsAudit = line.includes("audit") || line.includes("compliance");
 
-  const topicHits = [mentionsSponsorAudience, mentionsArchitect, mentionsAudit].filter(Boolean).length;
+  const topicHits = [mentionsExecutiveAudience, mentionsSponsorAudience, mentionsArchitect, mentionsAudit].filter(
+    Boolean,
+  ).length;
 
   if (topicHits >= 2) {
     return "shared";
@@ -138,7 +141,7 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
     return "architects";
   }
 
-  if (mentionsSponsorAudience) {
+  if (mentionsExecutiveAudience || mentionsSponsorAudience) {
     return "sponsor";
   }
 

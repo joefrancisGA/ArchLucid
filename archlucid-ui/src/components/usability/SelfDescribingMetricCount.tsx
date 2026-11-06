@@ -3,7 +3,7 @@ import Link from "next/link";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatMetricCountHeadline,
-  formatMetricCountScopeLabel,
+  formatMetricCountScopeLabelFromPresentation,
   type MetricCountPresentation,
 } from "@/lib/metric-count-presentation";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,8 @@ export type SelfDescribingMetricCountProps = {
   readonly testId?: string;
   readonly variant?: "inline" | "stacked" | "executive";
   readonly showHeadline?: boolean;
+  /** When set, suppress KPI hero scale on the numeric tile (TB-2152 quiet zeros). */
+  readonly valueVariant?: "default" | "quiet";
 };
 
 export const METRIC_TILE_INTERACTIVE_SHELL_CLASS =
@@ -26,8 +28,8 @@ function formatMetricNounWithScope(noun: string, scopeLabel: string): string {
 
 /** Clickable metric count with inline scope label (TB-2152). */
 export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps): React.JSX.Element {
-  const { presentation, testId, variant = "stacked", showHeadline = false } = props;
-  const scopeLabel = formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun });
+  const { presentation, testId, variant = "stacked", showHeadline = false, valueVariant = "default" } = props;
+  const scopeLabel = formatMetricCountScopeLabelFromPresentation(presentation);
   const headline = formatMetricCountHeadline(presentation);
   const nounWithScope = formatMetricNounWithScope(presentation.noun, scopeLabel);
 
@@ -48,9 +50,13 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
   }
 
   const countClassName =
-    variant === "executive"
-      ? cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, "inline-block text-al-text-primary")
-      : cn(OPERATOR_TYPOGRAPHY.kpiValue, "inline-block text-al-text-primary");
+    valueVariant === "quiet"
+      ? cn(
+          "inline-block font-mono text-base font-semibold tabular-nums lining-nums text-al-text-primary [font-variant-numeric:lining-nums]",
+        )
+      : variant === "executive"
+        ? cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, "inline-block text-al-text-primary")
+        : cn(OPERATOR_TYPOGRAPHY.kpiValue, "inline-block text-al-text-primary");
 
   return (
     <Link

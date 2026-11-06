@@ -34,6 +34,8 @@ export type MetricCountPresentation = {
   readonly count: number;
   readonly noun: string;
   readonly dimensions: readonly MetricCountScopeDimension[];
+  /** Extra scope fragments appended after dimension-derived scope (SelfDescribingMetricCount, TB-2152). */
+  readonly supplementalScopeLabels?: readonly string[];
   readonly href: string;
 };
 
@@ -97,8 +99,26 @@ export function formatMetricCountScopeLabel(
   return parts.join(" · ");
 }
 
+export function formatMetricCountScopeLabelFromPresentation(presentation: MetricCountPresentation): string {
+  const fromDimensions = formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun });
+  const supplemental =
+    presentation.supplementalScopeLabels?.map((label) => label.trim()).filter((label) => label.length > 0) ?? [];
+
+  if (supplemental.length === 0) {
+    return fromDimensions;
+  }
+
+  const supplementalJoined = supplemental.join(" · ");
+
+  if (fromDimensions.length === 0) {
+    return supplementalJoined;
+  }
+
+  return `${fromDimensions} · ${supplementalJoined}`;
+}
+
 export function formatMetricCountHeadline(presentation: MetricCountPresentation): string {
-  const scope = formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun });
+  const scope = formatMetricCountScopeLabelFromPresentation(presentation);
 
   if (scope.length === 0) {
     return `${presentation.count} ${presentation.noun}`;
@@ -198,6 +218,7 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
     count,
     noun: count === 1 ? "open finding" : "open findings",
     dimensions: [{ kind: "governance-filter", filter: "open" }],
+    supplementalScopeLabels: ["this workspace", "open"],
     href: buildGovernanceFindingsQueueHref({ filter: "open" }),
   };
 }
