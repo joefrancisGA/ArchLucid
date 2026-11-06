@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
@@ -77,7 +78,9 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
     return null;
   }
 
-  const reviewHref = `/architecture/reviews/${welcomeRunId.replace(/-/g, "")}`;
+  const reviewHref = resolveGovernanceScopedReviewOpenHref({
+    runId: welcomeRunId.replace(/-/g, ""),
+  });
 
   return (
     <div

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import { join } from "node:path";
 
@@ -11,12 +11,25 @@ import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { SIGNUP_VERIFY_ONBOARDING_PATH } from "@/lib/signup-verify-navigation";
 
 import {
-
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
-
   MARKETING_SITEMAP_PATHNAMES,
-
 } from "@/lib/marketing/public-marketing-seo-paths";
+
+function resolveMonorepoRootForArchlucidUi(): string {
+  const cwdUi = process.cwd();
+  const pilotRelative = join("archlucid-ui", "src", "lib", "pilot-nav-group-builder.ts");
+  const candidates = [join(cwdUi, ".."), join(cwdUi, "../.."), join(cwdUi, "../..", "..")];
+
+  for (const candidate of candidates) {
+    const pilotPath = join(candidate, pilotRelative);
+
+    if (existsSync(pilotPath)) {
+      return candidate;
+    }
+  }
+
+  return join(cwdUi, "..");
+}
 
 const FIRST_REVIEW_GUIDE_PAGE = join(
 
@@ -126,7 +139,7 @@ describe("first-review-guide-route (ARF)", () => {
 
   it("keeps product handoffs on canonical /architecture/first-review-guide", () => {
 
-    const repoRoot = join(process.cwd(), "..");
+    const repoRoot = resolveMonorepoRootForArchlucidUi();
 
     for (const relativePath of PRODUCT_FIRST_REVIEW_GUIDE_SURFACES) {
 

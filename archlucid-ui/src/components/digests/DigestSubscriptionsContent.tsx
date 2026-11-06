@@ -22,6 +22,7 @@ import { useDigestSubscriptionsContentToggle } from "@/components/digests/use-di
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import {
   DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION,
   resolveDigestSubscriptionPauseDialogTitle,
@@ -158,7 +159,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(scopedRunId)}
           >
             Open review
           </Link>
