@@ -64,11 +64,11 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
   const key = normalizeSeverityKey(raw);
 
   if (key.includes("critical") || key.includes("blocker") || key === "blocking" || key === "error") {
-    return "Treat this as a material delivery, compliance, or security concern that needs an owner decision before rollout.";
+    return "Stored severity reads as critical. This sentence is not a stored owner and not a stored rollout decision.";
   }
 
   if (key.includes("high") || key === "warning") {
-    return "Treat this as an elevated concern that should be explained to stakeholders before it is deferred.";
+    return "Stored severity reads as high. This sentence is not a stored deferral.";
   }
 
   if (key.includes("medium") || key.includes("moderate")) {

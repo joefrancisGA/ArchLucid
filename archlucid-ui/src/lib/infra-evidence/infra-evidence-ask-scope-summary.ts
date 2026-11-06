@@ -160,3 +160,17 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
 
   return segments.join(" → ");
 }
+
+export const INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITH_SNAPSHOT =
+  "Answers use the inventory snapshot on this page. They do not query live Azure." as const;
+
+export const INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITHOUT_SNAPSHOT =
+  "No inventory snapshot is on this page. Ask does not query live Azure." as const;
+
+export function resolveInfraEvidenceAskSnapshotHonestyMessage(snapshotId: string | null | undefined): string {
+  if (snapshotId === null || snapshotId === undefined || snapshotId.trim().length === 0) {
+    return INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITHOUT_SNAPSHOT;
+  }
+
+  return INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITH_SNAPSHOT;
+}

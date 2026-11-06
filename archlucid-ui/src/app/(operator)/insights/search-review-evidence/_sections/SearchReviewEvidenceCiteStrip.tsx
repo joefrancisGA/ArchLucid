@@ -6,11 +6,14 @@ import { cn } from "@/lib/utils";
 
 export type SearchReviewEvidenceCiteStripProps = {
   readonly runId: string;
+  readonly primaryFindingId?: string | null;
 };
 
 /** Sponsor-safe Sources when search is scoped to one review — review / evidence / audit cites. */
 export function SearchReviewEvidenceCiteStrip(props: SearchReviewEvidenceCiteStripProps) {
-  const links = buyerAskGroundingLinksForRun(props.runId);
+  const links = buyerAskGroundingLinksForRun(props.runId, {
+    primaryFindingId: props.primaryFindingId ?? null,
+  });
 
   if (links === null || links.length === 0) {
     return null;

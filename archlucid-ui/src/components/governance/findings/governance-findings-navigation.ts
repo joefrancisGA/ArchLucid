@@ -9,10 +9,14 @@ import {
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
-import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { governanceFindingQueueRowReviewHref } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 
 export type GovernanceFindingInspectHrefOptions = {
   readonly architectureId?: string | null;
@@ -70,6 +74,69 @@ export function resolveGovernanceQueueAuxiliaryFindingHref(
   return getFindingDetailHref(runId, findingId, input?.findingsQueueRunId);
 }
 
+/** Findings workspace deep link for queue disposition work (findingId + first-review spine hash). */
+export function governanceFindingQueueFindingsWorkspaceHref(runId: string, findingId: string): string {
+  return buildReviewDetailTabHref(runId.trim(), "findings", {
+    findingId: findingId.trim(),
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+  });
+}
+
+export function governanceFindingQueueRowNeedsDispositionRecording(row: GovernanceFindingQueueRow): boolean {
+  if (row.recordKind !== "finding") {
+    return false;
+  }
+
+  if (row.classification !== FINDING_CLASSIFICATION_DECISION_GRADE) {
+    return false;
+  }
+
+  const disposition = row.latestDisposition?.trim() ?? "";
+
+  return disposition.length === 0;
+}
+
+/** Queue title/inspect target: findings workspace when disposition is still open on decision-grade rows. */
+export function governanceFindingQueuePrimaryInspectHref(
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): string | null {
+  if (!row.runId.trim() || !row.findingId.trim()) {
+    return null;
+  }
+
+  if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+  }
+
+  return governanceFindingInspectHref(row.runId, row.findingId, options);
+}
+
+/** Title link for queue rows — primary inspect when disposition is open, else evidence-trace inspect. */
+export function governanceFindingQueueRowTitleInspectHref(
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): string {
+  if (row.recordKind === "finding") {
+    const primary = governanceFindingQueuePrimaryInspectHref(row, options);
+
+    if (primary !== null) {
+      return primary;
+    }
+  }
+
+  return governanceFindingInspectHref(row.runId, row.findingId, options);
+}
+
+/** Review column link: findings workspace when this row still needs disposition recording. */
+export function governanceFindingQueueRowReviewHrefForRow(row: GovernanceFindingQueueRow): string {
+  if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+  }
+
+  return governanceFindingQueueRowReviewHref(row.runId);
+}
+
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {
   const normalizedManifestId = manifestId.trim();
 
@@ -77,7 +144,7 @@ export function governanceFindingManifestRecordHref(runId: string, manifestId: s
     return signedRecordDetailPath(normalizedManifestId);
   }
 
-  return resolveWorkingRunReviewLocator({ runId }).href;
+  return resolveGovernanceScopedReviewOpenHref({ runId });
 }
 
 export function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {
@@ -102,18 +169,57 @@ export function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow)
 
 export function navigateGovernanceFindingDetail(
   router: AppRouterInstance,
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function navigateGovernanceFindingDetail(
+  router: AppRouterInstance,
   runId: string,
   findingId: string,
   options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function navigateGovernanceFindingDetail(
+  router: AppRouterInstance,
+  runIdOrRow: string | GovernanceFindingQueueRow,
+  findingIdOrOptions?: string | GovernanceFindingInspectHrefOptions,
+  options?: GovernanceFindingInspectHrefOptions,
 ): void {
+  if (typeof runIdOrRow !== "string") {
+    const href = governanceFindingQueuePrimaryInspectHref(runIdOrRow, findingIdOrOptions as GovernanceFindingInspectHrefOptions | undefined);
+
+    if (href === null) {
+      return;
+    }
+
+    router.push(href);
+
+    return;
+  }
+
+  const runId = runIdOrRow;
+  const findingId = findingIdOrOptions as string;
+
   router.push(governanceFindingInspectHref(runId, findingId, options));
 }
 
 export function governanceFindingDetailKeyboardActivate(
   event: KeyboardEvent,
   router: AppRouterInstance,
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function governanceFindingDetailKeyboardActivate(
+  event: KeyboardEvent,
+  router: AppRouterInstance,
   runId: string,
   findingId: string,
+  options?: GovernanceFindingInspectHrefOptions,
+): void;
+export function governanceFindingDetailKeyboardActivate(
+  event: KeyboardEvent,
+  router: AppRouterInstance,
+  runIdOrRow: string | GovernanceFindingQueueRow,
+  findingIdOrOptions?: string | GovernanceFindingInspectHrefOptions,
   options?: GovernanceFindingInspectHrefOptions,
 ): void {
   if (event.key !== "Enter" && event.key !== " ") {
@@ -121,5 +227,17 @@ export function governanceFindingDetailKeyboardActivate(
   }
 
   event.preventDefault();
-  navigateGovernanceFindingDetail(router, runId, findingId, options);
+
+  if (typeof runIdOrRow !== "string") {
+    navigateGovernanceFindingDetail(router, runIdOrRow, findingIdOrOptions as GovernanceFindingInspectHrefOptions | undefined);
+
+    return;
+  }
+
+  navigateGovernanceFindingDetail(
+    router,
+    runIdOrRow,
+    findingIdOrOptions as string,
+    options,
+  );
 }

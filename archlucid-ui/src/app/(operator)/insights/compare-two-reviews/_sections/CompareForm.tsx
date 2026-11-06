@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { ComparePageHeaderActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageHeaderActions";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -47,7 +48,8 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { useCompareFindingCorrelation } from "./useCompareFindingCorrelation";
+import { resolveCompareUpdatedReviewOpenHref } from "@/lib/compare-pair-grounding-links";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -119,6 +121,21 @@ export function CompareForm(props: CompareFormProps = {}) {
     showContinueLastComparisonRow,
     architectureId,
   } = useCompareForm({ basePathname: props.basePathname });
+
+  const compareScopeCorrelation = useCompareFindingCorrelation(
+    golden?.baseRunId ?? (leftTrim.length > 0 ? leftTrim : null),
+    golden?.targetRunId ?? (rightTrim.length > 0 ? rightTrim : null),
+  );
+
+  const compareUpdatedReviewOpenHref = useMemo(
+    () =>
+      resolveCompareUpdatedReviewOpenHref(
+        rightTrim,
+        architectureId,
+        compareScopeCorrelation.lifecycleRecords,
+      ),
+    [architectureId, compareScopeCorrelation.lifecycleRecords, rightTrim],
+  );
 
   const pageBody = (
     <>
@@ -238,7 +255,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId)}
+              href={compareUpdatedReviewOpenHref}
             >
               Open updated review
             </Link>

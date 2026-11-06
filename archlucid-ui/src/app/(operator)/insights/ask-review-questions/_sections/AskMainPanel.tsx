@@ -56,6 +56,7 @@ export type AskMainPanelProps = {
   retrievalDegraded?: boolean | null;
   hideRunPicker?: boolean;
   clearScopeHref?: string;
+  pinnedArchitectureId?: string;
 };
 
 export function AskMainPanel(props: AskMainPanelProps) {
@@ -90,6 +91,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     retrievalDegraded = null,
     hideRunPicker = false,
     clearScopeHref,
+    pinnedArchitectureId,
   } = props;
 
   const reviewPicked = runId.trim().length > 0;
@@ -164,6 +166,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
             runId={runId}
             buyerPolishedShell={buyerPolishedShell}
             clearScopeHref={clearScopeHref}
+            pinnedArchitectureId={pinnedArchitectureId}
           />
           {reviewPicked ? <AskRunCoverageHonestyStrip runId={runId} /> : null}
           {hideCompareChrome ? null : (

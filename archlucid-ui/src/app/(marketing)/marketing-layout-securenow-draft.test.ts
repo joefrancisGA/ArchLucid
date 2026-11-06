@@ -26,6 +26,10 @@ const marketingPublicFooterSource = readFileSync(
   join(marketingAppDir, "..", "..", "components", "marketing", "MarketingPublicFooter.tsx"),
   "utf8",
 );
+const securenowSampleCopySource = readFileSync(
+  join(marketingAppDir, "..", "..", "lib", "marketing", "securenow-sample-copy.ts"),
+  "utf8",
+);
 
 describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
   it("uses shouldRedirectMarketingLayout and the security-shell test id", () => {
@@ -47,5 +51,7 @@ describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
     expect(marketingPublicFooterSource).not.toContain('href="/why-securenow"');
     expect(welcomeMarketingPageSource).toContain("PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF");
     expect(welcomeMarketingPageSource).not.toContain('href="/why-securenow"');
+    expect(welcomeMarketingPageSource).toContain("SECURENOW_SAMPLE_FIXTURE_LINE");
+    expect(securenowSampleCopySource).toContain("Synthetic fixture. Not a customer result.");
   });
 });

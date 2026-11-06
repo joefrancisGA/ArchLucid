@@ -36,7 +36,10 @@ export const ARCHITECTURE_FINDINGS_DUAL_PANE_ALL_MUTED_FINDINGS =
   "Findings on this review are muted, so this pane does not list them.";
 
 export const ARCHITECTURE_FINDINGS_DUAL_PANE_NO_NODE_MATCH =
-  "No matching diagram component for this finding yet. Open the findings tab for the full triage list.";
+  "No stored diagram link for this finding. Open the findings tab for the full triage list.";
+
+export const ARCHITECTURE_FINDINGS_DUAL_PANE_STORED_NODE_ID_NOT_ON_DIAGRAM =
+  "Stored diagram node id was not on this diagram.";
 
 export const ARCHITECTURE_FINDINGS_DUAL_PANE_MATCHED_NODE_PREFIX = "Linked component";
 
@@ -62,6 +65,7 @@ export type ArchitectureFindingsDiagramSelectionSync = {
   readonly matchedNodeId: string | null;
   readonly matchedNodeLabel: string | null;
   readonly matchKind: ArchitectureFindingsDiagramMatchKind;
+  readonly storedDiagramNodeIdNotOnDiagram?: boolean;
 };
 
 function normalizeMatchToken(value: string): string {
@@ -202,6 +206,16 @@ export function resolveFindingDiagramSelectionSync(
     }
   }
 
+  if (explicitIds.length > 0) {
+    return {
+      findingId,
+      matchedNodeId: null,
+      matchedNodeLabel: null,
+      matchKind: "none",
+      storedDiagramNodeIdNotOnDiagram: true,
+    };
+  }
+
   const titleToken = normalizeMatchToken(finding.title);
 
   if (titleToken.length === 0 || activeNodesForHeuristic.length === 0) {
@@ -282,6 +296,10 @@ export function buildArchitectureFindingsDualPaneFindingsHref(runId: string): st
 export function formatLinkedComponentStatus(
   sync: ArchitectureFindingsDiagramSelectionSync,
 ): string {
+  if (sync.storedDiagramNodeIdNotOnDiagram === true) {
+    return ARCHITECTURE_FINDINGS_DUAL_PANE_STORED_NODE_ID_NOT_ON_DIAGRAM;
+  }
+
   if (sync.matchKind === "none" || sync.matchedNodeLabel === null) {
     return ARCHITECTURE_FINDINGS_DUAL_PANE_NO_NODE_MATCH;
   }

@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION,
@@ -67,7 +68,7 @@ export function GovernanceOverviewLoadReviewSection(
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(hubScopedRunIdTrimmed)}`}
+              href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(hubScopedRunIdTrimmed)}
             >
               Open review
             </Link>

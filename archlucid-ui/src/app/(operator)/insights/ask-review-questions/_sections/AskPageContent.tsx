@@ -271,6 +271,7 @@ export function AskPageContent(props: AskPageContentProps = {}) {
               askCitationActionFollowUps={ask.askCitationActionFollowUps}
               showPostAssistantFollowUps={ask.showPostAssistantFollowUps}
               retrievalDegraded={ask.retrievalDegraded}
+              pinnedArchitectureId={props.pinnedArchitectureId}
             />
           ) : null}
         </div>

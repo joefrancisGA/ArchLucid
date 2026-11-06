@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
+import { resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent } from "@/lib/reviews/first-review-spine-band";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import {
@@ -44,6 +45,21 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     withheldFindings,
     catalogAdvisoryEngineFailureCount,
   } = presentation;
+
+  const visitDefaultReviewTabWhenUrlSilent = resolveRunDetailVisitDefaultReviewTab({
+    findings: quickDecisionFindings,
+    hasFindingsSnapshot: model.resolvedDetail.findingsSnapshot !== null,
+    reviewHasGoldenManifest: Boolean(model.manifestId),
+  });
+  const visitDefaultFindingIdWhenUrlSilent = resolveRunDetailVisitDefaultFindingIdWhenUrlSilent({
+    findings: quickDecisionFindings,
+    hasFindingsSnapshot: model.resolvedDetail.findingsSnapshot !== null,
+  });
+  const visitDefaultReviewHashWhenUrlSilent = resolveRunDetailVisitDefaultReviewHashWhenUrlSilent({
+    findings: quickDecisionFindings,
+    hasFindingsSnapshot: model.resolvedDetail.findingsSnapshot !== null,
+    reviewHasGoldenManifest: Boolean(model.manifestId),
+  });
 
   const activePanelLeadEl = (
     <RunDetailReviewPackageDoThisNextResolvedDeferred
@@ -143,6 +159,9 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         tabActivityAt={resolved.tabActivityAt}
         tabCounts={resolved.tabCounts}
         panels={resolved.panels}
+        visitDefaultReviewTabWhenUrlSilent={visitDefaultReviewTabWhenUrlSilent}
+        visitDefaultFindingIdWhenUrlSilent={visitDefaultFindingIdWhenUrlSilent}
+        visitDefaultReviewHashWhenUrlSilent={visitDefaultReviewHashWhenUrlSilent}
       />
     </Suspense>
   );

@@ -17,6 +17,10 @@ import {
   type SecureNowArchitectOutcomeQueryState,
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -64,6 +68,11 @@ import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-h
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
+  remediationFactoryPathViewLabel,
+  resolveRemediationFactoryPathViewForRankedPath,
+  type RemediationFactoryPathView,
+} from "@/lib/governance/remediation-factory-path-view";
+import {
   SECURENOW_PATH_RANKED_PATHS_LEAD,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -99,6 +108,11 @@ import {
   REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
   REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
   REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+  resolveRemediationFactoryPathInspectSelectPrompt,
+  resolveRemediationFactoryPriorityQueueEmptyState,
+  resolveRemediationFactoryRankedPathsEmptyState,
+  resolveRemediationFactorySimulatorSelectPrompt,
+  resolveRemediationFactoryArchitectSnapshotsEmptyState,
 } from "./remediation-factory-empty-states";
 import {
   buildRemediationFactoryExecutiveMetricPresentations,
@@ -135,6 +149,10 @@ function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetri
           {REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE}
         </h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_SCOPE}</p>
+        <SecureNowSponsorRoiCollectionScopeHonestyLine
+          className={OPERATOR_TYPOGRAPHY.helper}
+          testId="remediation-executive-metrics-collection-scope-honesty"
+        />
       </header>
       <EnterpriseTable ariaLabel="Executive remediation metrics">
         <EnterpriseTableHead>
@@ -242,10 +260,58 @@ export function RemediationFactoryClient() {
     rankedPage,
     syncSelection,
     selectFinding,
-    selectPath,
+    selectPath: selectPathFromUrlState,
     setRankedPage,
     ...urlState
   } = useRemediationFactoryUrlState(productLine);
+  const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+  });
+  const rankedPathsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_RANKED_PATHS_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
+    }
+
+    return resolveRemediationFactoryRankedPathsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const priorityQueueEmptyState = useMemo((): typeof REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY;
+    }
+
+    return resolveRemediationFactoryPriorityQueueEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const simulatorSelectEmptyState = useMemo((): typeof REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT;
+    }
+
+    return resolveRemediationFactorySimulatorSelectPrompt(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const architectSnapshotsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY;
+    }
+
+    return resolveRemediationFactoryArchitectSnapshotsEmptyState(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
+  const pathInspectSelectEmptyState = useMemo((): typeof REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT => {
+    if (productLine !== "security" || collectionInputPending || collectionInput === null) {
+      return REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT;
+    }
+
+    return resolveRemediationFactoryPathInspectSelectPrompt(
+      isSecureNowCollectionSetupComplete(collectionInput),
+    );
+  }, [collectionInput, collectionInputPending, productLine]);
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsPageSize = REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE;
@@ -282,6 +348,7 @@ export function RemediationFactoryClient() {
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
   const [simulatorFindingId, setSimulatorFindingId] = useState<string | null>(null);
+  const [pathViewFiltersExpanded, setPathViewFiltersExpanded] = useState(false);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
@@ -302,6 +369,12 @@ export function RemediationFactoryClient() {
   useEffect(() => {
     setRankedPage(1);
   }, [pathView, setRankedPage]);
+
+  useEffect(() => {
+    if (selectedPathId === null) {
+      setPathViewFiltersExpanded(false);
+    }
+  }, [selectedPathId]);
 
   const visibleRankedPaths = useMemo(() => {
     switch (pathView) {
@@ -351,6 +424,19 @@ export function RemediationFactoryClient() {
     const query = params.toString();
     router.replace(query.length > 0 ? `?${query}` : window.location.pathname, { scroll: false });
   }, [router, searchParams]);
+
+  const selectPath = useCallback(
+    (nextPathId: string) => {
+      const row = rankedPathsRef.current.find((entry) => entry.pathId === nextPathId);
+
+      if (row !== undefined) {
+        setPathView(resolveRemediationFactoryPathViewForRankedPath(row));
+      }
+
+      selectPathFromUrlState(nextPathId);
+    },
+    [selectPathFromUrlState, setPathView],
+  );
 
   const refreshing =
     rankedQuery.isFetching
@@ -573,6 +659,8 @@ export function RemediationFactoryClient() {
         }
       />
 
+      <SecureNowRemediationFactoryCollectionSetupBanner />
+
       <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}
         className="scroll-mt-24 space-y-4"
@@ -617,7 +705,7 @@ export function RemediationFactoryClient() {
         hasUrlSnapshotPair={urlState.hasSnapshotPair}
         onSnapshotPairChange={urlState.setSnapshotPair}
         onQueryStateChange={setOutcomeQueryState}
-        snapshotsEmptyPreset={REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY}
+        snapshotsEmptyPreset={architectSnapshotsEmptyState}
       />
 
       <RemediationFactoryAttackPathReportSection
@@ -670,7 +758,7 @@ export function RemediationFactoryClient() {
             />
           </>
         ) : ranked.length === 0 ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY} />
+          <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
         ) : (
           <RemediationFactoryPriorityTable
             rows={ranked}
@@ -692,22 +780,43 @@ export function RemediationFactoryClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
           These filters narrow the path list only. Counts are for paths on this page.
         </p>
-        <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
-          {PATH_VIEWS.map((view) => (
+        {selectedPathId === null || pathViewFiltersExpanded ? (
+          <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
+            {PATH_VIEWS.map((view) => (
+              <Button
+                key={view.value}
+                type="button"
+                size="sm"
+                variant={pathView === view.value ? "default" : "outline"}
+                aria-pressed={pathView === view.value}
+                onClick={() => setPathView(view.value)}
+              >
+                {rankedPathsQuery.isSuccess
+                  ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
+                  : view.label}
+              </Button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="remediation-ranked-path-view-selected-only"
+            >
+              Path view: {remediationFactoryPathViewLabel(pathView as RemediationFactoryPathView)} (matches selected
+              path).
+            </p>
             <Button
-              key={view.value}
               type="button"
               size="sm"
-              variant={pathView === view.value ? "default" : "outline"}
-              aria-pressed={pathView === view.value}
-              onClick={() => setPathView(view.value)}
+              variant="outline"
+              data-testid="remediation-ranked-path-view-change"
+              onClick={() => setPathViewFiltersExpanded(true)}
             >
-              {rankedPathsQuery.isSuccess
-                ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
-                : view.label}
+              Change path view
             </Button>
-          ))}
-        </div>
+          </div>
+        )}
         {rankedPathsQuery.isLoading ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
         ) : rankedPathsQuery.isError ? (
@@ -736,7 +845,7 @@ export function RemediationFactoryClient() {
               </p>
             ) : null}
             {visibleRankedPaths.length === 0 ? (
-              <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
+              <EnterpriseCompactEmptyState {...rankedPathsEmptyState} />
             ) : (
               <RemediationFactoryRankedPathsTable
                 rows={visibleRankedPaths}
@@ -761,7 +870,7 @@ export function RemediationFactoryClient() {
         panelRef={pathInspectPanelRef}
         selectedFinding={selectedFinding}
         selectedPath={selectedPath}
-        selectPromptPreset={REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT}
+        selectPromptPreset={pathInspectSelectEmptyState}
       />
 
       <section
@@ -775,7 +884,7 @@ export function RemediationFactoryClient() {
           <StatusTag kind="neutral" label="Simulator — not a live scanner feed" />
         </div>
         {selectedFindingId == null ? (
-          <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT} />
+          <EnterpriseCompactEmptyState {...simulatorSelectEmptyState} />
         ) : (
           <>
             <p className={OPERATOR_TYPOGRAPHY.helper}>

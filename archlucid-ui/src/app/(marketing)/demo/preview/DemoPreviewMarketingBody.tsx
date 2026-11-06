@@ -3,6 +3,7 @@ import type { PipelineTimelineItem } from "@/types/authority";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator/operator-static-demo";
 import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -60,7 +61,7 @@ export function DemoPreviewMarketingBody({
   const demoMode = buyerAudienceChrome || isBuyerSafeDemoMarketingChromeEnv();
   const payloadRunId = typeof payload.run?.runId === "string" ? payload.run.runId.trim() : "";
   const signInReturnPath =
-    payloadRunId.length > 0 ? `/architecture/reviews/${encodeURIComponent(payloadRunId)}` : undefined;
+    payloadRunId.length > 0 ? resolveShowcaseOperatorReviewHref(payloadRunId) : undefined;
   const isRunDetailAvailable = payloadRunId.length > 0 && isStaticDemoPayloadFallbackActiveForRun(payloadRunId);
   const operatorDeepLinksAvailable =
     payloadRunId.length > 0 && canShowcaseAnonymousVisitorOpenOperatorDeepLinks(payloadRunId);

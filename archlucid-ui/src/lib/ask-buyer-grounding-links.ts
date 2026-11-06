@@ -1,6 +1,6 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveQuickDecisionFindingWorkspaceHref } from "@/lib/findings/finding-evidence-navigation";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -9,6 +9,8 @@ import {
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -21,11 +23,46 @@ export type BuyerAskGroundingLink = {
   readonly href?: string;
 };
 
-function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
+export type BuyerAskGroundingLinksForRunOptions = {
+  /** When set, Open review targets the findings workspace for that finding. */
+  readonly primaryFindingId?: string | null;
+  readonly architectureId?: string | null;
+};
+
+/** Open review cite — findings workspace when a cited finding is known, else review home. */
+export function resolveAskBuyerOpenReviewHref(
+  runId: string,
+  options?: BuyerAskGroundingLinksForRunOptions,
+): string {
+  const findingId = options?.primaryFindingId?.trim() ?? "";
+
+  if (findingId.length > 0) {
+    return resolveQuickDecisionFindingWorkspaceHref(runId, findingId);
+  }
+
+  return resolveSystemNotJobWorkingReviewOpenHref(runId, options?.architectureId ?? null);
+}
+
+function firstNonEmptyFindingId(findingIds: readonly string[] | null | undefined): string | null {
+  for (const findingId of findingIds ?? []) {
+    const trimmed = findingId.trim();
+
+    if (trimmed.length > 0) {
+      return trimmed;
+    }
+  }
+
+  return null;
+}
+
+function baselineGroundingLinksForRun(
+  runId: string,
+  options?: BuyerAskGroundingLinksForRunOptions,
+): readonly BuyerAskGroundingLink[] {
   return [
     {
       label: "Open review",
-      href: `/architecture/reviews/${encodeURIComponent(runId)}`,
+      href: resolveAskBuyerOpenReviewHref(runId, options),
     },
     {
       label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
@@ -42,7 +79,10 @@ function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGrounding
  * Deterministic Sources cites for a review — baseline review / evidence / audit for any run id,
  * plus Claims Intake showcase spine anchors when the canonical demo review is selected.
  */
-export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAskGroundingLink[] | null {
+export function buyerAskGroundingLinksForRun(
+  runIdRaw: string,
+  options?: BuyerAskGroundingLinksForRunOptions,
+): readonly BuyerAskGroundingLink[] | null {
   const runId = canonicalizeDemoRunId(runIdRaw.trim());
 
   if (runId.length === 0) {
@@ -50,7 +90,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
   }
 
   if (runId !== SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return baselineGroundingLinksForRun(runId);
+    return baselineGroundingLinksForRun(runId, options);
   }
 
   return [
@@ -68,7 +108,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     },
     {
       label: BUYER_SURFACE_VOCABULARY.phiMinimizationRisk,
-      href: `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`,
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID),
     },
     {
       label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
@@ -94,6 +134,7 @@ export type AskAnswerCitationRefs = {
 export type BuildAskAnswerCitationSourceLinksOptions = {
   /** When set, finding ids missing from this index omit href and use honesty copy. */
   readonly indexedFindingIds?: ReadonlySet<string>;
+  readonly architectureId?: string | null;
 };
 
 const ASK_FINDING_CITATION_NOT_IN_INDEX_SUFFIX =
@@ -138,7 +179,7 @@ export function buildAskAnswerCitationSourceLinks(
 
     links.push({
       label: `Finding id ${trimmed}`,
-      href: resolveQuickDecisionFindingInspectHref(runId, trimmed),
+      href: resolveQuickDecisionFindingWorkspaceHref(runId, trimmed),
     });
   }
 
@@ -164,9 +205,12 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     if (trimmed.toLowerCase() === runId.toLowerCase()) {
+      const primaryFindingId = firstNonEmptyFindingId(refs.referencedFindings);
+      const architectureId = options.architectureId ?? readCachedLastOpenArchitectureId();
+
       links.push({
         label: `Review id ${runId}`,
-        href: `/architecture/reviews/${encodeURIComponent(runId)}`,
+        href: resolveAskBuyerOpenReviewHref(runId, { primaryFindingId, architectureId }),
       });
       continue;
     }

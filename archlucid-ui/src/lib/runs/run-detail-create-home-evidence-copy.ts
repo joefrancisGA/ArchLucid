@@ -8,6 +8,9 @@ export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HELPER =
 
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE = "No files uploaded yet" as const;
 
+export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_STATUS_NOT_STORED_TITLE =
+  "Upload catalog status was not stored." as const;
+
 export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE =
   "Upload catalog was not available." as const;
 
@@ -15,7 +18,7 @@ export const RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION =
   "Upload supporting documents below. Stored files appear here after a successful upload." as const;
 
 export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CROSS_LINK_HELPER =
-  "Generated architecture diagrams count as supporting evidence for this package. Open Diagram to review or refine the sketch before you upload more files." as const;
+  "A generated diagram is stored for this package. It is not an uploaded capture. Open Diagram to review the sketch before you upload more files." as const;
 
 export const RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_NOT_STORED_HELPER =
   "An architecture diagram was not stored for this package." as const;

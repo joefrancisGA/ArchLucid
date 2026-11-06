@@ -24,6 +24,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolvePolicyPackScopedOpenReviewHref } from "@/lib/policy-pack-scoped-open-review-href";
 import { policyPacksHubPathFromPathname } from "@/lib/product-line/securenow-compliance-routes";
 import {
   parsePolicyPackPublishConfirmOpenFromSearch,
@@ -357,7 +358,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               {" · "}
               <Link
                 className={OPERATOR_LINK.inline}
-                href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+                href={resolvePolicyPackScopedOpenReviewHref(scopedReviewId)}
               >
                 Open review
               </Link>

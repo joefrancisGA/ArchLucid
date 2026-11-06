@@ -42,8 +42,14 @@ const rankedPaths = vi.hoisted(() => ({
   fetchRankedSecurityEvidencePaths: vi.fn(),
 }));
 
+const listTier2Connections = vi.fn(async () => []);
+
 const attackPathReports = vi.hoisted(() => ({
   fetchSecurityEvidencePathAttackPathReport: vi.fn(),
+}));
+
+vi.mock("@/lib/api/cloud-connections-api", () => ({
+  listTier2Connections: (...args: unknown[]) => listTier2Connections(...args),
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
@@ -84,6 +90,8 @@ function snapshot(overrides: Record<string, unknown> = {}) {
 
 describe("SecureNowHomeEnvironmentContext", () => {
   beforeEach(() => {
+    listTier2Connections.mockReset();
+    listTier2Connections.mockResolvedValue([]);
     attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockReset();
     rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
       items: [],
@@ -204,8 +212,8 @@ describe("SecureNowHomeEnvironmentContext", () => {
     const gap = await screen.findByRole("link", { name: "Inventory capture failed." });
 
     expect(gap).toHaveAttribute("href", "/integrations/cloud-connections");
-    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent(/Reader on the subscription in scope/i);
-    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Subscription scope: Production.");
+    expect(screen.getByTestId("securenow-home-collection-setup-checklist")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-home-setup-step-capture")).toBeInTheDocument();
   });
 
   it("links an empty snapshot list to cloud connections", async () => {
@@ -230,9 +238,7 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "/integrations/cloud-connections",
     );
     expect(screen.getByText("Contoso — Payments")).toBeInTheDocument();
-    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Collection status: Missing.");
-    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent(/Reader on the subscription in scope/i);
-    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Subscription scope: not selected.");
+    expect(screen.getByTestId("securenow-home-collection-setup-checklist")).toBeInTheDocument();
   });
 
   it("gives a collection error one safe next action", async () => {

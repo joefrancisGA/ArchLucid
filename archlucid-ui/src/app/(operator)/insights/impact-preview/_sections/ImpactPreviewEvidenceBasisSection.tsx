@@ -15,8 +15,8 @@ import {
   IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE,
   IMPACT_PREVIEW_GOVERNANCE_HREF,
 } from "@/lib/impact-preview-page-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
 
 export type ImpactPreviewEvidenceBasisSectionProps = {
   readonly baselineRunId: string | null;
@@ -29,7 +29,9 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const baselineHref =
     props.baselineRunId !== null
-      ? resolveSystemNotJobWorkingReviewOpenHref(props.baselineRunId, props.architectureId)
+      ? resolveScopedInsightOpenReviewHrefWithDeskContinuity(props.baselineRunId, {
+          architectureId: props.architectureId,
+        })
       : null;
 
   return (

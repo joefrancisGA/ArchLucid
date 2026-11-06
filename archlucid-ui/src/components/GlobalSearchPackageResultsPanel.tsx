@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import type { GlobalSearchBarController } from "@/components/use-global-search-bar";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -11,7 +12,7 @@ import {
   retrievalHitSourceTypeLabel,
   resolveRetrievalHitTitle,
 } from "@/app/(operator)/insights/search-review-evidence/_sections/retrieval-hit-display";
-import type { GlobalSearchBarController } from "@/components/use-global-search-bar";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
 type GlobalSearchPackageResultsPanelProps = {
   readonly controller: GlobalSearchBarController;
@@ -53,7 +54,9 @@ export function GlobalSearchPackageResultsPanel(props: GlobalSearchPackageResult
           </p>
           <ul className="m-0 list-none p-0">
             {packageHits.map((hit) => {
-              const actionLink = buildRetrievalHitActionLink(hit, scopedRunId);
+              const actionLink = buildRetrievalHitActionLink(hit, scopedRunId, {
+                architectureId: readCachedLastOpenArchitectureId(),
+              });
               const legacyFindingHref =
                 hit.findingId !== undefined && hit.findingId !== null && hit.findingId.trim().length > 0
                   ? resolveFindingHref(hit.sourceId, hit.findingId)

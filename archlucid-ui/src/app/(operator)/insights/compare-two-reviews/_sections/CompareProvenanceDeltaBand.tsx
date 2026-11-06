@@ -16,6 +16,8 @@ import {
 } from "@/lib/compare/compare-provenance-delta-summary";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
+import type { ComparePairGroundingForRunsOptions } from "@/lib/compare-pair-grounding-links";
 import { summarizeCompareHardCitationDelta } from "@/lib/livelihood-grade-no-compare-hard-citation-delta";
 import type { DiffItem, RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
@@ -26,6 +28,7 @@ export type CompareProvenanceDeltaBandProps = {
   readonly baselinePickedSummary: RunSummary | null;
   readonly targetPickedSummary: RunSummary | null;
   readonly manifestDiffs?: readonly DiffItem[];
+  readonly groundingOptions?: ComparePairGroundingForRunsOptions;
 };
 
 /** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). Guided keeps a compact summary. */
@@ -211,14 +214,20 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
         Open packages:{" "}
         <Link
           className={OPERATOR_LINK.inline}
-          href={`/architecture/reviews/${encodeURIComponent(summary.baseline.runId)}`}
+          href={resolveScopedInsightOpenReviewHref(summary.baseline.runId, {
+            primaryFindingId: props.groundingOptions?.baselinePrimaryFindingId,
+            architectureId: props.groundingOptions?.architectureId,
+          })}
         >
           Baseline review
         </Link>
         {" · "}
         <Link
           className={OPERATOR_LINK.inline}
-          href={`/architecture/reviews/${encodeURIComponent(summary.target.runId)}`}
+          href={resolveScopedInsightOpenReviewHref(summary.target.runId, {
+            primaryFindingId: props.groundingOptions?.updatedPrimaryFindingId,
+            architectureId: props.groundingOptions?.architectureId,
+          })}
         >
           Updated review
         </Link>

@@ -1,13 +1,27 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SecureNowSelfServicePageView } from "./SecureNowSelfServicePageView";
+
+const mockUseSecureNowCollectionSetupInput = vi.fn(() => ({
+  collectionInput: {
+    hasConfiguredProvider: true,
+    azureSubscriptionIdsPresent: false,
+    hasSuccessfulPull: false,
+  },
+  isPending: false,
+}));
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => mockUseSecureNowCollectionSetupInput(),
+}));
 
 describe("SecureNowSelfServicePageView", () => {
   it("renders the four checks and support mailto", () => {
     render(<SecureNowSelfServicePageView />);
 
     expect(screen.getByTestId("securenow-self-service-page")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-self-service-collection-setup")).toBeInTheDocument();
     for (const title of [
       "Collection missing or stale",
       "Connector will not finish",
@@ -30,6 +44,24 @@ describe("SecureNowSelfServicePageView", () => {
     expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
       "href",
       "mailto:support@archlucid.net?subject=SecureNow",
+    );
+  });
+
+  it("links to cloud connections when collection setup is complete", () => {
+    mockUseSecureNowCollectionSetupInput.mockReturnValueOnce({
+      collectionInput: {
+        hasConfiguredProvider: true,
+        azureSubscriptionIdsPresent: true,
+        hasSuccessfulPull: true,
+      },
+      isPending: false,
+    });
+
+    render(<SecureNowSelfServicePageView />);
+
+    expect(screen.getByTestId("securenow-self-service-collection-ready-cloud-connections-link")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
     );
   });
 });

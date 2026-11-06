@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ManifestSummary } from "@/types/authority";
 
@@ -50,7 +51,8 @@ export function ManifestDetailMonitoredRiskCard(props: ManifestDetailMonitoredRi
           <Button variant="secondary" size="sm" asChild>
             <Link
               href={
-                primaryFindingHref ?? `/architecture/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
+                primaryFindingHref ??
+                resolveScopedInsightOpenReviewHrefWithDeskContinuity(summary.runId)
               }
             >
               {primaryFindingHref

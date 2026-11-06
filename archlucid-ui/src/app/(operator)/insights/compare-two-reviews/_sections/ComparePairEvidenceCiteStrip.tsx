@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   comparePairGroundingForRuns,
   comparePairGroundingHasLinks,
+  type ComparePairGroundingForRunsOptions,
   type ComparePairSideGrounding,
 } from "@/lib/compare-pair-grounding-links";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 export type ComparePairEvidenceCiteStripProps = {
   readonly baselineRunId: string;
   readonly updatedRunId: string;
+  readonly groundingOptions?: ComparePairGroundingForRunsOptions;
 };
 
 function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
@@ -39,7 +41,11 @@ function SideCiteBlock(props: { readonly side: ComparePairSideGrounding }) {
 
 /** Sponsor-safe pair cites — open review / evidence / search / audit for each compared run. */
 export function ComparePairEvidenceCiteStrip(props: ComparePairEvidenceCiteStripProps) {
-  const grounding = comparePairGroundingForRuns(props.baselineRunId, props.updatedRunId);
+  const grounding = comparePairGroundingForRuns(
+    props.baselineRunId,
+    props.updatedRunId,
+    props.groundingOptions,
+  );
 
   if (!comparePairGroundingHasLinks(grounding)) {
     return null;

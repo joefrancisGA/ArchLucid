@@ -222,13 +222,40 @@ describe("secureNowQuestionCountsAsAnsweredFilterRow", () => {
 });
 
 describe("secureNowQuestionDispositionReviewerStatusLabel", () => {
-  it("labels omitted status as Answered when answer metadata was stored", () => {
+  it("labels omitted status when answer metadata was stored without a disposition", () => {
     expect(secureNowQuestionDispositionReviewerStatusLabel({
       status: null,
       answerCode: "NamePeer",
       answerText: null,
       reason: null,
-    })).toBe("Answered");
+    })).toBe("Question status was not stored. Answer metadata is stored.");
+  });
+
+  it("labels Open status with answer metadata without implying Answered disposition", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: "Open",
+      answerCode: "NamePeer",
+      answerText: null,
+      reason: null,
+    })).toBe("Open. Answer metadata is stored.");
+  });
+
+  it("labels Open status without answer metadata as Open", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: "Open",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+    })).toBe("Open");
+  });
+
+  it("labels whitespace-only status as stored empty", () => {
+    expect(secureNowQuestionDispositionReviewerStatusLabel({
+      status: "   ",
+      answerCode: null,
+      answerText: null,
+      reason: null,
+    })).toBe("Question status was stored empty.");
   });
 
   it("labels omitted status as Dismissed when only a dismiss reason was stored", () => {

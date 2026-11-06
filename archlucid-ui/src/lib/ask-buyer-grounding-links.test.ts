@@ -16,7 +16,8 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links![0]?.label).toBe("Sponsor report");
     expect(links![0]?.href).toContain("/architecture/reviews/");
     expect(links![1]?.href).toContain("/governance/sealed-records/");
-    expect(links!.some((l) => l.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(true);
+    expect(links!.some((l) => l.href?.includes("reviewTab=findings&findingId="))).toBe(true);
+    expect(links!.some((l) => l.href?.includes("#run-detail-first-review-spine-findings"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/governance/audit?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/insights/compare-two-reviews?"))).toBe(true);
@@ -29,8 +30,23 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).not.toBeNull();
     expect(links!.length).toBe(3);
     expect(links![0]?.label).toBe("Open review");
+    expect(links![0]?.href).toBe("/architecture/reviews/some-other-run");
     expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/governance/audit?"))).toBe(true);
+  });
+
+  it("grounds Open review in the findings workspace when a cited finding is known", () => {
+    const links = buyerAskGroundingLinksForRun("run-a", { primaryFindingId: "finding-9" });
+
+    expect(links![0]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("nests Open review when architecture id is supplied without a finding", () => {
+    const links = buyerAskGroundingLinksForRun("run-42", { architectureId: "architecture-identity-001" });
+
+    expect(links![0]?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-42");
   });
 
   it("returns null when the run id is empty", () => {
@@ -75,6 +91,25 @@ describe("buyerAskGroundingLinksForRun", () => {
     ]);
   });
 
+  it("buildAskAnswerCitationSourceLinks grounds review id cite when findings are also stored", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: ["finding-1"],
+      referencedDecisions: [],
+      referencedArtifacts: ["run-a"],
+    });
+
+    expect(links).toEqual([
+      {
+        label: "Finding id finding-1",
+        href: "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      },
+      {
+        label: "Review id run-a",
+        href: "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      },
+    ]);
+  });
+
   it("buildAskAnswerCitationSourceLinks labels empty decision citations", () => {
     const links = buildAskAnswerCitationSourceLinks("run-a", {
       referencedFindings: [],
@@ -95,6 +130,22 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).toEqual([{ label: "Artifact citation was stored empty." }]);
   });
 
+  it("buildAskAnswerCitationSourceLinks links indexed findings to the review findings workspace", () => {
+    const links = buildAskAnswerCitationSourceLinks(
+      "run-a",
+      {
+        referencedFindings: ["known-finding"],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      },
+      { indexedFindingIds: new Set(["known-finding"]) },
+    );
+
+    expect(links[0]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=known-finding#run-detail-first-review-spine-findings",
+    );
+  });
+
   it("buildAskAnswerCitationSourceLinks omits href when finding is missing from index", () => {
     const links = buildAskAnswerCitationSourceLinks(
       "run-a",
@@ -110,6 +161,20 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links[0]?.href).toBeUndefined();
     expect(links[0]?.label).toContain("missing-finding");
     expect(links[0]?.label).toContain("not in the loaded decision-grade findings index");
+  });
+
+  it("buildAskAnswerCitationSourceLinks nests review artifact href when architecture is supplied", () => {
+    const links = buildAskAnswerCitationSourceLinks(
+      "run-a",
+      {
+        referencedFindings: [],
+        referencedDecisions: [],
+        referencedArtifacts: ["run-a"],
+      },
+      { architectureId: "architecture-identity-001" },
+    );
+
+    expect(links[0]?.href).toBe("/architecture/architectures/architecture-identity-001/reviews/run-a");
   });
 
   it("collectCitedReviewIdsFromAskAnswerRefs only cites review id artifacts, not other artifact UUIDs", () => {

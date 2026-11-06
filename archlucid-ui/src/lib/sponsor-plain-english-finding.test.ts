@@ -16,7 +16,9 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     });
 
     expect(result.headline).toBe("High finding: Public ingress on intake API");
-    expect(result.plainEnglish).toContain("elevated concern");
+    expect(result.plainEnglish).toContain(
+      "Stored severity reads as high. This sentence is not a stored deferral.",
+    );
     expect(result.plainEnglish).toContain(
       "In plain terms: The intake API accepts traffic from the public internet.",
     );
@@ -42,8 +44,12 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
   });
 
   it("maps severity bands to distinct sponsor urgency clauses", () => {
-    expect(sponsorSeverityUrgencyClause("Critical")).toContain("material delivery");
-    expect(sponsorSeverityUrgencyClause("High")).toContain("elevated concern");
+    expect(sponsorSeverityUrgencyClause("Critical")).toBe(
+      "Stored severity reads as critical. This sentence is not a stored owner and not a stored rollout decision.",
+    );
+    expect(sponsorSeverityUrgencyClause("High")).toBe(
+      "Stored severity reads as high. This sentence is not a stored deferral.",
+    );
     expect(sponsorSeverityUrgencyClause("Medium")).toContain("planning-priority");
     expect(sponsorSeverityUrgencyClause("Info")).toContain("improvement opportunity");
     expect(sponsorSeverityUrgencyClause(null)).toBe("Severity was not stored.");

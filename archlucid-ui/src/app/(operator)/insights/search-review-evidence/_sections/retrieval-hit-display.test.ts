@@ -108,7 +108,7 @@ describe("resolveRetrievalHitRunId", () => {
 });
 
 describe("buildRetrievalHitActionLink", () => {
-  it("links findings to inspect route", () => {
+  it("links findings to the review findings workspace", () => {
     const link = buildRetrievalHitActionLink(
       hit({
         findingId: "sensitive-data-minimization-risk",
@@ -117,7 +117,7 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/architecture/reviews/${SAMPLE_RUN_ID}/findings/sensitive-data-minimization-risk/evidence-trace`,
+      href: `/architecture/reviews/${SAMPLE_RUN_ID}?reviewTab=findings&findingId=sensitive-data-minimization-risk#run-detail-first-review-spine-findings`,
       label: "Open finding",
     });
   });
@@ -151,6 +151,24 @@ describe("buildRetrievalHitActionLink", () => {
     expect(link).toEqual({
       href: reviewSignedRecordPath(SAMPLE_RUN_ID),
       label: "Open decision in review",
+    });
+  });
+
+  it("nests run-level Open review when architecture id is supplied", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        sourceType: "ManifestTopology",
+        sourceId: SAMPLE_RUN_ID,
+        documentId: `topology-${SAMPLE_RUN_ID}`,
+        findingId: undefined,
+      }),
+      undefined,
+      { architectureId: "architecture-identity-001" },
+    );
+
+    expect(link).toEqual({
+      href: "/architecture/architectures/architecture-identity-001/reviews/" + SAMPLE_RUN_ID,
+      label: "Open review",
     });
   });
 

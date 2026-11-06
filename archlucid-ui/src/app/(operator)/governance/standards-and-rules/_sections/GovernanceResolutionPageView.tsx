@@ -32,6 +32,7 @@ import {
 } from "@/lib/design-tokens";
 import { formatGovernanceResolutionWorkingResultsLabel } from "@/lib/governance/governance-resolution-collection-count-display";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   GOVERNANCE_STANDARDS_RULES_BUYER_START_HERE_HELPER,
   GOVERNANCE_STANDARDS_RULES_LOAD_ERROR,
@@ -118,7 +119,7 @@ export function GovernanceResolutionPageView(props: Props) {
       {" · "}
       <Link
         className={OPERATOR_BODY_INLINE_LINK_CLASS}
-        href={`/architecture/reviews/${encodeURIComponent(rows.scopedRunId)}`}
+        href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(rows.scopedRunId)}
       >
         Open review
       </Link>

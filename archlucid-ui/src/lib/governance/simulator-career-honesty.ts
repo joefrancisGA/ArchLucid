@@ -147,6 +147,16 @@ export function presentDecisionGradeSemanticSupportBand(input: {
     };
   }
 
+  if (typeof input.wireBand === "string" && input.wireBand.trim().length === 0 && input.wireBand.length > 0) {
+    return {
+      displayBand: "NotScored",
+      label: "Semantic support band was stored empty.",
+      reason: "The record stored a whitespace-only semantic support value.",
+      statusTagKind: "neutral",
+      isRehearsalPresentation: false,
+    };
+  }
+
   if (input.wireBand === "") {
     return {
       displayBand: "NotScored",

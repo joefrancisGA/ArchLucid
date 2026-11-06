@@ -1,4 +1,5 @@
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 
@@ -18,7 +19,9 @@ export function resolveAuditTrailReviewHref(input: ResolveAuditTrailReviewHrefIn
   }
 
   if (!input.workingMode) {
-    return reviewDetailPath(runId);
+    return resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId, {
+      architectureId: input.architectureId,
+    });
   }
 
   return resolveWorkingRunReviewLocator({
