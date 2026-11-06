@@ -6,7 +6,7 @@ export const ARCHLUCID_BETA_SKU_CONTENTS_LEAD =
 export const ARCHLUCID_BETA_SKU_CONTENTS_INCLUDES = [
   "Guided architecture review intake, evidence upload, and policy-pack assignment",
   "Simulator or platform Azure OpenAI execution with PilotStrict citation gates on Real mode",
-  "Governed findings, dispositions, append-only audit, and exportable review packages",
+  "Governed findings, dispositions, append-only audit, and exportable review evidence",
   "Sales-led quote request and order-form path for paid pilots",
 ] as const;
 
