@@ -6,8 +6,8 @@ import { describe, expect, it } from "vitest";
 const FLAT_PEER_FALLBACK_PATTERN =
   /usePathname\s*\(\)\s*\?\?\s*`\/architecture\/reviews\/\$\{/;
 
-function listComponentTsxFiles(): string[] {
-  const componentsDir = join(process.cwd(), "src/components");
+function listNonTestTsxUnder(dirRelative: string): string[] {
+  const rootDir = join(process.cwd(), dirRelative);
   const files: string[] = [];
 
   function walk(dir: string): void {
@@ -22,9 +22,17 @@ function listComponentTsxFiles(): string[] {
     }
   }
 
-  walk(componentsDir);
+  walk(rootDir);
 
   return files;
+}
+
+function listComponentTsxFiles(): string[] {
+  return listNonTestTsxUnder("src/components");
+}
+
+function listOperatorAppTsxFiles(): string[] {
+  return listNonTestTsxUnder("src/app/(operator)");
 }
 
 describe("flat peer review pathname fallback guard (desk continuity)", () => {
@@ -45,6 +53,14 @@ describe("flat peer review pathname fallback guard (desk continuity)", () => {
 
   it("does not add flat peer usePathname fallbacks under src/components (non-test TSX)", () => {
     for (const filePath of listComponentTsxFiles()) {
+      const source = readFileSync(filePath, "utf8");
+
+      expect(FLAT_PEER_FALLBACK_PATTERN.test(source)).toBe(false);
+    }
+  });
+
+  it("does not add flat peer usePathname fallbacks under src/app/(operator) (non-test TSX)", () => {
+    for (const filePath of listOperatorAppTsxFiles()) {
       const source = readFileSync(filePath, "utf8");
 
       expect(FLAT_PEER_FALLBACK_PATTERN.test(source)).toBe(false);

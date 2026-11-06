@@ -141,6 +141,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
       {showGraph ? (
         <ProvenancePageWorkspaceGraphSection
           runId={runId}
+          reviewPathname={pathname}
           graph={graph}
           layoutSeed={layoutSeed}
           selectedNodeId={selectedNodeId}
@@ -163,6 +164,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
       {showTimeline ? (
         <ProvenancePageWorkspaceTimeline
           runId={runId}
+          reviewPathname={pathname}
           graph={graph}
           viewMode={viewMode}
           onSelectNode={onSelectNode}
@@ -172,6 +174,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
       {showTables ? (
         <ProvenancePageWorkspaceTablesSection
           runId={runId}
+          reviewPathname={pathname}
           graph={graph}
           selectedNodeId={selectedNodeId}
           highlightedEdgeId={highlightedEdgeId}

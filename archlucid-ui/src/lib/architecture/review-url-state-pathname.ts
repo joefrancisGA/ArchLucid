@@ -128,6 +128,49 @@ export function resolveReviewUrlStatePathname(
   return resolveArchitectureReviewHref(trimmedRunId, null);
 }
 
+export type ResolveDeskAwareReviewOpenHrefOptions = {
+  readonly requestId?: string | null;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
+};
+
+/**
+ * Review base href for deep links when the current route shape is known:
+ * nested desk for this run → nested base; peer `/architecture/reviews/{runId}` for this run → strict peer (no desk continuity);
+ * otherwise governance scoped open (registry + continuity).
+ */
+export function resolveDeskAwareReviewOpenHref(
+  runId: string,
+  pathname: string | null | undefined,
+  options?: ResolveDeskAwareReviewOpenHrefOptions,
+): string {
+  const trimmedRunId = runId.trim();
+  const path = pathname?.trim() ?? "";
+
+  if (trimmedRunId.length === 0) {
+    return resolveArchitectureReviewHref("", null);
+  }
+
+  if (path.length > 0) {
+    const nestedDesk = parseNestedReviewDeskFromPathname(path);
+
+    if (nestedDesk !== null && nestedDesk.reviewRunId.trim() === trimmedRunId) {
+      return resolveArchitectureReviewHref(trimmedRunId, nestedDesk.architectureId);
+    }
+
+    const peerRunId = parsePeerReviewRunIdFromPathname(path);
+
+    if (peerRunId !== null && peerRunId.trim() === trimmedRunId) {
+      return resolveArchitectureReviewHref(trimmedRunId, null);
+    }
+  }
+
+  return resolveGovernanceScopedReviewOpenHref({
+    runId: trimmedRunId,
+    requestId: options?.requestId,
+    draftRegistryEntries: options?.draftRegistryEntries,
+  });
+}
+
 export type ResolveScopedReviewPathInput = {
   readonly runId: string;
   readonly pathname: string | null | undefined;
@@ -145,21 +188,16 @@ export function resolveScopedReviewPath(
   input: ResolveScopedReviewPathInput,
 ): string {
   const runId = input.runId.trim();
-  const path = input.pathname?.trim() ?? "";
 
   if (runId.length === 0) {
-    return resolveGovernanceScopedReviewOpenHref({
-      runId,
+    return resolveDeskAwareReviewOpenHref("", input.pathname, {
       requestId: input.requestId,
       draftRegistryEntries: input.draftRegistryEntries,
     });
   }
 
-  const nestedDesk = path.length > 0 ? parseNestedReviewDeskFromPathname(path) : null;
-  const base = resolveGovernanceScopedReviewOpenHref({
-    runId,
+  const base = resolveDeskAwareReviewOpenHref(runId, input.pathname, {
     requestId: input.requestId,
-    architectureId: nestedDesk?.architectureId,
     draftRegistryEntries: input.draftRegistryEntries,
   });
 

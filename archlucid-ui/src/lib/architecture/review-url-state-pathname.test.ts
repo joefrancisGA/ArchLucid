@@ -1,13 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   parseNestedReviewDeskFromPathname,
   parsePeerReviewRunIdFromPathname,
+  resolveDeskAwareReviewOpenHref,
   resolveReviewUrlStatePathname,
   resolveScopedReviewPath,
 } from "@/lib/architecture/review-url-state-pathname";
 
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => null),
+}));
+
 describe("review-url-state-pathname", () => {
+  beforeEach(() => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue(null);
+  });
   it("parseNestedReviewDeskFromPathname extracts architecture id and run id", () => {
     const desk = parseNestedReviewDeskFromPathname(
       "/architecture/architectures/acme/reviews/run-1",
@@ -65,6 +74,38 @@ describe("review-url-state-pathname", () => {
     });
 
     expect(href).toBe("/architecture/architectures/parent/reviews/run-1/provenance");
+  });
+
+  it("resolveDeskAwareReviewOpenHref keeps nested base when pathname is the nested desk for the same run", () => {
+    expect(
+      resolveDeskAwareReviewOpenHref("run-1", "/architecture/architectures/parent/reviews/run-1/provenance"),
+    ).toBe("/architecture/architectures/parent/reviews/run-1");
+  });
+
+  it("resolveDeskAwareReviewOpenHref keeps peer base when pathname is the peer review for the same run", () => {
+    expect(resolveDeskAwareReviewOpenHref("run-1", "/architecture/reviews/run-1/findings/f1")).toBe(
+      "/architecture/reviews/run-1",
+    );
+  });
+
+  it("resolveDeskAwareReviewOpenHref falls through to governance continuity when pathname targets a different run", () => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-cached-002");
+
+    expect(
+      resolveDeskAwareReviewOpenHref(
+        "run-target",
+        "/architecture/architectures/other/reviews/run-other",
+      ),
+    ).toBe("/architecture/architectures/architecture-cached-002/reviews/run-target");
+  });
+
+  it("resolveScopedReviewPath appends suffix on peer base when pathname is peer for the same run", () => {
+    const href = resolveScopedReviewPath("/provenance", {
+      runId: "run-1",
+      pathname: "/architecture/reviews/run-1",
+    });
+
+    expect(href).toBe("/architecture/reviews/run-1/provenance");
   });
 
 });
