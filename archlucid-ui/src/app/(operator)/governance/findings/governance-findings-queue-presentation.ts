@@ -71,6 +71,11 @@ import {
 import { matchesGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 import { matchesGovernanceFindingsArchitectureScope } from "@/lib/governance/governance-findings-architecture-scope";
 
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { parseNestedReviewDeskFromPathname } from "@/lib/architecture/review-url-state-pathname";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
 export function filterGovernanceFindingsArchitectureScopedRows(
@@ -443,12 +448,44 @@ export function resolveScopedFindingLifecycleCompareHref(
   return comparePageHrefWithLifecycleAnchor(priorRunId, scopedRunId);
 }
 
+export type ResolveGovernanceFindingsSponsorHandoffHrefInput = {
+  readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
+};
+
 export function resolveGovernanceFindingsSponsorHandoffHref(
   scopedRunId: string | null,
+  input?: ResolveGovernanceFindingsSponsorHandoffHrefInput,
 ): string | null {
   if (scopedRunId === null || scopedRunId.length === 0) {
     return null;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`;
+  const runId = scopedRunId.trim();
+  let architectureId = input?.scopedArchitectureId?.trim() ?? "";
+  const path = input?.pathname?.trim() ?? "";
+
+  if (architectureId.length === 0 && path.length > 0) {
+    const nestedDesk = parseNestedReviewDeskFromPathname(path);
+
+    if (nestedDesk !== null && nestedDesk.reviewRunId === runId) {
+      architectureId = nestedDesk.architectureId;
+    }
+  }
+
+  if (architectureId.length === 0) {
+    const locator = resolveWorkingRunReviewLocator({
+      runId,
+      draftRegistryEntries: input?.draftRegistryEntries,
+    });
+
+    if (locator.architectureId !== null) {
+      architectureId = locator.architectureId;
+    }
+  }
+
+  return buildReviewDetailTabHref(runId, "review-package", {
+    architectureId: architectureId.length > 0 ? architectureId : null,
+  });
 }

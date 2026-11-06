@@ -38,6 +38,7 @@ import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natu
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
 import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 
 export type UseGovernanceFindingsQueueSynopsisInput = {
   readonly mode: GovernanceFindingsQueueMode;
@@ -58,6 +59,7 @@ export type UseGovernanceFindingsQueueSynopsisInput = {
   readonly pathname: string | null;
   readonly scopedArchitectureId: string | null;
   readonly scopeRecord: OperatorScopeRecord | null;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
 };
 
 export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQueueSynopsisInput) {
@@ -80,6 +82,7 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     pathname,
     scopedArchitectureId,
     scopeRecord,
+    draftRegistryEntries,
   } = input;
 
   const inhabitedFindingsInspectHrefOptions = useMemo(
@@ -217,7 +220,11 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     () => deriveSponsorSynopsisCounts(displayedRows),
     [displayedRows],
   );
-  const sponsorHandoffHref = resolveGovernanceFindingsSponsorHandoffHref(scopedRunId);
+  const sponsorHandoffHref = resolveGovernanceFindingsSponsorHandoffHref(scopedRunId, {
+    pathname,
+    scopedArchitectureId,
+    draftRegistryEntries,
+  });
   const activeFiltersSummary = useMemo(
     () =>
       deriveGovernanceFindingsActiveFiltersSummary(

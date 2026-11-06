@@ -4,6 +4,7 @@ import {
   parseNestedReviewDeskFromPathname,
   parsePeerReviewRunIdFromPathname,
   resolveReviewUrlStatePathname,
+  resolveScopedReviewPath,
 } from "@/lib/architecture/review-url-state-pathname";
 
 describe("review-url-state-pathname", () => {
@@ -56,4 +57,14 @@ describe("review-url-state-pathname", () => {
 
     expect(href).toBe("/architecture/reviews/run-z");
   });
+
+  it("resolveScopedReviewPath appends suffix on nested desk base", () => {
+    const href = resolveScopedReviewPath("/provenance", {
+      runId: "run-1",
+      pathname: "/architecture/architectures/parent/reviews/run-1",
+    });
+
+    expect(href).toBe("/architecture/architectures/parent/reviews/run-1/provenance");
+  });
+
 });
