@@ -38,6 +38,17 @@ public sealed partial class CachingTenantRepository
     }
 
     /// <inheritdoc />
+    public async Task<bool> TryRevertTenantErasureApprovalAsync(Guid tenantId, CancellationToken ct)
+    {
+        bool reverted = await _inner.TryRevertTenantErasureApprovalAsync(tenantId, ct);
+
+        if (reverted)
+            await InvalidateAsync(tenantId, ct);
+
+        return reverted;
+    }
+
+    /// <inheritdoc />
     public async Task<bool> TryStartTenantErasureOffboardAsync(
         Guid tenantId,
         DateTimeOffset offboardedUtc,

@@ -68,6 +68,68 @@ public sealed partial class InMemoryTenantRepository
 
 
     /// <inheritdoc />
+    public Task<bool> TryRevertTenantErasureApprovalAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t)
+                || !TenantRepositoryCore.CanRevertTenantErasureApproval(t))
+            {
+                return Task.FromResult(false);
+            }
+
+            _byId[tenantId] = new TenantRecord
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Slug = t.Slug,
+                Tier = t.Tier,
+                EntraTenantId = t.EntraTenantId,
+                DataRegion = t.DataRegion,
+                CreatedUtc = t.CreatedUtc,
+                SuspendedUtc = t.SuspendedUtc,
+                OffboardedUtc = t.OffboardedUtc,
+                ErasureEligibleUtc = t.ErasureEligibleUtc,
+                LegalHoldUntilUtc = t.LegalHoldUntilUtc,
+                LegalHoldReason = t.LegalHoldReason,
+                LegalHoldSetByUserId = t.LegalHoldSetByUserId,
+                LegalHoldSetUtc = t.LegalHoldSetUtc,
+                TrialStartUtc = t.TrialStartUtc,
+                TrialExpiresUtc = t.TrialExpiresUtc,
+                TrialRunsLimit = t.TrialRunsLimit,
+                TrialRunsUsed = t.TrialRunsUsed,
+                TrialSeatsLimit = t.TrialSeatsLimit,
+                TrialSeatsUsed = t.TrialSeatsUsed,
+                TrialStatus = t.TrialStatus,
+                TrialSampleRunId = t.TrialSampleRunId,
+                TrialArchitecturePreseedEnqueuedUtc = t.TrialArchitecturePreseedEnqueuedUtc,
+                TrialWelcomeRunId = t.TrialWelcomeRunId,
+                TrialFirstManifestCommittedUtc = t.TrialFirstManifestCommittedUtc,
+                BaselineReviewCycleHours = t.BaselineReviewCycleHours,
+                BaselineReviewCycleSource = t.BaselineReviewCycleSource,
+                BaselineReviewCycleCapturedUtc = t.BaselineReviewCycleCapturedUtc,
+                BaselineManualPrepHoursPerReview = t.BaselineManualPrepHoursPerReview,
+                BaselinePeoplePerReview = t.BaselinePeoplePerReview,
+                BaselineManualPrepCapturedUtc = t.BaselineManualPrepCapturedUtc,
+                CompanySize = t.CompanySize,
+                ArchitectureTeamSize = t.ArchitectureTeamSize,
+                IndustryVertical = t.IndustryVertical,
+                IndustryVerticalOther = t.IndustryVerticalOther,
+                EnterpriseSeatsLimit = t.EnterpriseSeatsLimit,
+                EnterpriseSeatsUsed = t.EnterpriseSeatsUsed,
+                TenantErasureRequestedUtc = t.TenantErasureRequestedUtc,
+                TenantErasureApprovedUtc = null,
+                TenantErasureApprovedByUserId = null
+            };
+
+            return Task.FromResult(true);
+        }
+    }
+
+
+    /// <inheritdoc />
     public Task<bool> TryStartTenantErasureOffboardAsync(
         Guid tenantId,
         DateTimeOffset offboardedUtc,

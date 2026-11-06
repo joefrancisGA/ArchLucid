@@ -7,6 +7,7 @@ internal static class TenantRepositoryCore
     public static string NormalizeSlug(string slug){ArgumentException.ThrowIfNullOrWhiteSpace(slug);return slug.Trim().ToLowerInvariant();}
     public static int ClampErasureListTake(int take)=>Math.Clamp(take,1,MaxErasureListTake);
     public static bool CanApproveTenantErasure(TenantRecord t){ArgumentNullException.ThrowIfNull(t);return t.OffboardedUtc is not null&&t.TenantErasureApprovedUtc is null;}
+    public static bool CanRevertTenantErasureApproval(TenantRecord t){ArgumentNullException.ThrowIfNull(t);return t.OffboardedUtc is not null&&t.TenantErasureApprovedUtc is not null;}
     public static bool CanStartTenantErasureOffboard(TenantRecord t){ArgumentNullException.ThrowIfNull(t);return t.OffboardedUtc is null;}
     public static bool CanRestoreTenantErasureQuarantine(TenantRecord t){ArgumentNullException.ThrowIfNull(t);return t.OffboardedUtc is not null;}
     public static bool CanSetTenantErasureLegalHold(DateTimeOffset h,DateTimeOffset n)=>h>n;

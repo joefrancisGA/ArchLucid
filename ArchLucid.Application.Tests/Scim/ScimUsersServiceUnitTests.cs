@@ -519,6 +519,52 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task DeactivateAsync_when_user_already_inactive_does_not_decrement_seat_again()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM DELETE Inactive Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "active", "value": false }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        TenantRecord? afterPatch = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        afterPatch!.EnterpriseSeatsUsed.Should().Be(0);
+
+        await sut.DeactivateAsync(tenantId, created.Id, CancellationToken.None);
+
+        TenantRecord? afterDelete = await tenants.GetByIdAsync(tenantId, CancellationToken.None);
+        afterDelete!.EnterpriseSeatsUsed.Should().Be(0);
+    }
+
+    [Fact]
     public async Task DeactivateAsync_throws_not_found_when_user_already_directory_removed()
     {
         Guid tenantId = Guid.NewGuid();

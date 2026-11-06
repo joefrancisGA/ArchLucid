@@ -13,6 +13,34 @@ namespace ArchLucid.Application.Tests.Exports.ArchitectureReviewBoard;
 public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
 {
     [Fact]
+    public void Create_when_stored_manifest_system_name_whitespace_ignores_analysis_evidence_system_name()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+
+        detail.Manifest!.SystemName = "   ";
+        report.Manifest = new GoldenManifest
+        {
+            RunId = detail.Run.RunId,
+            SystemName = string.Empty,
+            Services = detail.Manifest.Services,
+            Datastores = detail.Manifest.Datastores,
+            Relationships = detail.Manifest.Relationships,
+            Governance = detail.Manifest.Governance,
+            Metadata = detail.Manifest.Metadata,
+        };
+        report.Evidence!.SystemName = "Stale evidence system name";
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.SystemName.Should().BeNull();
+    }
+
+    [Fact]
     public void Create_system_overview_uses_not_stored_labels_for_default_moderate_governance_only()
     {
         GoldenManifest manifest = new()
