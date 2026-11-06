@@ -47,6 +47,8 @@ import {
   runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import { parseNestedReviewDeskFromPathname } from "@/lib/architecture/review-url-state-pathname";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 /** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
 function BuyerSponsorBriefExports({
@@ -344,6 +346,7 @@ export function RunDetailPageHeader({
   usedStaticDemoRun = false,
   demoteFinalizeButton = false,
   transparencyTrail = null}: RunDetailPageHeaderProps) {
+  const pathname = usePathname() ?? "";
   const buyerPolishedShell = useProductionEvalChrome();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
@@ -362,6 +365,15 @@ export function RunDetailPageHeader({
   const trimmedManifestId = (manifestId ?? "").trim();
   const manifestVersionForExportGuard = hasGoldenManifest && trimmedManifestId.length > 0 ? trimmedManifestId : null;
   const showOperatorIdentifiers = buyerPolishedShell !== true;
+  const nestedDesk = parseNestedReviewDeskFromPathname(pathname);
+  const trustEvidenceArchitectureId =
+    nestedDesk !== null && nestedDesk.reviewRunId.trim() === runId.trim()
+      ? nestedDesk.architectureId
+      : null;
+  const trustEvidenceBasisHref = buildReviewDetailTabHref(runId, "evidence", {
+    architectureId: trustEvidenceArchitectureId,
+    hash: "#trust-evidence",
+  });
 
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -400,10 +412,7 @@ export function RunDetailPageHeader({
               </p>
               <p className={cn("m-0 mt-2 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 font-medium dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Traceable evidence and audit-ready history</span>
-                <Link
-                  href={`/architecture/reviews/${encodeURIComponent(runId)}#trust-evidence`}
-                  className={cn("font-semibold", OPERATOR_LINK.nav)}
-                >
+                <Link href={trustEvidenceBasisHref} className={cn("font-semibold", OPERATOR_LINK.nav)}>
                   View evidence basis
                 </Link>
               </p>

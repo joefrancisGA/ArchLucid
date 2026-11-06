@@ -1,8 +1,10 @@
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 
 export type NestedReviewDeskFromPathname = {
   readonly architectureId: string;
@@ -124,4 +126,50 @@ export function resolveReviewUrlStatePathname(
   }
 
   return resolveArchitectureReviewHref(trimmedRunId, null);
+}
+
+export type ResolveScopedReviewPathInput = {
+  readonly runId: string;
+  readonly pathname: string | null | undefined;
+  /** When known, `requestId` participates in Working run → architecture resolution (AO-08). */
+  readonly requestId?: string | null;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
+};
+
+/**
+ * Appends a suffix path (for example `/provenance`, `/findings/{id}`) after a scoped review base href.
+ * When the user is on a nested review desk, preserves that desk's parent architecture id.
+ */
+export function resolveScopedReviewPath(
+  suffixPath: string,
+  input: ResolveScopedReviewPathInput,
+): string {
+  const runId = input.runId.trim();
+  const path = input.pathname?.trim() ?? "";
+
+  if (runId.length === 0) {
+    return resolveGovernanceScopedReviewOpenHref({
+      runId,
+      requestId: input.requestId,
+      draftRegistryEntries: input.draftRegistryEntries,
+    });
+  }
+
+  const nestedDesk = path.length > 0 ? parseNestedReviewDeskFromPathname(path) : null;
+  const base = resolveGovernanceScopedReviewOpenHref({
+    runId,
+    requestId: input.requestId,
+    architectureId: nestedDesk?.architectureId,
+    draftRegistryEntries: input.draftRegistryEntries,
+  });
+
+  const trimmedSuffix = suffixPath.trim();
+
+  if (trimmedSuffix.length === 0) {
+    return base;
+  }
+
+  const normalizedSuffix = trimmedSuffix.startsWith("/") ? trimmedSuffix : `/${trimmedSuffix}`;
+
+  return `${base}${normalizedSuffix}`;
 }
