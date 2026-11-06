@@ -43,6 +43,7 @@ import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
 } from "@/lib/review-quality/finalize-quality-scorecard";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 import {
   parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
@@ -76,7 +77,8 @@ export function ReviewPackageSponsorHandoffStrip(
   const lowExtractionConfidenceCount = lowExtractionConfidenceCountKnown
     ? Math.max(0, Math.trunc(props.lowExtractionConfidenceCount!))
     : 0;
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathnameFromRoute = usePathname();
+  const pathname = pathnameFromRoute ?? resolveReviewUrlStatePathname(null, props.runId);
   const searchParams = useSearchParams();
   const urlMoreExportsOpen = parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
     searchParams.get(REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM),

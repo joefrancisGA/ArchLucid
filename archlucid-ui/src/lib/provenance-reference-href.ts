@@ -1,13 +1,14 @@
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { signedRecordArtifactPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { FINDING_EVIDENCE_TRACE_SEGMENT } from "@/lib/findings/finding-evidence-navigation";
+import {
+  resolveDeskAwareReviewOpenHref,
+  resolveScopedReviewPath,
+  type ResolveDeskAwareReviewOpenHrefOptions,
+} from "@/lib/architecture/review-url-state-pathname";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
 const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function encodeRunPath(runId: string): string {
-  return encodeURIComponent(runId.trim());
-}
 
 function goldenManifestIdFromNodes(nodes: readonly ArchitectureLinkageNode[]): string | null {
   const golden = nodes.find((node) => node.type === "GoldenManifest");
@@ -21,21 +22,36 @@ function goldenManifestIdFromNodes(nodes: readonly ArchitectureLinkageNode[]): s
   return referenceId.length > 0 ? referenceId : null;
 }
 
+export type ProvenanceReferenceHrefContext = {
+  readonly pathname?: string | null;
+  readonly requestId?: string | null;
+  readonly draftRegistryEntries?: ResolveDeskAwareReviewOpenHrefOptions["draftRegistryEntries"];
+};
+
 function nodeHref(
   runId: string,
   node: ArchitectureLinkageNode,
   nodes: readonly ArchitectureLinkageNode[],
   manifestId: string | null,
+  context?: ProvenanceReferenceHrefContext,
 ): string | null {
+  const deskOptions: ResolveDeskAwareReviewOpenHrefOptions = {
+    requestId: context?.requestId,
+    draftRegistryEntries: context?.draftRegistryEntries,
+  };
+
   switch (node.type) {
     case "ArchitectureRun":
-      return `/architecture/reviews/${encodeRunPath(runId)}`;
+      return resolveDeskAwareReviewOpenHref(runId, context?.pathname, deskOptions);
 
     case "GoldenManifest":
       return signedRecordDetailPath(node.referenceId);
 
     case "Finding":
-      return getFindingEvidenceTraceHref(runId, node.referenceId);
+      return resolveScopedReviewPath(
+        `/findings/${encodeURIComponent(node.referenceId.trim())}/${FINDING_EVIDENCE_TRACE_SEGMENT}`,
+        { runId, pathname: context?.pathname, ...deskOptions },
+      );
 
     case "PolicyPack":
       return `/governance/policy-packs/${encodeURIComponent(node.referenceId)}`;
@@ -56,14 +72,19 @@ function nodeHref(
         return signedRecordArtifactPath(manifestId, node.referenceId);
       }
 
-      return `/architecture/reviews/${encodeRunPath(runId)}#artifacts-exports`;
+      const artifactBase = resolveDeskAwareReviewOpenHref(runId, context?.pathname, deskOptions);
+
+      return `${artifactBase}#artifacts-exports`;
     }
 
     case "GraphSnapshot":
       return evidenceGraphHref({ runId });
 
-    case "FindingsSnapshot":
-      return `/architecture/reviews/${encodeRunPath(runId)}#findings-queue`;
+    case "FindingsSnapshot": {
+      const findingsBase = resolveDeskAwareReviewOpenHref(runId, context?.pathname, deskOptions);
+
+      return `${findingsBase}#findings-queue`;
+    }
 
     default:
       return `#prov-node-row-${encodeURIComponent(node.id)}`;
@@ -75,6 +96,7 @@ export function provenanceReferenceHref(
   runId: string,
   referenceId: string | null | undefined,
   nodes: readonly ArchitectureLinkageNode[],
+  context?: ProvenanceReferenceHrefContext,
 ): string | null {
   const ref = referenceId?.trim() ?? "";
 
@@ -86,13 +108,13 @@ export function provenanceReferenceHref(
   const byReference = nodes.find((node) => node.referenceId === ref);
 
   if (byReference !== undefined) {
-    return nodeHref(runId, byReference, nodes, manifestId);
+    return nodeHref(runId, byReference, nodes, manifestId, context);
   }
 
   const byId = nodes.find((node) => node.id === ref);
 
   if (byId !== undefined) {
-    return nodeHref(runId, byId, nodes, manifestId);
+    return nodeHref(runId, byId, nodes, manifestId, context);
   }
 
   if (GUID_RE.test(ref) && manifestId === ref) {

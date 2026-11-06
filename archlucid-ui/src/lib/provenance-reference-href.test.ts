@@ -36,6 +36,24 @@ describe("provenanceReferenceHref", () => {
     );
   });
 
+  it("uses nested desk base for run links when pathname is a nested review desk for that run", () => {
+    const nestedPath = "/architecture/architectures/parent-arch/reviews/customer-intake-modernization/provenance";
+
+    expect(
+      provenanceReferenceHref("customer-intake-modernization", "customer-intake-modernization", nodes, {
+        pathname: nestedPath,
+      }),
+    ).toBe("/architecture/architectures/parent-arch/reviews/customer-intake-modernization");
+  });
+
+  it("uses nested desk base for finding trace when pathname is a nested review desk for that run", () => {
+    const nestedPath = "/architecture/architectures/parent-arch/reviews/customer-intake-modernization";
+
+    expect(provenanceReferenceHref("customer-intake-modernization", "finding-guid-1", nodes, { pathname: nestedPath })).toBe(
+      "/architecture/architectures/parent-arch/reviews/customer-intake-modernization/findings/finding-guid-1/evidence-trace",
+    );
+  });
+
   it("returns null for unresolved guid references", () => {
     expect(
       provenanceReferenceHref("customer-intake-modernization", "00000000-0000-0000-0000-000000000099", nodes),
