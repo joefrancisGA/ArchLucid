@@ -126,6 +126,17 @@ describe("governance queue review landing URL", () => {
     expect(url.hash).toBe(`#${resolveFirstReviewSpineOpenGateSectionId("findings")}`);
   });
 
+  it("uses nested review base when desk continuity cache is set", () => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-queue-disposition");
+
+    const href = governanceFindingQueueFindingsWorkspaceHref("run-1", "finding-9");
+    const url = new URL(href, "https://example.test");
+
+    expect(url.pathname).toBe("/architecture/architectures/architecture-queue-disposition/reviews/run-1");
+    expect(url.searchParams.get("reviewTab")).toBe("findings");
+    expect(url.searchParams.get("findingId")).toBe("finding-9");
+  });
+
   it("matches primary inspect href for open decision-grade queue rows", () => {
     const row = queueRow({
       classification: "DecisionGradeFinding",

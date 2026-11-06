@@ -21,6 +21,7 @@ import {
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 
@@ -177,7 +178,7 @@ export function AlertsInboxActionLoopDialog(props: AlertsInboxActionLoopDialogPr
                     className={OPERATOR_LINK.nav}
                     href={
                       props.actionLoopFindingHref ??
-                      `/architecture/reviews/${encodeURIComponent(props.actionLoopData.runId)}`
+                      resolveOperatorScopedRunReviewHref(props.actionLoopData.runId)
                     }
                   >
                     {props.actionLoopFindingHref !== null ? "Open linked finding" : props.actionLoopData.runId}

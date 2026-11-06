@@ -21,6 +21,7 @@ import {
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
 import {
   resolveFirstReviewGuideHeaderActions,
@@ -88,7 +89,7 @@ function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
   return {
     ...loadingHeaderActions,
     secondaryLabel: "Explore sample review",
-    secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+    secondaryHref: resolveShowcaseOperatorReviewHref(SHOWCASE_STATIC_DEMO_RUN_ID),
   };
 }
 

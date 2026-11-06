@@ -1,5 +1,6 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { CorePilotCommitProgressState } from "@/lib/core-pilot-commit-progress";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 
 export type FirstReviewCheckpointStatus = "complete" | "active" | "pending";
@@ -27,9 +28,12 @@ export function buildFirstReviewCheckpointStrip(
   latestRunReadyToFinalize: boolean,
   hasRecordedFirstReviewExport = false,
 ): readonly FirstReviewCheckpoint[] {
-  const reviewHref = latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews";
+  const reviewHref =
+    latestRunId !== null ? resolveOperatorScopedRunReviewHref(latestRunId) : "/architecture/reviews";
   const committedReviewHref =
-    firstCommittedRunId !== null ? `/architecture/reviews/${firstCommittedRunId}` : "/architecture/reviews";
+    firstCommittedRunId !== null
+      ? resolveOperatorScopedRunReviewHref(firstCommittedRunId)
+      : "/architecture/reviews";
 
   const statusById: Record<FirstReviewCheckpointId, FirstReviewCheckpointStatus> = {
     intake: "pending",

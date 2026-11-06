@@ -16,6 +16,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DIGESTS_SCHEDULE_TAB_RESPONSIBILITY, EXEC_DIGEST_PRODUCT_INTRO, EXEC_DIGEST_READ_ONLY, EXEC_DIGEST_SAMPLE_BLOCKED } from "@/lib/exec-digest-schedule-page-model";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -81,7 +82,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(scopedRunId)}
           >
             Open review
           </Link>

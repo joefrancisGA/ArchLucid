@@ -9,6 +9,8 @@ import {
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
@@ -75,10 +77,21 @@ export function resolveGovernanceQueueAuxiliaryFindingHref(
 }
 
 /** Findings workspace deep link for queue disposition work (findingId + first-review spine hash). */
-export function governanceFindingQueueFindingsWorkspaceHref(runId: string, findingId: string): string {
+export function governanceFindingQueueFindingsWorkspaceHref(
+  runId: string,
+  findingId: string,
+  options?: { readonly architectureId?: string | null },
+): string {
+  const locator = resolveWorkingRunReviewLocator({
+    runId,
+    architectureId: options?.architectureId,
+  });
+  const architectureId = locator.architectureId ?? readCachedLastOpenArchitectureId();
+
   return buildReviewDetailTabHref(runId.trim(), "findings", {
     findingId: findingId.trim(),
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId,
   });
 }
 
