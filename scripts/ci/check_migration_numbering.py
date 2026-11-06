@@ -109,7 +109,7 @@ def git_blob_sha(path: str) -> str:
     """Compute Git's blob identity, catching edits to grandfathered migrations."""
     with open(path, "rb") as migration_file:
         contents = migration_file.read()
-    prefix = f"blob {len(contents)}\\0".encode("ascii")
+    prefix = f"blob {len(contents)}".encode("ascii") + bytes([0])
     return hashlib.sha1(prefix + contents).hexdigest()
 
 
