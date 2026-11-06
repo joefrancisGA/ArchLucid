@@ -107,6 +107,20 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
     && hasOpenGateNavigationInput
     && props.openGateNavigationInput?.hasFindingsSnapshot !== false;
 
+  const openGateLinkAriaLabel = ((): string | undefined => {
+    if (!openGateLinkEnabled || summary.openGateReviewTab === null) {
+      return undefined;
+    }
+
+    const trimmedLabel = summary.openGateLabel?.trim() ?? "";
+
+    if (trimmedLabel.length > 0) {
+      return `Open the gate: ${trimmedLabel} (${summary.openGateReviewTab} tab)`;
+    }
+
+    return `Open the gate (${summary.openGateReviewTab} tab)`;
+  })();
+
   return (
     <section
       id={openGateSectionId ?? undefined}
@@ -155,7 +169,11 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             Open gate: {summary.openGateLabel}.{" "}
             {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
               openGateLinkEnabled ? (
-                <Link href={openGateHref ?? "#"} className={OPERATOR_LINK.inline}>
+                <Link
+                  href={openGateHref ?? "#"}
+                  className={OPERATOR_LINK.inline}
+                  aria-label={openGateLinkAriaLabel}
+                >
                   Open the gate
                 </Link>
               ) : hasOpenGateNavigationInput && props.openGateNavigationInput?.hasFindingsSnapshot === false ? (

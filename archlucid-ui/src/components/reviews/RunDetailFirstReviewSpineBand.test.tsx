@@ -53,9 +53,17 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
 
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent("Uncommitted review");
-    expect(screen.getByRole("link", { name: "Open the gate" })).toHaveAttribute(
+    const openGateLink = screen.getByRole("link", {
+      name: "Open the gate: Uncommitted review (review-package tab)",
+    });
+
+    expect(openGateLink).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
+    );
+    expect(openGateLink).toHaveAttribute(
+      "aria-label",
+      "Open the gate: Uncommitted review (review-package tab)",
     );
   });
 
