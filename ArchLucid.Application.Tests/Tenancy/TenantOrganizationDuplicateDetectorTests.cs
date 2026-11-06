@@ -910,4 +910,238 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_named_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug named incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_called_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug called invalid already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_reserved_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug reserved elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_selected_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug selected incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_created_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug created automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_registered_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug registered elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_updated_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug updated incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_imported_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug imported automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_exported_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug exported elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_copied_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug copied incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_removed_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug removed automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_added_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug added elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_deleted_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug deleted incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_duplicated_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug duplicated automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_replaced_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug replaced elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_synchronized_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug synchronized incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_transferred_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug transferred automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_restored_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug restored elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_archived_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug archived incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_migrated_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug migrated automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_reverted_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug reverted elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_published_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug published incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_activated_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug activated automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_deactivated_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug deactivated elsewhere already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_validated_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug validated incorrectly already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_converted_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug converted automatically already exists"))
+            .Should()
+            .BeFalse();
+    }
 }

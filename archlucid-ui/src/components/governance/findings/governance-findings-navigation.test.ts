@@ -1,7 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
 import {
   governanceFindingDetailKeyboardActivate,
+  governanceFindingManifestRecordHref,
   governanceFindingQueueFindingsWorkspaceHref,
   governanceFindingQueuePrimaryInspectHref,
   governanceFindingQueueRowNeedsDispositionRecording,
@@ -11,6 +14,10 @@ import {
 } from "@/components/governance/findings/governance-findings-navigation";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => null),
+}));
 
 function queueRow(overrides: Partial<GovernanceFindingQueueRow>): GovernanceFindingQueueRow {
   return {
@@ -119,6 +126,17 @@ describe("governance queue review landing URL", () => {
     expect(url.hash).toBe(`#${resolveFirstReviewSpineOpenGateSectionId("findings")}`);
   });
 
+  it("uses nested review base when desk continuity cache is set", () => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-queue-disposition");
+
+    const href = governanceFindingQueueFindingsWorkspaceHref("run-1", "finding-9");
+    const url = new URL(href, "https://example.test");
+
+    expect(url.pathname).toBe("/architecture/architectures/architecture-queue-disposition/reviews/run-1");
+    expect(url.searchParams.get("reviewTab")).toBe("findings");
+    expect(url.searchParams.get("findingId")).toBe("finding-9");
+  });
+
   it("matches primary inspect href for open decision-grade queue rows", () => {
     const row = queueRow({
       classification: "DecisionGradeFinding",
@@ -128,6 +146,22 @@ describe("governance queue review landing URL", () => {
 
     expect(governanceFindingQueuePrimaryInspectHref(row)).toBe(
       governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId),
+    );
+  });
+});
+
+describe("governanceFindingManifestRecordHref", () => {
+  it("opens signed record when manifest id is stored", () => {
+    expect(governanceFindingManifestRecordHref("run-1", "manifest-uuid-1")).toBe(
+      "/governance/sealed-records/manifest-uuid-1",
+    );
+  });
+
+  it("uses scoped review open when manifest is absent", () => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-manifest-fallback");
+
+    expect(governanceFindingManifestRecordHref("run-9", "")).toBe(
+      "/architecture/architectures/architecture-manifest-fallback/reviews/run-9",
     );
   });
 });

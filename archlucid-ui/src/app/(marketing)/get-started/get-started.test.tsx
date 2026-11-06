@@ -54,6 +54,7 @@ describe("GetStartedPageClient", () => {
     expect(screen.getByTestId("get-started-guided-path")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-choose-trial-path")).toHaveTextContent("View trial milestones");
     expect(screen.getByTestId("get-started-evaluation-signup-cta")).toHaveAttribute("href", "/signup");
+    expect(screen.getByTestId("archlucid-beta-sku-contents-section")).toBeInTheDocument();
   });
 
   it("does not expose internal template paths or promotional frictionless language", () => {

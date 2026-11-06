@@ -62,7 +62,10 @@ export type QuickDecisionSummaryProps = {
    */
   readonly sourceFindingsCount?: number;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
-  readonly findingWireSnapshots?: Record<string, import("@/lib/quick-decision-wire-snapshots").FindingWireSnapshot> | null;
+  readonly findingWireSnapshots?: globalThis.Record<
+    string,
+    import("@/lib/quick-decision-wire-snapshots").FindingWireSnapshot
+  > | null;
 };
 
 export type QuickDecisionSummaryDerivedData = {

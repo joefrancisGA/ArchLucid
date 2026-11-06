@@ -15,6 +15,7 @@ import {
 } from "@/lib/explanation/citation-chips-technical-citation-disclosure-url";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveReviewUrlStatePathname, resolveScopedReviewPath } from "@/lib/architecture/review-url-state-pathname";
 import type { CitationReference } from "@/types/explanation";
 
 export type CitationChipsProps = {
@@ -22,7 +23,12 @@ export type CitationChipsProps = {
   runId: string;
 };
 
-function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string | null {
+function citationHref(
+  c: CitationReference,
+  runId: string,
+  buyerPolishedShell: boolean,
+  pathname: string,
+): string | null {
   const trimmedRunId = runId.trim();
   const trimmedCitationId = c.id?.trim() ?? "";
 
@@ -30,24 +36,26 @@ function citationHref(c: CitationReference, runId: string, buyerPolishedShell: b
     return null;
   }
 
+  const pathInput = { runId: trimmedRunId, pathname };
+
   switch (c.kind) {
     case "Manifest":
       return signedRecordDetailPath(trimmedCitationId);
     case "Finding":
 
       if (buyerPolishedShell) {
-        return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedCitationId)}`;
+        return resolveScopedReviewPath(`/findings/${encodeURIComponent(trimmedCitationId)}`, pathInput);
       }
 
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}#finding-${encodeURIComponent(trimmedCitationId)}`;
+      return `${resolveScopedReviewPath("", pathInput)}#finding-${encodeURIComponent(trimmedCitationId)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/provenance`;
+      return resolveScopedReviewPath("/provenance", pathInput);
     case "EvidenceBundle":
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
+      return resolveScopedReviewPath("", pathInput);
     default:
-      return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
+      return resolveScopedReviewPath("", pathInput);
   }
 }
 
@@ -55,6 +63,7 @@ function citationHref(c: CitationReference, runId: string, buyerPolishedShell: b
 export function CitationChips({ citations, runId }: CitationChipsProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
+  const urlStatePathname = resolveReviewUrlStatePathname(pathname, runId);
   const searchParams = useSearchParams();
   const citationChipsTechnicalCitationKeyParam = searchParams.get(CITATION_CHIPS_TECHNICAL_CITATION_KEY_PARAM);
   const [openCitationKey, setOpenCitationKeyState] = useState(() =>
@@ -63,11 +72,15 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
   const syncOpenCitationKeyToUrl = useCallback(
     (citationKey: string | null) => {
       router.replace(
-        citationChipsTechnicalCitationDisclosureHrefFromSearch(searchParams.toString(), citationKey, pathname),
+        citationChipsTechnicalCitationDisclosureHrefFromSearch(
+          searchParams.toString(),
+          citationKey,
+          urlStatePathname,
+        ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [router, searchParams, urlStatePathname],
   );
   const setOpenCitationKey = useCallback(
     (citationKey: string | null) => {
@@ -117,7 +130,7 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
         {citations.map((c) => {
           const citationIdTrimmed = c.id?.trim() ?? "";
           const citationIdMissing = citationIdTrimmed.length === 0;
-          const href = citationHref(c, runId, buyerPolished);
+          const href = citationHref(c, runId, buyerPolished, pathname);
           const kindLabel = citationKindBuyerLabel(c.kind);
           const display = formatCitationBuyerDisplay(c, buyerPolished);
           const citationKey = `${c.kind}-${c.id}`;

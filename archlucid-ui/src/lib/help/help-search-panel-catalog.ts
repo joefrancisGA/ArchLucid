@@ -1,6 +1,7 @@
 import type { HelpTabId } from "@/components/HelpPanel";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
 import {
   ADVANCED_ADMIN_TOPICS,
@@ -9,6 +10,9 @@ import {
   resolveHelpSearchPanelGroups,
   collectHelpSearchPanelTopics,
 } from "@/lib/help/help-search-panel-catalog-topics";
+
+/** Canonical onboarding hub — duplicated as a named export so first-review handoff guards can grep this module. */
+export const HELP_SEARCH_PANEL_ONBOARDING_HUB_PATH = FIRST_REVIEW_GUIDE_PATH;
 
 export const HELP_SEARCH_PANEL_TITLE = "Help" as const;
 

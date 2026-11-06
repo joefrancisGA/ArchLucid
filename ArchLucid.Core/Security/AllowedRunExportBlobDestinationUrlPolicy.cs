@@ -29,6 +29,11 @@ public static class AllowedRunExportBlobDestinationUrlPolicy
                    + "(for example *.blob.core.windows.net or *.blob.storage.azure.net).";
         }
 
+        if (IsForbiddenAzureBlobAccountLabel(uri.IdnHost))
+        {
+            return "DestinationSasUrl must not target loopback, link-local, or private network addresses.";
+        }
+
         return null;
     }
 
@@ -67,5 +72,42 @@ public static class AllowedRunExportBlobDestinationUrlPolicy
             return true;
 
         return false;
+    }
+
+    private static bool IsForbiddenAzureBlobAccountLabel(string host)
+    {
+        string? accountLabel = TryGetAzureBlobStorageAccountLabel(host);
+
+        if (string.IsNullOrEmpty(accountLabel))
+            return false;
+
+        if (PrivateNetworkAddressGuard.IsForbiddenHostLiteral(accountLabel))
+            return true;
+
+        if (accountLabel.Length >= 2
+            && accountLabel[0] is '['
+            && accountLabel[^1] is ']')
+        {
+            string bracketed = accountLabel[1..^1];
+
+            if (PrivateNetworkAddressGuard.IsForbiddenHostLiteral(bracketed))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static string? TryGetAzureBlobStorageAccountLabel(string host)
+    {
+        const string classicSuffix = ".blob.core.windows.net";
+        const string zoneSuffix = ".blob.storage.azure.net";
+
+        if (host.EndsWith(classicSuffix, StringComparison.OrdinalIgnoreCase))
+            return host[..^classicSuffix.Length];
+
+        if (host.EndsWith(zoneSuffix, StringComparison.OrdinalIgnoreCase))
+            return host[..^zoneSuffix.Length];
+
+        return null;
     }
 }

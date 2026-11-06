@@ -205,20 +205,34 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeRestoreAuditAppend.OffboardedUtc is not null)
             return true;
 
-        await AppendPlatformAuditAsync(
-            AuditEventTypes.TenantErasureQuarantineRestored,
-            tenantId,
-            actorUserId,
-            actorUserName,
-            correlationId,
-            new
-            {
-                priorOffboardedUtc = priorOffboarded,
-                priorErasureEligibleUtc = priorEligible,
-                offboardedUtc = (DateTimeOffset?)null,
-                erasureEligibleUtc = (DateTimeOffset?)null
-            },
-            cancellationToken);
+        try
+        {
+            await AppendPlatformAuditAsync(
+                AuditEventTypes.TenantErasureQuarantineRestored,
+                tenantId,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                new
+                {
+                    priorOffboardedUtc = priorOffboarded,
+                    priorErasureEligibleUtc = priorEligible,
+                    offboardedUtc = (DateTimeOffset?)null,
+                    erasureEligibleUtc = (DateTimeOffset?)null
+                },
+                cancellationToken,
+                CreateRestoreAuditEventId(tenantId, priorOffboarded!.Value, priorEligible!.Value));
+        }
+        catch
+        {
+            await RollbackRestoreQuarantineAfterFailedAuditAsync(
+                tenantId,
+                priorOffboarded!.Value,
+                priorEligible!.Value,
+                cancellationToken);
+
+            throw;
+        }
 
         return true;
     }
@@ -428,14 +442,26 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeApproveAuditAppend.OffboardedUtc is null)
             return true;
 
-        await AppendPlatformAuditAsync(
-            AuditEventTypes.TenantErasureApproved,
-            tenantId,
-            actorUserId,
-            actorUserName,
-            correlationId,
-            new { approvedUtc = now },
-            cancellationToken);
+        DateTimeOffset approvedUtc = tenantBeforeApproveAuditAppend.TenantErasureApprovedUtc ?? now;
+
+        try
+        {
+            await AppendPlatformAuditAsync(
+                AuditEventTypes.TenantErasureApproved,
+                tenantId,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                new { approvedUtc },
+                cancellationToken,
+                CreateApproveAuditEventId(tenantId, approvedUtc));
+        }
+        catch
+        {
+            await _tenantRepository.TryRevertTenantErasureApprovalAsync(tenantId, cancellationToken);
+
+            throw;
+        }
 
         return true;
     }
@@ -457,6 +483,8 @@ public sealed class TenantErasureCommandService(
             return true;
 
         DateTimeOffset? priorUntil = tenant.LegalHoldUntilUtc;
+        string? priorReason = tenant.LegalHoldReason;
+        string? priorSetByUserId = tenant.LegalHoldSetByUserId;
 
         bool cleared = await _tenantRepository.TryClearTenantErasureLegalHoldAsync(tenantId, cancellationToken);
 
@@ -510,14 +538,29 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeClearAuditAppend.LegalHoldUntilUtc is not null)
             return true;
 
-        await AppendPlatformAuditAsync(
-            AuditEventTypes.TenantErasureLegalHoldCleared,
-            tenantId,
-            actorUserId,
-            actorUserName,
-            correlationId,
-            new { priorLegalHoldUntilUtc = priorUntil, legalHoldUntilUtc = (DateTimeOffset?)null },
-            cancellationToken);
+        try
+        {
+            await AppendPlatformAuditAsync(
+                AuditEventTypes.TenantErasureLegalHoldCleared,
+                tenantId,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                new { priorLegalHoldUntilUtc = priorUntil, legalHoldUntilUtc = (DateTimeOffset?)null },
+                cancellationToken,
+                CreateClearLegalHoldAuditEventId(tenantId, priorUntil!.Value));
+        }
+        catch
+        {
+            await RollbackClearLegalHoldAfterFailedAuditAsync(
+                tenantId,
+                priorUntil!.Value,
+                priorReason,
+                priorSetByUserId,
+                cancellationToken);
+
+            throw;
+        }
 
         return true;
     }
@@ -607,6 +650,73 @@ public sealed class TenantErasureCommandService(
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
             $"{AuditEventTypes.TenantErasureOffboarded}:{tenantId:N}:{offboardedUtc.UtcDateTime.Ticks}:{erasureEligibleUtc.UtcDateTime.Ticks}"));
         return new Guid(hash.AsSpan(0, 16));
+    }
+
+    private static Guid CreateRestoreAuditEventId(
+        Guid tenantId,
+        DateTimeOffset priorOffboardedUtc,
+        DateTimeOffset priorErasureEligibleUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureQuarantineRestored}:{tenantId:N}:{priorOffboardedUtc.UtcDateTime.Ticks}:{priorErasureEligibleUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+
+    private static Guid CreateApproveAuditEventId(Guid tenantId, DateTimeOffset approvedUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureApproved}:{tenantId:N}:{approvedUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+
+    private static Guid CreateClearLegalHoldAuditEventId(Guid tenantId, DateTimeOffset priorLegalHoldUntilUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureLegalHoldCleared}:{tenantId:N}:{priorLegalHoldUntilUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
+    }
+
+    /// <summary>
+    /// Clear-hold removes hold metadata before audit append. Re-apply the prior hold so operator
+    /// retries can complete the audit append without treating the tenant as already cleared.
+    /// </summary>
+    private async Task RollbackClearLegalHoldAfterFailedAuditAsync(
+        Guid tenantId,
+        DateTimeOffset priorUntilUtc,
+        string? priorReason,
+        string? priorSetByUserId,
+        CancellationToken cancellationToken)
+    {
+        string setBy = string.IsNullOrWhiteSpace(priorSetByUserId)
+            ? "system:tenant-erasure-rollback"
+            : priorSetByUserId.Trim();
+
+        await _tenantRepository.TrySetTenantErasureLegalHoldAsync(
+            tenantId,
+            priorUntilUtc,
+            _timeProvider.GetUtcNow(),
+            NormalizeLegalHoldReason(priorReason),
+            setBy,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Restore clears quarantine before audit append. Re-apply offboard markers and suspend so
+    /// operator retries can complete the audit append without treating the tenant as already restored.
+    /// </summary>
+    private async Task RollbackRestoreQuarantineAfterFailedAuditAsync(
+        Guid tenantId,
+        DateTimeOffset priorOffboardedUtc,
+        DateTimeOffset priorErasureEligibleUtc,
+        CancellationToken cancellationToken)
+    {
+        await _tenantRepository.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            priorOffboardedUtc,
+            priorErasureEligibleUtc,
+            cancellationToken);
+
+        await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
     }
 
     private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? normalizedReason)

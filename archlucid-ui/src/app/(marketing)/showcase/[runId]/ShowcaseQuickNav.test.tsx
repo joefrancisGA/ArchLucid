@@ -1,11 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SHOWCASE_QUICK_NAV_SIGN_IN_CTA } from "@/lib/showcase-quick-nav-contract";
 
 import { ShowcaseQuickNav } from "./ShowcaseQuickNav";
+
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => "architecture-showcase-desk"),
+}));
 
 function samplePayload(): DemoCommitPagePreviewResponse {
   return {
@@ -28,7 +32,10 @@ describe("ShowcaseQuickNav", () => {
   it("renders operator deep links when anonymous access is available", () => {
     render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable renderMode="static" />);
 
-    expect(screen.getByRole("link", { name: "Review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute(
+      "href",
+      `/architecture/architectures/architecture-showcase-desk/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+    );
     expect(screen.getByRole("link", { name: "Open finalized record" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: SHOWCASE_QUICK_NAV_SIGN_IN_CTA })).not.toBeInTheDocument();
   });
@@ -38,7 +45,9 @@ describe("ShowcaseQuickNav", () => {
 
     expect(screen.getByRole("link", { name: SHOWCASE_QUICK_NAV_SIGN_IN_CTA })).toHaveAttribute(
       "href",
-      `/auth/signin?returnUrl=${encodeURIComponent(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)}`,
+      `/auth/signin?returnUrl=${encodeURIComponent(
+        `/architecture/architectures/architecture-showcase-desk/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      )}`,
     );
     expect(screen.queryByRole("link", { name: "Review" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open finalized record" })).not.toBeInTheDocument();

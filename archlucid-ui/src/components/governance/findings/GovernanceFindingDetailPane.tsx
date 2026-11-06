@@ -31,6 +31,7 @@ import {
 import { GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED } from "@/components/governance/findings/governance-findings-row-omission-copy";
 import {
   governanceFindingManifestRecordHref,
+  governanceFindingQueueRowReviewHrefForRow,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import {
@@ -119,7 +120,7 @@ function GovernanceFindingDetailPaneComponent({
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
               <Link
                 className={OPERATOR_LINK.inline}
-                href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}
+                href={governanceFindingQueueRowReviewHrefForRow(row)}
               >
                 {row.runLabel}
               </Link>
@@ -273,7 +274,7 @@ export function GovernanceFindingOperationalHeaderMeta(props: {
         <div className="mt-0.5">
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}
+            href={governanceFindingQueueRowReviewHrefForRow(row)}
           >
             {row.runLabel}
           </Link>

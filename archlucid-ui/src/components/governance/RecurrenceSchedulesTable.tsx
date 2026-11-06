@@ -35,6 +35,8 @@ import {
 import { reversibleControlLabel, reversibleControlStateLabel } from "@/lib/reversible-control-verbs";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
+
 import {
   RECURRENCE_SCHEDULE_REVIEW_PACKAGE_LINK_LABEL,
   recurrenceRunStatusPresentation,
@@ -184,6 +186,10 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
           const autoDisabled =
             !schedule.isEnabled && failureCountKnown && failureCount >= 5;
           const isEditing = editingId === schedule.scheduleId;
+          const scheduleReviewHref = resolveGovernanceScopedReviewOpenHref({
+            runId: schedule.sourceRunId,
+            architectureId: schedule.architectureId,
+          });
 
           return (
             <EnterpriseTableRow
@@ -193,7 +199,7 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
               <EnterpriseTableCell>{schedule.name}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <Link
-                  href={`/architecture/reviews/${schedule.sourceRunId}`}
+                  href={scheduleReviewHref}
                   className={cn(
                     OPERATOR_BODY_INLINE_LINK_CLASS,
                     OPERATOR_TYPOGRAPHY.body,
@@ -295,7 +301,7 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
                       <>
                         <Button asChild size="sm" variant="outline">
                           <Link
-                            href={`/architecture/reviews/${schedule.sourceRunId}`}
+                            href={scheduleReviewHref}
                             onClick={() => {
                               onRememberSchedule(schedule.scheduleId);
                             }}

@@ -18,6 +18,7 @@ import {
 } from "@/lib/review-pipeline-completion-notify-dedupe";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { resolveReviewCompletionHref } from "@/lib/reviews/resolve-review-completion-href";
 import {
   REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE,
@@ -33,9 +34,16 @@ function pathnameMatchesRun(pathname: string, runId: string): boolean {
     return true;
   }
 
-  const nestedRoute = parseArchitectureNestedRoute(pathname.split("?")[0] ?? "");
+  const pathOnly = pathname.split("?")[0] ?? "";
+  const nestedRoute = parseArchitectureNestedRoute(pathOnly);
 
   if (nestedRoute?.childKind === "reviews" && nestedRoute.childId === trimmedRunId) {
+    return true;
+  }
+
+  const resolvedBase = resolveArchitectureReviewHref(trimmedRunId, null);
+
+  if (pathOnly === resolvedBase || pathOnly.startsWith(`${resolvedBase}/`)) {
     return true;
   }
 
