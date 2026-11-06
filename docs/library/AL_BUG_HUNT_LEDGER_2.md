@@ -23739,6 +23739,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-11-06 thorough hunt (dry #55): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`itsm-inbound-webhooks`** is **2/3** before this record). Cheap-disproof closed five open `(candidate)` monitor rows from post–hit **#353** reseed — **invalid** `ConcurrentDictionary<,>` root batch without `ParameterInfo` still absent from `IsRootLevelCollectionType` and no cataloged dictionary batch root (hit **#353** / #352 property parity), **invalid** `ImmutableHashSet<T>` property not on any cataloged `[FromBody]` DTO (#350 `FrozenSet` / frozen-immutable parity), **valid-no-repro** `[FromBody]` with null `BindingInfo` skips filter (`BindingInfo?.BindingSource` gate ~33–34; dry **#353** / dry #14; cataloged MVC body parameters carry `BindingSource.Body`), **invalid** `ImmutableDictionary<,>` nested map values not exposed on cataloged request models (#349/#352 parity), **invalid** root `IAsyncEnumerable<T>` batch still not a synchronous JSON `[FromBody]` enumerable root (hit **#353** / #352 async-stream class). Reseeded five follow-on `(candidate)` rows below (recycled dry **#55** closed themes); scoped **38/38** `FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentDictionary<,>` root batch without `ParameterInfo` — locus: root collection recognition; input: if catalog adds concurrent dictionary batch root (monitor dry **#55** / hit **#353**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableHashSet<T>` property on request DTOs — locus: property walk; input: if catalog adds immutable hash set property (monitor dry **#55** / #350).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter with null `BindingInfo` skips guard — locus: filter binding source check; input: misconfigured parameter metadata (monitor dry **#55** / dry #14).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — locus: dictionary value walk; input: if catalog adds immutable map property (monitor dry **#55** / #349).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — root `IAsyncEnumerable<T>` batch when binder adds support — locus: non-`IEnumerable` synchronous root walk; input: future async batch binding (monitor dry **#55** / hit **#353**).
+
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentDictionary<,>` root batch without `ParameterInfo` — **cheap-disproof 2026-11-06 thorough hunt #55:** closed hit **#353** reseed monitor queue; no cataloged concurrent-dictionary batch root.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableHashSet<T>` property on request DTOs — **cheap-disproof 2026-11-06 thorough hunt #55:** closed hit **#353** reseed monitor queue; #350 frozen/immutable catalog parity.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter with null `BindingInfo` skips guard — **cheap-disproof 2026-11-06 thorough hunt #55:** closed hit **#353** reseed monitor queue; dry **#353** / filter gate.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — **cheap-disproof 2026-11-06 thorough hunt #55:** closed hit **#353** reseed monitor queue; #349/#352 no cataloged property.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard` — root `IAsyncEnumerable<T>` batch when binder adds support — **cheap-disproof 2026-11-06 thorough hunt #55:** closed hit **#353** reseed monitor queue; hit **#353** / not synchronous JSON batch root.
+
 2026-11-03 thorough hunt (hit #353): promoted `(candidate)` `ConcurrentStack<T>` root without `ParameterInfo` (#352 `BlockingCollection<>` / concurrent parity); extended `IsRootLevelCollectionType` / `TryGetEnumerableElementType` to `ConcurrentStack<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_stack_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows (`ConcurrentDictionary<,>` root batch not in root recognition and no cataloged batch root — #352 property parity; `FrozenSet<>` property absent on cataloged DTOs — #350; filter skips null `BindingInfo` by design on miswire — dry #14; `IAsyncEnumerable<T>` not synchronous JSON batch root — #352 async monitor); reseeded five follow-on `(candidate)` rows; scoped filter **38/38** passed (`RunAnalyzers=false`). Private beta: concurrent-stack-shaped batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentStack<T>` root without `ParameterInfo` — **hit 2026-11-03 thorough hunt #353:** `ConcurrentStack<>` root recognition; regression above.
@@ -23747,11 +23761,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter with null `BindingInfo` skips guard — **cheap-disproof 2026-11-03 thorough hunt #353:** cataloged MVC body parameters carry body binding metadata; see dry #14.
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard` — root `IAsyncEnumerable<T>` batch when binder adds support — **cheap-disproof 2026-11-03 thorough hunt #353:** not a synchronous JSON batch root (#352).
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentDictionary<,>` root batch without `ParameterInfo` — locus: root collection recognition; input: if catalog adds concurrent dictionary batch root (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableHashSet<T>` property on request DTOs — locus: property walk; input: if catalog adds immutable hash set property (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter with null `BindingInfo` skips guard — locus: filter binding source check; input: misconfigured parameter metadata (monitor).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — locus: dictionary value walk; input: if catalog adds immutable map property (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — root `IAsyncEnumerable<T>` batch when binder adds support — locus: non-`IEnumerable` synchronous root walk; input: future async batch binding (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentDictionary<,>` root batch without `ParameterInfo` — locus: root collection recognition; input: if catalog adds concurrent dictionary batch root (monitor dry **#55** / hit **#353**).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableHashSet<T>` property on request DTOs — locus: property walk; input: if catalog adds immutable hash set property (monitor dry **#55** / #350).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter with null `BindingInfo` skips guard — locus: filter binding source check; input: misconfigured parameter metadata (monitor dry **#55** / dry #14).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — locus: dictionary value walk; input: if catalog adds immutable map property (monitor dry **#55** / #349).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — root `IAsyncEnumerable<T>` batch when binder adds support — locus: non-`IEnumerable` synchronous root walk; input: future async batch binding (monitor dry **#55** / hit **#353**).
 
 2026-11-03 thorough hunt (dry): cheap-disproof closed five reseeded `(candidate)` rows after failing-repro attempts on monitor hypotheses; no production code change; reseeded five follow-on `(candidate)` rows; scoped filter **37/37** passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -23854,10 +23868,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-06
 - **last-bug:** 2026-11-03 — single-arg guard skipped ConcurrentStack root null slots
 - **related-pd-tb:** none
 - **code-changed-since:** yes
