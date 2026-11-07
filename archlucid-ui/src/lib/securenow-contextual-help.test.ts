@@ -76,7 +76,7 @@ describe("SecureNow contextual help (SH-01)", () => {
     );
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_PATH, "architecture")?.slug).toBe("cloud-connections");
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, "architecture")?.slug).toBe(
-      "cloud-connections",
+      "governance-infrastructure-resources",
     );
   });
 });
