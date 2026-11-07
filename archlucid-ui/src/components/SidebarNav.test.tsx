@@ -100,9 +100,17 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+function resetSidebarNavTestStorage(): void {
+  localStorage.clear();
+}
+
 describe("SidebarNav (primary navigation)", () => {
   afterEach(() => {
     cleanup();
+    mockSearchParams.delete("sidebarNavExpandedGroups");
+    mockRouter.replace.mockReset();
+    resetSidebarNavTestStorage();
+    window.history.replaceState({}, "", "/");
   });
 
   beforeEach(() => {
@@ -115,7 +123,9 @@ describe("SidebarNav (primary navigation)", () => {
     governanceModeMock.enabled = true;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     mockPathname.mockReturnValue("/");
-    localStorage.clear();
+    mockSearchParams.delete("sidebarNavExpandedGroups");
+    mockRouter.replace.mockReset();
+    resetSidebarNavTestStorage();
   });
 
   it("shows Architecture and Operate groups for role-eligible destinations without unlock panel", () => {
@@ -174,20 +184,28 @@ describe("SidebarNav (primary navigation)", () => {
       JSON.stringify({
         ...SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
         "operate-governance": true,
+        "operate-analysis": false,
       }),
     );
+
+    const { unmount } = render(<SidebarNav />);
+
+    const governanceToggle = screen.getByTestId("sidebar-group-toggle-operate-governance");
+
+    await waitFor(() => {
+      expect(governanceToggle).toHaveAttribute("aria-expanded", "true");
+    });
+
+    expect(screen.getByRole("group", { name: "Approval" })).toBeInTheDocument();
+
+    unmount();
 
     render(<SidebarNav />);
 
     await waitFor(() => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toHaveAttribute("aria-expanded", "true");
     });
-
-    expect(screen.getByRole("group", { name: "Approval" })).toBeInTheDocument();
-    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute(
-      "aria-expanded",
-      SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION["operate-analysis"] ? "true" : "false",
-    );
+    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
   });
 
   it("does not show progressive-disclosure unlock or more-destinations chrome", () => {

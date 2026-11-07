@@ -1,6 +1,6 @@
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
@@ -218,32 +218,12 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
   });
 
-  it("fetches explanation on demand when Explain is opened", async () => {
-    mockDraftSuggestResponse({
-      suggestedConstraints: ["EU data residency"],
-      suggestedAssumptions: [],
-      suggestedCapabilities: [],
-      topologyHints: [],
-      securityBaselineHints: [],
-    });
-    mockedExplainStructuredBriefSuggestion.mockResolvedValue({
-      explanation:
-        "Your overview mentioned EU customers. Confirming this tells the review to keep data in EU regions.",
-    });
-
-    render(
-      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
-    );
-
-    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
-
-    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
-    fireEvent.click(within(suggestion).getByRole("button", { name: /Explain/i }));
-
-    expect(
-      await within(suggestion).findByText(/Confirming this tells the review to keep data in EU regions/i),
-    ).toBeInTheDocument();
-    expect(mockedExplainStructuredBriefSuggestion).toHaveBeenCalledTimes(1);
+describe.sequential("structured brief suggestion explain", () => {
+  afterEach(() => {
+    cleanup();
+    clearStructuredBriefSuggestionExplainCache();
+    mockedExplainStructuredBriefSuggestion.mockReset();
+    window.history.replaceState({}, "", "/");
   });
 
   it("still allows confirm after explain fetch fails", async () => {
@@ -254,7 +234,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       topologyHints: [],
       securityBaselineHints: [],
     });
-    mockedExplainStructuredBriefSuggestion.mockRejectedValue(
+    mockedExplainStructuredBriefSuggestion.mockRejectedValueOnce(
       new ApiRequestError("Explain failed.", {
         problem: null,
         correlationId: null,
@@ -276,6 +256,36 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
+  });
+
+  it("fetches explanation on demand when Explain is opened", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+    clearStructuredBriefSuggestionExplainCache();
+    mockedExplainStructuredBriefSuggestion.mockResolvedValueOnce({
+      explanation:
+        "Your overview mentioned EU customers. Confirming this tells the review to keep data in EU regions.",
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: /Explain/i }));
+
+    expect(
+      await within(suggestion).findByText(/Confirming this tells the review to keep data in EU regions/i),
+    ).toBeInTheDocument();
+    expect(mockedExplainStructuredBriefSuggestion).toHaveBeenCalledTimes(1);
+  });
   });
 
   it("removes a suggestion when denied", async () => {
