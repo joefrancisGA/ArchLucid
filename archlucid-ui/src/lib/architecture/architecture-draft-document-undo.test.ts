@@ -73,7 +73,7 @@ describe("architecture-draft-document-undo", () => {
   });
 
   it("respects max depth", () => {
-    const stacks = { undo: [] as ArchitectureDraftDocumentSnapshot[], redo: [] as ArchitectureDraftDocumentSnapshot[] };
+    let stacks = { undo: [] as ArchitectureDraftDocumentSnapshot[], redo: [] as ArchitectureDraftDocumentSnapshot[] };
 
     for (let index = 0; index < ARCHITECTURE_DRAFT_DOCUMENT_UNDO_STACK_DEPTH + 5; index += 1) {
       stacks = pushDraftDocumentUndoSnapshot(stacks, snapshot({ systemName: `S${index}` }));

@@ -180,7 +180,7 @@ describe("CompareGovernanceDiffPanel", () => {
 
     expect(screen.getByRole("link", { name: "Open pack impact preview for this comparison" })).toHaveAttribute(
       "href",
-      "/governance/policy-packs?reviewId=run-target&packAId=pack-a&packBId=pack-b",
+      "/governance/policy-packs?reviewId=run-target&packAId=1&packBId=pack-b",
     );
   });
 

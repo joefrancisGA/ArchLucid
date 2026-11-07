@@ -71,7 +71,7 @@ describe("FindingInspectFindingBody", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Why this matters" })).toBeTruthy();
     expect(screen.getByTestId("finding-evidence-collapsible")).toBeTruthy();
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();

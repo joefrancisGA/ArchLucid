@@ -1,17 +1,15 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  conversationThreadsFromListResponse,
-  listConversationThreads,
-} from "@/lib/api/conversation-api";
 import type { ConversationThread } from "@/types/conversation";
 
+const apiGetMock = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/api/http", () => ({
-  apiGet: vi.fn(),
+  apiGet: (...args: unknown[]) => apiGetMock(...args),
   apiPostJson: vi.fn(),
 }));
 
-import { apiGet } from "@/lib/api/http";
+import { conversationThreadsFromListResponse } from "@/lib/api/conversation-api";
 
 const SAMPLE_THREAD: ConversationThread = {
   threadId: "11111111-1111-1111-1111-111111111111",
@@ -68,8 +66,17 @@ describe("conversationThreadsFromListResponse", () => {
 });
 
 describe("listConversationThreads", () => {
+  let listConversationThreads: typeof import("@/lib/api/conversation-api").listConversationThreads;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    const mod = await import("@/lib/api/conversation-api");
+    listConversationThreads = mod.listConversationThreads;
+  });
+
   it("returns items from the paged API envelope", async () => {
-    vi.mocked(apiGet).mockResolvedValueOnce({
+    apiGetMock.mockResolvedValueOnce({
       items: [SAMPLE_THREAD],
       totalCount: 1,
       page: 1,
@@ -78,6 +85,6 @@ describe("listConversationThreads", () => {
     });
 
     await expect(listConversationThreads(25)).resolves.toEqual([SAMPLE_THREAD]);
-    expect(apiGet).toHaveBeenCalledWith("/v1/conversations?take=25");
+    expect(apiGetMock).toHaveBeenCalledWith("/v1/conversations?take=25");
   });
 });
