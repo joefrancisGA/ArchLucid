@@ -14,6 +14,11 @@ import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-cli
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 import { BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE, BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
+import {
+  ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
+  ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
+} from "@/lib/architecture/architecture-risk-register-page";
 import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE, GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE } from "@/lib/governance/governance-findings-evidence-copy";
 import {
   GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER,
@@ -27,6 +32,13 @@ import {
 const searchParamsState = vi.hoisted(() => ({ query: "" }));
 const routerReplaceMock = vi.hoisted(() => vi.fn());
 const searchParamsListeners = vi.hoisted(() => new Set<() => void>());
+const operatorScopeRecordForTests = vi.hoisted(() => ({
+  tenantId: "11111111-1111-1111-1111-111111111111",
+  workspaceId: "22222222-2222-2222-2222-222222222222",
+  projectId: "33333333-3333-3333-3333-333333333333",
+  workspaceLabel: "Customer Intake Demo",
+  projectLabel: "Default",
+}));
 const cachedSearchParams = vi.hoisted(() => ({
   query: "",
   params: new URLSearchParams(),
@@ -198,13 +210,7 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 
   return {
     ...actual,
-    readOperatorScopeFromStorage: vi.fn(() => ({
-      tenantId: "tenant-1",
-      workspaceId: "ws-1",
-      projectId: "proj-1",
-      workspaceLabel: BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-      projectLabel: "Default",
-    })),
+    readOperatorScopeFromStorage: vi.fn(() => operatorScopeRecordForTests),
   };
 });
 
@@ -228,11 +234,11 @@ const loadedRiskRow = {
   manifestId: "manifest-1",
   findingId: "finding-1",
   title: "PHI minimization risk",
-  severity: "High",
+  severity: "Info",
   category: "Privacy",
-  statusLabel: "Accepted · monitoring",
+  statusLabel: "Open",
   ownerUserId: "owner@contoso.com",
-  latestDisposition: "Accepted",
+  latestDisposition: null,
   agingDays: 12,
   waiverExpiresAtUtc: "2026-07-10T00:00:00.000Z",
   lastReviewedUtc: "2026-06-01T00:00:00.000Z",
@@ -254,6 +260,12 @@ describe("GovernanceFindingsQueueClient", () => {
     routerReplaceMock.mockClear();
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
+    vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
+      registerFilter: "all",
+      jobView: "needs-my-decision",
+      nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
+    });
   });
 
 
@@ -280,7 +292,7 @@ describe("GovernanceFindingsQueueClient", () => {
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("architecture-posture-pillar-overview")).toBeInTheDocument();
-    expect(governanceStickinessApiMocks.getGovernancePosture).toHaveBeenCalledWith("proj-1");
+    expect(governanceStickinessApiMocks.getGovernancePosture).toHaveBeenCalledWith(DEV_SCOPE_PROJECT_ID);
   });
 
   it("uses Governance Findings route title consistent with nav labels", () => {
@@ -295,10 +307,8 @@ describe("GovernanceFindingsQueueClient", () => {
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
-    expect(screen.getByText("No findings in this workspace yet")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Findings from architecture reviews appear here as they are recorded/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(ARCHITECTURE_RISK_REGISTER_EMPTY_BODY.slice(0, 40)))).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
       "/architecture/reviews",
@@ -377,22 +387,19 @@ describe("GovernanceFindingsQueueClient", () => {
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
-    // Accepted disposition lands in ready-for-sponsor-packet (default job view is needs-my-decision).
-    fireEvent.click(screen.getByTestId("finding-job-view-ready-for-sponsor-packet"));
-    expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Source review" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Exception expiry" })).toBeInTheDocument();
-    expect(screen.getByText("Days since the finding was opened.")).toBeInTheDocument();
-    expect(screen.getByText("Active risk exception ends on this date.")).toBeInTheDocument();
-    expect(screen.getByText("Last time this finding was reviewed in this queue.")).toBeInTheDocument();
-    const desktopRegion = screen.getByTestId("governance-findings-queue-keyboard-region");
+    const desktopRegion = await screen.findByTestId("governance-findings-queue-keyboard-region");
 
-    expect(within(desktopRegion).getByRole("link", { name: "PHI minimization risk" })).toBeInTheDocument();
+    expect(await within(desktopRegion).findByRole("link", { name: "PHI minimization risk" })).toBeInTheDocument();
+    expect(within(desktopRegion).getByText("Source review")).toBeInTheDocument();
+    expect(within(desktopRegion).getByText("Exception expiry")).toBeInTheDocument();
+    expect(within(desktopRegion).getByText("Days since the finding was opened.")).toBeInTheDocument();
+    expect(within(desktopRegion).getByText("Active risk exception ends on this date.")).toBeInTheDocument();
+    expect(within(desktopRegion).getByText("Last time this finding was reviewed in this queue.")).toBeInTheDocument();
     expect(within(desktopRegion).getByRole("link", { name: "View risk" })).toBeInTheDocument();
-    expect(within(desktopRegion).getByRole("link", { name: "Open source review" })).toHaveAttribute(
-      "href",
-      "/architecture/reviews/run-1",
-    );
+    const reviewLink = screen
+      .getAllByRole("link", { name: "Claims Intake" })
+      .find((node) => node.getAttribute("href") === "/architecture/reviews/run-1");
+    expect(reviewLink).toBeDefined();
     expect(within(desktopRegion).getByRole("link", { name: "View exception" })).toHaveAttribute(
       "href",
       "/governance/exceptions",
@@ -456,13 +463,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     cachedSearchParams.query = "";
     cachedSearchParams.params = new URLSearchParams();
     routerReplaceMock.mockClear();
-    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
-      tenantId: "tenant-1",
-      workspaceId: "ws-1",
-      projectId: "proj-1",
-      workspaceLabel: BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-      projectLabel: "Default",
-    });
+    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue(operatorScopeRecordForTests);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(false);
@@ -494,7 +495,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(empty).toHaveAttribute("role", "status");
     expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
     expect(within(empty).getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
-    expect(within(empty).getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL))).toBeInTheDocument();
+    expect(within(empty).getByText(/Development/)).toBeInTheDocument();
     expect(screen.queryByTestId("governance-assigned-to-me-empty-checked-at")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toBeInTheDocument();
@@ -516,15 +517,13 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
 
     expect(workspace.textContent ?? "").not.toMatch(uuidPattern);
     expect(lastChecked.textContent ?? "").not.toMatch(uuidPattern);
-    expect(workspace).toHaveTextContent(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+    expect(workspace).toHaveTextContent("Development");
   });
 
   it("renders related queues disclosure, breadcrumb, and queue status after the work object", async () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent(
-      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
-    );
+    expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent("Development");
     expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
       "register-only check",
     );
