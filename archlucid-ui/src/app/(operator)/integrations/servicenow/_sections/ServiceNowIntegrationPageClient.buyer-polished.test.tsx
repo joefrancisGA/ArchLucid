@@ -5,6 +5,19 @@ const mockFetchHealth = vi.fn();
 const mockFetchSettings = vi.fn();
 const mockFetchConnection = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/integrations/servicenow",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
@@ -59,6 +72,7 @@ import {
   SERVICENOW_INTEGRATION_PAGE_TITLE,
   SERVICENOW_PAGE_SUBTITLE,
 } from "@/lib/servicenow-integration-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -132,7 +146,12 @@ describe("ServiceNowIntegrationPageClient buyer-polished shell (ISX)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SERVICENOW_INTEGRATION_SOURCES)) {
+    const visibleSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SERVICENOW_INTEGRATION_SOURCES),
+      "/integrations/servicenow",
+    );
+
+    for (const source of visibleSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
