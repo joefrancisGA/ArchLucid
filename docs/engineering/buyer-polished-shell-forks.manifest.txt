@@ -76,6 +76,7 @@ archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findin
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintBuyerChrome.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageView.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/_sections/ReviewsHubBuyerChrome.tsx
+archlucid-ui/src/app/(operator)/architecture/reviews/_sections/ReviewsHubHeaderActions.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/_sections/ReviewsHubWorkingInboxCaption.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx
 archlucid-ui/src/app/(operator)/architecture/reviews/new/NewRunWizardStepBody.tsx
