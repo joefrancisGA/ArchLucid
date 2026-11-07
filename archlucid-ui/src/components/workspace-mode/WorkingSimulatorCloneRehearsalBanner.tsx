@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -7,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkingSimulatorCloneRehearsalBanner } from "@/hooks/use-working-simulator-clone-rehearsal-banner";
 import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL,
@@ -36,7 +38,7 @@ export function WorkingSimulatorCloneRehearsalBanner(
     return null;
   }
 
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || useProductionEvalChrome()) {
     return null;
   }
 

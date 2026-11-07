@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +12,6 @@ import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { AlertRulesHubTabId } from "@/lib/alerts-hub-tab";
 import type { AlertRulesConfigChange } from "@/lib/alert-rules-config-change";
@@ -113,7 +114,7 @@ function alertRulesConfigProvenanceMetadata(props: AlertRulesPageHeaderProps): R
 }
 
 function alertRulesHeaderMetadata(props: AlertRulesPageHeaderProps): React.JSX.Element | null {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   if (buyerPolishedShell) {
     return null;
@@ -158,7 +159,7 @@ function alertRulesHeaderMetadata(props: AlertRulesPageHeaderProps): React.JSX.E
 
 /** Shared `/governance/alert-rules` hero — title, lead, contextual help, refresh, and posture/freshness metadata. */
 export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <OperatorPageHeader

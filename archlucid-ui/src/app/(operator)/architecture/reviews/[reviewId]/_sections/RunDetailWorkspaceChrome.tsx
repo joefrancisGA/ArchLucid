@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -37,7 +39,6 @@ import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-find
 import { WorkingInstrumentDocumentTitle } from "@/components/architecture/WorkingInstrumentDocumentTitle";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { formatReviewGovernanceDecisionRecordedByDisplay } from "@/lib/run-detail-workspace-derive/review-metadata";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import { REVIEW_WORKSPACE_CLAIM_DISCIPLINE } from "@/lib/review-workspace-evidence-copy";
@@ -198,7 +199,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     searchParams.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM),
   );
   const { isWorkingMode } = useWorkspaceMode();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);

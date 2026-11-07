@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,6 @@ import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 
 import { resolveReviewsHubHeaderPrimary } from "./reviews-hub-header-primary";
@@ -22,7 +23,7 @@ export function ReviewsHubHeaderActions(): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
   const draftEntries = useArchitectureDraftRegistryEntries();
   const primary = resolveReviewsHubHeaderPrimary(draftEntries, { isWorkingMode });
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="reviews-hub-header-actions">

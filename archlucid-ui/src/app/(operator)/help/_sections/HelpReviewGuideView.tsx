@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpReviewGuideRelatedGuidesSection } from "@/app/(operator)/help/_sections/HelpReviewGuideRelatedGuidesSection";
@@ -13,7 +14,6 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
@@ -92,7 +92,7 @@ function ReviewGuideStartHerePanel(): React.ReactElement {
 /** Specialty review wizard field-reference for `/help/review-guide` (HR). */
 export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const bodyMarkdown = prepareReviewGuideHelpBodyMarkdown(markdown);
   const preparedMarkdown = prepareHelpMarkdownForPresentation(bodyMarkdown, sourceDocPath, {
