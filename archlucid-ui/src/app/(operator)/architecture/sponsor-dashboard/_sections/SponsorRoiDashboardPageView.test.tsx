@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
 
@@ -29,7 +31,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
 }));
 
 vi.mock("@/components/SeedSampleReviewButton", () => ({

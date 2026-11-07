@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, type RenderResult } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
 import { WIZARD_STICKY_PROGRESS_TEST_ID } from "@/lib/wizard-sticky-progress";
 const admitDraftRequest = vi.fn();
 const answerDraftQuestion = vi.fn();
@@ -142,7 +144,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
 }));
 
 vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({

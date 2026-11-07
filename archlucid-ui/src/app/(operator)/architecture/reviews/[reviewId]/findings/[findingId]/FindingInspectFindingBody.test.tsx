@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
 
@@ -30,7 +32,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
 }));
 
 vi.mock("@/lib/buyer/buyer-safe-review-navigation", async (importOriginal) => {

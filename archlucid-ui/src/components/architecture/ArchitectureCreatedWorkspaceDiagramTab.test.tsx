@@ -110,7 +110,7 @@ describe("ArchitectureCreatedWorkspace diagram tab", () => {
 
     expect(screen.getAllByRole("heading", { name: "Architecture diagram" })).toHaveLength(1);
     expect(screen.getAllByTestId("architecture-diagram-viewer-mock")).toHaveLength(1);
-    expect(screen.getByTestId("architecture-findings-dual-pane-toggle")).toHaveTextContent("Show with findings");
+    expect(screen.getByTestId("architecture-findings-dual-pane-toggle")).toHaveTextContent("Diagram only");
   });
 
   it("diagram tab Add details links to run-scoped guided intake (TB-1842)", async () => {
