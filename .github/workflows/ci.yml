@@ -52,12 +52,15 @@ on:
         default: false
         type: boolean
 
-# RC43 push CI uses one branch-scoped group: a new candidate supersedes older RC43 push runs.
+# RC43 push CI uses one branch-scoped group so runners are not multiplied unboundedly.
 # A distinct prefix keeps workflow_dispatch, PR and merge_group grouping unchanged.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
+# TEMP (owner 2026-11-07 / RC43 loopci): do not cancel-in-progress on RC43 push.
+# Vitest burn-down agents push often; cancel-in-progress was aborting every tip run mid-matrix.
+# Restore cancel-in-progress for RC43 push once tip CI is green (or before prod).
 concurrency:
   group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC43' && format('rc43-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
-  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' && !(github.event_name == 'push' && github.ref == 'refs/heads/RC43') }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
 # diff does not touch those surfaces (docs/UI-only PRs). Jobs still report success so required checks
