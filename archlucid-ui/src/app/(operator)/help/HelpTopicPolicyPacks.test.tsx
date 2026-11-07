@@ -33,9 +33,16 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => true,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/policy-packs",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { HelpPolicyPacksGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPacksGuideView";
 import {
+  POLICY_PACKS_HELP_CANONICAL_PATH,
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
   POLICY_PACKS_HELP_FOLLOW_UPS_TITLE,
   POLICY_PACKS_HELP_PRIMARY_ACTION,
@@ -119,7 +126,7 @@ describe("HelpPolicyPacksGuideView (HEO)", () => {
     const sources = screen.getByTestId("help-policy-packs-sources");
     expect(within(sources).getByRole("heading", { name: POLICY_PACKS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    expectWhereToGoNextFollowUpLinks(within(sources), POLICY_PACKS_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(within(sources), POLICY_PACKS_HELP_SOURCES, POLICY_PACKS_HELP_CANONICAL_PATH);
   });
 
   it("shows hierarchical merge diagram in the default viewport without disclosures", () => {
