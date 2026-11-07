@@ -4,24 +4,54 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { composeOperatorHomeSections } from "@/lib/compose-operator-home-sections";
+
 const source = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "OperatorHomePageView.tsx"),
   "utf8",
 );
 
+const emptyHomeMetrics = {
+  reviewPackagesTotal: 0,
+  reviewPackagesCommitted: 0,
+  reviewPackagesActive: 0,
+  reviewPackagesAwaitingApproval: 0,
+  openFindings: 0,
+  governanceWarnings: 0,
+  evidenceSources: 0,
+  hasReviews: false,
+};
+
 describe("OperatorHomePageView progressive disclosure", () => {
   it("places workspace activity after hero and examples via state-aware placement", () => {
-    const buyerBodyStart = source.indexOf("function BuyerPolishedHomePageBody");
-    const buyerBodyEnd = source.indexOf("function OperatorHomePageBody");
-    const buyerBody = source.slice(buyerBodyStart, buyerBodyEnd);
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
+        draftCount: 1,
+        hasCommittedManifest: false,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: true,
+      metrics: emptyHomeMetrics,
+    });
 
-    const heroIndex = buyerBody.indexOf("BuyerPolishedHomeHeroSectionDeferred");
-    const reviewsIndex = buyerBody.indexOf("<HomeRecentReviewsSection");
-    const examplesPlacementIndex = buyerBody.indexOf("OperatorHomeBelowFoldPanelsDeferred");
+    const sectionIds = sections.map((section) => section.id);
+    const heroIndex = sectionIds.indexOf("hero");
+    const reviewsIndex = sectionIds.indexOf("recent-reviews");
+    const belowFoldIndex = sectionIds.indexOf("below-fold");
 
     expect(heroIndex).toBeGreaterThan(-1);
     expect(reviewsIndex).toBeGreaterThan(heroIndex);
-    expect(examplesPlacementIndex).toBeGreaterThan(reviewsIndex);
+    expect(belowFoldIndex).toBeGreaterThan(reviewsIndex);
+
+    expect(source).toContain("composeOperatorHomeSections");
+    expect(source).toContain('case "hero"');
+    expect(source).toContain("BuyerPolishedHomeHeroSectionDeferred");
+    expect(source).toContain('case "recent-reviews"');
+    expect(source).toContain('case "below-fold"');
+    expect(source).toContain("OperatorHomeBelowFoldPanelsDeferred");
     expect(source).not.toContain("<OperatorHomeContinueSetupCard");
     expect(source).not.toContain("<OperatorHomeContinueSetupSlot");
     expect(source).not.toContain("<OperatorHomeSampleReviewPreview />");
@@ -39,13 +69,16 @@ describe("OperatorHomePageView progressive disclosure", () => {
     expect(source).not.toContain("<OperatorHomeWorkspaceStatusPanel />");
 
     const disclosureSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "../../../components/operator-home/OperatorHomeWorkspaceContextDisclosure.tsx"),
+      join(
+        dirname(fileURLToPath(import.meta.url)),
+        "../../../components/operator-home/OperatorHomeWorkspaceContextDisclosure.tsx",
+      ),
       "utf8",
     );
 
     expect(disclosureSource).toContain('data-testid="operator-home-workspace-context"');
     expect(disclosureSource).toContain("useNavCommittedArchitectureReview");
-    expect(disclosureSource).toContain("readOperatorHomeDisclosureExpanded");
+    expect(disclosureSource).toContain("useOperatorHomeBooleanDisclosureUrlSync");
     expect(disclosureSource).toContain("false");
     expect(disclosureSource).toContain('data-testid="operator-home-workspace-metrics-details-toggle"');
   });

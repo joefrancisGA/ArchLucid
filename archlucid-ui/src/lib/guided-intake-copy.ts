@@ -106,7 +106,7 @@ export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
   "Add people and systems manually, or enter an architecture overview to generate suggestions.";
 
 export const GUIDED_INTAKE_ACTORS_EMPTY_STATE =
-  "No people or systems are stored on this draft yet. That is not a claim the system has none. Trust-boundary and privileged-access findings need actors from this step.";
+  "No people or systems are stored on this architecture draft yet. That is not a claim the system has none. Trust-boundary and privileged-access findings need actors from this step.";
 
 /**
  *     Interaction is a timing axis, but its first option is named after a channel
@@ -298,7 +298,7 @@ export const GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED =
 export const GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL = "Save and continue";
 
 export const GUIDED_INTAKE_SAVE_AND_CONTINUE_FOOTER_HELPER =
-  "Save and continue stores each answer on this draft only. Submit the intake to persist answers on the review." as const;
+  "Save and continue stores each answer on this architecture draft only. Submit the intake to persist answers on the review." as const;
 
 export function guidedIntakeClarificationsAnsweredCounter(
   answeredCount: number,
