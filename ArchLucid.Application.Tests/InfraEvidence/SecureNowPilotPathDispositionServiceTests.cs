@@ -102,6 +102,32 @@ public sealed class SecureNowPilotPathDispositionServiceTests
         result.ErrorMessage.Should().Contain("Proceed");
     }
 
+    [Fact]
+    public async Task SaveAsync_does_not_report_success_when_required_audit_write_fails()
+    {
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        SecureNowPilotPathDispositionService sut =
+            new(CreateSamplePathRepository(), auditService.Object, new InMemoryAuditRepository());
+
+        Func<Task> act = async () =>
+            await sut.SaveAsync(
+                CreateScope(),
+                PathId,
+                new SecureNowPilotPathDispositionWriteRequest
+                {
+                    Outcome = "Stop",
+                    Rationale = "Controlled pilot concluded.",
+                },
+                "sponsor-actor",
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("audit storage unavailable");
+    }
+
     private static SecureNowPilotPathDispositionService CreateSut(
         InMemoryPathRepository paths,
         InMemoryAuditRepository auditRepository)
