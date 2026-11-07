@@ -50,7 +50,9 @@ describe("disable-until-ready inventory band regression (TB-2010)", () => {
     const alertRouting = readSrc(TB_2010_SOURCE_ROOTS[2]);
 
     expect(alertRouting).toContain("formValid");
-    expect(alertRouting).toMatch(/disabled=\{!canEditRouting \|\| creating \|\| !formValid\}/);
+    expect(alertRouting).toMatch(
+      /disabled=\{!props\.canEditRouting \|\| props\.creating \|\| !props\.formValid\}/,
+    );
   });
 
   it("gates review-start wizards on readiness predicates before submit", () => {

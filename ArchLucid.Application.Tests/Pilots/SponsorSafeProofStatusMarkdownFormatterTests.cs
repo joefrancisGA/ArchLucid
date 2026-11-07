@@ -54,7 +54,8 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
                 SponsorSafeProofDisposition.NeedsOperatorReview,
                 StrongProof(),
                 CompleteDeltas(topFindingId: null),
-                SimulatorFallbackRun())
+                SimulatorFallbackRun(),
+                CommittedManifest())
             .ToList();
 
         gaps.Should().Contain(s => s.Contains("Simulator substitution", StringComparison.Ordinal));

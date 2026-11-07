@@ -13,8 +13,14 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
     {
         List<ArchitectureFinding> findings =
         [
-            CreateFinding("f-1", FindingSemanticSupportBand.Supported),
-            CreateFinding("f-2", FindingSemanticSupportBand.Unchecked),
+            CreateFinding(
+                "f-1",
+                FindingSemanticSupportBand.Supported,
+                classification: FindingClassification.DecisionGradeFinding),
+            CreateFinding(
+                "f-2",
+                FindingSemanticSupportBand.Unchecked,
+                classification: FindingClassification.DecisionGradeFinding),
             CreateFinding(
                 "f-3",
                 FindingSemanticSupportBand.Unsupported,
@@ -57,11 +63,13 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
             CreateFinding(
                 "bad-1",
                 FindingSemanticSupportBand.Unsupported,
-                message: "Public database ingress"),
+                message: "Public database ingress",
+                classification: FindingClassification.DecisionGradeFinding),
             CreateFinding(
                 "ok-1",
                 FindingSemanticSupportBand.Supported,
-                message: "Supported claim"),
+                message: "Supported claim",
+                classification: FindingClassification.DecisionGradeFinding),
             CreateFinding(
                 "check-1",
                 FindingSemanticSupportBand.Unsupported,

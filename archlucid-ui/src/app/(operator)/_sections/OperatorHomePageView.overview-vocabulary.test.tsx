@@ -10,6 +10,7 @@ import {
   OPERATOR_HOME_RECENT_REVIEWS_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import type { RunSummary } from "@/types/authority";
 
 const OVERVIEW_BANNED_PATTERNS = [
   /\blane\b/i,
@@ -169,14 +170,17 @@ vi.mock("@/components/operator-home/OperatorHomeSponsorRoiStrip", () => ({
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
-  OperatorHomeRunsPanel: () => (
-    <section>
-      <h2>{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</h2>
-      <div data-testid="home-block-runs-dashboard" />
-    </section>
-  ),
+  OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
   OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
+
+/** Tenant review row so composeOperatorHomeSections mounts recent-reviews (eval-empty is hero-only). */
+const OVERVIEW_VOCABULARY_FIXTURE_RUN = {
+  runId: "overview-vocab-run-1",
+  projectId: "default",
+  hasGoldenManifest: false,
+  isArchived: false,
+} as RunSummary;
 
 vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", () => ({
   OperatorHomeExamplesPlacement: ({
@@ -286,15 +290,19 @@ vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
   };
 });
 
-function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
+function mockHomeModel(
+  buyerPolishedShell: boolean,
+  runsDashboardItems: readonly RunSummary[] = [],
+  totalCount = 0,
+): OperatorHomePageViewModel {
   return {
     buyerPolishedShell,
     runsDashboard: {
       projectId: "default",
       page: 1,
       pageSize: 5,
-      items: [],
-      totalCount: 0,
+      items: [...runsDashboardItems],
+      totalCount,
       loadFailure: null,
       malformedMessage: null,
       usedStaticRunsFallback: false,
@@ -346,14 +354,11 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
       screen.queryByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
     ).toBeNull();
 
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByText("Do this next")).toBeNull();
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
-    });
+    // TB-2368 eval-empty operator shell is hero-only; advanced guidance lives in below-fold for later phases.
+    expect(screen.queryByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeNull();
 
     assertNoBannedOverviewVocabulary(container);
   });
@@ -369,12 +374,26 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
       screen.queryByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
     ).toBeNull();
 
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByText("Do this next")).toBeNull();
     expect(screen.queryByTestId("operator-home-advanced-guidance")).toBeNull();
 
+    assertNoBannedOverviewVocabulary(container);
+  });
+
+  it("uses buyer-safe Recent reviews heading when the recent-reviews section mounts (active workspace)", async () => {
+    const { container } = renderWithOperatorQuery(
+      <OperatorHomePageView
+        model={mockHomeModel(false, [OVERVIEW_VOCABULARY_FIXTURE_RUN], 1)}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-recent-reviews")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     assertNoBannedOverviewVocabulary(container);
   });
 });

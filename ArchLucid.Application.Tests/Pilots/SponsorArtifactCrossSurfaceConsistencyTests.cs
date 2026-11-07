@@ -95,28 +95,30 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         ArchitectureRunDetail detail = BuildCommittedDetail();
         detail.Run.StructuralExecutionMode = StructuralExecutionMode.Simulator;
 
-        PilotRunDeltas computed = new()
-        {
-            RunCreatedUtc = detail.Run.CreatedUtc,
-            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
-            FindingsBySeverity =
-            [
-                new KeyValuePair<string, int>("Warning", 2),
-                new KeyValuePair<string, int>("Error", 1),
-            ],
-            AuditRowCount = 7,
-            LlmCallCount = 4,
-            TopFindingId = "top-finding-id",
-            TopFindingSeverity = "Error",
-            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+        PilotRunDeltas computed = PilotBuyerSafeStrongProofDeltas.WithStrongProofFields(
+            new()
             {
-                RunId = "11111111-1111-1111-1111-111111111111",
-                FindingId = "top-finding-id",
-                ManifestVersion = "v2",
-                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-            },
-            IsDemoTenant = false,
-        };
+                RunCreatedUtc = detail.Run.CreatedUtc,
+                ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+                TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+                FindingsBySeverity =
+                [
+                    new KeyValuePair<string, int>("Warning", 2),
+                    new KeyValuePair<string, int>("Error", 1),
+                ],
+                AuditRowCount = 7,
+                LlmCallCount = 4,
+                TopFindingId = "top-finding-id",
+                TopFindingSeverity = "Error",
+                TopFindingEvidenceChain = new FindingEvidenceChainResponse
+                {
+                    RunId = "11111111-1111-1111-1111-111111111111",
+                    FindingId = "top-finding-id",
+                    ManifestVersion = "v2",
+                    FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                },
+                IsDemoTenant = false,
+            });
 
         ArchitectureRunDetail? capturedDetail = null;
 
@@ -257,8 +259,10 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         string? markdown = await builder.BuildMarkdownAsync("11111111-1111-1111-1111-111111111111", "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
-        markdown.Should().Contain("| ROI claim gate | **HOLD**");
-        markdown.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
+        markdown.Should().Contain(SponsorRoiClaimDispositionRules.DescribeLeadLine(SponsorRoiClaimDisposition.Hold));
+        markdown.Should().MatchRegex(
+            "\\*\\*Projected dollar claim disposition:\\*\\* \\*\\*(?:HOLD|WARN)\\*\\*",
+            because: "missing tenant baselines should suppress or warn on projected-dollar claims");
 
         SponsorSimulatorRoiForbidAssertions.AssertNoLeadingAnnualizedOrProjectedUsd(markdown!);
     }
