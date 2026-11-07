@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 const replaceMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => "/administration/users",
+  usePathname: (): string => "/settings/roles",
   useRouter: (): { push: () => void; replace: typeof replaceMock; refresh: () => void } => ({
     push: vi.fn(),
     replace: replaceMock,
