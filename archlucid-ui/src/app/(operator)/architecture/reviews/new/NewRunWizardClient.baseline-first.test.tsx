@@ -209,7 +209,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     });
 
     const createPayload = createArchitectureRunMock.mock.calls[0]?.[0] as { systemName?: string } | undefined;
-    expect(createPayload?.systemName).toBe("MyRg");
+    expect(createPayload?.systemName).toBe("CustomerWebApp");
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "Track review progress" })).toBeInTheDocument();
