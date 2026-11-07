@@ -87,14 +87,12 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
-  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH, SECURENOW_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { TerraformWorkbenchClient } from "./TerraformWorkbenchClient";
@@ -125,10 +123,6 @@ describe("TerraformWorkbenchClient working mode", () => {
       GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
     );
     expect(screen.queryByTestId("infra-terraform-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE })).toHaveAttribute(
-      "href",
-      GOVERNANCE_INFRASTRUCTURE_PATH,
-    );
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(screen.getByText("Alt+1")).toBeInTheDocument();
 
@@ -150,7 +144,7 @@ describe("TerraformWorkbenchClient working mode", () => {
         entries: [
           {
             href:
-              "/governance/infrastructure/terraform?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=33333333-3333-3333-3333-333333333333&auditEvidenceSnapshotId=44444444-4444-4444-4444-444444444444&controlId=55555555-5555-5555-5555-555555555555",
+              "/infrastructure/terraform?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=33333333-3333-3333-3333-333333333333&auditEvidenceSnapshotId=44444444-4444-4444-4444-444444444444&controlId=55555555-5555-5555-5555-555555555555",
             label: "gateway-ip",
             kind: "page",
             visitedAtUtc: "2026-09-20T12:00:00Z",
@@ -165,7 +159,7 @@ describe("TerraformWorkbenchClient working mode", () => {
     const continueHref = screen.getByTestId("infra-terraform-continue-last-open").getAttribute("href") ?? "";
     const continueParams = new URLSearchParams(continueHref.split("?")[1] ?? "");
 
-    expect(continueHref.startsWith("/governance/infrastructure/terraform?")).toBe(true);
+    expect(continueHref.startsWith("/infrastructure/terraform?")).toBe(true);
     expect(continueParams.get("cloudResourceId")).toBe("11111111-1111-1111-1111-111111111111");
     expect(continueParams.get("snapshotId")).toBe("22222222-2222-2222-2222-222222222222");
     expect(continueParams.get("assessmentId")).toBe("33333333-3333-3333-3333-333333333333");

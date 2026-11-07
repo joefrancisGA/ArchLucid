@@ -12,7 +12,7 @@ import { RE_RUN_REVIEW_PROGRESS_TICK_MS } from "@/lib/re-run-review-wait-copy";
 
 const executeArchitectureRunAsync = vi.fn();
 const routerRefresh = vi.fn();
-const routerReplace = vi.fn();
+const commitHrefIfChanged = vi.fn(() => true);
 
 vi.mock("@/lib/api", () => ({
   executeArchitectureRunAsync: (...args: unknown[]) => executeArchitectureRunAsync(...args),
@@ -25,17 +25,28 @@ vi.mock("@/lib/await-minimum-visible-duration", () => ({
 const mockSearchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh, replace: routerReplace }),
+  useRouter: () => ({ refresh: routerRefresh, replace: vi.fn() }),
   usePathname: () => "/architecture/reviews/run-abc",
   useSearchParams: () => mockSearchParams,
 }));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    commitHrefIfChanged: (...args: unknown[]) => commitHrefIfChanged(...args),
+    readWindowLocationSearch: () => mockSearchParams.toString(),
+  };
+});
 
 describe("ReRunReviewButton", () => {
   beforeEach(() => {
     resetInFlightOperationsForTests();
     executeArchitectureRunAsync.mockReset();
     routerRefresh.mockReset();
-    routerReplace.mockReset();
+    commitHrefIfChanged.mockReset();
+    commitHrefIfChanged.mockReturnValue(true);
     mockSearchParams.forEach((_, key) => {
       mockSearchParams.delete(key);
     });
@@ -48,11 +59,9 @@ describe("ReRunReviewButton", () => {
     fireEvent.click(screen.getByTestId("re-run-review-button"));
 
     await waitFor(() => {
-      expect(routerReplace).toHaveBeenCalledWith(
+      expect(commitHrefIfChanged).toHaveBeenCalledWith(
         "/architecture/reviews/run-abc?reRunConfirmOpen=1&reRunConfirmSource=re-run-review-button",
-        {
-          scroll: false,
-        },
+        { notify: false },
       );
     });
   });
@@ -86,14 +95,14 @@ describe("ReRunReviewButton", () => {
     fireEvent.click(screen.getByTestId("review-package-re-run-review"));
 
     await waitFor(() => {
-      expect(routerReplace).toHaveBeenCalledWith(
+      expect(commitHrefIfChanged).toHaveBeenCalledWith(
         "/architecture/reviews/run-abc?reRunConfirmOpen=1&reRunConfirmSource=review-package-re-run-review",
-        { scroll: false },
+        { notify: false },
       );
     });
 
     expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
-    expect(routerReplace).toHaveBeenCalledTimes(1);
+    expect(commitHrefIfChanged).toHaveBeenCalledTimes(1);
   });
 
   it("requires confirmation before spending AI budget", async () => {

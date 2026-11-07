@@ -77,7 +77,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       {
         draftId: "draft-payments-1",
         displayName: "Payments platform",
-        href: "/architecture/architectures/architecture-identity-001?draft=draft-payments-1",
+        href: "/architecture/architectures/architecture-identity-001/drafts/draft-payments-1",
       },
     ]);
   });
@@ -100,7 +100,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
     expect(identityHits).toHaveLength(1);
     expect(draftHits).toHaveLength(1);
     expect(identityHits[0]?.href).toBe("/architecture/architectures/architecture-identity-001");
-    expect(draftHits[0]?.href).toContain("?draft=draft-payments-1");
+    expect(draftHits[0]?.href).toContain("/drafts/draft-payments-1");
   });
 
   it("falls back to legacy draft paths when no identity link is known", () => {

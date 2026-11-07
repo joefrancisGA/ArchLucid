@@ -28,6 +28,8 @@ const HELP_TOPIC_VIEW_RESOLVER = join(
   "help-topic-view-resolver-operate.tsx",
 );
 
+const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+
 const PRODUCT_FINDINGS_HELP_SURFACES = [
 
   "archlucid-ui/src/lib/help/help-center-catalog.ts",
@@ -80,7 +82,9 @@ describe("findings-help-route (HFX)", () => {
 
     expect(pageSource).toContain("HelpFindingsGuideView");
 
-    expect(pageSource).toContain("FINDINGS_HELP_ROUTE_METADATA");
+    const routeMetadataSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+
+    expect(routeMetadataSource).toContain("FINDINGS_HELP_ROUTE_METADATA");
 
   });
 

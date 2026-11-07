@@ -40,7 +40,7 @@ export const REPORT_PROBLEM_AUDIT_WHY_TWO =
   "Report a problem opens a support ticket with the details support needs to investigate. Audit trail searches workspace activity records. Filing support intake is not the same as searching those records." as const;
 
 export const REPORT_PROBLEM_AUDIT_COMPACT_LINE =
-  "Report a problem is support intake; Audit trail is the workspace activity log — open the other when you need both." as const;
+  "Report a problem is support intake; Audit trail searches workspace activity records — open the other when you need both." as const;
 
 export const REPORT_PROBLEM_AUDIT_REPORT_PROBLEM_LINK: ReportProblemAuditLink = {
   id: "report-problem",
