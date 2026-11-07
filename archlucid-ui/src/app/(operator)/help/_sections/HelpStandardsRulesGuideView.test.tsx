@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -14,10 +14,21 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/standards-and-rules",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpStandardsRulesGuideView } from "@/app/(operator)/help/_sections/HelpStandardsRulesGuideView";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  expectWhereToGoNextFollowUpLinks,
 } from "@/lib/claim-discipline-test-helpers";
 import {
   STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
@@ -29,14 +40,14 @@ import {
   STANDARDS_RULES_HELP_TABLE_ITEMS,
 } from "@/lib/standards-rules-help-guide-content";
 import {
+  STANDARDS_RULES_HELP_CANONICAL_PATH,
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING,
-  STANDARDS_RULES_HELP_SOURCES,
+  STANDARDS_RULES_HELP_ORIENTATION_SOURCES,
 } from "@/lib/standards-rules-help-evidence-copy";
 import { STANDARDS_RULES_PAGE_SUBTITLE } from "@/lib/standards-rules-page";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpStandardsRulesGuideView", () => {
@@ -89,20 +100,13 @@ describe("HelpStandardsRulesGuideView", () => {
       STANDARDS_RULES_HELP_RESOLUTION_SNAPSHOT_EXPORT_HREF,
     );
 
-    for (const source of STANDARDS_RULES_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+    const sourcesSection = screen.getByTestId("help-standards-rules-sources");
 
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
-
-    expect(
-      screen.getByRole("link", {
-        name: formatHelpFollowUpLinkAccessibleName(
-          STANDARDS_RULES_HELP_SOURCES[0].href,
-          STANDARDS_RULES_HELP_SOURCES[0].label,
-        ),
-      }),
-    ).toBeInTheDocument();
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      STANDARDS_RULES_HELP_ORIENTATION_SOURCES,
+      STANDARDS_RULES_HELP_CANONICAL_PATH,
+    );
     expect(screen.getAllByRole("link", { name: "Policy packs" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: STANDARDS_RULES_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
 
