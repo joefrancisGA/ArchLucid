@@ -63,9 +63,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "title": "Inspect stored evidence on a review",
     "summary": "Open and download submitted source files on the review Evidence tab — preview first, not the sealed package ZIP.",
     "audience": "operator",
-    "sourcePaths": [
-      "archlucid-ui/src/lib/evidence-source-inspect-help-stored-evidence-guide-content.ts",
-    ],
+    "sourcePaths": [],
     "lastReviewed": "2026-09-12",
     "releaseApplicability": "Evidence source inspect help (ESI-08)",
   },
