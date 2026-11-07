@@ -86,6 +86,7 @@ import {
   IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE,
   IDENTITY_PROVIDERS_SAML_ORIENTATION_SOURCES,
 } from "@/lib/identity-providers-saml-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
@@ -214,7 +215,12 @@ describe("IdentityProvidersSamlPageClient buyer-polished shell (ASA)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(configurationForm) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_SAML_ORIENTATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_SAML_ORIENTATION_SOURCES),
+      "/administration/identity-providers/saml",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

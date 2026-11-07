@@ -1,6 +1,7 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -145,7 +146,12 @@ describe("DigestsHubClient buyer-polished shell (ARD)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(browseContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(DIGESTS_BROWSE_ORIENTATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(DIGESTS_BROWSE_ORIENTATION_SOURCES),
+      "/architecture/digests",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

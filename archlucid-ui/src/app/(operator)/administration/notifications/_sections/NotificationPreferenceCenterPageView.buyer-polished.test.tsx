@@ -78,6 +78,7 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_SETTINGS_FOLLOW_UPS_TITLE,
   NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES,
 } from "@/lib/notification-preference-center-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
@@ -117,7 +118,12 @@ describe("NotificationPreferenceCenterPageView buyer-polished shell (ADN)", () =
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(channelGrid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES),
+      "/administration/notifications",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

@@ -79,6 +79,7 @@ import {
   IDENTITY_PROVIDERS_SETTINGS_SKIP_LINK_LABEL,
   IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID,
 } from "./identity-providers-settings-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -155,7 +156,12 @@ describe("IdentityProvidersSettingsPageView buyer-polished shell (AID)", () => {
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("identity-providers-sso-setup-cta-button")).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_SETTINGS_SOURCES),
+      "/administration/identity-providers",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

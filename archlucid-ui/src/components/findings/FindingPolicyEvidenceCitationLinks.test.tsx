@@ -34,8 +34,8 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
     );
   });
 
-  it("returns null when no citations are available", () => {
-    const { container } = render(
+  it("shows honest empty provenance when no citations are available", () => {
+    render(
       <FindingPolicyEvidenceCitationLinks
         model={{
           pack: null,
@@ -45,6 +45,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
       />,
     );
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.getByTestId("finding-policy-provenance-panel")).toBeInTheDocument();
+    expect(screen.getByText("Policy citation was not stored.")).toBeInTheDocument();
   });
 });

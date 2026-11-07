@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE, ARCHITECTURE_INTELLIGENCE_SOURCES } from "@/lib/architecture/architecture-intelligence-evidence-copy";
@@ -165,7 +166,12 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell (AIN)", () => 
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(pickReviewStrip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_INTELLIGENCE_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(ARCHITECTURE_INTELLIGENCE_SOURCES),
+      ARCHITECTURE_INTELLIGENCE_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

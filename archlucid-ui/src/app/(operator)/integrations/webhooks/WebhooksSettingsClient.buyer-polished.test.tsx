@@ -78,6 +78,7 @@ import {
   WEBHOOKS_INTEGRATION_SOURCES,
 } from "@/lib/webhooks-integration-evidence-copy";
 import { WEBHOOKS_PAGE_DESCRIPTION, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -121,7 +122,12 @@ describe("WebhooksSettingsClient buyer-polished shell (IWX)", () => {
     expect(firstViewport).toContainElement(subscriptionsSection);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(WEBHOOKS_INTEGRATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(WEBHOOKS_INTEGRATION_SOURCES),
+      "/integrations/webhooks",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

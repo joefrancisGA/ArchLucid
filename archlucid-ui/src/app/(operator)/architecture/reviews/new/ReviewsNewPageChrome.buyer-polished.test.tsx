@@ -41,6 +41,7 @@ import {
   BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
   reviewsNewPageSubtitle,
 } from "@/lib/reviews-new-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { REVIEWS_NEW_ORIENTATION_SOURCES } from "@/lib/reviews-new-evidence-copy";
@@ -169,7 +170,12 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
 
     const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
-    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES),
+      "/architecture/reviews/new",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

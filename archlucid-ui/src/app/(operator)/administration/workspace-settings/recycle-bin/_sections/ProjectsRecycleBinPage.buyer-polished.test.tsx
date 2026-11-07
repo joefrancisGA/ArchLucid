@@ -22,6 +22,7 @@ import {
   PROJECTS_RECYCLE_BIN_SETTINGS_WORKSPACE_TEST_ID,
 } from "@/lib/projects-recycle-bin-settings-page-copy";
 import { recycleBinPageDescription } from "@/lib/projects-recycle-bin-payload";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -161,7 +162,12 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
     expect(workspace).toContainElement(screen.getByTestId("projects-recycle-bin-row-proj-1"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(PROJECTS_RECYCLE_BIN_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(PROJECTS_RECYCLE_BIN_SOURCES),
+      "/administration/workspace-settings/recycle-bin",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

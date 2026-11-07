@@ -12,6 +12,7 @@ import {
   SESSION_EXPIRED_SKIP_LINK_LABEL,
   SESSION_EXPIRED_SKIP_TARGET_ID,
 } from "@/lib/auth/session-expired-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -84,7 +85,12 @@ describe("SessionExpiredClient buyer-polished shell", () => {
     );
     expect(screen.getByRole("heading", { level: 2, name: SESSION_EXPIRED_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SESSION_EXPIRED_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SESSION_EXPIRED_SOURCES),
+      "/auth/session-expired",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

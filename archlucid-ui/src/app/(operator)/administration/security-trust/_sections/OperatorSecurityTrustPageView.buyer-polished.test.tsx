@@ -74,6 +74,7 @@ import {
   SETTINGS_SECURITY_TRUST_FOLLOW_UPS_TITLE,
   SETTINGS_SECURITY_TRUST_SOURCES,
 } from "@/lib/settings-security-trust-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -119,7 +120,12 @@ describe("OperatorSecurityTrustPageView buyer-polished shell (WSX)", () => {
     expect(firstViewport).toContainElement(materialsTable);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_SECURITY_TRUST_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SETTINGS_SECURITY_TRUST_SOURCES),
+      "/administration/security-trust",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

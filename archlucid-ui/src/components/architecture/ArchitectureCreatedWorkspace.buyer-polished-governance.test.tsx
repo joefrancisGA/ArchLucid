@@ -18,6 +18,7 @@ import {
   ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE,
   ARCHITECTURE_CREATED_GOVERNANCE_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-governance-sources";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -165,7 +166,12 @@ describe("ArchitectureCreatedWorkspace buyer-polished Governance tab (REG)", () 
     expect(workspace).toContainElement(screen.getByTestId("governance-panel-slot"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_CREATED_GOVERNANCE_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(ARCHITECTURE_CREATED_GOVERNANCE_SOURCES),
+      "/architecture/reviews/run-1",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
