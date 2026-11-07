@@ -36,8 +36,9 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
-  useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionDeskChrome: () => workspaceModeMock.value === "working",
+  useProductionEvalChrome: () =>
+    workspaceModeMock.value !== "working" || buyerPolishedShellMock.value,
 }));
 
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {

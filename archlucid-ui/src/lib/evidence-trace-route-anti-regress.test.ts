@@ -47,7 +47,7 @@ describe("evidence-trace-route-anti-regress (TB-1830)", () => {
   it("documents ERU workbook regressions guarded by TB-1826 through TB-1829", () => {
     expect(EVIDENCE_TRACE_TRAFFIC_NOTE).toContain("TB-1826-TB-1829");
     expect(EVIDENCE_TRACE_TRAFFIC_NOTE).toContain("Back to finding");
-    expect(EVIDENCE_TRACE_TRAFFIC_NOTE).toContain("without self-link");
+    expect(EVIDENCE_TRACE_TRAFFIC_NOTE).toContain("without inspect self-link");
   });
 
   it("keeps finding-first ERU chrome and omits footer self-link wiring in FindingInspectView", () => {
