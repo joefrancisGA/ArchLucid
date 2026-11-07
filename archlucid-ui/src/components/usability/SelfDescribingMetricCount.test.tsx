@@ -20,7 +20,7 @@ describe("SelfDescribingMetricCount", () => {
       "href",
       "/governance/findings?filter=open",
     );
-    expect(screen.getByText(/open findings · this workspace/i)).toBeInTheDocument();
+    expect(screen.getByText("open findings")).toBeInTheDocument();
   });
 
   it("uses middle-dot separators and suppresses redundant scope labels", () => {
@@ -44,7 +44,6 @@ describe("SelfDescribingMetricCount", () => {
       <SelfDescribingMetricCount
         presentation={operatorHomeActiveReviewsPresentation(0)}
         testId="home-active-reviews-zero"
-        valueVariant="quiet"
       />,
     );
 

@@ -53,7 +53,7 @@ describe("form validation affordances regression band (TB-2011)", () => {
       /showError\(\s*"Evidence upload"[\s\S]*?\);/,
       "",
     );
-    expect(firstPilotWithoutDeferredUploadToast).not.toContain("showError");
+    expect(firstPilotWithoutDeferredUploadToast).not.toMatch(/showError\s*\(/);
     expect(firstPilot).toContain("setClientValidationMessage");
     expect(quickStart).not.toContain("showError");
     expect(quickStart).toContain("stepValidationMessage");

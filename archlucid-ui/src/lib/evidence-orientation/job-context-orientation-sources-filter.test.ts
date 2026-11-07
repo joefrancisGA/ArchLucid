@@ -13,11 +13,18 @@ const links: readonly EvidenceOrientationLink[] = [
 
 describe("filterOrientationSourcesForJobContext", () => {
   it("limits follow-ups to three job-relevant hops", () => {
-    const filtered = filterOrientationSourcesForJobContext(links, "/help/notifications");
+    const filtered = filterOrientationSourcesForJobContext(links, "/administration/notifications");
 
     expect(filtered).toHaveLength(3);
+    expect(filtered[0]?.href).toBe("/administration/notifications");
+    expect(filtered.some((link) => link.href.startsWith("/governance"))).toBe(true);
+  });
+
+  it("keeps the full help-topic Sources index without job-context truncation", () => {
+    const filtered = filterOrientationSourcesForJobContext(links, "/help/notifications");
+
+    expect(filtered).toHaveLength(5);
     expect(filtered.some((link) => link.href.startsWith("/help"))).toBe(true);
-    expect(filtered[0]?.href).toBe("/help/alerts");
   });
 
   it("prioritizes governance destinations on governance routes", () => {

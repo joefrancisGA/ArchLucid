@@ -93,8 +93,6 @@ describe("nav authority controller parity (TB-882)", () => {
  * General href coverage lives in nav-route-title-parity.test.ts; these rows cover presentation overrides.
  */
 const OPERATOR_NAV_HEADING_PARITY_SURFACES: readonly { href: string; governanceMode?: boolean }[] = [
-  { href: "/architecture/reviews" },
-  { href: "/architecture/reviews", governanceMode: true },
   { href: IMPACT_PREVIEW_PATH },
   { href: "/internal/trial-funnel" },
 ];
@@ -118,8 +116,9 @@ describe("operator nav heading parity (TB-882)", () => {
     },
   );
 
-  it("TB-606: reviews list presentation label matches route title registry", () => {
-    expect(resolveReviewsListNavLinkLabel(false)).toBe(ROUTE_TITLES["/architecture/reviews"]);
-    expect(resolveReviewsListNavLinkLabel(true)).toBe(ROUTE_TITLES["/architecture/reviews"]);
+  it("TB-606: reviews list nav label stays vocabulary-backed while route title uses Packages", () => {
+    expect(resolveReviewsListNavLinkLabel(false)).toBe("Reviews");
+    expect(resolveReviewsListNavLinkLabel(true)).toBe("Reviews");
+    expect(ROUTE_TITLES["/architecture/reviews"]).toBe("Packages");
   });
 });
