@@ -14,6 +14,7 @@ vi.mock("next/navigation", async (importOriginal) => {
       forward: vi.fn(),
       prefetch: vi.fn(),
     }),
+    usePathname: () => "/architecture/sponsor-dashboard",
     useSearchParams: () => new URLSearchParams(),
   };
 });
@@ -71,8 +72,9 @@ vi.mock("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashbo
   SponsorDashboardSupportingMetricsSection: () => null,
 }));
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SponsorRoiDashboardPageView } from "@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView";
 import {
   ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE,
@@ -131,7 +133,10 @@ describe("SponsorRoiDashboardPageView buyer-polished shell (ARE)", () => {
     expect(orientationTop.compareDocumentPosition(emptyState) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByTestId("architecture-sponsor-dashboard-orientation-bottom")).not.toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES,
+      SPONSOR_DASHBOARD_HREF,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

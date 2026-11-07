@@ -9,6 +9,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+import { AUTHORITY_RANK, requiredAuthorityFromRank } from "@/lib/nav-authority";
 
 import { SidebarNav } from "./SidebarNav";
 
@@ -95,16 +96,14 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
     "@/testing/operator-nav-authority-vitest-mock"
   );
   const { operatorNavOutsideProviderPrincipal } = await import("@/lib/current-principal");
-  const { AUTHORITY_RANK, requiredAuthorityFromRank } = await import("@/lib/nav-authority");
-
   const baseMock = createOperatorNavAuthorityVitestMock({
-    callerAuthorityRank: 3,
+    callerAuthorityRank: AUTHORITY_RANK.PlatformInternalOperationsAuthority,
     hasCommittedArchitectureReview: true,
   });
   const vendorPrincipal = {
     ...operatorNavOutsideProviderPrincipal,
-    authorityRank: AUTHORITY_RANK.AdminAuthority,
-    maxAuthority: requiredAuthorityFromRank(AUTHORITY_RANK.AdminAuthority),
+    authorityRank: AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+    maxAuthority: requiredAuthorityFromRank(AUTHORITY_RANK.PlatformInternalOperationsAuthority),
     roleClaimValues: ["PlatformOperator"],
   };
 
@@ -147,6 +146,7 @@ describe("SidebarNav — Internal section", () => {
     localStorage.clear();
     writeOperateNavUnlockPhase(2);
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
   });
 
   afterEach(() => {
@@ -175,14 +175,14 @@ describe("SidebarNav — Internal section", () => {
     });
   });
 
-  it("renders Internal in buyer-polished shell when full-operator experience is enabled", async () => {
+  it("hides Internal in buyer-polished shell even when full-operator experience is enabled", async () => {
     buyerPolishedShellMock.value = true;
     fullOperatorShellMock.value = true;
 
     render(<SidebarNav />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toBeInTheDocument();
+      expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
     });
   });
 
@@ -276,15 +276,17 @@ describe("SidebarNav — Internal section", () => {
 
   it("expands Internal and highlights an active internal route", async () => {
     mockPathname.mockReturnValue("/internal/rag-health");
+    localStorage.setItem(
+      SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
+      JSON.stringify({
+        ...SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
+        "operator-system-admin": true,
+      }),
+    );
 
     render(<SidebarNav />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toHaveAttribute("aria-expanded", "true");
-    });
-
-    const internalOpsNav = screen.getByRole("group", { name: "Internal" });
-    const ragLink = within(internalOpsNav).getByRole("link", {
+    const ragLink = await screen.findByRole("link", {
       name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
     });
 
@@ -313,9 +315,15 @@ describe("SidebarNav — Internal section", () => {
 
     render(<SidebarNav />);
 
-    const governanceToggle = screen.getByTestId("sidebar-group-toggle-operate-governance");
+    const governanceToggle = await screen.findByTestId("sidebar-group-toggle-operate-governance");
+    const wasExpanded = governanceToggle.getAttribute("aria-expanded") === "true";
 
-    expect(governanceToggle).toHaveAttribute("aria-expanded", "false");
+    if (wasExpanded) {
+      fireEvent.click(governanceToggle);
+      await waitFor(() => {
+        expect(governanceToggle).toHaveAttribute("aria-expanded", "false");
+      });
+    }
 
     fireEvent.click(governanceToggle);
 

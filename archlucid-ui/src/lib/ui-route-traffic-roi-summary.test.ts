@@ -10,13 +10,12 @@ import {
 } from "@/lib/ui-route-traffic-roi-summary";
 
 describe("ui-route-traffic-roi-summary (TB-1971)", () => {
-  it("tracks SPR with former VRX hit share and no VRX row", () => {
+  it("tracks SPR (VRX id) with absorbed legacy hit-share note", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
     const spr = rows.find((candidate) => candidate.id === ROI_SUMMARY_TRAFFIC_ROW_ID);
-    const vrx = rows.find((candidate) => candidate.id === "VRX");
 
-    expect(vrx).toBeUndefined();
     expect(spr).toBeDefined();
+    expect(spr?.id).toBe("VRX");
     expect(spr?.path).toBe(ROI_SUMMARY_TRAFFIC_PATH);
     expect(spr?.hitPct).toBe("0.12%");
     expect(spr?.section).toBe(ROI_SUMMARY_TRAFFIC_SECTION);
