@@ -139,10 +139,6 @@ public sealed class AuditPathClassificationArchitectureTests
         "RemediationInstanceService",
         "SecureNowArchitectNeighborhoodRunner",
         "SecureNowQuestionDispositionService",
-        // These services persist the user-approved evidence payload as an awaited audit event.
-        // The audit record is the transaction: no success is returned if LogAsync throws.
-        "SecureNowInvestigationEffortInputService",
-        "SecureNowPilotPathDispositionService",
         "SecurityAssetAssertionService",
         "SecurityDeclaredConnectionService",
         "RunAssumptionAcknowledgementService",
