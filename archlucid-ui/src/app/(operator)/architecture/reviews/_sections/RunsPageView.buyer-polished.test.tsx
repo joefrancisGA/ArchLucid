@@ -13,8 +13,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   REVIEWS_HUB_CLAIM_DISCIPLINE,
   REVIEWS_HUB_SOURCES,
@@ -158,9 +157,6 @@ describe("RunsPageView buyer-polished shell (RE)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(recentPackages) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_HUB_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), REVIEWS_HUB_SOURCES, "/architecture/reviews");
   });
 });
