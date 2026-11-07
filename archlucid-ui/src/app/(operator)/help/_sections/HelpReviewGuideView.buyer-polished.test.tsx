@@ -16,6 +16,15 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => true,
 }));
 
+vi.mock("@/lib/production-desk-chrome", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/production-desk-chrome")>();
+
+  return {
+    ...actual,
+    resolveProductionEvalChromeForServer: () => true,
+  };
+});
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));

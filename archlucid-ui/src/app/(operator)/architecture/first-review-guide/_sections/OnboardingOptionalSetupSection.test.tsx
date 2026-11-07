@@ -15,14 +15,10 @@ import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection
 
 const useFinishSetupReadinessContext = vi.fn();
 
-vi.mock("@/lib/scroll-deep-link-target-into-view", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/scroll-deep-link-target-into-view")>();
-
-  return {
-    ...actual,
-    scheduleScrollDeepLinkTargetIntoView: vi.fn(actual.scheduleScrollDeepLinkTargetIntoView),
-  };
-});
+vi.mock("@/lib/scroll-deep-link-target-into-view", () => ({
+  scrollDeepLinkTargetIntoView: vi.fn(() => false),
+  scheduleScrollDeepLinkTargetIntoView: vi.fn(),
+}));
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
