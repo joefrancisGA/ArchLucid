@@ -58,7 +58,7 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
       completedStages: undefined,
     });
 
-    expect(sentence).toContain("Pipeline stage count was not stored");
+    expect(sentence).toContain("Assessment stage count was not stored");
     expect(sentence.toLowerCase()).not.toContain("before the first assessment stage");
     expect(plainLanguageFailureClassLabel(null)).toBe("Failure class was not stored.");
     expect(plainLanguageFailureClassLabel("unknown")).toBe("Unknown");

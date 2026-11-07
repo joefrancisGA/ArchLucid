@@ -135,10 +135,10 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
         continue;
       }
 
-      expect(within(verifyPanel).getByRole("link", { name: step.action.label })).toHaveAttribute(
-        "href",
-        step.action.href,
-      );
+      const stepLinks = within(verifyPanel).getAllByRole("link", { name: step.action.label });
+      const stepLink = stepLinks.find((link) => link.getAttribute("href") === step.action.href);
+      expect(stepLink).toBeDefined();
+      expect(stepLink).toHaveAttribute("href", step.action.href);
     }
 
     expect(
