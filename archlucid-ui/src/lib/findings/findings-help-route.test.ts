@@ -36,7 +36,7 @@ const PRODUCT_FINDINGS_HELP_SURFACES = [
 
   "archlucid-ui/src/lib/findings/findings-help-guide-content.ts",
 
-  "archlucid-ui/src/lib/product-documentation-registry.ts",
+  "archlucid-ui/src/lib/product-documentation-registry-entries-operator-workspace.ts",
 
 ] as const;
 

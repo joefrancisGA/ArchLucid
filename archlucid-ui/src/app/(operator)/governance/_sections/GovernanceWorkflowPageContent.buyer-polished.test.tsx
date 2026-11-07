@@ -17,8 +17,9 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE,
   GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-queue-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
@@ -288,7 +289,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(workspace).toContainElement(overviewPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(APPROVAL_QUEUE_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(APPROVAL_QUEUE_SOURCES, GOVERNANCE_APPROVAL_QUEUE_PATH)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

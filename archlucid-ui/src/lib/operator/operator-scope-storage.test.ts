@@ -21,6 +21,7 @@ import {
   OPERATOR_HOME_DISCLOSURE_COLLAPSED_VALUE,
   OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS,
 } from "@/lib/operator/operator-home-disclosure-storage";
+import { accessTokenWithSubjectClaim } from "@/lib/oidc/testing/access-token-with-subject-claim";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -102,7 +103,7 @@ describe("operator-scope-storage", () => {
     const projectId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });
@@ -153,7 +154,7 @@ describe("operator-scope-storage", () => {
 
   it("getEffectiveBrowserProxyScopeHeaders_returnsPendingEmptyScopeForSignedInUsersWithoutDedicatedOrRegistration", () => {
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });
@@ -171,7 +172,7 @@ describe("operator-scope-storage", () => {
     const projectId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });
@@ -255,7 +256,7 @@ describe("operator-scope-storage", () => {
 
   it("writeOperatorScopeToStorage_clears_frictionless_trial_session_when_signed_in", () => {
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });
