@@ -60,8 +60,8 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
 
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
-            && edge.Label.Contains("Derived", StringComparison.Ordinal)
-            && edge.Label.Contains("nic-app", StringComparison.Ordinal)
+            && edge.Label.Contains("Derived through NIC", StringComparison.Ordinal)
+            && edge.Label.Contains("not observed traffic", StringComparison.OrdinalIgnoreCase)
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryIndirectDerivedRelationship);
     }
 
