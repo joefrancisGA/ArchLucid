@@ -5,7 +5,7 @@ let searchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
-  usePathname: () => "/infrastructure/terraform",
+  usePathname: () => "/governance/infrastructure/terraform",
   useSearchParams: () => searchParams,
 }));
 
@@ -150,7 +150,7 @@ describe("TerraformWorkbenchClient working mode", () => {
         entries: [
           {
             href:
-              "/infrastructure/terraform?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=33333333-3333-3333-3333-333333333333&auditEvidenceSnapshotId=44444444-4444-4444-4444-444444444444&controlId=55555555-5555-5555-5555-555555555555",
+              "/governance/infrastructure/terraform?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=33333333-3333-3333-3333-333333333333&auditEvidenceSnapshotId=44444444-4444-4444-4444-444444444444&controlId=55555555-5555-5555-5555-555555555555",
             label: "gateway-ip",
             kind: "page",
             visitedAtUtc: "2026-09-20T12:00:00Z",
@@ -165,7 +165,7 @@ describe("TerraformWorkbenchClient working mode", () => {
     const continueHref = screen.getByTestId("infra-terraform-continue-last-open").getAttribute("href") ?? "";
     const continueParams = new URLSearchParams(continueHref.split("?")[1] ?? "");
 
-    expect(continueHref.startsWith("/infrastructure/terraform?")).toBe(true);
+    expect(continueHref.startsWith("/governance/infrastructure/terraform?")).toBe(true);
     expect(continueParams.get("cloudResourceId")).toBe("11111111-1111-1111-1111-111111111111");
     expect(continueParams.get("snapshotId")).toBe("22222222-2222-2222-2222-222222222222");
     expect(continueParams.get("assessmentId")).toBe("33333333-3333-3333-3333-333333333333");
