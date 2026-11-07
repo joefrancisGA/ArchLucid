@@ -169,7 +169,12 @@ vi.mock("@/components/operator-home/OperatorHomeSponsorRoiStrip", () => ({
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
-  OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
+  OperatorHomeRunsPanel: () => (
+    <section>
+      <h2>{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</h2>
+      <div data-testid="home-block-runs-dashboard" />
+    </section>
+  ),
   OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
 

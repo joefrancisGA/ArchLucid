@@ -441,7 +441,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Relationship type was not stored/).length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent(
+      "Read from collected evidence",
+    );
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
@@ -1153,7 +1155,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText("Highly likely")).toBeInTheDocument();
+    expect(screen.getByText(/Highly likely/)).toBeInTheDocument();
     expect(screen.queryByTestId("security-evidence-path-inspect-empty")).not.toBeInTheDocument();
   });
 

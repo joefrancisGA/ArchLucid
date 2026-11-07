@@ -9,9 +9,9 @@ const UI_ROOT = join(process.cwd());
 const TB_2010_SOURCE_ROOTS = [
   "src/components/marketing/SignupForm.tsx",
   "src/app/(operator)/integrations/webhooks/WebhooksCreateSubscriptionForm.tsx",
-  "src/components/alerts/AlertRoutingContent.tsx",
-  "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
-  "src/app/(operator)/architecture/reviews/new/NewRunWizardClient.tsx",
+  "src/components/alerts/AlertRoutingCreateDestinationForm.tsx",
+  "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizardStepConfirm.tsx",
+  "src/app/(operator)/architecture/reviews/new/use-new-run-wizard-submit.ts",
 ] as const;
 
 const TB_2010_BAND_TEST_FILES = [
@@ -41,7 +41,9 @@ describe("disable-until-ready inventory band regression (TB-2010)", () => {
     const webhooks = readSrc(TB_2010_SOURCE_ROOTS[1]);
 
     expect(webhooks).toContain("canSubmitForm");
-    expect(webhooks).toMatch(/disabled=\{!canMutate \|\| loading \|\| isSaving \|\| !canSubmitForm\}/);
+    expect(webhooks).toMatch(
+      /disabled=\{!canMutate \|\| loading \|\| isSaving \|\| !hasLoadedSuccessfully \|\| !canSubmitForm\}/,
+    );
   });
 
   it("gates alert routing Create until destination form is valid", () => {
@@ -58,6 +60,6 @@ describe("disable-until-ready inventory band regression (TB-2010)", () => {
     expect(socratic).toContain("canSubmit");
     expect(socratic).toMatch(/disabled=\{!canSubmit\}/);
     expect(templates).toContain("canSubmit");
-    expect(templates).toMatch(/canSubmit=\{canSubmit\}/);
+    expect(templates).toMatch(/const canSubmit/);
   });
 });

@@ -137,7 +137,7 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
     chrome: "compact",
     disposition: "migrated",
     testId: "governance-overview-no-pending",
-    componentOrModule: "app/(operator)/governance/_sections/GovernanceOverviewPanel.tsx",
+    componentOrModule: "app/(operator)/governance/_sections/GovernanceOverviewListsPanelShell.tsx",
     notes: "Migrated from centered EmptyState + icon (**TB-1554**).",
   },
   {
@@ -157,7 +157,7 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
     chrome: "compact",
     disposition: "migrated",
     testId: "governance-workflow-no-approvals",
-    componentOrModule: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
+    componentOrModule: "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsEmpty.tsx",
     notes: "Compact + GettingStartedSteps in description (**TB-1556**).",
   },
   {
@@ -197,7 +197,7 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
     chrome: "compact",
     disposition: "migrated",
     testId: "manifest-deliverables-empty-state",
-    componentOrModule: "app/(operator)/governance/sealed-records/[manifestId]/_sections/ManifestDetailPageView.tsx",
+    componentOrModule: "app/(operator)/governance/sealed-records/[manifestId]/_sections/ManifestDetailDeliverablesCard.tsx",
     notes: "Nested deliverables panel empty — Compact buyer/operator variants (**TB-1556**).",
   },
   {
