@@ -20,7 +20,9 @@ import { alertRulesCreateButtonLabelReaderRank, enterpriseMutationControlDisable
 import {
   clearOperatorScopeStorage,
   writeOperatorScopeToStorage,
+  type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
+import { resolveMutatingInWorkspaceChipFromRecord } from "@/lib/mutating-in-workspace-chip";
 import { renderWithOperatorQuery, useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
@@ -61,13 +63,50 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+const alertRulesSearchParamsHarness = vi.hoisted(() => {
+  const state = { query: "runId=run-alerts-test" };
+
+  return {
+    state,
+    applyHref(href: string): void {
+      const qIndex = href.indexOf("?");
+      state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+    },
+    reset(): void {
+      state.query = "runId=run-alerts-test";
+    },
+  };
+});
+
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
   return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
-    useSearchParams: () => new URLSearchParams("runId=run-alerts-test"),
+    useSearchParams: () => new URLSearchParams(alertRulesSearchParamsHarness.state.query),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: (href: string) => {
+          alertRulesSearchParamsHarness.applyHref(href);
+        },
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
   });
 });
+
+const operatorScopeFixture: OperatorScopeRecord = {
+  tenantId: "tenant-1",
+  workspaceId: "workspace-1",
+  projectId: "project-1",
+  workspaceLabel: "Claims Intake Demo",
+  projectLabel: "Default project",
+};
+
+const scopedWorkspaceChipLabel = resolveMutatingInWorkspaceChipFromRecord(operatorScopeFixture).label;
 
 const sampleRule = {
   ruleId: "rule-1",
@@ -87,13 +126,27 @@ const sampleRule = {
 describe("AlertRulesContent", () => {
   useOperatorQueryTestLifecycle();
 
+  async function openCreatePanelFromEmptyIntro(): Promise<void> {
+    const createAction = await screen.findByTestId("alert-rules-create-action");
+    fireEvent.click(createAction);
+  }
+
   async function waitForCreateForm(): Promise<void> {
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
+    });
+
+    if (screen.queryByTestId("alert-rules-create-action") !== null) {
+      await openCreatePanelFromEmptyIntro();
+    }
+
     await waitFor(() => {
       expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
     });
   }
 
   beforeEach(() => {
+    alertRulesSearchParamsHarness.reset();
     mutateCapability.current = true;
     clearOperatorScopeStorage();
     apiHoisted.listAlertRules.mockReset();
@@ -134,15 +187,19 @@ describe("AlertRulesContent", () => {
     });
   });
 
-  it("shows create form above the fold on first load for editors (P0-3)", async () => {
+  it("keeps the create form behind empty-intro until the editor opens it (P0-3)", async () => {
     renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "true");
     });
 
-    expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-empty")).toBeInTheDocument();
+    expect(screen.queryByLabelText(ALERT_RULES_NAME_LABEL)).toBeNull();
+
+    await openCreatePanelFromEmptyIntro();
+
+    expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toBeInTheDocument();
   });
 
   it("surfaces external notification readiness in the empty card when routing is unset (P0-4)", async () => {
@@ -370,29 +427,30 @@ describe("AlertRulesContent", () => {
   });
 
   it("names the target workspace beside mutating controls in all states", async () => {
+    writeOperatorScopeToStorage(operatorScopeFixture);
     renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getAllByTestId("mutating-in-workspace-chip").length).toBeGreaterThan(0);
     });
 
-    expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(
-      "Applies to workspace: Customer Intake Demo",
-    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(scopedWorkspaceChipLabel);
+    });
 
     await waitForCreateForm();
 
-    expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(
-      "Applies to workspace: Customer Intake Demo",
-    );
+    expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(scopedWorkspaceChipLabel);
   });
 
-  it("focuses the rule name field on first load for editors", async () => {
+  it("does not auto-focus the rule name field before the empty-intro create panel opens", async () => {
     renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(ALERT_RULES_NAME_LABEL)).toHaveFocus();
+      expect(screen.getByTestId("alert-rules-layout")).toHaveAttribute("data-empty-intro", "true");
     });
+
+    expect(screen.queryByLabelText(ALERT_RULES_NAME_LABEL)).toBeNull();
   });
 
   it("marks the rule preview as an unsaved draft so it cannot read as a configured rule", async () => {
