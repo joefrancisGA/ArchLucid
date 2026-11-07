@@ -16,7 +16,7 @@ internal static class IntegrationTestWorkspaceModeSupport
     internal const string DevelopmentBypassUserId = "dev-user";
 
     internal static async Task PinGuidedWorkspaceModeForDevUserAsync(
-        ArchLucidApiFactory factory,
+        BaseIntegrationTestFixture factory,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(factory);
@@ -33,7 +33,7 @@ internal static class IntegrationTestWorkspaceModeSupport
     }
 
     internal static async Task PinWorkingWorkspaceModeForDevUserAsync(
-        ArchLucidApiFactory factory,
+        BaseIntegrationTestFixture factory,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(factory);

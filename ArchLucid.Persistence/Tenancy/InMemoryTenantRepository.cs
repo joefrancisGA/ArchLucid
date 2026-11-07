@@ -29,7 +29,7 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorks
     /// </summary>
     public InMemoryTenantRepository()
     {
-        TrySeedDefaultDevelopmentTenant();
+        EnsureDefaultDevelopmentScope();
     }
 
     /// <summary>
@@ -50,7 +50,13 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorks
         return Task.CompletedTask;
     }
 
-    private void TrySeedDefaultDevelopmentTenant()
+    private void EnsureDefaultDevelopmentScope()
+    {
+        TrySeedDefaultDevelopmentTenantIfMissing();
+        EnsureDefaultDevelopmentWorkspace();
+    }
+
+    private void TrySeedDefaultDevelopmentTenantIfMissing()
     {
         lock (_trialGate)
         {
@@ -111,24 +117,33 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorks
         }
 
         _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
+    }
+
+    private void EnsureDefaultDevelopmentWorkspace()
+    {
+        lock (_trialGate)
+        {
+            if (!_byId.ContainsKey(ScopeIds.DefaultTenant))
+                return;
+        }
 
         List<TenantWorkspaceRow> workspaces =
             _workspacesByTenant.GetOrAdd(ScopeIds.DefaultTenant, static _ => []);
 
         lock (workspaces)
         {
-            if (!workspaces.Any(row => row.Id == ScopeIds.DefaultWorkspace))
-            {
-                workspaces.Add(
-                    new TenantWorkspaceRow
-                    {
-                        Id = ScopeIds.DefaultWorkspace,
-                        TenantId = ScopeIds.DefaultTenant,
-                        Name = "Development default workspace",
-                        DefaultProjectId = ScopeIds.DefaultProject,
-                        CreatedUtc = TimeProvider.System.GetUtcNow(),
-                    });
-            }
+            if (workspaces.Any(row => row.Id == ScopeIds.DefaultWorkspace))
+                return;
+
+            workspaces.Add(
+                new TenantWorkspaceRow
+                {
+                    Id = ScopeIds.DefaultWorkspace,
+                    TenantId = ScopeIds.DefaultTenant,
+                    Name = "Development default workspace",
+                    DefaultProjectId = ScopeIds.DefaultProject,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                });
         }
     }
 
