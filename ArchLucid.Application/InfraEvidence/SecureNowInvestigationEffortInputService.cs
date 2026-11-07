@@ -9,11 +9,14 @@ using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.InfraEvidence;
 
 public sealed class SecureNowInvestigationEffortInputService(
     IAuditService auditService,
-    IAuditRepository auditRepository) : ISecureNowInvestigationEffortInputService
+    IAuditRepository auditRepository,
+    ILogger<SecureNowInvestigationEffortInputService> logger) : ISecureNowInvestigationEffortInputService
 {
     public const string FixtureWorksheetRejectedMessage =
         "Those values are the fixture worksheet.";
@@ -81,8 +84,7 @@ public sealed class SecureNowInvestigationEffortInputService(
             RecordedUtc = recordedUtc,
         };
 
-        await auditService.LogAsync(
-            new AuditEvent
+        AuditEvent auditEvent = new AuditEvent
             {
                 EventType = AuditEventTypes.SecureNowInvestigationEffortInputsRecorded,
                 ActorUserId = actor,
@@ -101,8 +103,14 @@ public sealed class SecureNowInvestigationEffortInputService(
                         recordedUtc,
                     },
                     AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+            };
+
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            "SecureNowInvestigationEffortInputsRecorded",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.SecureNowInvestigationEffortInputsRecorded);
 
         return new SecureNowInvestigationEffortInputsSaveResult
         {

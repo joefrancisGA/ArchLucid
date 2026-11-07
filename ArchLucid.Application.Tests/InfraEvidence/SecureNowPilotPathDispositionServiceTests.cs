@@ -10,6 +10,7 @@ using ArchLucid.Persistence.InfraEvidence;
 using FluentAssertions;
 
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
@@ -102,6 +103,31 @@ public sealed class SecureNowPilotPathDispositionServiceTests
         result.ErrorMessage.Should().Contain("Proceed");
     }
 
+    [Fact]
+    public async Task SaveAsync_does_not_report_success_when_required_audit_write_fails()
+    {
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        SecureNowPilotPathDispositionService sut =
+            new(CreateSamplePathRepository(), auditService.Object, new InMemoryAuditRepository(), NullLogger<SecureNowPilotPathDispositionService>.Instance);
+
+        Func<Task> act = async () =>
+            await sut.SaveAsync(
+                CreateScope(),
+                PathId,
+                new SecureNowPilotPathDispositionWriteRequest
+                {
+                    Outcome = "Stop",
+                    Rationale = "Controlled pilot concluded.",
+                },
+                "sponsor-actor",
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+    }
+
     private static SecureNowPilotPathDispositionService CreateSut(
         InMemoryPathRepository paths,
         InMemoryAuditRepository auditRepository)
@@ -111,7 +137,7 @@ public sealed class SecureNowPilotPathDispositionServiceTests
             .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns<AuditEvent, CancellationToken>((auditEvent, ct) => auditRepository.AppendAsync(auditEvent, ct));
 
-        return new SecureNowPilotPathDispositionService(paths, auditService.Object, auditRepository);
+        return new SecureNowPilotPathDispositionService(paths, auditService.Object, auditRepository, NullLogger<SecureNowPilotPathDispositionService>.Instance);
     }
 
     private static ScopeContext CreateScope() =>
