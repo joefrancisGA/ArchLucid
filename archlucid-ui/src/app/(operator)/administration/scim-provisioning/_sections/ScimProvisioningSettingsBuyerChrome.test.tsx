@@ -22,3 +22,8 @@ describe("ScimProvisioningSettingsBuyerChrome (ASC)", () => {
     expect(screen.queryByTestId("scim-provisioning-settings-claim-discipline")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

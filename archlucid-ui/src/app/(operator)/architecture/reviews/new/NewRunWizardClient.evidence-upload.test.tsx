@@ -110,6 +110,7 @@ import { detectTier1InventoryPlatformFromFile } from "@/lib/read-tier1-inventory
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
+  fillNewRunWizardIdentityStep,
   NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
   optIntoAdvancedNewRunWizardConfiguration,
   prepareNewRunWizardVitestHarness,
@@ -196,12 +197,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   }
 
   async function advanceFromIdentityToReview(): Promise<void> {
-    fireEvent.change(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL), { target: { value: "EvidencePilotApp" } });
-    fireEvent.change(screen.getByLabelText("Description"), {
-      target: {
-        value: "Evidence upload wizard path validates optional Azure extractor ZIP before pipeline tracking.",
-      },
-    });
+    await fillNewRunWizardIdentityStep("EvidencePilotApp");
 
     for (let i = 0; i < 4; i += 1) {
       await clickPrimaryForward();

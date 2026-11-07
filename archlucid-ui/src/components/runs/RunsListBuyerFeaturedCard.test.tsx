@@ -13,6 +13,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const sampleRun: RunSummary = {
   runId: SHOWCASE_STATIC_DEMO_RUN_ID,
   projectId: "default",

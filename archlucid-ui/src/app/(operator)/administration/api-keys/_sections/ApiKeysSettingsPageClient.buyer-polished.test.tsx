@@ -20,6 +20,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/ApiKeysUsersVocabularyRail", () => ({
   ApiKeysUsersVocabularyRail: () => <div data-testid="api-keys-users-vocabulary-rail" />,
 }));

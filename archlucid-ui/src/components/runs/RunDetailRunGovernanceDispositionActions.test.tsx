@@ -50,3 +50,8 @@ describe("RunDetailRunGovernanceDispositionActions", () => {
     });
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

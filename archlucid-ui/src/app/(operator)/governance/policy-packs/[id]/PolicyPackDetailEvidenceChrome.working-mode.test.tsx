@@ -35,3 +35,8 @@ describe("PolicyPackDetailEvidenceChrome working mode", () => {
     expect(screen.queryByTestId("governance-policy-pack-detail-first-viewport")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

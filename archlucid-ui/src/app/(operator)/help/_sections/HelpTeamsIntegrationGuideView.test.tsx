@@ -28,6 +28,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const productLineState = vi.hoisted(() => ({
   current: "architecture" as "architecture" | "security",
 }));

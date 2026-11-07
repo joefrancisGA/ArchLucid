@@ -95,6 +95,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
   return {
     projectId: "default",

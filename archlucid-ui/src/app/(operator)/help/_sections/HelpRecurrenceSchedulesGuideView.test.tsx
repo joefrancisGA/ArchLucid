@@ -22,6 +22,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { HelpRecurrenceSchedulesGuideView } from "@/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView";
 import { expectWhereToGoNextFollowUpLinks, whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";

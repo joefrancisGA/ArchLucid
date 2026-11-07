@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { ImpactPreviewEvidenceBasisSection } from "@/app/(operator)/insights/impact-preview/_sections/ImpactPreviewEvidenceBasisSection";
 import { IMPACT_PREVIEW_BASELINE_REVIEW_ID_LABEL } from "@/lib/impact-preview-page-copy";
 

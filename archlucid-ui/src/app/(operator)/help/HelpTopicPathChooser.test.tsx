@@ -18,6 +18,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/choose-your-next-step",
   useRouter: () => ({ replace: vi.fn() }),

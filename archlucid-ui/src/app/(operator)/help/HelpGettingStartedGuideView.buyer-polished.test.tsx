@@ -11,6 +11,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({ source }: { readonly source: string }) => (
     <div data-testid="mermaid-diagram">{source}</div>

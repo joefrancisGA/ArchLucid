@@ -16,6 +16,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/cto-demo/CtoDemoHowItWorksTrigger", () => ({
   CtoDemoHowItWorksTrigger: (props: { trigger: React.ReactElement }) => props.trigger,
 }));

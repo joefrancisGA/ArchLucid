@@ -98,3 +98,8 @@ describe("WorkingSimulatorCloneRehearsalBanner", () => {
     expect(hookSource).not.toContain("AgentExecution:Mode");
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

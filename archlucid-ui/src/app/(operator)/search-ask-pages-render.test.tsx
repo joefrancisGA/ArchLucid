@@ -31,6 +31,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
 

@@ -36,6 +36,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const searchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
   const state = { query: "" };

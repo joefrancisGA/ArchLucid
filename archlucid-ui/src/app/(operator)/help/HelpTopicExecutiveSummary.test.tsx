@@ -32,6 +32,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const SPONSOR_SUMMARY_HELP_BANNED_SUBSTRINGS = [
   "frequently asked questions",
   "day-one-developer",

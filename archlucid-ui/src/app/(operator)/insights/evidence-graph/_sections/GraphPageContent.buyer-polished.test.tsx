@@ -11,6 +11,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const graphRouter = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
 const graphSearchParams = new URLSearchParams();
 

@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { IMPROVEMENT_PLANNING_THEME_ID_LABEL } from "@/lib/planning-page-copy";
 import type { LearningPlanListItemResponse } from "@/types/learning";

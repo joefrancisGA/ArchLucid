@@ -45,3 +45,8 @@ describe("HelpPageView SecureNow shell", () => {
     expect(screen.queryByRole("link", { name: /how archlucid works/i })).toBeNull();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

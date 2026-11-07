@@ -21,6 +21,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/admin-identity-provider-api", () => ({
   fetchTenantIdentityProviderConfiguration: vi.fn(async () => null),
 }));

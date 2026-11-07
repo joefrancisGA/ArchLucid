@@ -18,6 +18,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/recurrence-local-time", async () => {
   const actual = await vi.importActual<typeof import("@/lib/recurrence-local-time")>(
     "@/lib/recurrence-local-time",

@@ -30,6 +30,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
 

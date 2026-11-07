@@ -43,6 +43,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/api", () => ({
   listAlertRoutingSubscriptions: (...args: unknown[]) => mockList(...args),
   createAlertRoutingSubscription: (...args: unknown[]) => mockCreate(...args),
