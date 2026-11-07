@@ -2,11 +2,12 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
 
 const getDraftRequest = vi.fn();
+const patchDraftRequest = vi.fn();
 const reopenDraftRequest = vi.fn();
 const getRunSummary = vi.fn();
 const saveDraft = vi.fn();
@@ -37,6 +38,7 @@ vi.mock("@/lib/api/draft-intake-api", async () => {
   return {
     ...actual,
     getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
+    patchDraftRequest: (...args: unknown[]) => patchDraftRequest(...args),
     reopenDraftRequest: (...args: unknown[]) => reopenDraftRequest(...args),
   };
 });
@@ -246,6 +248,19 @@ beforeEach(() => {
     keepLocalDraftOnConflict: vi.fn(async () => true),
   });
   getDraftRequest.mockReset();
+  patchDraftRequest.mockReset();
+  patchDraftRequest.mockImplementation(async (draftId: string, patch: { freeTextIntent?: string; expectedUpdatedUtc?: string }) => {
+    const base = await getDraftRequest(draftId);
+    return {
+      ...base,
+      draftId,
+      document: {
+        ...base.document,
+        freeTextIntent: patch.freeTextIntent ?? base.document.freeTextIntent,
+      },
+      updatedUtc: "2026-01-03T00:00:00.000Z",
+    };
+  });
   getRunSummary.mockReset();
   saveDraft.mockReset();
   reloadDraft.mockReset();
@@ -260,18 +275,12 @@ beforeEach(() => {
   vi.mocked(showError).mockReset();
   vi.mocked(showMutationError).mockReset();
   vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([]);
-  vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
-    saveState: "idle",
-    lastSavedUtc: null,
-    conflictMessage: null,
-    saveDraft,
-    reloadDraft,
-    acceptServerBaseline: vi.fn(),
-    syncServerUpdatedUtc: vi.fn(),
-    hasPersistedDraft: true,
-    markDirty: vi.fn(),
-    keepLocalDraftOnConflict: vi.fn(async () => true),
-  });
+  window.history.replaceState({}, "", "/");
+});
+
+afterEach(() => {
+  window.history.replaceState({}, "", "/");
+  resetOperatorQueryClientForTests();
 });
 
 describe("ArchitectureDraftWorkspace", () => {
@@ -955,6 +964,70 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 
+  it("keeps Start review disabled for scope until confirm, with on-form hint and no validation toast (TB-2006)", async () => {
+    const scopeDraftId = "arch-scope-gate-001";
+    const longOverview =
+      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
+
+    const scopeStructuredBrief = {
+      confirmedConstraints: ["Private endpoints required"],
+      confirmedAssumptions: ["Team operates in a single region"],
+      confirmedRequiredCapabilities: [],
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedRequiredCapabilities: [],
+      qualityAttribute: "RTO 4 hours",
+      failureModeNote: "",
+      operationalOwner: "",
+    };
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      draftId: scopeDraftId,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        systemName: "Claims intake",
+        workflowIntent: "create-architecture",
+        structuredBrief: scopeStructuredBrief,
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+        openQuestions: "",
+      },
+    });
+
+    renderWithOperatorQuery(<ArchitectureDraftWorkspace draftId={scopeDraftId} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-scope-readiness")).toHaveTextContent(
+      /Confirm the in-scope understanding before starting a review/i,
+    );
+    expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
+
   it("shows staged progress while Start review prepares the architecture draft, before any navigation", async () => {
     const longOverview =
       "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
@@ -1020,75 +1093,6 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(startButton.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     resolveSave(true);
-  });
-
-  it("keeps Start review disabled for scope until confirm, with on-form hint and no validation toast (TB-2006)", async () => {
-    const scopeDraftId = "arch-scope-gate-001";
-    const longOverview =
-      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
-
-    const scopeStructuredBrief = {
-      confirmedConstraints: ["Private endpoints required"],
-      confirmedAssumptions: ["Team operates in a single region"],
-      confirmedRequiredCapabilities: [],
-      suggestedConstraints: [],
-      suggestedAssumptions: [],
-      suggestedRequiredCapabilities: [],
-      qualityAttribute: "RTO 4 hours",
-      failureModeNote: "",
-      operationalOwner: "",
-    };
-
-    getDraftRequest.mockResolvedValue({
-      ...spawnedDraft,
-      draftId: scopeDraftId,
-      status: "Drafting",
-      spawnedRunId: null,
-      document: {
-        freeTextIntent: longOverview,
-        businessOutcome: "Reduce manual routing",
-        systemName: "Claims intake",
-        workflowIntent: "create-architecture",
-        structuredBrief: scopeStructuredBrief,
-        actorSet: {
-          actors: [
-            {
-              label: "Primary operator",
-              kind: "Human",
-              trustOrigin: "Internal",
-              contract: "Sync",
-              origin: "Asserted",
-              confidence: 100,
-            },
-          ],
-        },
-        openQuestions: "",
-      },
-    });
-
-    renderWithOperatorQuery(<ArchitectureDraftWorkspace draftId={scopeDraftId} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
-    });
-
-    const scopeConfirm = screen.getByTestId("architecture-scope-understanding-confirm");
-    if (scopeConfirm.getAttribute("aria-pressed") === "true") {
-      fireEvent.click(scopeConfirm);
-    }
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-start-review")).toBeDisabled();
-    });
-
-    expect(screen.getByTestId("architecture-draft-scope-readiness")).toHaveTextContent(
-      /Confirm the in-scope understanding before starting a review/i,
-    );
-    expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
-
-    fireEvent.click(screen.getByTestId("architecture-start-review"));
-
-    expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
 
   it("shows quality-attribute encouragement modal instead of blocking Start review when quality attributes are empty", async () => {
