@@ -58,6 +58,11 @@ public static class AzureInventoryMessagingAssociationParser
                 ? AzureInventoryMessagingAssociationTypes.MessagingChild
                 : associationType.Trim(),
             CaptureStorageAccountId = TryReadBoundedString(element, "captureStorageAccountId", MaxIdentifierLength),
+            ForwardToName = TryReadBoundedString(element, "forwardToName", MaxNameLength),
+            ForwardDeadLetteredMessagesToName = TryReadBoundedString(
+                element,
+                "forwardDeadLetteredMessagesToName",
+                MaxNameLength),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };
