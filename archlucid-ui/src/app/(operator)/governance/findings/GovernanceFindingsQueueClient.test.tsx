@@ -19,11 +19,14 @@ import {
   ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
   ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
 } from "@/lib/architecture/architecture-risk-register-page";
-import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE, GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE } from "@/lib/governance/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE } from "@/lib/governance/governance-findings-evidence-copy";
+import {
+  SYSTEM_NOT_JOB_WORKING_GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE,
+  SYSTEM_NOT_JOB_WORKING_GOVERNANCE_FINDINGS_PAGE_SUBTITLE,
+} from "@/lib/system-not-job-findings-are-verbs-on-the-system";
 import {
   GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER,
   GOVERNANCE_FINDINGS_PAGE_LEAD,
-  GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER,
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
@@ -151,9 +154,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
-  useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
 }));
 
 vi.mock("@/lib/use-nav-surface", () => ({
@@ -258,6 +263,7 @@ const loadedRiskRow = {
 
 describe("GovernanceFindingsQueueClient", () => {
   beforeEach(() => {
+    evalChromeMock.enabled = false;
     resetOperatorQueryClientForTests();
     searchParamsState.query = "";
     cachedSearchParams.query = "";
@@ -461,6 +467,7 @@ describe("GovernanceFindingsQueueClient", () => {
 
 describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   beforeEach(() => {
+    evalChromeMock.enabled = false;
     // Without this reset the cached success from the previous describe block satisfies the render,
     // so a rejecting mock never reaches the component.
     resetOperatorQueryClientForTests();
@@ -599,6 +606,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   });
 
   it("suppresses the approval banner when the assigned-to-me load fails in buyer shell", async () => {
+    evalChromeMock.enabled = true;
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
 
@@ -610,6 +618,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   });
 
   it("renders skip link, breadcrumb, first-viewport intro, and orientation after queue body in buyer shell", async () => {
+    evalChromeMock.enabled = true;
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
@@ -622,7 +631,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.getByTestId("architecture-risk-register-page-title")).toHaveTextContent(
       BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
     );
-    expect(screen.getByText(GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByText(SYSTEM_NOT_JOB_WORKING_GOVERNANCE_FINDINGS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-first-viewport")).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-intro")).toHaveTextContent(GOVERNANCE_FINDINGS_PAGE_LEAD);
     expect(screen.getByTestId("governance-findings-buyer-start-here-helper")).toHaveTextContent(
@@ -631,7 +640,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.getByTestId("governance-findings-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-claim-discipline").textContent).toContain(
-      GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE.slice(0, 40),
+      SYSTEM_NOT_JOB_WORKING_GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
     expect(screen.queryByTestId("alerts-findings-vocabulary")).not.toBeInTheDocument();

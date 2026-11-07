@@ -23,11 +23,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/hooks/useProductionDeskChrome", () => ({
-  useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
-}));
-
 const demoEnvMock = vi.hoisted(() => ({
   buyerPolished: false,
 }));
@@ -83,6 +78,7 @@ const configuredHealth = {
 
 describe("DigestsHubClient", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/architecture/digests");
     demoEnvMock.buyerPolished = false;
     evalChromeMock.enabled = false;
     searchParams = new URLSearchParams();

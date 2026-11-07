@@ -43,7 +43,7 @@ describe("sponsorArtifactDownloadActionLabel", () => {
 
 describe("sponsorArtifactAudienceBucket", () => {
   it("classifies sponsor-only lines", () => {
-    expect(sponsorArtifactAudienceBucket("MarkdownReport")).toBe("other");
+    expect(sponsorArtifactAudienceBucket("MarkdownReport")).toBe("sponsor");
   });
 
   it("classifies audit-oriented lines", () => {

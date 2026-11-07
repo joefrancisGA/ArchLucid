@@ -535,11 +535,12 @@ describe("SocraticIntakeWizard", () => {
 
     renderSocraticWizard();
 
-    await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
-    });
-
-    expect(screen.getByTestId("guided-intake-access-blocked-redirect")).toBeInTheDocument();
+    expect(await screen.findByTestId("guided-intake-already-submitted-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-open-linked-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0/reviews/run-vertex-2",
+    );
+    expect(routerPush).not.toHaveBeenCalled();
     expect(screen.queryByTestId("guided-intake-primary-panel")).toBeNull();
     expect(submitDraftRequest).not.toHaveBeenCalled();
   });
@@ -625,9 +626,12 @@ describe("SocraticIntakeWizard", () => {
 
     renderSocraticWizard();
 
-    await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
-    });
+    expect(await screen.findByTestId("guided-intake-already-submitted-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-open-linked-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0/reviews/run-vertex-2",
+    );
+    expect(routerPush).not.toHaveBeenCalled();
   });
 
   it("keeps step 0 on one primary intake panel without colored banner cards (TB-1879)", () => {

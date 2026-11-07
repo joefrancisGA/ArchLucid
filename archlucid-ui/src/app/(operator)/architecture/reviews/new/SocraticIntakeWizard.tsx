@@ -291,7 +291,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
         />
       ) : null}
 
-      {step === 0 ? (
+      {step === 0 && !isSubmitBlocked ? (
         <SocraticIntakeWizardStepScope
           isCreateArchitectureFlow={isCreateArchitectureFlow}
           requiresSystemName={requiresSystemName}
