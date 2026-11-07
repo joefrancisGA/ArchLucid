@@ -38,11 +38,11 @@ describe("architecture draft spawn handoff Working guard (AO-07)", () => {
     ];
     const startReviewModule = "hooks/use-architecture-draft-start-review.ts";
 
-    for (const module of nestedHrefModules) {
-      const source = readFileSync(path.join(process.cwd(), "src", module.path), "utf8");
+    for (const hrefModule of nestedHrefModules) {
+      const source = readFileSync(path.join(process.cwd(), "src", hrefModule.path), "utf8");
 
-      expect(source, module.path).not.toContain("reviewDetailPath");
-      expect(source, module.path).toContain(module.hrefHelper);
+      expect(source, hrefModule.path).not.toContain("reviewDetailPath");
+      expect(source, hrefModule.path).toContain(hrefModule.hrefHelper);
     }
 
     const startReviewSource = readFileSync(path.join(process.cwd(), "src", startReviewModule), "utf8");
