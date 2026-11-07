@@ -37,10 +37,12 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
             await put.Content.ReadFromJsonAsync<TenantFindingEngineControlsResponse>(JsonOptions);
 
         putBody.Should().NotBeNull();
-        putBody!.EffectiveEnableLlmJudge.Should().BeTrue();
-        putBody.EffectiveEnableLlmJudgeForEngineFindings.Should().BeTrue();
+        putBody!.EffectiveEnableLlmJudge.Should().BeFalse(
+            "integration hosts run AgentExecution in Simulator; tenant overrides do not enable paid LLM judge paths.");
+        putBody.EffectiveEnableLlmJudgeForEngineFindings.Should().BeFalse();
         putBody.EffectivePortfolioRecurrenceEnabled.Should().BeTrue();
         putBody.EnableLlmJudgeOverridden.Should().BeTrue();
+        putBody.EnableLlmJudgeForEngineFindingsOverridden.Should().BeTrue();
 
         using HttpResponseMessage get = await client.GetAsync("/v1/admin/settings/finding-engine-controls");
         get.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -48,7 +50,7 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
             await get.Content.ReadFromJsonAsync<TenantFindingEngineControlsResponse>(JsonOptions);
 
         getBody.Should().NotBeNull();
-        getBody!.EffectiveEnableLlmJudge.Should().BeTrue();
+        getBody!.EffectiveEnableLlmJudge.Should().BeFalse();
         getBody.EnableLlmJudgeOverridden.Should().BeTrue();
     }
 

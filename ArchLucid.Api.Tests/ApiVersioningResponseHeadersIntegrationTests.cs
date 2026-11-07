@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
-public sealed class ApiVersioningResponseHeadersIntegrationTests(ArchLucidApiFactory factory)
+public sealed class ApiVersioningResponseHeadersIntegrationTests(PlatformOperatorRoleArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [SkippableFact]

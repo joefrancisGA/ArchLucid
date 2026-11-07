@@ -87,6 +87,10 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 [DraftIntakeReaperOptions.SectionName + ":Enabled"] = "false",
                 [TenantErasurePurgeOptions.SectionName + ":Enabled"] = "false",
                 [TrialArchitecturePreseedOptions.SectionName + ":Enabled"] = "false",
+                ["ArchLucid:QuickScan:Enabled"] = "true",
+                ["ArchLucid:QuickScan:MaxConcurrentScans"] = "64",
+                [QuickScanSafetyOptions.SectionPath + ":EmergencyDisabled"] = "false",
+                [QuickScanSafetyOptions.SectionPath + ":Concurrency:MaxConcurrentAnonymousScans"] = "64",
             };
 
             AddCustomSettings(settings);
