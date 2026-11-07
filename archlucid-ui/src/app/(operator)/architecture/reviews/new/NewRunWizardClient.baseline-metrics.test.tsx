@@ -93,20 +93,30 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
         if (url.includes("/v1/agent-execution/cost-preview")) {
           return {
             ok: true,
-            json: async () => ({
-              mode: "Simulator",
-              maxCompletionTokens: 4096,
-              estimatedCostUsd: null,
-              estimatedCostUsdLow: null,
-              estimatedCostUsdHigh: null,
-              estimatedCostBasis: "Simulator",
-              pricingUsesIllustrativeUsdRates: true,
-              deploymentName: null,
-            }),
+            headers: new Headers(),
+            text: async () =>
+              JSON.stringify({
+                mode: "Simulator",
+                maxCompletionTokens: 4096,
+                estimatedCostUsd: null,
+                estimatedCostUsdLow: null,
+                estimatedCostUsdHigh: null,
+                estimatedCostBasis: "Simulator",
+                pricingUsesIllustrativeUsdRates: true,
+                deploymentName: null,
+              }),
           };
         }
 
-        return { ok: false, status: 404, json: async () => ({}) };
+        if (url.includes("/v1/tenant/baseline")) {
+          return {
+            ok: true,
+            headers: new Headers(),
+            text: async () => JSON.stringify({ baselineReviewCycleHours: null }),
+          };
+        }
+
+        return { ok: false, status: 404, headers: new Headers(), text: async () => "{}" };
       }),
     );
   });
@@ -139,6 +149,15 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
 
     await waitFor(() => {
       expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL), {
+      target: { value: "BaselineMetricsPilotApp" },
+    });
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: {
+        value: "Baseline metrics wizard step validates required tenant ROI anchors before review submit.",
+      },
     });
 
     for (let i = 0; i < 4; i += 1) {

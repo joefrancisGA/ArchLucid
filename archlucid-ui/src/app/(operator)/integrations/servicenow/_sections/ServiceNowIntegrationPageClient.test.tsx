@@ -48,6 +48,12 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
   upsertTenantItsmOutboundSettings: (...args: unknown[]) => mockUpsertSettings(...args),
 }));
 
+vi.mock("@/lib/auth/livelihood-mutation-401-resume-wrappers", () => ({
+  saveItsmConnectorWith401Resume: async (
+    input: { body: Record<string, unknown> },
+  ): Promise<unknown> => mockUpsertSettings(input.body),
+}));
+
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
 import { SERVICENOW_INTEGRATION_SOURCES } from "@/lib/servicenow-integration-evidence-copy";
