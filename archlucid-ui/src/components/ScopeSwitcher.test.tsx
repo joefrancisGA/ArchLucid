@@ -62,6 +62,7 @@ import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-
 
 describe("ScopeSwitcher — operator shell", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/");
     demoUiEnvMock.buyerPolishedShell = false;
     demoUiEnvMock.demoMode = false;
     vi.mocked(operatorScopeStorage.getEffectiveBrowserProxyScopeHeaders).mockReturnValue({
@@ -295,6 +296,7 @@ describe("ScopeSwitcher — operator shell", () => {
 
 describe("ScopeSwitcher — buyer-polished shell", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/");
     demoUiEnvMock.buyerPolishedShell = true;
     demoUiEnvMock.demoMode = true;
     vi.stubGlobal(

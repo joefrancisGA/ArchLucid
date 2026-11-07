@@ -21,7 +21,7 @@ describe("validate-compare-vocabulary (TB-2240)", () => {
     expect(model.whyTwo).toBe(VALIDATE_COMPARE_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("validate");
     expect(model.whyTwo.toLowerCase()).toContain("compare");
-    expect(model.whyTwo.toLowerCase()).toContain("architecture package");
+    expect(model.whyTwo.toLowerCase()).toContain("finalized architecture review");
     expect(model.compactLine).toBe(VALIDATE_COMPARE_COMPACT_LINE);
 
     expect(model.validateLink).toEqual(VALIDATE_COMPARE_VALIDATE_LINK);

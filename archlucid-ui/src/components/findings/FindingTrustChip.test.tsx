@@ -36,7 +36,7 @@ describe("deriveFindingTrustChip", () => {
     expect(chip.kind).toBe("citation-missing");
     expect(chip.label).toBe("MissingCitation");
     expect(chip.groundingLabel).toBe("Ungrounded");
-    expect(chip.title).toContain("MissingCitation");
+    expect(chip.title).toContain("Trust label reason was not stored.");
   });
 
   it("marks low confidence with evidence as estimated", () => {
@@ -132,7 +132,7 @@ describe("deriveFindingTrustChip", () => {
     expect(chip.kind).toBe("deterministic-fallback");
     expect(chip.label).toBe("Deterministic fallback");
     expect(chip.groundingLabel).toBe("Not applicable");
-    expect(chip.title).toContain("Deterministic fallback");
+    expect(chip.title).toContain("Trust label reason was not stored.");
     expect(chip.trustSource).toBe("wire");
   });
 

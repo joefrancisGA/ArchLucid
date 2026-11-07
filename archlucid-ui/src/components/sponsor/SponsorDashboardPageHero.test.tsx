@@ -24,6 +24,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
 }));

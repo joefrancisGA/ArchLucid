@@ -23,6 +23,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
 }));
