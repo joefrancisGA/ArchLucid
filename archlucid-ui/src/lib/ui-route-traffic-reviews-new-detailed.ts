@@ -14,7 +14,7 @@ export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_PATH =
   "/architecture/architectures/[architectureId]/reviews/new" as const;
 
 /** Workbook Section column value - query-path tab on Start review hub. */
-export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_SECTION = "Tab surface";
+export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_SECTION = "Core review";
 
 /**
  * Owner workbook Notes for REN - documents Evidence chrome inherited from RNX hub on detailed path.
