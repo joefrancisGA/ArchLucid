@@ -67,7 +67,7 @@ describe("DriftWorkbenchClient working mode", () => {
     window.localStorage.clear();
   });
 
-  it("renders skip link, claim discipline, scope status, shortcuts, and breadcrumb above title", () => {
+  it("renders skip link, claim discipline, scope status, and shortcuts without breadcrumbs (TB-2090)", () => {
     render(<DriftWorkbenchClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -80,7 +80,7 @@ describe("DriftWorkbenchClient working mode", () => {
     expect(screen.getByTestId("infra-drift-scope-status")).toHaveTextContent("Not scoped");
     expect(screen.getByTestId("infra-drift-page-shortcuts")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-page-shortcuts-entry-arrowdown-snapshots")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-drift-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
   });
 });

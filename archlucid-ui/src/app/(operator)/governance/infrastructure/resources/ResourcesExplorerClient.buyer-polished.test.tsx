@@ -89,7 +89,7 @@ import {
 import { ResourcesExplorerClient } from "./ResourcesExplorerClient";
 
 describe("ResourcesExplorerClient buyer-polished chrome", () => {
-  it("renders skip link, filters, table row, and sources strip", async () => {
+  it("renders skip link, filters, and table row without mid-page sources (TB-2092)", async () => {
     searchParams = new URLSearchParams("");
     render(<ResourcesExplorerClient />);
 
@@ -98,7 +98,7 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
       `#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.queryByTestId("infra-resource-explorer-claim-discipline")).not.toBeInTheDocument();
-    expect(screen.getByTestId("governance-infrastructure-resources-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-infrastructure-resources-sources")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-explorer-name-prefix")).toBeInTheDocument();

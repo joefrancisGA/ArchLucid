@@ -143,7 +143,7 @@ import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
-  it("renders skip link, picker sections, and sources strip", async () => {
+  it("renders skip link, picker sections, and contextual help without mid-page sources (TB-2092)", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
@@ -154,7 +154,7 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(screen.getByTestId("infra-diagrams-page-title")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );
-    expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-infrastructure-diagrams-sources")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText(/page help/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Ctrl\+K.*search/i)).not.toBeInTheDocument();

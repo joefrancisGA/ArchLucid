@@ -138,7 +138,7 @@ describe("RoiSummaryPageView buyer-polished shell", () => {
     expect(screen.getByTestId("roi-summary-claim-discipline").textContent).toContain(
       ROI_SUMMARY_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: ROI_SUMMARY_FOLLOW_UPS_TITLE })).not.toBeInTheDocument();
 
     expect(screen.queryByTestId("roi-sponsor-export-vocabulary")).toBeNull();
     expect(screen.queryByTestId("scorecard-roi-vocabulary")).toBeNull();
