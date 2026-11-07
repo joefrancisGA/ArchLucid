@@ -28,6 +28,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/buyer/buyer-safe-review-navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/buyer/buyer-safe-review-navigation")>();
 

@@ -13,6 +13,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
   resolveProductionEvalChromeFromStorage: (): boolean => true,
 }));

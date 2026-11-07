@@ -59,6 +59,11 @@ vi.mock("@/hooks/use-work-ownership-delete-policy-query", () => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 beforeEach(() => {
   workPolicyMock.calls = 0;
 });

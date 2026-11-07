@@ -249,6 +249,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
   const mockModule = await createCorePilotCommitContextModuleMock(importOriginal);

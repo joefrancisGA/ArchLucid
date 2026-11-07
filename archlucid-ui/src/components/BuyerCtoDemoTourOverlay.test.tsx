@@ -23,6 +23,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const pathnameMock = vi.fn(() => getShowcaseSponsorHref());
 
 vi.mock("next/navigation", async (importOriginal) => {

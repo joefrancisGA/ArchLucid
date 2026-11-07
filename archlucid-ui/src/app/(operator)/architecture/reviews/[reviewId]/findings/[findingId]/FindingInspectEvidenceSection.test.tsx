@@ -23,6 +23,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("./FindingInspectPolicyRuleCallout", () => ({
   FindingInspectPolicyRuleCallout: () => (
     <div data-testid="finding-inspect-policy-rule-callout">Policy rule callout</div>

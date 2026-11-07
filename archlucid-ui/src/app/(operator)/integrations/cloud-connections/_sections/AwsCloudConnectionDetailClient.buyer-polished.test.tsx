@@ -11,6 +11,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("./AwsConnectionSection", () => ({
   AwsConnectionSection: () => <div data-testid="aws-connection-section-stub" />,
 }));

@@ -38,6 +38,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/ReportProblemSupportWorkspaceVocabularyRail", () => ({
   ReportProblemSupportWorkspaceVocabularyRail: () => (
     <div data-testid="report-problem-support-workspace-vocabulary" />

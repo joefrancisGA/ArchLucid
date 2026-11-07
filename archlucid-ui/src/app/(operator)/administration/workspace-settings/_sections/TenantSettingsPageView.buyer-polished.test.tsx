@@ -12,6 +12,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   WORKSPACE_SETTINGS_HELP_TOPIC_LABEL: "How workspace settings work",
   PageContextualHelpButton: () => <button type="button">Page help</button>,

@@ -58,6 +58,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
 import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import {

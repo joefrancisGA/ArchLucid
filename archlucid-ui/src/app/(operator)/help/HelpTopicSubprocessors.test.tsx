@@ -15,6 +15,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { HelpSubprocessorsGuideView } from "@/app/(operator)/help/_sections/HelpSubprocessorsGuideView";
 import {
   expectClaimDisciplineBandContent,

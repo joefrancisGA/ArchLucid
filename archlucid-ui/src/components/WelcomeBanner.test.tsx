@@ -32,6 +32,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
   useTeachingChromeVisible: () => true,
 }));

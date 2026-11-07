@@ -57,6 +57,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("./run-detail-page-view-deferred-chunks", () => ({
   RunDetailCtoDemoReviewRouteGuardDeferred: () => null,
   HelpPageSituationRegistrarDeferred: () => null,

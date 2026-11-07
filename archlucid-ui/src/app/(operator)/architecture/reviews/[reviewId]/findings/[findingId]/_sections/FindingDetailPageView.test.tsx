@@ -91,6 +91,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { FindingDetailPageView } from "./FindingDetailPageView";
 
 const inspectPayload: FindingInspectPayload = {

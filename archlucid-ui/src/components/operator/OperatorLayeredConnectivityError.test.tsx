@@ -15,6 +15,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { OperatorLayeredConnectivityError } from "@/components/operator/OperatorLayeredConnectivityError";

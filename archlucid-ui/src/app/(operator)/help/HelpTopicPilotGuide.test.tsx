@@ -14,6 +14,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { HelpPilotGuideView } from "@/app/(operator)/help/_sections/HelpPilotGuideView";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";

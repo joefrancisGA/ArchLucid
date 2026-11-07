@@ -16,6 +16,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("./_sections/ArchitecturesHubListSection", () => ({
   ArchitecturesHubListSection: () => <div data-testid="architectures-hub-list-section" />,
 }));
