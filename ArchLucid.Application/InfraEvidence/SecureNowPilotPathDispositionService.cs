@@ -8,12 +8,15 @@ using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.InfraEvidence;
 
 public sealed class SecureNowPilotPathDispositionService(
     ISecurityEvidencePathRepository pathRepository,
     IAuditService auditService,
-    IAuditRepository auditRepository) : ISecureNowPilotPathDispositionService
+    IAuditRepository auditRepository,
+    ILogger<SecureNowPilotPathDispositionService> logger) : ISecureNowPilotPathDispositionService
 {
     private static readonly HashSet<string> AllowedOutcomes = new(StringComparer.Ordinal)
     {
@@ -112,8 +115,7 @@ public sealed class SecureNowPilotPathDispositionService(
 
         DateTime recordedUtc = TimeProvider.System.UtcNowDateTime();
 
-        await auditService.LogAsync(
-            new AuditEvent
+        AuditEvent auditEvent = new AuditEvent
             {
                 EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
                 ActorUserId = actor,
@@ -131,8 +133,14 @@ public sealed class SecureNowPilotPathDispositionService(
                         recordedUtc,
                     },
                     AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+            };
+
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            "SecureNowPilotPathDispositionRecorded",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.SecureNowPilotPathDispositionRecorded);
 
         return new SecureNowPilotPathDispositionSaveResult
         {
