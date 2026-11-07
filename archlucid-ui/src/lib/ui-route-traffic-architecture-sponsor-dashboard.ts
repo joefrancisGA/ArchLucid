@@ -19,11 +19,11 @@ export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_SECTION = "Sponsor";
 export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_NOTE =
   "None";
 
-/** Legacy operator bookmark merged onto ARE during sponsor dashboard consolidation. */
+/** Legacy /dashboard bookmark — hard-retired (host-gate 404); merged onto DSH during sponsor dashboard consolidation. */
 export const LEGACY_OPERATOR_SPONSOR_DASHBOARD_PATH = "/dashboard";
 
-/** Legacy sponsor-shell bookmark merged onto ARE (TB-608). */
+/** Legacy /sponsor/dashboard bookmark — hard-retired (host-gate 404); TB-608. */
 export const LEGACY_SPONSOR_SHELL_DASHBOARD_PATH = "/sponsor/dashboard";
 
-/** Retired portfolio overview bookmark merged onto ARE. */
+/** Legacy /portfolio overview bookmark — hard-retired (host-gate 404); merged onto DSH. */
 export const LEGACY_PORTFOLIO_OVERVIEW_PATH = "/portfolio";
