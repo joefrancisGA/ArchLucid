@@ -195,6 +195,10 @@
       "reason": "SN-03: literals localized via localizeProductCopy() at export boundaries"
     },
     {
+      "path": "src/lib/product-line/securenow-sponsor-home-copy.ts",
+      "reason": "SN-01: sponsor home rows link to ArchLucid GitHub doc anchors for operator readout prep"
+    },
+    {
       "path": "src/lib/azure-cloud-connection-copy.ts",
       "reason": "SN-02: literals localized via localizeProductCopy() at export boundaries"
     },

@@ -37,6 +37,8 @@ Vitest scans `archlucid-ui/src` (non-test, non-generated) for `Ready to finalize
 | `lib/first-pilot-command-center-phase.ts` | `Ready to finalize review` | **No** | **bypass** | Headline when a run exists without a seal |
 | `hooks/use-review-presenter-elicitation.ts` | default title `Ready to finalize` | **No** | **bypass** | Presenter empty-prompt fallback |
 | `lib/resolve-core-pilot-help-workflow-step-status.ts` | `Ready to finalize` | eval-ok | eval-ok | Help workflow step label |
+| `lib/runs/pipeline-complete-career-honesty-copy.ts` | `Ready to finalize` | Dictionary / honesty helpers | covered | Tooltip copy uses LP-06 suppression helpers |
+| `lib/system-gravity-draft-screenshot-inventory.ts` | `Ready to finalize` | Inventory doc | covered | Shrink-only scanner inventory — not runtime Working chrome |
 
 ## Related surfaces (no Ready-to-finalize literal; still gravity)
 

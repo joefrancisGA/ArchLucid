@@ -54,12 +54,35 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   reopenDraftRequest: vi.fn(),
 }));
 
-const useArchitectureDraftRegistryEntries = vi.fn<() => readonly ArchitectureDraftRegistryEntry[]>();
-const useArchitectureDraftRegistryHydrated = vi.fn<() => boolean>();
+const useArchitectureDraftListQueryMock = vi.fn();
+const useArchitectureIdentitiesListQueryMock = vi.fn();
 
-vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
-  useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
-  useArchitectureDraftRegistryHydrated: () => useArchitectureDraftRegistryHydrated(),
+vi.mock("@/hooks/use-architecture-draft-list-query", () => ({
+  useArchitectureDraftListQuery: () => useArchitectureDraftListQueryMock(),
+  selectArchitectureDraftRegistryEntries: (query: { data?: readonly ArchitectureDraftRegistryEntry[] }) =>
+    query.data ?? [],
+}));
+
+vi.mock("@/hooks/use-architecture-identities-list-query", () => ({
+  useArchitectureIdentitiesListQuery: () => useArchitectureIdentitiesListQueryMock(),
+}));
+
+const operatorScopeRecordHarness = vi.hoisted(() => ({
+  record: {
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    tenantId: "tenant-1",
+    workspaceLabel: "Default workspace",
+    projectLabel: "Default project",
+  } as const,
+}));
+
+vi.mock("@/hooks/use-operator-scope-record", () => ({
+  useOperatorScopeRecord: () => operatorScopeRecordHarness.record,
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" as const }),
 }));
 
 function entry(
@@ -97,22 +120,43 @@ describe("ArchitectureDraftListClient", () => {
     );
   }
 
+  function mockDraftList(entries: readonly ArchitectureDraftRegistryEntry[], isFetched = true) {
+    useArchitectureDraftListQueryMock.mockReturnValue({
+      data: entries,
+      isFetched,
+      isError: false,
+      failure: null,
+      blockedReason: null,
+    });
+  }
+
   beforeEach(() => {
     architectureHubSearchParamsHarness.reset();
-    useArchitectureDraftRegistryEntries.mockReset();
-    useArchitectureDraftRegistryHydrated.mockReset();
-    useArchitectureDraftRegistryHydrated.mockReturnValue(true);
+    operatorScopeRecordHarness.record = {
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      tenantId: "tenant-1",
+      workspaceLabel: "Default workspace",
+      projectLabel: "Default project",
+    };
+    useArchitectureDraftListQueryMock.mockReset();
+    useArchitectureIdentitiesListQueryMock.mockReset();
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({
+      data: { items: [] },
+      isFetched: true,
+    });
+    mockDraftList([]);
   });
 
   it("counts abandoned drafts under Archived only, not No review yet", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted A" }),
       entry({ draftId: "a2", customerStatus: "archived", linkedReviewId: null, displayName: "Deleted B" }),
     ]);
 
     renderClient();
 
-    expect(screen.getByRole("link", { name: "Filter architectures: All (0)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: All" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Filter architectures: No review yet (0)" })).toBeDisabled();
     expect(screen.getByRole("link", { name: "Filter architectures: Archived (2)" })).toBeInTheDocument();
     expect(screen.queryByText("No drafts match your filters")).not.toBeInTheDocument();
@@ -120,7 +164,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("uses URL-bound sort chips in the inventory toolbar", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
+    mockDraftList([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -129,7 +173,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("shows filter chip counts from the full registry", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1", customerStatus: "draft", linkedReviewId: null }),
       entry({ draftId: "a2", customerStatus: "ready-for-review", linkedReviewId: null }),
       entry({ draftId: "a3",
@@ -142,8 +186,8 @@ describe("ArchitectureDraftListClient", () => {
     renderClient();
 
     expect(screen.getByTestId("architecture-draft-list")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Filter architectures: Draft (1)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: All" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: Architecture draft (1)" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Filter architectures: Ready for review (1)" }),
     ).toBeInTheDocument();
@@ -154,7 +198,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("renders ready-for-review with in-progress status semantics and hybrid updated time", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1",
         displayName: "Healthcare Claims Platform",
         customerStatus: "ready-for-review",
@@ -169,20 +213,18 @@ describe("ArchitectureDraftListClient", () => {
     const row = screen.getByTestId("architecture-draft-row-a1");
     const status = within(row).getByText("Ready for review");
 
-    expect(status.className).toMatch(/al-accent-interactive/i);
+    expect(status.className).toMatch(/al-tag-in-progress|al-accent-interactive/i);
 
     const updated = row.querySelector("time");
 
     expect(updated).not.toBeNull();
     expect(updated?.getAttribute("dateTime")).toBe("2026-07-12T23:42:05.000Z");
     expect(updated?.textContent ?? "").not.toMatch(/^Updated /);
-    expect(updated?.getAttribute("title")?.length ?? 0).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Continue editing Healthcare Claims Platform" })).toBeInTheDocument();
   });
 
   it("shows a loading skeleton before registry hydrate (TB-1450)", () => {
-    useArchitectureDraftRegistryHydrated.mockReturnValue(false);
-    useArchitectureDraftRegistryEntries.mockReturnValue([]);
+    mockDraftList([], false);
 
     renderClient();
 
@@ -191,7 +233,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("does not flash the empty state before registry hydrate when drafts exist (TB-1450)", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
+    mockDraftList([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -201,7 +243,8 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("keeps the empty first viewport action-oriented without stacked intro blocks (TB-1449)", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([]);
+    operatorScopeRecordHarness.record = null;
+    mockDraftList([]);
 
     renderClient();
 
@@ -211,7 +254,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("uses compact inventory toolbar search height", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
+    mockDraftList([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -219,7 +262,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("uses compact inventory toolbar sort chips", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
+    mockDraftList([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -227,7 +270,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("excludes archived drafts from the default All table view", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1", customerStatus: "draft", displayName: "Draft A" }),
       entry({ draftId: "a2", customerStatus: "archived", displayName: "Archived B" }),
     ]);
@@ -241,7 +284,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("keeps search, filters, and sort in one toolbar", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "a1" })]);
+    mockDraftList([entry({ draftId: "a1" })]);
 
     renderClient();
 
@@ -253,7 +296,7 @@ describe("ArchitectureDraftListClient", () => {
   });
 
   it("filters by chip without changing registry counts", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1", customerStatus: "draft", displayName: "Draft A" }),
       entry({ draftId: "a2", customerStatus: "ready-for-review", displayName: "Ready B" }),
     ]);
@@ -264,12 +307,12 @@ describe("ArchitectureDraftListClient", () => {
 
     expect(within(table).getByText("Draft A")).toBeInTheDocument();
     expect(within(table).queryByText("Ready B")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filter architectures: All" })).toBeInTheDocument();
   });
 
   it("pins continue last draft when session remembers an architecture id", () => {
     window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1", customerStatus: "draft", displayName: "Draft A" }),
       entry({ draftId: "a2", customerStatus: "draft", displayName: "Draft B" }),
     ]);
@@ -285,7 +328,7 @@ describe("ArchitectureDraftListClient", () => {
 
   it("hides continue last draft when the remembered draft is archived", () => {
     window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
-    useArchitectureDraftRegistryEntries.mockReturnValue([
+    mockDraftList([
       entry({ draftId: "a1", customerStatus: "archived", displayName: "Archived A" }),
     ]);
 

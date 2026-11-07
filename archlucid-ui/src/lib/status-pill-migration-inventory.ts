@@ -31,6 +31,7 @@ export const TB_2288_DEFERRED_AD_HOC_PILL_MODULES = [
   "components/CorePilotBuyerStepHint.tsx",
   "components/CorePilotNextStepsCard.tsx",
   "components/ManifestDetailSummaryPanel.tsx",
+  "components/ManifestDetailSummaryCountsGrid.tsx",
   "components/usability/NewSinceLastVisitMarker.tsx",
   "app/(operator)/governance/_sections/GovernanceOverviewWorkflowStrip.tsx",
   "app/(marketing)/demo/preview/_sections/DemoPreviewCompactTimeline.tsx",
