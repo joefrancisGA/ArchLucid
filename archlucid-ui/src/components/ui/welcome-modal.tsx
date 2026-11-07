@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { WELCOME_OPERATOR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
+import { setWelcomeModalVisible } from "@/lib/operator/operator-onboarding-coordination";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type WelcomeModalProps = {
@@ -100,6 +101,10 @@ export function WelcomeModal(props: WelcomeModalProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const steps = buyerShell ? BUYER_WELCOME_STEPS : OPERATOR_WELCOME_STEPS;
   const operatorFirstRun = !buyerShell && onStartTour !== undefined;
+
+  useEffect(() => {
+    setWelcomeModalVisible(open);
+  }, [open]);
 
   useEffect(() => {
     if (open) {

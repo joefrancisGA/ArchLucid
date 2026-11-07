@@ -20,7 +20,7 @@ function baseFinding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFin
 describe("deriveFindingTrustChip", () => {
   it("marks findings with evidence as AI-generated / evidence-backed", () => {
     const chip = deriveFindingTrustChip(
-      baseFinding({ evidenceRefCount: 2, confidenceLevel: "High" }),
+      baseFinding({ trustLabel: "EvidenceBacked", evidenceRefCount: 2, confidenceLevel: "High" }),
     );
 
     expect(chip.kind).toBe("evidence-backed");
@@ -29,17 +29,19 @@ describe("deriveFindingTrustChip", () => {
   });
 
   it("marks zero evidence as citation missing", () => {
-    const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: 0 }));
+    const chip = deriveFindingTrustChip(
+      baseFinding({ trustLabel: "MissingCitation", evidenceRefCount: 0 }),
+    );
 
     expect(chip.kind).toBe("citation-missing");
-    expect(chip.label).toBe("AI-generated");
+    expect(chip.label).toBe("MissingCitation");
     expect(chip.groundingLabel).toBe("Ungrounded");
-    expect(chip.title).toContain("language model");
+    expect(chip.title).toContain("MissingCitation");
   });
 
   it("marks low confidence with evidence as estimated", () => {
     const chip = deriveFindingTrustChip(
-      baseFinding({ evidenceRefCount: 1, confidenceLevel: "Low" }),
+      baseFinding({ trustLabel: "Estimated", evidenceRefCount: 1, confidenceLevel: "Low" }),
     );
 
     expect(chip.kind).toBe("low-confidence");
@@ -49,34 +51,36 @@ describe("deriveFindingTrustChip", () => {
 
   it("marks low confidence without evidence as heuristic", () => {
     const chip = deriveFindingTrustChip(
-      baseFinding({ evidenceRefCount: 0, confidenceLevel: "Low" }),
+      baseFinding({ trustLabel: "Heuristic", evidenceRefCount: 0, confidenceLevel: "Low" }),
     );
 
     expect(chip.kind).toBe("heuristic");
-    expect(chip.label).toBe("AI-generated");
+    expect(chip.label).toBe("Heuristic");
     expect(chip.groundingLabel).toBe("Ungrounded");
   });
 
   it("treats missing evidence count as citation missing", () => {
-    const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: null }));
+    const chip = deriveFindingTrustChip(
+      baseFinding({ trustLabel: "MissingCitation", evidenceRefCount: null }),
+    );
 
     expect(chip.kind).toBe("citation-missing");
   });
 
   it("does not invent confidence when evidence exists but confidence is unknown", () => {
     const chip = deriveFindingTrustChip(
-      baseFinding({ evidenceRefCount: 1, confidenceLevel: null }),
+      baseFinding({ trustLabel: "EvidenceBacked", evidenceRefCount: 1, confidenceLevel: null }),
     );
 
     expect(chip.kind).toBe("evidence-backed");
-    expect(chip.title).toContain("language model");
+    expect(chip.groundingLabel).toBe("Evidence-backed");
   });
 
   it("prefers wire trustLabel over policyRuleId inference and exposes source", () => {
     const chip = deriveFindingTrustChip(
       baseFinding({
         policyRuleId: "cis-az-001",
-        trustLabel: "RealModel",
+        trustLabel: "EvidenceBacked",
         evidenceRefCount: 2,
         confidenceLevel: "High",
       }),
@@ -86,22 +90,33 @@ describe("deriveFindingTrustChip", () => {
     expect(chip.trustSource).toBe("wire");
   });
 
-  it("marks inferred policy-rule findings with inferred source", () => {
+  it("marks wire RealModel without stored grounding as trust-label-not-stored", () => {
     const chip = deriveFindingTrustChip(
-      baseFinding({ policyRuleId: "cis-az-001", evidenceRefCount: 0 }),
+      baseFinding({
+        policyRuleId: "cis-az-001",
+        trustLabel: "RealModel",
+        evidenceRefCount: 2,
+        confidenceLevel: "High",
+      }),
     );
 
-    expect(chip.trustSource).toBe("inferred");
+    expect(chip.kind).toBe("trust-label-not-stored");
+    expect(chip.trustSource).toBe("wire");
   });
 
   it("marks policy-rule findings as deterministic rule", () => {
     const chip = deriveFindingTrustChip(
-      baseFinding({ policyRuleId: "cis-az-001", evidenceRefCount: 0 }),
+      baseFinding({
+        trustLabel: "DeterministicRule",
+        policyRuleId: "cis-az-001",
+        evidenceRefCount: 0,
+      }),
     );
 
     expect(chip.kind).toBe("deterministic-rule");
     expect(chip.label).toBe("Deterministic rule");
     expect(chip.groundingLabel).toBe("Not applicable");
+    expect(chip.trustSource).toBe("wire");
   });
 
   it("marks wire DeterministicFallback as a distinct fallback chip", () => {
@@ -117,14 +132,17 @@ describe("deriveFindingTrustChip", () => {
     expect(chip.kind).toBe("deterministic-fallback");
     expect(chip.label).toBe("Deterministic fallback");
     expect(chip.groundingLabel).toBe("Not applicable");
-    expect(chip.title).toContain("verify independently");
+    expect(chip.title).toContain("Deterministic fallback");
     expect(chip.trustSource).toBe("wire");
   });
 
   it("marks simulator runs as simulated", () => {
-    const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: 2 }), {
-      isSimulatorRun: true,
-    });
+    const chip = deriveFindingTrustChip(
+      baseFinding({ trustLabel: "SimulatorDerived", evidenceRefCount: 2 }),
+      {
+        isSimulatorRun: true,
+      },
+    );
 
     expect(chip.kind).toBe("simulator-derived");
     expect(chip.label).toBe("Simulated");

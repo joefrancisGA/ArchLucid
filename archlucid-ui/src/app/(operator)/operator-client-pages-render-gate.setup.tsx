@@ -22,7 +22,7 @@ vi.mock("next/link", () => ({
   }: {
     href: string;
     children: import("react").ReactNode;
-  }) => <a href={href}>{children}</a>,
+  }) => <a href={href} className="text-al-link underline">{children}</a>,
 }));
 
 vi.mock("next/navigation", () => ({

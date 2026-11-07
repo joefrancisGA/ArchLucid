@@ -350,9 +350,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           label: OPERATOR_NAV_LINK_LABELS.replayReview,
 
-          title: navTitleWithShortcut("Validate review — check stored review output integrity", "alt+p"),
-
-          keyShortcut: "alt+p",
+          title: "Validate review — check stored review output integrity",
 
           icon: PackageCheck,
 

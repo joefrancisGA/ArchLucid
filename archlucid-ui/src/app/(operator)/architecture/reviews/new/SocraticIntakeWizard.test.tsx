@@ -300,7 +300,7 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-  GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+  GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
 import { showError } from "@/lib/toast";
@@ -1252,10 +1252,10 @@ describe("SocraticIntakeWizard", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-clarifications-answered-counter")).toHaveTextContent(
-        "2 of 2 answered",
+        "2 answered of 2 required",
       );
       expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(
-        GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+        GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
       );
       expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
     });

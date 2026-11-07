@@ -114,14 +114,26 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+  useProductionDeskChrome: (): boolean => false,
+}));
 
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => true,
-  };
-});
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" as const }),
+}));
+
+vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
+  SecureNowQuestionQueue: () => null,
+  SecureNowQuestionQueueProvider: ({ children }: { children: React.ReactNode }) => children,
+  SecureNowQuestionQueueSnapshotPromo: () => null,
+  SecureNowQuestionQueueBar: () => null,
+  useSecureNowQuestionQueue: () => ({
+    drawerOpen: false,
+    currentQuestion: null,
+  }),
+  useSecureNowQuestionSubjectNodeId: () => null,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
