@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 const replaceMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => "/settings/roles",
+  usePathname: (): string => "/administration/users",
   useRouter: (): { push: () => void; replace: typeof replaceMock; refresh: () => void } => ({
     push: vi.fn(),
     replace: replaceMock,
@@ -115,6 +115,8 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
 describe("SettingsRolesPageView buyer-polished shell (SER)", () => {
   it("renders roles-tab intro, read-only matrix, sources chrome, and hides invite mutations", () => {
     render(<SettingsRolesPageView model={buildModel()} />);
+
+    fireEvent.click(screen.getByTestId("settings-roles-tab-roles"));
 
     expect(screen.getByRole("link", { name: SETTINGS_ROLES_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
