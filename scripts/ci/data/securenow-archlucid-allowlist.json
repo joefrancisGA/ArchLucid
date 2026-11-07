@@ -199,6 +199,54 @@
       "reason": "SN-01: sponsor home rows link to ArchLucid GitHub doc anchors for operator readout prep"
     },
     {
+      "path": "src/lib/auth/first-session-purpose-copy.ts",
+      "reason": "SN-04: first-session training disclosure names ArchLucid sample workspace"
+    },
+    {
+      "path": "src/lib/daytime-wait-help-background-wait-guide-content.ts",
+      "reason": "SN-04: help guide copy references child review workspace chrome"
+    },
+    {
+      "path": "src/lib/extract-upload-settings-page-copy.ts",
+      "reason": "SN-03: operator settings copy references ArchLucid checkout scripts path"
+    },
+    {
+      "path": "src/lib/first-login-workspace-help-guide-content.ts",
+      "reason": "SN-04: first-login help contrasts SecureNow vs ArchLucid evaluation chrome"
+    },
+    {
+      "path": "src/lib/help/help-topic-product-line-exclusion-copy.ts",
+      "reason": "SN-04: help meta describes product-line exclusion doctrine"
+    },
+    {
+      "path": "src/lib/infra-evidence/azure-inventory-never-show-help-content.ts",
+      "reason": "SN-04: infra evidence help references ArchLucid inventory surfaces"
+    },
+    {
+      "path": "src/lib/marketing/archlucid-beta-evaluation-contents-copy.ts",
+      "reason": "SN-03: marketing matrix enumerates ArchLucid beta contents"
+    },
+    {
+      "path": "src/lib/product-line/archlucid-beta-sku-contents-copy.ts",
+      "reason": "SN-03: SKU contents copy names ArchLucid deliverables"
+    },
+    {
+      "path": "src/lib/product-line/securenow-compliance-notes-copy.ts",
+      "reason": "SN-04: compliance notes cite ArchLucid evidence handoff"
+    },
+    {
+      "path": "src/lib/product-line/securenow-investigation-effort-copy.ts",
+      "reason": "SN-04: investigation effort copy names ArchLucid export paths"
+    },
+    {
+      "path": "src/lib/product-line/securenow-pilot-decision-copy.ts",
+      "reason": "SN-04: pilot decision copy contrasts SecureNow vs ArchLucid scope"
+    },
+    {
+      "path": "src/lib/product-line/securenow-quote-packet-copy.ts",
+      "reason": "SN-04: quote packet cites ArchLucid evaluation collateral"
+    },
+    {
       "path": "src/lib/azure-cloud-connection-copy.ts",
       "reason": "SN-02: literals localized via localizeProductCopy() at export boundaries"
     },
