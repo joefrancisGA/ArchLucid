@@ -87,7 +87,7 @@ describe("HelpScopeGuideView workspace and scope guide", () => {
     expect(screen.getByTestId("help-scope-claim-discipline-strip")).toHaveTextContent(SCOPE_HELP_CLAIM_DISCIPLINE);
     expect(screen.queryByTestId("scope-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("scope-help-current-scope-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("scope-help-current-scope-status")).toHaveTextContent("Sample");
+    expect(screen.getByTestId("scope-help-current-scope-status")).toHaveTextContent("Connected");
 
     const contentColumn = screen.getByTestId("help-topic-content");
     const scopePanel = screen.getByTestId("scope-help-current-scope-panel");
@@ -124,7 +124,7 @@ describe("HelpScopeGuideView workspace and scope guide", () => {
     const renderedText = contentColumn.textContent ?? "";
 
     expect(renderedText).toContain(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
-    expect(renderedText).toContain("Workspace: {name} — {project}");
+    expect(renderedText).toContain("Top-bar label");
     expect(renderedText).toMatch(/Sample badge appears inside the panel/i);
     expect(renderedText).not.toMatch(/header may show .*Sample badge/i);
   });
@@ -136,11 +136,11 @@ describe("HelpScopeGuideView workspace and scope guide", () => {
 
     render(<HelpScopeGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("heading", { name: "Sample workspace" })).toBeInTheDocument();
-    expect(screen.getByText(/demonstration only/i)).toBeInTheDocument();
-    expect(screen.getByText(/not your real tenant data/i)).toBeInTheDocument();
-    expect(screen.getByText(/workspace switching is disabled in demo mode/i)).toBeInTheDocument();
-    expect(screen.getByText(/sign in to a connected environment/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sample workspace (Training and demos)" })).toBeInTheDocument();
+    expect(screen.getByText(/not for day-to-day work on your tenant/i)).toBeInTheDocument();
+    expect(screen.getByText(/the data is not your organization/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/NOT LIVE DATA/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Back to your workspace/i).length).toBeGreaterThan(0);
   });
 
   it("renders the When content looks wrong table with concise symptom rows", () => {

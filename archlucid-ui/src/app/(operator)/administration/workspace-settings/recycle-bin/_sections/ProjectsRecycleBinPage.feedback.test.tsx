@@ -8,13 +8,29 @@ import {
 } from "@/lib/projects-recycle-bin-page-copy";
 import { PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL } from "@/lib/projects-recycle-bin-restore-confirm-copy";
 
-const recycleBinRouter = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
-const recycleBinSearchParams = new URLSearchParams();
+const recycleBinNavigation = vi.hoisted(() => ({
+  replace: vi.fn(),
+  push: vi.fn(),
+  searchParams: new URLSearchParams(),
+}));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => recycleBinRouter,
+  useRouter: () => ({
+    replace: (href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      recycleBinNavigation.searchParams =
+        queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
+      recycleBinNavigation.replace(href);
+    },
+    push: recycleBinNavigation.push,
+  }),
   usePathname: () => "/administration/workspace-settings/recycle-bin",
-  useSearchParams: () => recycleBinSearchParams,
+  useSearchParams: () => recycleBinNavigation.searchParams,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {

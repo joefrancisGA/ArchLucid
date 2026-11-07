@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
@@ -20,6 +20,10 @@ import {
 } from "@/lib/extract-upload-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("extract-upload-settings-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -41,9 +45,7 @@ describe("extract-upload-settings-evidence-copy", () => {
 
     expect(within(sources).getAllByRole("link")).toHaveLength(expectedLinks.length);
 
-    for (const link of expectedLinks) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES, EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH}$`, "i") }),
