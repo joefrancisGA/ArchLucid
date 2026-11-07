@@ -40,7 +40,7 @@ describe("collection agent omission copy (P-16, P-17)", () => {
     expect(collectionRunStartedUtcDisplay(undefined)).toBe("Start time was not stored.");
     expect(collectionRunStartedUtcDisplay("")).toBe("Start time was not stored.");
     expect(collectionRunStartedUtcDisplay("not-a-timestamp")).toBe("Start time could not be read.");
-    expect(collectionRunStatusLabel("Running")).toBe("Running");
+    expect(collectionRunStatusLabel("Running")).toBe("Collection is running.");
   });
 
   it("does not link View changes when imported snapshot id is empty", () => {
@@ -115,7 +115,7 @@ describe("CollectionAgentPageClient", () => {
 
     expect(screen.getByText("Schedule reported on a collection run: Daily at 02:00 UTC")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeDisabled();
-    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Running");
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Collection is running.");
   });
 
   it("shows trigger failures inline", () => {

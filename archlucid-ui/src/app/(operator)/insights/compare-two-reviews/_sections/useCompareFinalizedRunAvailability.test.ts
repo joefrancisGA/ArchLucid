@@ -1,8 +1,16 @@
+import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
 
 const useAskProjectRunsQuery = vi.fn();
+
+vi.mock("@/hooks/use-architecture-identity-query", () => ({
+  useArchitectureIdentityQuery: () => ({
+    data: undefined,
+    isLoading: false,
+  }),
+}));
 
 vi.mock("@/hooks/use-ask-project-runs-query", () => ({
   useAskProjectRunsQuery: (...args: unknown[]) => useAskProjectRunsQuery(...args),
@@ -33,7 +41,8 @@ describe("useCompareFinalizedRunAvailability", () => {
       },
     });
 
-    const availability = useCompareFinalizedRunAvailability();
+    const { result } = renderHook(() => useCompareFinalizedRunAvailability());
+    const availability = result.current;
 
     expect(availability.finalizedCount).toBe(2);
     expect(availability.insufficientForCompare).toBe(false);
@@ -55,7 +64,8 @@ describe("useCompareFinalizedRunAvailability", () => {
       },
     });
 
-    const availability = useCompareFinalizedRunAvailability();
+    const { result } = renderHook(() => useCompareFinalizedRunAvailability());
+    const availability = result.current;
 
     expect(availability.finalizedCount).toBe(1);
     expect(availability.insufficientForCompare).toBe(true);

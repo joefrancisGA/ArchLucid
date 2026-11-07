@@ -32,6 +32,23 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
+  useTeachingChromeVisible: () => true,
+}));
+
+const useAskProjectRunsQueryMock = vi.fn();
+
+vi.mock("@/hooks/use-ask-project-runs-query", () => ({
+  useAskProjectRunsQuery: (...args: unknown[]) => useAskProjectRunsQueryMock(...args),
+}));
+
+vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
+  useTenantTrialStatusQuery: () => ({
+    isPending: false,
+    data: { status: "Inactive" },
+  }),
+}));
+
 import { OperatorCoArchitectHomeStrip } from "@/components/operator/OperatorCoArchitectHomeStrip";
 import { WelcomeBanner } from "./WelcomeBanner";
 
@@ -64,6 +81,10 @@ beforeEach(() => {
   sessionStorage.clear();
   resetOperatorQueryClientForTests();
   demoUiEnvMock.buyerPolishedShell = false;
+  useAskProjectRunsQueryMock.mockReturnValue({
+    isPending: false,
+    data: emptyRunsPage,
+  });
   listRunsByProjectPaged.mockResolvedValue(emptyRunsPage);
   loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [], loadError: false });
   globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
@@ -134,6 +155,16 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       page: 1,
       pageSize: 1,
       hasMore: false,
+    });
+    useAskProjectRunsQueryMock.mockReturnValue({
+      isPending: false,
+      data: {
+        items: [run],
+        totalCount: 1,
+        page: 1,
+        pageSize: 1,
+        hasMore: false,
+      },
     });
     loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [run], loadError: false });
 

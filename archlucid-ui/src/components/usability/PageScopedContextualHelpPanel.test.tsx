@@ -8,11 +8,15 @@ import {
 } from "@/components/usability/PageScopedContextualHelpPanel";
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
 
-const routerReplace = vi.fn();
+const commitHrefIfChanged = vi.fn(() => true);
+
+vi.mock("@/lib/navigation/replace-if-href-changed", () => ({
+  commitHrefIfChanged: (...args: unknown[]) => commitHrefIfChanged(...args),
+}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/findings",
-  useRouter: () => ({ replace: routerReplace }),
+  useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -60,7 +64,7 @@ function pressTrigger(): HTMLElement {
 
 describe("PageScopedContextualHelpPanel", () => {
   it("syncs open state to the URL after the drawer toggles", async () => {
-    routerReplace.mockClear();
+    commitHrefIfChanged.mockClear();
 
     render(
       <PageScopedContextualHelpPanel
@@ -75,7 +79,10 @@ describe("PageScopedContextualHelpPanel", () => {
     await screen.findByTestId("page-scoped-contextual-help-panel");
 
     await waitFor(() => {
-      expect(routerReplace).toHaveBeenCalledWith("/governance/findings?pageHelpOpen=1", { scroll: false });
+      expect(commitHrefIfChanged).toHaveBeenCalledWith(
+        "/governance/findings?pageHelpOpen=1",
+        { notify: false },
+      );
     });
   });
 
