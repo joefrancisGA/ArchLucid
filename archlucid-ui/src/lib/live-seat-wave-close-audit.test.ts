@@ -7,10 +7,12 @@ const REPO_ROOT = join(process.cwd(), "..");
 describe("live-seat wave close audit (LS-024)", () => {
   it("includes acceptance doc with done-test evidence table", () => {
     const acceptancePath = join(REPO_ROOT, "docs/architecture/LIVE_SEAT_ACCEPTANCE_2026-09-20.md");
-    const markdown = readFileSync(acceptancePath, "utf8");
+    const acceptanceMarkdown = readFileSync(acceptancePath, "utf8");
+    const adrPath = join(REPO_ROOT, "docs/architecture/adrs/0102-first-login-live-workspace-explicit-training.md");
+    const adrMarkdown = readFileSync(adrPath, "utf8");
 
-    expect(markdown).toContain("LIVE_SEAT_COMPOSER_PROMPTS.md");
-    expect(markdown).toContain("live-seat-first-login-matrix.test.ts");
-    expect(markdown).toContain("Training is not Practice");
+    expect(acceptanceMarkdown).toContain("LIVE_SEAT_COMPOSER_PROMPTS.md");
+    expect(acceptanceMarkdown).toContain("live-seat-first-login-matrix.test.ts");
+    expect(adrMarkdown).toContain("Training is not Practice");
   });
 });

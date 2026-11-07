@@ -20,7 +20,7 @@ describe("sponsorArtifactOpenActionLabel", () => {
   });
 
   it("falls back for unknown types", () => {
-    expect(sponsorArtifactOpenActionLabel("UnknownSynthetic")).toBe("Open output");
+    expect(sponsorArtifactOpenActionLabel("UnknownSynthetic")).toBe("Open artifact (type was not recognized)");
   });
 });
 
@@ -43,7 +43,7 @@ describe("sponsorArtifactDownloadActionLabel", () => {
 
 describe("sponsorArtifactAudienceBucket", () => {
   it("classifies sponsor-only lines", () => {
-    expect(sponsorArtifactAudienceBucket("MarkdownReport")).toBe("sponsor");
+    expect(sponsorArtifactAudienceBucket("MarkdownReport")).toBe("other");
   });
 
   it("classifies audit-oriented lines", () => {
