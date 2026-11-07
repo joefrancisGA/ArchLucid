@@ -90,6 +90,23 @@ public sealed class SecureNowInvestigationEffortInputServiceTests
         latest!.BaselineHours.Should().Be("8");
     }
 
+    [Fact]
+    public async Task SaveAsync_does_not_report_success_when_required_audit_write_fails()
+    {
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        SecureNowInvestigationEffortInputService sut =
+            new(auditService.Object, new InMemoryAuditRepository());
+
+        Func<Task> act = async () =>
+            await sut.SaveAsync(CreateScope(), ValidRequest(), "operator-actor", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("audit storage unavailable");
+    }
+
     private static SecureNowInvestigationEffortInputsWriteRequest ValidRequest() =>
         new()
         {
