@@ -16,4 +16,4 @@ export const EVIDENCE_TRACE_TRAFFIC_SECTION = "Core review";
  * ASCII-only for Windows console note scripts.
  */
 export const EVIDENCE_TRACE_TRAFFIC_NOTE =
-  "None";
+  "Finding evidence-trace (Core review) - FindingInspectView with PageContextualHelpButton (topic map findings; Category-1 path matcher), finding-first H1 eyebrow (TB-1826-TB-1829), Back to finding primary wayfinding (TB-1828), OperatorEvidenceLimitsFooter without inspect self-link on ERU (TB-1827), governance stickiness demoted to sectionTitle (TB-1826). Sibling RRF = finding detail; RRE = review workspace. Inspection trace for one finding - not a full sealed-record diligence Sources trail alone. Score 54/100 (2026-07-27) - owner review band; hard-caps higher Evidence without sealed-record diligence Sources trail.";
