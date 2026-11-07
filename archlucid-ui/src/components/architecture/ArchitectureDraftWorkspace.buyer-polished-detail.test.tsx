@@ -1,8 +1,15 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+
+const ARCHITECTURE_DRAFT_DETAIL_PATHNAME = "/architecture/architectures/arch-001";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => ARCHITECTURE_DRAFT_DETAIL_PATHNAME,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 const getDraftRequest = vi.fn();
 const isArchitectureDraftHandoffAcknowledged = vi.fn();
@@ -180,9 +187,10 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell (ARR)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(startReviewChecklist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURES_DRAFT_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      ARCHITECTURES_DRAFT_SOURCES,
+      ARCHITECTURE_DRAFT_DETAIL_PATHNAME,
+    );
   });
 });
