@@ -72,7 +72,7 @@ describe("BuyerCtoDemoTourOverlay", () => {
       expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Step 1 of 5")).toBeInTheDocument();
+    expect(screen.getByText("Step 1 of 4")).toBeInTheDocument();
     expect(screen.getByTestId("buyer-cto-demo-tour-back")).toBeDisabled();
     expect(screen.getByTestId("buyer-cto-demo-tour-next")).toHaveAttribute("href", getShowcaseManifestHref());
     expect(screen.getByTestId("buyer-cto-demo-tour-step-indicators")).toBeInTheDocument();
