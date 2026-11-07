@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -20,6 +21,19 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             RequestId = "q",
             Status = ArchitectureRunStatus.Committed,
             CreatedUtc = DateTime.UtcNow
+        };
+
+    private static GoldenManifest CommittedManifest() =>
+        new()
+        {
+            RunId = "r",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1",
+                CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            },
+            Governance = new ManifestGovernance(),
         };
 
     private static ArchitectureRun SimulatorFallbackRun() =>
@@ -179,7 +193,8 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             d,
             proof,
             deltas,
-            NonSimulatorRun()).ToList();
+            NonSimulatorRun(),
+            CommittedManifest()).ToList();
 
         gaps.Should().ContainSingle();
 
@@ -221,8 +236,9 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NotSponsorSafeYet,
                 proof,
-                CompleteDeltas(topFindingId: null),
-                NonSimulatorRun())
+                CompleteDeltas(topFindingId: null) with { IsDemoTenant = true },
+                NonSimulatorRun(),
+                CommittedManifest())
             .ToList();
 
         gaps.Should().Contain(s => s.Contains("non-negotiable demo warning", StringComparison.OrdinalIgnoreCase));
@@ -330,6 +346,10 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             LlmCallCountResolved = true,
             SynthesizedArtifactDescriptorCountResolved = true,
             SynthesizedArtifactDescriptorCount = 1,
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+            ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
             IsDemoTenant = false,
         };
 

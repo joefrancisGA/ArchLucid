@@ -129,7 +129,8 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
             FindingId = findingId,
             Message = message,
             SemanticSupportBand = band,
-            Classification = classification,
+            // Decision-grade filter excludes null / non-decision-grade stamps from sponsor totals.
+            Classification = classification ?? FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Error,
         };
     }
