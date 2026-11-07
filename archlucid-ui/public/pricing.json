@@ -24,7 +24,7 @@
     {
       "id": "team",
       "title": "Team",
-      "summary": "Small architecture team with policy controls and approval workflows",
+      "summary": "Small architecture team with basic governance",
       "planMonthlyUsd": 1169,
       "pricingDisplay": "monthly",
       "includedUsers": 5,
