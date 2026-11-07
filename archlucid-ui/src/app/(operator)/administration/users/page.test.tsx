@@ -63,7 +63,7 @@ describe("SettingsRolesPage", () => {
     const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
       const url = String(input);
 
-      if (url.includes("/v1/admin/users") && (init === undefined || init.method === undefined)) {
+      if (url.includes("/api/proxy/v1/admin/users") && (init === undefined || init.method === undefined)) {
         return new Response(
           JSON.stringify({
             users: [{ userId: "u1", displayName: "Ada", email: "ada@example.com", role: "Reader" }],
@@ -72,8 +72,15 @@ describe("SettingsRolesPage", () => {
         );
       }
 
-      if (url.includes("/v1/admin/api-keys") && (init === undefined || init.method === undefined)) {
+      if (url.includes("/api/proxy/v1/admin/api-keys") && (init === undefined || init.method === undefined)) {
         return new Response("missing", { status: 404 });
+      }
+
+      if (url.includes("/api/proxy/v1/admin/scim/tokens") && (init === undefined || init.method === undefined)) {
+        return new Response(JSON.stringify({ tokens: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       return new Response("unexpected", { status: 500 });

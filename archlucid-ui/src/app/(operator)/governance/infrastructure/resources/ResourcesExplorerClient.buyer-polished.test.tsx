@@ -97,7 +97,7 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
       "href",
       `#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.queryByTestId("infra-resource-explorer-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-explorer-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-resources-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
@@ -108,7 +108,7 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
     expect(
       screen.queryByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111"),
     ).not.toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111"));
+    fireEvent.click(screen.getByTestId("infra-resource-row-arm-id-toggle-11111111-1111-1111-1111-111111111111"));
     expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
       "resource id: /subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
     );
