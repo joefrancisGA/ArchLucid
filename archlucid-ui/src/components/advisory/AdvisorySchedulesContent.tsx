@@ -9,6 +9,7 @@ import { ADVISORY_SCHEDULES_WORKSPACE_TEST_ID } from "@/lib/advisory-schedules-e
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
 import { AdvisorySchedulesBuyerChrome } from "@/components/advisory/AdvisorySchedulesBuyerChrome";
 import { AdvisorySchedulesNextReviewFooterClient } from "@/components/advisory/AdvisorySchedulesNextReviewFooterClient";
