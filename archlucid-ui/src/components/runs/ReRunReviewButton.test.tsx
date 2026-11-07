@@ -66,13 +66,15 @@ describe("ReRunReviewButton", () => {
     });
   });
 
-  it("opens the confirm dialog when the URL already has reRunConfirmOpen=1 for this button", () => {
+  it("opens the confirm dialog when the URL already has reRunConfirmOpen=1 for this button", async () => {
     mockSearchParams.set("reRunConfirmOpen", "1");
     mockSearchParams.set("reRunConfirmSource", "re-run-review-button");
 
     render(<ReRunReviewButton runId="run-abc" />);
 
-    expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
+    });
   });
 
   it("does not open a duplicate confirm dialog for another button source", () => {

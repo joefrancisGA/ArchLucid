@@ -93,7 +93,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   const router = useRouter();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const resolveConfirmOpenFromUrl = useCallback((): boolean => {
-    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+    const params = new URLSearchParams(readWindowLocationSearch());
 
     return resolveReRunReviewConfirmDialogOpenForButton({
       urlConfirmOpen: parseReRunReviewConfirmOpenFromSearch(params.get("reRunConfirmOpen")),
