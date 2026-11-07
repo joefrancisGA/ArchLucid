@@ -20,6 +20,16 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/baseline",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { BaselineSettingsClient } from "@/app/(operator)/administration/baseline/BaselineSettingsClient";
 import {
   BASELINE_SETTINGS_FIRST_VIEWPORT_TEST_ID,
@@ -35,8 +45,7 @@ import {
   BASELINE_SETTINGS_SOURCES,
 } from "@/lib/baseline-settings-evidence-copy";
 import { BASELINE_SETTINGS_PAGE_SUBTITLE, BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 const emptyBaseline = {
   manualPrepHoursPerReview: null,
@@ -94,10 +103,7 @@ describe("BaselineSettingsClient buyer-polished shell (ADA)", () => {
     expect(firstViewport).toContainElement(summary);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(BASELINE_SETTINGS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), BASELINE_SETTINGS_SOURCES, "/administration/baseline");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 

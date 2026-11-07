@@ -2,14 +2,28 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let canMutate = true;
+let recurrenceSearchParams = new URLSearchParams({ runId: "22222222-2222-2222-2222-222222222222" });
+let workspaceActiveRunId = "22222222-2222-2222-2222-222222222222";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
 }));
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
+  useWorkspaceActiveRun: () => ({
+    activeRunId: workspaceActiveRunId,
+    displayTitle: workspaceActiveRunId.length > 0 ? "Workspace review" : "",
+  }),
 }));
+
+function applyRecurrenceSchedulesHrefToSearchParams(href: string): void {
+  try {
+    const url = new URL(href, "http://localhost");
+    recurrenceSearchParams = new URLSearchParams(url.search);
+  } catch {
+    // Ignore malformed href strings in tests.
+  }
+}
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -21,11 +35,15 @@ vi.mock("next/navigation", async (importOriginal) => {
       back: vi.fn(),
       forward: vi.fn(),
       prefetch: vi.fn(),
-      push: vi.fn(),
+      push: vi.fn((href: string) => {
+        applyRecurrenceSchedulesHrefToSearchParams(href);
+      }),
       refresh: vi.fn(),
-      replace: vi.fn(),
+      replace: vi.fn((href: string) => {
+        applyRecurrenceSchedulesHrefToSearchParams(href);
+      }),
     }),
-    useSearchParams: () => new URLSearchParams({ runId: "22222222-2222-2222-2222-222222222222" }),
+    useSearchParams: () => recurrenceSearchParams,
   };
 });
 
@@ -74,6 +92,8 @@ const sampleSchedule = {
 describe("RecurrenceSchedulesClient", () => {
   beforeEach(() => {
     canMutate = true;
+    recurrenceSearchParams = new URLSearchParams({ runId: "22222222-2222-2222-2222-222222222222" });
+    workspaceActiveRunId = "22222222-2222-2222-2222-222222222222";
     vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([]);
     vi.mocked(governanceApi.updateArchitectureReviewRecurrenceSchedule).mockResolvedValue(sampleSchedule);
     vi.mocked(governanceApi.previewRecurrenceScheduleRuns).mockResolvedValue({
@@ -260,7 +280,9 @@ describe("RecurrenceSchedulesClient", () => {
   it("opens create panel from the sole primary Create action", async () => {
     render(<RecurrenceSchedulesClient />);
 
-    await screen.findByTestId("recurrence-schedules-empty-state");
+    await waitFor(() => {
+      expect(screen.getByTestId("recurrence-schedules-create-action")).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByTestId("recurrence-schedules-create-action"));
 
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
@@ -272,7 +294,9 @@ describe("RecurrenceSchedulesClient", () => {
 
     render(<RecurrenceSchedulesClient />);
 
-    await screen.findByTestId("recurrence-schedules-empty-state");
+    await waitFor(() => {
+      expect(screen.getByTestId(`recurrence-schedule-example-${example.cronExpression}`)).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByTestId(`recurrence-schedule-example-${example.cronExpression}`));
 
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
@@ -331,7 +355,8 @@ describe("RecurrenceSchedulesClient", () => {
 
     fireEvent.click(await screen.findByTestId(`recurrence-toggle-${sampleSchedule.scheduleId}`));
 
-    expect(screen.getByRole("heading", { name: /Disable recurrence schedule/i })).toBeInTheDocument();
+    expect(await screen.findByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByText("Disable recurrence schedule?")).toBeInTheDocument();
     expect(governanceApi.updateArchitectureReviewRecurrenceSchedule).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Disable schedule" }));
@@ -365,7 +390,7 @@ describe("RecurrenceSchedulesClient", () => {
     render(<RecurrenceSchedulesClient />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+      expect(screen.getAllByRole("link", { name: "Open review" }).length).toBeGreaterThan(0);
     });
 
     expect(screen.getByText("Cron expression")).toBeInTheDocument();

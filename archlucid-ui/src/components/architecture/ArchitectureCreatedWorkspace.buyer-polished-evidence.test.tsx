@@ -18,8 +18,7 @@ import {
   ARCHITECTURE_CREATED_EVIDENCE_START_HERE_CARD_TITLE,
   ARCHITECTURE_CREATED_EVIDENCE_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-evidence-sources";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 const searchParamsState = {
   value: new URLSearchParams("fromGeneration=1&intent=create-architecture&reviewTab=evidence"),
@@ -142,10 +141,11 @@ describe("ArchitectureCreatedWorkspace buyer-polished Evidence tab (REE)", () =>
     expect(workspace).toContainElement(screen.getByTestId("evidence-panel-slot"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_CREATED_EVIDENCE_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      ARCHITECTURE_CREATED_EVIDENCE_SOURCES,
+      "/architecture/reviews/run-1",
+    );
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

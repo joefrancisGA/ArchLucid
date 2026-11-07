@@ -54,7 +54,7 @@ describe("finalizedReviewRecordDisplayLabel", () => {
     const run = summary({ runId: "other-run", description: "" });
 
     expect(finalizedReviewRecordDisplayLabel(run, "9026d565-0000-0000-0000-0000000099e8")).toBe(
-      "9026d565…99e8",
+      "9026d565…99e8 (shortened for display)",
     );
   });
 

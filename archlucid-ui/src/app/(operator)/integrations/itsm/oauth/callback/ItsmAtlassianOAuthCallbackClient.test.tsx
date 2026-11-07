@@ -27,6 +27,7 @@ import {
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 const oauthRouter = vi.hoisted(() => ({ replace: vi.fn() }));
 const completeItsmAtlassianOAuthConsent = vi.fn();
@@ -299,12 +300,12 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     });
 
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
-    const visibleSources = filterWhereToGoNextFollowUpLinks(ITSM_OAUTH_CALLBACK_SOURCES);
 
-    for (const link of visibleSources) {
-      const linkName = link.href.startsWith("/help") ? `Read ${link.label}` : `Open ${link.label}`;
-      expect(within(sources).getByRole("link", { name: linkName })).toHaveAttribute("href", link.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sources),
+      filterWhereToGoNextFollowUpLinks(ITSM_OAUTH_CALLBACK_SOURCES),
+      ITSM_OAUTH_CALLBACK_CANONICAL_PATH,
+    );
 
     expect(within(sources).queryByRole("link", { name: "Open Integration readiness" })).not.toBeInTheDocument();
 

@@ -9,7 +9,7 @@ import { GOLDEN_PATH_SECONDARY_OBJECT_SURFACES } from "@/lib/canonical-object-ho
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const GOLDEN_PATH_HOST_FILES: Record<string, string> = {
-  "governance-findings-queue": "src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
+  "governance-findings-queue": "src/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueScopeSection.tsx",
   "review-package-findings-tab": "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace.tsx",
   "review-package-governance-tab":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceDecisionSection.tsx",

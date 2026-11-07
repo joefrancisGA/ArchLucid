@@ -82,9 +82,7 @@ describe("AwsCloudConnectionDetailClient", () => {
     );
 
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
-    expect(screen.getByTestId("cloud-connections-aws-claim-discipline")).toHaveTextContent(
-      CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("cloud-connections-aws-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-aws-sources")).toBeInTheDocument();
     const sources = screen.getByTestId("cloud-connections-aws-sources");
     expect(within(sources).getByRole("link", { name: "Open Cloud connections" })).toHaveAttribute(
