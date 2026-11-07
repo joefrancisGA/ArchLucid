@@ -5,6 +5,17 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/connection-status",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -38,6 +49,7 @@ import {
   CONNECTION_STATUS_HELP_PRIMARY_ACTION,
 } from "@/lib/connection-status-help-guide-content";
 import {
+  CONNECTION_STATUS_HELP_CANONICAL_PATH,
   CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE,
   CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE,
   CONNECTION_STATUS_HELP_SOURCES,
@@ -47,7 +59,7 @@ import {
   CONNECTION_STATUS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
 } from "@/lib/connection-status-help-page-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 function renderConnectionStatusGuide(): void {
@@ -89,7 +101,10 @@ describe("HelpConnectionStatusGuideView (HCO)", () => {
 
     const sourcesSection = screen.getByTestId("help-connection-status-sources");
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_HELP_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      CONNECTION_STATUS_HELP_SOURCES,
+      CONNECTION_STATUS_HELP_CANONICAL_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

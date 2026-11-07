@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +7,17 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 
 }));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/teams-integration",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -39,6 +50,7 @@ import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  whereToGoNextFollowUpLinksForTests,
 } from "@/lib/claim-discipline-test-helpers";
 
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -75,6 +87,7 @@ import {
 
   TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
 
+  TEAMS_INTEGRATION_HELP_CANONICAL_PATH,
   TEAMS_INTEGRATION_HELP_SOURCES,
 
 } from "@/lib/teams-integration-help-evidence-copy";
@@ -189,17 +202,15 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
 
 
-    for (const source of TEAMS_INTEGRATION_HELP_SOURCES) {
+    const sourcesRegion = within(screen.getByTestId("help-teams-integration-sources"));
 
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      TEAMS_INTEGRATION_HELP_SOURCES,
+      TEAMS_INTEGRATION_HELP_CANONICAL_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-
-
-
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-
+      expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
-
-
 
     for (const source of TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES) {
 

@@ -1,15 +1,28 @@
-import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/baseline-settings",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
+import { render, screen, within } from "@testing-library/react";
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import {
   expectClaimDisciplineBandContent,
+  whereToGoNextFollowUpLinksForTests,
 } from "@/lib/claim-discipline-test-helpers";
 import {
+  BASELINE_SETTINGS_HELP_CANONICAL_PATH,
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   BASELINE_SETTINGS_HELP_SOURCES,
@@ -68,9 +81,13 @@ describe("HelpBaselineSettingsGuideView", () => {
     expect(screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 
-    for (const source of BASELINE_SETTINGS_HELP_SOURCES) {
+    const sourcesRegion = within(screen.getByTestId("help-baseline-settings-sources"));
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      BASELINE_SETTINGS_HELP_SOURCES,
+      BASELINE_SETTINGS_HELP_CANONICAL_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+      expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.queryByRole("link", { name: "Assurance status" })).not.toBeInTheDocument();
