@@ -10,7 +10,7 @@ export const HELP_TOPIC_CATCHALL_TRAFFIC_PATH = HELP_TOPIC_CATCHALL_CANONICAL_PA
  * Workbook Section column — App Router dispatch segment, not a buyer product topic.
  * Per-slug help rows own Evidence/UX scoring (TB-1602).
  */
-export const HELP_TOPIC_CATCHALL_TRAFFIC_SECTION = "Help topic";
+export const HELP_TOPIC_CATCHALL_TRAFFIC_SECTION = "Router meta";
 
 /**
  * Owner workbook Notes for HE. — documents router/dispatch hygiene only.

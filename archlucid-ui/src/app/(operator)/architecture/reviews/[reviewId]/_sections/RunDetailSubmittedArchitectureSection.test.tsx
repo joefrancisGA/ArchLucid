@@ -83,10 +83,10 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+      fireEvent.click(screen.getByRole("button", { name: "Copy full stored text" }));
       await Promise.resolve();
     });
-    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copied full stored text" })).toBeInTheDocument();
 
     vi.advanceTimersByTime(1000);
 
@@ -101,13 +101,13 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Copied" }));
+      fireEvent.click(screen.getByRole("button", { name: "Copied full stored text" }));
       await Promise.resolve();
     });
-    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copied full stored text" })).toBeInTheDocument();
 
     vi.advanceTimersByTime(1000);
 
-    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copied full stored text" })).toBeInTheDocument();
   });
 });

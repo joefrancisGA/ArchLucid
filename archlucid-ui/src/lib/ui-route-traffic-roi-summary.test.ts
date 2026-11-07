@@ -15,9 +15,9 @@ describe("ui-route-traffic-roi-summary (TB-1971)", () => {
     const spr = rows.find((candidate) => candidate.id === ROI_SUMMARY_TRAFFIC_ROW_ID);
 
     expect(spr).toBeDefined();
-    expect(spr?.id).toBe("VRX");
+    expect(spr?.id).toBe("SPR");
     expect(spr?.path).toBe(ROI_SUMMARY_TRAFFIC_PATH);
-    expect(spr?.hitPct).toBe("0.14%");
+    expect(spr?.hitPct).toBe("0.12%");
     expect(spr?.section).toBe(ROI_SUMMARY_TRAFFIC_SECTION);
     expect(spr?.notes).toBe(ROI_SUMMARY_TRAFFIC_NOTE);
     expect(spr?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
