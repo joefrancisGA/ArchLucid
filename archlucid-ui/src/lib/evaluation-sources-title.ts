@@ -75,6 +75,11 @@ export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurfac
   },
   { slug: "digest-sponsor", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   {
+    slug: "assurance-status",
+    kind: "marketing",
+    module: "components/marketing/SecurityTrustEvidenceOrientationStrip.tsx",
+  },
+  {
     slug: "architecture-clarifications",
     kind: "pre-finalize-architecture",
     module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
