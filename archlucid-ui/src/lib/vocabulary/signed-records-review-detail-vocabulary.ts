@@ -33,7 +33,7 @@ export type SignedRecordsReviewDetailVocabularyModel = {
 };
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_HEADING =
-  "Finalized review records and review detail serve different purposes" as const;
+  "Sealed (finalized) review records and review detail serve different purposes" as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO =
   "Finalized review records lists all finalized reviews. Review detail is where you work on one review — findings, evidence, and finalize. The list is not the workspace." as const;

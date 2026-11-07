@@ -24,7 +24,8 @@ describe("ResponsibleAiPolicyPackDetail", () => {
       />,
     );
 
-    expect(screen.getByTestId("governance-policy-pack-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-policy-pack-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-detail-title")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Assign to workspace" })).toHaveAttribute(
       "href",
       `/governance/policy-packs?packId=${BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}`,

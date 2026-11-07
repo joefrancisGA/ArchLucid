@@ -70,7 +70,7 @@ import "./new-run-wizard-test-helpers";
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import {
-  NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
+  fillNewRunWizardIdentityStep,
   optIntoAdvancedNewRunWizardConfiguration,
   prepareNewRunWizardVitestHarness,
 } from "./new-run-wizard-test-helpers";
@@ -93,30 +93,27 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
         if (url.includes("/v1/agent-execution/cost-preview")) {
           return {
             ok: true,
-            headers: new Headers(),
-            text: async () =>
-              JSON.stringify({
-                mode: "Simulator",
-                maxCompletionTokens: 4096,
-                estimatedCostUsd: null,
-                estimatedCostUsdLow: null,
-                estimatedCostUsdHigh: null,
-                estimatedCostBasis: "Simulator",
-                pricingUsesIllustrativeUsdRates: true,
-                deploymentName: null,
-              }),
+            json: async () => ({
+              mode: "Simulator",
+              maxCompletionTokens: 4096,
+              estimatedCostUsd: null,
+              estimatedCostUsdLow: null,
+              estimatedCostUsdHigh: null,
+              estimatedCostBasis: "Simulator",
+              pricingUsesIllustrativeUsdRates: true,
+              deploymentName: null,
+            }),
           };
         }
 
         if (url.includes("/v1/tenant/baseline")) {
           return {
             ok: true,
-            headers: new Headers(),
-            text: async () => JSON.stringify({ baselineReviewCycleHours: null }),
+            json: async () => ({ baselineReviewCycleHours: null }),
           };
         }
 
-        return { ok: false, status: 404, headers: new Headers(), text: async () => "{}" };
+        return { ok: false, status: 404, json: async () => ({}) };
       }),
     );
   });
@@ -147,18 +144,7 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
     fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL), {
-      target: { value: "BaselineMetricsPilotApp" },
-    });
-    fireEvent.change(screen.getByLabelText("Description"), {
-      target: {
-        value: "Baseline metrics wizard step validates required tenant ROI anchors before review submit.",
-      },
-    });
+    await fillNewRunWizardIdentityStep();
 
     for (let i = 0; i < 4; i += 1) {
       await clickPrimaryForward();
