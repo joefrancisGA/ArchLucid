@@ -16,7 +16,7 @@ public sealed class ApiVersioningResponseHeadersIntegrationTests(PlatformOperato
 
     public async Task InitializeAsync()
     {
-        _client = await factory.CreateBoundedClientAsync().ConfigureAwait(false);
+        _client = await factory.CreateBoundedClientAsync();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(_client);
     }
 
