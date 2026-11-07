@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { IMPROVEMENT_PLANNING_PAGE_TITLE } from "@/lib/planning-page-copy";
 import { PLANNING_PLAN_DETAIL_PAGE_TITLE } from "@/lib/planning-plan-detail-evidence-copy";
 
 import { ImprovementPlanningPlanDetailBreadcrumb } from "./ImprovementPlanningPlanDetailBreadcrumb";
