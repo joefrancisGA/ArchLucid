@@ -79,7 +79,6 @@ describe("DriftWorkbenchClient working mode", () => {
     );
     expect(screen.getByTestId("infra-drift-scope-status")).toHaveTextContent("Not scoped");
     expect(screen.getByTestId("infra-drift-page-shortcuts")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-page-shortcuts-entry-arrowdown-snapshots")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
   });

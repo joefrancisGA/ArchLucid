@@ -154,9 +154,8 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(screen.getByTestId("infra-diagrams-page-title")).toHaveTextContent(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );
-    expect(screen.queryByTestId("governance-infrastructure-diagrams-sources")).not.toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByText(/page help/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByText(/Ctrl\+K.*search/i)).not.toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();

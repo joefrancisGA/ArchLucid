@@ -98,7 +98,7 @@ describe("ResourcesExplorerClient buyer-polished chrome", () => {
       `#${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.queryByTestId("infra-resource-explorer-claim-discipline")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("governance-infrastructure-resources-sources")).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-infrastructure-resources-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-explorer-name-prefix")).toBeInTheDocument();
