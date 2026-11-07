@@ -24,8 +24,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
-  useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionDeskChrome: (): boolean => true,
+  useProductionEvalChrome: (): boolean => false,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

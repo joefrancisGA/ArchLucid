@@ -25,6 +25,11 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: (): boolean => true,
+  useProductionEvalChrome: (): boolean => false,
+}));
+
 vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
   listAwsTier2Connections: vi.fn(async () => []),
   triggerAwsTier2HostedRun: vi.fn(),
@@ -32,7 +37,6 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
 
 import { AwsCloudConnectionDetailClient } from "./AwsCloudConnectionDetailClient";
 import { AWS_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/aws-cloud-connection-copy";
-import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
 
 describe("AwsCloudConnectionDetailClient", () => {
   it("mounts live Validate and Recent activity panels instead of static stubs (TB-1762)", () => {

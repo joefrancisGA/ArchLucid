@@ -9,6 +9,11 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: (): boolean => true,
+  useProductionEvalChrome: (): boolean => false,
+}));
+
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({
     activeRunId: workspaceActiveRunId,
