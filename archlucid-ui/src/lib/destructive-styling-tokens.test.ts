@@ -21,6 +21,8 @@ const RAW_DANGER_UTILITY_BASELINE: ReadonlySet<string> = new Set([
   "components/BuyerCtoDemoTourOverlay.tsx",
   "components/TrialBanner.tsx",
   "components/compare/ArchitectureManifestUnifiedDiffView.tsx",
+  "components/cto-demo/CtoDemoTourPresenterNotesPanel.tsx",
+  "components/dev-testing/DevTestingResetDatabaseButton.tsx",
   "components/operator-home/SystemHealthStatusStrip.tsx",
   "components/review-intake/ReviewStartInlineError.tsx",
   "components/shell/ShellInFlightOperationsAffordance.tsx",

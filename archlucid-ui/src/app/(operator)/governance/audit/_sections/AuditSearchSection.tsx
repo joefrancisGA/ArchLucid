@@ -1,4 +1,8 @@
 import { cn } from "@/lib/utils";
+export {
+  OPERATOR_DATE_RANGE_END_LABEL,
+  OPERATOR_DATE_RANGE_START_LABEL,
+} from "@/lib/operator-date-range-copy";
 
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { OperatorSavedViewPayload } from "@/lib/operator/operator-saved-view-types";

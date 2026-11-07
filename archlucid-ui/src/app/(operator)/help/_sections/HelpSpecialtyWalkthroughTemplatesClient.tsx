@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { HelpSpecialtyWalkthroughClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughClaimOrientationStrip";
-import { HelpSpecialtyWalkthroughEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughEvidenceOrientationStrip";
+import { HelpSpecialtyWalkthroughSourcesStrip } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughSourcesStrip";
 import { HelpSpecialtyWalkthroughHeaderActions } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -352,7 +352,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
               {SPECIALTY_WALKTHROUGHS_HELP_OVERVIEW}
             </p>
             {startHerePanel}
-            <HelpSpecialtyWalkthroughEvidenceOrientationStrip />
+            <HelpSpecialtyWalkthroughSourcesStrip />
           </>
         )}
 

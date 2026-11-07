@@ -9,7 +9,7 @@ import {
 } from "@/lib/specialty-walkthroughs-help-evidence-copy";
 
 /** Claim + Sources orientation for `/help/specialty-walkthroughs` full operator shell (HS). */
-export function HelpSpecialtyWalkthroughEvidenceOrientationStrip(): React.JSX.Element {
+export function HelpSpecialtyWalkthroughSourcesStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-specialty-walkthroughs"

@@ -20,7 +20,13 @@ import {
 
 } from "@/lib/marketing/public-marketing-seo-paths";
 
-const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+const HELP_TOPIC_VIEW_RESOLVER = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-operate.tsx",
+);
 
 const PRODUCT_FINDINGS_HELP_SURFACES = [
 
@@ -68,7 +74,7 @@ describe("findings-help-route (HFX)", () => {
 
   it("routes the canonical slug through HelpFindingsGuideView instead of bare markdown", () => {
 
-    const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const pageSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER, "utf8");
 
     expect(pageSource).toContain('loaded.entry.slug === "findings"');
 

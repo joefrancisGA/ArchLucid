@@ -10,6 +10,10 @@ import {
 } from "@/lib/global-search-architecture-hits";
 import type { ArchitectureIdentityListItem } from "@/types/architecture-identity";
 
+const visibleArchitectureIds = new Set(
+  ["architecture-identity-001", "architecture-identity-002"],
+);
+
 const visibleIdentities: readonly ArchitectureIdentityListItem[] = [
   {
     architectureId: "architecture-identity-001",
@@ -66,6 +70,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       ],
       "payments",
       lookup,
+      visibleArchitectureIds,
     );
 
     expect(hits).toEqual([
@@ -89,6 +94,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       ],
       "payments platform",
       lookup,
+      visibleArchitectureIds,
     );
 
     expect(identityHits).toHaveLength(1);
@@ -119,6 +125,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       ],
       "archived",
       new Map(),
+      visibleArchitectureIds,
     );
 
     expect(hits).toEqual([]);
@@ -126,7 +133,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
 
   it("does not return identity rows when search is empty", () => {
     expect(filterGlobalSearchArchitectureIdentityHits(visibleIdentities, "")).toEqual([]);
-    expect(filterGlobalSearchArchitectureDraftHits([], "", new Map())).toEqual([]);
+    expect(filterGlobalSearchArchitectureDraftHits([], "", new Map(), new Set())).toEqual([]);
   });
 
   it("excludes draft hits when the architecture draft parent architecture is not share-visible (AS-094)", () => {
@@ -145,6 +152,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
         filteredEntries,
         "secret",
         buildDraftIdToArchitectureIdLookup(visibleIdentities),
+        visibleArchitectureIds,
       ),
     ).toEqual([]);
   });
