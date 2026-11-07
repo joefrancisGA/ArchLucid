@@ -2,6 +2,8 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const buyerPolishedChromeFixture = vi.hoisted(() => ({ enabled: true }));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -11,20 +13,32 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/hooks/useProductionDeskChrome", () => ({
-  useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
-}));
+vi.mock("@/hooks/useProductionDeskChrome", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/useProductionDeskChrome")>();
 
-vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => ({
-    mode: "guided",
+  return {
+    ...actual,
+    useProductionDeskChrome: () => !buyerPolishedChromeFixture.enabled,
+    useProductionEvalChrome: () => buyerPolishedChromeFixture.enabled,
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
     mounted: true,
-    accountSyncState: "synced",
+    accountSyncState: "synced" as const,
     isWorkingMode: false,
     setAndPersist: vi.fn(),
-  }),
-}));
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
 
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({ source }: { readonly source: string }) => (
