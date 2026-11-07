@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +18,10 @@ import {
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
 import type { RecommendationRecord } from "@/types/advisory";
 
+const advisoryScansSearchParamsState = {
+  value: new URLSearchParams("tab=scans"),
+};
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/advisory/scans",
   useRouter: () => ({
@@ -26,9 +30,12 @@ vi.mock("next/navigation", () => ({
     prefetch: vi.fn(),
     push: vi.fn(),
     refresh: vi.fn(),
-    replace: vi.fn(),
+    replace: (href: string) => {
+      const query = href.includes("?") ? (href.split("?")[1] ?? "") : "";
+      advisoryScansSearchParamsState.value = new URLSearchParams(query);
+    },
   }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => advisoryScansSearchParamsState.value,
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -122,6 +129,7 @@ vi.mock("@/lib/api", () => ({
 describe("AdvisoryScansContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    advisoryScansSearchParamsState.value = new URLSearchParams("tab=scans");
     vi.mocked(listRecommendations).mockResolvedValue({ recommendations: [] });
   });
 
@@ -140,7 +148,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("reveals sample preview with focus target and aria-expanded on first click", async () => {
-    renderWithOperatorQuery(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
     const trigger = screen.getByTestId("advisory-empty-view-sample-cta");
 
@@ -165,7 +173,7 @@ describe("AdvisoryScansContent", () => {
     expect(
       screen.queryByRole("button", { name: /Accept|Defer|Reject|Mark implemented/i }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByTestId("advisory-scan-form")).not.toBeInTheDocument();
+    expect(screen.getByTestId("advisory-scan-form")).toBeInTheDocument();
   });
 
   it("enables generate once a finalized review is scoped", async () => {
@@ -226,7 +234,8 @@ describe("AdvisoryScansContent", () => {
 
     renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
-    const accept = await screen.findByRole("button", { name: "Accept" });
+    const card = await screen.findByTestId("advisory-recommendation-rec-1");
+    const accept = await waitFor(() => within(card).getByRole("button", { name: "Accept" }));
 
     fireEvent.click(accept);
 
