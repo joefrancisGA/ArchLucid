@@ -29,7 +29,9 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { DeveloperSettingsPageClient } from "@/app/(operator)/administration/developer/DeveloperSettingsPageClient";
 import { INTERNAL_DEVELOPER_TOOLS_INTRO, INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } from "@/app/(operator)/administration/developer/developer-settings-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
+  DEVELOPER_SETTINGS_CANONICAL_PATH,
   DEVELOPER_SETTINGS_CLAIM_DISCIPLINE,
   DEVELOPER_SETTINGS_FOLLOW_UPS_TITLE,
   DEVELOPER_SETTINGS_SOURCES,
@@ -45,8 +47,6 @@ import {
   DEVELOPER_SETTINGS_PAGE_LEAD,
   DEVELOPER_SETTINGS_START_HERE_CARD_TITLE,
 } from "@/lib/developer-settings-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("DeveloperSettingsPageClient buyer-polished shell (SDX)", () => {
   it("renders skip link, tools before follow-ups, header claim discipline, and hides contextual help", () => {
@@ -88,10 +88,11 @@ describe("DeveloperSettingsPageClient buyer-polished shell (SDX)", () => {
     expect(firstViewport).toContainElement(buildIdentityCard);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(DEVELOPER_SETTINGS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      DEVELOPER_SETTINGS_SOURCES,
+      DEVELOPER_SETTINGS_CANONICAL_PATH,
+    );
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

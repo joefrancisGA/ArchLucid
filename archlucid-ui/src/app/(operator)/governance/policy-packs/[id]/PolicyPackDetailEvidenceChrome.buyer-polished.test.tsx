@@ -25,6 +25,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => null,
 }));
 

@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const usePathnameMock = vi.hoisted(() => vi.fn(() => "/"));
+const usePathnameMock = vi.hoisted(() => vi.fn(() => "/administration/api-keys"));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
@@ -43,7 +43,11 @@ import {
   API_KEYS_PAGE_SUBTITLE,
   API_KEYS_ENTERPRISE_ONLY_NOTICE,
 } from "@/lib/api-keys-settings-copy";
-import { API_KEYS_SETTINGS_FOLLOW_UPS_TITLE } from "@/lib/api-keys-settings-evidence-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+import {
+  API_KEYS_SETTINGS_FOLLOW_UPS_TITLE,
+  API_KEYS_SETTINGS_SOURCES,
+} from "@/lib/api-keys-settings-evidence-copy";
 import {
   API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER,
@@ -63,7 +67,7 @@ vi.mock("@/lib/internal-operator-env", () => ({
 describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
-    usePathnameMock.mockReturnValue("/");
+    usePathnameMock.mockReturnValue("/administration/api-keys");
   });
 
   it("renders skip link, first-viewport band, orientation above summary, buyer subtitle, and hides vocabulary rails", async () => {
@@ -95,7 +99,7 @@ describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
     expect(screen.getByText(API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(API_KEYS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(API_KEYS_ENTERPRISE_ONLY_NOTICE)).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { level: 2, name: API_KEYS_SETTINGS_FOLLOW_UPS_TITLE })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: API_KEYS_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("api-keys-users-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("webhooks-api-keys-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("developer-api-contracts-api-keys-vocabulary-rail")).not.toBeInTheDocument();
@@ -107,7 +111,8 @@ describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(orientationTop);
     expect(firstViewport).toContainElement(summaryRow);
-    expect(screen.queryByTestId("api-keys-settings-sources")).not.toBeInTheDocument();
+    const sourcesSection = within(orientationTop).getByTestId("api-keys-settings-sources");
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), API_KEYS_SETTINGS_SOURCES, "/administration/api-keys");
     expect(orientationTop.compareDocumentPosition(summaryRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

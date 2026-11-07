@@ -84,14 +84,16 @@ vi.mock("./SettingsRolesMatrixSection", () => ({
 }));
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
+  SETTINGS_ROLES_SETTINGS_CANONICAL_PATH,
   SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE,
   SETTINGS_ROLES_SETTINGS_FOLLOW_UPS_TITLE,
   SETTINGS_ROLES_SETTINGS_SOURCES,
 } from "@/lib/settings-roles-settings-evidence-copy";
 import {
-  SETTINGS_ROLES_PAGE_SUBTITLE_BUYER,
   SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR,
+  SETTINGS_ROLES_USERS_TAB_SUBTITLE_BUYER,
   SETTINGS_ROLES_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID,
@@ -100,8 +102,6 @@ import {
 } from "./settings-roles-settings-page-copy";
 import { SettingsRolesPageView } from "./SettingsRolesPageView";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): SettingsRolesPageViewModel {
   return {
@@ -125,7 +125,7 @@ describe("SettingsRolesPageView buyer-polished shell (AUX)", () => {
       "href",
       `#${SETTINGS_ROLES_SETTINGS_SKIP_TARGET_ID}`,
     );
-    expect(screen.getByText(SETTINGS_ROLES_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByText(SETTINGS_ROLES_USERS_TAB_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
     expect(screen.getByTestId(SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
@@ -140,7 +140,7 @@ describe("SettingsRolesPageView buyer-polished shell (AUX)", () => {
 
     const primaryContent = screen.getByTestId(SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(SETTINGS_ROLES_SETTINGS_FIRST_VIEWPORT_TEST_ID);
-    const actionPanel = screen.getByTestId("settings-roles-action-panel");
+    const actionPanel = screen.getByTestId("settings-roles-users-tab-start-here-panel");
     const orientationBottom = screen.getByTestId("settings-roles-orientation-bottom");
     const sourcesSection = screen.getByTestId("settings-roles-settings-sources");
 
@@ -151,12 +151,13 @@ describe("SettingsRolesPageView buyer-polished shell (AUX)", () => {
     expect(screen.getByTestId("settings-roles-page-title")).toHaveTextContent(
       OPERATOR_NAV_LINK_LABELS.usersAndRoles,
     );
-    expect(screen.getByTestId("settings-roles-start-here-invite")).toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-start-here-invite")).not.toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_ROLES_SETTINGS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      SETTINGS_ROLES_SETTINGS_SOURCES,
+      SETTINGS_ROLES_SETTINGS_CANONICAL_PATH,
+    );
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

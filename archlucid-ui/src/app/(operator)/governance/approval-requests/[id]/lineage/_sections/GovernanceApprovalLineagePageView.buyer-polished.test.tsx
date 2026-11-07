@@ -65,8 +65,7 @@ import {
   APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
   APPROVAL_LINEAGE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-lineage-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { GovernanceApprovalLineagePageView } from "./GovernanceApprovalLineagePageView";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
@@ -166,10 +165,11 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
 
     expect(screen.getByRole("heading", { level: 2, name: APPROVAL_LINEAGE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(APPROVAL_LINEAGE_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      APPROVAL_LINEAGE_SOURCES,
+      "/governance/approval-requests/claims-intake-approval-001/lineage",
+    );
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
