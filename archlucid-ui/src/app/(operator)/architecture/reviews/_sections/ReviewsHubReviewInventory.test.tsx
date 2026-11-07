@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
@@ -63,6 +63,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     isAuthorityLoading: false,
     callerAuthorityRank: 2,
   }),
+  useNavCallerAuthorityRank: () => 2,
 }));
 
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
@@ -203,11 +204,12 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Architecture" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Approval" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Risks" })).toBeInTheDocument();
+    const table = screen.getByRole("table");
+    expect(within(table).getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
+    expect(within(table).getByText("Review", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Architecture", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Approval", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Risks", { selector: "span" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.getByText("Taylor Morgan")).toBeInTheDocument();
     const titleLink = screen.getByTestId("reviews-hub-primary-action-review-001");
