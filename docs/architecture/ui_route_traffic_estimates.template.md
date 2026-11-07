@@ -25,6 +25,8 @@ Master table sort key: rows with UX score 0 (unscored) appear before scored rows
 Not included: API route handlers (/api/*), legacy redirects/rewrites (see
 ui_routes.md), or off-site marketing traffic.
 
+**AIN** rows are contextual-only nav (not pilot-primary).
+
 **TB-2241 hidden-route policy:** Contextual-only operator paths (`nav-contextual-only-operator-paths.ts`) stay out of pilot nav but remain scoreable when reached via deep links. Internal platform catalog paths (`/internal/agent-model-catalog`, `/internal/platform-bundled-policy-packs`) and other `INTERNAL_UX_RANKING_EXCLUDED_PATHS` rows are excluded from OVERALL WEIGHT/EVIDENCE rollups. Ghost `page.tsx` retirements stay on redirect-hygiene peers (**TB-1404** / **TB-748**).
 
 ## Core Web Vitals field telemetry (TB-692)

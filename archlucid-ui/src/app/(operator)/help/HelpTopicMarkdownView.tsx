@@ -167,8 +167,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   } = props;
 
-  const buyerCatchallResidualChrome =
-    catchallResidualBuyerChrome && useProductionEvalChrome();
+  const productionEvalChrome = useProductionEvalChrome();
+  const buyerCatchallResidualChrome = catchallResidualBuyerChrome && productionEvalChrome;
 
   const sourceDocPath = entry.sourcePaths[0] ?? "";
 

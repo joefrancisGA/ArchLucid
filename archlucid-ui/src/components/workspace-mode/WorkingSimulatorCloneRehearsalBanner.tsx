@@ -33,12 +33,13 @@ export function WorkingSimulatorCloneRehearsalBanner(
 ): ReactElement | null {
   const { productLine } = useProductLine();
   const chrome = useWorkingSimulatorCloneRehearsalBanner();
+  const productionEvalChrome = useProductionEvalChrome();
 
   if (isSecureNowTrainingChromeExcluded(productLine)) {
     return null;
   }
 
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || useProductionEvalChrome()) {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || productionEvalChrome) {
     return null;
   }
 

@@ -113,9 +113,10 @@ function alertRulesConfigProvenanceMetadata(props: AlertRulesPageHeaderProps): R
   return null;
 }
 
-function alertRulesHeaderMetadata(props: AlertRulesPageHeaderProps): React.JSX.Element | null {
-  const buyerPolishedShell = useProductionEvalChrome();
-
+function alertRulesHeaderMetadata(
+  props: AlertRulesPageHeaderProps,
+  buyerPolishedShell: boolean,
+): React.JSX.Element | null {
   if (buyerPolishedShell) {
     return null;
   }
@@ -180,7 +181,7 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
           />
         </div>
       }
-      metadata={alertRulesHeaderMetadata(props)}
+      metadata={alertRulesHeaderMetadata(props, buyerPolishedShell)}
     />
   );
 }
