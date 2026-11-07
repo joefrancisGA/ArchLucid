@@ -56,7 +56,7 @@ describe("TerraformWorkbenchClient buyer-polished chrome", () => {
     expect(screen.getByTestId("infra-terraform-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-unscoped-panel")).toBeInTheDocument();
     expect(screen.getByTestId("infra-terraform-scope-picker")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-terraform-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-terraform-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-terraform-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();

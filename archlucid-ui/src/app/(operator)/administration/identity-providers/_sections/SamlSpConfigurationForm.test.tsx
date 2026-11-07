@@ -86,6 +86,36 @@ function stubIdentityFetch(): void {
         });
       }
 
+      if (url.includes("identity-providers-page-bundle")) {
+        return new Response(
+          JSON.stringify({
+            identityProviderDiagnostics: {
+              oidc: { status: "Healthy", summary: "OIDC configured." },
+              saml: { status: "NotApplicable", summary: "SAML disabled." },
+            },
+            authConfigurationDiagnostics: {
+              authMode: "JwtBearer",
+              audienceConfigured: true,
+              issuerOrAuthorityConfigured: true,
+              openIdDiscoverySucceeded: true,
+              saml2Enabled: false,
+              tenantClaimMappingConfigured: false,
+              roleClaimNameConfigured: false,
+              misconfigurationHints: [],
+            },
+            oidcDiagnostics: {
+              authMode: "JwtBearer",
+              configuredAuthority: "https://login.example.com/",
+              configuredAudience: "api://demo",
+              discoveryAttempted: true,
+              discoverySucceeded: true,
+            },
+            samlOperationalHealth: { saml2Enabled: false },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       if (url.includes("/diagnostics/identity-providers")) {
         return new Response(
           JSON.stringify({
