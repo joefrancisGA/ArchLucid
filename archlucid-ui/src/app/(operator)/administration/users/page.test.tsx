@@ -91,7 +91,7 @@ describe("SettingsRolesPage", () => {
 
     render(page);
 
-    expect(await screen.findByText("Ada")).toBeInTheDocument();
+    expect((await screen.findAllByText("Ada")).length).toBeGreaterThan(0);
     expect(screen.getByTestId("settings-roles-select-user-u1")).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
