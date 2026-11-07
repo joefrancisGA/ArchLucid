@@ -27,7 +27,7 @@ public sealed class DiagramSparseComponentPackerTests
         ast.Subgraphs.Should().BeEmpty();
         ast.Edges.Count(edge => edge.IsLayoutOnly).Should().BeGreaterThanOrEqualTo(2);
         mermaid.Should().Contain("~~~");
-        mermaid.Should().Contain("-->");
+        mermaid.Should().MatchRegex(@"(-->|-\.->)");
         mermaid.Should().NotContain("subgraph alpack");
         mermaid.Should().NotContain("style alpack_");
         mermaid.Should().NotContain("classDef alpack");

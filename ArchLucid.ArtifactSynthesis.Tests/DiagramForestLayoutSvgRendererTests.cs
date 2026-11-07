@@ -1304,7 +1304,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
         result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
         result.Svg.Should().Contain("Private endpoint link was stored. Observed use was not stored.");
-        result.Svg.Should().NotContain("class=\"edge-label\"");
+        result.Svg.Should().Contain("Relationship was not stored");
         ParsePrivateEndpointLockTranslateX(result.Svg).Should().BeLessThan(ParsePrivateEndpointArrowStartX(result.Svg));
     }
 

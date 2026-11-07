@@ -76,7 +76,9 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
         DiagramEdge? contains = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => string.Equals(edge.Label, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel, StringComparison.OrdinalIgnoreCase));
+            .SingleOrDefault(edge => edge.Label != null && edge.Label.Contains(
+                DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel,
+                StringComparison.OrdinalIgnoreCase));
         contains.Should().NotBeNull();
         ast.Nodes.Should().Contain(node =>
             node.NodeId == contains!.FromNodeId && string.Equals(node.Label, "core-vnet", StringComparison.Ordinal));

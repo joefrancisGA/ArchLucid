@@ -24,7 +24,7 @@ public sealed class InventoryDiagramHiddenPublicIpMarkApplierTests
         ast.Nodes.Should().NotContain(node => node.Label == "pip-app");
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
         vm.HasPublicInternetExposure.Should().BeTrue();
-        DiagramNodeHumanCaptionFactory.Create(vm).CombinedPlainText.Should().Contain("public");
+        DiagramNodeHumanCaptionFactory.Create(vm).CombinedPlainText.Should().Contain("Public");
     }
 
     [Fact]
