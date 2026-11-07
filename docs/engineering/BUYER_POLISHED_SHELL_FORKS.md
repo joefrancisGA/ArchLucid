@@ -1,3 +1,5 @@
+> **Scope:** Engineering inventory of operator UI buyer-polish shell forks (`useProductionEvalChrome` / legacy `isBuyerPolishedOperatorShellEnv`) — not a product UX guide.
+
 # Buyer-polished operator shell forks
 
 `isBuyerPolishedOperatorShellEnv()` and the React hook `useProductionEvalChrome()` gate buyer-facing copy, density, and navigation affordances in the operator UI. Each call site is a **fork** that must stay aligned with procurement demos and pilot polish expectations.
