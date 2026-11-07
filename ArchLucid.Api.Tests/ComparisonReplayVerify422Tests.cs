@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
 
@@ -21,17 +22,16 @@ public sealed class ComparisonVerify422ApiFactory : ArchLucidApiFactory
         base.ConfigureWebHost(builder);
         builder.ConfigureTestServices(services =>
         {
-            services.RemoveAll<IComparisonReplayApiService>();
-            services.AddScoped<IComparisonReplayApiService, ForcedComparisonVerificationFailureService>();
+            services.RemoveAll<IComparisonReplayService>();
+            services.AddScoped<IComparisonReplayService, ForcedComparisonVerificationFailureReplayService>();
         });
     }
 }
 
-internal sealed class ForcedComparisonVerificationFailureService : IComparisonReplayApiService
+internal sealed class ForcedComparisonVerificationFailureReplayService : IComparisonReplayService
 {
     public Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
-        bool metadataOnly,
         CancellationToken cancellationToken = default)
     {
         throw new ComparisonVerificationFailedException(
@@ -45,6 +45,13 @@ internal sealed class ForcedComparisonVerificationFailureService : IComparisonRe
     {
         return Task.FromResult(new DriftAnalysisResult());
     }
+
+    public Task EnsureArtifactReplayAccessAllowedAsync(
+        ComparisonRecord record,
+        CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
 }
 
 /// <summary>
@@ -52,17 +59,20 @@ internal sealed class ForcedComparisonVerificationFailureService : IComparisonRe
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory factory)
-    : IClassFixture<ComparisonVerify422ApiFactory>
+    : IntegrationTestBase(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
     [SkippableFact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
+        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+            Client, JsonOptions, "REQ-VERIFY-422-001");
+        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
+            Client, runId, replayRunId);
+
         string body =
             JsonSerializer.Serialize(new { format = "markdown", replayMode = "verify", persistReplay = false });
-        HttpResponseMessage response = await _client.PostAsync(
-            "/v1/architecture/comparisons/does-not-matter/replay",
+        HttpResponseMessage response = await Client.PostAsync(
+            $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay",
             new StringContent(body, Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);

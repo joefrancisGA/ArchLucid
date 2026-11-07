@@ -111,6 +111,25 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository, IWorks
         }
 
         _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
+
+        List<TenantWorkspaceRow> workspaces =
+            _workspacesByTenant.GetOrAdd(ScopeIds.DefaultTenant, static _ => []);
+
+        lock (workspaces)
+        {
+            if (!workspaces.Any(row => row.Id == ScopeIds.DefaultWorkspace))
+            {
+                workspaces.Add(
+                    new TenantWorkspaceRow
+                    {
+                        Id = ScopeIds.DefaultWorkspace,
+                        TenantId = ScopeIds.DefaultTenant,
+                        Name = "Development default workspace",
+                        DefaultProjectId = ScopeIds.DefaultProject,
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    });
+            }
+        }
     }
 
 
