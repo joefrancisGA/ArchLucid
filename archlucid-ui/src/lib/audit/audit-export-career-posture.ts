@@ -99,7 +99,9 @@ export function buildAuditExportCsvHonestyPreambleLines(
 
   const coverageHonestyComment = formatCareerExportHonestyPlainText({
     runId: "audit-csv",
+    progressSummary: null,
     manifestSummary: null,
+    graphSnapshot: null,
     enginesSucceeded: null,
   })
     .split("\n")
