@@ -81,7 +81,9 @@ describe("customer-architecture acceptance guard (CA-50)", () => {
     expect(hubSource).toContain("if (!isWorkingMode)");
     expect(hubSource).toContain("return <ArchitectureDraftListClient />");
     expect(hubSource).toContain("<ArchitectureIdentityListClient />");
-    expect(hubSource.indexOf("if (!isWorkingMode)")).toBeLessThan(hubSource.indexOf("ArchitectureDraftListClient"));
+    expect(hubSource.indexOf("if (!isWorkingMode)")).toBeLessThan(
+      hubSource.indexOf("return <ArchitectureDraftListClient />"),
+    );
   });
 
   it("operator architecture UI scan roots do not treat DraftId as ArchitectureId", () => {
