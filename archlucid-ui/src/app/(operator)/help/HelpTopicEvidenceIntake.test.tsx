@@ -5,8 +5,21 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/evidence-intake",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { HelpEvidenceIntakeGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeGuideView";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
+  EVIDENCE_INTAKE_HELP_CANONICAL_PATH,
   EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE,
   EVIDENCE_INTAKE_HELP_FOLLOW_UPS_TITLE,
   EVIDENCE_INTAKE_HELP_PRIMARY_ACTION,
@@ -15,7 +28,6 @@ import {
 import {
   EVIDENCE_INTAKE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
 } from "@/lib/evidence-intake-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL,
   EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL,
@@ -156,10 +168,11 @@ describe("HelpEvidenceIntakeGuideView (EVI)", () => {
 
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of EVIDENCE_INTAKE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      EVIDENCE_INTAKE_HELP_SOURCES,
+      EVIDENCE_INTAKE_HELP_CANONICAL_PATH,
+    );
   });
 
   it("canonicalizes related guides to first-architecture-review (TB-1352)", () => {

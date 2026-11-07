@@ -47,11 +47,26 @@ vi.mock("@/lib/jira-atlassian-oauth-connect", () => ({
   launchJiraAtlassianOAuthConnect: (...args: unknown[]) => mockLaunchOAuth(...args),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/integrations/jira",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
+vi.mock("@/lib/auth/livelihood-mutation-401-resume-wrappers", () => ({
+  saveItsmConnectorWith401Resume: async (input: { body: Record<string, unknown> }): Promise<unknown> =>
+    mockUpsertSettings(input.body),
+}));
+
 import { JiraIntegrationPageClient } from "./JiraIntegrationPageClient";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { JIRA_INTEGRATION_SOURCES } from "@/lib/jira-integration-evidence-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+import { JIRA_INTEGRATION_CANONICAL_PATH, JIRA_INTEGRATION_SOURCES } from "@/lib/jira-integration-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
@@ -216,10 +231,7 @@ describe("JiraIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("jira-integration-sources");
 
-    for (const link of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
-      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), JIRA_INTEGRATION_SOURCES, JIRA_INTEGRATION_CANONICAL_PATH);
 
     expect(within(sources).queryByRole("link", { name: "Open Integration readiness" })).not.toBeInTheDocument();
     expect(screen.getByTestId("jira-readiness-link")).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
