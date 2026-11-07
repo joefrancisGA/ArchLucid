@@ -11,6 +11,10 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import {
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
+} from "@/lib/first-review-guide-page-copy";
 import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -130,6 +134,20 @@ describe("FirstReviewGuidePageClient", () => {
     expect(layoutGrid).toContainElement(header);
     expect(layoutGrid).toContainElement(supportPanel);
     expect(supportPanel).toHaveClass("lg:sticky", "lg:top-4");
+  });
+
+  it("uses Next steps copy when sample and policy prerequisites are complete", () => {
+    mockUseFirstReviewGuideState.mockReturnValue(loadedGuideState);
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const prerequisiteSection = screen.getByTestId("first-review-one-prerequisite");
+
+    expect(within(prerequisiteSection).getByRole("heading", { level: 2 })).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
+    );
+    expect(screen.getByTestId("first-review-prerequisites-complete-body")).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+    );
   });
 
   it("shows readiness, walkthrough, evaluation scope, and bounded start-review CTAs when loaded", () => {

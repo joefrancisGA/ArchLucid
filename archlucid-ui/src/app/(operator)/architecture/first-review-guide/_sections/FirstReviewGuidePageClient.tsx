@@ -51,7 +51,10 @@ import {
 } from "@/lib/first-review-guide-evidence-copy";
 import {
   FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_TEST_ID,
+  FIRST_REVIEW_GUIDE_ONE_PREREQUISITE_SECTION_TITLE,
   FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
   FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL,
   FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
 } from "@/lib/first-review-guide-page-copy";
@@ -296,7 +299,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           data-testid="first-review-one-prerequisite"
         >
           <h2 id="first-review-one-prerequisite-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            One next prerequisite
+            {guide.onePrerequisite !== null
+              ? FIRST_REVIEW_GUIDE_ONE_PREREQUISITE_SECTION_TITLE
+              : FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE}
           </h2>
           {guide.onePrerequisite !== null ? (
             <>
@@ -307,7 +312,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             </>
           ) : (
             <>
-              <p className={OPERATOR_TYPOGRAPHY.helper}>Sample package and policy pack are selected.</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-prerequisites-complete-body">
+                {FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY}
+              </p>
               {walkthroughNextStep !== null ? (
                 <div className="space-y-1" data-testid="first-review-walkthrough-next-step">
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
