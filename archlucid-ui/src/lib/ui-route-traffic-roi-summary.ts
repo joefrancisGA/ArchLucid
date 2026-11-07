@@ -2,7 +2,7 @@
  * Traffic workbook row ID for sponsor ROI summary.
  * Owner backlog shorthand: SPR.
  */
-export const ROI_SUMMARY_TRAFFIC_ROW_ID = "SPR";
+export const ROI_SUMMARY_TRAFFIC_ROW_ID = "VRX";
 
 /** Canonical browser path for the sponsor ROI summary report. */
 export const ROI_SUMMARY_TRAFFIC_PATH = "/insights/roi-summary";

@@ -5,7 +5,7 @@ import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
  * Traffic workbook row ID for Sponsor report help.
  * Owner backlog shorthand: EXE.
  */
-export const SPONSOR_SUMMARY_HELP_TRAFFIC_ROW_ID = "EXE";
+export const SPONSOR_SUMMARY_HELP_TRAFFIC_ROW_ID = "ESP";
 
 /** Canonical path tracked on the EXE workbook row. */
 export const SPONSOR_SUMMARY_HELP_TRAFFIC_PATH = SPONSOR_SUMMARY_HELP_PATH;

@@ -7,6 +7,12 @@ const mockFetchConnection = vi.fn();
 const mockProbeHealth = vi.fn();
 const mockUpsertSettings = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/servicenow",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 let canMutate = true;
 const featureMocks = vi.hoisted(() => ({
   showOperatorNav: false,
@@ -184,7 +190,7 @@ describe("ServiceNowIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("servicenow-integration-sources");
 
-    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES)) {
+    for (const link of whereToGoNextFollowUpLinksForTests(SERVICENOW_INTEGRATION_SOURCES, "/integrations/servicenow")) {
       expectFollowUpLink(within(sources), link);
     }
 

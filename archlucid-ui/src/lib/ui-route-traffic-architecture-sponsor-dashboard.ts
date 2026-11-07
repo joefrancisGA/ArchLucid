@@ -4,7 +4,7 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
  * Traffic workbook row ID for the canonical sponsor dashboard App Router page.
  * Owner backlog shorthand: ARE.
  */
-export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_ROW_ID = "ARE";
+export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_ROW_ID = "DSH";
 
 /** Canonical path tracked on the ARE workbook row. */
 export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_PATH = SPONSOR_DASHBOARD_HREF;
@@ -16,8 +16,7 @@ export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_SECTION = "Sponsor";
  * Owner workbook Notes for ARE - documents Evidence chrome on the sponsor ROI dashboard.
  * ASCII-only for Windows console note scripts.
  */
-export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_NOTE =
-  "Sponsor ROI portfolio dashboard (Sponsor) - ExecutiveRoiDashboardPageView with PageContextualHelpButton (topic map sponsor-summary; Category-1 registry), hero, KPI tiles, trend charts, sponsor exports, board-pack evidence posture. Workspace health lives on sibling INW `/insights/workspace-health` (standalone Insights page). Absorbs retired ESX `/sponsor/scorecard` sponsor scorecard bookmark. Legacy /dashboard (DSH), /sponsor/dashboard (EXD), /portfolio, and `/sponsor/scorecard` bookmarks are hard-retired (host-gate 404). Legacy `/governance/dashboard` (GOD) redirects to INW. Sibling SCX = scorecard; INW = workspace-health; ASK = ask-review-questions. Not a signed-record Sources trail by itself. Score 72/100 (2026-08-08) - portfolio ROI launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.";
+export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_NOTE = "None";
 
 /** Legacy operator bookmark merged onto ARE during sponsor dashboard consolidation. */
 export const LEGACY_OPERATOR_SPONSOR_DASHBOARD_PATH = "/dashboard";
