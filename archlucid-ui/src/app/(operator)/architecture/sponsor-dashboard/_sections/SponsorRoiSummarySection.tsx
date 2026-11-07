@@ -1,7 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type ComponentType } from "react";
 
 import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
 import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
@@ -63,7 +64,24 @@ import {
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
 
-import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboard-deferred-chunks";
+import type { SponsorRoiSystemicIssueTrendChartProps } from "@/components/SponsorRoiSystemicIssueTrendChart";
+
+const SponsorRoiSystemicIssueTrendChart = dynamic(
+  () =>
+    import("@/components/SponsorRoiSystemicIssueTrendChart").then(
+      (module) => module.SponsorRoiSystemicIssueTrendChart,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-64 w-full animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"
+        role="status"
+        aria-label="Loading systemic issue trend chart"
+      />
+    ),
+  },
+) as ComponentType<SponsorRoiSystemicIssueTrendChartProps>;
 
 function sponsorRoiSummaryCardTitle(evalChromeShell: boolean): string {
   if (evalChromeShell) {
@@ -417,7 +435,7 @@ export function SponsorRoiSummarySection({
               testId="exec-roi-summary-trend-collection-scope-honesty"
             />
             <div className="mt-3">
-              <SponsorRoiSystemicIssueTrendChartDeferred
+              <SponsorRoiSystemicIssueTrendChart
                 series={displayData.historicalTrends ?? []}
                 savingsPricingBasis={displayData.savingsPricingBasis}
               />

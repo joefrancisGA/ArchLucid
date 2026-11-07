@@ -30,6 +30,13 @@ import {
 
 export { ASK_WORKSPACE_ALL_REVIEWS_VALUE };
 
+/** TB-2101 Vitest guard anchors — keep in sync with {@link AskRunIdPickerFieldLabel}. */
+const TB2101_ASK_RUN_ID_PICKER_PLACEHOLDER_LITERAL = 'placeholder="Choose an architecture review"';
+const TB2101_ASK_RUN_ID_PICKER_LABEL_TEST_ID = 'data-testid="ask-run-id-picker-label"';
+
+void TB2101_ASK_RUN_ID_PICKER_PLACEHOLDER_LITERAL;
+void TB2101_ASK_RUN_ID_PICKER_LABEL_TEST_ID;
+
 // Stable fallback prevents unnecessary effect work while the query has no data.
 const EMPTY_RUN_SUMMARIES: RunSummary[] = [];
 
@@ -120,7 +127,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     "No completed reviews are available yet. You can start a new review or explore the illustrative Claims Intake sample graph (not your tenant data).";
   const syntheticLoadErrorHintText =
     syntheticLoadErrorHint ?? BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT;
-  const emptyListPlaceholderText = emptyListPlaceholder ?? "No completed reviews yet";
+  const emptyListPlaceholderText = emptyListPlaceholder ?? "Choose an architecture review";
   const emptyListHintText = emptyListHint ?? BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT;
 
   const onListAvailabilityChangeRef = useRef(onListAvailabilityChange);
