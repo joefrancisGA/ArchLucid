@@ -137,9 +137,10 @@ export function isVerifyHypothesisReviewFinding(finding: QuickDecisionFinding): 
   const label = (finding.trustLabel ?? "").trim();
 
   if (
-    provenance.origin === "AI-generated"
-    && provenance.grounding === "Ungrounded"
-    && (label === "Heuristic" || label === "MissingCitation")
+    provenance.grounding === "Ungrounded"
+    && (provenance.origin === "Heuristic"
+      || provenance.origin === "MissingCitation"
+      || (provenance.origin === "AI-generated" && (label === "Heuristic" || label === "MissingCitation")))
   ) {
     return true;
   }

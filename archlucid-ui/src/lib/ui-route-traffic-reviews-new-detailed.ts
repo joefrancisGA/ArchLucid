@@ -1,5 +1,4 @@
 import {
-  REVIEWS_NEW_DETAILED_HREF,
   REVIEWS_NEW_DETAILED_PATH_TOKEN,
   REVIEWS_NEW_TEMPLATES_AND_IMPORTS_TAB_LABEL,
 } from "@/lib/reviews-new-path-copy";
@@ -10,8 +9,9 @@ import {
  */
 export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_ROW_ID = "REN";
 
-/** Canonical path tracked on the REN workbook row. */
-export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_PATH = REVIEWS_NEW_DETAILED_HREF;
+/** Canonical App Router path tracked on the REN workbook row. */
+export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_PATH =
+  "/architecture/architectures/[architectureId]/reviews/new" as const;
 
 /** Workbook Section column value - query-path tab on Start review hub. */
 export const REVIEWS_NEW_DETAILED_TAB_TRAFFIC_SECTION = "Tab surface";

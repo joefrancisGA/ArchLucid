@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
-import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
+import { TENANT_ORGANIZATION_NAME_UNAVAILABLE } from "@/lib/active-tenant-context-display";
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
@@ -38,7 +38,7 @@ describe("TenantWorkspaceBoundaryBadge", () => {
     render(<TenantWorkspaceBoundaryBadge variant="header" />);
 
     expect(screen.getByTestId("active-tenant-context-badge")).toHaveTextContent(
-      /Active tenant: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/i,
+      new RegExp(`Active tenant: ${TENANT_ORGANIZATION_NAME_UNAVAILABLE}`, "i"),
     );
     expect(screen.getByTestId("active-tenant-context-badge")).toHaveAttribute("href", "/administration/workspace-settings");
   });
@@ -57,7 +57,7 @@ describe("TenantWorkspaceBoundaryBadge", () => {
     render(<TenantWorkspaceBoundaryBadge variant="header" />);
 
     expect(screen.getByTestId("active-tenant-context-badge")).toHaveTextContent(
-      new RegExp(`Active tenant: ${DEV_SCOPE_TENANT_ID}`, "i"),
+      new RegExp(`Active tenant: ${TENANT_ORGANIZATION_NAME_UNAVAILABLE}`, "i"),
     );
   });
 });
