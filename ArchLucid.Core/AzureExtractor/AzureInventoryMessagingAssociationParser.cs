@@ -58,6 +58,8 @@ public static class AzureInventoryMessagingAssociationParser
                 ? AzureInventoryMessagingAssociationTypes.MessagingChild
                 : associationType.Trim(),
             CaptureStorageAccountId = TryReadBoundedString(element, "captureStorageAccountId", MaxIdentifierLength),
+            ForwardToName = TryReadBoundedString(element, "forwardToName", MaxNameLength),
+            ForwardDeadLetteredMessagesToName = TryReadBoundedString(element, "forwardDeadLetteredMessagesToName", MaxNameLength),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };
@@ -86,7 +88,8 @@ public static class AzureInventoryMessagingAssociationParser
 
     private static string? TryReadString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        if (!element.TryGetProperty(propertyName, out JsonElement value)
+            || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
         {
             return null;
         }
