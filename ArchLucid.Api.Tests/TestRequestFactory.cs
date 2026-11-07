@@ -29,6 +29,7 @@ public static class TestRequestFactory
         ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
 
         string slug = requestId.Trim().Replace("-", string.Empty, StringComparison.Ordinal);
+
         if (slug.Length > 48)
             slug = slug[..48];
 
