@@ -1,5 +1,40 @@
 import { vi } from "vitest";
 
+vi.mock("@/lib/api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api")>();
+
+  return {
+    ...actual,
+    listAdvisorySchedules: vi.fn(async () => []),
+    createAdvisorySchedule: vi.fn(async () => ({})),
+    listScheduleExecutions: vi.fn(async () => []),
+    runAdvisoryScheduleNow: vi.fn(async () => undefined),
+  };
+});
+
+vi.mock("@/lib/api/governance-stickiness-api", () => ({
+  previewRecurrenceScheduleRuns: vi.fn(async () => ({
+    isValid: true,
+    nextRunUtc: ["2026-07-21T11:00:00.000Z"],
+  })),
+}));
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => 3,
+}));
+
+vi.mock("@/hooks/use-advisory-schedule-review-availability", () => ({
+  useAdvisoryScheduleReviewAvailability: () => ({
+    loading: false,
+    hasFinalizedReviews: true,
+    finalizedCount: 1,
+  }),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
 vi.mock("@/lib/api/http", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/http")>();
 
