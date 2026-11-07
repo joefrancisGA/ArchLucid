@@ -2,7 +2,7 @@
  * Traffic workbook row ID for sponsor sponsor report.
  * Owner backlog shorthand: SPE.
  */
-export const SPONSOR_SUMMARY_TRAFFIC_ROW_ID = "VXX";
+export const SPONSOR_SUMMARY_TRAFFIC_ROW_ID = "SPE";
 
 /** Canonical browser path for the sponsor sponsor report report. */
 export const SPONSOR_SUMMARY_TRAFFIC_PATH = "/insights/sponsor-report";

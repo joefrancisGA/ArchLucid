@@ -15,4 +15,5 @@ export const EVIDENCE_TRACE_TRAFFIC_SECTION = "Core review";
  * Owner workbook Notes for ERU - documents Evidence chrome on finding evidence-trace.
  * ASCII-only for Windows console note scripts.
  */
-export const EVIDENCE_TRACE_TRAFFIC_NOTE = "None";
+export const EVIDENCE_TRACE_TRAFFIC_NOTE =
+  "None";

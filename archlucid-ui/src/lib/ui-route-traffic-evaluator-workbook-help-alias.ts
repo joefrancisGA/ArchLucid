@@ -19,4 +19,4 @@ export const CANONICAL_PATH_CHOOSER_HELP_TRAFFIC_PATH = PATH_CHOOSER_HELP_PATH;
  * ASCII-only for Windows console note scripts.
  */
 export const EVALUATOR_WORKBOOK_HELP_ALIAS_TRAFFIC_NOTE =
-  "No";
+  "None";

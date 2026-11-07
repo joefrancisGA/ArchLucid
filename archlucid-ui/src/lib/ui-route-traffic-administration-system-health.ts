@@ -16,7 +16,8 @@ export const ADMINISTRATION_SYSTEM_HEALTH_TRAFFIC_SECTION = "Admin";
  * Owner workbook Notes for ADY - documents Evidence chrome on System health.
  * ASCII-only for Windows console note scripts.
  */
-export const ADMINISTRATION_SYSTEM_HEALTH_TRAFFIC_NOTE = "None";
+export const ADMINISTRATION_SYSTEM_HEALTH_TRAFFIC_NOTE =
+  "None";
 
 /** Legacy operator bookmark path merged onto ADY during pre-release cleanup. */
 export const LEGACY_OPERATOR_SYSTEM_HEALTH_PATH = "/health";

@@ -16,4 +16,5 @@ export const SIGNED_RECORDS_LIST_TRAFFIC_SECTION = "Alerts/gov";
  * Owner workbook Notes for SI - documents Evidence chrome on signed-records list.
  * ASCII-only for Windows console note scripts.
  */
-export const SIGNED_RECORDS_LIST_TRAFFIC_NOTE = "None";
+export const SIGNED_RECORDS_LIST_TRAFFIC_NOTE =
+  "None";

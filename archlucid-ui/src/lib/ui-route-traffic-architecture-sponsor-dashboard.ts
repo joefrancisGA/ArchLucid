@@ -16,7 +16,8 @@ export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_SECTION = "Sponsor";
  * Owner workbook Notes for ARE - documents Evidence chrome on the sponsor ROI dashboard.
  * ASCII-only for Windows console note scripts.
  */
-export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_NOTE = "None";
+export const ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_NOTE =
+  "None";
 
 /** Legacy operator bookmark merged onto ARE during sponsor dashboard consolidation. */
 export const LEGACY_OPERATOR_SPONSOR_DASHBOARD_PATH = "/dashboard";
