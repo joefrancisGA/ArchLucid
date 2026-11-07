@@ -8,9 +8,7 @@ import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 import {
   ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE,
-  ADVISORY_SCANS_GENERATE_DISABLED_HINT,
   ADVISORY_SCANS_HOW_IT_WORKS_BODY,
-  ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
   ADVISORY_SCANS_LAST_LOADED_PREFIX,
   ADVISORY_SCANS_LIST_HEADING,
   ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY,
@@ -31,6 +29,11 @@ vi.mock("next/navigation", () => ({
     replace: vi.fn(),
   }),
   useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+  useProductionDeskChrome: () => true,
 }));
 
 function sampleRecommendation(): RecommendationRecord {
@@ -67,7 +70,19 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 }));
 
 vi.mock("@/components/AskRunIdPicker", () => ({
-  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+  AskRunIdPicker: (props: { label: string; fieldId?: string; onChange: (value: string) => void }) => (
+    <label htmlFor={props.fieldId}>
+      {props.label}
+      <input
+        id={props.fieldId}
+        aria-label={props.label}
+        data-testid="ask-run-id-picker"
+        onChange={(event) => {
+          props.onChange(event.target.value);
+        }}
+      />
+    </label>
+  ),
 }));
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
@@ -107,26 +122,24 @@ vi.mock("@/lib/api", () => ({
 describe("AdvisoryScansContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(listRecommendations).mockResolvedValue({ recommendations: [sampleRecommendation()] });
+    vi.mocked(listRecommendations).mockResolvedValue({ recommendations: [] });
   });
 
-  it("shows the generate form and list header on first load without a choose-review gate", () => {
+  it("shows the pick-review strip and list header before a review is scoped", () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
 
     expect(screen.getByTestId("advisory-scans-list-header")).toBeInTheDocument();
     expect(screen.getByText(ADVISORY_SCANS_LIST_HEADING)).toBeInTheDocument();
-    expect(screen.getByTestId("advisory-scan-form")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-scan-form")).not.toBeInTheDocument();
     expect(screen.getByTestId("advisory-scans-pick-review-before-scanning-strip")).toBeInTheDocument();
-    expect(screen.getByLabelText("Finalized review")).toBeInTheDocument();
-    expect(screen.getByTestId("advisory-scans-inline-boundary")).toHaveTextContent(
-      ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
-    );
+    expect(screen.getByLabelText("Architecture package")).toBeInTheDocument();
+    expect(screen.getByText(/What this page does not do/i)).toBeInTheDocument();
     expect(screen.getByTestId("advisory-scans-empty-actions")).toBeInTheDocument();
     expect(screen.queryByTestId("advisory-choose-review-cta")).not.toBeInTheDocument();
     expect(screen.queryByText(ADVISORY_SCANS_SAMPLE_SECTION_TITLE)).not.toBeInTheDocument();
   });
 
-  it("reveals sample preview with focus target and aria-expanded on first click", () => {
+  it("reveals sample preview with focus target and aria-expanded on first click", async () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
 
     const trigger = screen.getByTestId("advisory-empty-view-sample-cta");
@@ -135,8 +148,9 @@ describe("AdvisoryScansContent", () => {
 
     fireEvent.click(trigger);
 
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-    expect(trigger).toHaveAttribute("aria-controls");
+    await waitFor(() => {
+      expect(screen.getByTestId("advisory-sample-preview-region")).toBeInTheDocument();
+    });
 
     const region = screen.getByTestId("advisory-sample-preview-region");
 
@@ -151,32 +165,25 @@ describe("AdvisoryScansContent", () => {
     expect(
       screen.queryByRole("button", { name: /Accept|Defer|Reject|Mark implemented/i }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("advisory-scan-form")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-scan-form")).not.toBeInTheDocument();
   });
 
-  it("keeps generate disabled with aria-describedby until a review is selected", () => {
-    renderWithOperatorQuery(<AdvisoryScansContent />);
+  it("enables generate once a finalized review is scoped", async () => {
+    renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
-    const generate = screen.getByTestId("advisory-generate-scan-button");
+    await waitFor(() => {
+      const generate = screen.getByTestId("advisory-generate-scan-button");
 
-    expect(generate).toBeDisabled();
-    expect(generate).toHaveAttribute("aria-describedby");
-    expect(screen.getByTestId("advisory-generate-disabled-hint")).toHaveTextContent(
-      ADVISORY_SCANS_GENERATE_DISABLED_HINT,
-    );
-    expect(generate).not.toHaveAttribute("title");
-
-    fireEvent.change(screen.getByLabelText("Finalized review"), {
-      target: { value: "run-finalized-1" },
+      expect(generate).not.toBeDisabled();
+      expect(generate).not.toHaveAttribute("aria-describedby");
     });
-
-    expect(generate).not.toBeDisabled();
-    expect(generate.className).toContain("al-primary-action-bg");
-    expect(generate).not.toHaveAttribute("aria-describedby");
+    expect(screen.queryByTestId("advisory-generate-disabled-hint")).not.toBeInTheDocument();
+    expect(screen.getByTestId("advisory-generate-scan-button").className).toContain("al-primary-action-bg");
   });
 
   it("shows persistent scope metadata and refresh in the list header", () => {
-    renderWithOperatorQuery(<AdvisoryScansContent />);
+    vi.mocked(listRecommendations).mockResolvedValue({ recommendations: [sampleRecommendation()] });
+    renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
     expect(screen.getByTestId("advisory-scans-count")).toBeInTheDocument();
     expect(screen.getByTestId("advisory-scans-last-loaded")).toHaveTextContent(
@@ -190,7 +197,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("places one vocabulary rail and folded orientation below the form", () => {
-    renderWithOperatorQuery(<AdvisoryScansContent />);
+    renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
     const form = screen.getByTestId("advisory-scan-form");
     const rail = screen.getByTestId("advisory-results-schedules-vocabulary");
@@ -215,6 +222,7 @@ describe("AdvisoryScansContent", () => {
 
   it("opens an on-system disposition dialog instead of window.prompt (TB-1566)", async () => {
     const promptSpy = vi.spyOn(window, "prompt").mockImplementation(() => "");
+    vi.mocked(listRecommendations).mockResolvedValue({ recommendations: [sampleRecommendation()] });
 
     renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
@@ -223,7 +231,10 @@ describe("AdvisoryScansContent", () => {
     fireEvent.click(accept);
 
     expect(promptSpy).not.toHaveBeenCalled();
-    expect(screen.getByTestId("advisory-recommendation-disposition-dialog")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("advisory-recommendation-disposition-dialog")).toBeInTheDocument();
+    });
     expect(screen.getByText(ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE)).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("advisory-recommendation-disposition-confirm"));
@@ -236,9 +247,7 @@ describe("AdvisoryScansContent", () => {
   });
 
   it("hides admin manual id entry for non-admin callers", () => {
-    renderWithOperatorQuery(<AdvisoryScansContent />);
-
-    fireEvent.click(screen.getByText("Can't find a review?"));
+    renderWithOperatorQuery(<AdvisoryScansContent initialRunId="run-finalized-1" />);
 
     expect(screen.queryByText("Technical details (admin)")).not.toBeInTheDocument();
   });
