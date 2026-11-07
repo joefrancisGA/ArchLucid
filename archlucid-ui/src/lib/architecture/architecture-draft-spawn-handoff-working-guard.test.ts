@@ -26,17 +26,23 @@ describe("architecture draft spawn handoff Working guard (AO-07)", () => {
   });
 
   it("AO-07: spawn handoff modules do not import reviewDetailPath as the Working canonical locator", () => {
-    const nestedHrefModules = [
-      "components/architecture/ArchitectureDraftHandoffPanel.tsx",
-      "components/architecture/ArchitectureIdentityDeskCurrentDraft.tsx",
+    const nestedHrefModules: { readonly path: string; readonly hrefHelper: string }[] = [
+      {
+        path: "components/architecture/ArchitectureDraftHandoffPanel.tsx",
+        hrefHelper: "resolveArchitectureReviewHref",
+      },
+      {
+        path: "components/architecture/ArchitectureIdentityDeskCurrentDraft.tsx",
+        hrefHelper: "resolveSystemNotJobDeskSealedChildReviewHref",
+      },
     ];
     const startReviewModule = "hooks/use-architecture-draft-start-review.ts";
 
-    for (const relativePath of nestedHrefModules) {
-      const source = readFileSync(path.join(process.cwd(), "src", relativePath), "utf8");
+    for (const module of nestedHrefModules) {
+      const source = readFileSync(path.join(process.cwd(), "src", module.path), "utf8");
 
-      expect(source, relativePath).not.toContain("reviewDetailPath");
-      expect(source, relativePath).toContain("resolveArchitectureReviewHref");
+      expect(source, module.path).not.toContain("reviewDetailPath");
+      expect(source, module.path).toContain(module.hrefHelper);
     }
 
     const startReviewSource = readFileSync(path.join(process.cwd(), "src", startReviewModule), "utf8");
