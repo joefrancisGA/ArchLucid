@@ -18,6 +18,19 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/connection-status",
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { AdministrationConnectionStatusPageClient } from "@/app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient";
 import {
   ADMINISTRATION_CONNECTION_STATUS_FIRST_VIEWPORT_TEST_ID,
@@ -36,8 +49,9 @@ import {
   CONNECTION_STATUS_FOLLOW_UPS_TITLE,
   CONNECTION_STATUS_SOURCES,
 } from "@/lib/connection-status-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { ADMINISTRATION_CONNECTION_STATUS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 describe("AdministrationConnectionStatusPageClient buyer-polished shell (ADC)", () => {
@@ -82,7 +96,10 @@ describe("AdministrationConnectionStatusPageClient buyer-polished shell (ADC)", 
       screen.getByRole("heading", { name: OPERATOR_NAV_LINK_LABELS.connectionStatus }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      CONNECTION_STATUS_SOURCES,
+      ADMINISTRATION_CONNECTION_STATUS_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
