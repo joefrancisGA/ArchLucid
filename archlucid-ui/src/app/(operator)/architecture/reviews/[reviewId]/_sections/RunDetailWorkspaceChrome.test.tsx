@@ -152,7 +152,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute("data-disabled", "false");
     expect(screen.getByTestId("review-ask-dock")).toHaveAttribute("data-disabled", "false");
-    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-object-map-strip")).toBeInTheDocument();
   });
 
