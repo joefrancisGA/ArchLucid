@@ -55,11 +55,7 @@ export function isSponsorReportOutcomesSurface(pathname: string): boolean {
   return (
     normalized === SPONSOR_REPORT_PATH
     || normalized === SPONSOR_REPORT_ROI_SUMMARY_PATH
-    || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH
     || normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH
-    || normalized === `${LEGACY_SPONSOR_REPORT_ROOT_PATH}/sponsor-report`
-    || normalized === `${LEGACY_SPONSOR_REPORT_ROOT_PATH}/roi-summary`
-    || normalized.startsWith(`${LEGACY_SPONSOR_REPORT_ROOT_PATH}/`)
     || normalized === ARCHITECTURE_SCORECARD_PATH
     || normalized.startsWith(`${ARCHITECTURE_SCORECARD_PATH}/`)
   );
