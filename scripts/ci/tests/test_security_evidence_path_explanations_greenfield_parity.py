@@ -25,7 +25,7 @@ MIGRATIONS = ROOT / "ArchLucid.Persistence" / "Migrations"
 
 def table_body(sql: str) -> str:
     match = re.search(
-        rf"CREATE TABLE dbo\\.{TABLE}\\s*\\(\\s*([\\s\\S]*?)\\n\\s*\\);",
+        rf"CREATE TABLE dbo\.{TABLE}\s*\(\s*([\s\S]*?)\n\s*\);",
         sql,
         flags=re.IGNORECASE,
     )
@@ -38,7 +38,7 @@ def column_specs(table_sql: str) -> dict[str, tuple[str, str]]:
     specs: dict[str, tuple[str, str]] = {}
     for line in table_sql.splitlines():
         match = re.match(
-            r"\\s*(\\w+)\\s+(UNIQUEIDENTIFIER|INT|DATETIME2|NVARCHAR\\((?:MAX|\\d+)\\))\\s+(NOT NULL|NULL)\\s*,?\\s*$",
+            r"\s*(\w+)\s+(UNIQUEIDENTIFIER|INT|DATETIME2|NVARCHAR\((?:MAX|\d+)\))\s+(NOT NULL|NULL)\s*,?\s*$",
             line,
             flags=re.IGNORECASE,
         )
@@ -73,9 +73,9 @@ class SecureNowGreenfieldParityTests(unittest.TestCase):
         specs = column_specs(table_body(greenfield))
         self.assertEqual(("NVARCHAR(512)", "NULL"), specs["ModelOutputRejection"])
         for sql in (migration, greenfield):
-            self.assertRegex(sql, r"ADD ModelOutputRejection NVARCHAR\\(512\\) NULL;")
+            self.assertRegex(sql, r"ADD ModelOutputRejection NVARCHAR\(512\) NULL;")
             self.assertIn("COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'ModelOutputRejection') IS NULL", sql)
-        self.assertEqual(1, len(re.findall(r"CREATE TABLE dbo\\.SecurityEvidencePathExplanations", greenfield)))
+        self.assertEqual(1, len(re.findall(r"CREATE TABLE dbo\.SecurityEvidencePathExplanations", greenfield)))
 
     def test_unified_schema_matches_generator_and_contains_table(self) -> None:
         checked_in = UNIFIED.read_text(encoding="utf-8")
