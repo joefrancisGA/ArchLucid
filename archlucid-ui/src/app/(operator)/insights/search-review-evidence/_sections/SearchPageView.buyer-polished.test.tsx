@@ -33,7 +33,6 @@ vi.mock("@/components/WorkspaceActiveRunContext", () => ({
   useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
 }));
 
-vi.mock("./SearchNextReviewFooterClient",
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
 
@@ -45,7 +44,8 @@ vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
     }),
   };
 });
- () => ({
+
+vi.mock("./SearchNextReviewFooterClient", () => ({
   SearchNextReviewFooterClient: () => <div data-testid="search-next-review-footer-stub" />,
 }));
 

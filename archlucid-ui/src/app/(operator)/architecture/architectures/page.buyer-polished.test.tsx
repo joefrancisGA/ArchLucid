@@ -36,8 +36,7 @@ vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/architec
-ture/ArchitectureDraftListClient", () => ({
+vi.mock("@/components/architecture/ArchitectureDraftListClient", () => ({
   ArchitectureDraftListClient: () => <div data-testid="architecture-draft-list" />,
 }));
 
