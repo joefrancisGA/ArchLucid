@@ -17,14 +17,6 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: (): boolean => true,
 }));
 
-vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
-
-  return {
-    ...actual,
-    useWorkspaceMode: () => ({ isWorkingMode: false }),
-  };
-});
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -35,7 +27,17 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/components/architecture/ArchitectureDraftListClient", () => ({
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({ isWorkingMode: false }),
+  };
+});
+
+vi.mock("@/components/architec
+ture/ArchitectureDraftListClient", () => ({
   ArchitectureDraftListClient: () => <div data-testid="architecture-draft-list" />,
 }));
 

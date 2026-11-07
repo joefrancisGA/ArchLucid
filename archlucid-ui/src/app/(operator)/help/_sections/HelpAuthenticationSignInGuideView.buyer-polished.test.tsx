@@ -128,3 +128,22 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
     expectWhereToGoNextFollowUpLinks(within(sourcesSection), AUTHENTICATION_SIGN_IN_HELP_SOURCES, "/help/authentication-sign-in");
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

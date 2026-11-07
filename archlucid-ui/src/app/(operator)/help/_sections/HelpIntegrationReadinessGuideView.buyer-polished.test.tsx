@@ -70,3 +70,22 @@ describe("HelpIntegrationReadinessGuideView buyer-polished shell (HEI)", () => {
     expectWhereToGoNextFollowUpLinks(within(sourcesSection), INTEGRATION_READINESS_HELP_SOURCES, "/help/integration-readiness");
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

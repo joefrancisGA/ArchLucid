@@ -48,6 +48,25 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
 }));

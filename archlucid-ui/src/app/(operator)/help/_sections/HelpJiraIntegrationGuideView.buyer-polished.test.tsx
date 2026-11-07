@@ -44,6 +44,8 @@ vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   };
 });
 
+
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));

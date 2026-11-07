@@ -37,6 +37,25 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE } from "@/lib/contextual-help-drawer-evidence-copy";
 import { HELP_SEARCH_PANEL_SUBTITLE } from "@/lib/help/help-search-panel-catalog";

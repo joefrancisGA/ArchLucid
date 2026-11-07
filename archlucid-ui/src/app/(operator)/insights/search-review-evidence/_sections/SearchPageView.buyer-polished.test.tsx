@@ -15,6 +15,25 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => true,
 }));
 
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("@/components/runs/RunIdPicker", () => ({
+  RunIdPicker: () => <div data-testid="search-review-evidence-run-picker" />,
+}));
+
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
+}));
+
+vi.mock("./SearchNextReviewFooterClient",
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
 
@@ -26,24 +45,7 @@ vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
     }),
   };
 });
-
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
-
-vi.mock("@/components/runs/RunIdPicker", () => ({
-  RunIdPicker: () => <div data-testid="search-review-evidence-run-picker" />,
-}));
-
-vi.mock("@/components/AskRunIdPicker", () => ({
-  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
-}));
-
-vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
-}));
-
-vi.mock("./SearchNextReviewFooterClient", () => ({
+ () => ({
   SearchNextReviewFooterClient: () => <div data-testid="search-next-review-footer-stub" />,
 }));
 

@@ -160,3 +160,22 @@ describe("GovernanceFindingsQueueAssignedToMeShell buyer-polished shell (GFN)", 
     expect(GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE.length).toBeGreaterThan(0);
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
