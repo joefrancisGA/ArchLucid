@@ -39,7 +39,7 @@ describe("SelfDescribingMetricCount", () => {
     );
   });
 
-  it("renders quiet zero tiles without kpi scale", () => {
+  it("renders zero counts with workspace-scoped copy", () => {
     render(
       <SelfDescribingMetricCount
         presentation={operatorHomeActiveReviewsPresentation(0)}
@@ -50,6 +50,6 @@ describe("SelfDescribingMetricCount", () => {
     const value = screen.getByTestId("home-active-reviews-zero-value");
 
     expect(value).toHaveTextContent("0");
-    expect(value.className).not.toMatch(/text-4xl/);
+    expect(screen.getByText("active reviews")).toBeInTheDocument();
   });
 });

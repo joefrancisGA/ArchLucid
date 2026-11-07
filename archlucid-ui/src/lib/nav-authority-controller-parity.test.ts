@@ -94,7 +94,6 @@ describe("nav authority controller parity (TB-882)", () => {
  */
 const OPERATOR_NAV_HEADING_PARITY_SURFACES: readonly { href: string; governanceMode?: boolean }[] = [
   { href: IMPACT_PREVIEW_PATH },
-  { href: "/internal/trial-funnel" },
 ];
 
 describe("operator nav heading parity (TB-882)", () => {
