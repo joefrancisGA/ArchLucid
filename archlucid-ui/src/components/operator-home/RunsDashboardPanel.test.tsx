@@ -161,6 +161,9 @@ describe("RunsDashboardPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     navigationHoisted.searchParams = new URLSearchParams();
+    window.history.replaceState({}, "", "/");
+    runsDashBuyerPolishedForced.on = false;
+    sampleReviewsVisibleMock.value = true;
   });
 
   afterEach(() => {

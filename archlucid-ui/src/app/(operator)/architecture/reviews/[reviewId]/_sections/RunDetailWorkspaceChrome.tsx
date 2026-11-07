@@ -16,6 +16,10 @@ import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresente
 import { ReviewRoomHeaderButton } from "@/components/reviews/ReviewRoomHeaderButton";
 import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import {
@@ -298,6 +302,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         metadata={null}
         actions={
           <div className="flex min-w-0 flex-wrap items-start justify-end gap-2">
+            {buyerPolishedShell ? null : (
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            )}
             <div
               className={cn(
                 "flex min-w-0 flex-col items-end gap-1",

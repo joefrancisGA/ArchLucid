@@ -9,6 +9,7 @@ import {
   useSecureNowQuestionQueue,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { secureNowQuestionDispositionReviewerStatusLabel } from "@/lib/infra-evidence/securenow-question-disposition-status";
 
 const mocks = vi.hoisted(() => ({
   listQuestions: vi.fn(),
@@ -574,7 +575,7 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
-      "Resource group question",
+      "Policy pack question. Resource group was read from question text, not from stored scope.",
     );
     expect(screen.queryByText("Resource type was not stored")).not.toBeInTheDocument();
   });
@@ -599,7 +600,9 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.queryByText("Resource type was not stored")).not.toBeInTheDocument();
     expect(screen.queryByText("Resource name was stored empty.")).not.toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent("Subscription question");
+    expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
+      "Policy pack question. Stored scope was not on this title.",
+    );
   });
 
   it("does not warn about resource id when scopeKind is omitted on policy pack rows with empty listed resource id", async () => {
@@ -739,7 +742,14 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText("Reason required to reopen")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent(
+      secureNowQuestionDispositionReviewerStatusLabel({
+        status: null,
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      }),
+    );
   });
 
   it("hides open answer chrome when list JSON omits status even with whitespace-only disposition fields", async () => {
@@ -777,7 +787,14 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered" }));
 
-    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent(
+      secureNowQuestionDispositionReviewerStatusLabel({
+        status: "Open",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      }),
+    );
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
   });
@@ -1890,7 +1907,14 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered" }));
 
-    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent(
+      secureNowQuestionDispositionReviewerStatusLabel({
+        status: "Pending",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      }),
+    );
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
   });
@@ -1910,7 +1934,14 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("1 question to review")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent(
+      secureNowQuestionDispositionReviewerStatusLabel({
+        status: "Pending",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+        reason: "Operator selected the peer.",
+      }),
+    );
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
   });
 

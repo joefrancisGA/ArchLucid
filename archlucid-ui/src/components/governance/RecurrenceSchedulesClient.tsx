@@ -17,6 +17,10 @@ import {
 } from "@/lib/governance/recurrence-schedules-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components/governance/RecurrenceSchedulesPickReviewBeforeSchedulingStrip";
@@ -189,7 +193,20 @@ export default function RecurrenceSchedulesClient() {
         subtitle={recurrenceSchedulesPageSubtitle(buyerPolishedShell)}
         claimDiscipline={RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE}
         claimDisciplineTestId="recurrence-schedules-claim-discipline"
-        actions={isEmpty ? null : <div className="flex flex-wrap items-center gap-2">{createScheduleButton}</div>}
+        actions={
+          isEmpty ? (
+            buyerPolishedShell ? null : (
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            )
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              {buyerPolishedShell ? null : (
+                <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+              )}
+              {createScheduleButton}
+            </div>
+          )
+        }
       />
 
       <div
