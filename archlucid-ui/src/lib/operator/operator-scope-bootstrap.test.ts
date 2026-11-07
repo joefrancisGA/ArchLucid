@@ -13,6 +13,7 @@ import {
 } from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { writeLastRegistrationPayloadForTests } from "@/lib/operator/operator-registration-scope-test-helpers";
+import { accessTokenWithSubjectClaim } from "@/lib/oidc/testing/access-token-with-subject-claim";
 import { clearOidcSession, persistTokenResponse } from "@/lib/oidc/session";
 
 const fetchPostAuthBootstrapStatus = vi.hoisted(() => vi.fn());
@@ -52,7 +53,7 @@ describe("operator-scope-bootstrap", () => {
 
   it("bootstrapDedicatedWorkspaceScope_replaces_dev_default_scope_for_signed_in_users", async () => {
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });

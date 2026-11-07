@@ -1,15 +1,25 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/help/improvement-planning",
+  });
+});
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
 import { HelpImprovementPlanningGuideView } from "@/app/(operator)/help/_sections/HelpImprovementPlanningGuideView";
 import {
+  IMPROVEMENT_PLANNING_HELP_CANONICAL_PATH,
   IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
   IMPROVEMENT_PLANNING_HELP_SOURCES,
 } from "@/lib/improvement-planning-help-evidence-copy";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import {
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION_TAG,
@@ -88,7 +98,10 @@ describe("HelpImprovementPlanningGuideView", () => {
     expect(actionPanel.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByTestId("help-improvement-planning-claim-discipline")).toBeNull();
 
-    for (const source of IMPROVEMENT_PLANNING_HELP_SOURCES.filter((item) => item.adminOnly !== true)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      IMPROVEMENT_PLANNING_HELP_SOURCES,
+      IMPROVEMENT_PLANNING_HELP_CANONICAL_PATH,
+    )) {
       const sourcesRegion = within(screen.getByTestId("help-improvement-planning-sources"));
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
