@@ -47,8 +47,11 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         Guid controlId = Guid.NewGuid();
         Guid requirementId = Guid.NewGuid();
 
-        InMemoryAuditManualEvidenceRepository repository = new();
         ScopeContext scope = CreateProjectScope(tenantId);
+        InMemoryAuditAssessmentRepository assessmentRepository = new();
+        AuditAssessmentRecord assessment = CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid());
+        assessmentRepository.Assessments[assessmentId] = assessment;
+        InMemoryAuditManualEvidenceRepository repository = new(assessmentRepository);
         TestScopeContextProvider scopeProvider = new(scope);
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActorId()).Returns("agent:loop-runner");
@@ -58,6 +61,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             scopeProvider,
             actor.Object,
             repository,
+            assessmentRepository,
             requirements:
             [
                 new AuditEvidenceRequirementRecord
@@ -67,7 +71,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
                     ManualEvidenceAllowed = true,
                 },
             ],
-            assessment: CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid()));
+            assessment);
 
         AuditManualEvidenceSubmitResult result = await service.TrySubmitAsync(new AuditManualEvidenceSubmitRequest
         {
@@ -92,8 +96,11 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         Guid controlId = Guid.NewGuid();
         Guid requirementId = Guid.NewGuid();
 
-        InMemoryAuditManualEvidenceRepository repository = new();
         ScopeContext scope = CreateProjectScope(tenantId);
+        InMemoryAuditAssessmentRepository assessmentRepository = new();
+        AuditAssessmentRecord assessment = CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid());
+        assessmentRepository.Assessments[assessmentId] = assessment;
+        InMemoryAuditManualEvidenceRepository repository = new(assessmentRepository);
         TestScopeContextProvider scopeProvider = new(scope);
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActorId()).Returns("jwt:tenant:user");
@@ -104,6 +111,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             scopeProvider,
             actor.Object,
             repository,
+            assessmentRepository,
             requirements:
             [
                 new AuditEvidenceRequirementRecord
@@ -113,7 +121,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
                     ManualEvidenceAllowed = true,
                 },
             ],
-            assessment: CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid()));
+            assessment);
 
         AuditManualEvidenceSubmitResult result = await service.TrySubmitAsync(new AuditManualEvidenceSubmitRequest
         {
@@ -139,7 +147,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         Guid tenantA = Guid.NewGuid();
         Guid tenantB = Guid.NewGuid();
         Guid assessmentId = Guid.NewGuid();
-        InMemoryAuditManualEvidenceRepository repository = new();
+        InMemoryAuditManualEvidenceRepository repository = new(new InMemoryAuditAssessmentRepository());
 
         await repository.InsertSubmissionAsync(new AuditManualEvidenceSubmissionRecord
         {
@@ -173,8 +181,12 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         Guid requirementId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
 
-        InMemoryAuditManualEvidenceRepository manualRepository = new();
-        InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new();
+        ScopeContext scope = CreateProjectScope(tenantId);
+        InMemoryAuditAssessmentRepository assessmentRepository = new();
+        assessmentRepository.Assessments[assessmentId] = CreateAssessment(tenantId, scope, assessmentId, Guid.NewGuid());
+
+        InMemoryAuditManualEvidenceRepository manualRepository = new(assessmentRepository);
+        InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new(assessmentRepository);
         InMemoryAuditEvidenceRequirementRepository requirementRepository = new();
 
         requirementRepository.Requirements.Add(new AuditEvidenceRequirementRecord
@@ -260,8 +272,6 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AuditHybridEvidenceQueryService>.Instance);
 
-        ScopeContext scope = CreateProjectScope(tenantId);
-
         AuditHybridControlEvidenceRecord? hybrid = await hybridService.TryGetControlEvidenceSourcesAsync(
             scope,
             assessmentId,
@@ -281,13 +291,13 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
         TestScopeContextProvider scopeProvider,
         IActorContext actor,
         InMemoryAuditManualEvidenceRepository repository,
+        InMemoryAuditAssessmentRepository assessmentRepository,
         IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
         AuditAssessmentRecord assessment)
     {
         InMemoryAuditEvidenceRequirementRepository requirementRepository = new();
         requirementRepository.Requirements.AddRange(requirements);
 
-        InMemoryAuditAssessmentRepository assessmentRepository = new();
         assessmentRepository.Assessments[assessment.AssessmentId] = assessment;
 
         return new AuditManualEvidenceSubmissionService(
@@ -317,7 +327,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             Task.FromResult<string?>(null);
     }
 
-    private sealed class InMemoryAuditManualEvidenceRepository : IAuditManualEvidenceRepository
+    private sealed class InMemoryAuditManualEvidenceRepository(IAuditAssessmentRepository assessmentRepository) : IAuditManualEvidenceRepository
     {
         public List<AuditManualEvidenceSubmissionRecord> Submissions
         {
@@ -336,6 +346,52 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             Submissions.Add(submission);
 
             return Task.CompletedTask;
+        }
+
+        public async Task InsertSubmissionInScopeAsync(
+            ProjectScopeKey scope,
+            AuditManualEvidenceSubmissionMutation mutation,
+            CancellationToken cancellationToken = default)
+        {
+            AuditAssessmentRecord? assessment = await assessmentRepository.TryGetByIdInScopeAsync(
+                scope,
+                mutation.AssessmentId,
+                cancellationToken);
+
+            if (assessment is null)
+            {
+                throw new InvalidOperationException("Assessment not found in project scope.");
+            }
+
+            Submissions.Add(mutation.ToRecord(scope.TenantId));
+        }
+
+        public async Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByControlInScopeAsync(
+            ProjectScopeKey scope,
+            Guid assessmentId,
+            Guid controlId,
+            CancellationToken cancellationToken = default)
+        {
+            if (await assessmentRepository.TryGetByIdInScopeAsync(scope, assessmentId, cancellationToken) is null)
+            {
+                return [];
+            }
+
+            return await ListByControlAsync(scope.TenantId, assessmentId, controlId, cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlInScopeAsync(
+            ProjectScopeKey scope,
+            Guid assessmentId,
+            Guid controlId,
+            CancellationToken cancellationToken = default)
+        {
+            if (await assessmentRepository.TryGetByIdInScopeAsync(scope, assessmentId, cancellationToken) is null)
+            {
+                return [];
+            }
+
+            return await ListArchitectureLinksByControlAsync(scope.TenantId, assessmentId, controlId, cancellationToken);
         }
 
         public Task<IReadOnlyList<AuditManualEvidenceSubmissionRecord>> ListByAssessmentAsync(
@@ -461,7 +517,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
                     .ToList());
     }
 
-    private sealed class InMemoryAuditEvidenceSnapshotRepository : IAuditEvidenceSnapshotRepository
+    private sealed class InMemoryAuditEvidenceSnapshotRepository(IAuditAssessmentRepository assessmentRepository) : IAuditEvidenceSnapshotRepository
     {
         private readonly Dictionary<Guid, AuditEvidenceSnapshotHeaderRecord> _headers = [];
         private readonly Dictionary<Guid, List<AuditEvidenceSnapshotItemRecord>> _items = [];
@@ -472,6 +528,45 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             _items[request.Header.AuditEvidenceSnapshotId] = request.Items.ToList();
 
             return Task.CompletedTask;
+        }
+
+        public Task InsertSnapshotInScopeAsync(
+            ProjectScopeKey scope,
+            AuditEvidenceSnapshotPersistRequest request,
+            CancellationToken cancellationToken = default) =>
+            InsertSnapshotAsync(request, cancellationToken);
+
+        public async Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+        {
+            AuditEvidenceSnapshotHeaderRecord? header = await TryGetHeaderAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+
+            if (header is null || header.AssessmentId == Guid.Empty)
+            {
+                return null;
+            }
+
+            AuditAssessmentRecord? assessment = await assessmentRepository.TryGetByIdInScopeAsync(
+                scope,
+                header.AssessmentId,
+                cancellationToken);
+
+            return assessment is null ? null : header;
+        }
+
+        public async Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+        {
+            if (await TryGetHeaderInScopeAsync(scope, auditEvidenceSnapshotId, cancellationToken) is null)
+            {
+                return [];
+            }
+
+            return await ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
         }
 
         public Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderAsync(
