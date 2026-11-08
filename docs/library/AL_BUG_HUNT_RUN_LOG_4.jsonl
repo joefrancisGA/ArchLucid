@@ -3769,3 +3769,4 @@
 {"at":"2026-11-05T03:01:49.5202786Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-11-05T03:41:15.3683622Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-11-05T03:44:32.1388317Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-11-08T19:16:33.4604489Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs","ArchLucid.Analyzers.Tests/MutatingControllerAuditAnalyzerTests.cs"],"severity":"medium","defectClass":"fail-open-validation"}

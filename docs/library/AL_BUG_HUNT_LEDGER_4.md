@@ -1983,7 +1983,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
+
+2026-11-08 thorough hunt #1693 (hit): rotation left `host-core-coordination` after three dry hunts and picked `security-analyzers`. Proved `MutatingControllerAuditAnalyzer.SemanticBodiesInvokeAuditLogAsync` treated every `LogAsync` invocation in the action syntax as audit proof, including `LogAsync` that lives only in nested local functions the action never calls, so a mutating `[HttpPost]` stayed silent for AL0003. Fixed by counting a local-function invocation only when that local is reachable from the action entry (a direct call, or a chain of locals that are themselves reachable). Regression `AL0003_reports_when_LogAsync_lives_in_nested_local_never_reached_from_action_entry` failed first (expected 1 diagnostic, actual 0); `AL0003_is_absent_when_Post_calls_nested_locals_that_reach_LogAsync` keeps a called chain silent. Scoped `MutatingControllerAuditAnalyzerTests` **54/54** (`RunAnalyzers=false`). Private beta: a mutating API action on the invited build again needs a `LogAsync` the action can actually run — an uncalled nested local no longer satisfies AL0003.
+
+- [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only inside nested local functions the action never calls suppresses AL0003 — **hit 2026-11-08 thorough hunt #1693:** local-function reachability from the action entry; regression `AL0003_reports_when_LogAsync_lives_in_nested_local_never_reached_from_action_entry`.
 
 2026-11-04 thorough hunt #1692 (dry): picker flagged `security-analyzers` as seed (`seedHunt: true`; empty open list in picker JSON — five header `(candidate)` rows from hunt **#1691** reseed remain in ledger). Cheap-disproof closed all five — **valid-no-repro** lock-body `LogAsync` (`SemanticBodiesInvokeAuditLogAsync` descends all statement bodies including `lock`; compile-time proof — parity **#869** syntax scan family), **valid-no-repro** type-level `[Authorize]` on one partial only (`HasTypeLevelAuthorizeOrAllowAnonymous` merges partial `NamedType` symbols — `Does_not_report_when_controller_has_Authorize` family), **valid-no-repro** `Func<HttpContext, int>` field (`AnalyzeGenericName` + `IsOrUsesBannedType`; parity `Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly`), **valid-no-repro** non-constant `switch` arm with `LogAsync` (reachable-arm proof satisfies AL0003 when any arm invokes audit — distinct from hunt **#873** constant-discriminant unreachable arms), **valid-no-repro** record primary-constructor `[Authorize]` parameter (parameter decoration does not gate inherited-action AL0001; `Reports_inherited_unauthorized_action_when_derived_declares_unrelated_authorized_action` family). Reseeded five `(candidate)` rows below (hunt #1692 reseed); scoped analyzer filter **134/134** (`RunAnalyzers=false`). **This dry is 1/3** on `security-analyzers` at run-log tail. Private beta: n/a.
 
@@ -2183,13 +2187,13 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 48
-- **bugs-found:** 42
+- **hunts:** 49
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — AL0003 treated unreachable switch-arm LogAsync as audit proof
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — AL0003 treated LogAsync in an uncalled nested local as audit proof
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-09 seed hunt (seed→hit): concrete inherited-action scan ignored interface `[Authorize]`/`[AllowAnonymous]` that declared actions and the abstract empty-type helper already accepted; empty derived controllers reported AL0001 for a base action authorized on its implemented interface; inherited actions now use `ActionHasAuthorization`; regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).
