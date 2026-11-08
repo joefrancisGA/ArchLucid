@@ -28,7 +28,7 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"accountId":"wire"}"""));
 
         wireMock
-            .Given(Request.Create().WithPath("/api/now/table/incident").UsingGet())
+            .Given(Request.Create().WithPath("/api/now/table/incident").WithParam("sysparm_limit", "1").UsingGet())
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"result":[]}"""));
 
         HttpClient client = factory.CreateClient();
@@ -59,7 +59,7 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.Unauthorized).WithBody("denied"));
 
         wireMock
-            .Given(Request.Create().WithPath("/api/now/table/incident").UsingGet())
+            .Given(Request.Create().WithPath("/api/now/table/incident").WithParam("sysparm_limit", "1").UsingGet())
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"result":[]}"""));
 
         HttpClient client = factory.CreateClient();

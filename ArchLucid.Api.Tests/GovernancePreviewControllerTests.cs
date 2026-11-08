@@ -34,7 +34,8 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsNotFound_WhenRunMissing()
     {
-        var body = new { runId = "nonexistent-run-id-xxxxxxxx", manifestVersion = "v1", environment = "dev" };
+        string missingRunId = Guid.NewGuid().ToString("D");
+        var body = new { runId = missingRunId, manifestVersion = "v1", environment = "dev" };
 
         HttpResponseMessage response = await Client.PostAsync("/v1/governance-preview/preview", JsonContent(body));
 

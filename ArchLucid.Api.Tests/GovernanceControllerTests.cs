@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Application.Common;
 
 using FluentAssertions;
 
@@ -170,9 +171,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         first.StatusCode.Should().Be(HttpStatusCode.OK);
         HttpResponseMessage second = await PostJsonAsTestActorAsync(
             url,
-            GovernanceReviewDecisionJsonContent("reviewer-rej2", "no"),
-            "reviewer-rej2",
-            "99999999-9999-9999-9999-999999999999");
+            GovernanceReviewDecisionJsonContent("reviewer-rej2-again", "no"),
+            "reviewer-rej2-again",
+            "88888888-8888-8888-8888-888888888888");
         second.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
@@ -252,7 +253,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             JsonSerializer.Deserialize<GovernancePromotionResponseDto>(promoteBody, JsonOptions);
         result.Should().NotBeNull();
         result.TargetEnvironment.Should().Be("prod");
-        result.PromotedBy.Should().Be(prodReviewerName);
+        result.PromotedBy.Should().Be($"{ActorContextKeys.JwtActorKeyPrefix}{prodReviewerOid}");
     }
 
     // â”€â”€ Activate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -398,9 +399,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         first.StatusCode.Should().Be(HttpStatusCode.OK);
         HttpResponseMessage second = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted.ApprovalRequestId}/approve",
-            GovernanceReviewDecisionJsonContent("reviewer-dup", "ok"),
-            "reviewer-dup",
-            "dddddddd-dddd-dddd-dddd-dddddddddddd");
+            GovernanceReviewDecisionJsonContent("reviewer-dup-two", "ok"),
+            "reviewer-dup-two",
+            "cccccccc-cccc-cccc-cccc-cccccccccccc");
         second.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
