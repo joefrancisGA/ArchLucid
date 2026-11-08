@@ -335,6 +335,13 @@ internal static class TenantScopedSqlExpressionResolver
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
         ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+
+        if (fromAssignment is not null &&
+            fromInitializer is { IsStaticallyResolved: true, SqlText: "" or null, BranchSqlTexts.Count: 0 })
+        {
+            return fromAssignment;
+        }
+
         ResolutionResult? merged = MergeBranchResolutions(fromInitializer, fromAssignment);
 
         if (merged is not null)
@@ -899,7 +906,61 @@ internal static class TenantScopedSqlExpressionResolver
         SemanticModel modelForSyntax = GetSemanticModelForSyntax(syntax, semanticModel);
         result = ResolveCore(returnExpression, modelForSyntax, visitingInterpolatedHole: false);
 
+        // A non-static hole drops the whole interpolated return. The ctor-chain
+        // caller then only sees the method name, so a tenant table in the literal
+        // parts never reaches ARCH006. Keep those literals when the hole is not
+        // itself a scope helper.
+        if (!result.IsStaticallyResolved &&
+            !result.HasScopeHelperInvocation &&
+            returnExpression is InterpolatedStringExpressionSyntax interpolatedReturn)
+        {
+            ResolutionResult literalSql = ResolveInterpolatedLiteralSql(interpolatedReturn, modelForSyntax);
+
+            if (literalSql.IsStaticallyResolved)
+                result = literalSql;
+        }
+
         return result.IsStaticallyResolved || result.BranchSqlTexts.Count > 0 || result.HasScopeHelperInvocation;
+    }
+
+    private static ResolutionResult ResolveInterpolatedLiteralSql(
+        InterpolatedStringExpressionSyntax interpolated,
+        SemanticModel semanticModel)
+    {
+        bool hasScopeHelper = false;
+        System.Text.StringBuilder builder = new();
+
+        foreach (InterpolatedStringContentSyntax content in interpolated.Contents)
+        {
+            switch (content)
+            {
+                case InterpolatedStringTextSyntax text:
+                    builder.Append(text.TextToken.ValueText);
+
+                    break;
+
+                case InterpolationSyntax interpolation:
+                    ResolutionResult hole = ResolveCore(interpolation.Expression, semanticModel, visitingInterpolatedHole: true);
+
+                    if (hole.HasScopeHelperInvocation || IsScopeHelperExpression(interpolation.Expression, semanticModel))
+                    {
+                        hasScopeHelper = true;
+                    }
+                    else if (hole.IsStaticallyResolved && hole.SqlText is not null)
+                    {
+                        builder.Append(hole.SqlText);
+                    }
+
+                    break;
+            }
+        }
+
+        string sql = builder.ToString();
+
+        if (string.IsNullOrWhiteSpace(sql))
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(sql, true, hasScopeHelper);
     }
 
     /// <summary>

@@ -874,6 +874,44 @@ public sealed record ParameterizedMethodSqlRepository(string Sql)
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return()
+    {
+        const string testCode = MinimalStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System;
+using System.Data;
+using Dapper;
+
+public sealed record InterpolatedMethodSqlRepository(string Sql)
+{
+    private static string FormatRunSql(Guid tenantId) =>
+        $"SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL AND RunId = {tenantId}";
+
+    public InterpolatedMethodSqlRepository(Guid tenantId)
+        : this(FormatRunSql(tenantId))
+    {
+    }
+
+    public void Load(System.Data.IDbConnection connection)
+    {
+        _ = connection.Query<int>(Sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(158, 13, 158, 39)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_does_not_analyze_execute_scalar_async_string_when_command_type_is_stored_procedure()
     {
         const string testCode = MinimalStubs +

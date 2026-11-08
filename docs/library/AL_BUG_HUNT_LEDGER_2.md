@@ -1,4 +1,4 @@
-> **Scope:** Hunt ledger for `/al-bug2` (API, identity, tenancy, and governance). Edit this file only from that command. Sync and push `bugsmash-2`. Do not edit the other set ledgers in the same hunt.
+> **Scope:** Contributor-reference — Hunt ledger for `/al-bug2` (API, identity, tenancy, and governance). Edit this file only from that command. Sync and push `bugsmash-2`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: tenant-settings-sql
 
@@ -1569,13 +1569,33 @@
 
 ## Zone: tenant-scoped-analyzer
 
-2026-11-01 thorough hunt (hit #361): promoted hunt **#360** monitor `(candidate)` — record `: this(FormatRunSql(tenantId))` with **parameterized** factory method missed ARCH006 because `TryResolveFromMethodInvocation` rejected non-zero arity before folding the ctor chain; **`TryResolveFromRecordThisConstructorArgument`** now resolves parameterized `: this(...)` factory invocations when the callee body still yields static SQL (`allowParameterizedCallee` on `TryResolveFromMethodInvocation`). Cheap-disproof closed four sibling monitor rows — **valid-no-repro** `ExecuteScalarAsync` / `ExecuteReaderAsync` stored-proc string overloads (`ARCH006_does_not_analyze_execute_scalar_async_string_when_command_type_is_stored_procedure`, `ARCH006_does_not_analyze_execute_reader_async_string_when_command_type_is_stored_procedure`), **valid-no-repro** nested local-function `CommandDefinition` builder (`ARCH006_reports_unscoped_sql_for_command_definition_local_function_called_from_nested_local_function`), **valid-no-repro** file-scoped partial-record primary-constructor default (parity with cross-file / sibling-partial regressions), **valid-no-repro** justified `[TenantScopeExempt]` on explicit interface implementation suppresses ARCH006 by design (`ARCH006_is_suppressed_when_explicit_interface_has_valid_tenant_scope_exemption`). Reseeded five follow-on `(candidate)` rows; parity probes **26/26** passed (Release). Private beta: Persistence repositories that build SQL through parameterized `: this(factory(tenantId))` record ctor chains now get ARCH006 during CI analyzer runs, reducing the chance unscoped tenant-table queries ship in tenant-scoped SQL paths.
+2026-11-08 thorough hunt (hit #362): **rotation fired** at pick time (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on `tenant-data-export`* (outcomes: dry, dry, dry); hunted **`tenant-scoped-analyzer`** with `-AvoidZoneId tenant-data-export`). Promoted the interpolated-factory monitor from hit **#361**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned an interpolated string, because a non-static hole dropped the whole return and the call site only showed the method name. `ResolveInterpolatedLiteralSql` keeps the literal SQL for that fold. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return`. Cheap-disproof closed the other four **#361** monitor rows — **valid-no-repro** catch-body `CommandDefinition` call sites (method-body `DescendantNodes` includes catch blocks), **valid-no-repro** `const` string fields via `ResolveFromSymbol` (`nameof` is the identifier, not the SQL), **valid-no-repro** non-constant `commandType` fields stay on the ad hoc path only when `GetConstantValue` fails (proc-name text has no scoped table), **valid-no-repro** `[TenantScopeExempt]` is read from the merged symbol in `TryGetExemption`. Reseeded five follow-on `(candidate)` rows; scoped analyzer tests **67/67** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns an interpolated string now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
 
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is **interpolated string** method return with tenant parameter in hole — locus: `TryResolveFromMethodInvocation` + ctor chain; input: `: this(FormatRunSql(tenantId))` where method returns `$"SELECT … {tenantId}"`; wrong outcome: ARCH006 missed when hole is scope helper vs literal table; reachability: parameterized SQL format helpers in Persistence (monitor; hunt #361).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteAsync` with `CommandDefinition` local whose call sites live only in **catch** filter block — locus: `TryResolveFromLocalFunctionParameterCallSites` block scan; input: builder invoked inside filtered catch; wrong outcome: unscoped SQL skipped; reachability: error-path Dapper in repositories (monitor; hunt #361).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — primary-constructor default uses **`nameof`** or `const` field indirection — locus: primary-constructor default resolution; input: default references const field holding SQL; wrong outcome: ARCH006 missed on `Query` using synthesized property; reachability: record SQL holders (monitor; hunt #361).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `QueryAsync` with `CommandType` read from **readonly instance field** initialized to StoredProcedure — locus: `IsStoredProcedureDapperInvocation`; input: non-constant commandType argument; wrong outcome: stored proc misclassified as ad hoc SQL; reachability: repository base classes (monitor; hunt #361).
-- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on **partial method** declaration part with SQL on other part — locus: exemption symbol walk vs partial declarations; input: attribute on one partial, Dapper on another; wrong outcome: false ARCH006 or false ARCH006b; reachability: partial repository types (monitor; hunt #361).
+- [x] (proven) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is an interpolated-string method return — **hit 2026-11-08 thorough hunt #362:** `ResolveInterpolatedLiteralSql` on the ctor-chain fold; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteAsync` with `CommandDefinition` local called only from a catch block — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryResolveFromLocalFunctionParameterCallSites` scans the enclosing method block, which includes catch bodies.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver` — primary-constructor default uses `nameof` or a `const` string field — **cheap-disproof 2026-11-08 thorough hunt #362:** `ResolveFromSymbol` reads `IFieldSymbol.ConstantValue` for const strings; `nameof` is not the SQL text.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` from a readonly instance field — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryGetConstantCommandType` ignores non-constants; a procedure name without a scoped table does not emit ARCH006.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on one partial method part — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryGetExemption` reads attributes on the merged symbol.
+
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — factory returns `string.Format` with a non-constant argument and a tenant table in the format string — locus: `ResolveCore` on the method return vs `TryResolveStringFormatInvocation`; input: `: this(FormatRunSql(tenantId))` returning `string.Format("SELECT … dbo.Runs … {0}", tenantId)`; wrong outcome: ARCH006 missed; reachability: Persistence format helpers.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function, not a private method, returns interpolated SQL into `: this(...)` — locus: local-function syntax reference; input: local `FormatRunSql` inside the ctor; wrong outcome: ARCH006 missed; reachability: repository ctors that keep the formatter local.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeSqlExpression` — `CommandDefinition` SQL argument is an interpolated method invocation, not a record property — locus: invocation argument resolution; input: `Query(FormatRunSql(tenantId))` where the method returns `$"SELECT … dbo.Runs … {tenantId}"`; wrong outcome: ARCH006 missed at the call site; reachability: Dapper calls that pass a formatter directly.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — primary-constructor default names a const declared on a different partial record part — locus: const lookup across `DeclaringSyntaxReferences`; input: `record R(string Sql = OtherPart.Sql)`; wrong outcome: ARCH006 missed; reachability: split record SQL holders.
+- [ ] (candidate) `TenantScopeExemptSymbolHelper.TryGetExemption` — attribute sits only on the partial method declaration part and the implementation part contains the Dapper call — locus: attribute merge before exemption walk; input: declaration `[TenantScopeExempt(...)]` and implementation `Query`; wrong outcome: ARCH006 still reported or ARCH006b missed; reachability: partial repository methods.
+
+- **id:** tenant-scoped-analyzer
+- **status:** open
+- **impact:** high
+- **aliases:** ARCH006; tenant scoped query analyzer
+- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
+- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
+- **hunts:** 55
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — interpolated `: this(factory(tenantId))` record ctor chains missed ARCH006
+- **related-pd-tb:** none
+- **code-changed-since:** no
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is **parameterized** method invocation (non-zero arity) — **hit 2026-11-01 thorough hunt #361:** `allowParameterizedCallee` on ctor-chain method fold; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_parameterized_method_invocation_argument`.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteScalarAsync` / `ExecuteReaderAsync` string overload + `commandType: StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #361:** parity probes above.
@@ -1723,19 +1743,6 @@
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
 
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 54
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — parameterized `: this(factory(tenantId))` record ctor chains missed ARCH006
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-09 seed hunt (seed→hit): promoted nested local functions and expression-bodied properties. A private method `GetRunsSql()` was already folded, but the same arrow body nested inside `Load` was not, and `static string Sql => "SELECT … dbo.Runs …"` was ignored because only property initializers were read. Regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`. 28 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed, and the Persistence build stayed clean.
