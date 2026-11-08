@@ -145,6 +145,14 @@ public static class InventoryDiagramIndirectRelationshipResolver
             return true;
         }
 
+        if (string.Equals(edge.EdgeType, "PEERS_WITH", StringComparison.OrdinalIgnoreCase)
+            || AzureInventoryRelationshipAssociationTypes.IsVnetPeeringRelationship(
+                edge.EdgeType,
+                edge.InferenceSource))
+        {
+            return true;
+        }
+
         return IsCitedInferenceSource(edge.InferenceSource);
     }
 
