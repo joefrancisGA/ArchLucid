@@ -8898,6 +8898,14 @@
 ---
 
 ## Zone: tenant-data-export
+2026-11-08 thorough hunt (dry #991): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five monitor rows reseeded at dry **#990** — **valid-no-repro** cooperative cancel after `BuildAsync` and before `BuildPdfExportAsync` (further awaits pass `cancellationToken`, and `ArchitectureReviewPdfBuilder.BuildAsync` throws at entry; host-cancel class), **valid-no-repro** cooperative cancel on `ReplayExportRecord` during `EnsureSealedManifestReadAllowedForExportRecordAsync` (guard is awaited with the request token before `ReplayExportAsync`; host-cancel class), **valid-no-repro** JSON string `"01"` on `is_sample_run` (non-zero numeric string blocks the sample workspace; regression `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`), **valid-no-repro** the same export record id on both sides of compare (each side is loaded and field-diffed; identical records produce an empty diff), **valid-no-repro** IPv6 zone-id account label `https://[fe80::1%25eth0].blob.core.windows.net/c?sas=1` (policy returns the private-network rejection, same gate as `[::1].blob.core.windows.net`). No new row met the hunt-ready bar. Private beta: n/a.
+
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel after `architectureAnalysisService.BuildAsync` returns but before `BuildPdfExportAsync` starts — **cheap-disproof 2026-11-08 thorough hunt #991:** host-cancel class; PDF builder observes the token at entry.
+- [x] (valid-no-repro) `ExportsController.ReplayExportRecord` — cooperative cancel during sealed-manifest guard before `ReplayExportAsync` — **cheap-disproof 2026-11-08 thorough hunt #991:** guard is awaited with `cancellationToken`.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"01"` on `is_sample_run` — **cheap-disproof 2026-11-08 thorough hunt #991:** `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — same `leftExportRecordId` and `rightExportRecordId` — **cheap-disproof 2026-11-08 thorough hunt #991:** `LoadPairAsync` loads both ids and `ExportRecordDiffService.Compare` reports field changes only.
+- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — IPv6 zone-id percent-encoded in blob account label — **cheap-disproof 2026-11-08 thorough hunt #991:** `https://[fe80::1%25eth0].blob.core.windows.net/c?sas=1` is rejected as a private-network destination.
+
 2026-11-06 thorough hunt (dry #990): **rotation at next pick** after this record is appended to the run log (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'tenant-data-export' (outcomes: dry, dry, dry).*; consecutive outcomes **#988**, **#989**, **#990**). Cheap-disproof closed five open `(candidate)` monitor rows reseeded at dry **#989** — **valid-no-repro** cooperative cancel during PDF `BuildPdfExportAsync` after tenant logo resolves (`ArchitectureReviewExportService.Pdf.cs` forwards `cancellationToken` to `pdfBuilder.BuildAsync`; host-cancel class; dry **#971** / PDF diary parity), **valid-no-repro** cooperative cancel during sealed-manifest guard on `ArchitectureExportController.ExportRunSummary` before `GenerateMarkdownAsync` (host-cancel class; dry **#974**), **valid-no-repro** JSON string `"1e-1"` on `is_sample_run` does not coerce to boolean true (`double.TryParse` yields `0.1` but `stringNumeric == Math.Truncate(stringNumeric)` fails ~188–192; falls through; `TryParseJsonBoolean` returns `false`; career posture does not treat as sample — non-integer numeric-string gap), **valid-no-repro** cooperative cancel during second sealed-manifest guard on `ExportsController.CompareExportRecordsSummary` before `CompareExportRecordsSummaryAsync` (host-cancel class; dry **#974**), **invalid** `HTTPS` scheme casing on blob URL — `string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)` (~17–18) accepts any casing canonical URI delivers; no SSRF loosening. Reseeded five follow-on `(candidate)` monitor rows below; scoped zone filter **43/43** (12/12 `FullyQualifiedName~ArchitectureReviewExport`; 11/11 `FullyQualifiedName~ExportsController`; 20/20 `FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy`); `RunAnalyzers=false`. Private beta: n/a.
 
 - [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel during PDF `BuildPdfExportAsync` after tenant logo bytes resolve — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; `pdfBuilder.BuildAsync` observes token.
@@ -8906,11 +8914,11 @@
 - [x] (valid-no-repro) `ExportsController.CompareExportRecordsSummary` — cooperative cancel during second sealed-manifest guard before summary persist — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; host-cancel class.
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — uppercase `HTTPS` scheme with Azure blob host — **cheap-disproof 2026-11-06 thorough hunt #990:** dry **#989** reseed queue; `OrdinalIgnoreCase` scheme gate.
 
-- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel after `architectureAnalysisService.BuildAsync` returns but before `BuildPdfExportAsync` starts — locus: `GenerateReportAsync` switch on `ExportFormat`; input: cancel between analysis projection and PDF builder (monitor; hunt #990 reseed).
-- [ ] (candidate) `ExportsController.ReplayExportRecord` — cooperative cancel during sealed-manifest guard before `ReplayExportAsync` — locus: replay route; input: cancel after `EnsureSealedManifestReadAllowedForExportRecordAsync` begins (monitor; hunt #990 reseed).
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"01"` on `is_sample_run` — locus: ordinal `"1"` fast path vs `double.TryParse`; input: leading-zero padded decimal string (monitor; hunt #990 reseed).
-- [ ] (candidate) `ExportsController.CompareExportRecords` — same `leftExportRecordId` and `rightExportRecordId` — locus: compare GET; input: duplicate query ids (monitor; hunt #990 reseed).
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — IPv6 zone-id percent-encoded in blob account label — locus: `Uri.TryCreate` + `IdnHost`; input: `https://[fe80::1%25eth0].blob.core.windows.net/c?sas=1` (monitor; hunt #990 reseed).
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — cooperative cancel after `architectureAnalysisService.BuildAsync` returns but before `BuildPdfExportAsync` starts — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
+- [x] (valid-no-repro) `ExportsController.ReplayExportRecord` — cooperative cancel during sealed-manifest guard before `ReplayExportAsync` — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `"01"` on `is_sample_run` — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — same `leftExportRecordId` and `rightExportRecordId` — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
+- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — IPv6 zone-id percent-encoded in blob account label — **cheap-disproof 2026-11-08 thorough hunt #991:** closed at the zone header.
 
 - [x] (superseded) dry **#989** open `(candidate)` queue — **superseded 2026-11-06 thorough hunt #990:** closed at zone header; see hunt **#990** reseed.
 
@@ -9486,13 +9494,13 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 970
+- **hunts:** 971
 - **bugs-found:** 64
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-08
 - **last-bug:** 2026-11-04 — board export used analysis evidence system name when stored manifest system name was whitespace-only
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
