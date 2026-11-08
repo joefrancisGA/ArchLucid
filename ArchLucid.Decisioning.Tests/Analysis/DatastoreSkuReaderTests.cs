@@ -41,6 +41,24 @@ public sealed class DatastoreSkuReaderTests
     }
 
     [Fact]
+    public void TryRead_maps_grs_when_zone_redundant_is_false()
+    {
+        // GRS is geo-redundant and not zone-redundant. Both keys are on the same datastore reader.
+        bool parsed = DatastoreSkuReader.TryRead(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["tf.zone_redundant"] = "false",
+                ["tf.account_replication_type"] = "GRS",
+            },
+            out DatastoreSkuTier tier,
+            out string observedSku);
+
+        parsed.Should().BeTrue();
+        tier.Should().Be(DatastoreSkuTier.GeoRedundant);
+        observedSku.Should().Be("GRS");
+    }
+
+    [Fact]
     public void TryRead_returns_false_when_sku_missing()
     {
         bool parsed = DatastoreSkuReader.TryRead(

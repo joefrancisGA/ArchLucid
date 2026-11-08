@@ -24232,13 +24232,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
-2026-10-30 seed hunt (seed-only): reread decisioning after the half-minute RPO fix. No row met the hunt-ready bar without repeating a saturated class or the minute-rounding, NSG field, visit-key, or SKU-token mechanisms. Seeded five candidates below. No production code changed. Private beta: n/a.
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `DatastoreSkuReader.TryRead`: `zoneRedundant=false` returned SingleRegion before `accountReplicationType=GRS`. GRS is geo-redundant and not zone-redundant (`templates/context-ingestion/simple-terraform-sketch.json` stores `account_replication_type = "GRS"`; DX-25 reads that key and `zoneRedundant` on the same datastore). A false geo or zone flag now falls through to the SKU token, and a false flag still means single-region when no SKU token maps. Regression `TryRead_maps_grs_when_zone_redundant_is_false` failed first (`SingleRegion`) and then passed with the SKU reader and requirement-tier tests (**12/12**, `RunAnalyzers=false`). Cheap-disproof: `httpsOnly` `0` and `zone_redundant` `no` are coerced to `false` by `GraphJsonScalarReaders.TryNormalizeBooleanString` before these classifiers. `hostNetwork=false` remap and the in-memory sealed-slice insert stay candidates. Private beta: when an invited operator's storage account is GRS and that datastore also records zone redundancy as false, the review treats the account as geo-redundant instead of single-region.
 
-- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returns SingleRegion before the SKU token is read. [class:boolean-coercion]
-- [ ] (candidate) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy, so the app service is not flagged. [class:boolean-coercion]
+- [x] (proven) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returned SingleRegion before the SKU token — **hit 2026-11-08 thorough hunt:** read a mapped SKU before a false zone or geo flag becomes single-region; regression `TryRead_maps_grs_when_zone_redundant_is_false`. [class:boolean-coercion]
+- [x] (valid-no-repro) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy — **cheap-disproof 2026-11-08 thorough hunt:** graph property bags coerce `0` to `false` before the classifier.
 - [ ] (candidate) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — a missing in-scope row inserts `manifest` when `manifest.TenantId` is not `scope.TenantId`; the SQL update throws instead. [class:authz-scope]
 - [ ] (candidate) `DeclarationPremiseConflictClassifier.MapThemeToConflictKind` — `k8s.hostNetwork` value `false` still remaps a network-isolation baseline to workload isolation. [class:boolean-coercion]
-- [ ] (candidate) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled, so it counts as replica evidence. [class:boolean-coercion]
+- [x] (valid-no-repro) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled — **cheap-disproof 2026-11-08 thorough hunt:** graph property bags coerce `no` to `false`, which this method already treats as disabled.
+
+2026-10-30 seed hunt (seed-only): reread decisioning after the half-minute RPO fix. No row met the hunt-ready bar without repeating a saturated class or the minute-rounding, NSG field, visit-key, or SKU-token mechanisms. Seeded five candidates below. No production code changed. Private beta: n/a.
+
+- [x] (proven) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returns SingleRegion before the SKU token is read — **hit 2026-11-08 thorough hunt:** see the zone header. [class:boolean-coercion]
+- [x] (valid-no-repro) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy, so the app service is not flagged — **cheap-disproof 2026-11-08 thorough hunt:** see the zone header.
+- [x] (superseded) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — missing in-scope row insert — **moved 2026-11-08:** open candidate is on the 2026-11-08 hunt note.
+- [x] (superseded) `DeclarationPremiseConflictClassifier.MapThemeToConflictKind` — `k8s.hostNetwork` value `false` — **moved 2026-11-08:** open candidate is on the 2026-11-08 hunt note.
+- [x] (valid-no-repro) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled, so it counts as replica evidence — **cheap-disproof 2026-11-08 thorough hunt:** see the zone header.
 
 2026-10-30 seed hunt (seed→hit): promoted `DrRpoQualityAttributeParser.ConvertHoursToMinutes`, which rounds `rpoHours` `0.0083` (the hours `RequestQualityAttributeMaterializer` stores for `RPO 0.5 minutes`) to 0 minutes, so the recovery finding states `RPO 0 min`; a positive fraction under half a minute now stays at 1 minute while exact hour products such as 0.25 hours stay 15 minutes; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1402/1416** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator records a recovery objective of half a minute, the review states that RPO as 1 minute instead of 0 minutes.
 
@@ -24326,13 +24334,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 66
-- **bugs-found:** 54
+- **hunts:** 67
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — half-minute RPO hours rounded to 0 minutes
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — zoneRedundant false hid a GRS datastore SKU as single-region
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 seed hunt (seed→hit): proved a simple-terraform Cosmos account named `polyglot` with `terraformType` `azurerm_cosmosdb_account` was skipped by the RPO walk; longer product tokens and declaration type fields now count, and Cosmos role assignments stay excluded; regressions `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` and `AnalyzeAsync_emits_none_when_terraform_type_is_cosmos_role_assignment`; 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed.
 
