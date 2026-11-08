@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   GOVERNANCE_OVERVIEW_FINDINGS_ACTION,
   GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION,
-  GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT,
 } from "@/lib/governance/governance-overview-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
@@ -46,6 +45,38 @@ vi.mock("next/link", () => ({
       {children}
     </a>
   ),
+}));
+
+const overviewLoadStateReady = {
+  status: "ready" as const,
+  dashboard: {
+    pendingApprovals: [],
+    recentDecisions: [],
+    recentChanges: [],
+    pendingCount: 0,
+  },
+  metrics: {
+    pendingApprovalRequests: 0,
+    approvedReviewPackages: 0,
+    blockingFindings: {
+      unownedHighSeverityFindings: 0,
+      staleFindings: 0,
+      findingsAwaitingEvidence: 0,
+    },
+    blockingFindingsTotal: 0,
+    recentDecisions: 0,
+    policyActivations: 0,
+  },
+};
+
+vi.mock("./use-governance-overview-load-state", () => ({
+  useGovernanceOverviewLoadState: () => ({
+    loadState: overviewLoadStateReady,
+    lastRefreshedAt: new Date("2026-01-15T12:00:00.000Z"),
+    summaryRefreshing: false,
+    retryOverview: vi.fn(),
+    workspaceIsIdle: true,
+  }),
 }));
 
 describe("GovernanceOverviewPanel (GOP P0)", () => {
@@ -94,16 +125,13 @@ describe("GovernanceOverviewPanel (GOP P0)", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("governance-overview-submit-action")).toBeDisabled();
+      expect(screen.getByTestId("governance-overview-load-review")).toBeDisabled();
     });
 
-    expect(screen.getByTestId("governance-overview-submit-disabled-hint")).toHaveTextContent(
-      GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT,
+    expect(screen.getByTestId("governance-overview-load-review-hint")).toHaveTextContent(
+      /select a review/i,
     );
-
-    fireEvent.click(screen.getByTestId("governance-overview-submit-action"));
-
-    expect(onFocusSubmit).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
   });
 
   it("shows summary freshness, scope, and segregation lines (P0-2 / P0-5)", async () => {
@@ -111,7 +139,7 @@ describe("GovernanceOverviewPanel (GOP P0)", () => {
       <GovernanceOverviewPanel
         buyerPolishedShell={false}
         canMutateWorkflow
-        queryRunId=""
+        queryRunId="review-001"
         setQueryRunId={vi.fn()}
         onLoadReview={vi.fn()}
         onFocusSubmit={onFocusSubmit}
@@ -133,7 +161,7 @@ describe("GovernanceOverviewPanel (GOP P0)", () => {
       <GovernanceOverviewPanel
         buyerPolishedShell={false}
         canMutateWorkflow
-        queryRunId=""
+        queryRunId="review-001"
         setQueryRunId={vi.fn()}
         onLoadReview={vi.fn()}
         onFocusSubmit={onFocusSubmit}
@@ -158,7 +186,7 @@ describe("GovernanceOverviewPanel (GOP P0)", () => {
       <GovernanceOverviewPanel
         buyerPolishedShell={false}
         canMutateWorkflow
-        queryRunId=""
+        queryRunId="review-001"
         setQueryRunId={vi.fn()}
         onLoadReview={vi.fn()}
         onFocusSubmit={onFocusSubmit}

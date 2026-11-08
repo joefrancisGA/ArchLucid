@@ -52,7 +52,7 @@ describe("account-security-page-copy (TB-1881)", () => {
     }
 
     expect(sources).toContain(ACCOUNT_SECURITY_PAGE_TITLE);
-    expect(readUiSource("src/app/(operator)/account/security/AccountSecurityPageClient.tsx")).toContain(
+    expect(readUiSource("src/app/(operator)/account/security/use-account-security-page.ts")).toContain(
       "ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT",
     );
     expect(ACCOUNT_SECURITY_AUTH_GATE_MESSAGE).toContain("Sign-in methods");

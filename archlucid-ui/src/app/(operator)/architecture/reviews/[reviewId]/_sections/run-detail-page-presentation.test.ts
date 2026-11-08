@@ -165,9 +165,25 @@ describe("buildRunDetailPresentation", () => {
   });
 
   it("demotes the governance CTA card when governance is already the primary action", async () => {
-    const finalized = await buildRunDetailPresentation(model({ manifestId: "manifest-1" }), false);
+    const finalized = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        hasFindingsSnapshot: true,
+        operatorGovernanceDecision: "Approved with monitoring",
+        findings: [
+          {
+            findingId: "f-reviewed",
+            message: "Reviewed",
+            severity: 2,
+            humanReviewStatus: 2,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
 
-    expect(finalized.showGovernanceCta).toBe(true);
+    expect(finalized.showGovernanceCta).toBe(false);
     expect(finalized.showGovernanceCtaCard).toBe(false);
   });
 
@@ -319,6 +335,6 @@ describe("buildRunDetailPresentation", () => {
       false,
     );
 
-    expect(presentation.highestSeverity).toBeNull();
+    expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
   });
 });

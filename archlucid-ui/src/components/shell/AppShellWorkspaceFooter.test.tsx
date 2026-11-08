@@ -81,3 +81,8 @@ describe("AppShellWorkspaceFooter", () => {
     expect(screen.getByRole("contentinfo", { name: "Workspace footer" })).toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

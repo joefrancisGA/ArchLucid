@@ -52,6 +52,11 @@ export const CAREER_GRAVITY_EXPORT_WATERMARK_ROWS: readonly CareerGravityExportW
     ownerPrompt: "CG-044",
   },
   {
+    relativePath: "archlucid-ui/src/lib/audit/audit-export-career-posture.ts",
+    leakClass: "covered",
+    ownerPrompt: "CG-026",
+  },
+  {
     relativePath: "archlucid-ui/src/components/reviews/RunDetailCareerArtifactHonestyStrip.tsx",
     leakClass: "covered",
     ownerPrompt: "CG-029",

@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
 import { writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
 import { writeFavoriteReviews } from "@/lib/favorite-reviews";
+import { REVIEW_PACKAGE_OWNER_UNAVAILABLE } from "@/lib/review-package-validation-picker";
 
 const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
@@ -63,6 +64,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     isAuthorityLoading: false,
     callerAuthorityRank: 2,
   }),
+  useNavCallerAuthorityRank: () => 2,
 }));
 
 vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
@@ -105,6 +107,7 @@ function emptySummary() {
 
 beforeEach(() => {
   window.localStorage.clear();
+  window.history.replaceState({}, "", "/");
   useArchitectureDraftRegistryEntries.mockReset();
   useArchitectureDraftRegistryEntries.mockReturnValue([]);
   readOperatorScopeFromStorage.mockReset();
@@ -147,7 +150,7 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByTestId("workspace-scope-empty-teaching")).toBeInTheDocument();
     expect(screen.getByText("No reviews in Payments")).toBeInTheDocument();
-    expect(screen.getByText("Switch workspace/project to see other work.")).toBeInTheDocument();
+    expect(screen.getByText(/Switch workspace\/project to see other work\./)).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).not.toBeInTheDocument();
   });
 
@@ -203,13 +206,14 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Architecture" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Approval" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Risks" })).toBeInTheDocument();
+    const table = screen.getByRole("table");
+    expect(within(table).getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
+    expect(within(table).getByText("Review", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Architecture", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Approval", { selector: "span" })).toBeInTheDocument();
+    expect(within(table).getByText("Risks", { selector: "span" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
-    expect(screen.getByText("Taylor Morgan")).toBeInTheDocument();
+    expect(screen.getByText(REVIEW_PACKAGE_OWNER_UNAVAILABLE)).toBeInTheDocument();
     const titleLink = screen.getByTestId("reviews-hub-primary-action-review-001");
     expect(titleLink).toHaveAttribute("href");
     expect(titleLink.className).toMatch(/underline/);

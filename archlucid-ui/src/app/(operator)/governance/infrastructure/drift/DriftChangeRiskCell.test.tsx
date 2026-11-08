@@ -28,12 +28,12 @@ describe("DriftChangeRiskCell", () => {
   it("renders plain text for none and unknown risk", () => {
     const { rerender } = render(<DriftChangeRiskCell change={buildChange({ riskClassification: null })} />);
 
-    expect(screen.getByTestId("infra-drift-risk-label")).toHaveTextContent("None");
+    expect(screen.getByTestId("infra-drift-risk-label")).toHaveTextContent("Drift risk was not stored.");
     expect(screen.getByTestId("infra-drift-risk-label").tagName).toBe("SPAN");
 
     rerender(<DriftChangeRiskCell change={buildChange({ riskClassification: "unknown" })} />);
 
-    expect(screen.getByTestId("infra-drift-risk-label")).toHaveTextContent("Unknown");
+    expect(screen.getByTestId("infra-drift-risk-label")).toHaveTextContent("Drift risk recorded as unknown.");
     expect(screen.getByTestId("infra-drift-risk-label").tagName).toBe("SPAN");
   });
 

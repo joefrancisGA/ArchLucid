@@ -145,9 +145,12 @@ public sealed class ArchitectureControllerTests
     {
         await RunWithIsolatedFactory(async client =>
         {
+            const string requestId = "REQ-API-004";
+            string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-004")));
+                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -164,7 +167,7 @@ public sealed class ArchitectureControllerTests
             commitPayload.Should().NotBeNull();
             commitPayload.Manifest.Should().NotBeNull();
             commitPayload.Manifest.RunId.Should().Be(runId);
-            commitPayload.Manifest.SystemName.Should().Be("EnterpriseRag");
+            commitPayload.Manifest.SystemName.Should().Be(systemName);
             commitPayload.Manifest.Services.Should().NotBeEmpty();
             commitPayload.Manifest.Datastores.Should().NotBeEmpty();
             commitPayload.Manifest.Governance.RequiredControls.Should().Contain(c =>
@@ -214,9 +217,12 @@ public sealed class ArchitectureControllerTests
     {
         await RunWithIsolatedFactory(async client =>
         {
+            const string requestId = "REQ-API-006";
+            string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-006")));
+                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -244,7 +250,7 @@ public sealed class ArchitectureControllerTests
             await manifestResponse.EnsureSuccessForTestAsync();
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
             manifestPayload.Should().NotBeNull();
-            manifestPayload.SystemName.Should().Be("EnterpriseRag");
+            manifestPayload.SystemName.Should().Be(systemName);
             manifestPayload.Services.Should().NotBeEmpty();
             manifestPayload.Datastores.Should().NotBeEmpty();
             manifestPayload.Governance.RequiredControls.Should().NotBeEmpty();
@@ -257,9 +263,12 @@ public sealed class ArchitectureControllerTests
     {
         await RunWithIsolatedFactory(async client =>
         {
+            const string requestId = "REQ-API-005";
+            string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-005")));
+                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -293,7 +302,7 @@ public sealed class ArchitectureControllerTests
             await manifestResponse.EnsureSuccessForTestAsync();
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
             manifestPayload.Should().NotBeNull();
-            manifestPayload.SystemName.Should().Be("EnterpriseRag");
+            manifestPayload.SystemName.Should().Be(systemName);
             manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-api");
             manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-search");
             manifestPayload.Datastores.Should().Contain(d => d.DatastoreName == "rag-metadata");

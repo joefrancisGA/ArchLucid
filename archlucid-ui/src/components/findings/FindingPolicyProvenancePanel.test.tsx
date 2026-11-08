@@ -84,8 +84,8 @@ describe("FindingPolicyProvenancePanel", () => {
     );
   });
 
-  it("returns null when no provenance is available", () => {
-    const { container } = render(
+  it("shows honest empty copy when no provenance is available", () => {
+    render(
       <FindingPolicyProvenancePanel
         model={{
           pack: null,
@@ -95,6 +95,7 @@ describe("FindingPolicyProvenancePanel", () => {
       />,
     );
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.getByTestId("finding-policy-provenance-panel")).toBeInTheDocument();
+    expect(screen.getByText("Policy citation was not stored.")).toBeInTheDocument();
   });
 });

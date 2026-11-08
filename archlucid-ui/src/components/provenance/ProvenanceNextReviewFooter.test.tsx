@@ -16,7 +16,8 @@ describe("ProvenanceNextReviewFooter", () => {
     );
 
     expect(screen.getByTestId("provenance-next-review-footer")).toBeInTheDocument();
-    expect(screen.getByText("Next review provenance")).toBeInTheDocument();
+    expect(screen.getByText("Next package provenance")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open next package provenance" })).toBeInTheDocument();
     expect(screen.getByTestId("provenance-next-review-action")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-2/provenance",

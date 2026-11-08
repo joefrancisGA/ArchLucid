@@ -46,8 +46,6 @@ export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurfac
   { slug: "get-started", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "pricing", kind: "marketing", module: BESPOKE_STRIP_REGISTRY_MODULE },
   { slug: "privacy", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
-  { slug: "quick-scan", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
-  { slug: "assurance-status", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "see-it", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "showcase", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "signup", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
@@ -64,6 +62,22 @@ export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurfac
     slug: "architecture-findings",
     kind: "pre-finalize-architecture",
     module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
+  },
+  {
+    slug: "architecture-evidence",
+    kind: "pre-finalize-architecture",
+    module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
+  },
+  {
+    slug: "architecture-governance",
+    kind: "pre-finalize-architecture",
+    module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE,
+  },
+  { slug: "digest-sponsor", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  {
+    slug: "assurance-status",
+    kind: "marketing",
+    module: "components/marketing/SecurityTrustEvidenceOrientationStrip.tsx",
   },
   {
     slug: "architecture-clarifications",

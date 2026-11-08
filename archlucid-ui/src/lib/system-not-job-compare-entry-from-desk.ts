@@ -26,7 +26,7 @@ export type ResolveArchitectureDeskCompareBaseRunIdInput = {
 export function resolveArchitectureDeskCompareBaseRunId(
   input: ResolveArchitectureDeskCompareBaseRunIdInput,
 ): string | null {
-  const reviews = input.reviews;
+  const reviews = input.reviews ?? [];
 
   if (reviews.length === 0) {
     return null;

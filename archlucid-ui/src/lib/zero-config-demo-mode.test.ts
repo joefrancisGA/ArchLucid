@@ -23,7 +23,7 @@ describe("zero-config-demo-mode", () => {
   it("resolves platform and scenario from zeroConfig query", () => {
     expect(resolveZeroConfigDemoSelection(new URLSearchParams("zeroConfig=1"))).toEqual({
       platform: "azure",
-      scenarioId: "claims-intake-modernization",
+      scenarioId: "customer-intake-modernization",
     });
     expect(resolveZeroConfigDemoSelection(new URLSearchParams("zeroConfig=aws"))).toEqual({
       platform: "aws",

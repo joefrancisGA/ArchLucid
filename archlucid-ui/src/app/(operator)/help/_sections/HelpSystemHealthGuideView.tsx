@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpSystemHealthHeaderActions } from "@/app/(operator)/help/_sections/HelpSystemHealthHeaderActions";
@@ -13,7 +14,6 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { Button } from "@/components/ui/button";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -113,7 +113,7 @@ function SystemHealthStartHerePanel(): React.ReactElement {
 /** Operator system health orientation for `/help/system-health`. */
 export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-system-health",
     SYSTEM_HEALTH_HELP_GUIDE_HEADINGS,

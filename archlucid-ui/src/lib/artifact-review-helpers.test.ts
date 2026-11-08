@@ -20,7 +20,7 @@ describe("sponsorArtifactOpenActionLabel", () => {
   });
 
   it("falls back for unknown types", () => {
-    expect(sponsorArtifactOpenActionLabel("UnknownSynthetic")).toBe("Open output");
+    expect(sponsorArtifactOpenActionLabel("UnknownSynthetic")).toBe("Open artifact (type was not recognized)");
   });
 });
 

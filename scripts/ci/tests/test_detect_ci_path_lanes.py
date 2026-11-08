@@ -94,13 +94,14 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_infra_diagrams_layout"])
 
     def test_rolling_rc_push_concurrency_is_branch_scoped_and_merge_group_safe(self) -> None:
-        """Keep only one current RC push run active without changing PR or merge-queue semantics."""
+        """Newest RC tip preempts stale push runs; merge_group keeps cancel-in-progress off."""
         workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
         match = re.search(r"(?m)^  push:\n    branches: \[(RC[1-9][0-9]*)\]$", workflow)
         self.assertIsNotNone(match)
         rc = match.group(1)
 
+        # Branch-scoped group + cancel-in-progress so tip wins runner capacity during burn-down.
         self.assertIn(
             f"github.event_name == 'push' && github.ref == 'refs/heads/{rc}' "
             f"&& format('{rc.lower()}-push-{{0}}', github.ref)",

@@ -41,7 +41,7 @@ describe("PrivacyPolicyPageClient", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeInTheDocument();
     expect(screen.getByText(PRIVACY_POLICY_PAGE_LEDE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("privacy-policy-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("privacy-policy-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByText(/Effective date:/)).toBeInTheDocument();
     expect(screen.getByText(/Last reviewed \(UTC\):/)).toBeInTheDocument();
     expect(screen.getByText(/Document version:/)).toBeInTheDocument();

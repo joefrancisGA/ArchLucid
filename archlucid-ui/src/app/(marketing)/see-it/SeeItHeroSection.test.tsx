@@ -17,7 +17,7 @@ describe("SeeItHeroSection (TB-1281 / TB-1282)", () => {
     render(<SeeItHeroSection />);
 
     expect(screen.getByTestId("see-it-hero")).toBeInTheDocument();
-    expect(screen.getByTestId("see-it-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("see-it-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: SEE_IT_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("see-it-outcome-led-lead")).toHaveTextContent(SEE_IT_HERO_LEAD);
     expect(screen.getByTestId("see-it-hero-meta")).toHaveTextContent(SEE_IT_LAST_REVIEWED_LABEL);

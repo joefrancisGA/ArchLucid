@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpArchitectureIntelligenceClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureIntelligenceClaimOrientationStrip";
@@ -9,7 +10,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
@@ -71,7 +71,7 @@ export function HelpArchitectureIntelligenceGuideView(
   props: HelpArchitectureIntelligenceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-architecture-intelligence",
     ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,

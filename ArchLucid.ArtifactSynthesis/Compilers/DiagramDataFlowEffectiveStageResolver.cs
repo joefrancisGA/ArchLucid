@@ -22,6 +22,8 @@ internal static class DiagramDataFlowEffectiveStageResolver
         Dictionary<string, GraphNode> nodesById = nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal);
         Dictionary<string, string> overrides = new(StringComparer.Ordinal);
 
+        Dictionary<string, List<string>> adfWriteTargetsByFactoryId = new(StringComparer.Ordinal);
+
         foreach (GraphEdge edge in edges)
         {
             if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode))
@@ -47,6 +49,29 @@ internal static class DiagramDataFlowEffectiveStageResolver
             if (IsAdfWritesTo(edge) && IsDataFactoryNode(fromNode))
             {
                 overrides[edge.FromNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+
+                if (!adfWriteTargetsByFactoryId.TryGetValue(edge.FromNodeId, out List<string>? targets))
+                {
+                    targets = [];
+                    adfWriteTargetsByFactoryId[edge.FromNodeId] = targets;
+                }
+
+                targets.Add(edge.ToNodeId);
+            }
+        }
+
+        const int minimumHubSpokeWriteTargets = 4;
+        foreach ((string factoryNodeId, List<string> writeTargetNodeIds) in adfWriteTargetsByFactoryId)
+        {
+            if (writeTargetNodeIds.Distinct(StringComparer.Ordinal).Count() < minimumHubSpokeWriteTargets)
+            {
+                continue;
+            }
+
+            overrides[factoryNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+            foreach (string targetNodeId in writeTargetNodeIds.Distinct(StringComparer.Ordinal))
+            {
+                overrides[targetNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
             }
         }
 

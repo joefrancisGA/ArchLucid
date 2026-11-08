@@ -157,6 +157,14 @@ export function useGuidedIntakeDraftCreate(options: Options) {
         const spawnedRunId = architectureDraftSpawnedRunId(draft);
 
         if (isGuidedIntakeAccessBlocked(draft.status)) {
+          const linkedReviewId = spawnedRunId?.trim() ?? "";
+
+          if (linkedReviewId.length > 0) {
+            // Linked review exists — keep the wizard mounted and show the submitted callout
+            // instead of auto-navigating away (buyer can open the review when ready).
+            return;
+          }
+
           core.setSourceArchitectureAccessBlocked(true);
           navigate(
             resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId, {

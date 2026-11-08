@@ -87,7 +87,13 @@ describe("HelpArchitectureScorecardGuideView", () => {
     }
 
     expect(screen.getAllByRole("heading", { name: "Where to go next" })).toHaveLength(1);
-    expect(screen.getByRole("heading", { name: ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE })).toBeInTheDocument();
+    // Top evidence strip and bottom claim strip both title Sources the same way — scope to the
+    // canonical Sources band rather than requiring a single document-wide heading.
+    expect(
+      within(screen.getByTestId("help-architecture-scorecard-sources")).getByRole("heading", {
+        name: ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("help-architecture-scorecard-claim-discipline-strip")).toHaveTextContent(
       ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
     );

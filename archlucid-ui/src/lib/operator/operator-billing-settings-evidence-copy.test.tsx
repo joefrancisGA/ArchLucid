@@ -1,8 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { OperatorBillingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   OPERATOR_BILLING_SETTINGS_CANONICAL_PATH,
@@ -10,6 +8,10 @@ import {
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
 } from "@/lib/operator/operator-billing-settings-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("operator-billing-settings-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -24,9 +26,11 @@ describe("operator-billing-settings-evidence-copy", () => {
 
     const sources = screen.getByTestId("operator-billing-settings-sources");
 
-    for (const link of filterWhereToGoNextFollowUpLinks(OPERATOR_BILLING_SETTINGS_SOURCES)) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sources),
+      OPERATOR_BILLING_SETTINGS_SOURCES,
+      OPERATOR_BILLING_SETTINGS_CANONICAL_PATH,
+    );
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${OPERATOR_BILLING_SETTINGS_CANONICAL_PATH}$`, "i") }),

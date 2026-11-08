@@ -19,7 +19,9 @@ describe("pipelineEventTypeFriendlyLabel", () => {
   });
 
   it("title-cases unknown dotted codes without dumping raw namespaces", () => {
-    expect(pipelineEventTypeFriendlyLabel("com.vendor.obscure.pipeline.step")).toBe("Step");
+    expect(pipelineEventTypeFriendlyLabel("com.vendor.obscure.pipeline.step")).toBe(
+      "Event type has no reviewer label: com.vendor.obscure.pipeline.step",
+    );
   });
 });
 

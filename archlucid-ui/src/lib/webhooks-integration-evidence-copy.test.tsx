@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { WebhooksIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   WEBHOOKS_INTEGRATION_SOURCES,
   WEBHOOKS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/webhooks-integration-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("webhooks-integration-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("webhooks-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("webhooks-integration-sources");
 
-    for (const link of WEBHOOKS_INTEGRATION_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), WEBHOOKS_INTEGRATION_SOURCES, WEBHOOKS_INTEGRATION_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${WEBHOOKS_INTEGRATION_CANONICAL_PATH}$`, "i") }),

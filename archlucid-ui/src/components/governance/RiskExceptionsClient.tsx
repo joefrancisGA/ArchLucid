@@ -106,7 +106,7 @@ export default function RiskExceptionsClient() {
         </a>
       ) : null}
 
-      <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
+      {buyerPolishedShell ? null : <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />}
 
       <OperatorPageHeader
         navHref={GOVERNANCE_EXCEPTIONS_PATH}

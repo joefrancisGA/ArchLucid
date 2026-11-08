@@ -45,7 +45,7 @@ describe("resolveOperatorBillingCurrentPlan", () => {
     });
 
     expect(view.planKind).toBe("tenant-trial");
-    expect(view.supportingLine).toBe("Trial is active. No paid plan is selected yet.");
+    expect(view.supportingLine).toBe("Trial days remaining were not stored.");
   });
 
   it("truncates fractional trial days remaining for display", () => {

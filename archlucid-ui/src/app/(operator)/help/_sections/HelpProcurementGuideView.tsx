@@ -1,3 +1,4 @@
+import { resolveProductionEvalChromeForServer } from "@/lib/production-desk-chrome";
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -13,7 +14,6 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -101,7 +101,7 @@ function ProcurementHelpJobMatrixSection(): React.ReactElement {
 /** Buyer procurement FAQ specialty view for `/help/procurement` (TB-1253). */
 export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const bodyMarkdown = prepareProcurementHelpBodyMarkdown(markdown);
   const preparedMarkdown = prepareHelpMarkdownForPresentation(bodyMarkdown, sourceDocPath, {

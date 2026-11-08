@@ -20,7 +20,11 @@ const usableManifest = { runId: "run-42", manifestId: "m-42", systemName: "Claim
 
 const defaultProps = {
   goldenManifestJson: usableManifest,
-  manifestSummary: null,
+  manifestSummary: {
+    manifestId: "m-42",
+    status: "Committed",
+    runId: "run-42",
+  },
   runId: "run-42",
 } as const;
 

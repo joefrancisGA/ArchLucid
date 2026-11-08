@@ -441,7 +441,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Relationship type was not stored/).length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent(
+      "Read from collected evidence",
+    );
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
@@ -454,7 +456,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-band-weakest-hop-limit")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
-    expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent("At least one hop is inferred");
+    expect(screen.getByTestId("security-evidence-path-evidence-issues")).toHaveTextContent(
+      "At least one hop is derived, not observed access.",
+    );
     expect(screen.getByTestId("security-evidence-path-verification-status")).toHaveTextContent(
       "No remediation instance is linked; verification has not started.",
     );
@@ -1153,7 +1157,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText("Highly likely")).toBeInTheDocument();
+    expect(screen.getByText(/Highly likely/)).toBeInTheDocument();
     expect(screen.queryByTestId("security-evidence-path-inspect-empty")).not.toBeInTheDocument();
   });
 

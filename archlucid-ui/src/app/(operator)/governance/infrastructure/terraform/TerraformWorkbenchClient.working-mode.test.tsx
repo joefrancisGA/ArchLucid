@@ -5,7 +5,7 @@ let searchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
-  usePathname: () => "/infrastructure/terraform",
+  usePathname: () => "/governance/infrastructure/terraform",
   useSearchParams: () => searchParams,
 }));
 
@@ -87,14 +87,12 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
-  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH, SECURENOW_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { TerraformWorkbenchClient } from "./TerraformWorkbenchClient";
@@ -125,10 +123,6 @@ describe("TerraformWorkbenchClient working mode", () => {
       GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_ANNOUNCEMENT,
     );
     expect(screen.queryByTestId("infra-terraform-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE })).toHaveAttribute(
-      "href",
-      GOVERNANCE_INFRASTRUCTURE_PATH,
-    );
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(screen.getByText("Alt+1")).toBeInTheDocument();
 

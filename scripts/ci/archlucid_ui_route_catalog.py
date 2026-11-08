@@ -238,7 +238,12 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
 # Legacy bookmark paths migrate in WORKBOOK_PATH_MIGRATIONS only — not scored workbook rows.
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
+    {
+        # HPO workbook row scores the retired pilot-outcomes help alias (HPI folded); not an App Router page.
+        "/help/pilot-outcomes",
+    }
+)
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {

@@ -21,6 +21,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LINK,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -106,7 +107,7 @@ function RoleEntryCards(): React.ReactElement {
         <a
           key={role.id}
           href={`#${role.id}`}
-          className={HELP_PAGE_LAYOUT.orientationLinkTile}
+          className={cn(HELP_PAGE_LAYOUT.orientationLinkTile, OPERATOR_LINK.inline)}
         >
           <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{role.title}</h3>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{role.description}</p>

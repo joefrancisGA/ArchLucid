@@ -21,7 +21,9 @@ describe("run-detail-decision-delta-alignment", () => {
   });
 
   it("wires decision delta deferred section on committed review detail", () => {
-    const pageView = readRepoFile("archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx");
+    const pageView = readRepoFile(
+      "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageViewCommitted.tsx",
+    );
     const deferred = readRepoFile(
       "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDecisionDeltaDeferred.tsx",
     );

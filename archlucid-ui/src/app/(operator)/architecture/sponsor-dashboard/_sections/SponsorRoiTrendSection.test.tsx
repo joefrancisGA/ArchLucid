@@ -25,6 +25,37 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+const sponsorRoiHistoryQueryMock = vi.hoisted(() => ({
+  data: [
+    {
+      snapshotUtc: "2026-04-15T00:00:00Z",
+      totalEstimatedUsdSavings: 500,
+      criticalSecurityFindings: 2,
+      realRunCount: 3,
+      simulatorRunCount: 2,
+      realModeSavingsUsd: 300,
+      isMixedMode: true,
+    },
+    {
+      snapshotUtc: "2026-05-15T00:00:00Z",
+      totalEstimatedUsdSavings: 100,
+      criticalSecurityFindings: 0,
+      realRunCount: 0,
+      simulatorRunCount: 4,
+      realModeSavingsUsd: 0,
+      isMixedMode: false,
+    },
+  ],
+  isPending: false,
+  isError: false,
+  isFetching: false,
+  refetch: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-sponsor-roi-summary-history-query", () => ({
+  useSponsorRoiSummaryHistoryQuery: () => sponsorRoiHistoryQueryMock,
+}));
+
 import { SponsorRoiTrendSection } from "./SponsorRoiTrendSection";
 
 function renderWithQueryClient(ui: React.ReactElement) {
@@ -42,34 +73,28 @@ function renderWithQueryClient(ui: React.ReactElement) {
 describe("SponsorRoiTrendSection", () => {
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = false;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          points: [
-            {
-              snapshotUtc: "2026-04-15T00:00:00Z",
-              totalEstimatedUsdSavings: 500,
-              criticalSecurityFindings: 2,
-              realRunCount: 3,
-              simulatorRunCount: 2,
-              realModeSavingsUsd: 300,
-              isMixedMode: true,
-            },
-            {
-              snapshotUtc: "2026-05-15T00:00:00Z",
-              totalEstimatedUsdSavings: 100,
-              criticalSecurityFindings: 0,
-              realRunCount: 0,
-              simulatorRunCount: 4,
-              realModeSavingsUsd: 0,
-              isMixedMode: false,
-            },
-          ],
-        }),
-      } as Response),
-    );
+    sponsorRoiHistoryQueryMock.isPending = false;
+    sponsorRoiHistoryQueryMock.isError = false;
+    sponsorRoiHistoryQueryMock.data = [
+      {
+        snapshotUtc: "2026-04-15T00:00:00Z",
+        totalEstimatedUsdSavings: 500,
+        criticalSecurityFindings: 2,
+        realRunCount: 3,
+        simulatorRunCount: 2,
+        realModeSavingsUsd: 300,
+        isMixedMode: true,
+      },
+      {
+        snapshotUtc: "2026-05-15T00:00:00Z",
+        totalEstimatedUsdSavings: 100,
+        criticalSecurityFindings: 0,
+        realRunCount: 0,
+        simulatorRunCount: 4,
+        realModeSavingsUsd: 0,
+        isMixedMode: false,
+      },
+    ];
   });
 
   afterEach(() => {
@@ -102,10 +127,8 @@ describe("SponsorRoiTrendSection", () => {
   });
 
   it("uses design-system time-range control and loading skeleton (TB-1536, TB-1532)", () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => new Promise(() => undefined)),
-    );
+    sponsorRoiHistoryQueryMock.isPending = true;
+    sponsorRoiHistoryQueryMock.data = undefined;
 
     renderWithQueryClient(<SponsorRoiTrendSection defaultTimeRange="all" showTimeRangeSelector />);
 

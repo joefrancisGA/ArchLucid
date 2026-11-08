@@ -149,7 +149,7 @@ export const COMMAND_PALETTE_START_CTO_DEMO_LABEL = "Start CTO demo tour";
 export const COMMAND_PALETTE_RESET_DEMO_LABEL = "Reset demo";
 
 export const BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT =
-  "Press 1–5 to jump steps · E — explore · P — presenter notes · S — spotlight · 0 — offline · Shift+R — hard reset";
+  "Press 1–4 to jump steps · E — explore · P — presenter notes · S — spotlight · 0 — offline · Shift+R — hard reset";
 
 export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_ON_CTA = "Auto-play";
 

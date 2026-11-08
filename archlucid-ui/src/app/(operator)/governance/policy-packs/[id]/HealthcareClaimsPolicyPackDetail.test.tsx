@@ -31,3 +31,8 @@ describe("HealthcareClaimsPolicyPackDetail", () => {
     expect(screen.getByRole("link", { name: "Open approval queue" })).toHaveAttribute("href", "/governance/approval-queue");
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

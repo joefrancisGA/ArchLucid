@@ -4,6 +4,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AwsConnectionDataProvider } from "./AwsConnectionDataContext";
 import { AwsConnectionSection } from "./AwsConnectionSection";
 
+const navMock = vi.hoisted(() => ({
+  search: "",
+  pathname: "/integrations/cloud-connections/aws",
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navMock.pathname,
+  useSearchParams: () => new URLSearchParams(navMock.search),
+  useRouter: () => ({
+    replace: (href: string) => {
+      const queryIndex = href.indexOf("?");
+      navMock.search = queryIndex >= 0 ? href.slice(queryIndex + 1) : "";
+    },
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
@@ -21,6 +39,7 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
 
 describe("AwsConnectionSection", () => {
   beforeEach(() => {
+    navMock.search = "";
     listAwsTier2Connections.mockReset();
     listAwsTier2Connections.mockResolvedValue([]);
     configureAwsTier2Connection.mockReset();

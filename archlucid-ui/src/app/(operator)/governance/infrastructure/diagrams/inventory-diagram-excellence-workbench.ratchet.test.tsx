@@ -40,12 +40,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
 
-vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
-  fetchInfraEvidenceMermaidPreview: fetchInfraEvidenceMermaidPreviewMock,
-  fetchInfraEvidenceMermaidRender: fetchInfraEvidenceMermaidRenderMock,
-  downloadInfraEvidenceMermaidPng: vi.fn(),
-  formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
-}));
+vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/infra-evidence/infra-evidence-mermaid-api")>();
+
+  return {
+    ...actual,
+    fetchInfraEvidenceMermaidPreview: fetchInfraEvidenceMermaidPreviewMock,
+    fetchInfraEvidenceMermaidRender: fetchInfraEvidenceMermaidRenderMock,
+    downloadInfraEvidenceMermaidPng: vi.fn(),
+    formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
+  };
+});
 
 vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
   ArchitectureDiagramViewer: () => <div data-testid="architecture-diagram-viewer-mock" />,

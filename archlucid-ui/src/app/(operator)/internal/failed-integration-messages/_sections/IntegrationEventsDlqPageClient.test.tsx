@@ -97,7 +97,7 @@ describe("IntegrationEventsDlqPageClient", () => {
     const page = screen.getByTestId("integration-events-dlq-page");
     const visible = (page.textContent ?? "").toLowerCase();
 
-    expect(visible).toContain("not sealed career proof");
+    expect(visible).toContain("not sealed-record proof");
     expect(visible).not.toMatch(/career-complete because a message exists/i);
 
     vi.unstubAllGlobals();

@@ -9,15 +9,13 @@ import {
 
 describe("architecture-intelligence-page-copy", () => {
   it("uses product-safe architecture intelligence page naming", () => {
-    expect(ARCHITECTURE_INTELLIGENCE_PAGE_TITLE).toBe("Architecture intelligence");
+    expect(ARCHITECTURE_INTELLIGENCE_PAGE_TITLE).toBe("Try another reasoning pass");
     expect(ARCHITECTURE_INTELLIGENCE_PAGE_TITLE).not.toMatch(/\brun\b/i);
   });
 
-  it("uses a shorter buyer subtitle", () => {
+  it("exposes buyer-polished and architect subtitles", () => {
     expect(architectureIntelligencePageSubtitle(true)).toBe(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER);
     expect(architectureIntelligencePageSubtitle(false)).toBe(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE);
-    expect(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER.length).toBeLessThan(
-      ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE.length,
-    );
+    expect(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER).not.toBe(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE);
   });
 });

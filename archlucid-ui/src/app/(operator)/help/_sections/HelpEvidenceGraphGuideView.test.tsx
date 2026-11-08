@@ -5,6 +5,10 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/evidence-graph",
+}));
+
 import { HelpEvidenceGraphGuideView } from "@/app/(operator)/help/_sections/HelpEvidenceGraphGuideView";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
@@ -21,6 +25,7 @@ import {
   EVIDENCE_GRAPH_HELP_SKIP_LINK_LABEL,
   EVIDENCE_GRAPH_HELP_SKIP_TARGET_ID,
 } from "@/lib/evidence-graph-help-page-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -78,10 +83,8 @@ describe("HelpEvidenceGraphGuideView", () => {
     expect(actionPanel.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of EVIDENCE_GRAPH_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: new RegExp(source.label, "i") })).toHaveAttribute(
-        "href",
-        source.href,
-      );
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.queryByRole("link", { name: "Read evidence trail help →" })).not.toBeInTheDocument();

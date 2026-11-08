@@ -11,8 +11,8 @@ describe("formatWhyPageInstant", () => {
     expect(formatted).not.toContain("T12:00:00");
   });
 
-  it("returns em dash for empty input", () => {
-    expect(formatWhyPageInstant(null)).toBe(" — ");
-    expect(formatWhyPageInstant("")).toBe(" — ");
+  it("returns a missing-instant label for empty input", () => {
+    expect(formatWhyPageInstant(null)).toBe("Not recorded");
+    expect(formatWhyPageInstant("")).toBe("Not recorded");
   });
 });

@@ -4,6 +4,8 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
+using InventoryDiagramRelationshipLabelTexts = ArchLucid.Core.AzureExtractor.InventoryDiagramRelationshipLabelTexts;
+
 using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
@@ -22,16 +24,18 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
 
         ast.Nodes.Should().NotContain(node =>
             string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
-        ast.Nodes.Should().NotContain(node =>
+        ast.Nodes.Should().Contain(node =>
             string.Equals(node.ArmResourceType, "Microsoft.Network/virtualNetworks/subnets", StringComparison.OrdinalIgnoreCase));
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vnet-app", StringComparison.Ordinal));
 
-        DiagramEdge? toVnet = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge =>
+        List<DiagramEdge> vmToSubnetEdges = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
+            .Where(edge =>
                 ast.Nodes.Any(node => node.NodeId == edge.FromNodeId && node.Label == "vm-app")
-                && ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "vnet-app"));
-        toVnet.Should().NotBeNull();
+                && ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "app"))
+            .ToList();
+        vmToSubnetEdges.Should().NotBeEmpty();
+        vmToSubnetEdges.Should().Contain(edge => MatchesSubnetPlacementEdgeLabel(edge.Label));
     }
 
     [Fact]
@@ -45,7 +49,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
 
         DiagramEdge? inVnet = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
+            .SingleOrDefault(edge => MatchesSubnetPlacementEdgeLabel(edge.Label));
         inVnet.Should().NotBeNull();
         ast.Nodes.Should().Contain(node =>
             node.NodeId == inVnet!.FromNodeId && string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
@@ -61,7 +65,8 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Nodes.Should().NotContain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
-        ast.Nodes.Should().NotContain(node => string.Equals(node.Label, "data", StringComparison.Ordinal));
+        ast.Nodes.Should().NotContain(node =>
+            string.Equals(node.ArmResourceType, "Microsoft.Network/privateEndpoints", StringComparison.OrdinalIgnoreCase));
         ast.Nodes.Single(node => node.Label == "app").HasPrivateEndpointAccess.Should().BeTrue();
     }
 
@@ -76,7 +81,9 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
         DiagramEdge? contains = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => string.Equals(edge.Label, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel, StringComparison.OrdinalIgnoreCase));
+            .SingleOrDefault(edge => edge.Label != null && edge.Label.Contains(
+                DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel,
+                StringComparison.OrdinalIgnoreCase));
         contains.Should().NotBeNull();
         ast.Nodes.Should().Contain(node =>
             node.NodeId == contains!.FromNodeId && string.Equals(node.Label, "core-vnet", StringComparison.Ordinal));
@@ -123,7 +130,11 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         ast.Nodes.Should().Contain(node => node.Label == "vnet-app");
         DiagramEdgeVisibility.VisibleEdges(ast.Edges)
             .Should()
-            .Contain(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
+            .Contain(edge =>
+                (ast.Nodes.Any(node => node.NodeId == edge.FromNodeId && node.Label == "app-edw")
+                    && ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "vnet-app"))
+                || (ast.Nodes.Any(node => node.NodeId == edge.FromNodeId && node.Label == "app-edw")
+                    && ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "app")));
     }
 
     [Fact]
@@ -164,7 +175,10 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         ast.Nodes.Should().Contain(node => node.Label == "app-edw");
         DiagramEdgeVisibility.VisibleEdges(ast.Edges)
             .Should()
-            .Contain(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
+            .Contain(edge =>
+                ast.Nodes.Any(node => node.NodeId == edge.FromNodeId && node.Label == "app-edw")
+                && (ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "app")
+                    || ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "vnet-app")));
     }
 
     [Fact]
@@ -177,7 +191,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             DiagramMode.ResourceGroup,
             new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
-        hidden.Nodes.Should().Contain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
+        hidden.Nodes.Should().NotContain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
 
         DiagramAst shown = compiler.Compile(
             graph,
@@ -190,6 +204,18 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
 
         shown.Nodes.Should().Contain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
     }
+
+    private static void AssertSubnetPlacementEdgeLabel(string? label)
+    {
+        MatchesSubnetPlacementEdgeLabel(label).Should().BeTrue($"expected subnet placement label, got {label}");
+    }
+
+    private static bool MatchesSubnetPlacementEdgeLabel(string? label) =>
+        !string.IsNullOrWhiteSpace(label)
+        && (string.Equals(label, "in", StringComparison.OrdinalIgnoreCase)
+            || label.Contains(
+                InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved,
+                StringComparison.Ordinal));
 
     private static GraphSnapshot BuildVmNicSubnetGraph()
     {

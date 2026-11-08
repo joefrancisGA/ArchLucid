@@ -109,7 +109,8 @@ describe("AlertSimulationContent TB-1592", () => {
     expect(reviewId).toHaveAttribute("placeholder", "");
     expect(reviewId.getAttribute("placeholder") ?? "").not.toContain("00000000");
     expect(screen.getByText(ALERT_SIMULATION_REVIEW_ID_HELPER)).toBeInTheDocument();
-    expect(screen.getByTestId("alert-simulation-pick-review-before-simulating-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-simulation-pick-review-before-simulating-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("alert-simulation-run-scope-banner")).toBeInTheDocument();
   });
 
   it("starts project slug empty with Current project placeholder instead of default", () => {
@@ -244,7 +245,7 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
     });
 
     expect(replaceMock).toHaveBeenCalledWith(`${GOVERNANCE_ALERT_RULES_PATH}?tab=test-alerts`, { scroll: false });
-    expect(screen.queryByTestId("alert-simulation-simple-compared-review-id")).not.toBeInTheDocument();
+    expect(screen.getByTestId("alert-simulation-simple-compared-review-id")).toBeDisabled();
   });
 
   it("enables compared-to when specific review ID is changed and disables recent window controls", () => {
@@ -273,8 +274,15 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
       target: { value: "" },
     });
 
-    expect(screen.queryByRole("button", { name: "Simulate" })).not.toBeInTheDocument();
-    expect(apiHoisted.simulateAlertRule).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Simulate" }));
+
+    await waitFor(() => {
+      expect(apiHoisted.simulateAlertRule).toHaveBeenCalled();
+    });
+    const payload = apiHoisted.simulateAlertRule.mock.calls.at(-1)?.[0] as
+      | { comparedToRunId?: string | null }
+      | undefined;
+    expect(payload?.comparedToRunId ?? null).toBeNull();
   });
 
   it("sends compared-to only when specific review ID is set", async () => {
@@ -316,30 +324,12 @@ describe("AlertSimulationContent P0-2 canSimulate gate", () => {
     });
   });
 
-  it("disables Simulate and shows readiness when recent review count is cleared", () => {
+  it("disables recent window controls when a specific review ID scopes the simulation", () => {
     render(<AlertSimulationContent />);
 
-    fireEvent.change(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL), {
-      target: { value: "" },
-    });
-
-    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
-    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
-      ALERT_SIMULATION_READINESS_RECENT_COUNT,
-    );
-  });
-
-  it("disables Simulate when recent review count is outside 1–50", () => {
-    render(<AlertSimulationContent />);
-
-    fireEvent.change(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL), {
-      target: { value: "51" },
-    });
-
-    expect(screen.getByTestId("alert-simulation-simple-submit")).toBeDisabled();
-    expect(screen.getByTestId("alert-simulation-simple-readiness")).toHaveTextContent(
-      ALERT_SIMULATION_READINESS_RECENT_COUNT,
-    );
+    expect(screen.getByLabelText(ALERT_SIMULATION_RECENT_COUNT_LABEL)).toBeDisabled();
+    expect(screen.getByLabelText("Use historical window (recent reviews)")).toBeDisabled();
+    expect(screen.getByTestId("alert-simulation-simple-submit")).not.toBeDisabled();
   });
 
   it("shows pick strip instead of Simulate when review is not URL-scoped", () => {

@@ -16,7 +16,7 @@ describe("ShowcaseHero", () => {
   it("renders breadcrumb, title, buyer subtitle, and deliverable preview rail", () => {
     render(<ShowcaseHero runId={SHOWCASE_STATIC_DEMO_RUN_ID} />);
 
-    expect(screen.getByTestId("showcase-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("showcase-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("showcase-hero")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: showcaseTitleForRunId(SHOWCASE_STATIC_DEMO_RUN_ID) })).toBeInTheDocument();
     expect(screen.getByTestId("showcase-hero-subtitle")).toHaveTextContent(SHOWCASE_HERO_SUBTITLE);

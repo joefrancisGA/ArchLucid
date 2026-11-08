@@ -10,6 +10,12 @@ vi.mock("@/lib/api/policy-governance-api", () => ({
 
 const replaceMock = vi.fn();
 
+vi.mock("@/lib/navigation/replace-if-href-changed", () => ({
+  commitHrefIfChanged: (href: string, options?: { notify?: boolean }) => {
+    replaceMock(href, options);
+  },
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
 }));
@@ -110,7 +116,7 @@ describe("PolicyPackImpactPreviewPanel", () => {
 
     expect(replaceMock).toHaveBeenCalledWith(
       "/governance/policy-packs?reviewId=run-abc&packAId=00000000-0000-0000-0000-000000000002&packBId=00000000-0000-0000-0000-000000000002",
-      { scroll: false },
+      { notify: false },
     );
   });
 

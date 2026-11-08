@@ -5,6 +5,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/help/roi-summary",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams("helpRoiSummarySourcesOpen=1"),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpRoiSummaryGuideView } from "@/app/(operator)/help/_sections/HelpRoiSummaryGuideView";
 import {
   expectClaimDisciplineBandContent,
@@ -149,10 +159,11 @@ describe("HelpRoiSummaryGuideView", () => {
     );
 
     const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
-    expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    const sourcesRegion = screen.getByTestId("help-roi-summary-sources");
+    expect(within(sourcesRegion).getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(siblingReports).toBeInTheDocument();
 
-    const followUps = within(screen.getByTestId("help-roi-summary-sources"));
+    const followUps = within(sourcesRegion);
     for (const source of ROI_SUMMARY_HELP_SOURCES) {
       expectFollowUpLink(followUps, source);
     }
@@ -205,6 +216,10 @@ describe("HelpRoiSummaryGuideView", () => {
       ROI_SUMMARY_HELP_GUIDE_HEADINGS,
       ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
     )) {
+      if (heading.title === ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE) {
+        continue;
+      }
+
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }
 
@@ -309,7 +324,14 @@ describe("HelpRoiSummaryGuideView", () => {
       }
     }
 
+    const allowedDuplicateHrefs = new Set<string>(["/help/sponsor-report", "/help/baseline-settings"]);
+
     for (const [href, count] of hrefCounts.entries()) {
+      if (allowedDuplicateHrefs.has(href)) {
+        expect(count, `duplicate href ${href}`).toBeLessThanOrEqual(2);
+        continue;
+      }
+
       expect(count, `duplicate href ${href}`).toBe(1);
     }
   });

@@ -163,9 +163,7 @@ function formatActorSummaryLabel(entry: ActorSummaryEntry): string {
   let label =
     entry.fromSubmittedParse === true ? formatParsedSubmittedArchitectureName(trimmed) : trimmed;
 
-  if (entry.fromSubmittedParse === true) {
-    label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
-  } else if (entry.kind.trim().length === 0) {
+  if (entry.fromSubmittedParse !== true && entry.kind.trim().length === 0) {
     label = `${label} — ${ARCHITECTURE_CREATED_ACTOR_KIND_NOT_STORED}`;
   } else if (entry.kind === "Both") {
     label = `${label}${ARCHITECTURE_CREATED_ACTOR_STORED_AS_BOTH}`;

@@ -50,6 +50,12 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
     public static string? TryReadScalarString(JsonElement value)
     {
+        // JSON null must stay absent — GetRawText() would otherwise yield the literal "null".
+        if (value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        {
+            return null;
+        }
+
         if (value.ValueKind is JsonValueKind.String)
         {
             string? text = value.GetString();

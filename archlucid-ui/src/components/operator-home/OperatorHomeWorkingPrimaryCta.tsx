@@ -62,14 +62,18 @@ export function OperatorHomeWorkingPrimaryCta(
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
       <Button asChild variant={variant} size="sm" className="h-8 w-fit">
         <Link href={REVIEWS_NEW_GUIDED_INTAKE_HREF} data-testid="operator-home-working-new-review-primary">
-          {resolveWorkingHomeNewReviewBridgeCopy() ?? resolveWorkingHomeSingleStartPrimaryLabel()}
+          {resolveWorkingHomeSingleStartPrimaryLabel()}
         </Link>
       </Button>
       {orientationCopy !== null ? (
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           {orientationCopy}
         </p>
-      ) : null}
+      ) : (
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          {resolveWorkingHomeNewReviewBridgeCopy()}
+        </p>
+      )}
     </div>
   );
 }

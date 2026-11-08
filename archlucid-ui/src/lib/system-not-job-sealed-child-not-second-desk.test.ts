@@ -73,7 +73,7 @@ describe("SN-018 sealed child not second desk", () => {
       const content = readFileSync(join(repoRoot, relativePath), "utf8");
 
       expect(content).toMatch(
-        /resolveSystemNotJobDeskSealedChildReviewHref|resolveSystemNotJobDeskSealedChildCompareHref/,
+        /resolveSystemNotJobDeskChildReviewHref|resolveSystemNotJobDeskSealedChildReviewHref|resolveSystemNotJobDeskSealedChildCompareHref/,
       );
     },
   );

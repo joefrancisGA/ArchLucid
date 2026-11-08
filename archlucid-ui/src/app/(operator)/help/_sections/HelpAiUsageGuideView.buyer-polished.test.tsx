@@ -11,6 +11,32 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/production-desk-chrome", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/production-desk-chrome")>();
+
+  return {
+    ...actual,
+    resolveProductionEvalChromeForServer: (): boolean => true,
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
@@ -22,6 +48,17 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/ai-usage",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
 
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import {
@@ -102,6 +139,6 @@ describe("HelpAiUsageGuideView buyer-polished shell (HAI)", () => {
       within(actionPanel).getByRole("link", { name: AI_USAGE_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", AI_USAGE_HELP_PRIMARY_ACTION.href);
 
-    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AI_USAGE_HELP_SOURCES, "/");
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AI_USAGE_HELP_SOURCES, "/help/ai-usage");
   });
 });

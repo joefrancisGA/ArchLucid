@@ -4,11 +4,15 @@
  */
 
 import { REVIEW_ARTIFACTS_HELP_TOPIC_LABEL } from "@/lib/review-artifacts-evidence-copy";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 import { PAGE_HELP_TOPIC_ROWS_ADMIN } from "./page-help-topic-rows-admin";
 import { PAGE_HELP_TOPIC_ROWS_OPERATOR, type PageHelpTopic, type PageHelpTopicRow } from "./page-help-topic-rows-operator";
 
 export type { PageHelpTopic, PageHelpTopicRow };
+
+/** Canonical operator route prefix for sponsor dashboard contextual help (see `page-help-topic-rows-operator-pilot.ts`). */
+export const SPONSOR_DASHBOARD_CONTEXT_HELP_ROUTE_PREFIX = SPONSOR_DASHBOARD_HREF;
 
 export const PAGE_HELP_TOPICS: readonly PageHelpTopicRow[] = [
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR,

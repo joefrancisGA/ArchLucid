@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -13,7 +15,6 @@ import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHo
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -100,7 +101,7 @@ export function HelpGovernanceInfrastructureRemediationGuideView(
 ): React.ReactElement {
   const { entry } = props;
   const { productLine: productLineId } = useProductLine();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const relatedLinks = filterRelatedLinks(productLineId);
   const primaryAction = governanceInfrastructureRemediationHelpPrimaryAction(productLineId);
   const factoryAction = governanceInfrastructureRemediationHelpFactoryAction(productLineId);

@@ -5,10 +5,17 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/help/webhooks-integration",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams("helpWebhooksIntegrationSourcesOpen=1"),
+}));
+
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  expectWhereToGoNextFollowUpLinks,
 } from "@/lib/claim-discipline-test-helpers";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -22,6 +29,7 @@ import {
   WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION,
 } from "@/lib/webhooks-integration-help-guide-content";
 import {
+  WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH,
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   WEBHOOKS_INTEGRATION_HELP_SOURCES,
@@ -106,18 +114,8 @@ describe("HelpWebhooksIntegrationGuideView", () => {
     expect(screen.getAllByRole("link", { name: formatHelpFollowUpLinkAccessibleName(WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF, "Alert rules") })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "Webhooks" })).not.toBeInTheDocument();
 
-    const destinationHrefs = new Set<string>();
-    destinationHrefs.add(WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.href);
-
-    for (const source of WEBHOOKS_INTEGRATION_HELP_SOURCES) {
-      const sourcesRegion = within(screen.getByTestId("help-webhooks-integration-sources"));
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-
-      expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-      expect(sourcesRegion.getByText(source.when)).toBeInTheDocument();
-      expect(destinationHrefs.has(source.href)).toBe(false);
-      destinationHrefs.add(source.href);
-    }
+    const sourcesRegion = within(screen.getByTestId("help-webhooks-integration-sources"));
+    expectWhereToGoNextFollowUpLinks(sourcesRegion, WEBHOOKS_INTEGRATION_HELP_SOURCES, WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH);
 
     const alertRulesFollowUp = within(screen.getByTestId("help-webhooks-integration-sources")).getByRole("link", {
       name: formatHelpFollowUpLinkAccessibleName(WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF, "Alert rules"),

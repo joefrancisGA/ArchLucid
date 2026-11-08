@@ -17,6 +17,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 describe("AuditTrailViewSwitcher", () => {
   it("exposes URL-bound view chips with aria-current on the active view", () => {
     render(<AuditTrailViewSwitcher viewMode="story" currentSearch="runId=abc" />);

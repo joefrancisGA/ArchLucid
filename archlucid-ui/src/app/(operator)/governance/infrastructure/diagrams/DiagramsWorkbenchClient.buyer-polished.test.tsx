@@ -114,14 +114,26 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+  useProductionDeskChrome: (): boolean => false,
+}));
 
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => true,
-  };
-});
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" as const }),
+}));
+
+vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", () => ({
+  SecureNowQuestionQueue: () => null,
+  SecureNowQuestionQueueProvider: ({ children }: { children: React.ReactNode }) => children,
+  SecureNowQuestionQueueSnapshotPromo: () => null,
+  SecureNowQuestionQueueBar: () => null,
+  useSecureNowQuestionQueue: () => ({
+    drawerOpen: false,
+    currentQuestion: null,
+  }),
+  useSecureNowQuestionSubjectNodeId: () => null,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
@@ -131,6 +143,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
     PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
@@ -143,7 +174,7 @@ import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
-  it("renders skip link, picker sections, and sources strip", async () => {
+  it("renders skip link, picker sections, and contextual help without mid-page sources (TB-2092)", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
 
@@ -155,9 +186,7 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );
     expect(screen.getByTestId("governance-infrastructure-diagrams-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByText(/page help/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Ctrl\+K.*search/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();

@@ -2,8 +2,30 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
+import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-route-paths";
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
+
+const policyPacksNavigation = vi.hoisted(() => ({
+  replace: vi.fn(),
+  push: vi.fn(),
+  searchParams: new URLSearchParams(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: (href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      policyPacksNavigation.searchParams =
+        queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
+      policyPacksNavigation.replace(href);
+    },
+    push: policyPacksNavigation.push,
+  }),
+  usePathname: () => INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+  useSearchParams: () => policyPacksNavigation.searchParams,
+}));
 
 const listPlatformBundledPolicyPacks = vi.fn();
 const setPlatformBundledPolicyPackActivation = vi.fn();
@@ -47,6 +69,9 @@ const sampleRow = {
 describe("AdminPlatformBundledPolicyPacksPageClient", () => {
   beforeEach(() => {
     nav.callerAuthorityRank = 3;
+    policyPacksNavigation.searchParams = new URLSearchParams();
+    policyPacksNavigation.replace.mockReset();
+    policyPacksNavigation.push.mockReset();
     listPlatformBundledPolicyPacks.mockReset();
     setPlatformBundledPolicyPackActivation.mockReset();
     listPlatformBundledPolicyPacks.mockResolvedValue([sampleRow]);
@@ -60,7 +85,7 @@ describe("AdminPlatformBundledPolicyPacksPageClient", () => {
     render(<AdminPlatformBundledPolicyPacksPageClient />);
 
     expect(screen.getByTestId("platform-bundled-policy-packs-sources")).toBeInTheDocument();
-    expect(screen.queryByTestId("platform-bundled-policy-packs-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("platform-bundled-policy-packs-claim-discipline")).toBeInTheDocument();
 
     const toggle = await screen.findByTestId(`platform-bundled-policy-pack-toggle-${sampleRow.bundleContentFile}`);
 

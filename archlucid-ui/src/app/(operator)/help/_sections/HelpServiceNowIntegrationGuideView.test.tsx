@@ -5,6 +5,10 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
@@ -21,7 +25,7 @@ import {
   SERVICENOW_INTEGRATION_HELP_SOURCES,
 } from "@/lib/servicenow-integration-help-evidence-copy";
 import { SERVICENOW_INTEGRATION_PAGE_TITLE } from "@/lib/servicenow-integration-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -67,11 +71,11 @@ describe("HelpServiceNowIntegrationGuideView", () => {
 
     const sourcesSection = screen.getByTestId("help-servicenow-integration-sources");
 
-    for (const source of SERVICENOW_INTEGRATION_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      SERVICENOW_INTEGRATION_HELP_SOURCES,
+      "/",
+    );
 
     expect(screen.getByRole("link", { name: "Read Integration readiness help" })).toHaveAttribute(
       "href",

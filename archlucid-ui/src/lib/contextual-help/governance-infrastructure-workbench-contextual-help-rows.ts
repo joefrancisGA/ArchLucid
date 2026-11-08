@@ -168,6 +168,7 @@ const GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXTUAL_HELP = {
   taskSteps: [
     "Scope Ask to a resource hub — unscoped Ask stays empty until a cloud resource id is present.",
     "Ask grounded questions and follow citations; insufficient-evidence outcomes are honest.",
+    "Return to resource explorer when snapshots or scope prerequisites are missing.",
   ],
 } as const;
 

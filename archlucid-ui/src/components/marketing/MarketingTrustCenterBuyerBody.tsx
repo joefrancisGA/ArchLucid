@@ -274,7 +274,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               <li key={link.id}>
                 <Link
                   href={link.href}
-                  className={TRUST_CENTER_PUBLIC_LAYOUT.relatedHelpLink}
+                  className={cn(TRUST_CENTER_PUBLIC_LAYOUT.relatedHelpLink, MARKETING_SURFACES.inlineLink)}
                   data-testid={`trust-related-help-${link.id}`}
                 >
                   {link.label}

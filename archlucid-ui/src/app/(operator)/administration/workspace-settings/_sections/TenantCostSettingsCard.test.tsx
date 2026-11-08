@@ -168,3 +168,8 @@ describe("TenantCostSettingsCard", () => {
     expect(screen.queryByTestId("tenant-cost-settings-defaults-status")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

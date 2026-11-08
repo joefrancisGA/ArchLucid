@@ -112,3 +112,8 @@ describe("DataArchivalDegradedBanner", () => {
     expect(screen.getByRole("alert")).not.toHaveTextContent(/readiness check/i);
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

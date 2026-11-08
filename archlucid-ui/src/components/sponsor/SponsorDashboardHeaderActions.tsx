@@ -1,11 +1,12 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 
@@ -21,7 +22,7 @@ export function SponsorDashboardHeaderActions(props: SponsorDashboardHeaderActio
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="sponsor-dashboard-hero-actions">
-      {!isBuyerPolishedOperatorShellEnv() ? <PageContextualHelpButton /> : null}
+      {!useProductionEvalChrome() ? <PageContextualHelpButton /> : null}
       <RefreshButton
         data-testid="sponsor-dashboard-refresh-button"
         busy={props.refreshing}

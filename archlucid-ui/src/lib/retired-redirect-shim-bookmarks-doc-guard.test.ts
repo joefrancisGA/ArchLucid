@@ -37,11 +37,12 @@ const AUTHENTICATION_SIGN_IN_HELP_SOURCE_PATHS = [
 
 const LEGACY_LOGIN_ROUTE_PATTERN = /["'`]\/login["'`]/;
 
-const RETIRED_BOOKMARK_PYTHON_MIGRATION_SNIPPETS = [
-  '"/login": "/auth/signin"',
-  '"/onboard": "/architecture/first-review-guide"',
-  '"/onboarding/start": "/architecture/first-review-guide"',
-  '"/operate/architecture-graph": "/insights/evidence-graph"',
+/** Retired redirect shim paths must not appear in `TRAFFIC_TRACKED_REDIRECT_BOOKMARKS`. */
+const RETIRED_BOOKMARK_TRAFFIC_TRACKED_SNIPPETS = [
+  `"/login"`,
+  `"/onboard"`,
+  `"/onboarding/start"`,
+  `"/operate/architecture-graph"`,
 ] as const;
 
 function readRepoRelativeDoc(relativePath: string): string {
@@ -120,11 +121,15 @@ describe("retired-redirect-shim-bookmarks-doc-guard (LOG / OXX / OSX / OAX remov
     expect(signInRow?.notes.toLowerCase()).not.toContain("log = legacy /login");
   });
 
-  it("does not migrate retired bookmark paths in Python WORKBOOK_PATH_MIGRATIONS", () => {
+  it("does not score retired bookmark paths in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS", () => {
     const catalogSource = readFileSync(CATALOG_PATH, "utf8");
+    const block = catalogSource.slice(
+      catalogSource.indexOf("TRAFFIC_TRACKED_REDIRECT_BOOKMARKS"),
+      catalogSource.indexOf("TRAFFIC_TRACKED_REDIRECT_BOOKMARKS") + 800,
+    );
 
-    for (const snippet of RETIRED_BOOKMARK_PYTHON_MIGRATION_SNIPPETS) {
-      expect(catalogSource).not.toContain(snippet);
+    for (const snippet of RETIRED_BOOKMARK_TRAFFIC_TRACKED_SNIPPETS) {
+      expect(block).not.toContain(snippet);
     }
   });
 });

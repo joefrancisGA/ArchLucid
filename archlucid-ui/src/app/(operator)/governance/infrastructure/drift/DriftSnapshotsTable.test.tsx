@@ -129,7 +129,7 @@ describe("DriftSnapshotsTable", () => {
       />,
     );
 
-    expect(screen.getByText("Subscription name was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Subscription was not stored.")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-snapshot-capture-status-11111111-1111-1111-1111-111111111111"))
       .toHaveTextContent("Capture status was not stored");
   });

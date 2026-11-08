@@ -13,7 +13,6 @@ export const PRODUCT_FIRST_REVIEW_HELP_CTA_SOURCE_FILES: readonly string[] = [
   ...FIRST_ARCHITECTURE_REVIEW_INBOUND_HANDOFF_SOURCE_FILES,
   ...FIRST_ARCHITECTURE_REVIEW_DISCOVERY_SOURCE_FILES,
   "src/components/HelpPanel.tsx",
-  "src/components/CorePilotNextStepsCard.tsx",
 ] as const;
 
 export const RETIRED_FIRST_REVIEW_HELP_CTA_MARKERS: readonly string[] =

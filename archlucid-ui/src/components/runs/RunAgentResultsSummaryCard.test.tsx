@@ -100,10 +100,11 @@ describe("RunAgentResultsSummaryCard", () => {
     expect(screen.getByTestId("run-agent-retry-failed-button")).toBeInTheDocument();
   });
 
-  it("returns null when results and outcomes are empty", () => {
-    const { container } = render(<RunAgentResultsSummaryCard results={[]} />);
+  it("shows empty stored copy when results and outcomes are empty", () => {
+    render(<RunAgentResultsSummaryCard results={[]} />);
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.getByTestId("run-agent-results-summary-card")).toBeInTheDocument();
+    expect(screen.getByText("Agent results were stored empty.")).toBeInTheDocument();
   });
 
   it("shows a durable acknowledgement and refreshes after selective retry is accepted", async () => {

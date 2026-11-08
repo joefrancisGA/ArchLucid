@@ -4,7 +4,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type SetStateAction } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -14,7 +14,10 @@ import {
   ONBOARDING_TOUR_DONE_LINK_LABEL,
   OPERATOR_ONBOARDING_TOUR_STEPS,
 } from "@/lib/operator/operator-onboarding-tour-steps";
-import { isWelcomeModalVisible } from "@/lib/operator/operator-onboarding-coordination";
+import {
+  isWelcomeModalVisible,
+  subscribeWelcomeModalVisible,
+} from "@/lib/operator/operator-onboarding-coordination";
 import {
   ARCHLUCID_ONBOARDING_TOUR_START_EVENT,
   writeOnboardingTourCompleted,
@@ -33,6 +36,11 @@ type Rect = { top: number; left: number; width: number; height: number };
  */
 export function OnboardingTour() {
   const pathname = usePathname() ?? "/";
+  const welcomeModalVisible = useSyncExternalStore(
+    subscribeWelcomeModalVisible,
+    isWelcomeModalVisible,
+    () => false,
+  );
   const steps = OPERATOR_ONBOARDING_TOUR_STEPS;
   const readTourStateFromUrl = (): { open: boolean; stepIndex: number } => {
     const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
@@ -251,7 +259,7 @@ export function OnboardingTour() {
     };
   }, [open, closeAndPersist]);
 
-  if (!open || isWelcomeModalVisible()) {
+  if (!open || welcomeModalVisible) {
     return null;
   }
 

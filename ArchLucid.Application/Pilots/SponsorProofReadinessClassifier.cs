@@ -34,7 +34,7 @@ public static class SponsorProofReadinessClassifier
         if (gate.ProofSendability is not ProofPackageSendability.SendableWithCaveats)
             throw new ArgumentOutOfRangeException(nameof(gate), gate.ProofSendability, "Unexpected proof sendability.");
 
-        if (gate.SoftGaps.Count > 0 && gate.SoftGaps.All(IsComparativeBaselineSoftGap))
+        if (gate.SoftGaps.Count > 0 && gate.SoftGaps.All(IsBaselineFamilySoftGap))
             return SponsorProofReadinessClassification.NeedsBaseline;
 
         return SponsorProofReadinessClassification.Incomplete;
@@ -58,8 +58,27 @@ public static class SponsorProofReadinessClassifier
         return PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(sponsorProofReadinessFromProof);
     }
 
-    private static bool IsComparativeBaselineSoftGap(string message) =>
-        message.Contains(ComparativeBaselineNarrativeSoftGapToken, StringComparison.OrdinalIgnoreCase);
+    /// <summary>
+    ///     Soft gaps that share the same root cause as a weak comparative ROI baseline
+    ///     (narrative, confidence band, and projected-dollar sponsor-safety).
+    /// </summary>
+    private static bool IsBaselineFamilySoftGap(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return false;
+
+        if (message.Contains(ComparativeBaselineNarrativeSoftGapToken, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (message.Contains(
+                PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain,
+                StringComparison.Ordinal))
+            return true;
+
+        return message.Contains(
+            PilotProjectedDollarClaimsSponsorSafeHonestyCopy.NoPlain,
+            StringComparison.Ordinal);
+    }
 
     public static string DescribeForMarkdownTable(SponsorProofReadinessClassification classification) =>
         classification switch
