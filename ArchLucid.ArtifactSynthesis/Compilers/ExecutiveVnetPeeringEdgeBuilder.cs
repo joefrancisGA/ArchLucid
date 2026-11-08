@@ -207,6 +207,11 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             return;
         }
 
+        if (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+        {
+            edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringStoredConnectedStateNotStored;
+        }
+
         edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
     }
 
