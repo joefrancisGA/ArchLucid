@@ -73,8 +73,6 @@ describe("help working desk copy guard (AO-42 / WA-04)", () => {
 
   it("filters first-session help recommendations on core-pilot routes in Working mode (SD-06)", () => {
     expect(recommendedHelpSearchPanelTopicIds("/help/first-architecture-review", null, true)).toEqual([
-      "create-first-review",
-      "sample-review",
       "upload-evidence",
       "cloud-connections",
       "troubleshoot",
