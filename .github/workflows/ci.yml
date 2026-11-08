@@ -1897,6 +1897,38 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/assert_no_audit_events_nolock.py
 
+  terraform-prewarm-provider-cache:
+    name: "Terraform: prewarm provider plugin cache"
+    needs:
+      - gitleaks
+      - ci-path-lanes
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Path-skip Terraform provider prewarm
+        if: needs.ci-path-lanes.outputs.run_terraform != 'true'
+        run: "echo 'Path-skip: Terraform provider prewarm not required for this PR lane set.'"
+
+      - uses: hashicorp/setup-terraform@v4
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
+        with:
+          terraform_wrapper: false
+
+      - name: Cache Terraform provider plugins
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-plugins-${{ runner.os }}-${{ hashFiles('infra/**/.terraform.lock.hcl', 'deploy/**/.terraform.lock.hcl') }}
+          restore-keys: |
+            terraform-plugins-${{ runner.os }}-
+
+      - name: Prewarm plugin cache (sequential inits)
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
+        run: bash scripts/ci/warm_terraform_provider_plugin_cache.sh
+
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
     # Hard gate: do not wait on warn-only docs — start with OpenAPI / guards after gitleaks.
@@ -1904,6 +1936,7 @@ jobs:
     needs:
       - gitleaks
       - ci-path-lanes
+      - terraform-prewarm-provider-cache
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -1959,11 +1992,13 @@ jobs:
     needs:
       - gitleaks
       - ci-path-lanes
+      - terraform-prewarm-provider-cache
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       # Throttle parallel registry.terraform.io downloads (grafana/azurerm) to avoid HTTP 429.
-      max-parallel: 4
+      max-parallel: 2
+      fail-fast: false
       matrix:
         directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod, infra/terraform-securenow-in-tenant]
     steps:
