@@ -10,6 +10,7 @@ const GUARDED_RELATIVE_DIRS = [
   "src/components/alerts",
   "src/components/advisory",
   "src/components/digests",
+  "src/components/governance",
 ] as const;
 
 function walkTsxFiles(dir: string, acc: string[]): void {
@@ -36,7 +37,7 @@ function walkTsxFiles(dir: string, acc: string[]): void {
 }
 
 describe("flat peer review href guard (Operate scopes)", () => {
-  it("does not use template literal peer /architecture/reviews/${ in alerts, advisory, digests", () => {
+  it("does not use template literal peer /architecture/reviews/${ in guarded Operate scopes", () => {
     const uiRoot = process.cwd();
     const offenders: string[] = [];
 
