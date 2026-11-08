@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   architectureIdentityDraftHref,
@@ -15,6 +15,10 @@ import {
   resolveWorkingReviewFindingsBackHref,
   resolveWorkingReviewPackageBackHref,
 } from "@/lib/architecture/working-back-href";
+
+vi.mock("@/lib/global-search-desk-architecture-id", () => ({
+  resolveGlobalSearchDeskArchitectureId: vi.fn(() => null),
+}));
 
 describe("resolveWorkingBackLocator (AO-44)", () => {
   const draftRegistryEntries = [
@@ -75,6 +79,22 @@ describe("resolveWorkingBackLocator (AO-44)", () => {
 
     expect(locator.architectureDeskHref).toBeNull();
     expect(locator.reviewJobHref).toBe("/architecture/reviews/run-unlinked");
+  });
+
+  it("uses desk continuity resolver when draft registry and pathname omit architecture", async () => {
+    const { resolveGlobalSearchDeskArchitectureId } = await import("@/lib/global-search-desk-architecture-id");
+
+    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValueOnce("architecture-continuity");
+
+    const locator = resolveWorkingBackLocator({
+      reviewId: "run-continuity",
+      pathname: "/architecture/reviews/run-continuity/print",
+      draftRegistryEntries: [],
+    });
+
+    expect(locator.reviewJobHref).toBe(
+      "/architecture/architectures/architecture-continuity/reviews/run-continuity",
+    );
   });
 
   it("builds nested findings tab back href for finding detail wayfinding", () => {
