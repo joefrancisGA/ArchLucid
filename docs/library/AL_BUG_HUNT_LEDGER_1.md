@@ -11065,6 +11065,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId`: an AWS Config S3 item stores the bucket name on `configuration.name` and the ARN on `arn`. The reader returned that name first, the name is not an ARN, and the item was left unmatched. Each id key is now kept only when it looks like an ARN, so the item ARN is still read. Regression `CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn` failed first (`HasMismatches` true) and then passed with the configuration-bag and `resourceName` regressions (**6/6**, `RunAnalyzers=false`). The open nested `properties.id` candidate stays open: a storage account property bag does not carry `properties.id`. Private beta: when an invited operator reconciles an S3 bucket recorded the way AWS Config records it, with the bucket name under configuration and the ARN on the item, that bucket matches the topology instead of looking missing from inventory.
+
+- [x] (proven) `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — AWS Config `configuration.name` hid the item ARN — **hit 2026-11-08 thorough hunt:** keep the first candidate that looks like an ARN; regression `CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn`. [class:identity-alias]
+
 2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` `tf.self_link`: Terraform show stores `values.self_link` as `tf.self_link`, and the id lists only had CAI `selfLink` plus `tf.id`. A Google SQL instance whose `tf.id` is the short name and whose API self link is `tf.self_link` was left unmatched. The topology, inventory, and serialized-bag id lists now include `tf.self_link`. Regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link` failed first (`HasMismatches` true) and then passed with the existing `selfLink` topology test (**3/3**, `RunAnalyzers=false`). Cheap-disproof: omitted `publicNetworkAccess` stays uncompared because this analyzer requires a stored inventory value; `shared_access_key_enabled` is redacted (`access_key` fragment) so the bag has no boolean; `SecuredByPerimeter` stays a distinct token from `Disabled`, which is the disagreement to evaluate; `tf.enablehttpstrafficonly` is not emitted because `SanitizePropertyKey` keeps underscores and `tf.enable_https_traffic_only` already resolves. Nested `properties.id` shadowing stays a candidate. Private beta: when an invited operator reconciles a Terraform declaration whose Google resource id is only the API self link stored as tf.self_link, that resource matches inventory instead of looking missing from the declaration.
 
 - [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` was not a topology id key — **hit 2026-11-08 thorough hunt:** read `tf.self_link` beside `selfLink` on the topology, inventory, and serialized-bag id lists; regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link`. [class:other]
@@ -20116,11 +20120,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 93
-- **bugs-found:** 88
+- **hunts:** 94
+- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — Terraform tf.self_link was not read as a GCP topology resource id
+- **last-bug:** 2026-11-08 — AWS Config configuration.name hid the S3 item ARN
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
