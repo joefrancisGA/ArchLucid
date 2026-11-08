@@ -19,6 +19,7 @@ public sealed class AzureGraphEquivalenceBaselineRegenerateTests
     public async Task Regenerate_master_baseline_when_env_set()
     {
         string? flag = Environment.GetEnvironmentVariable("ARCHLUCID_REGENERATE_GRAPH_EQUIVALENCE");
+
         if (!string.Equals(flag, "1", StringComparison.Ordinal))
             return;
 
@@ -27,6 +28,7 @@ public sealed class AzureGraphEquivalenceBaselineRegenerateTests
 
         JsonNode root = JsonNode.Parse(await File.ReadAllTextAsync(baselinePath))!;
         JsonObject casesNode = root["cases"]!.AsObject();
+
         foreach ((string name, JsonElement capture) in cases)
         {
             casesNode[name] = JsonNode.Parse(JsonSerializer.Serialize(capture))!;
@@ -47,6 +49,7 @@ public sealed class AzureGraphEquivalenceBaselineRegenerateTests
                 "InfraEvidence",
                 "GraphEquivalence",
                 "master-3c0c4fd9.json");
+
             if (File.Exists(candidate))
                 return candidate;
 
@@ -56,6 +59,7 @@ public sealed class AzureGraphEquivalenceBaselineRegenerateTests
                 "InfraEvidence",
                 "GraphEquivalence",
                 "master-3c0c4fd9.json");
+
             if (File.Exists(candidate))
                 return candidate;
         }
@@ -88,6 +92,7 @@ public sealed class AzureGraphEquivalenceBaselineRegenerateTests
                 WorkspaceId = Guid.NewGuid(),
                 ProjectId = Guid.NewGuid(),
             }, fixture.Snapshot.Header.SnapshotId, includeNeverShowArmTypes: fixture.IncludeHidden);
+
         if (!result.Succeeded || result.Graph is null)
             throw new InvalidOperationException($"Fixture {fixture.Name} failed to resolve.");
 
