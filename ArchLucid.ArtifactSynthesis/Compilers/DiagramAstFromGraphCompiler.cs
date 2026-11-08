@@ -244,6 +244,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
             DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
             DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+
             if (mode == DiagramMode.Network)
             {
                 DiagramAstSubnetPlacementEdgeEnsurer.Apply(ast, graph, nodeIdMap);

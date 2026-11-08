@@ -600,6 +600,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.SubnetKind, StringComparison.OrdinalIgnoreCase))
         {
             string subnetArmId = ArmResourceIdNormalizer.Normalize(association.TargetArmId);
+
             if (subnetOwnerArmIds.TryGetValue(subnetArmId, out HashSet<string>? ownerArmIds)
                 && ownerArmIds.Count > 0)
             {
@@ -743,11 +744,6 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 }
 
                 owners.Add(ownerArmId);
-            ownersBySubnetArmId.GetValueOrDefault(vnetArmId)?.Add(ownerArmId);
-            if (!ownersBySubnetArmId.ContainsKey(vnetArmId))
-            {
-                ownersBySubnetArmId[vnetArmId] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ownerArmId };
-            }
             }
         }
 
