@@ -19,9 +19,27 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
   })),
 }));
 
-vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: () => 3,
-}));
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
+  const { operatorNavOutsideProviderPrincipal } = await import("@/lib/current-principal");
+
+  const authority = {
+    ...operatorNavOutsideProviderPrincipal,
+    authorityRank: 3,
+    hasCommittedArchitectureReview: true,
+  };
+
+  return {
+    ...actual,
+    useNavCallerAuthorityRank: () => 3,
+    useOperatorNavAuthority: () => ({
+      currentPrincipal: authority,
+      callerAuthorityRank: 3,
+      isAuthorityLoading: false,
+    }),
+  };
+});
 
 vi.mock("@/hooks/use-advisory-schedule-review-availability", () => ({
   useAdvisoryScheduleReviewAvailability: () => ({
