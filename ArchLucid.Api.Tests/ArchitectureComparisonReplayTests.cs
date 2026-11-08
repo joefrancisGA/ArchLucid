@@ -14,7 +14,7 @@ public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factor
     public async Task ReplayComparison_RecreatesPersistedEndToEndComparisonAsMarkdown()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, "REQ-COMP-REPLAY-001");
+            Client, JsonOptions, Factory, "REQ-COMP-REPLAY-001");
         string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
