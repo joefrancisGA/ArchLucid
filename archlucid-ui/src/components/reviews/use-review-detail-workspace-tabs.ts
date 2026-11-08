@@ -181,6 +181,8 @@ export function useReviewDetailWorkspaceTabs(
       writeReviewDetailTabToUrl("findings", {
         findingId: findingId.length > 0 ? findingId : undefined,
         hash: defaultHash.length > 0 ? defaultHash : undefined,
+        runId: props.runId,
+        architectureId: props.parentArchitectureId,
       });
       setActiveTab("findings");
 
@@ -199,6 +201,8 @@ export function useReviewDetailWorkspaceTabs(
 
     writeReviewDetailTabToUrl(defaultTab, {
       hash: defaultHash.length > 0 ? defaultHash : undefined,
+      runId: props.runId,
+      architectureId: props.parentArchitectureId,
     });
     setActiveTab(defaultTab);
 
@@ -206,6 +210,8 @@ export function useReviewDetailWorkspaceTabs(
       scheduleScrollToReviewDetailSection(defaultHash);
     }
   }, [
+    props.parentArchitectureId,
+    props.runId,
     props.visitDefaultFindingIdWhenUrlSilent,
     props.visitDefaultReviewHashWhenUrlSilent,
     props.visitDefaultReviewTabWhenUrlSilent,
@@ -289,10 +295,12 @@ export function useReviewDetailWorkspaceTabs(
         findingId: options?.findingId,
         workbenchFocus: nextWorkbenchFocus,
         presenter: presenterModeRef.current ? true : null,
+        runId: props.runId,
+        architectureId: props.parentArchitectureId,
       });
       markTabSeen(tab);
     },
-    [markTabSeen],
+    [markTabSeen, props.parentArchitectureId, props.runId],
   );
 
   useEffect(() => {
