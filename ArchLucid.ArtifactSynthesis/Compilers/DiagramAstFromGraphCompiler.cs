@@ -217,7 +217,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 ast,
                 graph.Nodes,
                 graph.Edges,
-                nodeIdMap);
+                nodeIdMap,
+                mode);
             DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
         }
 

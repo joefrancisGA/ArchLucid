@@ -92,6 +92,11 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
 
             if (fromVisible && toVisible && IsComposedPlacementEdge(graphEdge))
             {
+                if (IsHiddenPrivateEndpointTargetPlacementEdge(graphEdge, graphNodesById))
+                {
+                    continue;
+                }
+
                 TryAddVisibleEdge(
                     ast,
                     visibleEdgeKeys,
@@ -126,6 +131,11 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                 continue;
             }
 
+            if (IsHiddenPrivateEndpointTargetPlacementEdge(graphEdge, graphNodesById))
+            {
+                continue;
+            }
+
             TryAddVisibleEdge(
                 ast,
                 visibleEdgeKeys,
@@ -135,6 +145,25 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                 ResolveLiftedLabel(graphEdge, graphNodesById, graphEdge.ToNodeId),
                 graphEdge);
         }
+    }
+
+    private static bool IsHiddenPrivateEndpointTargetPlacementEdge(
+        GraphEdge graphEdge,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById)
+    {
+        if (!IsPeToSubnetEdge(graphEdge) && !IsComposedPlacementEdge(graphEdge))
+        {
+            return false;
+        }
+
+        if (!graphNodesById.TryGetValue(graphEdge.FromNodeId, out GraphNode? fromNode))
+        {
+            return false;
+        }
+
+        return !IsNicOrSubnetOrPrivateEndpointNode(fromNode)
+            && (IsPeToSubnetEdge(graphEdge)
+                || string.Equals(graphEdge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase));
     }
 
     private static void LiftHiddenPrivateEndpointPlacements(
@@ -201,23 +230,6 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                         placementDiagramId,
                         InventoryDiagramRelationshipLabelTexts.PrivateAccess,
                         sourceEdge);
-
-                    GraphEdge placementSourceEdge = new()
-                    {
-                        EdgeType = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
-                        Label = "in",
-                        InferenceSource = GraphEdgeInferenceSources.InventoryPeSubnet,
-                        ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-                    };
-
-                    TryAddVisibleEdge(
-                        ast,
-                        visibleEdgeKeys,
-                        visibleDiagramIds,
-                        targetDiagramId,
-                        placementDiagramId,
-                        "in",
-                        placementSourceEdge);
                 }
             }
         }
@@ -306,16 +318,31 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
 
             if (IsPeToSubnetEdge(graphEdge) || DiagramAstVnetTopologyResolver.IsSubnetNode(toNode))
             {
-                string? placementId = LiftHiddenEndpoint(
-                    graphEdge.ToNodeId,
-                    graphToDiagramNodeId,
-                    graphNodesById,
-                    nicNodeIdToOwnerNodeId,
-                    visibleDiagramIds);
-
-                if (!string.IsNullOrWhiteSpace(placementId) && seen.Add(placementId))
+                if (AzureInventoryTopologyCategory.IsVirtualNetworkArmType(
+                        DiagramAstGraphNodeClassifier.ReadArmType(toNode))
+                    && TryGetVisibleDiagramId(
+                        graphEdge.ToNodeId,
+                        graphToDiagramNodeId,
+                        visibleDiagramIds,
+                        out string? vnetDiagramId)
+                    && !string.IsNullOrWhiteSpace(vnetDiagramId)
+                    && seen.Add(vnetDiagramId))
                 {
-                    placementDiagramIds.Add(placementId);
+                    placementDiagramIds.Add(vnetDiagramId);
+                }
+                else
+                {
+                    string? placementId = LiftHiddenEndpoint(
+                        graphEdge.ToNodeId,
+                        graphToDiagramNodeId,
+                        graphNodesById,
+                        nicNodeIdToOwnerNodeId,
+                        visibleDiagramIds);
+
+                    if (!string.IsNullOrWhiteSpace(placementId) && seen.Add(placementId))
+                    {
+                        placementDiagramIds.Add(placementId);
+                    }
                 }
 
                 continue;
@@ -523,7 +550,7 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
             {
                 existing.Label = "in";
                 existing.InferenceSource ??= sourceEdge.InferenceSource;
-                existing.ProvenanceKind ??= sourceEdge.ProvenanceKind;
+                existing.ProvenanceKind ??= ResolvePlacementEdgeProvenanceKind(sourceEdge);
             }
 
             return;
@@ -541,11 +568,24 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
             FromNodeId = fromDiagramId,
             ToNodeId = toDiagramId,
             Label = label,
-            ProvenanceKind = string.IsNullOrWhiteSpace(sourceEdge.ProvenanceKind)
-                ? null
-                : sourceEdge.ProvenanceKind,
+            ProvenanceKind = ResolvePlacementEdgeProvenanceKind(sourceEdge),
             InferenceSource = sourceEdge.InferenceSource,
         });
+    }
+
+    private static string? ResolvePlacementEdgeProvenanceKind(GraphEdge sourceEdge)
+    {
+        if (!string.IsNullOrWhiteSpace(sourceEdge.ProvenanceKind))
+        {
+            return sourceEdge.ProvenanceKind;
+        }
+
+        if (IsComposedPlacementEdge(sourceEdge))
+        {
+            return ProvenanceKind.ObservedFact.ToString();
+        }
+
+        return null;
     }
 
     private static bool TryGetVisibleDiagramId(
