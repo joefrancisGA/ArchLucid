@@ -130,7 +130,7 @@ describe("SsoWizardPage", () => {
     expect(screen.getByTestId("sso-wizard-continue")).toBeDisabled();
 
     const page = screen.getByTestId("sso-wizard-page");
-    expect(page.className).toContain("w-full max-w-[62rem]");
+    expect(page.className).toContain("w-full max-w-[68rem]");
     expect(page.className).not.toContain("mx-auto");
 
     const pageText = page.textContent ?? "";

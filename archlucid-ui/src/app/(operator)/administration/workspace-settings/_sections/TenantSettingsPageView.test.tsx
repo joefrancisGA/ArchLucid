@@ -156,7 +156,7 @@ describe("TenantSettingsPageView", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-settings-active-scope-summary")).toHaveTextContent(
-        "Active scope: Workspace: Pilot — Northwind",
+        "Active scope: Pilot — Northwind",
       );
     });
 
