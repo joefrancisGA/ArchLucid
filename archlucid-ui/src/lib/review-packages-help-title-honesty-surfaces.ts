@@ -10,7 +10,7 @@ export const REVIEW_PACKAGES_HELP_TITLE_HONESTY_SOURCE_FILES: readonly string[] 
   "src/lib/review-packages-help-page-copy.ts",
   "src/lib/review-packages-help-guide-content.ts",
   "src/lib/product-documentation-registry-entries-operator-workspace.ts",
-  "src/lib/usability/page-help-topic-rows.ts",
+  "src/lib/usability/page-help-topic-rows-operator-architecture.ts",
   "src/app/(operator)/help/_sections/HelpReviewPackagesGuideView.tsx",
 ] as const;
 
