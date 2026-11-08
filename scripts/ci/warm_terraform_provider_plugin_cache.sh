@@ -28,9 +28,18 @@ roots=(
   infra/terraform-private
 )
 
+failed=0
 for root in "${roots[@]}"; do
   echo "Prewarm: ${root}" >&2
-  bash "${INIT}" "${root}"
+  if ! bash "${INIT}" "${root}"; then
+    echo "Prewarm soft-fail: ${root} (continuing remaining roots)" >&2
+    failed=$((failed + 1))
+  fi
 done
+
+if [[ "${failed}" -gt 0 ]]; then
+  echo "Terraform provider plugin cache prewarm finished with ${failed}/${#roots[@]} soft-failures; validate jobs retry init independently." >&2
+  exit 0
+fi
 
 echo "Terraform provider plugin cache prewarm complete (${#roots[@]} roots)." >&2

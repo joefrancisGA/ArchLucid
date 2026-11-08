@@ -1925,8 +1925,11 @@ jobs:
           restore-keys: |
             terraform-plugins-${{ runner.os }}-
 
+      # Soft-fail: prewarm is an optimization for parallel validate jobs. Registry/GitHub 504
+      # on one root (e.g. azure/azapi checksums) must not skip terraform-validate-* and the .NET corset.
       - name: Prewarm plugin cache (sequential inits)
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
+        continue-on-error: true
         run: bash scripts/ci/warm_terraform_provider_plugin_cache.sh
 
   terraform-validate-private:

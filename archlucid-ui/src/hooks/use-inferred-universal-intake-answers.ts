@@ -219,6 +219,10 @@ export function useInferredUniversalIntakeAnswers(
         answersToApply = filterQualityGatedInferredAnswers(inferredAnswers);
       }
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
         currentAnswers: answersRef.current,
         inferredAnswers: answersToApply,
