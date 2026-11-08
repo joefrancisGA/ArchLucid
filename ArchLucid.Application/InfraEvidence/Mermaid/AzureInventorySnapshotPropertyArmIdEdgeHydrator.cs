@@ -54,6 +54,7 @@ internal static class AzureInventorySnapshotPropertyArmIdEdgeHydrator
             }
 
             // The typed private-link hydrator owns this evidence; do not also infer generic connectivity.
+
             if (AzureInventorySnapshotPrivateEndpointEdgeHydrator.IsPrivateEndpointResource(owner)
                 && AzureInventorySnapshotPrivateEndpointEdgeHydrator.IsPrivateLinkPropertyKey(property.PropertyKey))
             {

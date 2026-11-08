@@ -58,6 +58,7 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
                          .OrderBy(property => property.PropertyKey, StringComparer.Ordinal))
             {
                 string targetArmId = ArmResourceIdNormalizer.Normalize(property.PropertyValue);
+
                 foreach (string toNodeId in AzureInventoryReferencedEndpointNodeFactory.ResolveVisibleTargetNodeIds(
                              targetArmId,
                              nodeIdByArmId,
@@ -100,6 +101,7 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
     internal static bool IsPrivateLinkPropertyKey(string? key)
     {
         const string prefix = "privateLinkServiceId";
+
         if (string.Equals(key, prefix, StringComparison.OrdinalIgnoreCase))
         {
             return true;
@@ -136,6 +138,7 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
             edge.Properties.TryAdd("evidence.propertyKey", propertyKey);
             edge.Properties.TryAdd("evidence.resourceRowId", owner.ResourceRowId.ToString("D"));
             edge.Properties.TryAdd("evidence.targetArmId", targetArmId);
+
             if (!string.IsNullOrWhiteSpace(owner.SourceEvidenceReference))
             {
                 edge.Properties.TryAdd("evidence.sourceReference", owner.SourceEvidenceReference);
