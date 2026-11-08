@@ -66,7 +66,8 @@ public abstract class IntegrationTestWebAppFactoryBase : BaseIntegrationTestFixt
             return;
         }
 
-        client.BaseAddress = new Uri("http://localhost");
+        throw new InvalidOperationException(
+            $"{FactoryLogPrefix}: test HttpClient has no BaseAddress and {nameof(Server)}.{nameof(Server.BaseAddress)} is null.");
     }
 
     /// <inheritdoc />

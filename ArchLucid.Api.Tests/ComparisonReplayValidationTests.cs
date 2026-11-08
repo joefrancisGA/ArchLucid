@@ -12,7 +12,7 @@ public sealed class ComparisonReplayValidationTests(ArchLucidApiFactory factory)
     public async Task ReplayComparison_InvalidFormatAndReplayMode_Returns400WithValidationErrors()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, "REQ-VALIDATE-001");
+            Client, JsonOptions, Factory, "REQ-VALIDATE-001");
         string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
