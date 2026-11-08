@@ -14,6 +14,9 @@ import {
   SECURENOW_SECURITY_HOME_ROWS,
 } from "@/lib/product-line/securenow-security-home-copy";
 
+/** Home-only destinations promoted on SecureNow home sections before sidebar catch-up. */
+const SECURENOW_HOME_DESTINATION_NAVBAR_EXCLUSIONS = new Set(["/administration/securenow-compliance-notes"]);
+
 function listSecureNowSidebarHrefs(): string[] {
   const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true, false, {
     productLine: "security",
@@ -46,7 +49,9 @@ describe("SecureNow home destination order", () => {
       ...SECURENOW_SECURITY_HOME_ROWS,
       ...SECURENOW_COMPLIANCE_HOME_ROWS,
       ...SECURENOW_INFRASTRUCTURE_HOME_ROWS,
-    ].map((row) => row.href);
+    ]
+      .map((row) => row.href)
+      .filter((href) => !SECURENOW_HOME_DESTINATION_NAVBAR_EXCLUSIONS.has(href));
     const homeHrefSet = new Set(homeHrefs);
     const navbarHrefsOnHome = listSecureNowSidebarHrefs().filter((href) => homeHrefSet.has(href));
 

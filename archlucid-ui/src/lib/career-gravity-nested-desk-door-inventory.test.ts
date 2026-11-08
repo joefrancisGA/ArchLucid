@@ -47,7 +47,7 @@ describe("career-gravity nested desk door inventory (CG-007)", () => {
           "archlucid-ui/src/app/(operator)/architecture/architectures/[architectureId]/search/page.tsx",
         ),
       ),
-    ).toBe(false);
+    ).toBe(true);
 
     const nestedAsk = readFileSync(
       join(

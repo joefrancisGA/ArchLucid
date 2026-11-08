@@ -1,5 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/integration-readiness",
+}));
 import {
   expectClaimDisciplineBandContent,
   expectWhereToGoNextFollowUpLinks,
@@ -22,6 +26,10 @@ describe("IntegrationReadinessHelpEvidenceOrientationStrip", () => {
       INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 
-    expectWhereToGoNextFollowUpLinks(screen, INTEGRATION_READINESS_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(
+      screen,
+      INTEGRATION_READINESS_HELP_SOURCES,
+      "/help/integration-readiness",
+    );
   });
 });
