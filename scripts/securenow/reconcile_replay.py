@@ -135,7 +135,9 @@ def compare(evidence_report: dict, native_dir: Path | None,
             raise ValueError(f'Missing authentic package hash for {sub}')
         native = read_native(native_dir, sub, package_sha)
         exported = read_export(question_dir, sub)
-        if exported is not None and package.get('questionQueueStatus') == 'Provided':
+        if exported is not None:
+            if package.get('questionQueueStatus') != 'Provided':
+                raise ValueError(f'Evidence audit did not pin a question export: {sub}')
             if package.get('questionCount') != len(exported):
                 raise ValueError(f'Evidence audit question export count changed: {sub}')
         if native is None or exported is None:
