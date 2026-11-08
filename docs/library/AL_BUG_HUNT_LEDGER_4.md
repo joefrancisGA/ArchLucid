@@ -1985,6 +1985,13 @@
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **consecutive-dry-hunts:** 0
 
+2026-11-08 seed hunt #1694 (seed→hit): picker returned `security-analyzers` with an empty open list after hunt #1693. Proved `AuditInvocationCountsAsExecutedProof` still treated `LogAsync` inside an anonymous function as audit proof when that lambda was stored in a local and never invoked, so a mutating `[HttpPost]` stayed silent for AL0003. Fixed by counting a lambda only when it is passed as an argument, invoked immediately, or assigned to a local the action calls. Regression `AL0003_reports_when_LogAsync_lives_in_lambda_that_the_action_never_invokes` failed first (expected 1 diagnostic, actual 0); `AL0003_is_absent_when_Post_invokes_lambda_that_calls_LogAsync` keeps an invoked local silent. Scoped `MutatingControllerAuditAnalyzerTests` **56/56** (`RunAnalyzers=false`). Private beta: a mutating API action on the invited build no longer treats a stored lambda the action never calls as proof the mutation was audited, so AL0003 fails the build before that action ships.
+
+- [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only inside a lambda the action stores and never invokes suppresses AL0003 — **hit 2026-11-08 seed hunt #1694:** anonymous-function reachability; regression `AL0003_reports_when_LogAsync_lives_in_lambda_that_the_action_never_invokes`.
+
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` only in a `switch` `default` arm still suppresses AL0003 when the discriminant is the constant `0` and `case 0` returns — locus: `AuditInvocationCountsAsExecutedProof` returns true for invocations that are not in an uncalled local or lambda; input: `switch (0) { case 0: return Ok(); default: await audit.LogAsync(...); }` (monitor; hunt #1694 reseed).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside a `catch` `when` filter suppresses AL0003 when the action body never throws — locus: no `CatchFilterClauseSyntax` exclusion on the shipped scan; input: `catch (Exception) when (audit.LogAsync(...).IsCompleted)` (monitor; hunt #1694 reseed).
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — a call whose return type is `HttpContext` is missed when the call site never writes that type name and the method is declared in a referenced assembly — locus: `AnalyzeIdentifierName` has no `IMethodSymbol` case; input: discarded `GetHttpContext()` in an inner-layer assembly (monitor; hunt #1694 reseed).
 2026-11-08 thorough hunt #1693 (hit): rotation left `host-core-coordination` after three dry hunts and picked `security-analyzers`. Proved `MutatingControllerAuditAnalyzer.SemanticBodiesInvokeAuditLogAsync` treated every `LogAsync` invocation in the action syntax as audit proof, including `LogAsync` that lives only in nested local functions the action never calls, so a mutating `[HttpPost]` stayed silent for AL0003. Fixed by counting a local-function invocation only when that local is reachable from the action entry (a direct call, or a chain of locals that are themselves reachable). Regression `AL0003_reports_when_LogAsync_lives_in_nested_local_never_reached_from_action_entry` failed first (expected 1 diagnostic, actual 0); `AL0003_is_absent_when_Post_calls_nested_locals_that_reach_LogAsync` keeps a called chain silent. Scoped `MutatingControllerAuditAnalyzerTests` **54/54** (`RunAnalyzers=false`). Private beta: a mutating API action on the invited build again needs a `LogAsync` the action can actually run — an uncalled nested local no longer satisfies AL0003.
 
 - [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only inside nested local functions the action never calls suppresses AL0003 — **hit 2026-11-08 thorough hunt #1693:** local-function reachability from the action entry; regression `AL0003_reports_when_LogAsync_lives_in_nested_local_never_reached_from_action_entry`.
@@ -2187,11 +2194,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 49
-- **bugs-found:** 43
+- **hunts:** 50
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — AL0003 treated LogAsync in an uncalled nested local as audit proof
+- **last-bug:** 2026-11-08 — AL0003 treated LogAsync in an uncalled lambda as audit proof
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).

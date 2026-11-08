@@ -380,10 +380,113 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         LocalFunctionStatementSyntax? enclosingLocalFunction =
             invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
-        if (enclosingLocalFunction is null)
+        if (enclosingLocalFunction is not null &&
+            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
+        {
+            return false;
+        }
+
+        return AnonymousFunctionsAroundInvocationAreInvoked(
+            invocationExpressionSyntax,
+            containingMethodDeclarationSyntax);
+    }
+
+    // A lambda stored and never called does not run on the request. Passing the lambda as an
+    // argument, or invoking the local it was assigned to, still counts as audit proof.
+    private static bool AnonymousFunctionsAroundInvocationAreInvoked(
+        InvocationExpressionSyntax invocationExpressionSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        foreach (SyntaxNode ancestor in invocationExpressionSyntax.Ancestors())
+        {
+            if (ReferenceEquals(ancestor, containingMethodDeclarationSyntax))
+                break;
+
+            if (ancestor is not AnonymousFunctionExpressionSyntax anonymousFunction)
+                continue;
+
+            if (!AnonymousFunctionIsInvoked(anonymousFunction, containingMethodDeclarationSyntax))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool AnonymousFunctionIsInvoked(
+        AnonymousFunctionExpressionSyntax anonymousFunction,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        SyntaxNode usedNode = anonymousFunction;
+
+        while (usedNode.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax)
+            usedNode = usedNode.Parent;
+
+        SyntaxNode? useSite = usedNode.Parent;
+
+        if (useSite is ArgumentSyntax)
             return true;
 
-        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+        if (useSite is InvocationExpressionSyntax invocationExpression &&
+            ReferenceEquals(invocationExpression.Expression, usedNode))
+        {
+            return true;
+        }
+
+        if (useSite is EqualsValueClauseSyntax equalsValueClause &&
+            equalsValueClause.Parent is VariableDeclaratorSyntax variableDeclarator)
+        {
+            return LocalNameIsInvokedOutsideAnonymousFunction(
+                variableDeclarator.Identifier.Text,
+                containingMethodDeclarationSyntax,
+                anonymousFunction);
+        }
+
+        if (useSite is AssignmentExpressionSyntax assignmentExpression &&
+            ReferenceEquals(assignmentExpression.Right, usedNode) &&
+            assignmentExpression.Left is IdentifierNameSyntax assignedName)
+        {
+            return LocalNameIsInvokedOutsideAnonymousFunction(
+                assignedName.Identifier.Text,
+                containingMethodDeclarationSyntax,
+                anonymousFunction);
+        }
+
+        return false;
+    }
+
+    private static bool LocalNameIsInvokedOutsideAnonymousFunction(
+        string localName,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        AnonymousFunctionExpressionSyntax definingAnonymousFunction)
+    {
+        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
+                     .DescendantNodes()
+                     .OfType<InvocationExpressionSyntax>())
+        {
+            if (IsInsideAnonymousFunction(invocationSyntax, definingAnonymousFunction))
+                continue;
+
+            if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+                identifierNameSyntax.Identifier.Text == localName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsInsideAnonymousFunction(
+        SyntaxNode node,
+        AnonymousFunctionExpressionSyntax anonymousFunction)
+    {
+        for (SyntaxNode? current = node.Parent; current is not null; current = current.Parent)
+        {
+            if (ReferenceEquals(current, anonymousFunction))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool LocalFunctionIsInvokedFromContainingMethod(

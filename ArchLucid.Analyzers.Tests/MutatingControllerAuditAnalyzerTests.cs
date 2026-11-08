@@ -2172,6 +2172,82 @@ public sealed class CalledNestedLocalController(IAuditService auditService) : Co
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task AL0003_reports_when_LogAsync_lives_in_lambda_that_the_action_never_invokes()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using System;
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class UnusedLambdaController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> {|#0:Post|}(System.Threading.CancellationToken cancellationToken)
+    {
+        Func<System.Threading.Tasks.Task> unused = async () =>
+            await auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+
+        return Ok();
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.UnusedLambdaController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_is_absent_when_Post_invokes_lambda_that_calls_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using System;
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class CalledLambdaController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        Func<System.Threading.Tasks.Task> writeAudit = async () =>
+            await auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+
+        await writeAudit();
+
+        return Ok();
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
     private static Solution MarkAssemblyAsArchLucidApi(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 
