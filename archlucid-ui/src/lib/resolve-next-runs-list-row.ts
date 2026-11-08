@@ -1,4 +1,5 @@
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import type { RunSummary } from "@/types/authority";
 
 export type RunDetailNextReviewTarget = {
@@ -29,6 +30,9 @@ export function resolveNextRunsListRow(
   return {
     runId: nextRun.runId,
     reviewTitle: buyerFacingReviewTitleFromSummary(nextRun),
-    href: `/architecture/reviews/${encodeURIComponent(nextRun.runId)}`,
+    href: resolveGovernanceScopedReviewOpenHref({
+      runId: nextRun.runId,
+      requestId: nextRun.requestId ?? null,
+    }),
   };
 }

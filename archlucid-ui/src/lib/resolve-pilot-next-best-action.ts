@@ -9,6 +9,7 @@ import {
   FIRST_WEEK_ROUTE_GUIDANCE,
 } from "@/lib/first-week-route-guidance";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -112,7 +113,7 @@ export function resolvePilotNextBestAction(
   if (ctx.latestRunReadyToFinalize && ctx.latestRunId !== null) {
     return {
       label: "Finalize this review",
-      href: `/architecture/reviews/${ctx.latestRunId}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
+      href: `${resolveDeskContinuityReviewOpenHref(ctx.latestRunId)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
       bridgeCopy: FIRST_WEEK_ROUTE_GUIDANCE["review-detail-in-progress"].bridgeCopy,
     };
   }
@@ -120,7 +121,7 @@ export function resolvePilotNextBestAction(
   if (ctx.latestRunId !== null) {
     return {
       label: "Continue review",
-      href: `/architecture/reviews/${ctx.latestRunId}`,
+      href: resolveDeskContinuityReviewOpenHref(ctx.latestRunId),
       bridgeCopy: "Open your in-progress review — complete findings review and finalize when ready.",
     };
   }

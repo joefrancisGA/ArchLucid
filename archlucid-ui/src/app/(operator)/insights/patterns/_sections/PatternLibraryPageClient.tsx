@@ -291,7 +291,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
                 { label: "Start architecture review", href: "/architecture/reviews/new", variant: "primary" },
                 {
                   label: "Open completed sample",
-                  href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+                  href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID),
                   variant: "outline",
                 },
               ]}

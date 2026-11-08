@@ -13,10 +13,11 @@ import {
   BUYER_HOME_SAMPLE_PACKAGE_LEAD,
   BUYER_HOME_SECONDARY_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 
-const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 type SampleFirstReviewPackageCardProps = {
   /** Must match the home layout branch from {@link OperatorHomePageView} — do not re-read env in this card (hydration). */
