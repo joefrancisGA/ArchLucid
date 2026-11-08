@@ -99,6 +99,8 @@ import {
 } from "@/lib/tenant-settings-settings-page-copy";
 import { TenantSettingsPageView } from "./TenantSettingsPageView";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { TENANT_SETTINGS_CANONICAL_PATH } from "@/lib/tenant-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -174,7 +176,12 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
     expect(workspace).toContainElement(organizationCard);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(TENANT_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(TENANT_SETTINGS_SOURCES),
+      TENANT_SETTINGS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

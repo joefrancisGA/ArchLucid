@@ -58,6 +58,8 @@ import {
   SCIM_PROVISIONING_PAGE_LEAD,
   SCIM_PROVISIONING_START_HERE_CARD_TITLE,
 } from "@/lib/scim-provisioning-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -101,7 +103,12 @@ describe("ScimProvisioningSettingsPageClient buyer-polished shell (ASC)", () => 
     expect(firstViewport).toContainElement(tokensSection);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SCIM_PROVISIONING_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SCIM_PROVISIONING_SOURCES),
+      SCIM_PROVISIONING_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

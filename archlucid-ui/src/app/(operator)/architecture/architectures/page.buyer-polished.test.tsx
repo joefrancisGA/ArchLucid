@@ -1,6 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { ARCHITECTURES_LIST_CANONICAL_PATH } from "@/lib/architectures-list-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { ARCHITECTURES_LIST_CLAIM_DISCIPLINE, ARCHITECTURES_LIST_FOLLOW_UPS_TITLE, ARCHITECTURES_LIST_SOURCES } from "@/lib/architectures-list-evidence-copy";
@@ -78,7 +80,12 @@ describe("ArchitecturesListPage buyer-polished shell (ARA)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(draftList) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURES_LIST_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(ARCHITECTURES_LIST_SOURCES),
+      ARCHITECTURES_LIST_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

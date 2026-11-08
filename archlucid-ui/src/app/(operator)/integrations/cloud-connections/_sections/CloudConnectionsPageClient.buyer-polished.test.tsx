@@ -63,6 +63,8 @@ import {
   CLOUD_CONNECTIONS_SOURCES,
 } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_PAGE_SUBTITLE } from "@/lib/cloud-connections-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { resetCloudPlatformScopeSessionStateForTests } from "@/lib/cloud-platform-scope-storage";
@@ -105,7 +107,12 @@ describe("CloudConnectionsPageClient buyer-polished shell (SCE)", () => {
     expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CLOUD_CONNECTIONS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(CLOUD_CONNECTIONS_SOURCES),
+      CLOUD_CONNECTIONS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

@@ -100,6 +100,8 @@ import {
 } from "./settings-roles-settings-page-copy";
 import { SettingsRolesPageView } from "./SettingsRolesPageView";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { SETTINGS_ROLES_SETTINGS_CANONICAL_PATH } from "@/lib/settings-roles-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -159,7 +161,12 @@ describe("SettingsRolesPageView buyer-polished shell (SSU)", () => {
     expect(firstViewport).toContainElement(usersTabPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_ROLES_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SETTINGS_ROLES_SETTINGS_SOURCES),
+      SETTINGS_ROLES_SETTINGS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

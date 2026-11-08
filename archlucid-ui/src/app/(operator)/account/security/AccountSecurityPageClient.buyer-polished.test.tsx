@@ -48,6 +48,8 @@ import {
   ACCOUNT_SECURITY_SETTINGS_FOLLOW_UPS_TITLE,
   ACCOUNT_SECURITY_SETTINGS_SOURCES,
 } from "@/lib/account-security-settings-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { ACCOUNT_SECURITY_SETTINGS_CANONICAL_PATH } from "@/lib/account-security-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { fetchSignInMethods } from "@/lib/sign-in-methods-api";
@@ -86,7 +88,12 @@ describe("AccountSecurityPageClient buyer-polished shell (ADS)", () => {
     expect(firstViewport).toContainElement(methodsList);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ACCOUNT_SECURITY_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(ACCOUNT_SECURITY_SETTINGS_SOURCES),
+      ACCOUNT_SECURITY_SETTINGS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
