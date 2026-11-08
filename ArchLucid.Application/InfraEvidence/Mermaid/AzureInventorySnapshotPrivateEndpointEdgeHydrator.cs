@@ -127,6 +127,7 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
             && candidate.ToNodeId == toNodeId && candidate.EdgeType == edgeType);
         edge ??= AzureInventorySnapshotGraphEdgeAppender.TryAdd(
             edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource,
+            label: edgeType,
             provenanceKind: ProvenanceKind.DeterministicInference.ToString(),
             promoteStrongerProvenance: false);
 

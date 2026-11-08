@@ -48,6 +48,7 @@ internal static class AzureInventorySnapshotPublicIpParentEdgeHydrator
                     AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                         edges, edgeKeys, publicIpNodeId, parentNodeId,
                         GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.InventoryPublicIp,
+                        label: GraphEdgeTypes.Exposes,
                         promoteStrongerProvenance: false, preserveNullProvenance: true);
                 }
             }

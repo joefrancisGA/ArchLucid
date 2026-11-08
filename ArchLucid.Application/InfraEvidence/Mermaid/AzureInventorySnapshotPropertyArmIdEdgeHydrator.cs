@@ -96,6 +96,7 @@ internal static class AzureInventorySnapshotPropertyArmIdEdgeHydrator
                         toNodeId,
                         edgeType,
                         inferenceSource,
+                        label: edgeType,
                         provenanceKind: ProvenanceKind.DeterministicInference.ToString());
                 }
             }
