@@ -26,6 +26,16 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 function fireComboOn(el: Element, combo: string): void {
   const parsed = parseKeyCombo(combo);
 

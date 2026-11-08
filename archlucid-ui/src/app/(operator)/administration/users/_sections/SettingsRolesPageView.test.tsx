@@ -215,6 +215,7 @@ describe("SettingsRolesPageView (SSU P0)", () => {
 
   it("persists ?tab=users when the Users tab is selected (TB-1936)", () => {
     window.history.replaceState(null, "", "/administration/users?tab=roles");
+    commitHrefIfChangedMock.mockClear();
     render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
 
     fireEvent.click(screen.getByTestId("settings-roles-tab-users"));

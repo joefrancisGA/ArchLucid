@@ -21,7 +21,7 @@ describe("CoverageChecklistPanel", () => {
 
     expect(screen.getByTestId("coverage-checklist-panel")).toBeInTheDocument();
     expect(screen.getByTestId("coverage-checklist-item-chk-1")).toHaveTextContent("Add health probes");
-    expect(screen.getByTestId("coverage-checklist-item-chk-1")).toHaveTextContent("High");
+    expect(screen.getByTestId("coverage-checklist-item-chk-1")).toHaveTextContent("Error");
   });
 
   it("labels missing severity, category, and recommendation on checklist rows", () => {

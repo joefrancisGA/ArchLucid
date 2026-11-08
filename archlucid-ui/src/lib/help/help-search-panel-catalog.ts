@@ -18,6 +18,9 @@ export const HELP_SEARCH_PANEL_ONBOARDING_HUB_PATH = FIRST_REVIEW_GUIDE_PATH;
 /** TB-1378 guard anchor — first architecture review help handoff. */
 export const HELP_SEARCH_PANEL_FIRST_ARCHITECTURE_REVIEW_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
 
+/** TB-1248 guard anchor — engineering runbook handoff stays canonical. */
+export const HELP_SEARCH_PANEL_ENGINEERING_TROUBLESHOOTING_PATH = "/help/engineering-troubleshooting" as const;
+
 export const HELP_SEARCH_PANEL_TITLE = "Help" as const;
 
 /** Says what the drawer gets you; the search placeholder already describes the input. */

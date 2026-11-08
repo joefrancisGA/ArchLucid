@@ -256,7 +256,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GOR | `/governance/infrastructure/drift` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GEX | `/governance/infrastructure/extract-upload` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GRE | `/governance/infrastructure/remediation` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
-| GOI | `/governance/infrastructure/resources` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
+| GIR | `/governance/infrastructure/resources` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GOL | `/governance/infrastructure/resources/[cloudResourceId]` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GTE | `/governance/infrastructure/terraform` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |
 | GON | `/governance/needs-attention` | 0.02% | 0 | 0 | 2 | Alerts/gov | No | None |

@@ -20,6 +20,7 @@ const baseValues: WizardFormValues = {
   topologyHints: [],
   securityBaselineHints: [],
   infrastructureDeclarations: [],
+  modelExecutionProfileOverride: "WorkspaceDefault",
 };
 
 describe("buildArchitectureCreateRequest", () => {

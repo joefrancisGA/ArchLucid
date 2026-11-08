@@ -21,6 +21,15 @@ import {
 import { ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE } from "@/lib/engineering-troubleshooting-help-guide-content";
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+const HELP_TOPIC_MARKDOWN_CLIENT = join(
+  process.cwd(),
+  "src",
+  "app",
+  "(operator)",
+  "help",
+  "_sections",
+  "HelpTopicMarkdownClient.tsx",
+);
 const HELP_TOPIC_OPERATE_RESOLVER = join(
   process.cwd(),
   "src",
@@ -72,12 +81,15 @@ describe("engineering-troubleshooting-help-route (HDX / TB-1248)", () => {
 
   it("gates internal-runbook topics through HelpTopicAuthorityGate on the help page", () => {
     const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const markdownClientSource = readFileSync(HELP_TOPIC_MARKDOWN_CLIENT, "utf8");
     const operateResolverSource = readFileSync(HELP_TOPIC_OPERATE_RESOLVER, "utf8");
 
     expect(pageSource).toContain('entry.contentKind === "internal-runbook"');
     expect(pageSource).toContain("HelpTopicAuthorityGate");
     expect(pageSource).toContain("HelpTopicMarkdownClient");
     expect(pageSource).toContain("resolveHelpTopicView");
+    expect(markdownClientSource).toContain("HelpEngineeringTroubleshootingGuideView");
+    expect(markdownClientSource).toContain('props.entry.slug === "engineering-troubleshooting"');
     expect(pageSource).toContain("resolveInternalRunbookHelpRouteMetadata");
     expect(operateResolverSource).toContain("HelpEngineeringTroubleshootingGuideView");
     expect(operateResolverSource).toContain('loaded.entry.slug === "engineering-troubleshooting"');
