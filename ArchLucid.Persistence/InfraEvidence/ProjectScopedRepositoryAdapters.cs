@@ -110,6 +110,12 @@ public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
 
     public Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListByFindingIdInScopeAsync(scope, findingId, cancellationToken);
+
+    public Task<IReadOnlyList<RemediationInstanceRecord>> ListByControlIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        CancellationToken cancellationToken = default) =>
+        inner.ListByControlIdInScopeAsync(scope, controlId, cancellationToken);
 }
 
 public sealed class ProjectScopedAuditAssessmentRepositoryAdapter(

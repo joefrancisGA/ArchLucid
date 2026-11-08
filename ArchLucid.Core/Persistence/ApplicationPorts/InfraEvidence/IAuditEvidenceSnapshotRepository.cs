@@ -32,22 +32,30 @@ public interface IAuditEvidenceSnapshotRepository
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default);
 
-    Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
+    async Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
         ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
-        CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return await TryGetHeaderAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+    }
 
     Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsAsync(
         Guid tenantId,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
+    async Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
         ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
-        CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return await ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+    }
 
     Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListByAssessmentAsync(
         Guid tenantId,

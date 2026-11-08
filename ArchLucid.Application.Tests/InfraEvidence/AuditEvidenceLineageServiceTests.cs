@@ -935,7 +935,7 @@ public sealed class AuditEvidenceLineageServiceTests
 
         InMemoryVerifiedRemediationControlAssociationRepository associations = new();
         List<RemediationInstanceRecord> remediationInstances = [];
-        Mock<IRemediationInstanceRepository> remediationInstanceRepository = new();
+        Mock<IProjectScopedRemediationInstanceRepository> remediationInstanceRepository = new();
         remediationInstanceRepository
             .Setup(repository => repository.ListByControlIdInScopeAsync(
                 It.IsAny<ProjectScopeKey>(),
@@ -1035,9 +1035,9 @@ public sealed class AuditEvidenceLineageServiceTests
         }
     }
 
-    private static IRemediationInstanceRepository CreateEmptyRemediationInstanceRepository()
+    private static IProjectScopedRemediationInstanceRepository CreateEmptyProjectScopedRemediationInstanceRepository()
     {
-        Mock<IRemediationInstanceRepository> repository = new();
+        Mock<IProjectScopedRemediationInstanceRepository> repository = new();
         repository
             .Setup(instanceRepository => instanceRepository.ListByControlIdInScopeAsync(
                 It.IsAny<ProjectScopeKey>(),
@@ -1113,7 +1113,7 @@ public sealed class AuditEvidenceLineageServiceTests
         IAuditControlEvaluationRepository evaluationRepository,
         IAuditEvidenceSnapshotVerificationService verificationService,
         IVerifiedRemediationControlAssociationRepository? associationRepository = null,
-        IRemediationInstanceRepository? remediationInstanceRepository = null)
+        IProjectScopedRemediationInstanceRepository? remediationInstanceRepository = null)
     {
         Mock<IAuditManualEvidenceRepository> manualEvidenceRepository = new();
         manualEvidenceRepository
@@ -1135,7 +1135,7 @@ public sealed class AuditEvidenceLineageServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository(),
-            remediationInstanceRepository ?? CreateEmptyRemediationInstanceRepository(),
+            remediationInstanceRepository ?? CreateEmptyProjectScopedRemediationInstanceRepository(),
             NullLogger<AuditEvidenceLineageService>.Instance);
     }
 
