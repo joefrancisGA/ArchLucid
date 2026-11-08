@@ -48,7 +48,7 @@ export function formatEvidenceExtractionDocumentLine(
 }
 
 function formatExtractedCharacterCount(characterCount: number): string {
-  return `${characterCount.toLocaleString("en-US")} characters extracted`;
+  return `${new Intl.NumberFormat("en-US").format(characterCount)} characters extracted`;
 }
 
 export const EVIDENCE_EXTRACTION_SUGGESTIONS_NOT_RETURNED =
