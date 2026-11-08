@@ -127,7 +127,7 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
         AzureInventorySnapshotPostMaterializeCoordinator coordinator = new(
             snapshots,
             diffService.Object,
-            Options.Create(new SecureNowArchitectNeighborhoodOptions { FullRecompute = true }),
+            Microsoft.Extensions.Options.Options.Create(new SecureNowArchitectNeighborhoodOptions { FullRecompute = true }),
             neighborhood.Object,
             privilege,
             reachability,
@@ -248,6 +248,7 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
             ProjectScopeKey.Create(scope.TenantId, Guid.NewGuid(), scope.ProjectId),
             ProjectScopeKey.Create(scope.TenantId, scope.WorkspaceId, Guid.NewGuid()),
         ];
+
         foreach (ProjectScopeKey foreign in foreignScopes)
         {
             ProjectSnapshotScopeKey foreignSnapshot =
@@ -255,6 +256,7 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
             (await paths.ListBySnapshotAsync(foreignSnapshot)).Should().BeEmpty();
             (await rankRepository.ListBySnapshotAsync(foreignSnapshot)).Should().BeEmpty();
             (await cutPointRepository.ListBySnapshotAsync(foreignSnapshot)).Should().BeEmpty();
+
             foreach (SecurityEvidencePathWithHops path in observedPaths)
             {
                 (await operationalFindings.ListFindingIdsByPathIdInScopeAsync(
