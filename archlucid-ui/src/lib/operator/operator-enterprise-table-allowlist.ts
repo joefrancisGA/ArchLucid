@@ -18,7 +18,7 @@ export type OperatorEnterpriseTableAllowlistEntry = {
 export const OPERATOR_ENTERPRISE_TABLE_ALLOWLIST: readonly OperatorEnterpriseTableAllowlistEntry[] = [
   {
     id: "digests-browse-inventory",
-    modulePath: "components/digests/DigestsBrowseContent.tsx",
+    modulePath: "components/digests/DigestsBrowseHistoryList.tsx",
     kind: "master-detail",
     notes: "Digests browse history grid — TB-1503/TB-1504 honesty columns.",
   },
@@ -36,7 +36,7 @@ export const OPERATOR_ENTERPRISE_TABLE_ALLOWLIST: readonly OperatorEnterpriseTab
   },
   {
     id: "reviews-hub-inventory",
-    modulePath: "app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory.tsx",
+    modulePath: "app/(operator)/architecture/reviews/_sections/ReviewsHubInventoryTable.tsx",
     kind: "inventory",
     notes: "Reviews hub primary package inventory — TB-1649 StatusTag vocabulary.",
   },
@@ -54,13 +54,13 @@ export const OPERATOR_ENTERPRISE_TABLE_ALLOWLIST: readonly OperatorEnterpriseTab
   },
   {
     id: "advisory-schedules-inventory",
-    modulePath: "components/advisory/AdvisorySchedulesContent.tsx",
+    modulePath: "components/advisory/AdvisorySchedulesTable.tsx",
     kind: "inventory",
     notes: "Advisory schedules inventory — TB-1647.",
   },
   {
     id: "alert-rules-inventory",
-    modulePath: "components/alerts/AlertRulesContent.tsx",
+    modulePath: "components/alerts/AlertRulesTable.tsx",
     kind: "inventory",
     notes: "Alert rules Conditions tab inventory — TB-1647.",
   },

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PlanningPickReviewBeforePlanningStrip } from "./PlanningPickReviewBeforePlanningStrip";
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "run-plan-1", displayTitle: "Claims review" }),
+  useWorkspaceActiveRun: () => ({ activeRunId: "run-plan-1", displayTitle: "Claims review" }),
 }));
 
 vi.mock("@/components/AskRunIdPicker", () => ({

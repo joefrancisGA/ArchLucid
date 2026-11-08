@@ -23,6 +23,7 @@ import {
 } from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { writeLastRegistrationPayloadForTests } from "@/lib/operator/operator-registration-scope-test-helpers";
+import { accessTokenWithSubjectClaim } from "@/lib/oidc/testing/access-token-with-subject-claim";
 import { clearOidcSession, persistTokenResponse } from "@/lib/oidc/session";
 import { decodeJwtPayload } from "@/lib/oidc/jwt-payload";
 
@@ -102,7 +103,7 @@ describe("live-seat first-login matrix (LS-018)", () => {
 
   it("returning_explicit_live_restores_dedicated_from_persisted_demo_storage", async () => {
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });
@@ -133,7 +134,7 @@ describe("live-seat first-login matrix (LS-018)", () => {
 
   it("select_workspace_two_memberships_uses_registration_payload_candidate", async () => {
     persistTokenResponse({
-      access_token: "signed-in-access-token",
+      access_token: accessTokenWithSubjectClaim(),
       token_type: "Bearer",
       expires_in: 3600,
     });

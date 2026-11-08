@@ -25,6 +25,25 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 vi.mock("@/lib/api", () => ({
   listCompositeAlertRules: vi.fn().mockResolvedValue([]),
   createCompositeAlertRule: vi.fn(),
@@ -43,6 +62,7 @@ vi.mock("@/lib/resolve-nav-link-for-pathname", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/alert-rules",
   useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams("tab=advanced-rules&runId=run-composite-test"),
 }));

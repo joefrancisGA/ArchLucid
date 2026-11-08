@@ -79,6 +79,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "securenow-self-service-home-section",
       "securenow-home-work-summary",
       "securenow-return-home-section",
+      "securenow-scenario-home-section",
       "securenow-reviewer-home-section",
       "securenow-sponsor-home-section",
       "securenow-findings-home-section",

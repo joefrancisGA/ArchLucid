@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -25,7 +27,6 @@ import {
   FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -218,7 +219,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     () => (guide.onePrerequisite === null ? resolveFirstReviewGuideWalkthroughNextStep(guide.steps) : null),
     [guide.onePrerequisite, guide.steps],
   );
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
   const primaryDisabledReason: WhyDisabledCtaReason | null =
     guide.headerActions.primaryDisabledReason !== null &&

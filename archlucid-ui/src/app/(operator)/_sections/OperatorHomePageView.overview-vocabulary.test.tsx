@@ -10,6 +10,7 @@ import {
   OPERATOR_HOME_RECENT_REVIEWS_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import type { RunSummary } from "@/types/authority";
 
 const OVERVIEW_BANNED_PATTERNS = [
   /\blane\b/i,
@@ -36,6 +37,23 @@ vi.mock("next/navigation", async (importOriginal) => {
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "rehearse" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
   };
 });
 
@@ -173,6 +191,14 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
 
+/** Tenant review row so composeOperatorHomeSections mounts recent-reviews (eval-empty is hero-only). */
+const OVERVIEW_VOCABULARY_FIXTURE_RUN = {
+  runId: "overview-vocab-run-1",
+  projectId: "default",
+  hasGoldenManifest: false,
+  isArchived: false,
+} as RunSummary;
+
 vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", () => ({
   OperatorHomeExamplesPlacement: ({
     afterWorkspaceContext,
@@ -240,6 +266,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
   const mockModule = await createCorePilotCommitContextModuleMock(importOriginal);
@@ -281,15 +312,19 @@ vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
   };
 });
 
-function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
+function mockHomeModel(
+  buyerPolishedShell: boolean,
+  runsDashboardItems: readonly RunSummary[] = [],
+  totalCount = 0,
+): OperatorHomePageViewModel {
   return {
     buyerPolishedShell,
     runsDashboard: {
       projectId: "default",
       page: 1,
       pageSize: 5,
-      items: [],
-      totalCount: 0,
+      items: [...runsDashboardItems],
+      totalCount,
       loadFailure: null,
       malformedMessage: null,
       usedStaticRunsFallback: false,
@@ -341,14 +376,11 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
       screen.queryByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
     ).toBeNull();
 
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByText("Do this next")).toBeNull();
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
-    });
+    // TB-2368 eval-empty operator shell is hero-only; advanced guidance lives in below-fold for later phases.
+    expect(screen.queryByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeNull();
 
     assertNoBannedOverviewVocabulary(container);
   });
@@ -364,12 +396,26 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
       screen.queryByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
     ).toBeNull();
 
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByText("Do this next")).toBeNull();
     expect(screen.queryByTestId("operator-home-advanced-guidance")).toBeNull();
 
+    assertNoBannedOverviewVocabulary(container);
+  });
+
+  it("uses buyer-safe Recent reviews heading when the recent-reviews section mounts (active workspace)", async () => {
+    const { container } = renderWithOperatorQuery(
+      <OperatorHomePageView
+        model={mockHomeModel(false, [OVERVIEW_VOCABULARY_FIXTURE_RUN], 1)}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-recent-reviews")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     assertNoBannedOverviewVocabulary(container);
   });
 });

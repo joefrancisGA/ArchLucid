@@ -41,14 +41,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             data-testid="why-hero-cta-row"
           >
             <a
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
+              class="inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
               data-testid="why-hero-primary-cta"
               href="/see-it"
             >
               See a finalized sample review
             </a>
             <a
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
+              class="inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
               data-testid="why-hero-secondary-cta"
               href="/signup"
             >
@@ -855,7 +855,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-               — 
+              No
             </td>
           </tr>
           <tr
@@ -895,7 +895,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-               — 
+              No
             </td>
           </tr>
           <tr
@@ -915,7 +915,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-               — 
+              No
             </td>
           </tr>
           <tr
@@ -935,7 +935,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-               — 
+              No
             </td>
           </tr>
         </tbody>
@@ -981,7 +981,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         <p
           class="max-w-3xl dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
-          Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence references.
+          Symbols in the product columns (✓ / partial / No) summarize capability depth; each row links to diligence references.
         </p>
         <div
           class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -1074,12 +1074,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
               </tr>
               <tr
@@ -1125,12 +1125,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
               </tr>
               <tr
@@ -1170,17 +1170,17 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
               </tr>
               <tr
@@ -1225,12 +1225,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
               </tr>
               <tr
@@ -1264,17 +1264,17 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
               </tr>
               <tr
@@ -1308,7 +1308,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -1340,7 +1340,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                       class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                       href="/help/governance-approval"
                     >
-                      Governance approval
+                      Approval
                     </a>
                   </div>
                 </td>
@@ -1352,17 +1352,17 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
                 <td
                   class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                   — 
+                  No
                 </td>
               </tr>
             </tbody>
@@ -1391,14 +1391,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
     >
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
+        class="inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
         data-testid="why-proof-ladder-primary-cta"
         href="/see-it"
       >
         See a finalized sample review
       </a>
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
+        class="inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
         data-testid="why-proof-ladder-sample-cta"
         href="/showcase/customer-intake-modernization"
       >
@@ -1444,14 +1444,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
     >
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
+        class="inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
         data-testid="why-closing-primary-cta"
         href="/see-it"
       >
         See a finalized sample review
       </a>
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
+        class="inline-flex cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
         data-testid="why-closing-secondary-cta"
         href="/signup"
       >

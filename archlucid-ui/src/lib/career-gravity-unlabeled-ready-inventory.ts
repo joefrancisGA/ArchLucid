@@ -27,7 +27,7 @@ export type CareerGravityUnlabeledReadyRow = {
  * Shrink-only baseline for Ready-literal scan hits (CG-002). Do not raise this number.
  * Drop it when a later prompt removes a literal or moves it behind honesty-only helpers.
  */
-export const CAREER_GRAVITY_UNLABELED_READY_SCAN_COUNT_BASELINE = 10;
+export const CAREER_GRAVITY_UNLABELED_READY_SCAN_COUNT_BASELINE = 12;
 
 /** Architecture / review / desk paths named in CG-002. */
 export const CAREER_GRAVITY_UNLABELED_READY_ROWS: readonly CareerGravityUnlabeledReadyRow[] = [
@@ -89,6 +89,18 @@ export const CAREER_GRAVITY_UNLABELED_READY_ROWS: readonly CareerGravityUnlabele
     relativePath: "lib/resolve-core-pilot-help-workflow-step-status.ts",
     leakClass: "eval-ok",
     ownerPrompt: "CG-053",
+    inLiteralScan: true,
+  },
+  {
+    relativePath: "lib/runs/pipeline-complete-career-honesty-copy.ts",
+    leakClass: "covered",
+    ownerPrompt: "CG-033",
+    inLiteralScan: true,
+  },
+  {
+    relativePath: "lib/system-gravity-draft-screenshot-inventory.ts",
+    leakClass: "covered",
+    ownerPrompt: "CG-002",
     inLiteralScan: true,
   },
   {

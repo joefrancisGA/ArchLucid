@@ -54,7 +54,9 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     );
 
     expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(/16 of \d+/);
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
+      /16 catalog engines were recorded/,
+    );
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
@@ -68,6 +70,7 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     render(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest
+        hasFindingsSnapshot
         runId="run-1"
         feasibilityVerdict={feasibilityVerdict}
         runCompleted
@@ -90,7 +93,7 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
 
     expect(screen.getByTestId("run-detail-first-review-spine-disposition-findings-link")).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-1?reviewTab=findings",
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
     );
   });
 

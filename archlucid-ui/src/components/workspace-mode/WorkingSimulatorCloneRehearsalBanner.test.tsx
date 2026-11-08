@@ -21,6 +21,13 @@ const chromeState = vi.hoisted(
   }),
 );
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
+}));
+
 vi.mock("@/hooks/use-working-simulator-clone-rehearsal-banner", () => ({
   useWorkingSimulatorCloneRehearsalBanner: () => chromeState,
 }));

@@ -56,8 +56,9 @@ describe("alert-rules hub deferred imports (TB-2024)", () => {
       "utf8",
     );
 
-    expect(conditionsSource).toContain("useAlertRulesListQuery");
-    expect(conditionsSource).toContain("useAlertRoutingSubscriptionsQuery");
+    expect(conditionsSource).toContain("useAlertRulesContentList");
+    expect(queriesSource).toContain("useAlertRulesListQuery");
+    expect(queriesSource).toContain("useAlertRoutingSubscriptionsQuery");
     expect(queriesSource).toContain("listAlertRules");
     expect(queriesSource).toContain("listAlertRoutingSubscriptions");
   });

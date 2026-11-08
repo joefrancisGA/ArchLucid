@@ -23,7 +23,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
 
     for (const link of group.links) {
       if (gatedHrefs.has(link.href)) {
-        expect(link.requiredAuthority, link.href).toBe("AdminAuthority");
+        expect(link.requiredAuthority, link.href).toBe("PlatformInternalOperationsAuthority");
       }
     }
   });
@@ -48,7 +48,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     const demoReadiness = group.links.find((link) => link.href === "/internal/demo-readiness");
 
     expect(demoReadiness?.label).toBe(INTERNAL_DEMO_READINESS_PAGE_TITLE);
-    expect(demoReadiness?.requiredAuthority).toBe("AdminAuthority");
+    expect(demoReadiness?.requiredAuthority).toBe("PlatformInternalOperationsAuthority");
     expect(demoReadiness?.tier).toBe("advanced");
   });
 

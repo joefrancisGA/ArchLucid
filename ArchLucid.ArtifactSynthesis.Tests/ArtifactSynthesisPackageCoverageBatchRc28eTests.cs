@@ -142,7 +142,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("Resources were stored as an empty list.");
         artifact.Content.Should().Contain("Topology gaps were stored as an empty list.");
         artifact.Content.Should().NotContain("- No topology information recorded.");
-        artifact.Content.Should().Contain("- No security posture recorded.");
+        artifact.Content.Should().Contain("- Security posture was stored as an empty list.");
         artifact.Content.Should().Contain("- Compliance controls were stored as an empty list.");
         artifact.Content.Should().Contain("- Compliance posture was stored as an empty list.");
         artifact.Content.Should().NotContain("- No compliance posture recorded.");

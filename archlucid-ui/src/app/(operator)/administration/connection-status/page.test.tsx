@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/integrations/ConnectorOperationsDashboard", () => ({
   ConnectorOperationsDashboard: () => <div data-testid="connector-operations-dashboard" />,
 }));
@@ -18,7 +23,19 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/administration/connection-status",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { AdministrationConnectionStatusPageClient } from "@/app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { ADMINISTRATION_CONNECTION_STATUS_ROUTE_METADATA } from "@/lib/administration-connection-status-route-metadata";
 import {
   ADMINISTRATION_CONNECTION_STATUS_FIRST_VIEWPORT_TEST_ID,
@@ -26,10 +43,11 @@ import {
   ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_OPERATOR,
 } from "@/lib/administration-connection-status-page-copy";
 import { ADMINISTRATION_CONNECTION_STATUS_PATH } from "@/lib/integrations-nav-paths";
-import { CONNECTION_STATUS_CLAIM_DISCIPLINE } from "@/lib/connection-status-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { CONNECTION_STATUS_SOURCES } from "@/lib/connection-status-evidence-copy";
+import {
+  CONNECTION_STATUS_CANONICAL_PATH,
+  CONNECTION_STATUS_CLAIM_DISCIPLINE,
+  CONNECTION_STATUS_SOURCES,
+} from "@/lib/connection-status-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 describe("AdministrationConnectionStatusPage (ADC)", () => {
@@ -67,10 +85,11 @@ describe("AdministrationConnectionStatusPage (ADC)", () => {
 
     const sourcesSection = screen.getByTestId("connection-status-sources");
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      CONNECTION_STATUS_SOURCES,
+      CONNECTION_STATUS_CANONICAL_PATH,
+    );
   });
 
   it("exposes honest route metadata on the Administration hub", () => {

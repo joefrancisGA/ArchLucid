@@ -1,18 +1,17 @@
 using System.Net;
 using System.Text.Json;
 
-using ArchLucid.Api.Tests.Security;
 using ArchLucid.Core.Configuration.Summary;
 
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/admin/configuration/summary</c> (alias of config-summary; <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.AdminAuthority" />).</summary>
+/// <summary>HTTP coverage for <c>GET /v1/admin/configuration/summary</c> (alias of config-summary; <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.PlatformInternalOperationsAuthority" />).</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
-public sealed class AdminConfigurationSummaryEndpointTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
-    : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
+public sealed class AdminConfigurationSummaryEndpointTests(PlatformOperatorRoleArchLucidApiFactory factory)
+    : IClassFixture<PlatformOperatorRoleArchLucidApiFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -20,7 +19,6 @@ public sealed class AdminConfigurationSummaryEndpointTests(ApiKeyReaderAndAdminA
     public async Task Get_with_admin_key_returns_rows_with_catalog_fields()
     {
         using HttpClient client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage response =
@@ -46,7 +44,6 @@ public sealed class AdminConfigurationSummaryEndpointTests(ApiKeyReaderAndAdminA
     public async Task Get_with_admin_key_masks_sensitive_effective_values()
     {
         using HttpClient client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage response =

@@ -4,7 +4,7 @@
  * Traffic workbook row ID for AI usage and cost settings.
  * Owner backlog shorthand: ADI (template formerly SC on legacy settings/ai-usage path).
  */
-export const AI_USAGE_SETTINGS_TRAFFIC_ROW_ID = "ADI";
+export const AI_USAGE_SETTINGS_TRAFFIC_ROW_ID = "SC";
 
 /** Canonical path tracked on the ADI workbook row. */
 export const AI_USAGE_SETTINGS_TRAFFIC_PATH = AI_USAGE_SETTINGS_PATH;

@@ -17,9 +17,12 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestSummary_ReturnsMarkdown()
     {
+        const string requestId = "REQ-SUMMARY-001";
+        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-001")));
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -42,7 +45,7 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
             await summaryResponse.Content.ReadFromJsonAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");
-        summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");
+        summaryPayload.Content.Should().Contain($"# Architecture Summary: {systemName}");
         summaryPayload.Content.Should().Contain("## Services");
         summaryPayload.Content.Should().Contain("rag-api");
         summaryPayload.Content.Should().Contain("rag-search");

@@ -122,6 +122,10 @@ export function filterOrientationSourcesForJobContext(
     return links;
   }
 
+  if (normalizedPath.startsWith("/help/")) {
+    return links;
+  }
+
   if (links.length <= maxLinks) {
     return links;
   }

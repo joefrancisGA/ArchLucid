@@ -29,7 +29,7 @@ describe("InfraEvidenceWorkbenchHeaderActions", () => {
       />,
     );
 
-    expect(screen.queryByTestId("infra-resource-explorer-page-shortcuts")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-explorer-page-shortcuts")).toBeInTheDocument();
     expect(screen.getByText(/page help/)).toBeInTheDocument();
   });
 });

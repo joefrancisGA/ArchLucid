@@ -17,6 +17,13 @@ vi.mock("next/navigation", () => ({
   usePathname: () => pathnameMock.value,
 }));
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
+}));
+
 import { RunDetailSectionNav } from "@/components/runs/RunDetailSectionNav";
 
 describe("RunDetailSectionNav", () => {
@@ -24,6 +31,7 @@ describe("RunDetailSectionNav", () => {
   const pinnedOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
 
   beforeEach(() => {
+    evalChromeMock.enabled = false;
     buyerPolishedShellVitestOverride.value = null;
     class IntersectionObserverMock {
       observe = vi.fn();
@@ -100,6 +108,7 @@ describe("RunDetailSectionNav", () => {
   });
 
   it("uses taller sticky offset when buyer-polished shell is active", () => {
+    evalChromeMock.enabled = true;
     buyerPolishedShellVitestOverride.value = true;
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
 

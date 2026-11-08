@@ -15,9 +15,9 @@ export function parseGovernanceFindingTriageFocusedFindingIdFromSearch(
 
 /** True when the URL carries a non-empty `focusedFinding` token that trims to nothing. */
 export function governanceFindingTriageFocusedFindingParamIsBlankToken(
-  raw: string | null,
+  raw: string | null | undefined,
 ): boolean {
-  return raw !== null && raw.length > 0 && parseGovernanceFindingTriageFocusedFindingIdFromSearch(raw).length === 0;
+  return raw != null && raw.length > 0 && parseGovernanceFindingTriageFocusedFindingIdFromSearch(raw).length === 0;
 }
 
 export function governanceFindingTriagePanelsHrefFromSearch(

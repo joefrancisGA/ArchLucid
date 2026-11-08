@@ -16,13 +16,33 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: (...args: unknown[]) => showSuccess(...args),
 }));
 
+const billingSearchParamsHarness = vi.hoisted(() => ({
+  query: "",
+  applyHref(href: string): void {
+    const qIndex = href.indexOf("?");
+    billingSearchParamsHarness.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+  },
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
-    useSearchParams: () => new URLSearchParams(),
-    usePathname: () => "/",
-  };
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/administration/billing",
+    useSearchParams: () => new URLSearchParams(billingSearchParamsHarness.query),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: (href: string) => {
+          billingSearchParamsHarness.applyHref(href);
+        },
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
+  });
 });
 
 vi.mock("@/lib/billing-checkout-client", () => ({
@@ -224,6 +244,7 @@ function stubFetch() {
 
 describe("BillingSettingsPage", () => {
   beforeEach(() => {
+    billingSearchParamsHarness.query = "";
     showError.mockClear();
     showInfo.mockClear();
     showSuccess.mockClear();
@@ -288,6 +309,7 @@ describe("BillingSettingsPage", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Confirm and continue to checkout/i })).toBeInTheDocument();
     });
 
     expect(startMarketingPlanBillingCheckout).not.toHaveBeenCalled();

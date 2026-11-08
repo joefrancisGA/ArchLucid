@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { RecommendationLearningEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   RECOMMENDATION_LEARNING_SOURCES,
   RECOMMENDATION_LEARNING_SOURCES_INTRO,
 } from "@/lib/recommendation-learning-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("recommendation-learning-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("recommendation-learning-evidence-copy", () => {
 
     const sources = screen.getByTestId("recommendation-learning-sources");
 
-    for (const link of RECOMMENDATION_LEARNING_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), RECOMMENDATION_LEARNING_SOURCES, RECOMMENDATION_LEARNING_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${RECOMMENDATION_LEARNING_CANONICAL_PATH}$`, "i") }),

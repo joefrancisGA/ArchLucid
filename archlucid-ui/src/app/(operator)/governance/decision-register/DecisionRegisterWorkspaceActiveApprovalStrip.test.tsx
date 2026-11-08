@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "run-active-1", displayTitle: "Active review" }),
+  useWorkspaceActiveRun: () => ({ activeRunId: "run-active-1", displayTitle: "Active review" }),
 }));
 
 describe("DecisionRegisterWorkspaceActiveApprovalStrip", () => {

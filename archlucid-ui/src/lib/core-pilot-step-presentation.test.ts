@@ -11,7 +11,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("resolveCorePilotStepPresentation", () => {
   it("returns default step action for non-final steps", () => {
-    const presentation = resolveCorePilotStepPresentation(0, {
+    const presentation = resolveCorePilotStepPresentation(1, {
       hasCommittedManifest: false,
       latestCommittedRunId: null,
       latestRunId: null,

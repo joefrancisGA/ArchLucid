@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
+
 import { SETTINGS_MASTER_SECTIONS } from "@/app/(operator)/administration/_sections/settings-master-catalog";
 import { SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF } from "@/app/(operator)/administration/users/_sections/settings-roles-page-keys-tab-copy";
 import { API_KEYS_SETTINGS_RETIRED_ROUTE_PATH } from "@/lib/api-keys-settings-evidence-copy";
@@ -112,7 +114,7 @@ describe("nav-config structure", () => {
 
     expect(analysis?.label).toBe("Insights");
     expect(analysis?.caption).toBe(
-      "Explore evidence, findings, decisions, sponsor value reports, and workspace health KPIs across reviews.",
+      "Explore evidence, ask and search, compare reviews, and open the Outcomes hub for sponsor value reports.",
     );
   });
 
@@ -121,7 +123,15 @@ describe("nav-config structure", () => {
 
     expect(infrastructure?.label).toBe("Infrastructure");
     expect(infrastructure?.surface).toBe("review-workflow");
-    expect(infrastructure?.links.every((link) => link.requiredAuthority === "ReadAuthority")).toBe(true);
+    expect(
+      infrastructure?.links.every(
+        (link) =>
+          link.requiredAuthority === "ReadAuthority" || link.href === "/governance/infrastructure/extract-upload",
+      ),
+    ).toBe(true);
+    expect(infrastructure?.links.find((link) => link.href === "/governance/infrastructure/extract-upload")?.requiredAuthority).toBe(
+      "ExecuteAuthority",
+    );
   });
 
   it("sets requiredAuthority on every Analysis nav link", () => {
@@ -155,7 +165,7 @@ describe("nav-config structure", () => {
     expect(core).toBeDefined();
 
     for (const link of core!.links) {
-      if (link.tier === "essential") {
+      if (link.tier === "essential" && link.href !== "/governance/sealed-records") {
         expect(link.requiredAuthority, link.href).toBeUndefined();
       }
     }
@@ -179,7 +189,7 @@ describe("nav-config structure", () => {
     const governanceHrefs = NAV_GROUPS.find((group) => group.id === "operate-governance")!.links.map((link) => link.href);
     const policyHrefs = NAV_GROUPS.find((group) => group.id === "operate-policy")!.links.map((link) => link.href);
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
-    const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
+    const systemAdminHrefs = buildOperatorSystemAdminNavLinks().map((link) => link.href);
 
     expect(NAV_GROUPS.some((group) => group.id === "operate-reports")).toBe(false);
 
@@ -187,14 +197,13 @@ describe("nav-config structure", () => {
       "/insights/evidence-graph",
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
+      "/insights/sponsor-report",
+      "/insights/roi-summary",
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
       "/insights/improvement-planning",
-      "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/insights/sponsor-report",
-      "/insights/roi-summary",
-      "/insights/workspace-health",
+      "/insights/architecture-scorecard",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
@@ -202,12 +211,16 @@ describe("nav-config structure", () => {
     expect(pilotHrefs).not.toContain("/architecture/architecture-intelligence");
     expect(pilotHrefs).toContain("/architecture/digests");
     expect(governanceHrefs).toEqual([
+      "/governance/needs-attention",
       "/governance/approval-queue",
       "/governance/setup",
       "/governance/environments",
       "/governance/findings",
       "/governance/findings/assigned-to-me",
       "/governance/exceptions",
+      "/governance/remediation-factory",
+      "/governance/remediation-patterns",
+      "/governance/audit-evidence",
       "/governance/decision-register",
       "/governance/advisory-scans",
       "/governance/audit",

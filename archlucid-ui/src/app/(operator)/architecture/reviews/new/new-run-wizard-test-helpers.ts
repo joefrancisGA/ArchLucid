@@ -59,6 +59,16 @@ export function prepareNewRunWizardVitestHarness(): void {
   clearNewRunWizardVitestSessionSnapshot();
 }
 
+vi.mock("@/hooks/use-workspace-system-name-availability", () => ({
+  useWorkspaceSystemNameAvailability: () => ({
+    validating: false,
+    isAvailable: true,
+    conflictMessage: null,
+    validationReady: true,
+    validationUnavailable: false,
+  }),
+}));
+
 vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
 
@@ -90,5 +100,30 @@ export async function optIntoAdvancedNewRunWizardConfiguration(): Promise<void> 
 
   await waitFor(() => {
     expect(screen.getByTestId("new-run-wizard-mode-toggle")).toBeInTheDocument();
+  });
+}
+
+/** Fills required identity-step fields so step validation can advance toward baseline metrics. */
+export async function fillNewRunWizardIdentityStep(systemName = "BaselineMetricsPilotApp"): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
+  });
+
+  fireEvent.change(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL), {
+    target: { value: systemName },
+  });
+  fireEvent.change(screen.getByLabelText("Description"), {
+    target: {
+      value:
+        "Baseline metrics wizard step validates required tenant ROI anchors before review submit.",
+    },
+  });
+
+  const environmentTrigger = screen.getByRole("combobox", { name: /environment/i });
+  await act(async () => {
+    fireEvent.click(environmentTrigger);
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByRole("option", { name: "Staging" }));
   });
 }

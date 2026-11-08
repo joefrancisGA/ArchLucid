@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { apiGet } from "@/lib/api/http";
 import { AUTH_MODE } from "@/lib/auth-config";
@@ -34,26 +34,46 @@ export function usePilotRoiBaselineCompleteness(
   const enabled = options.enabled !== false;
   const [loading, setLoading] = useState(enabled);
   const [complete, setComplete] = useState<boolean | null>(null);
+  // Vitest tears down jsdom before late /v1/tenant/baseline rejections settle — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const reload = useCallback(async () => {
     if (isNextPublicDemoMode()) {
-      setComplete(true);
-      setLoading(false);
+      if (mountedRef.current) {
+        setComplete(true);
+        setLoading(false);
+      }
 
       return;
     }
 
     if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-      setComplete(null);
-      setLoading(false);
+      if (mountedRef.current) {
+        setComplete(null);
+        setLoading(false);
+      }
 
       return;
     }
 
-    setLoading(true);
+    if (mountedRef.current) {
+      setLoading(true);
+    }
 
     try {
       const baselineJson = await apiGet<TenantBaselineRoiGatePayload>("/v1/tenant/baseline");
+
+      if (!mountedRef.current) {
+        return;
+      }
 
       setComplete(
         isPilotRoiBaselineComplete({
@@ -62,9 +82,13 @@ export function usePilotRoiBaselineCompleteness(
         }),
       );
     } catch {
-      setComplete(null);
+      if (mountedRef.current) {
+        setComplete(null);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 

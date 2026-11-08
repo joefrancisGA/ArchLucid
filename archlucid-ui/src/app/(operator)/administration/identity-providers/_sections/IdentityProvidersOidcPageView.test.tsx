@@ -286,3 +286,8 @@ describe("IdentityProvidersOidcPageView", () => {
     expect(screen.queryByTestId("identity-providers-diagnostics-link")).toBeNull();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

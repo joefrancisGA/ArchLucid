@@ -234,7 +234,8 @@ public sealed class RetrievalDocumentBuilderTests
 
         RetrievalDocument mandated = documents.Single(d => d.SourceType == "ManifestMandatedMarkdown");
         mandated.Content.Should().Contain("## Data Flow");
-        mandated.Content.Should().Contain("- api ReadsFrom sql");
+        mandated.Content.Should().Contain("api has a stored read link. An observed read was not stored.");
+        mandated.Content.Should().Contain("sql");
 
         RetrievalDocument topology = documents.Single(d => d.SourceType == "ManifestTopology");
         topology.Content.Should().Contain("Datastores were not listed on this snapshot.");

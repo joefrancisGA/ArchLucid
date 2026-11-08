@@ -1,15 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitecturesHubBreadcrumb } from "./ArchitecturesHubBreadcrumb";
 
 describe("ArchitecturesHubBreadcrumb", () => {
-  it("renders architecture trail to drafts list", () => {
-    render(<ArchitecturesHubBreadcrumb />);
+  it("renders nothing (TB-2090 system-wide breadcrumb removal)", () => {
+    const { container } = render(<ArchitecturesHubBreadcrumb />);
 
-    expect(screen.getByTestId("architectures-hub-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Architecture" })).toHaveAttribute("href", "/architecture/reviews");
-    expect(screen.getByText("Architectures")).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 });

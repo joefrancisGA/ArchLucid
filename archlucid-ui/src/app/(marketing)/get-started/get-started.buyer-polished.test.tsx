@@ -13,6 +13,8 @@ import {
   GET_STARTED_SKIP_LINK_LABEL,
   GET_STARTED_SKIP_TARGET_ID,
 } from "@/lib/get-started-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { GET_STARTED_CANONICAL_PATH } from "@/lib/get-started-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
 describe("GetStartedPageClient buyer-polished shell (GXX)", () => {
@@ -51,7 +53,12 @@ describe("GetStartedPageClient buyer-polished shell (GXX)", () => {
     expect(screen.getByRole("heading", { level: 2, name: EVALUATION_SOURCES_TITLE })).toBeInTheDocument();
     expect(screen.getAllByTestId("get-started-sources")).toHaveLength(1);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(GET_STARTED_ORIENTATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(GET_STARTED_ORIENTATION_SOURCES),
+      GET_STARTED_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
   });

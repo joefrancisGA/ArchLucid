@@ -21,9 +21,12 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsByProject_without_page_returns_cursor_paged_envelope()
     {
+        const string requestId = "REQ-AUTH-LIST-UNPAGED-001";
+        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-UNPAGED-001")));
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -32,7 +35,8 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage response = await Client.GetAsync("/v1/authority/projects/EnterpriseRag/reviews?take=20");
+        HttpResponseMessage response =
+            await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
@@ -49,9 +53,12 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsByProject_with_legacy_page_size_clamps_requested_take()
     {
+        const string requestId = "REQ-AUTH-LIST-PAGED-001";
+        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-PAGED-001")));
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -60,8 +67,8 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage response =
-            await Client.GetAsync("/v1/authority/projects/EnterpriseRag/reviews?page=1&pageSize=10");
+        HttpResponseMessage response = await Client.GetAsync(
+            $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();

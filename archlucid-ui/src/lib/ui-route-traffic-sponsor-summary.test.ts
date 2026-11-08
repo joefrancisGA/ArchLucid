@@ -10,13 +10,12 @@ import {
 } from "@/lib/ui-route-traffic-sponsor-report";
 
 describe("ui-route-traffic-sponsor-report (TB-1961)", () => {
-  it("tracks SPE with former VXX hit share and no VXX row", () => {
+  it("tracks SPE with absorbed legacy VXX hit-share note", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
     const spe = rows.find((candidate) => candidate.id === SPONSOR_SUMMARY_TRAFFIC_ROW_ID);
-    const vxx = rows.find((candidate) => candidate.id === "VXX");
 
-    expect(vxx).toBeUndefined();
     expect(spe).toBeDefined();
+    expect(spe?.id).toBe("SPE");
     expect(spe?.path).toBe(SPONSOR_SUMMARY_TRAFFIC_PATH);
     expect(spe?.hitPct).toBe("0.22%");
     expect(spe?.section).toBe(SPONSOR_SUMMARY_TRAFFIC_SECTION);

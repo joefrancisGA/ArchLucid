@@ -31,7 +31,7 @@ export const WORKING_ROUTE_ROLE_RULES: readonly WorkingRouteRoleRule[] = [
     id: "marketing-public",
     role: "marketing",
     pattern:
-      /^\/(accessibility|assurance-status|compliance-journey|faq|get-started|pricing|privacy|quick-scan|see-it|trust|welcome|why|why-archlucid)(\/|$)/,
+      /^\/(accessibility|assurance-status|compliance-journey|faq|get-started|pricing|privacy|quick-scan|securenow-sample|securenow-sku|see-it|trust|welcome|why|why-archlucid|why-securenow)(\/|$)/,
   },
   { id: "auth", role: "auth", pattern: /^\/(403|auth(\/|$))/ },
   { id: "help", role: "help", pattern: /^\/help(\/|$)/ },
@@ -77,11 +77,14 @@ export const WORKING_ROUTE_ROLE_RULES: readonly WorkingRouteRoleRule[] = [
   },
   { id: "locator-operator-home", role: "locator", pattern: /^\/$/ },
   { id: "inbox-reviews-hub", role: "inbox", pattern: /^\/architecture\/reviews(\/new)?$/ },
+  { id: "inbox-compliance", role: "inbox", pattern: /^\/compliance(\/|$)/ },
+  { id: "inbox-security", role: "inbox", pattern: /^\/security(\/|$)/ },
   {
     id: "inbox-governance-queues",
     role: "inbox",
     pattern: /^\/governance\/(findings|approval-queue|alerts|needs-attention)(\/|$)/,
   },
+  { id: "eval-admin-infrastructure", role: "evalAdmin", pattern: /^\/infrastructure(\/|$)/ },
   {
     id: "bind-tool-insights",
     role: "bindTool",

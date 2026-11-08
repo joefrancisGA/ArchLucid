@@ -4,7 +4,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const CORE_PILOT_FINAL_STEP_INDEX = CORE_PILOT_STEPS.length - 1;
 
-export const CORE_PILOT_AZURE_INVENTORY_STEP_INDEX = 3;
+export const CORE_PILOT_AZURE_INVENTORY_STEP_INDEX = 4;
 
 export type CorePilotCommitPresentationContext = {
   readonly hasCommittedManifest: boolean;

@@ -82,7 +82,7 @@ export function ArchitectureDraftHandoffPanel(
     parentArchitectureId.length > 0 && identityQuery.data !== undefined
       ? resolveArchitectureDeskCompareHref({
           architectureId: parentArchitectureId,
-          reviews: identityQuery.data.reviews,
+          reviews: identityQuery.data.reviews ?? [],
           latestReviewId: identityQuery.data.latestReviewId,
           selectedChildRunId: props.linkedReviewId,
           workingMode: true,

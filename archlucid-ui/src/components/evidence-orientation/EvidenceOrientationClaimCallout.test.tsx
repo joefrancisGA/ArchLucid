@@ -6,12 +6,12 @@ import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientati
 import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 
 describe("EvidenceOrientationClaimCallout", () => {
-  it("renders a warn complementary band by default", () => {
+  it("renders a neutral complementary band by default", () => {
     render(<EvidenceOrientationClaimCallout testId="scope-help-claim-discipline" body="Orientation only." />);
 
     const callout = screen.getByTestId("scope-help-claim-discipline");
     expect(callout.tagName).toBe("ASIDE");
-    expect(callout).toHaveClass("border-amber-600/60");
+    expect(callout).toHaveClass("text-al-text-secondary");
     expect(callout).not.toHaveAttribute("aria-labelledby");
     expect(callout.textContent).toContain("Orientation only.");
   });

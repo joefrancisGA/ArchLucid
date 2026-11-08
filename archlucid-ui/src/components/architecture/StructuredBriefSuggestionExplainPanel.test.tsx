@@ -27,6 +27,7 @@ const explainKey = "constraints:EU data residency";
 
 describe("StructuredBriefSuggestionExplainPanel", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/architecture/reviews/new");
     clearStructuredBriefSuggestionExplainCache();
     mockedExplain.mockReset();
   });

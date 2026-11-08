@@ -21,7 +21,6 @@ import {
   type ArchitecturePackageOriginToken,
 } from "@/lib/architecture/architecture-package-origin";
 import { runMatchesOperatorHomeExampleDescription } from "@/lib/operator/operator-home-example-request";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GovernanceReviewAwaitingActionItem } from "@/lib/api/governance-stickiness-api";
 import type { RunSummary } from "@/types/authority";
 
@@ -321,7 +320,7 @@ export function runListPrimaryRequestId(run: RunSummary): string | null {
 export function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
   const id = run.runId.trim();
 
-  if (id === SHOWCASE_STATIC_DEMO_RUN_ID) {
+  if (isShowcaseStaticDemoRunId(id)) {
     return true;
   }
 

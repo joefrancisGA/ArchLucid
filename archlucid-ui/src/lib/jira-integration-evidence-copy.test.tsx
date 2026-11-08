@@ -1,15 +1,22 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   JIRA_INTEGRATION_CANONICAL_PATH,
   JIRA_INTEGRATION_FOLLOW_UPS_TITLE,
   JIRA_INTEGRATION_SOURCES,
   JIRA_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/jira-integration-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => JIRA_INTEGRATION_CANONICAL_PATH,
+}));
 
 describe("jira-integration-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -24,9 +31,7 @@ describe("jira-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("jira-integration-sources");
 
-    for (const link of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), JIRA_INTEGRATION_SOURCES, JIRA_INTEGRATION_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${JIRA_INTEGRATION_CANONICAL_PATH}$`, "i") }),

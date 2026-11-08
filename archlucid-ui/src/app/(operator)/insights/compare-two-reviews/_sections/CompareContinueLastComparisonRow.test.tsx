@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+
 import { CompareContinueLastComparisonRow } from "./CompareContinueLastComparisonRow";
 
 describe("CompareContinueLastComparisonRow", () => {
@@ -14,7 +16,7 @@ describe("CompareContinueLastComparisonRow", () => {
     expect(screen.getByTestId("compare-continue-last-comparison-row")).toBeInTheDocument();
     expect(screen.getByTestId("compare-continue-last-comparison-open")).toHaveAttribute(
       "href",
-      "/insights/compare-two-reviews?priorRunId=run-prior&laterRunId=run-later",
+      comparePageHrefAdaptive("run-prior", "run-later"),
     );
   });
 });

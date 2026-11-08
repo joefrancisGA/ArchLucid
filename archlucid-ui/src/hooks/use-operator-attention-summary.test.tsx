@@ -27,6 +27,33 @@ vi.mock("@/lib/operator/operator-shell-status-client", () => ({
   fetchAndHydrateOperatorShellStatus: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-user-attention-summary-query", () => ({
+  useUserAttentionSummaryQuery: () => ({
+    data: undefined,
+    isPending: false,
+    isError: false,
+    isFetching: false,
+    isFetched: true,
+  }),
+  mapUserAttentionSummaryToSurfaceCounts: () => ({
+    assignedToMeFindingsCount: undefined,
+    awaitingApprovalCount: undefined,
+    alertsOpenCount: undefined,
+  }),
+}));
+
+vi.mock("@/hooks/use-assigned-to-me-findings-count-query", () => ({
+  useAssignedToMeFindingsCountQuery: () => ({
+    data: 4,
+    isPending: false,
+    isError: false,
+    isFetching: false,
+    isFetched: true,
+    failure: null,
+    blockedReason: null,
+  }),
+}));
+
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
   getEffectiveBrowserProxyScopeHeaders: () => ({

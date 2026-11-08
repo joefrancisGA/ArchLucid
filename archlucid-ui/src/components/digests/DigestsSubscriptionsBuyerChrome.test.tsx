@@ -29,3 +29,8 @@ describe("DigestsSubscriptionsBuyerChrome", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

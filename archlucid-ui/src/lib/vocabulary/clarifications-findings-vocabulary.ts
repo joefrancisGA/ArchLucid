@@ -2,9 +2,9 @@
  * TB-2298 — Create-home Clarifications ≠ Findings vocabulary rail.
  *
  * Why two tabs stay separate on the architecture package:
- * - Clarifications (`?archTab=clarifications`) is gaps and open questions that
+ * - Clarifications (architecture workspace clarifications tab) is gaps and open questions that
  *   reduce assessment confidence until answered or evidenced.
- * - Findings (`?archTab=findings`) is the assessment findings list for this
+ * - Findings (architecture workspace findings tab) is the assessment findings list for this
  *   review — risk/quality issues to triage and act on.
  *
  * They share create-home chrome but are not the same work queue. Distinct from

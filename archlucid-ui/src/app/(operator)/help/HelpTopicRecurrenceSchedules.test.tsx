@@ -5,6 +5,10 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -13,6 +17,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/lib/recurrence-local-time", async () => {
   const actual = await vi.importActual<typeof import("@/lib/recurrence-local-time")>(
@@ -144,7 +153,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-recurrence-schedules-sources");
-    expectWhereToGoNextFollowUpLinks(within(followUps), RECURRENCE_SCHEDULES_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(within(followUps), RECURRENCE_SCHEDULES_HELP_SOURCES, "/");
   });
 
   it("links the primary action to recurrence schedules management with finalized-review precondition", () => {

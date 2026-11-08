@@ -2,6 +2,8 @@ import { render, within } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 expect.extend(toHaveNoViolations);
 
 vi.mock("@/components/operator/OperatorApiProblem", () => ({
@@ -34,6 +36,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   isNextPublicDemoMode: () => false,
 };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
   resolveProductionEvalChromeFromStorage: (): boolean => false,
