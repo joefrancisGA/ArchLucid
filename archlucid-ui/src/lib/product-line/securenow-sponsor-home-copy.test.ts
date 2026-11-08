@@ -10,8 +10,8 @@ describe("SecureNow sponsor home copy", () => {
   it("defines internal sponsor readout destinations", () => {
     expect(SECURENOW_SPONSOR_HOME_SECTION_HEADING).toBe("For sponsors");
     expect(SECURENOW_SPONSOR_HOME_SECTION_LEAD).toMatch(/NO_GO/);
-    expect(SECURENOW_SPONSOR_HOME_ROWS).toHaveLength(6);
-    expect(new Set(SECURENOW_SPONSOR_HOME_ROWS.map((row) => row.href)).size).toBe(6);
+    expect(SECURENOW_SPONSOR_HOME_ROWS).toHaveLength(7);
+    expect(new Set(SECURENOW_SPONSOR_HOME_ROWS.map((row) => row.href)).size).toBe(7);
     expect(SECURENOW_SPONSOR_HOME_ROWS[0]?.href).toBe("/why-securenow#reviewer-pack");
     expect(SECURENOW_SPONSOR_HOME_ROWS[1]?.href).not.toMatch(/^https:\/\/github\.com\//i);
     expect(SECURENOW_SPONSOR_HOME_ROWS[1]?.href).not.toBe("/help");
@@ -39,6 +39,8 @@ describe("SecureNow sponsor home copy", () => {
     expect(SECURENOW_SPONSOR_HOME_ROWS[5]?.summary).toBe(
       "Stage 6 facilitation. Not an approved offer and not customer evidence.",
     );
+    expect(SECURENOW_SPONSOR_HOME_ROWS[6]?.href).toBe("/trust#self-assessment");
+    expect(SECURENOW_SPONSOR_HOME_ROWS[6]?.summary).toMatch(/Not CPA attestation/);
   });
 
   it("does not introduce commercial claims", () => {

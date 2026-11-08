@@ -18,6 +18,8 @@ const GUARDED_RELATIVE_DIRS = [
   "src/components/usability",
   "src/components/wizard",
   "src/components/showcase",
+  "src/components/reviews",
+  "src/app/(operator)/governance/sealed-records",
   "src/app/(operator)/architecture/reviews",
 ] as const;
 

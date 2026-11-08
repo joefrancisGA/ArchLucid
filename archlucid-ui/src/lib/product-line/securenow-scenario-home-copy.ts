@@ -17,6 +17,11 @@ export const SECURENOW_SCENARIO_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     summary: "Synthetic fixture. Not a customer result. A missing capture is not a clean bill of health.",
   },
   {
+    href: "/securenow-sample#fixture-path-02",
+    label: "Second ranked path",
+    summary: "Synthetic fixture. Not a customer result. Walk fixture-path-02 on the public sample page.",
+  },
+  {
     href: "/security/remediation-factory?pathId=fixture-path-01#cut-points",
     label: "Advisory cut only",
     summary: "Synthetic fixture. Not a customer result. SecureNow recommends and does not change Azure.",

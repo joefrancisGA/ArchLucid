@@ -16,6 +16,12 @@ import {
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import {
+  FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_CHECKLIST,
+  FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_HEADING,
+  FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_LEAD,
+  FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_NOT_YET,
+} from "@/lib/first-review-sample-sealed-package-copy";
 
 const sampleReviewHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID);
 
@@ -72,6 +78,27 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
               <p className={cn("m-0 mt-2 max-w-2xl", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                 {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
               </p>
+              <div
+                className="mt-3 space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="sample-first-review-sealed-package-checklist"
+              >
+                <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPE_SCALE.helper)}>
+                  {FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_HEADING}
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper)}>{FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_LEAD}</p>
+                <p className={cn("m-0 font-medium", OPERATOR_TYPE_SCALE.helper)}>Sample includes</p>
+                <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPE_SCALE.helper)}>
+                  {FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_CHECKLIST.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <p className={cn("m-0 font-medium", OPERATOR_TYPE_SCALE.helper)}>Not yet your sealed review</p>
+                <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPE_SCALE.helper)}>
+                  {FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_NOT_YET.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </>
           ) : (
             <>
