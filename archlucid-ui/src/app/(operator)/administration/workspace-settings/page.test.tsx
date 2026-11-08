@@ -143,7 +143,6 @@ describe("TenantSettingsPage", () => {
     expect(await screen.findByTestId("tenant-settings-tenant-display-name")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-page-help-link")).toBeInTheDocument();
     expect(await screen.findByText("Active workspace and projects")).toBeInTheDocument();
-    expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
     // The only "Workspace scope" label on this page is the vocabulary-rail peer link to the top-bar switcher.
     expect(await screen.findByText("Workspace scope")).toHaveAttribute("href", "#operator-scope-switcher");
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();

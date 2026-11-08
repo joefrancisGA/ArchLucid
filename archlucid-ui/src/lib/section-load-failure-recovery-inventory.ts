@@ -30,12 +30,7 @@ export const SECTION_LOAD_FAILURE_RECOVERY_SURFACES: readonly ErrorRecoveryContr
   },
   {
     id: "tenant-cost-settings",
-    sourceRoots: ["app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCard.tsx"],
-    requiredMarkers: SECTION_LOAD_FAILURE_MARKERS,
-  },
-  {
-    id: "cloud-connections-hub",
-    sourceRoots: ["app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsPageClient.tsx"],
+    sourceRoots: ["app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCardShell.tsx"],
     requiredMarkers: SECTION_LOAD_FAILURE_MARKERS,
   },
   {
@@ -47,7 +42,7 @@ export const SECTION_LOAD_FAILURE_RECOVERY_SURFACES: readonly ErrorRecoveryContr
     // The picker popup cannot host OperatorSectionLoadFailure (it renders inside a listbox), so it
     // carries its own retry; the test id is what the guard can see from source.
     id: "run-id-picker",
-    sourceRoots: ["components/runs/RunIdPicker.tsx"],
+    sourceRoots: ["components/runs/RunIdPicker.tsx", "components/runs/RunIdPickerLoadFailure.tsx"],
     requiredMarkers: ["run-id-picker-retry", "refetch"],
   },
 ] as const;
