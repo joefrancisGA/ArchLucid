@@ -686,15 +686,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(memberAccessExpressionSyntax, containingMethodDeclarationSyntax))
             return false;
 
-        if (enclosingLocalFunction is null)
-        {
-            if (memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
-                return false;
-
-            return IsLogAsyncSyntaxProofReachable(semanticModel, memberAccessExpressionSyntax, cancellationToken);
-        }
-
-        return IsLogAsyncSyntaxProofReachable(semanticModel, memberAccessExpressionSyntax, cancellationToken);
+        return LogAsyncSyntaxIsOnExecutedPath(memberAccessExpressionSyntax, semanticModel, cancellationToken);
     }
 
     private static bool AuditLogAsyncInvocationCountsForAuditProof(
@@ -715,15 +707,19 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(invocationExpressionSyntax, containingMethodDeclarationSyntax))
             return false;
 
-        if (enclosingLocalFunction is null)
-        {
-            if (invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
-                return false;
+        return LogAsyncSyntaxIsOnExecutedPath(invocationExpressionSyntax, semanticModel, cancellationToken);
+    }
 
-            return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
-        }
+    // Catch filters and constant-unselected switch arms do not run, including when they sit inside a reachable local.
+    private static bool LogAsyncSyntaxIsOnExecutedPath(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (logAsyncSyntaxNode.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+            return false;
 
-        return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
+        return IsLogAsyncSyntaxProofReachable(semanticModel, logAsyncSyntaxNode, cancellationToken);
     }
 
     private static bool IsLogAsyncSyntaxProofReachable(
