@@ -204,6 +204,20 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
         ranks.Should().HaveCount(observedPaths.Count,
             "the real ranking stage must cover every persisted path");
 
+        // The coordinator currently returns Task (not a stage-result aggregate).
+        // Separately verify the real production engines report success: otherwise
+        // a swallowed Succeeded=false could be mistaken for a passing replay.
+        string actor = SecureNowArchitectConstants.SystemActorId;
+        (await privilege.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await reachability.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await toxic.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await capability.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await shared.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await fourReality.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await ranking.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        (await cutPoints.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
+        await routing.SyncSnapshotAsync(scope, snapshotId);
+
         // A zero-cutpoint result can be valid for some graph shapes; the SQL
         // cut-point query is still exercised. Do not claim a positive count.
         IReadOnlyList<SecurityEvidenceCutPointRecord> cuts =
