@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-09-07
-
 > **Scope:** ArchLucid — Pricing philosophy and packaging - full detail, tables, and links in the sections below.
+
+> **Reviewed:** 2026-09-07
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
