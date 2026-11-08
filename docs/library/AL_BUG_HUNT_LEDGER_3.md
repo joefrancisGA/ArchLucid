@@ -11145,6 +11145,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-08 thorough hunt (hit): no rotation (`shouldRotate: false`; the latest `ui-oidc` outcome is a hit, so the low-yield streak is 0). `useReviewDetailWorkspaceTabs.onHashChange` returned before reading the URL when the hash was empty, and a new section hash only scrolled. `#run-explanation` left the workspace on overview, and clearing that hash left the section's package tab selected. The 2026-10-31 diary recorded this as proven, but this branch's handler still returned early. Sync the active tab and workbench focus from the live URL before that return. Regressions `switches the active tab when a mounted workspace hash changes tabs` and `restores the query-selected tab when a mounted workspace hash is removed` failed first (active tab stayed `overview`) and the URL-sync file then passed **6/6**. The five hunt #122 monitors stay open. Private beta: when an invited operator follows an in-review section link, or steps back from that section, the workspace shows the tab that belongs to the current URL instead of the tab they were on before the link.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — a mounted section hash did not select its package tab, and removing the hash left that tab selected — **hit 2026-11-08 thorough hunt:** read the live URL before the empty-hash return; regressions above. `[class:state-machine-gap]`
+
 2026-11-01 thorough hunt #122 (dry): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on **`ui-oidc`**: dry, dry, dry; `-AvoidZoneId ui-oidc` applied; **cooldown fallback** selected **`ui-review-detail-workspace`**). Cheap-disproof closed five header `(candidate)` rows from hunt #118 reseed — **valid-no-repro** `navigateTab` hash scroll after presenter (`navigateTab` passes `hash: null` to `writeReviewDetailTabToUrl`; `activeTab` + `hashchange` effects call `scheduleScrollToReviewDetailSection` when location hash remains), **invalid** `ReviewInPipelineBanner` dismiss/localStorage reset (banner has no dismiss control or storage-backed dismiss state — reinjection on tab return matches hunt #118 deferred-mount design), **invalid** `usePinnedReviewContext.openPin` (hook exposes URL-driven `pinRunId` + `closePin` only; no `openPin` locus), **invalid** `ReviewWorkspaceStaleBanner` incremental stream frames (banner reads authoritative `useRunSummaryQuery` fingerprint only; refresh button intentionally clears warning after successful refetch even when fingerprint unchanged), **valid-no-repro** `writeReviewDetailFindingIdToUrl` deferred findings panel (same LI-13 reconcile path as hunt #118 `WorkbenchFindingSelectionSync`). Reseeded five `(candidate)` monitor rows below; focused workspace vitest bundle **57/57**. Private beta: n/a.
 
 - [ ] (candidate) `ReviewInPipelineBanner` — activity CTA `navigateTab("activity")` may clear review-section hash before activity panel scroll targets mount — locus: tab URL writer vs activity panel anchors; input: deep-linked evidence hash then click View activity from banner; wrong outcome: section anchor lost on activity tab; reachability: in-pipeline CTA (monitor; hunt #122).
@@ -11831,13 +11835,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 57
-- **bugs-found:** 39
+- **hunts:** 58
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — section hash change left the review workspace on the previous tab
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the review-detail route tree, page model, workspace presentation, findings workspace, and header state; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering remount restore guards, run-transition filter state, list-view state, persistence races, and same-document metadata URL synchronization.

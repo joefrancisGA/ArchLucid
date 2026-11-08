@@ -1,4 +1,4 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { act, renderHook, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -59,6 +59,10 @@ vi.mock("@/lib/workspace-mode/use-professional-workbench-enabled", () => ({
 
 vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
   useReviewWorkbenchShortcuts: vi.fn(),
+}));
+
+vi.mock("@/lib/review-detail-section-scroll", () => ({
+  scheduleScrollToReviewDetailSection: vi.fn(),
 }));
 
 import { useReviewDetailWorkspaceTabs } from "@/components/reviews/use-review-detail-workspace-tabs";
@@ -161,5 +165,40 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     });
 
     expect(result.current.activeTab).toBe("findings");
+  });
+
+  it("switches the active tab when a mounted workspace hash changes tabs", () => {
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+
+    act(() => {
+      window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview#run-explanation");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+  });
+
+  it("restores the query-selected tab when a mounted workspace hash is removed", () => {
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    act(() => {
+      window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview#run-explanation");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+
+    act(() => {
+      window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("overview");
   });
 });

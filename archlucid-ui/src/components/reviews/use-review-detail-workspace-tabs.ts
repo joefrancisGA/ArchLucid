@@ -246,6 +246,21 @@ export function useReviewDetailWorkspaceTabs(
   useEffect(() => {
     const onHashChange = () => {
       const hash = window.location.hash.slice(1);
+      // An empty hash is browser-back from a section link. Read the query tab before returning
+      // so the workspace does not stay on the section's package tab.
+      const nextTab = readReviewDetailTabFromWindowLocation();
+
+      setActiveTab((current) => (current === nextTab ? current : nextTab));
+
+      const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
+        new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
+      );
+      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
+
+      if (workbenchFocusColumnRef.current !== normalizedFocus) {
+        workbenchFocusColumnRef.current = normalizedFocus;
+        setWorkbenchFocusColumnState(normalizedFocus);
+      }
 
       if (hash.length === 0) {
         return;
