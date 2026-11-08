@@ -78,7 +78,7 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
 
     expect(fields).toContainEqual({
       label: "Key integrations",
-      value: "Key integrations were stored empty.",
+      value: "Integration names were not stored.",
     });
   });
 
@@ -91,7 +91,7 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
 
     expect(fields).toContainEqual({
       label: "Key integrations",
-      value: "Payment gateway (submitted text, not operator-asserted)",
+      value: "Payment gateway",
     });
   });
 

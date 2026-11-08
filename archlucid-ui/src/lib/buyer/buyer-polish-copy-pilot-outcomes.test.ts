@@ -32,7 +32,7 @@ describe("buyer-polish-copy pilot command center outcomes (TB-351)", () => {
       "Missing dependencies",
       "Hidden risks",
       "Cost drivers",
-      "Policy gaps",
+      "Governance gaps",
       "Evidence gaps",
       "Decision impact",
     ]);
@@ -127,7 +127,7 @@ describe("buyer-polish-copy governance preview note (TB-509)", () => {
 
 describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
   it("uses Sample review label without demo-derived framing", () => {
-    expect(SAMPLE_REVIEW_AHA_DEMO_LABEL).toBe("Sample review");
+    expect(SAMPLE_REVIEW_AHA_DEMO_LABEL).toBe("Example review");
     expect(SAMPLE_REVIEW_AHA_DEMO_LABEL.toLowerCase()).not.toContain("demo-derived");
   });
 });
@@ -135,7 +135,7 @@ describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
 describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
   it("uses sample review caption without demo-derived or execution mode jargon", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER).toBe(
-      "Sample review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.",
+      "Example review — not your workspace data. Open the full review for findings, evidence, and the sealed record.",
     );
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");
