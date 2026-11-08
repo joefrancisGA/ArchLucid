@@ -1,3 +1,5 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
+
 /**
  * Parses an opaque operation id from a 202 Location header
  * (e.g. `/v1/operations/run:{guid}` or absolute URL).
@@ -42,7 +44,7 @@ export function resolveOperationDetailHref(
   runId: string | null | undefined,
 ): string {
   if (runId !== null && runId !== undefined && runId.trim().length > 0) {
-    return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+    return resolveLibOpenReviewHref(runId.trim());
   }
 
   return fallbackHref;

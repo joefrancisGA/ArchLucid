@@ -18,6 +18,7 @@ Operators in **Working** mode should open review workspaces under the architectu
 | Sealed collateral back | `resolveSealedCollateralReviewDeskHref` | Manifest and sealed-record surfaces |
 | Global search | `resolveGlobalSearchDeskArchitectureId` | Maps search hit to desk architecture id |
 | Lib / pilot rails (no pathname) | `resolveLibOpenReviewHref` | Uses desk continuity cache for first-pilot and palette hrefs |
+| Lib workspace / finding / provenance | `resolveLibReviewWorkspaceHref`, `resolveLibFindingDetailHref`, `resolveLibReviewProvenanceHref` | Lib copy, sponsor exports, findings job views, and evidence chips without `usePathname` |
 | Flat peer guard (CI) | `flat-peer-review-href-guard.test.ts` | Blocks `` href={`/architecture/reviews/${…}` `` in guarded Operate scopes |
 
 ## Route shapes

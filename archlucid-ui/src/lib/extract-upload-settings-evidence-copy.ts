@@ -1,3 +1,4 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
@@ -70,7 +71,7 @@ export function extractUploadAcceptedPackageNextAction(
   if (linkedReviewId.length > 0) {
     return {
       label: "Open linked review",
-      href: `/architecture/reviews/${encodeURIComponent(linkedReviewId)}`,
+      href: resolveLibOpenReviewHref(linkedReviewId),
     };
   }
 
