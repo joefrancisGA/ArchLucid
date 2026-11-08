@@ -1569,6 +1569,33 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-11-08 thorough hunt (hit #363): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the `string.Format` factory monitor from hit **#362**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned `string.Format("SELECT … dbo.Runs … {0}", tenantId)`, because a non-static format argument made `TryResolveStringFormatInvocation` drop the format literal. The format literal is now kept. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_string_format_method_return`. Cheap-disproof closed three sibling monitors — **invalid** local function declared in the constructor body and called from `: this(...)` (the initializer cannot see that local function), **valid-no-repro** const string fields across partials (`IFieldSymbol.ConstantValue` is on the merged symbol), **valid-no-repro** `[TenantScopeExempt]` on a partial method declaration (attributes merge onto the symbol `TryGetExemption` reads). Left the direct `Query(FormatRunSql(tenantId))` interpolated call open. Reseeded five `(candidate)` rows; scoped analyzer tests **68/68** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns `string.Format` with a runtime argument now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveStringFormatInvocation` — non-static format argument dropped the format literal — **hit 2026-11-08 thorough hunt #363:** keep the format literal; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_string_format_method_return`.
+- [x] (invalid) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function inside the constructor body called from `: this(...)` — **cheap-disproof 2026-11-08 thorough hunt #363:** a constructor initializer cannot call a local function declared in the constructor body.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — const string on another partial record part — **cheap-disproof 2026-11-08 thorough hunt #363:** `ConstantValue` is available on the merged field symbol.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper.TryGetExemption` — attribute only on the partial method declaration — **cheap-disproof 2026-11-08 thorough hunt #363:** Roslyn merges partial-method attributes onto the symbol the exemption walk reads.
+
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — direct `Query(FormatRunSql(tenantId))` where the method returns an interpolated string — locus: `ResolveCore` calls `TryResolveFromMethodInvocation` with parameterized callees rejected; input: Dapper argument is the invocation, not a record property; wrong outcome: ARCH006 missed; reachability: repositories that pass a formatter straight to Dapper.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function in the calling method returns interpolated SQL — locus: local-function syntax reference and parameterized-callee gate; input: `Query(FormatRunSql(tenantId))` with `FormatRunSql` local to `Load`; wrong outcome: ARCH006 missed; reachability: repository methods that keep the formatter local.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — locus: early return that discards both sides; input: `"SELECT … dbo.Runs …" + suffix`; wrong outcome: ARCH006 missed; reachability: SQL built by appending a runtime predicate.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — locus: `allStatic` false returns null SQL; input: `string.Concat("SELECT … dbo.Runs …", suffix)`; wrong outcome: ARCH006 missed; reachability: concat helpers in repositories.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `new CommandDefinition(FormatRunSql(tenantId))` where the method returns interpolated SQL — locus: object-creation SQL argument; input: target-typed or explicit `CommandDefinition`; wrong outcome: ARCH006 missed; reachability: Dapper command objects built from formatters.
+
+- **id:** tenant-scoped-analyzer
+- **status:** open
+- **impact:** high
+- **aliases:** ARCH006; tenant scoped query analyzer
+- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
+- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
+- **hunts:** 56
+- **bugs-found:** 34
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — `string.Format` factory on `: this(...)` dropped the tenant-table literal
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
 2026-11-08 thorough hunt (hit #362): **rotation fired** at pick time (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on `tenant-data-export`* (outcomes: dry, dry, dry); hunted **`tenant-scoped-analyzer`** with `-AvoidZoneId tenant-data-export`). Promoted the interpolated-factory monitor from hit **#361**: `: this(FormatRunSql(tenantId))` still missed ARCH006 when the factory returned an interpolated string, because a non-static hole dropped the whole return and the call site only showed the method name. `ResolveInterpolatedLiteralSql` keeps the literal SQL for that fold. Regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return`. Cheap-disproof closed the other four **#361** monitor rows — **valid-no-repro** catch-body `CommandDefinition` call sites (method-body `DescendantNodes` includes catch blocks), **valid-no-repro** `const` string fields via `ResolveFromSymbol` (`nameof` is the identifier, not the SQL), **valid-no-repro** non-constant `commandType` fields stay on the ad hoc path only when `GetConstantValue` fails (proc-name text has no scoped table), **valid-no-repro** `[TenantScopeExempt]` is read from the merged symbol in `TryGetExemption`. Reseeded five follow-on `(candidate)` rows; scoped analyzer tests **67/67** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that build tenant SQL through `: this(FormatRunSql(tenantId))` when the factory returns an interpolated string now get ARCH006 in CI, so an unscoped `dbo.Runs` query is caught before it ships. No operator-visible change today.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is an interpolated-string method return — **hit 2026-11-08 thorough hunt #362:** `ResolveInterpolatedLiteralSql` on the ctor-chain fold; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_interpolated_method_return`.
@@ -1577,25 +1604,11 @@
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` from a readonly instance field — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryGetConstantCommandType` ignores non-constants; a procedure name without a scoped table does not emit ARCH006.
 - [x] (valid-no-repro) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on one partial method part — **cheap-disproof 2026-11-08 thorough hunt #362:** `TryGetExemption` reads attributes on the merged symbol.
 
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — factory returns `string.Format` with a non-constant argument and a tenant table in the format string — locus: `ResolveCore` on the method return vs `TryResolveStringFormatInvocation`; input: `: this(FormatRunSql(tenantId))` returning `string.Format("SELECT … dbo.Runs … {0}", tenantId)`; wrong outcome: ARCH006 missed; reachability: Persistence format helpers.
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function, not a private method, returns interpolated SQL into `: this(...)` — locus: local-function syntax reference; input: local `FormatRunSql` inside the ctor; wrong outcome: ARCH006 missed; reachability: repository ctors that keep the formatter local.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeSqlExpression` — `CommandDefinition` SQL argument is an interpolated method invocation, not a record property — locus: invocation argument resolution; input: `Query(FormatRunSql(tenantId))` where the method returns `$"SELECT … dbo.Runs … {tenantId}"`; wrong outcome: ARCH006 missed at the call site; reachability: Dapper calls that pass a formatter directly.
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — primary-constructor default names a const declared on a different partial record part — locus: const lookup across `DeclaringSyntaxReferences`; input: `record R(string Sql = OtherPart.Sql)`; wrong outcome: ARCH006 missed; reachability: split record SQL holders.
-- [ ] (candidate) `TenantScopeExemptSymbolHelper.TryGetExemption` — attribute sits only on the partial method declaration part and the implementation part contains the Dapper call — locus: attribute merge before exemption walk; input: declaration `[TenantScopeExempt(...)]` and implementation `Query`; wrong outcome: ARCH006 still reported or ARCH006b missed; reachability: partial repository methods.
-
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
-- **hunts:** 55
-- **bugs-found:** 33
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — interpolated `: this(factory(tenantId))` record ctor chains missed ARCH006
-- **related-pd-tb:** none
-- **code-changed-since:** no
+- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — factory returns `string.Format` with a non-constant argument and a tenant table in the format string — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
+- [x] (invalid) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function, not a private method, returns interpolated SQL into `: this(...)` — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
+- [x] (superseded) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeSqlExpression` — `CommandDefinition` SQL argument is an interpolated method invocation, not a record property — **superseded 2026-11-08 thorough hunt #363:** same call shape as the open direct `Query(FormatRunSql(tenantId))` candidate.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — primary-constructor default names a const declared on a different partial record part — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper.TryGetExemption` — attribute sits only on the partial method declaration part and the implementation part contains the Dapper call — **cheap-disproof 2026-11-08 thorough hunt #363:** closed at the zone header.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — `: this(...)` argument is **parameterized** method invocation (non-zero arity) — **hit 2026-11-01 thorough hunt #361:** `allowParameterizedCallee` on ctor-chain method fold; regression `ARCH006_reports_unscoped_sql_for_record_this_chain_with_parameterized_method_invocation_argument`.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteScalarAsync` / `ExecuteReaderAsync` string overload + `commandType: StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #361:** parity probes above.

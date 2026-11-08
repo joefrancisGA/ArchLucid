@@ -1026,16 +1026,31 @@ internal static class TenantScopedSqlExpressionResolver
 
         object?[] formatArgs = new object?[arguments.Count - formatArgumentIndex - 1];
         bool hasScopeHelper = formatString.HasScopeHelperInvocation;
+        bool formatArgumentIsNotStatic = false;
 
         for (int index = formatArgumentIndex + 1; index < arguments.Count; index++)
         {
             ResolutionResult argument = ResolveCore(arguments[index].Expression, semanticModel, visitingInterpolatedHole: false);
 
             if (!argument.IsStaticallyResolved)
-                return false;
+            {
+                // A runtime value must not drop the format literal. The table name
+                // lives in that literal; discarding it hides ARCH006 at the call site.
+                hasScopeHelper |= argument.HasScopeHelperInvocation;
+                formatArgumentIsNotStatic = true;
+
+                continue;
+            }
 
             hasScopeHelper |= argument.HasScopeHelperInvocation;
             formatArgs[index - formatArgumentIndex - 1] = argument.SqlText ?? string.Empty;
+        }
+
+        if (formatArgumentIsNotStatic)
+        {
+            result = new ResolutionResult(formatString.SqlText, true, hasScopeHelper);
+
+            return true;
         }
 
         string composed = string.Format(formatString.SqlText, formatArgs);
