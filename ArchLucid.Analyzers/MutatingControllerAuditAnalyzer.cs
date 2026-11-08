@@ -375,7 +375,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     // An uncalled nested local does not execute on the request, so it must not silence AL0003.
     private static bool AuditInvocationCountsAsExecutedProof(
         InvocationExpressionSyntax invocationExpressionSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
     {
         LocalFunctionStatementSyntax? enclosingLocalFunction =
             invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
@@ -386,9 +388,14 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        return AnonymousFunctionsAroundInvocationAreInvoked(
-            invocationExpressionSyntax,
-            containingMethodDeclarationSyntax);
+        if (!AnonymousFunctionsAroundInvocationAreInvoked(
+                invocationExpressionSyntax,
+                containingMethodDeclarationSyntax))
+        {
+            return false;
+        }
+
+        return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
     }
 
     // A lambda stored and never called does not run on the request. Passing the lambda as an
@@ -581,6 +588,93 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         return invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
                memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
+    }
+
+    // A constant switch runs only the matching arm. LogAsync in another arm, including default, does not execute.
+    private static bool IsLogAsyncSyntaxProofReachable(
+        SemanticModel semanticModel,
+        SyntaxNode logAsyncSyntaxNode,
+        CancellationToken cancellationToken)
+    {
+        SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
+
+        if (switchSectionSyntax is null)
+            return true;
+
+        if (switchSectionSyntax.Parent is not SwitchStatementSyntax switchStatementSyntax)
+            return true;
+
+        return IsSwitchSectionReachableForConstantDiscriminant(
+            switchStatementSyntax,
+            switchSectionSyntax,
+            semanticModel,
+            cancellationToken);
+    }
+
+    private static bool IsSwitchSectionReachableForConstantDiscriminant(
+        SwitchStatementSyntax switchStatementSyntax,
+        SwitchSectionSyntax switchSectionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        Optional<object?> discriminantOptional =
+            semanticModel.GetConstantValue(switchStatementSyntax.Expression, cancellationToken);
+
+        if (!discriminantOptional.HasValue)
+            return true;
+
+        object? discriminant = discriminantOptional.Value;
+        bool sectionHasDefaultLabel = switchSectionSyntax.Labels.Any(
+            label => label.Keyword.IsKind(SyntaxKind.DefaultKeyword));
+
+        foreach (SwitchLabelSyntax labelSyntax in switchSectionSyntax.Labels)
+        {
+            if (labelSyntax is not CaseSwitchLabelSyntax caseSwitchLabelSyntax)
+                continue;
+
+            Optional<object?> caseConstantOptional =
+                semanticModel.GetConstantValue(caseSwitchLabelSyntax.Value, cancellationToken);
+
+            if (caseConstantOptional.HasValue &&
+                AuditProofConstantValuesEqual(discriminant, caseConstantOptional.Value))
+            {
+                return true;
+            }
+        }
+
+        if (!sectionHasDefaultLabel)
+            return false;
+
+        foreach (SwitchSectionSyntax otherSectionSyntax in switchStatementSyntax.Sections)
+        {
+            foreach (SwitchLabelSyntax otherLabelSyntax in otherSectionSyntax.Labels)
+            {
+                if (otherLabelSyntax is not CaseSwitchLabelSyntax otherCaseLabelSyntax)
+                    continue;
+
+                Optional<object?> otherCaseConstantOptional =
+                    semanticModel.GetConstantValue(otherCaseLabelSyntax.Value, cancellationToken);
+
+                if (otherCaseConstantOptional.HasValue &&
+                    AuditProofConstantValuesEqual(discriminant, otherCaseConstantOptional.Value))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool AuditProofConstantValuesEqual(object? left, object? right)
+    {
+        if (left is null || right is null)
+            return left is null && right is null;
+
+        if (left.Equals(right))
+            return true;
+
+        return string.Equals(left.ToString(), right.ToString(), StringComparison.Ordinal);
     }
 
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
@@ -847,7 +941,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
                     .DescendantNodesAndSelf()
                     .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped =>
-                    AuditInvocationCountsAsExecutedProof(invocationSyntaxScoped, methodAnchorSyntax) &&
+                    AuditInvocationCountsAsExecutedProof(
+                        invocationSyntaxScoped,
+                        methodAnchorSyntax,
+                        semanticModelScoped,
+                        cancellationTokenScoped) &&
                     InvocationMatchesAuditInterfaceSemantic(
                     semanticModelScoped,
                     auditInterfaceDeclaredTypeSymbolScoped,
