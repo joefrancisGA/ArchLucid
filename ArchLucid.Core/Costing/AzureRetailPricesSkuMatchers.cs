@@ -574,15 +574,11 @@ public sealed partial class AzureRetailPricesCatalogClient
             || HasCompactWeelSuffix(trimmed)
             || HasCompactWeelsSuffix(trimmed)
             || HasCompactWeekesSuffix(trimmed)
-            || HasCompactWeekkSuffix(trimmed)
-            || HasCompactWeekkkSuffix(trimmed)
-            || HasCompactWeekkkkSuffix(trimmed)
+            || HasCompactWeekExtraKTypoSuffix(trimmed)
             || ContainsSlashWeekkToken(trimmed)
             || ContainsSlashWeekkkToken(trimmed)
             || ContainsSlashWeekkkkToken(trimmed)
-            || ContainsSpacedSlashWeekkToken(trimmed)
-            || ContainsSpacedSlashWeekkkToken(trimmed)
-            || ContainsSpacedSlashWeekkkkToken(trimmed)
+            || ContainsSpacedSlashWeekExtraKTypoToken(trimmed)
 
             || HasCompactWelsSuffix(trimmed)
             || HasCompactWeekWordSuffix(trimmed)
@@ -1267,31 +1263,23 @@ public sealed partial class AzureRetailPricesCatalogClient
             && char.IsDigit(trimmed[^7]);
     }
 
-    private static bool HasCompactWeekkSuffix(string trimmed)
+    private static bool HasCompactWeekExtraKTypoSuffix(string trimmed)
     {
-        if (trimmed.Length < 7)
-            return false;
+        ReadOnlySpan<string> typoSuffixes = ["weekk", "weekkk", "weekkkk"];
 
-        return trimmed.EndsWith("weekk", StringComparison.OrdinalIgnoreCase)
-            && char.IsDigit(trimmed[^6]);
-    }
+        foreach (string suffix in typoSuffixes)
+        {
+            if (trimmed.Length <= suffix.Length)
+                continue;
 
-    private static bool HasCompactWeekkkSuffix(string trimmed)
-    {
-        if (trimmed.Length < 8)
-            return false;
+            if (!trimmed.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                continue;
 
-        return trimmed.EndsWith("weekkk", StringComparison.OrdinalIgnoreCase)
-            && char.IsDigit(trimmed[^7]);
-    }
+            if (char.IsDigit(trimmed[^(suffix.Length + 1)]))
+                return true;
+        }
 
-    private static bool HasCompactWeekkkkSuffix(string trimmed)
-    {
-        if (trimmed.Length < 9)
-            return false;
-
-        return trimmed.EndsWith("weekkkk", StringComparison.OrdinalIgnoreCase)
-            && char.IsDigit(trimmed[^8]);
+        return false;
     }
 
     private static bool ContainsSlashWeekkToken(string trimmed)
@@ -1360,62 +1348,31 @@ public sealed partial class AzureRetailPricesCatalogClient
         return false;
     }
 
-    private static bool ContainsSpacedSlashWeekkToken(string trimmed)
+    private static bool ContainsSpacedSlashWeekExtraKTypoToken(string trimmed)
     {
-        int index = 0;
+        ReadOnlySpan<string> spacedTokens = [" / weekk", " / weekkk", " / weekkkk"];
 
-        while (index < trimmed.Length)
+        foreach (string token in spacedTokens)
         {
-            index = trimmed.IndexOf(" / weekk", index, StringComparison.OrdinalIgnoreCase);
-
-            if (index < 0)
-                return false;
-
-            int afterToken = index + 8;
-
-            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
+            if (ContainsSpacedSlashLiteralToken(trimmed, token))
                 return true;
-
-            index = afterToken;
         }
 
         return false;
     }
 
-    private static bool ContainsSpacedSlashWeekkkToken(string trimmed)
+    private static bool ContainsSpacedSlashLiteralToken(string trimmed, string spacedToken)
     {
         int index = 0;
 
         while (index < trimmed.Length)
         {
-            index = trimmed.IndexOf(" / weekkk", index, StringComparison.OrdinalIgnoreCase);
+            index = trimmed.IndexOf(spacedToken, index, StringComparison.OrdinalIgnoreCase);
 
             if (index < 0)
                 return false;
 
-            int afterToken = index + 9;
-
-            if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
-                return true;
-
-            index = afterToken;
-        }
-
-        return false;
-    }
-
-    private static bool ContainsSpacedSlashWeekkkkToken(string trimmed)
-    {
-        int index = 0;
-
-        while (index < trimmed.Length)
-        {
-            index = trimmed.IndexOf(" / weekkkk", index, StringComparison.OrdinalIgnoreCase);
-
-            if (index < 0)
-                return false;
-
-            int afterToken = index + 10;
+            int afterToken = index + spacedToken.Length;
 
             if (afterToken >= trimmed.Length || !char.IsLetter(trimmed[afterToken]))
                 return true;
