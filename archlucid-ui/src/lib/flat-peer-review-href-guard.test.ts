@@ -10,8 +10,13 @@ const GUARDED_RELATIVE_DIRS = [
   "src/components/alerts",
   "src/components/advisory",
   "src/components/digests",
+  "src/components/findings",
   "src/components/governance",
   "src/components/insights",
+  "src/components/operator",
+  "src/components/runs",
+  "src/components/usability",
+  "src/app/(operator)/architecture/reviews",
 ] as const;
 
 const GUARDED_COMPONENT_FILES = [

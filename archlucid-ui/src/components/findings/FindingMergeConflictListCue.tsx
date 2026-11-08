@@ -1,6 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
+
+import { resolveDeskContinuityFindingInspectHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -16,18 +20,31 @@ export type FindingMergeConflictListCueProps = {
 /** Working findings list cue when merge conflicts are already on the wire (RS-14). */
 export function FindingMergeConflictListCue(props: FindingMergeConflictListCueProps): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const conflictFindings = useMemo(
+    () => props.findings.filter((finding) => isFindingMergeConflictReviewFinding(finding)),
+    [props.findings],
+  );
+  const firstFindingId = conflictFindings[0]?.findingId ?? "";
+  const mergeConflictHref = useMemo(
+    () =>
+      firstFindingId.length === 0
+        ? ""
+        : resolveDeskContinuityFindingInspectHref(props.runId, firstFindingId, {
+            pathname,
+            search: searchParams.toString(),
+          }),
+    [firstFindingId, pathname, props.runId, searchParams],
+  );
 
   if (!isWorkingMode) {
     return null;
   }
 
-  const conflictFindings = props.findings.filter((finding) => isFindingMergeConflictReviewFinding(finding));
-
   if (conflictFindings.length === 0) {
     return null;
   }
-
-  const first = conflictFindings[0];
 
   return (
     <div
@@ -41,7 +58,7 @@ export function FindingMergeConflictListCue(props: FindingMergeConflictListCuePr
       </p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
         <Link
-          href={`/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(first.findingId)}`}
+          href={mergeConflictHref}
           className={OPERATOR_LINK.nav}
         >
           Open merge conflict resolution
