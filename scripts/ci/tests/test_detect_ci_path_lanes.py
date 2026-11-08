@@ -94,14 +94,14 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_infra_diagrams_layout"])
 
     def test_rolling_rc_push_concurrency_is_branch_scoped_and_merge_group_safe(self) -> None:
-        """Newest RC tip preempts stale push runs; merge_group keeps cancel-in-progress off."""
+        """RC push uses a branch-scoped group; merge_group never cancels in-progress."""
         workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
         match = re.search(r"(?m)^  push:\n    branches: \[(RC[1-9][0-9]*)\]$", workflow)
         self.assertIsNotNone(match)
         rc = match.group(1)
 
-        # Branch-scoped group + cancel-in-progress so tip wins runner capacity during burn-down.
+        # Branch-scoped group isolates RC push CI; PR/dispatch still cancel in-progress.
         self.assertIn(
             f"github.event_name == 'push' && github.ref == 'refs/heads/{rc}' "
             f"&& format('{rc.lower()}-push-{{0}}', github.ref)",
@@ -109,7 +109,12 @@ class DetectCiPathLanesTests(unittest.TestCase):
         )
         self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
         self.assertNotIn("github.sha", concurrency)
-        self.assertIn("cancel-in-progress: ${{ github.event_name != 'merge_group' }}", concurrency)
+        # RC43 push: cancel-in-progress false so runs finish with success/failure, not cancelled.
+        self.assertIn(
+            "cancel-in-progress: ${{ github.event_name != 'merge_group' "
+            f"&& !(github.event_name == 'push' && github.ref == 'refs/heads/{rc}') }}",
+            concurrency,
+        )
 
     def test_initial_rc_push_uses_first_parent_diff_for_guards(self) -> None:
         """An all-zero before SHA on the first branch push must never disable diff guards."""
