@@ -91,7 +91,8 @@ public static class AzureInventoryMessagingAssociationParser
 
     private static string? TryReadString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        if (!element.TryGetProperty(propertyName, out JsonElement value)
+            || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
         {
             return null;
         }
