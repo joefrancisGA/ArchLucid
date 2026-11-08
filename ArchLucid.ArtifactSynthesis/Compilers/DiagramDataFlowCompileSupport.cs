@@ -25,6 +25,11 @@ internal static class DiagramDataFlowEdgeFilter
             return false;
         }
 
+        if (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryObservedDependency, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         return AzureInventoryDataFlowEvidenceCatalog.IncludeOnDataFlow(edge.EdgeType, edge.InferenceSource);
     }
 }

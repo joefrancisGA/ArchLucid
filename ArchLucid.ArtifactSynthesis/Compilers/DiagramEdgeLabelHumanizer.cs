@@ -32,8 +32,42 @@ internal static class DiagramEdgeLabelHumanizer
 
             if (diagramMode == DiagramMode.DataFlow)
             {
-                if (ShouldPreserveDataFlowEdgeLabel(edge.Label)
-                    || !IsDataFlowPrimaryCanvasInference(edge.InferenceSource)
+                if (string.Equals(
+                        edge.InferenceSource,
+                        GraphEdgeInferenceSources.InventoryObservedDependency,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    string edgeType = edge.Label ?? string.Empty;
+                    edge.Label = ResolveDisplayLabel(
+                        edge.Label,
+                        edgeType,
+                        edge.InferenceSource,
+                        diagramMode: DiagramMode.DataFlow);
+
+                    continue;
+                }
+
+                if (IsDeclaredPipelineDatasetMovementInference(edge.InferenceSource))
+                {
+                    string edgeType = edge.Label ?? string.Empty;
+                    string resolved = ResolveDisplayLabel(
+                        edge.Label,
+                        edgeType,
+                        edge.InferenceSource,
+                        diagramMode: DiagramMode.DataFlow);
+                    edge.Label = string.IsNullOrWhiteSpace(resolved)
+                        ? DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel
+                        : resolved;
+
+                    continue;
+                }
+
+                if (ShouldPreserveDataFlowEdgeLabel(edge.Label))
+                {
+                    continue;
+                }
+
+                if (!IsDataFlowPrimaryCanvasInference(edge.InferenceSource)
                     || !TryResolveDataFlowCanvasVerb(edge.InferenceSource, edge.Label, out string dataFlowVerb))
                 {
                     continue;
@@ -55,6 +89,28 @@ internal static class DiagramEdgeLabelHumanizer
         }
     }
 
+    private static bool IsDeclaredPipelineDatasetMovementInference(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        string normalized = inferenceSource.Trim();
+
+        if (GraphEdgeInferenceSources.TrySplitQualifier(normalized, out string baseSource, out _))
+        {
+            normalized = baseSource;
+        }
+
+        return string.Equals(normalized, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, AzureInventoryRelationshipAssociationTypes.SynapseWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool IsDataFlowPrimaryCanvasInference(string? inferenceSource)
     {
         if (string.IsNullOrWhiteSpace(inferenceSource))
@@ -67,6 +123,11 @@ internal static class DiagramEdgeLabelHumanizer
         if (GraphEdgeInferenceSources.TrySplitQualifier(normalized, out string baseSource, out _))
         {
             normalized = baseSource;
+        }
+
+        if (IsDeclaredPipelineDatasetMovementInference(inferenceSource))
+        {
+            return false;
         }
 
         return string.Equals(normalized, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)

@@ -73,8 +73,7 @@ internal static class DataFlowPlacementEndpointIncluder
                         vnetArmId,
                         StringComparison.OrdinalIgnoreCase));
 
-                if (vnetNode is not null
-                    && !IsDataFlowPlacementOnlyVirtualNetwork(vnetNode))
+                if (vnetNode is not null)
                 {
                     AddIfMissing(vnetNode, includedById, nodes);
                 }
