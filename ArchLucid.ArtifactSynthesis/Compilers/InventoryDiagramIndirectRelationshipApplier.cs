@@ -71,12 +71,23 @@ internal static class InventoryDiagramIndirectRelationshipApplier
                 continue;
             }
 
-            if (ast.Edges.Any(edge =>
-                    !edge.IsLayoutOnly
-                    && string.Equals(edge.FromNodeId, resolved.FromDiagramNodeId, StringComparison.Ordinal)
-                    && string.Equals(edge.ToNodeId, resolved.ToDiagramNodeId, StringComparison.Ordinal)
-                    && ShouldPreserveDirectPlacementEdge(edge, ast)))
+            DiagramEdge? directDiagramEdge = ast.Edges.FirstOrDefault(edge =>
+                !edge.IsLayoutOnly
+                && string.Equals(edge.FromNodeId, resolved.FromDiagramNodeId, StringComparison.Ordinal)
+                && string.Equals(edge.ToNodeId, resolved.ToDiagramNodeId, StringComparison.Ordinal));
+
+            if (directDiagramEdge is not null)
             {
+                if (ShouldPreserveDirectPlacementEdge(directDiagramEdge, ast))
+                {
+                    continue;
+                }
+
+                AssignResolvedRelationship(
+                    directDiagramEdge,
+                    formattedLabel,
+                    resolved.InferenceSource,
+                    resolved.EvidenceCurrency);
                 continue;
             }
 

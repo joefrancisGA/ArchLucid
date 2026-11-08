@@ -61,10 +61,38 @@ internal static class InventoryDiagramPrivateEndpointConnectionLabelApplier
             return false;
         }
 
+        if (TouchesOffCanvasExternalTarget(ast, edge))
+        {
+            return false;
+        }
+
         return !ast.Nodes.Any(node =>
             (string.Equals(node.NodeId, edge.FromNodeId, StringComparison.Ordinal)
                 || string.Equals(node.NodeId, edge.ToNodeId, StringComparison.Ordinal))
             && IsPrivateEndpointArmType(node.ArmResourceType));
+    }
+
+    private static bool TouchesOffCanvasExternalTarget(DiagramAst ast, DiagramEdge edge)
+    {
+        foreach (string endpointId in new[] { edge.FromNodeId, edge.ToNodeId })
+        {
+            DiagramNode? endpoint = ast.Nodes.FirstOrDefault(node =>
+                string.Equals(node.NodeId, endpointId, StringComparison.Ordinal));
+
+            if (endpoint is null)
+            {
+                continue;
+            }
+
+            if (endpoint.Label.StartsWith(
+                    "Scope subscription was inferred from the first resource on this diagram.",
+                    StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsPrivateEndpointArmType(string? armType)

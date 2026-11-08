@@ -322,7 +322,8 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         if (UsesTopologyPlacementVerbLabels(diagramMode)
-            && string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
+            && string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
+            && HasTopologyPeeringVerbCandidate(storedLabel, edgeType))
         {
             return "peering";
         }
@@ -1218,6 +1219,30 @@ internal static class DiagramEdgeLabelHumanizer
     private static bool UsesTopologyPlacementVerbLabels(DiagramMode mode)
     {
         return mode is not DiagramMode.DataFlow and not DiagramMode.DataArchitecture;
+    }
+
+    private static bool HasTopologyPeeringVerbCandidate(string? storedLabel, string? edgeType)
+    {
+        if (string.Equals(storedLabel?.Trim(), "peering", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(storedLabel?.Trim(), InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (string.Equals(edgeType?.Trim(), GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edgeType?.Trim(), AzureInventoryRelationshipAssociationTypes.VnetPeering, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return string.Equals(
+                   storedLabel?.Trim(),
+                   InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
+                   StringComparison.Ordinal)
+            || string.Equals(
+                storedLabel?.Trim(),
+                InventoryDiagramRelationshipLabelTexts.PeeringStoredConnectedStateNotStored,
+                StringComparison.Ordinal);
     }
 
     private static bool TryResolveDataFlowCanvasVerb(string? inferenceSource, string? edgeType, out string label)

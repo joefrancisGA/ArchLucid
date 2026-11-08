@@ -85,8 +85,6 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 ast.Edges.Add(CreateObservedPeeringEdge(fromMermaidId, toMermaidId));
             }
         }
-
-        EnsureObservedPeeringOnVirtualNetworkPairs(ast);
     }
 
     internal static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
@@ -100,6 +98,14 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             if (!IsVirtualNetworkNode(nodesById, edge.FromNodeId)
                 || !IsVirtualNetworkNode(nodesById, edge.ToNodeId))
             {
+                continue;
+            }
+
+            if (IsStoredGraphPeersWithLabel(edge.Label))
+            {
+                edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
+                edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
+                edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
                 continue;
             }
 
@@ -118,6 +124,16 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
             AssignPeeringProvenance(edge, connectedPeeringObserved: IsConnectedPeeringLabel(edge.Label));
         }
+    }
+
+    private static bool IsStoredGraphPeersWithLabel(string? label)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return false;
+        }
+
+        return label.Contains(GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool HasBlankCapturedPeeringLabel(DiagramEdge edge)
