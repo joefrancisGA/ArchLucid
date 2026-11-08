@@ -179,6 +179,30 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.activeTab).toBe("findings");
   });
 
+  it("rewrites a flat peer URL onto the nested desk when silent visit defaults apply", () => {
+    searchParamsHarness.applyQuery("");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          parentArchitectureId: "architecture-identity-001",
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "finding-uncited-1",
+          visitDefaultReviewHashWhenUrlSilent: "run-detail-first-review-spine-findings",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.pathname).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-abc",
+    );
+    expect(window.location.search).toContain("reviewTab=findings");
+    expect(window.location.search).toContain("findingId=finding-uncited-1");
+    expect(window.location.hash).toBe("#run-detail-first-review-spine-findings");
+  });
+
   it("writes findingId and spine hash when the open gate is an uncited finding and the URL is silent", () => {
     searchParamsHarness.applyQuery("");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc");

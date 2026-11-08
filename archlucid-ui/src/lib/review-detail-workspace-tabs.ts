@@ -1,4 +1,4 @@
-import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref, reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { RUN_DETAIL_SECTION_TAB } from "@/lib/runs/run-detail-section-tab-map";
 import { resolveUnifiedReviewWorkspaceTab, ARCH_TAB_TO_REVIEW_TAB } from "@/lib/unified-review-workspace-tabs";
 
@@ -175,10 +175,37 @@ export function writeReviewDetailTabToUrl(
     readonly findingId?: string | null;
     readonly workbenchFocus?: ReviewWorkbenchFocusColumnId | null;
     readonly presenter?: boolean | null;
+    /** When set with {@link architectureId}, rewrites flat peer review URLs onto the Working nested desk (AO-33). */
+    readonly runId?: string | null;
+    readonly architectureId?: string | null;
   },
 ): void {
   if (typeof window === "undefined") {
     return;
+  }
+
+  const trimmedRunId = options?.runId?.trim() ?? "";
+  const trimmedArchitectureId = options?.architectureId?.trim() ?? "";
+
+  if (trimmedRunId.length > 0 && trimmedArchitectureId.length > 0) {
+    const peerPath = reviewDetailPath(trimmedRunId);
+
+    if (window.location.pathname === peerPath) {
+      const nextHref = buildReviewDetailTabHref(trimmedRunId, tab, {
+        architectureId: trimmedArchitectureId,
+        findingId: options?.findingId,
+        hash: options?.hash,
+        workbenchFocus: options?.workbenchFocus,
+        presenter: options?.presenter === true ? true : undefined,
+      });
+      const currentHref = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+      if (nextHref !== currentHref) {
+        window.history.replaceState(null, "", nextHref);
+      }
+
+      return;
+    }
   }
 
   const url = new URL(window.location.href);
