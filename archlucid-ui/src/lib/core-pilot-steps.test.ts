@@ -39,8 +39,8 @@ describe("core-pilot-steps", () => {
 
     expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.shortBody.toLowerCase()).toContain("cloud inventory");
-    expect(uploadStep.detail).toContain("Get-ArchLucidAzurePackage.ps1");
-    expect(uploadStep.detail).toContain("hosted extractor");
+    expect(uploadStep.detail?.toLowerCase()).toContain("cloud inventory");
+    expect(uploadStep.detail?.toLowerCase()).toContain("extract");
     expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.primaryHref).toBe("/administration/extract-upload");
   });

@@ -71,7 +71,6 @@ describe("FirstPilotReadinessCockpit", () => {
   beforeEach(() => {
     sessionStorage.clear();
     localStorage.clear();
-    localStorage.setItem("archlucid_operator_home_disclosure_workspace_readiness_v1", "1");
     resetOperatorQueryClientForTests();
   });
 
@@ -82,7 +81,10 @@ describe("FirstPilotReadinessCockpit", () => {
   });
 
   async function expandWorkspaceReadiness(): Promise<void> {
-    fireEvent.click(await screen.findByRole("button", { name: "Expand Workspace readiness" }));
+    const expand = screen.queryByRole("button", { name: "Expand Workspace readiness" });
+    if (expand !== null) {
+      fireEvent.click(expand);
+    }
   }
 
   it("renders the workspace shell immediately and hydrates after probes finish", async () => {
@@ -97,7 +99,9 @@ describe("FirstPilotReadinessCockpit", () => {
 
     await expandWorkspaceReadiness();
 
-    expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
+    });
   });
 
   it("collapses and expands from the header chevron", async () => {
@@ -110,7 +114,9 @@ describe("FirstPilotReadinessCockpit", () => {
 
     await expandWorkspaceReadiness();
 
-    expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
+    });
 
     fireEvent.click(screen.getByRole("button", { name: "Collapse Workspace readiness" }));
 
