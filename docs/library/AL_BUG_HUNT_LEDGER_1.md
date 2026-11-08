@@ -3545,6 +3545,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-11-08 seed hunt (seed→hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex`: a for_each data source `data.azurerm_app_service.main["primary"]` does not own the bare data root, and that root's leaf identity is the managed address `azurerm_app_service.main`, so a relationship citing `data.azurerm_app_service.main` attached to the managed resource. The indexed data-source root is now recorded on its own and fans out when more than one instance shares it. Regression `MapRelationships_resolves_indexed_data_source_root_when_managed_resource_has_the_same_address` failed first (`FromNodeId` was `managed-api`) and then passed with the managed-address and quoted-index regressions (**3/3**, `RunAnalyzers=false`). Private beta: when an invited operator's topology cites a Terraform data source that uses for_each, and a managed resource has the same type and name, the relationship stays on the data source instead of attaching to the managed resource.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — indexed data-source root resolved to the managed resource with the same address — **hit 2026-11-08 seed hunt:** record `data.<type>.<name>` for an indexed data source; regression `MapRelationships_resolves_indexed_data_source_root_when_managed_resource_has_the_same_address`. [class:state-machine-gap]
+
 2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` registering a Terraform data-source leaf as the managed address `azurerm_app_service.main`, so `module.network.data.azurerm_app_service.main` indexed first stole that key from the managed resource; data-source leaves no longer occupy the managed address and do not join its shared-leaf group; regression `MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first`; scoped filter 1015/1015 (`RunAnalyzers=false`). Private beta: when an invited operator's topology includes both a Terraform data source and the managed resource with the same type and name, a relationship that cites the managed address stays on the managed resource instead of attaching to the data source that was indexed first.
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — Terraform data source indexed first claimed the managed resource address — **hit 2026-10-30 seed hunt:** release a data-source-owned bare leaf and group data sources under a `data.` identity; regression `MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first`. [class:state-machine-gap]
@@ -3685,13 +3689,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 108
-- **bugs-found:** 77
+- **hunts:** 109
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — indexed data-source root resolved to the managed resource with the same address
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2397 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 - **status:** open
@@ -3699,13 +3703,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 108
-- **bugs-found:** 77
+- **hunts:** 109
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — indexed data-source root resolved to the managed resource with the same address
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-20 seed hunt (seed→hit): promoted declared `endpointAliases` ARM keys with trailing slashes not indexed under `NormalizeArmResourceId`, so relationships using the canonical ARM path missed rename aliases and graph merge dropped edges; register ARM alias keys via `TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases`; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`; 993 scoped edge-mapper/graph-merge tests passed.
 
@@ -3809,13 +3813,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 108
-- **bugs-found:** 77
+- **hunts:** 109
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — indexed data-source root resolved to the managed resource with the same address
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2447 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 
