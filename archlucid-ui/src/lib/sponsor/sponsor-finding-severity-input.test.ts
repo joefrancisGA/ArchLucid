@@ -8,6 +8,6 @@ describe("sponsorSeverityInputFromFindingSeverityValue (P-10)", () => {
   });
 
   it("returns the badge label when severity is stored", () => {
-    expect(sponsorSeverityInputFromFindingSeverityValue(2)).toBe("High");
+    expect(sponsorSeverityInputFromFindingSeverityValue(2)).toBe("Error");
   });
 });

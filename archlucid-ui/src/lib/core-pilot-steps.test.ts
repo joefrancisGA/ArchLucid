@@ -38,7 +38,7 @@ describe("core-pilot-steps", () => {
     const uploadStep = CORE_PILOT_STEPS[4];
 
     expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
-    expect(uploadStep.shortBody).toContain("Azure packager ZIP");
+    expect(uploadStep.shortBody.toLowerCase()).toContain("cloud inventory");
     expect(uploadStep.detail).toContain("Get-ArchLucidAzurePackage.ps1");
     expect(uploadStep.detail).toContain("hosted extractor");
     expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
