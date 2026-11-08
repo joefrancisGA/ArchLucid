@@ -28,6 +28,7 @@ import { deriveFirstReviewSpineBandSummary } from "@/lib/reviews/first-review-sp
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly architectureRequestId?: string | null;
   readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
@@ -100,6 +101,7 @@ export function RunDetailReviewPackageStampViewport(
             summary={firstReviewSpineSummary}
             unmappedFindingCount={props.unmappedFindingCount}
             runId={props.runId}
+            architectureId={props.parentArchitectureId}
             isSample={props.isSample}
             manifestVersion={props.manifestVersion}
             sampleSponsorParagraph={feasibilityVerdict.summary}
@@ -184,6 +186,7 @@ export function RunDetailReviewPackageStampViewport(
           summary={firstReviewSpineSummary}
           unmappedFindingCount={props.unmappedFindingCount}
           runId={props.runId}
+          architectureId={props.parentArchitectureId}
           openGateNavigationInput={openGateNavigationInput}
         />
       ) : null}

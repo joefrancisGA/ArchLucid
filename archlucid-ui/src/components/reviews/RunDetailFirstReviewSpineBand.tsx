@@ -29,6 +29,8 @@ export type RunDetailFirstReviewSpineBandProps = {
   readonly className?: string;
   readonly unmappedFindingCount?: number;
   readonly runId?: string | null;
+  /** When set, open-gate and findings links use the Working nested review desk (ADR 0077). */
+  readonly architectureId?: string | null;
   readonly isSample?: boolean | null;
   readonly manifestVersion?: string | null;
   readonly sampleSponsorParagraph?: string | null;
@@ -75,8 +77,9 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       findings: props.openGateNavigationInput.findings,
       hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
       reviewHasGoldenManifest: props.openGateNavigationInput.reviewHasGoldenManifest,
+      architectureId: props.architectureId,
     });
-  }, [hasOpenGateNavigationInput, props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
 
   const findingsWorkspaceHref = useMemo((): string | null => {
     if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
@@ -87,8 +90,9 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       runId: trimmedRunId,
       findings: props.openGateNavigationInput.findings,
       hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      architectureId: props.architectureId,
     });
-  }, [hasOpenGateNavigationInput, props.openGateNavigationInput, trimmedRunId]);
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, trimmedRunId]);
 
   const topFindingInspectHref = useMemo((): string | null => {
     if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
@@ -99,8 +103,9 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       runId: trimmedRunId,
       topFindingId: summary.topFindingId,
       hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      architectureId: props.architectureId,
     });
-  }, [hasOpenGateNavigationInput, props.openGateNavigationInput, summary.topFindingId, trimmedRunId]);
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, summary.topFindingId, trimmedRunId]);
 
   const openGateLinkEnabled =
     openGateHref !== null

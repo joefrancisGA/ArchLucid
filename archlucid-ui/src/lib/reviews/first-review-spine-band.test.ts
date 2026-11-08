@@ -1,0 +1,52 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  resolveFirstReviewFindingsWorkspaceHref,
+  resolveFirstReviewOpenGateReviewHref,
+} from "@/lib/reviews/first-review-spine-band";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
+
+const openDispositionFinding: QuickDecisionFinding = {
+  findingId: "finding-open-1",
+  title: "Uncited exposure",
+  recommendation: null,
+  severityValue: 4,
+  findingOrder: 0,
+  aiReasoning: {},
+  isMuted: false,
+  muteReason: null,
+  enforcementTier: "blocking",
+  classification: "DecisionGradeFinding",
+  evidenceReferences: [],
+  policyRuleId: null,
+  recordedDisposition: null,
+} as QuickDecisionFinding;
+
+describe("first-review spine band deep links", () => {
+  it("resolveFirstReviewOpenGateReviewHref uses nested Working review paths when architectureId is set", () => {
+    const href = resolveFirstReviewOpenGateReviewHref({
+      runId: "run-abc",
+      findings: [],
+      hasFindingsSnapshot: true,
+      reviewHasGoldenManifest: false,
+      architectureId: "architecture-identity-001",
+    });
+
+    expect(href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
+    );
+  });
+
+  it("resolveFirstReviewFindingsWorkspaceHref uses nested base for disposition follow-up", () => {
+    const href = resolveFirstReviewFindingsWorkspaceHref({
+      runId: "run-abc",
+      findings: [openDispositionFinding],
+      hasFindingsSnapshot: true,
+      architectureId: "architecture-identity-001",
+    });
+
+    expect(href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=findings&findingId=finding-open-1#run-detail-first-review-spine-findings",
+    );
+  });
+});
