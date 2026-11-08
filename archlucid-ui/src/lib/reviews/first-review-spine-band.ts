@@ -279,6 +279,8 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
   readonly findings: readonly QuickDecisionFinding[];
   readonly hasFindingsSnapshot: boolean;
   readonly reviewHasGoldenManifest: boolean;
+  /** Working nested desk base when the review is architecture-linked (AO-02). */
+  readonly architectureId?: string | null;
 }): string | null {
   const trimmedRunId = input.runId.trim();
 
@@ -311,6 +313,7 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
   return buildReviewDetailTabHref(trimmedRunId, tab, {
     findingId,
     hash,
+    architectureId: input.architectureId,
   });
 }
 
@@ -319,6 +322,7 @@ export function resolveFirstReviewFindingsWorkspaceHref(input: {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
   readonly hasFindingsSnapshot: boolean;
+  readonly architectureId?: string | null;
 }): string | null {
   const trimmedRunId = input.runId.trim();
 
@@ -334,6 +338,7 @@ export function resolveFirstReviewFindingsWorkspaceHref(input: {
   return buildReviewDetailTabHref(trimmedRunId, "findings", {
     findingId,
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId: input.architectureId,
   });
 }
 
@@ -342,6 +347,7 @@ export function resolveFirstReviewTopFindingInspectHref(input: {
   readonly runId: string;
   readonly topFindingId: string | null;
   readonly hasFindingsSnapshot: boolean;
+  readonly architectureId?: string | null;
 }): string | null {
   const trimmedRunId = input.runId.trim();
   const findingId = input.topFindingId?.trim() ?? "";
@@ -353,6 +359,7 @@ export function resolveFirstReviewTopFindingInspectHref(input: {
   return buildReviewDetailTabHref(trimmedRunId, "findings", {
     findingId,
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId: input.architectureId,
   });
 }
 

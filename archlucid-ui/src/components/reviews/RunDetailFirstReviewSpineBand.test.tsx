@@ -88,6 +88,33 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
   });
 
+  it("uses nested review paths when architectureId is provided", () => {
+    render(
+      <RunDetailFirstReviewSpineBand
+        runId="run-abc"
+        architectureId="architecture-identity-001"
+        summary={baseSummary({
+          openGateLabel: "Uncommitted review",
+          openGateReviewTab: "review-package",
+        })}
+        openGateNavigationInput={{
+          findings: [],
+          hasFindingsSnapshot: true,
+          reviewHasGoldenManifest: false,
+        }}
+      />,
+    );
+
+    const openGateLink = screen.getByRole("link", {
+      name: "Open the gate: Uncommitted review (review-package tab)",
+    });
+
+    expect(openGateLink).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
+    );
+  });
+
   it("links the top finding row into the findings workspace", () => {
     render(
       <RunDetailFirstReviewSpineBand
