@@ -23884,7 +23884,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
-**Hunts:** 21 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+**Hunts:** 22 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+
+2026-11-08 seed hunt (seed-only): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hypothesis list was empty after dry **#67**. Reread the filter, guard, and catalog. Did not reseed the three rows closed in **#67** (opaque `JsonElement` saved-view filters, coalesced `constraints` null, `[ApiController]` null body). No `[FromBody]` dictionary-of-collections, `JsonObject`, or positional request record turned up. One reachable shape is not in the architecture catalog because `EnumerateCollectionPropertyPaths` stops at a collection and does not enter the element type: `OperationalSecurityFindingIngestRequest.Items` (`POST` findings ingest) contains `OperationalSecurityFindingIngestRequestItem.Metadata` (`Dictionary<string, string?>`, init-only, no coalesce). No row was promoted. Private beta: n/a.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — null `Metadata` dictionary on a list element — locus: `VisitCollection` then `IsNullNonNullableCollectionProperty` on the element; input: `{ "items": [ { "metadata": null } ] }`; reachability: `OperationalSecurityFindingsController.Ingest` `[FromBody]`.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.DictionaryValueAllowsNull` — null value in `Metadata` (`Dictionary<string, string?>`) rejected — locus: init-only property nullability on the list element; input: `{ "items": [ { "metadata": { "k": null } } ] }`; reachability: same ingest action. `MapIngestItem` copies `Metadata` through.
 
 2026-11-08 thorough hunt (dry #67): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the three candidates from the seed-only pass — **valid-no-repro** `CreateOperatorSavedViewRequest.Payload.Filters` is an opaque `JsonElement` document (`OperatorSavedViewsController.CreateSavedView` requires the element to be present, then stores `JsonSerializer.Serialize` of the payload; array slots are not domain collection elements; same JsonElement boundary as policy-pack validate), **valid-no-repro** explicit JSON `null` on `ArchitectureRequest.Constraints` is rewritten to an empty list by `ContractCollectionDefaults.Coalesce` before the filter (documented so a null token does not bypass the initializer; agents see an empty list, not a null collection), **valid-no-repro** JSON `null` on non-nullable `[FromBody] RegisterItsmCorrelationRequest` (`ItsmCorrelationController` is `[ApiController]`; implicit required binding plus model-state invalid filter returns 400 before the action; `ValidateCorrelationBody` is not entered with a null body). No new hunt-ready row. Private beta: n/a.
 
@@ -24086,7 +24091,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-08
