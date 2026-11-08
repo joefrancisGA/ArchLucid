@@ -27,12 +27,14 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
     public async Task Five_parallel_persisted_compares_produce_five_distinct_in_memory_record_ids()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await IntegrationTestWorkspaceModeSupport.PinGuidedWorkspaceModeForDevUserAsync(factory);
 
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
             client,
             JsonOptions,
+            factory,
             "REQ-COMP-PAR-" + Guid.NewGuid().ToString("N")[..8]);
 
         IComparisonRecordRepository repository =

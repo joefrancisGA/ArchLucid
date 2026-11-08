@@ -27,7 +27,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlIntegrationApiFactory factory)
-    : IntegrationTestBase(factory)
+    : IntegrationTestBase(factory), IClassFixture<FinalizeConflictSqlIntegrationApiFactory>
 {
     [SkippableFact]
     public async Task Finalize_before_execute_maps_integrity_conflict_to_409()

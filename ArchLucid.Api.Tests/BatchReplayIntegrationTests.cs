@@ -36,7 +36,7 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
     public async Task BatchReplay_MixedValidAndInvalid_ReturnsZipWithManifestAndPartialHeader()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, "REQ-BATCH-PARTIAL-001");
+            Client, JsonOptions, Factory, "REQ-BATCH-PARTIAL-001");
         string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
