@@ -6,6 +6,7 @@ import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_IDLE_TITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
@@ -27,7 +28,11 @@ export const RUNS_EMPTY: EmptyStateProps = {
     "Start an architecture review to gather evidence, evaluate findings, record decisions, and produce exports. Or explore the sample review to see a completed flow.",
   actions: [
     { label: "Start an architecture review", href: "/architecture/reviews/new" },
-    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`, variant: "outline" },
+    {
+      label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
+      href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID),
+      variant: "outline",
+    },
   ],
   helpTopicPath: "review-guide",
 };

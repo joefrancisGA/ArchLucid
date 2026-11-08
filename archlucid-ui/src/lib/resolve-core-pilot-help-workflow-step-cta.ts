@@ -2,6 +2,7 @@ import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import type { CorePilotHelpWorkflowStep } from "@/lib/core-pilot-help-guide-content";
 import { CORE_PILOT_HELP_WORKFLOW_CHECKING_STATUS } from "@/lib/core-pilot-help-guide-content";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 export type CorePilotHelpWorkflowStepCta = {
@@ -66,7 +67,7 @@ export function isCorePilotHelpStartReviewFirstCta(
 }
 
 function reviewDetailHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId)}`;
+  return resolveLibOpenReviewHref(runId);
 }
 
 function finalizeHref(runId: string): string {

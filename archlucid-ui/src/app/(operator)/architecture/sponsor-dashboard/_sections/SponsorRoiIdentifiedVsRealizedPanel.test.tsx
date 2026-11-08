@@ -32,6 +32,29 @@ const summary: SponsorRoiSummary = {
 };
 
 describe("SponsorRoiIdentifiedVsRealizedPanel", () => {
+  it("links to decisions-remediation when realized savings were not stored", () => {
+    const noBasisSummary: SponsorRoiSummary = {
+      ...summary,
+      basisBreakdown: undefined,
+      systems: [{ systemName: "Payments", runId: "run-pick-1", committedUtc: null, estimatedUsdSavings: 10_000 }],
+    };
+
+    render(
+      <TooltipProvider>
+        <SponsorRoiIdentifiedVsRealizedPanel
+          summary={noBasisSummary}
+          buckets={resolveSponsorRoiIdentifiedVsRealized(noBasisSummary)}
+          dispositionReviewHref="/architecture/architectures/arch-1/reviews/run-pick-1?reviewTab=decisions-remediation"
+        />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("exec-roi-realized-not-stored-open-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/arch-1/reviews/run-pick-1?reviewTab=decisions-remediation",
+    );
+  });
+
   it("renders separate identified pending and realized committed amounts", () => {
     render(
       <TooltipProvider>
