@@ -92,11 +92,15 @@ public static class InventoryDiagramIndirectRelationshipResolver
 
         if (edge.Properties.TryGetValue(
                 InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
-                out string? edgeCurrency)
-            && Enum.TryParse(edgeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedEdgeCurrency)
-            && Enum.IsDefined(parsedEdgeCurrency))
+                out string? edgeCurrency))
         {
-            return parsedEdgeCurrency;
+            if (Enum.TryParse(edgeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedEdgeCurrency)
+                && Enum.IsDefined(parsedEdgeCurrency))
+            {
+                return parsedEdgeCurrency;
+            }
+
+            return null;
         }
 
         if (string.Equals(
@@ -123,7 +127,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             return parsedNodeCurrency;
         }
 
-        return null;
+        return InventoryDiagramEvidenceCurrency.Current;
     }
 
     public static bool IsCitedEdge(GraphEdge edge)

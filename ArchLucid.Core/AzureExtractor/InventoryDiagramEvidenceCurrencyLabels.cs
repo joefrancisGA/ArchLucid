@@ -41,14 +41,24 @@ public static class InventoryDiagramEvidenceCurrencyLabels
 
         if (ContainsEvidenceReferenceToken(sourceEvidenceReference, "activity-log")
             || ContainsEvidenceReferenceToken(sourceEvidenceReference, "diagnostic-log")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "log-analytics")
             || ContainsEvidenceReferenceToken(sourceEvidenceReference, "telemetry")
-            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "observed"))
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "observed")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "logs"))
         {
             return InventoryDiagramEvidenceCurrency.Observed;
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps resource evidence references onto graph node/edge currency during snapshot hydration.
+    ///     Blank or non-token references default to collected snapshot currency.
+    /// </summary>
+    public static InventoryDiagramEvidenceCurrency ResolveGraphHydrationCurrency(string? sourceEvidenceReference) =>
+        ResolveFromSourceEvidenceReference(sourceEvidenceReference)
+        ?? InventoryDiagramEvidenceCurrency.Current;
 
     private static bool ContainsEvidenceReferenceToken(string sourceEvidenceReference, string token)
     {
