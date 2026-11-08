@@ -1681,6 +1681,7 @@
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue.GetFileAsync` — returns `_files` for `Canceled` rows until eviction — **valid-no-repro 2026-10-07 thorough hunt:** `JobsController.DownloadJobFile` requires `BackgroundJobState.Succeeded` before `GetFileAsync`; queue-layer retention is not an operator download defect.
@@ -1773,6 +1774,7 @@
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 2026-10-05 thorough hunt (dry): cheap-disproved four seeded candidates (MarkCanceled vs TryAssignUnlessCanceled, processor not-claimable poll, hung execute watchdog vs execute lease TTL, integration outbox dequeue pagination); 74 Host.Core + 15 focused Api tests passed.
 
 2026-10-05 seed hunt (seed→hit): proved in-memory dequeue `Running` assignment cancel race; reseeded four hosted-loop candidates; 74 Host.Core + 13 in-memory queue tests passed.
@@ -27746,6 +27748,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 2026-10-30 thorough hunt #1001 (dry): rotation did not fire (`shouldRotate: false`; picker marked `seedHunt: true` with empty JSON candidate list while ledger retained five open `(candidate)` rows from hunt #999 — executed thorough cheap-disproof on that queue). Closed five header `(candidate)` rows — **valid-no-repro** padded plus case-variant duplicate manifest decision ids vs contained-in-manifest (`Build_deduplicates_contained_in_manifest_when_manifest_lists_padded_duplicate_decision_ids`); **valid-no-repro** base-graph overlay duplicate edge `InferenceSource` casing (`Merge_coalesces_base_graph_overlay_duplicate_edge_inference_sources_when_inference_sources_differ_only_by_casing`; parity with overlay-only inference casing regression); **valid-no-repro** duplicate finding rows with padded related-node ids plus case-variant graph nodes (`Build_deduplicates_influence_edges_when_duplicate_finding_rows_list_padded_related_ids_and_graph_lists_case_variant_nodes`, hunt #998); **valid-no-repro** duplicate ARM row subscription id backfill with case-variant metadata (`BuildOverlay_backfills_subscription_id_from_duplicate_row_when_first_row_omits_subscription_id_with_case_variant`; `TryMergeTrimmedScalarProperty` case-insensitive agreement); **valid-no-repro** duplicate artifact display names differing only by padding (`Build_coalesces_duplicate_artifact_rows_when_names_differ_only_by_surrounding_whitespace`). Reseeded five follow-on `(candidate)` rows; scoped filter **712** KnowledgeGraph + **202** Provenance tests passed. Private beta: n/a.
 
 - [x] (valid-no-repro) `ProvenanceBuilder.Build` — contained-in-manifest edges may duplicate when manifest lists duplicate decision rows whose ids differ only by surrounding whitespace and decisions also appear as case-variant duplicate rows in the same manifest — **cheap-disproof 2026-10-30 thorough hunt #1001:** `Build_deduplicates_contained_in_manifest_when_manifest_lists_padded_duplicate_decision_ids`.
@@ -30650,6 +30653,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+### Hypotheses
 2026-10-20 thorough hunt (hit): `InMemoryGraphSnapshotRepository.GetLatestByContextSnapshotIdAsync` broke ties on `CreatedUtc` only, so two saves for the same context snapshot could return the first-inserted graph when timestamps matched; tie-break with `GraphSnapshotId` descending. Cheap-disproved duplicate case-only `NodeId` dictionary throw — materialization resolves existing nodes case-insensitively. Regression `GetLatestByContextSnapshotIdAsync_WhenCreatedUtcEqual_ReturnsMostRecentlySavedSnapshot`; 5 repository tests passed.
 2026-10-11 seed hunt (seed-only): re-read the two retained repository/inference candidates and their production callers. The repository candidate remains unproven because the selected path has no stable tie-break contract, and duplicate node identities remain an input-integrity candidate without a reachable producer in the selected paths. KnowledgeGraph had 372 passed and 1 pre-existing schema-stability failure; Provenance passed 58/58. No production change.
 

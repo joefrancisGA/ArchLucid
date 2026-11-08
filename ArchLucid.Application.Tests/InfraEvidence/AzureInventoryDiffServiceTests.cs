@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -69,6 +70,7 @@ public sealed class AzureInventoryDiffServiceTests
     [Fact]
     public async Task ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers()
     {
+        using IDisposable run = SecureNowAnalysisRun.Begin();
         ScopeContext scope = CreateScope();
         Guid snapshotAId = Guid.NewGuid();
         Guid snapshotBId = Guid.NewGuid();
@@ -79,18 +81,18 @@ public sealed class AzureInventoryDiffServiceTests
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
-            .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, snapshotAId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(MatchesScope(scope), snapshotAId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshotA);
         snapshotRepository
-            .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, snapshotBId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(MatchesScope(scope), snapshotBId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshotB);
 
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
         diffRepository
-            .Setup(repository => repository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetBySnapshotPairAsync(MatchesScope(scope), snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((AzureInventoryDiffSummaryRecord?)null);
         diffRepository
-            .Setup(repository => repository.InsertDiffAsync(scope, It.IsAny<AzureInventoryDiffPersistRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.InsertDiffAsync(MatchesScope(scope), It.IsAny<AzureInventoryDiffPersistRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, AzureInventoryDiffPersistRequest request, CancellationToken _) =>
                 new AzureInventoryDiffPersistResult
                 {
@@ -123,6 +125,7 @@ public sealed class AzureInventoryDiffServiceTests
     [Fact]
     public async Task ComputeAndPersistDiffAsync_when_one_consumer_throws_other_consumer_still_runs()
     {
+        using IDisposable run = SecureNowAnalysisRun.Begin();
         ScopeContext scope = CreateScope();
         Guid snapshotAId = Guid.NewGuid();
         Guid snapshotBId = Guid.NewGuid();
@@ -142,18 +145,18 @@ public sealed class AzureInventoryDiffServiceTests
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
-            .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, snapshotAId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(MatchesScope(scope), snapshotAId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshotA);
         snapshotRepository
-            .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, snapshotBId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(MatchesScope(scope), snapshotBId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshotB);
 
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
         diffRepository
-            .Setup(repository => repository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.TryGetBySnapshotPairAsync(MatchesScope(scope), snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((AzureInventoryDiffSummaryRecord?)null);
         diffRepository
-            .Setup(repository => repository.InsertDiffAsync(scope, It.IsAny<AzureInventoryDiffPersistRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.InsertDiffAsync(MatchesScope(scope), It.IsAny<AzureInventoryDiffPersistRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, AzureInventoryDiffPersistRequest request, CancellationToken _) =>
                 new AzureInventoryDiffPersistResult
                 {
@@ -242,14 +245,23 @@ public sealed class AzureInventoryDiffServiceTests
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         };
 
+    private static ScopeContext MatchesScope(ScopeContext scope) =>
+        It.Is<ScopeContext>(candidate =>
+            candidate.TenantId == scope.TenantId
+            && candidate.WorkspaceId == scope.WorkspaceId
+            && candidate.ProjectId == scope.ProjectId);
+
     private static AzureInventorySnapshotDetailReadModel BuildSnapshotWithContentHash(Guid snapshotId, byte[] contentHashSha256)
     {
+        ScopeContext scope = CreateScope();
         return new AzureInventorySnapshotDetailReadModel
         {
             Header = new AzureInventorySnapshotRecord
             {
                 SnapshotId = snapshotId,
-                TenantId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
                 SubscriptionId = "sub",
                 CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
                 ContentHashSha256 = contentHashSha256,

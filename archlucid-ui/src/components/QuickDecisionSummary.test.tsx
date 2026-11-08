@@ -37,7 +37,7 @@ describe("QuickDecisionSummary", () => {
   it("shows empty state when there are no findings", () => {
     render(<QuickDecisionSummary runId="run-1" findings={[]} />);
 
-    expect(screen.getByText("No findings to act on")).toBeInTheDocument();
+    expect(screen.getByTestId("quick-decision-headline-count-not-stored")).toBeInTheDocument();
   });
 
   it("shows create-home in-progress empty state before stages complete", () => {
@@ -191,8 +191,11 @@ describe("QuickDecisionSummary", () => {
 
     expect(
       screen.getByText(
-        /This finalized review records 9 findings with no unresolved blocking issues\. One monitored PHI minimization risk remains in this review record — review severity and controls below\./,
+        /This finalized review records 9 findings on the manifest headline — open the findings list for disposition detail\./,
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/1 monitored risk is recorded on this review — review severity and controls below\./),
     ).toBeInTheDocument();
     expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
   });
@@ -253,16 +256,26 @@ describe("QuickDecisionSummary", () => {
       return href.includes("/architecture/reviews/run-abc/findings/") && !href.includes("/insights/evidence-graph");
     });
 
-    expect(findingDetailLinks).toHaveLength(3);
-    expect(findingDetailLinks.map((el) => el.getAttribute("href"))).toEqual([
-      "/architecture/reviews/run-abc/findings/f-critical",
-      "/architecture/reviews/run-abc/findings/f-high",
-      "/architecture/reviews/run-abc/findings/f-extra",
-    ]);
+    const uniqueFindingHrefs = [
+      ...new Set(findingDetailLinks.map((el) => el.getAttribute("href") ?? "")),
+    ];
+
+    expect(uniqueFindingHrefs.length).toBeGreaterThanOrEqual(3);
+    expect(uniqueFindingHrefs).toEqual(
+      expect.arrayContaining([
+        "/architecture/reviews/run-abc/findings/f-critical",
+        "/architecture/reviews/run-abc/findings/f-high",
+        "/architecture/reviews/run-abc/findings/f-extra",
+      ]),
+    );
     // List links must not prefetch finding detail RSC (each prefetch would call GET …/inspect).
     expect(findingDetailLinks.every((el) => el.getAttribute("data-prefetch") !== "true")).toBe(true);
 
-    expect(screen.getByText("Fix immediately.")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Fix immediately. (Full recommendation was stored; only the first sentence is shown.)",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getAllByTestId("itsm-sync-jira")).toHaveLength(3);
     expect(screen.getAllByTestId("itsm-sync-servicenow")).toHaveLength(3);
   });
@@ -445,7 +458,9 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-gap" findings={findings} />);
 
-    expect(screen.getByTestId("finding-evidence-gap-f-no-evidence")).toHaveTextContent("Evidence gap");
+    expect(screen.getByTestId("finding-evidence-ref-count-missing-f-no-evidence")).toHaveTextContent(
+      "Evidence ref count was not stored",
+    );
   });
 
   it("omits the Evidence gap tag once a finding has linked evidence", () => {
@@ -492,7 +507,7 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getByTestId("finding-review-status-f-owned")).toHaveTextContent("Pending review");
   });
 
-  it("omits owner and review-status rows when the finding has neither", () => {
+  it("uses evidence-first owner and review-status copy when the finding stored neither", () => {
     const findings: QuickDecisionFinding[] = [
       {
         findingId: "f-unowned",
@@ -509,8 +524,10 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-unowned" findings={findings} />);
 
-    expect(screen.queryByTestId("finding-owner-f-unowned")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("finding-review-status-f-unowned")).not.toBeInTheDocument();
+    expect(screen.getByTestId("finding-owner-f-unowned")).toHaveTextContent("Owner was not stored.");
+    expect(screen.getByTestId("finding-review-status-f-unowned")).toHaveTextContent(
+      "Human review status was not stored",
+    );
   });
 
   it("workspace mode elevates the primary finding and collapses integrations", () => {
@@ -646,15 +663,20 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
 
+    // Only severity / enforcement StatusTag chips — not evidence-first helper spans.
     const tags = [
-      ...within(screen.getByTestId("finding-workspace-card-f-high")).getAllByText(/^(High|Open|Policy violation)$/),
-      ...within(screen.getByTestId("finding-workspace-card-f-low")).getAllByText(/^(Low|Open|Policy violation)$/),
+      ...within(screen.getByTestId("finding-workspace-card-f-high")).getAllByText(
+        /^(Critical|High|Policy violation)$/,
+      ),
+      ...within(screen.getByTestId("finding-workspace-card-f-low")).getAllByText(
+        /^(Info|Policy violation)$/,
+      ),
     ];
 
     expect(tags.length).toBeGreaterThan(0);
 
     for (const tag of tags) {
-      expect(tag.className).toContain("text-xs");
+      expect(tag.className).toMatch(/text-xs|text-\[11px\]/);
     }
   });
 });

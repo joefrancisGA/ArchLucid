@@ -12,7 +12,7 @@ const pageViewSource = readFileSync(join(sectionsDir, "PolicyPacksPageView.tsx")
 const advancedAuthoringSource = readFileSync(join(sectionsDir, "PolicyPacksAdvancedAuthoringPanel.tsx"), "utf8");
 const authoringTabSource = readFileSync(join(sectionsDir, "PolicyPacksAuthoringTabSection.tsx"), "utf8");
 const generatorSectionSource = readFileSync(join(sectionsDir, "PolicyPackGeneratorSection.tsx"), "utf8");
-const wizardSource = readFileSync(join(sectionsDir, "PolicyRuleAuthoringWizard.tsx"), "utf8");
+const wizardModesSource = readFileSync(join(sectionsDir, "PolicyRuleAuthoringWizardModes.tsx"), "utf8");
 const deferredChunksSource = readFileSync(join(sectionsDir, "policy-packs-authoring-deferred-chunks.tsx"), "utf8");
 const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
@@ -39,10 +39,10 @@ describe("policy packs bundle deferred imports (TB-698)", () => {
     expect(generatorSectionSource).toContain("PolicyPackNaturalLanguageBuilderDeferred");
     expect(generatorSectionSource).not.toContain('from "./PolicyPackNaturalLanguageBuilder"');
 
-    expect(wizardSource).toContain("PolicyPackNaturalLanguageBuilderDeferred");
-    expect(wizardSource).toContain("PolicyPackVisualBuilderDeferred");
-    expect(wizardSource).not.toContain('from "./PolicyPackNaturalLanguageBuilder"');
-    expect(wizardSource).not.toContain('from "./PolicyPackVisualBuilder"');
+    expect(wizardModesSource).toContain("PolicyPackNaturalLanguageBuilderDeferred");
+    expect(wizardModesSource).toContain("PolicyPackVisualBuilderDeferred");
+    expect(wizardModesSource).not.toContain('from "./PolicyPackNaturalLanguageBuilder"');
+    expect(wizardModesSource).not.toContain('from "./PolicyPackVisualBuilder"');
   });
 
   it("dynamic-imports all three authoring surfaces via manifest loaders", () => {

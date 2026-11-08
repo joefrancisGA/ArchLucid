@@ -137,6 +137,9 @@ internal static class TenantScopedQuerySqlInspector
             if (HasTenantIdScopePredicate(scrubbed) && HasCompoundWhereClause(scrubbed))
                 return true;
 
+            if (IsSingleSurrogateKeyRead(scrubbed))
+                return true;
+
             return false;
         }
 

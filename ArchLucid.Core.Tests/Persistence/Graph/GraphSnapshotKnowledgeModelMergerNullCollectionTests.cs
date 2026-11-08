@@ -55,9 +55,9 @@ public sealed class GraphSnapshotKnowledgeModelMergerNullCollectionTests
             Encoding.UTF8.GetBytes("{\"nodes\":null,\"edges\":null,\"warnings\":null}"));
 
         deserialized.Should().NotBeNull();
-        deserialized!.Nodes.Should().BeNull();
-        deserialized.Edges.Should().BeNull();
-        deserialized.Warnings.Should().BeNull();
+        deserialized!.Nodes.Should().BeEmpty("explicit JSON null collections normalize to empty lists before merge");
+        deserialized.Edges.Should().BeEmpty();
+        deserialized.Warnings.Should().BeEmpty();
 
         GraphSnapshot modelGraph = new()
         {

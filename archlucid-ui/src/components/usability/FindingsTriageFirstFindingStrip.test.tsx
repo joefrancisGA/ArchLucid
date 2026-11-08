@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { FindingsTriageFirstFindingStrip } from "./FindingsTriageFirstFindingStrip";
+
+vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
+  useTeachingChromeVisible: () => true,
+}));
 
 describe("FindingsTriageFirstFindingStrip", () => {
   it("links to the first finding in the queue", () => {

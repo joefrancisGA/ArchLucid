@@ -2,67 +2,29 @@
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Application.Analysis;
-
 using FluentAssertions;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
 namespace ArchLucid.Api.Tests;
-
-/// <summary>Replaces comparison replay with a service that always fails verify, to assert HTTP 422 pipeline.</summary>
-public sealed class ComparisonVerify422ApiFactory : ArchLucidApiFactory
-{
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        base.ConfigureWebHost(builder);
-        builder.ConfigureTestServices(services =>
-        {
-            services.RemoveAll<IComparisonReplayApiService>();
-            services.AddScoped<IComparisonReplayApiService, ForcedComparisonVerificationFailureService>();
-        });
-    }
-}
-
-internal sealed class ForcedComparisonVerificationFailureService : IComparisonReplayApiService
-{
-    public Task<ReplayComparisonResult> ReplayAsync(
-        ReplayComparisonRequest request,
-        bool metadataOnly,
-        CancellationToken cancellationToken = default)
-    {
-        throw new ComparisonVerificationFailedException(
-            "Regenerated comparison does not match stored payload.",
-            new DriftAnalysisResult { DriftDetected = true, Summary = "integration-test drift" });
-    }
-
-    public Task<DriftAnalysisResult> AnalyzeDriftAsync(
-        string comparisonRecordId,
-        CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(new DriftAnalysisResult());
-    }
-}
 
 /// <summary>
 ///     Tests for Comparison Replay Verify422.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory factory)
-    : IClassFixture<ComparisonVerify422ApiFactory>
+    : IntegrationTestBase(factory), IClassFixture<ComparisonVerify422ApiFactory>
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
     [SkippableFact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
+        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+            Client, JsonOptions, Factory, "REQ-VERIFY-422-001");
+        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
+            Client, runId, replayRunId);
+
         string body =
             JsonSerializer.Serialize(new { format = "markdown", replayMode = "verify", persistReplay = false });
-        HttpResponseMessage response = await _client.PostAsync(
-            "/v1/architecture/comparisons/does-not-matter/replay",
+        HttpResponseMessage response = await Client.PostAsync(
+            $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay",
             new StringContent(body, Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);

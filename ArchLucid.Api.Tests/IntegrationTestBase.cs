@@ -47,6 +47,9 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     public async Task InitializeAsync()
     {
         Client = await CreateClientWithDefaultScopeHeadersAsync(Factory).ConfigureAwait(false);
+        await IntegrationTestWorkspaceModeSupport
+            .PinGuidedWorkspaceModeForDevUserAsync(Factory)
+            .ConfigureAwait(false);
     }
 
     /// <inheritdoc />

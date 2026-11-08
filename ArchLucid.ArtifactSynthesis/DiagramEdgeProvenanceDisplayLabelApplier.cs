@@ -65,7 +65,8 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
         }
 
         if (string.Equals(label, DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel, StringComparison.Ordinal)
-            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel, StringComparison.Ordinal))
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel, StringComparison.Ordinal)
+            || string.Equals(label, "May access", StringComparison.Ordinal))
         {
             return true;
         }
@@ -84,6 +85,11 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
             || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
         {
             return label.Length > 0;
+        }
+
+        if (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryDatabricksAccessConnector, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
         }
 
         return label.StartsWith("declared · ", StringComparison.Ordinal);

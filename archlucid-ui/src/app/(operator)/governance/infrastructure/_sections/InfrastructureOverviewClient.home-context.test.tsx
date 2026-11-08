@@ -95,7 +95,7 @@ describe("Infrastructure overview home context", () => {
     });
     renderOverview();
 
-    expect(await screen.findByText("Snapshot list unavailable")).toBeInTheDocument();
+    expect(await screen.findByText(/Snapshot list unavailable/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Findings" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Your work" })).toBeInTheDocument();
   });

@@ -39,14 +39,6 @@ public sealed class JsonBooleanStringReaderPropertyTests
     {
         string raw = token.Get;
 
-        foreach ((string input, _) in Synonyms)
-        {
-            if (string.Equals(input.Trim(), raw.Trim(), StringComparison.OrdinalIgnoreCase))
-            {
-                return true.ToProperty();
-            }
-        }
-
         bool parsed = JsonBooleanStringReader.TryParseBooleanString(raw, out _);
         return (!parsed).ToProperty();
     }

@@ -388,9 +388,12 @@ internal static class FinalizeConflictSqlIntegrationFixture
         using IServiceScope serviceScope = factory.Services.CreateScope();
         IUserSettingsRepository userSettingsRepository =
             serviceScope.ServiceProvider.GetRequiredService<IUserSettingsRepository>();
+        string actorSettingsKey =
+            IntegrationTestWorkspaceModeSupport.ResolveDevelopmentBypassActorSettingsKey(
+                serviceScope.ServiceProvider);
 
         return userSettingsRepository.UpsertAsync(
-            IntegrationDevUserId,
+            actorSettingsKey,
             UserSettingKeys.WorkspaceMode,
             WorkspaceModeValues.Working,
             cancellationToken);

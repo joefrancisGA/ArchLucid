@@ -9,11 +9,11 @@ import {
 import { SignupBreadcrumb } from "./SignupBreadcrumb";
 
 describe("SignupBreadcrumb", () => {
-  it("renders Welcome → Start your evaluation trail", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<SignupBreadcrumb />);
 
-    const breadcrumb = screen.getByTestId("signup-breadcrumb");
-    expect(breadcrumb).toHaveTextContent(SIGNUP_BREADCRUMB_HUB_LABEL);
-    expect(breadcrumb).toHaveTextContent(SIGNUP_BREADCRUMB_TOPIC_TITLE);
+    expect(screen.queryByTestId("signup-breadcrumb")).not.toBeInTheDocument();
+    expect(SIGNUP_BREADCRUMB_HUB_LABEL.length).toBeGreaterThan(0);
+    expect(SIGNUP_BREADCRUMB_TOPIC_TITLE.length).toBeGreaterThan(0);
   });
 });

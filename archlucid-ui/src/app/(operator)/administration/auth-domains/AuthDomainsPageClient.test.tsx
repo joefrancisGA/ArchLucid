@@ -1,5 +1,53 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const searchParamsHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { pathname: "/administration/auth-domains", query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      const qIndex = href.indexOf("?");
+      state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.pathname = "/administration/auth-domains";
+      state.query = "";
+    },
+  };
+});
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => searchParamsHarness.state.pathname,
+  useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
+  useRouter: () => ({
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    replace: (href: string) => {
+      searchParamsHarness.applyHref(href);
+    },
+    bfcacheId: null,
+  }),
+  redirect: vi.fn(),
+  permanentRedirect: vi.fn(),
+  notFound: vi.fn(),
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -9,6 +57,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
 import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
@@ -130,20 +183,36 @@ const readyReadiness = {
   checklist: [],
 };
 
+function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }): React.JSX.Element {
+  useSyncExternalStore(
+    searchParamsHarness.subscribe,
+    () => searchParamsHarness.state.query,
+    () => "",
+  );
+
+  return createElement("div", null, children);
+}
+
+function renderAuthDomainsPage(): ReturnType<typeof render> {
+  return render(
+    createElement(SearchParamsRerenderHost, null, createElement(AuthDomainsPageClient)),
+  );
+}
+
 describe("AuthDomainsPageClient", () => {
   beforeEach(() => {
     authorityState.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+    searchParamsHarness.reset();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
-    vi.restoreAllMocks();
   });
 
   it("renders shared page chrome, tenant scope, and journey strip", async () => {
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([]);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     expect(screen.queryByTestId("auth-domains-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("auth-domains-page-title")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
@@ -206,7 +275,7 @@ describe("AuthDomainsPageClient", () => {
     });
     vi.mocked(fetchTenantAuthDomains).mockReturnValue(domainsPromise);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     expect(screen.queryByTestId("auth-domains-sign-in-posture")).not.toBeInTheDocument();
     expect(screen.queryByTestId("auth-domains-zero-domain-enforcement-callout")).not.toBeInTheDocument();
@@ -222,7 +291,7 @@ describe("AuthDomainsPageClient", () => {
   it("humanizes verification and enforcement enums in the domain list", async () => {
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     const statusRow = await screen.findByTestId("auth-domain-status-example.com");
 
@@ -241,7 +310,7 @@ describe("AuthDomainsPageClient", () => {
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
     vi.mocked(enableTenantAuthDomainEnforcement).mockResolvedValue(undefined);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -275,7 +344,7 @@ describe("AuthDomainsPageClient", () => {
     });
     vi.mocked(enableTenantAuthDomainEnforcement).mockReturnValue(enablePromise);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -303,7 +372,7 @@ describe("AuthDomainsPageClient", () => {
 
   it("shows in-page confirm before forced recovery-admin removal", async () => {
     const confirmSpy = vi.spyOn(window, "confirm");
-    const warningMessage = "Removing the last recovery administrator may lock out break-glass access.";
+    const warningMessage = "Confirm removal of this recovery administrator.";
 
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([recoveryDomain]);
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
@@ -318,7 +387,7 @@ describe("AuthDomainsPageClient", () => {
         warningMessage: null,
       });
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -332,7 +401,9 @@ describe("AuthDomainsPageClient", () => {
     expect(
       await screen.findByRole("heading", { name: AUTH_DOMAINS_RECOVERY_REMOVE_CONFIRM_TITLE }),
     ).toBeInTheDocument();
-    expect(screen.getByText(warningMessage)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(warningMessage)).toBeInTheDocument();
+    });
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(removeTenantAuthDomainRecoveryAdmin).toHaveBeenCalledWith("example.com", "breakglass@example.com", false);
 
@@ -349,7 +420,7 @@ describe("AuthDomainsPageClient", () => {
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
     vi.mocked(setTenantAuthDomainEnforcement).mockResolvedValue({} as never);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -380,7 +451,7 @@ describe("AuthDomainsPageClient", () => {
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
     vi.mocked(setTenantAuthDomainEnforcement).mockResolvedValue({} as never);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -408,7 +479,7 @@ describe("AuthDomainsPageClient", () => {
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
     vi.mocked(setTenantAuthDomainEnforcement).mockRejectedValue(new Error("Internal server error detail"));
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -432,7 +503,7 @@ describe("AuthDomainsPageClient", () => {
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -462,7 +533,7 @@ describe("AuthDomainsPageClient", () => {
     vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
     vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
@@ -490,7 +561,7 @@ describe("AuthDomainsPageClient", () => {
     );
     vi.mocked(proposeTenantAuthDomain).mockReturnValue(proposePromise);
 
-    render(<AuthDomainsPageClient />);
+    renderAuthDomainsPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("auth-domains-new-domain")).toBeInTheDocument();

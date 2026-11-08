@@ -56,7 +56,7 @@ describe("InfraEvidenceDiagramOutlineNodeLabel", () => {
   it("does not expose the node id when the label is absent", () => {
     render(<InfraEvidenceDiagramOutlineNodeLabel node={node({ id: "n_mermaid", label: "" })} />);
 
-    expect(screen.getByText("Node name was not stored")).toBeTruthy();
+    expect(screen.getByText("Resource name was stored empty.")).toBeTruthy();
     expect(screen.queryByText("n_mermaid")).toBeNull();
   });
 });

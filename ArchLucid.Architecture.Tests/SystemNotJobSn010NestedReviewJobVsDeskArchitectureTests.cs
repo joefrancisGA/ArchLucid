@@ -50,10 +50,18 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
                 "_sections",
                 "ImpactPreviewEvidenceBasisSection.tsx"));
 
-        evolutionView.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
-        evolutionView.Should().Contain("pinnedArchitectureId");
-        evidenceBasis.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
-        evidenceBasis.Should().Contain("architectureId");
+        string scopedLinkResolver = ArchitectureSourceProbe.ReadPathWithPartials(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "insights", "scoped-insight-open-review-href.ts"));
+
+        // Both surfaces intentionally delegate through desk continuity, not directly to the SN-010 mint.
+        evolutionView.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
+        evolutionView.Should().Contain("architectureId: pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null");
+        evidenceBasis.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
+        evidenceBasis.Should().Contain("architectureId: props.architectureId");
+
+        // The shared helper retains the nested review mint and architecture identity.
+        scopedLinkResolver.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref(runId.trim(), options?.architectureId ?? null)");
+        scopedLinkResolver.Should().Contain("readCachedLastOpenArchitectureId()");
     }
 
     [Fact]

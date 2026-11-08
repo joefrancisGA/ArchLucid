@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { PricingQuoteAgingEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   PRICING_QUOTE_AGING_SOURCES,
   PRICING_QUOTE_AGING_SOURCES_INTRO,
 } from "@/lib/pricing-quote-aging-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("pricing-quote-aging-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("pricing-quote-aging-evidence-copy", () => {
 
     const sources = screen.getByTestId("pricing-quote-aging-sources");
 
-    for (const link of PRICING_QUOTE_AGING_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), PRICING_QUOTE_AGING_SOURCES, PRICING_QUOTE_AGING_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${PRICING_QUOTE_AGING_CANONICAL_PATH}$`, "i") }),

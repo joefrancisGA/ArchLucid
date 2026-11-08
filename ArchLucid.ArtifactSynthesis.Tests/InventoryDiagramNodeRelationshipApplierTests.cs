@@ -77,6 +77,19 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     }
 
     [Fact]
+    public void BuildNsgAttachmentLabel_does_not_invent_inbound_rule_from_unclassified_direction()
+    {
+        string label = InventoryDiagramNodeRelationshipApplier.BuildNsgAttachmentLabel(
+            [
+                new AzureInventoryNsgSecurityRule(),
+            ]);
+
+        label.Should().Contain("Inbound rules were not listed on this diagram.");
+        label.Should().Contain("Effective path enforcement was not evaluated.");
+        label.Should().NotContain("NSG Allow");
+    }
+
+    [Fact]
     public void Compile_resolved_network_connection_emits_one_edge_and_no_connection_node()
     {
         GraphSnapshot graph = BuildNetworkConnectionGraph(includeBothEndpoints: true);

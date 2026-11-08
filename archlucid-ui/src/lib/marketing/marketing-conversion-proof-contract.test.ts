@@ -11,10 +11,10 @@ const CONVERSION_HERO_MODULES = [
   "app/(marketing)/why/WhyMarketingHeroSection.tsx",
   "app/(marketing)/see-it/SeeItHeroSection.tsx",
   "app/(marketing)/get-started/GetStartedPageClient.tsx",
-  "app/(marketing)/quick-scan/QuickScanClient.tsx",
+  "app/(marketing)/quick-scan/QuickScanHeroSection.tsx",
   "components/marketing/PricingPageHero.tsx",
-  "app/(marketing)/signup/page.tsx",
-  "app/(marketing)/showcase/[runId]/page.tsx",
+  "components/marketing/SignupHeroSection.tsx",
+  "app/(marketing)/showcase/[runId]/ShowcaseHero.tsx",
 ] as const;
 
 const TRANSACTIONAL_SIGNUP_VERIFY_MODULE = "app/(marketing)/signup/verify/SignupVerifyClient.tsx";

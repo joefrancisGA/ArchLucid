@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -14,7 +16,6 @@ import { resolveOperatorPrincipalOwnerLabel } from "@/lib/action-actor-display";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { countArchLucidAzurePackageResourcesFromFile } from "@/lib/count-arch-lucid-azure-package-resources";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   writeExtractUploadAcceptedPackageRecord,
   type ExtractUploadAcceptedPackageRecord,
@@ -55,7 +56,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const [sessionAcceptedPackage, setSessionAcceptedPackage] = useState<ExtractUploadAcceptedPackageRecord | null>(
     null,
   );
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const baselineQuery = useExtractUploadBaselineQuery(productLine);
 
   const persistAcceptedPackage = useCallback(

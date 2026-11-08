@@ -9,10 +9,10 @@ export const ACCELERATOR_CHOOSER_HELP_INBOUND_LABEL = ACCELERATOR_CHOOSER_HELP_P
 export const ACCELERATOR_CHOOSER_HELP_TITLE_HONESTY_SOURCE_FILES: readonly string[] = [
   "src/lib/accelerator-chooser-help-page-copy.ts",
   "src/lib/accelerator-chooser-help-guide-content.ts",
-  "src/lib/product-documentation-registry.ts",
+  "src/lib/product-documentation-registry-entries-operator-workspace.ts",
   "src/lib/help/help-center-catalog.ts",
-  "src/lib/usability/page-help-topic-rows.ts",
-  "src/lib/contextual-help/help-topic-rows.ts",
+  "src/lib/usability/page-help-topic-rows-admin-compose.ts",
+  "src/lib/contextual-help/help-topic-rows-operator.ts",
   "src/lib/path-chooser-help-evidence-copy.ts",
   "src/lib/accelerator-chooser-home-inbound-copy.ts",
   "src/app/(operator)/help/_sections/HelpAcceleratorChooserGuideView.tsx",

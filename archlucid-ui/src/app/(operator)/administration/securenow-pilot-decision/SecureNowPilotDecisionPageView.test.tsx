@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { SECURENOW_DECISION_CYCLE_LOG_PATH } from "@/lib/product-line/securenow-pilot-decision-copy";
+
 import { SecureNowPilotDecisionPageView } from "./SecureNowPilotDecisionPageView";
 
 vi.mock("next/navigation", () => ({
@@ -40,11 +42,11 @@ describe("SecureNow pilot decision preparation page", () => {
     );
     expect(screen.getByRole("link", { name: "Close" })).toHaveAttribute(
       "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md",
+      SECURENOW_DECISION_CYCLE_LOG_PATH,
     );
     expect(screen.getByRole("link", { name: "Decision cycle log" })).toHaveAttribute(
       "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md",
+      SECURENOW_DECISION_CYCLE_LOG_PATH,
     );
     expect(screen.getByRole("link", { name: "Read the sponsor-facing decision path" })).toHaveAttribute(
       "href",

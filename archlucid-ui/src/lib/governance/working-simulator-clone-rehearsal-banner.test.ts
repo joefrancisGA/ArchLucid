@@ -107,11 +107,11 @@ describe("CG-015 Simulator clone rehearsal banner chrome", () => {
     expect(chrome.effectiveDoor).toBe("career");
   });
 
-  it("uses rehearsal copy that is not sample and not Guided", () => {
-    expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE.toLowerCase()).toContain("rehearsal");
+  it("uses practice copy that is not sample and not Guided", () => {
+    expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE.toLowerCase()).toContain("practice");
     expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE.toLowerCase()).not.toContain("sample");
     expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_TITLE.toLowerCase()).not.toContain("guided");
-    expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_BODY.toLowerCase()).toContain("rehearsal");
+    expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_BODY.toLowerCase()).toContain("practice");
     expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_BODY.toLowerCase()).toContain("not a sample workspace");
     expect(WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_BODY.toLowerCase()).toContain("not guided teaching");
   });

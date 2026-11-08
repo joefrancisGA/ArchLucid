@@ -111,7 +111,7 @@ describe("ResourcesExplorerClient", () => {
     );
     expect(screen.getByTestId("infra-resource-explorer-ask-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources?cloudResourceId=11111111-1111-1111-1111-111111111111&infrastructureAskOpen=1",
     );
     expect(screen.queryByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
@@ -193,7 +193,7 @@ describe("ResourcesExplorerClient", () => {
 
     expect(await screen.findByTestId("infra-resource-explorer-ask-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings&tab=findings",
+      "/governance/infrastructure/resources?workQueue=open-findings&cloudResourceId=11111111-1111-1111-1111-111111111111&tab=findings&infrastructureAskOpen=1",
     );
     expect(screen.getByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",

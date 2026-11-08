@@ -168,3 +168,8 @@ describe("RealModeAiReadinessShellBanner", () => {
     pathnameState.value = "/governance/alerts";
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

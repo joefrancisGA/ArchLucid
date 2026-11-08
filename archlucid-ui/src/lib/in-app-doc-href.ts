@@ -21,6 +21,7 @@ const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
   "docs/library/customer-facing/finding_provenance.md": "/help/findings#where-findings-come-from",
   "docs/runbooks/generic_oidc_setup.md": "/help/enterprise-onboarding#workforce-sso",
   "docs/runbooks/saml_sp_certificate_rotation_runbook.md": "/help/enterprise-onboarding",
+  "docs/securenow/decision_cycle_log.md": "/administration/securenow-pilot-decision#securenow-decision-cycle",
 };
 
 /**

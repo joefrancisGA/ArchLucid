@@ -1,7 +1,8 @@
 /*
-  R418: Rollback 418_SecureNowRankedPathOrderedIndex.sql.
+  R418: Manual-only rollback for 418_SecureNowRankedPathOrderedIndex.sql.
+  Removes exactly the additive scoped path lookup index; leaves table data,
+  primary key, and all other indexes unchanged.
 */
-
 SET NOCOUNT ON;
 GO
 

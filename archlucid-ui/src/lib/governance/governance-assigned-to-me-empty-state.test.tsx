@@ -18,8 +18,6 @@ import {
   resolveGovernanceAssignedToMeWorkspaceLabel,
 
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
-import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
-
 import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 
 
@@ -76,7 +74,7 @@ describe("governance-assigned-to-me-empty-state", () => {
 
     expect(screen.getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
 
-    expect(screen.getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL))).toBeInTheDocument();
+    expect(screen.getByText(/Development/)).toBeInTheDocument();
 
     expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toHaveTextContent(
 
@@ -116,7 +114,7 @@ describe("governance-assigned-to-me-empty-state", () => {
 
     expect(formatGovernanceAssignedToMeIdentityAttestation("", null)).toBe("you");
 
-    expect(resolveGovernanceAssignedToMeWorkspaceLabel()).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+    expect(resolveGovernanceAssignedToMeWorkspaceLabel()).toBe("Development");
 
   });
 
@@ -156,7 +154,7 @@ describe("governance-assigned-to-me-empty-state", () => {
 
     expect(checkedAt.textContent ?? "").not.toMatch(UUID_PATTERN);
 
-    expect(screen.getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL))).toBeInTheDocument();
+    expect(screen.getByText(/Development/)).toBeInTheDocument();
 
   });
 

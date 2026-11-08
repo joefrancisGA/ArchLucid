@@ -76,7 +76,7 @@ describe("infra-evidence-drift-subscription-scope", () => {
   it("formats subscription labels for dialog copy", () => {
     expect(resolveInfraEvidenceSnapshotSubscriptionLabel(snapshot())).toBe("Prod");
     expect(resolveInfraEvidenceSnapshotSubscriptionLabel(snapshot({ subscriptionName: null, subscriptionId: "sub-prod" }))).toBe(
-      "sub-prod",
+      "Subscription name was not stored. Subscription id sub-prod.",
     );
     expect(resolveInfraEvidenceSnapshotSubscriptionLabel(snapshot({ subscriptionName: null, subscriptionId: null }))).toBe(
       "Subscription was not stored.",

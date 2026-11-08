@@ -53,7 +53,10 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getAllByText("Submitted architecture text was not stored.")).toHaveLength(2);
+    const omitted = screen.getByTestId("submitted-architecture-empty");
+    expect(within(omitted).getAllByText("Submitted architecture text was not stored.").length).toBeGreaterThan(0);
+    expect(within(omitted).queryByText("Submitted architecture text was stored empty.")).not.toBeInTheDocument();
+
 
     rerender(
       <RunDetailSubmittedArchitectureSection
@@ -63,7 +66,9 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getAllByText("Submitted architecture text was stored empty.")).toHaveLength(2);
+    const storedEmpty = screen.getByTestId("submitted-architecture-empty");
+    expect(within(storedEmpty).getAllByText("Submitted architecture text was stored empty.").length).toBeGreaterThan(0);
+    expect(within(storedEmpty).queryByText("Submitted architecture text was not stored.")).not.toBeInTheDocument();
   });
 
   it("keeps the new review copy state when a prior review timer expires", async () => {
@@ -78,10 +83,10 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+      fireEvent.click(screen.getByRole("button", { name: "Copy full stored text" }));
       await Promise.resolve();
     });
-    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copied full stored text" })).toBeInTheDocument();
 
     vi.advanceTimersByTime(1000);
 
@@ -96,13 +101,13 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Copied" }));
+      fireEvent.click(screen.getByRole("button", { name: "Copied full stored text" }));
       await Promise.resolve();
     });
-    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copied full stored text" })).toBeInTheDocument();
 
     vi.advanceTimersByTime(1000);
 
-    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copied full stored text" })).toBeInTheDocument();
   });
 });

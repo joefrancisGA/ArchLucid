@@ -22,7 +22,7 @@ public sealed class GovernanceComplianceTagLiftPolicyTests
         AgentResult result = CreateComplianceResult(
             message: "SOC 2",
             policyRuleId: null,
-            evidenceRefs: ["evidence:pack-1"]);
+            evidenceRefs: ["policy-rule:pack-1"]);
         DecisionMergeResult output = new();
 
         GovernanceComplianceTagLiftPolicy.Apply(
@@ -77,7 +77,7 @@ public sealed class GovernanceComplianceTagLiftPolicyTests
         AgentResult compliance = CreateComplianceResult(
             message: "SOC 2",
             policyRuleId: null,
-            evidenceRefs: ["evidence:pack-1"]);
+            evidenceRefs: ["policy-rule:pack-1"]);
         compliance.RunId = "run-1";
 
         DecisionMergeResult merge = service.MergeResults(

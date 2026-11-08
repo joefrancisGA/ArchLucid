@@ -23,6 +23,7 @@ export type InteractiveChipProps = {
 /** Interactive filter/action chip shell — navigation or toggle affordance, not read-only metadata. */
 export function InteractiveChip(props: InteractiveChipProps): ReactElement {
   const shell = cn(DESIGN_TOKENS.interactive.chip, DESIGN_TOKENS.accent.focusRing, props.className);
+  const ariaDisabled = props["aria-disabled"] ?? props.disabled;
 
   if (props.href !== undefined && props.href.trim().length > 0) {
     return (
@@ -34,8 +35,9 @@ export function InteractiveChip(props: InteractiveChipProps): ReactElement {
         aria-label={props["aria-label"]}
         aria-current={props["aria-current"]}
         aria-pressed={props["aria-pressed"]}
-        aria-disabled={props["aria-disabled"]}
-        tabIndex={props.tabIndex}
+        aria-describedby={props["aria-describedby"]}
+        aria-disabled={ariaDisabled}
+        tabIndex={ariaDisabled ? -1 : props.tabIndex}
         data-testid={props["data-testid"]}
       >
         {props.children}
@@ -51,7 +53,7 @@ export function InteractiveChip(props: InteractiveChipProps): ReactElement {
       aria-label={props["aria-label"]}
       aria-pressed={props["aria-pressed"]}
       aria-describedby={props["aria-describedby"]}
-      aria-disabled={props["aria-disabled"]}
+      aria-disabled={ariaDisabled}
       tabIndex={props.tabIndex}
       disabled={props.disabled}
       data-testid={props["data-testid"]}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -56,7 +58,6 @@ import {
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
   PageContextualHelpButton,
@@ -201,7 +202,7 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId:
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const { productLine } = useProductLine();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
   const findingsHref = props.findingsHref ?? GOVERNANCE_FINDINGS_PATH;
   const showCrossProductActions = productLine !== "security";

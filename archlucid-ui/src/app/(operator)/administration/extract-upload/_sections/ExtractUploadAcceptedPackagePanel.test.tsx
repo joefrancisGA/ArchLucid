@@ -64,7 +64,7 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("extract-upload-accepted-actor")).toHaveTextContent("Actor was not stored");
+    expect(screen.getByTestId("extract-upload-accepted-actor")).toHaveTextContent("Actor was stored empty.");
     expect(screen.getByTestId("extract-upload-accepted-resource-count")).toHaveTextContent(
       "Resource count was not stored",
     );
@@ -86,9 +86,8 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).toHaveTextContent("run-1");
 
     rerender(<ExtractUploadAcceptedPackagePanel record={{ ...sampleRecord, associateRunId: "" }} />);
-    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).toHaveTextContent("");
-    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).not.toHaveTextContent(
-      "Linked review was not stored.",
+    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).toHaveTextContent(
+      "Linked review was stored empty.",
     );
   });
 
@@ -103,8 +102,11 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
   it("offers one SecureNow next action instead of a follow-up link list", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} productLineId="security" />);
 
-    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveTextContent("Review findings");
-    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveAttribute("href", "/compliance/findings");
+    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveTextContent("Open resource explorer");
+    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveAttribute(
+      "href",
+      "/infrastructure/resources",
+    );
     expect(screen.getAllByRole("link")).toHaveLength(1);
     expect(screen.queryByText("Continue")).not.toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-accepted-evidence-trail-link")).not.toBeInTheDocument();

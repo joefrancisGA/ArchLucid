@@ -29,7 +29,7 @@ When the live explanation JSON fails validation, or the completion call throws, 
 ## What to build
 
 1. Branch `sn-air/02-stored-path-fallback` from current `master` after SN-AIR-01 is present.
-2. Add `ArchLucid.Persistence/Migrations/R420_SecurityEvidencePathExplanationModelOutputRejection.sql`. When `COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'ModelOutputRejection')` is null, add `ModelOutputRejection NVARCHAR(512) NULL`. Migrations are embedded by `Migrations\*.sql`. Do not edit the csproj include.
+2. Add `ArchLucid.Persistence/Migrations/420_SecurityEvidencePathExplanationModelOutputRejection.sql`. When `COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'ModelOutputRejection')` is null, add `ModelOutputRejection NVARCHAR(512) NULL`. Tenant-plane names must be `###_Name.sql` (see `DatabaseMigrationScriptTests`). Migrations are embedded by `Migrations\*.sql`. Do not edit the csproj include.
 3. Thread `string? ModelOutputRejection` through the explanation record, the SQL insert and read, the API response, and `mapExplanation`.
 4. In the live branch of `TryBuildExplanationAsync`, after one `CompleteJsonAsync` call:
    - When `TryParseLlmResponse` returns false, or `CompleteJsonAsync` throws anything other than `OperationCanceledException` (let that propagate), build the content with the existing `BuildSimulatorExplanation`.

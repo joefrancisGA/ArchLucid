@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
 
@@ -18,6 +23,25 @@ vi.mock("next/navigation", async (importOriginal) => {
     usePathname: () => "/administration/security-trust",
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <button type="button">Page help</button>,
@@ -50,6 +74,7 @@ import {
   SETTINGS_SECURITY_TRUST_FOLLOW_UPS_TITLE,
   SETTINGS_SECURITY_TRUST_SOURCES,
 } from "@/lib/settings-security-trust-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -95,7 +120,12 @@ describe("OperatorSecurityTrustPageView buyer-polished shell (WSX)", () => {
     expect(firstViewport).toContainElement(materialsTable);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_SECURITY_TRUST_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SETTINGS_SECURITY_TRUST_SOURCES),
+      "/administration/security-trust",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

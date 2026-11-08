@@ -14,7 +14,7 @@ describe("system-gravity out-of-wave residuals (SG-082+)", () => {
     const markdown = readFileSync(join(REPO_ROOT, SYSTEM_GRAVITY_OUT_OF_WAVE_RESIDUALS_DOC_PATH), "utf8");
     const compareRow = SYSTEM_GRAVITY_OUT_OF_WAVE_RESIDUAL_ROWS.find((row) => row.ownerPrompt === "SG-082");
 
-    expect(compareRow?.item).toBe("Draft-to-draft Compare");
+    expect(compareRow?.item).toBe("Compare architecture drafts");
     expect(compareRow?.status).toBe("not-shipped");
     expect(markdown).toContain("SG-082");
     expect(markdown).toContain("Draft-to-draft Compare");

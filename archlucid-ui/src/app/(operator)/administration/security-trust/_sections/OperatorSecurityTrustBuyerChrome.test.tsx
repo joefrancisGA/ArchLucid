@@ -22,3 +22,8 @@ describe("OperatorSecurityTrustBuyerChrome (WSX)", () => {
     expect(screen.queryByTestId("settings-security-trust-claim-discipline")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

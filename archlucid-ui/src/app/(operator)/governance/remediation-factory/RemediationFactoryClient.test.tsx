@@ -312,7 +312,7 @@ describe("RemediationFactoryClient", () => {
     const priorityRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     expect(priorityRow).toHaveTextContent("This row does not name a leading factor.");
     expect(priorityRow).toHaveTextContent("This week");
-    expect(priorityRow).toHaveTextContent("Name not recorded");
+    expect(priorityRow).toHaveTextContent("Resource name was not stored.");
     expect(priorityRow).toHaveTextContent("Show sort key");
     expect(priorityRow).not.toHaveTextContent("0.4200");
     expect(priorityRow).not.toHaveTextContent("Rule=IE15-priority-v1");

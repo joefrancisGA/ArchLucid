@@ -43,6 +43,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -81,7 +86,9 @@ import {
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
 } from "@/lib/slack-integration-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { SLACK_INTEGRATION_CANONICAL_PATH } from "@/lib/slack-integration-evidence-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("SlackIntegrationPageClient buyer-polished shell (ISN)", () => {
@@ -134,7 +141,12 @@ describe("SlackIntegrationPageClient buyer-polished shell (ISN)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_SOURCES),
+      SLACK_INTEGRATION_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
@@ -144,3 +156,22 @@ describe("SlackIntegrationPageClient buyer-polished shell (ISN)", () => {
     expect(pageLayout.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

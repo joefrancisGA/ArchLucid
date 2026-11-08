@@ -147,8 +147,9 @@ describe("operator shell deferred imports (TB-2118)", () => {
     }
 
     expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
-    expect(topBarSource).toContain("CommandPaletteTopBarTrigger");
+    expect(topBarSource).not.toContain("CommandPaletteTopBarTrigger");
     expect(topBarSource).not.toMatch(/<CommandPalette[\s/>]/);
+    expect(appShellSource).toContain("AppShellSyncCommandPaletteHost");
   });
 
   it("keeps idle overlay and footer internals off static import graphs (wave 8)", () => {

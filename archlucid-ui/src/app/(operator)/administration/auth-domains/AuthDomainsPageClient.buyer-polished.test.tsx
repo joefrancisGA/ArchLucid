@@ -12,6 +12,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/admin-auth-domains-api", () => ({
   fetchTenantAuthDomains: vi.fn().mockResolvedValue([]),
   fetchTenantAuthDomainRecoveryAdmins: vi.fn().mockResolvedValue([]),
@@ -39,6 +44,25 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOrigi
     }),
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => ({
@@ -76,6 +100,8 @@ import {
   AUTH_DOMAINS_SETTINGS_PAGE_LEAD,
   AUTH_DOMAINS_SETTINGS_START_HERE_CARD_TITLE,
 } from "@/lib/auth-domains-settings-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -123,7 +149,12 @@ describe("AuthDomainsPageClient buyer-polished shell (ADU)", () => {
       screen.getByRole("button", { name: authDomainsJourneyStepAriaLabel(0, "Add domain") }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_DOMAINS_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(AUTH_DOMAINS_SETTINGS_SOURCES),
+      AUTH_DOMAINS_SETTINGS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

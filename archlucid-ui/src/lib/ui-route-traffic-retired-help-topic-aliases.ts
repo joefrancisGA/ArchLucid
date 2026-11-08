@@ -30,6 +30,8 @@ export type RetiredHelpTopicAliasTrafficEntry = {
   bannedBuyerCopy?: readonly string[];
   /** Repo-relative surfaces (under `archlucid-ui/`) checked for banned copy / retired paths. */
   buyerSurfaceGuards?: readonly string[];
+  /** When a successor workbook row keeps scoring the retired path (for example HPO at /help/pilot-outcomes). */
+  allowedWorkbookRowIdAtRetiredPath?: string;
 };
 
 /**
@@ -46,7 +48,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/usability/page-help-topic-rows.ts",
-      "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
     ],
   },
   {
@@ -136,7 +137,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HAZ",
     retiredPath: "/help/integrations/azure-boards",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.azureBoards,
     buyerSurfaceGuards: [
@@ -227,6 +227,8 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     removedRowId: "HPI",
     retiredPath: "/help/pilot-outcomes",
     canonicalPath: "/help/sponsor-report",
+    /** Workbook successor row when the retired alias path stays scored under a new ID (HPO). */
+    allowedWorkbookRowIdAtRetiredPath: "HPO",
     historicalNote:
       "Deprecated pilot-outcomes help twin (Help topic) - folded into sponsor-report specialty (EXE); canon EXE = /help/sponsor-report.",
     bannedBuyerCopy: ["/help/pilot-outcomes"],

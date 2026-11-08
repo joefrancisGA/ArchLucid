@@ -24,6 +24,6 @@ describe("SearchReviewEvidencePageHeader", () => {
     expect(screen.getByRole("heading", { level: 2, name: SEARCH_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(SEARCH_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("search-review-evidence-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("search-review-evidence-breadcrumb")).not.toBeInTheDocument();
   });
 });

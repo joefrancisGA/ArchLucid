@@ -307,6 +307,8 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
     gap !== null
     || snapshot === null
     || !isInfraEvidenceSnapshotCaptureSucceeded(snapshot.captureStatus);
+  // Wait for ranked-path query before linking "One ranked path" so the CTA can include pathId.
+  const rankedPathNextStepPending = gap === null && rankedPathsQuery.isPending;
 
   return (
     <div className="space-y-1" data-testid="securenow-home-environment-context">
@@ -324,7 +326,11 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       ) : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
         Next step:{" "}
-        <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
+        {rankedPathNextStepPending ? (
+          <span>Loading next step…</span>
+        ) : (
+          <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>
+        )}{" "}
         This is not a timed SLA.
       </p>
       <CaptureDeltaBlock

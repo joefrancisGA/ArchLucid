@@ -109,38 +109,7 @@ internal static class AzureInventorySnapshotHiddenHopComposer
         Dictionary<string, GraphNode> nodesById = nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-        List<GraphEdge> targetEdges = edges
-            .Where(IsPrivateEndpointTargetEdge)
-            .ToList();
-
-        foreach (GraphEdge targetEdge in targetEdges)
-        {
-            foreach (GraphEdge placementEdge in edges.ToList().Where(edge =>
-                         string.Equals(edge.FromNodeId, targetEdge.FromNodeId, StringComparison.Ordinal)
-                         && IsPrivateEndpointPlacementEdge(edge)))
-            {
-                string? vnetNodeId = ResolvePrivateEndpointVnetNodeId(
-                    placementEdge.ToNodeId,
-                    nodesById,
-                    edges);
-
-                if (string.IsNullOrWhiteSpace(vnetNodeId)
-                    || string.Equals(targetEdge.ToNodeId, vnetNodeId, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                AzureInventorySnapshotGraphEdgeAppender.TryAdd(
-                    edges,
-                    edgeKeys,
-                    targetEdge.ToNodeId,
-                    vnetNodeId,
-                    GraphEdgeTypes.ConnectsTo,
-                    GraphEdgeInferenceSources.InventoryPrivateEndpoint,
-                    label: "private endpoint",
-                    provenanceKind: ProvenanceKind.DerivedFact.ToString());
-            }
-        }
+        // Target→VNet placement is composed at diagram compile (collapsed attachment lifter / ensurer).
     }
 
     private static string? ResolvePrivateEndpointVnetNodeId(

@@ -6,11 +6,10 @@ import { PATTERN_LIBRARY_PAGE_TITLE } from "@/lib/pattern-library-copy";
 import { PatternLibraryBreadcrumb } from "./PatternLibraryBreadcrumb";
 
 describe("PatternLibraryBreadcrumb", () => {
-  it("renders insights trail ending on Pattern library", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<PatternLibraryBreadcrumb />);
 
-    expect(screen.getByTestId("pattern-library-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Insights" })).toHaveAttribute("href", "/insights/evidence-graph");
-    expect(screen.getByText(PATTERN_LIBRARY_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.queryByTestId("pattern-library-breadcrumb")).not.toBeInTheDocument();
+    expect(PATTERN_LIBRARY_PAGE_TITLE.length).toBeGreaterThan(0);
   });
 });

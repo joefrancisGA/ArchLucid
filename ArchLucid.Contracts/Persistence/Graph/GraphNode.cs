@@ -51,12 +51,12 @@ public class GraphNode
         set;
     }
 
-    private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+    private Dictionary<string, string> properties = new(StringComparer.Ordinal);
 
     public Dictionary<string, string> Properties
     {
         get => properties;
-        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinal(value);
     }
 
     /// <summary>

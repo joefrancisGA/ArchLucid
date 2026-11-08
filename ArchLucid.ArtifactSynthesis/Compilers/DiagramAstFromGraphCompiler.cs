@@ -190,7 +190,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     edge.Label,
                     edge.EdgeType,
                     edge.InferenceSource,
-                    edge.Properties),
+                    edge.Properties,
+                    diagramMode: mode),
                 ProvenanceKind = edge.ProvenanceKind,
                 InferenceSource = edge.InferenceSource,
                 DeclaredConnectionId = edge.DeclaredConnectionId,
@@ -216,7 +217,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 ast,
                 graph.Nodes,
                 graph.Edges,
-                nodeIdMap);
+                nodeIdMap,
+                mode);
             DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
         }
 
@@ -244,6 +246,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
             DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
             DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+
             if (mode == DiagramMode.Network)
             {
                 DiagramAstSubnetPlacementEdgeEnsurer.Apply(ast, graph, nodeIdMap);
@@ -307,13 +310,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramSparseComponentPacker.Pack(ast);
         InventoryDiagramPrivateEndpointConnectionLabelApplier.Apply(ast, graph, nodeIdMap);
-        DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
+        DiagramPrivateEndpointHiddenTargetVnetPlacementEnsurer.Apply(ast, graph, nodeIdMap, mode);
+        DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast, mode);
         InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, nodeIdMap);
-
-        if (mode == DiagramMode.Executive)
-        {
-            ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
-        }
 
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
@@ -321,6 +320,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (mode == DiagramMode.Executive)
         {
             DiagramExecutiveVnetPeeringOverlayLabelApplier.Apply(ast);
+            ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
         }
 
         if (!isDataArchitectureMode)

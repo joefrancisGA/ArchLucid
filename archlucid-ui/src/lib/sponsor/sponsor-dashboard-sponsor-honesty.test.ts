@@ -14,7 +14,6 @@ const SPONSOR_DASHBOARD_SECTIONS_DIR = join(
 );
 
 const BANNED_SPONSOR_DASHBOARD_SPONSOR_COPY = [
-  "compliance-drift-trend",
   "projectId=default",
   "GET /v1/roi/sponsor-report",
   "GET /v1/roi/sponsor-report/export",

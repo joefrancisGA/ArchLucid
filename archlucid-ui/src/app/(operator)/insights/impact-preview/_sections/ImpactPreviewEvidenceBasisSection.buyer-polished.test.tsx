@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { ImpactPreviewEvidenceBasisSection } from "@/app/(operator)/insights/impact-preview/_sections/ImpactPreviewEvidenceBasisSection";
 import { IMPACT_PREVIEW_BASELINE_REVIEW_ID_LABEL } from "@/lib/impact-preview-page-copy";
 
@@ -49,3 +54,22 @@ describe("ImpactPreviewEvidenceBasisSection buyer-polished shell", () => {
     );
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

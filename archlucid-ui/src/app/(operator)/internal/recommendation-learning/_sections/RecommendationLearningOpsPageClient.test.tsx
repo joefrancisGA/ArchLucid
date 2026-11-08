@@ -24,6 +24,7 @@ vi.mock("next/navigation", () => ({
     refresh: vi.fn(),
   }),
   usePathname: () => "/internal/recommendation-learning",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const executePreview = vi.fn();

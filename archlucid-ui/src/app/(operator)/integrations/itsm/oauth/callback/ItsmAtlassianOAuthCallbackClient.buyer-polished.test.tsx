@@ -16,6 +16,7 @@ import {
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 
+const buyerOAuthRouter = vi.hoisted(() => ({ replace: vi.fn() }));
 const completeItsmAtlassianOAuthConsent = vi.fn();
 let searchParams = new URLSearchParams("code=oauth-code&state=oauth-state");
 
@@ -28,7 +29,14 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => buyerOAuthRouter,
+  usePathname: () => "/integrations/itsm/oauth/callback",
   useSearchParams: () => searchParams,
 }));
 
@@ -57,10 +65,30 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 describe("ItsmAtlassianOAuthCallbackClient buyer-polished shell", () => {
   beforeEach(() => {
     searchParams = new URLSearchParams("code=oauth-code&state=oauth-state");
     completeItsmAtlassianOAuthConsent.mockImplementation(() => new Promise(() => undefined));
+    buyerOAuthRouter.replace.mockReset();
   });
 
   it("renders skip link, outcome before follow-ups, and hides contextual help", () => {
@@ -74,6 +102,7 @@ describe("ItsmAtlassianOAuthCallbackClient buyer-polished shell", () => {
     );
     expect(screen.queryByTestId("itsm-oauth-callback-breadcrumb")).toBeNull();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
+    expect(buyerOAuthRouter.replace).not.toHaveBeenCalled();
     expect(screen.getByTestId("itsm-oauth-callback-open-jira-header")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL })).toHaveAttribute(
       "href",

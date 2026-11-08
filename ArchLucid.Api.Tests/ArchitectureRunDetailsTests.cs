@@ -16,9 +16,12 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task GetRun_ReturnsTypedRunDetailsResponse()
     {
+        const string requestId = "REQ-RUNDETAILS-001";
+        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-RUNDETAILS-001")));
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -38,7 +41,7 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.Tasks.Should().HaveCount(4);
         payload.Results.Should().HaveCount(4);
         payload.Manifest.Should().NotBeNull();
-        payload.Manifest!.SystemName.Should().Be("EnterpriseRag");
+        payload.Manifest!.SystemName.Should().Be(systemName);
         payload.DecisionTraces.Should().NotBeEmpty();
         payload.ExecutionFlavorBuyerSummary.Should().NotBeNullOrWhiteSpace();
         payload.TrustEvidenceCard.Should().NotBeNull();

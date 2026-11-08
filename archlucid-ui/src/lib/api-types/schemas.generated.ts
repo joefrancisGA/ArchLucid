@@ -9351,7 +9351,7 @@ export interface components {
             /** Format: double */
             estimatedCostUsd?: null | number | string;
             model?: string;
-            tokenCounts?: null | components["schemas"]["RunLlmTokenCountsDto"];
+            tokenCounts?: components["schemas"]["RunLlmTokenCountsDto"];
         };
         RunAgentLlmCostEstimateResponse: {
             costEstimationBasis?: string;
@@ -10941,6 +10941,7 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
+        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";

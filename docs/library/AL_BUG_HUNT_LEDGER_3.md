@@ -8331,6 +8331,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+### Hypotheses
 - [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** `Coalesce` on setter; nested regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`.
 - [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** same nested delta regression.
 - [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `init`; regression `Deserialize_null_items_yields_empty_list_not_null`.
@@ -8473,6 +8474,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+### Hypotheses
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
 - [x] (proven) `AdminAuthConfigurationDiagnosticsResponse.MisconfigurationHints` — explicit JSON `null` on admin auth diagnostics response — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `MisconfigurationHints` `init`; regression `Deserialize_null_misconfiguration_hints_yields_empty_list_not_null`.
@@ -8542,6 +8544,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+### Hypotheses
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
 - [x] (proven) `AdminAuthConfigurationDiagnosticsResponse.MisconfigurationHints` — explicit JSON `null` on admin auth diagnostics response — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `MisconfigurationHints` `init`; regression `Deserialize_null_misconfiguration_hints_yields_empty_list_not_null`.
@@ -9439,6 +9442,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+### Hypotheses
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
 - [x] (proven) `AdminAuthConfigurationDiagnosticsResponse.MisconfigurationHints` — explicit JSON `null` on admin auth diagnostics response — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `MisconfigurationHints` `init`; regression `Deserialize_null_misconfiguration_hints_yields_empty_list_not_null`.

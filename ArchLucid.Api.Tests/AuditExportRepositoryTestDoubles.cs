@@ -20,6 +20,15 @@ internal static class AuditExportRepositoryTestDoubles
                 It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
             .Returns(ToAsyncEnumerable(events));
+
+        repository
+            .Setup(r => r.CountFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(events.Count);
     }
 
     private static async IAsyncEnumerable<AuditEvent> ToAsyncEnumerable(IReadOnlyList<AuditEvent> events)

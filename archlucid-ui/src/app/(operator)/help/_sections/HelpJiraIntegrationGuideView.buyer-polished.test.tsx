@@ -11,6 +11,41 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: true }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
+}));
+
+vi.mock("@/lib/production-desk-chrome", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/production-desk-chrome")>();
+
+  return {
+    ...actual,
+    resolveProductionEvalChromeForServer: () => true,
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "rehearse" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));

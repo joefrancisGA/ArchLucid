@@ -12,7 +12,7 @@ export { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE };
 
 export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
 
-export const ADMIN_DIAGNOSTICS_HELP_TOPIC_LABEL = "How admin diagnostics work" as const;
+export const ADMIN_DIAGNOSTICS_HELP_TOPIC_LABEL = "How platform health works" as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE =
   "Orientation for system health, workspace readiness, assistant diagnostics, and observability signals." as const;

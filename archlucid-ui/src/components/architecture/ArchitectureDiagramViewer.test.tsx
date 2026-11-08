@@ -44,6 +44,32 @@ vi.mock('next/navigation', () => ({
 const replaceMock = vi.fn();
 const searchParamsMock = new URLSearchParams();
 
+vi.mock('@/lib/navigation/replace-if-href-changed', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/navigation/replace-if-href-changed')>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => searchParamsMock.toString(),
+    commitHrefIfChanged: (href: string): boolean => {
+      const qIndex = href.indexOf('?');
+      const query = qIndex >= 0 ? href.slice(qIndex + 1) : '';
+      const nextParams = new URLSearchParams(query);
+
+      for (const key of [...searchParamsMock.keys()]) {
+        searchParamsMock.delete(key);
+      }
+
+      for (const [key, value] of nextParams.entries()) {
+        searchParamsMock.set(key, value);
+      }
+
+      replaceMock(href, { scroll: false });
+
+      return true;
+    },
+  };
+});
+
 function stubMeasurableMermaidInkGeometry(): void {
   const measurableBBox = (): DOMRect =>
     ({
@@ -103,10 +129,12 @@ describe('ArchitectureDiagramViewer', () => {
     renderMock.mockReset();
     renderMock.mockResolvedValue({ svg: measurableMermaidSvg });
     initializeMock.mockReset();
-    searchParamsMock.delete('diagZoom');
+    for (const key of [...searchParamsMock.keys()]) {
+      searchParamsMock.delete(key);
+    }
+    window.history.replaceState(null, '', '/securenow/inventory');
     restoreMermaidInkGeometry();
     restoreDiagramViewportDimensions();
-    vi.restoreAllMocks();
     stubMeasurableMermaidInkGeometry();
     stubDiagramViewportDimensions();
     vi.mocked(useRouter).mockReturnValue({

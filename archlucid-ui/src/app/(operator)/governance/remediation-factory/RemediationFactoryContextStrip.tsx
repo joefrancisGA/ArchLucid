@@ -6,6 +6,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import {
   parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch,
@@ -102,7 +103,7 @@ export function RemediationFactoryContextStrip(props: RemediationFactoryContextS
       ) : null}
       <Link
         href={`#${REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID}`}
-        className="ml-auto shrink-0 text-[color:var(--al-accent-interactive)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn("ml-auto shrink-0", OPERATOR_LINK.inline, "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}
         data-testid="remediation-factory-context-jump-to-inspect"
       >
         Jump to inspect

@@ -27,6 +27,15 @@ const demoEnvMock = vi.hoisted(() => ({
   buyerPolished: false,
 }));
 
+const evalChromeMock = vi.hoisted(() => ({
+  enabled: false,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
+}));
+
 vi.mock("@/lib/api", () => ({
   fetchWeeklyDigestHealth: vi.fn(),
   listArchitectureDigests: vi.fn(),
@@ -69,7 +78,9 @@ const configuredHealth = {
 
 describe("DigestsHubClient", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/architecture/digests");
     demoEnvMock.buyerPolished = false;
+    evalChromeMock.enabled = false;
     searchParams = new URLSearchParams();
     push.mockReset();
     vi.mocked(fetchWeeklyDigestHealth).mockReset();

@@ -20,7 +20,7 @@ describe("sso-wizard-scim-vocabulary (TB-2326)", () => {
     expect(model.heading.toLowerCase()).toContain("sso");
     expect(model.heading.toLowerCase()).toContain("scim");
     expect(model.whyTwo).toBe(SSO_WIZARD_SCIM_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("records and verifies");
+    expect(model.whyTwo.toLowerCase()).toContain("single sign-on setup");
     expect(model.compactLine).toBe(SSO_WIZARD_SCIM_COMPACT_LINE);
     expect(model.compactLine.toLowerCase()).not.toContain("activates sign-in");
     expect(model.compactLine.toLowerCase()).not.toMatch(/\bjob\b/);

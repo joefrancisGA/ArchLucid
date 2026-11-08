@@ -15,7 +15,8 @@ public sealed class DtoDeserializationValidator
     {
         PropertyNameCaseInsensitive = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true
+        AllowTrailingCommas = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     public ResponseValidationResult Validate(Type dtoType, JsonElement payload)

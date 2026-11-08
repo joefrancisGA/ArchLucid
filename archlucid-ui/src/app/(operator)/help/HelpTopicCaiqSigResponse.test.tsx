@@ -16,8 +16,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { HelpCaiqSigResponseGuideView } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView";
-import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import {
+  expectClaimDisciplineBandContent,
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   CAIQ_SIG_RESPONSE_HELP_CLAIM_HEADING,
   CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE,
@@ -89,14 +91,11 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
     expect(screen.getByRole("link", { name: CAIQ_SIG_RESPONSE_LITE_PART_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: CAIQ_SIG_RESPONSE_SIG_PART_HEADING })).toBeInTheDocument();
 
-    for (const link of CAIQ_SIG_RESPONSE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
-      const sourceLink = within(screen.getByTestId("caiq-sig-response-help-sources")).getByRole("link", {
-        name: accessibleName,
-      });
-      expect(sourceLink).toHaveAttribute("href", link.href);
-      expect(screen.getByText(link.when)).toBeInTheDocument();
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(screen.getByTestId("caiq-sig-response-help-sources")),
+      CAIQ_SIG_RESPONSE_HELP_SOURCES,
+      "/help/caiq-sig-response",
+    );
 
     expect(screen.getByTestId("caiq-sig-response-help-posture-summary")).toBeInTheDocument();
   });

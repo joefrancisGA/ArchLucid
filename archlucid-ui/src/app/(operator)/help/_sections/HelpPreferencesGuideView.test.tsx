@@ -5,21 +5,31 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/preferences",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { HelpPreferencesGuideView } from "@/app/(operator)/help/_sections/HelpPreferencesGuideView";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  whereToGoNextFollowUpLinksForTests,
 } from "@/lib/claim-discipline-test-helpers";
-import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_HELP_CANONICAL_PATH,
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
   preferencesHelpSources,
 } from "@/lib/preferences-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_HELP_CHANGES_SECTION_TITLE,
   PREFERENCES_HELP_CLAIM_HEADING_ID,
@@ -105,11 +115,11 @@ describe("HelpPreferencesGuideView", () => {
       expect(within(screen.getByTestId("help-preferences-tile-items")).getByText(item.label)).toBeInTheDocument();
     }
 
-    for (const source of filterOrientationSourcesForJobContext(
-      filterWhereToGoNextFollowUpLinks(preferencesHelpSources(resolveProductLineIdFromEnv())),
+    const sourcesRegion = within(screen.getByTestId("help-preferences-sources"));
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      preferencesHelpSources(resolveProductLineIdFromEnv()),
       PREFERENCES_HELP_CANONICAL_PATH,
     )) {
-      const sourcesRegion = within(screen.getByTestId("help-preferences-sources"));
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

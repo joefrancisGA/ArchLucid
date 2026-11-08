@@ -33,7 +33,13 @@ describe("FindingsItsmExportToolbar", () => {
     render(
       <FindingsItsmExportToolbar
         runId="run-1"
-        findings={[finding({ findingId: "f-policy", enforcementTier: "PolicyViolation" })]}
+        findings={[
+          finding({
+            findingId: "f-policy",
+            enforcementTier: "PolicyViolation",
+            classification: "DecisionGradeFinding",
+          }),
+        ]}
         totalFindingCount={2}
         compact
       />,
@@ -48,7 +54,13 @@ describe("FindingsItsmExportToolbar", () => {
     render(
       <FindingsItsmExportToolbar
         runId="run-1"
-        findings={[finding({ findingId: "f-policy", enforcementTier: "PolicyViolation" })]}
+        findings={[
+          finding({
+            findingId: "f-policy",
+            enforcementTier: "PolicyViolation",
+            classification: "DecisionGradeFinding",
+          }),
+        ]}
         compact
       />,
     );

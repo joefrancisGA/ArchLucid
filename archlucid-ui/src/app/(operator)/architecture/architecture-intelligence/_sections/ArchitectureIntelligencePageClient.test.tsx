@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
@@ -13,6 +15,8 @@ function okJsonFetchResponse(body: unknown): Response {
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
 const searchParamsToString = vi.fn(() => searchParamsString);
 let searchParamsString = "";
+let navigationRenderGuardEnabled = false;
+let navigationRenderCount = 0;
 const routerReplace = vi.fn();
 
 function stubProductContextFetch(runId: string, content: string): void {
@@ -70,6 +74,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
+
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
     loading: false,
@@ -94,17 +103,22 @@ vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
   return extendNextNavigationVitestMock(importOriginal, {
-    useSearchParams: () => ({
-      get: searchParamsGet,
-      getAll: vi.fn(() => []),
-      has: vi.fn(() => false),
-      toString: searchParamsToString,
-      entries: vi.fn(),
-      forEach: vi.fn(),
-      keys: vi.fn(),
-      values: vi.fn(),
-      [Symbol.iterator]: vi.fn(),
-    }),
+    useSearchParams: () => {
+      if (navigationRenderGuardEnabled && ++navigationRenderCount > 20) {
+        throw new Error("Architecture intelligence URL wrapper caused a render loop");
+      }
+      return {
+        get: searchParamsGet,
+        getAll: vi.fn(() => []),
+        has: vi.fn(() => false),
+        toString: searchParamsToString,
+        entries: vi.fn(),
+        forEach: vi.fn(),
+        keys: vi.fn(),
+        values: vi.fn(),
+        [Symbol.iterator]: vi.fn(),
+      };
+    },
     useRouter: () =>
       ({
         back: vi.fn(),
@@ -134,6 +148,8 @@ vi.mock("./ArchitectureIntelligenceNextReviewFooterClient", () => ({
 
 describe("ArchitectureIntelligencePageClient", () => {
   beforeEach(() => {
+    navigationRenderGuardEnabled = false;
+    navigationRenderCount = 0;
     searchParamsGet.mockImplementation(() => null);
     searchParamsString = "";
     searchParamsToString.mockImplementation(() => searchParamsString);
@@ -146,6 +162,25 @@ describe("ArchitectureIntelligencePageClient", () => {
         text: async () => "",
       })),
     );
+  });
+
+  it("does not loop when a deep link uses fresh but equivalent URL wrappers", async () => {
+    navigationRenderGuardEnabled = true;
+    searchParamsGet.mockImplementation((key) =>
+      key === "runId" ? "dddddddd-dddd-dddd-dddd-dddddddddddd" : null,
+    );
+    stubProductContextFetch(
+      "dddddddd-dddd-dddd-dddd-dddddddddddd",
+      "Stable deep-link hydration.",
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Stable deep-link hydration.",
+      );
+    });
+    expect(navigationRenderCount).toBeLessThanOrEqual(20);
   });
 
   it("renders description input and action buttons", () => {

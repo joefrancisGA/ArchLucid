@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
@@ -15,7 +17,6 @@ import {
   cloudProviderConnectionSources,
 } from "@/lib/cloud-provider-connection-evidence-copy";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -109,7 +110,7 @@ function AzureCloudConnectionStartHerePanel(): React.ReactElement {
 
 function AzureConnectionDetailBody(): React.ReactElement {
   const { productLine, localize } = useLocalizedProductCopy();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   const detailLayout = (
     <CloudProviderDetailLayout
@@ -181,7 +182,7 @@ function AzureConnectionDetailBody(): React.ReactElement {
 }
 
 export function AzureCloudConnectionDetailClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (

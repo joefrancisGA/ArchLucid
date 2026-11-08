@@ -9,7 +9,7 @@ const LEGACY_PILOT_ROI_MODEL_PATH_PATTERN = /\/help\/pilot-roi-model/g;
 const LEGACY_PATH_ALLOWED_ON_LINE = /redirect|retired|legacy|unreachable|remove|bookmark|fold|migration|→|canonicalize|done/i;
 
 const CONTRIBUTOR_DOC_PATHS = [
-  "docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md",
+  "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
   "docs/library/customer-facing/PILOT_GUIDE.md",
   "docs/library/CLI_USAGE.md",
   "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

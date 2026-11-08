@@ -5,6 +5,14 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/help/recurrence-schedules",
+  });
+});
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -13,6 +21,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 import { HelpRecurrenceSchedulesGuideView } from "@/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView";
 import { expectWhereToGoNextFollowUpLinks, whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
@@ -79,9 +92,16 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
 
     const sourcesStrip = screen.getByTestId("help-recurrence-schedules-sources");
 
-    expectWhereToGoNextFollowUpLinks(within(sourcesStrip), RECURRENCE_SCHEDULES_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesStrip),
+      RECURRENCE_SCHEDULES_HELP_SOURCES,
+      "/help/recurrence-schedules",
+    );
 
-    for (const source of whereToGoNextFollowUpLinksForTests(RECURRENCE_SCHEDULES_HELP_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      RECURRENCE_SCHEDULES_HELP_SOURCES,
+      "/help/recurrence-schedules",
+    )) {
       if (source.when !== undefined) {
         expect(within(sourcesStrip).getByText(source.when)).toBeInTheDocument();
       }

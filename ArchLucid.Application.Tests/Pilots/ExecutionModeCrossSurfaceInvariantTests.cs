@@ -158,7 +158,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain("| Execution mode | **Simulator**");
-        markdown.Should().Contain("| ROI claim gate | **HOLD**");
+        markdown.Should().Contain(SponsorRoiClaimDispositionRules.DescribeLeadLine(SponsorRoiClaimDisposition.Hold));
 
         SponsorSimulatorRoiForbidAssertions.AssertNoLeadingAnnualizedOrProjectedUsd(markdown!);
     }

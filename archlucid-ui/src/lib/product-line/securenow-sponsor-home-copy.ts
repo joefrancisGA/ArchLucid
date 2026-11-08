@@ -1,4 +1,5 @@
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
 
 export const SECURENOW_SPONSOR_HOME_SECTION_HEADING = "For sponsors" as const;
 
@@ -13,7 +14,7 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
       "Review the evidence sequence, limitations, and owner decision before a sponsor briefing.",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/EXECUTIVE_PACKET_FILL_GUIDE.md",
+    href: securenowInternalDocHref("EXECUTIVE_PACKET_FILL_GUIDE.md"),
     label: "Executive packet context",
     summary: "Map each packet field to an evidence owner. Leave customer outcomes blank.",
   },
@@ -35,7 +36,7 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
       "Record comparable minutes and read the send rule before a number leaves the room.",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/SPONSOR_READOUT_OUTLINE.md",
+    href: securenowInternalDocHref("SPONSOR_READOUT_OUTLINE.md"),
     label: "Readout outline",
     summary: "Stage 6 facilitation. Not an approved offer and not customer evidence.",
   },

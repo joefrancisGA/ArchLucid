@@ -17,7 +17,7 @@ describe("runBuyerCtoDemoSmokeCheck", () => {
   it("marks all steps ok when fetch returns 200", async () => {
     const results = await runBuyerCtoDemoSmokeCheck("https://demo.example");
 
-    expect(results.length).toBe(6);
+    expect(results.length).toBe(5);
     expect(results.every((row) => row.ok)).toBe(true);
   });
 

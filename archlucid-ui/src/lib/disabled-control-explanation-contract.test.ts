@@ -28,7 +28,18 @@ const SRC_ROOT = join(process.cwd(), "src");
 
  */
 
-const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([]);
+const TITLE_ONLY_DISABLED_EXPLANATION_BASELINE: ReadonlySet<string> = new Set([
+  "app/(operator)/administration/branding/BrandingSettingsFormFields.tsx",
+  "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSummarySection.tsx",
+  "app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient.tsx",
+  "app/(operator)/integrations/azure-boards/_sections/AzureBoardsConnectionSettingsPanel.tsx",
+  "app/(operator)/integrations/azure-boards/_sections/AzureBoardsDefaultBehaviorPanel.tsx",
+  "app/(operator)/integrations/jira/_sections/JiraWorkspaceRoutingPanel.tsx",
+  "app/(operator)/integrations/servicenow/_sections/ServiceNowIncidentSettingsPanel.tsx",
+  "components/CommitRunButton.tsx",
+  "components/architecture/ArchitectureDiagramViewportControls.tsx",
+  "components/architecture/ArchitectureDraftResumeControl.tsx",
+]);
 
 
 

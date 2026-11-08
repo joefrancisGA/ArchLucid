@@ -19,10 +19,12 @@ describe("TB-2100 Evidence graph single sample notice", () => {
   });
 
   it("suppresses picker sample status while the sample banner is the in-page notice", () => {
-    const controls = readFileSync(join(SECTIONS, "GraphPageControls.tsx"), "utf8");
+    const filters = readFileSync(join(SECTIONS, "use-graph-page-control-filters.ts"), "utf8");
+    const buyerControls = readFileSync(join(SECTIONS, "GraphPageControlsBuyerShell.tsx"), "utf8");
 
-    expect(controls).toContain('sampleGraphActive && reviewPickerState === "sample-review"');
-    expect(controls).toContain("GraphReviewPickerStatus");
+    expect(filters).toContain('!(sampleGraphActive && reviewPickerState === "sample-review")');
+    expect(filters).toContain("shouldShowGraphReviewPickerStatus");
+    expect(buyerControls).toContain("GraphReviewPickerStatus");
   });
 
   it("removes the trailing operator sample paragraph from GraphLoadedExperience", () => {
@@ -32,11 +34,11 @@ describe("TB-2100 Evidence graph single sample notice", () => {
     expect(loaded).not.toContain("illustrative Claims Intake sample");
   });
 
-  it("mounts GraphSampleModeBanner in compact mode from GraphPageContent", () => {
-    const page = readFileSync(join(SECTIONS, "GraphPageContent.tsx"), "utf8");
+  it("mounts GraphSampleModeBanner in compact mode from graph page controls", () => {
+    const controls = readFileSync(join(SECTIONS, "use-graph-page-controls.tsx"), "utf8");
 
-    expect(page).toContain("<GraphSampleModeBanner");
-    expect(page).toMatch(/GraphSampleModeBanner[\s\S]*compact/);
-    expect((page.match(/<GraphSampleModeBanner\b/g) ?? []).length).toBe(1);
+    expect(controls).toContain("<GraphSampleModeBanner");
+    expect(controls).toMatch(/GraphSampleModeBanner[\s\S]*compact/);
+    expect((controls.match(/<GraphSampleModeBanner\b/g) ?? []).length).toBe(1);
   });
 });

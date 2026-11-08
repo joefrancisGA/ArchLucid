@@ -99,7 +99,7 @@ BACKFILL_SCORES: dict[str, tuple[int, int]] = {
     "HEG": (68, 74),
     "HPO": (66, 72),
     "EPX": (70, 73),
-    "SEX": (69, 71),
+    "SRF": (69, 71),
     "HEK": (76, 78),
     "HST": (66, 72),
     "HSY": (64, 69),

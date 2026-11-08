@@ -30,6 +30,26 @@ public sealed class TenantOrganizationDuplicateDetectorTests
     }
 
     [SkippableFact]
+    public void IsDuplicateOrganization_detects_sql_2601_for_tenant_organization_unique_index()
+    {
+        SqlException ex = SqlExceptionTestFactory.Create(
+            2601,
+            "Cannot insert duplicate key row in object 'dbo.Tenants' with unique index 'IX_Tenants_NormalizedOrganizationName'.");
+
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sql_2601_for_unrelated_unique_index()
+    {
+        SqlException ex = SqlExceptionTestFactory.Create(
+            2601,
+            "Cannot insert duplicate key row with unique index 'IX_TenantSettings_TenantId_SettingKey'.");
+
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex).Should().BeFalse();
+    }
+
+    [SkippableFact]
     public void IsDuplicateOrganization_does_not_match_bare_sql_unique_violation_without_org_context()
     {
         TenantOrganizationDuplicateDetector.IsDuplicateOrganization(SqlExceptionTestFactory.Create(2627))

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { AlertSimulationPickReviewBeforeSimulatingStrip } from "@/components/alerts/AlertSimulationPickReviewBeforeSimulatingStrip";
 import { AlertSimulationNextReviewFooterClient } from "@/components/alerts/AlertSimulationNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -121,7 +121,15 @@ export function AlertSimulationContent() {
     canMutateEnterpriseShell,
   } = simulation;
 
+  // The setter may change identity when Next refreshes its router or search
+  // wrapper. Only an actual change in the URL-scoped run may override an
+  // operator's in-progress edit to the simulation review field.
+  const lastScopedRunIdRef = useRef<string | null>(null);
   useEffect(() => {
+    if (lastScopedRunIdRef.current === scopedRunId) {
+      return;
+    }
+    lastScopedRunIdRef.current = scopedRunId;
     setSRunId(scopedRunId);
   }, [scopedRunId, setSRunId]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
@@ -25,36 +25,48 @@ export function ManifestDetailNextRecordFooterClient(
 ): React.JSX.Element | null {
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
 
-  const loadRows = useCallback(async () => {
-    const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
-    const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
-
-    try {
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
-      const coerced = coerceRunSummaryPaged(raw, { page: 1 });
-
-      if (!coerced.ok) {
-        setRows([]);
-
-        return;
-      }
-
-      let runs = coerced.value.items;
-      const staticFallback = tryStaticDemoRunSummariesPaged(projectId);
-
-      if (runs.length === 0 && staticFallback !== null) {
-        runs = staticFallback.items;
-      }
-
-      setRows(buildSignedRecordsListRowsFromRuns(runs));
-    } catch {
-      setRows([]);
-    }
-  }, []);
-
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadRows(): Promise<void> {
+      const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+      const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
+
+      try {
+        const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
+        const coerced = coerceRunSummaryPaged(raw, { page: 1 });
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!coerced.ok) {
+          setRows([]);
+
+          return;
+        }
+
+        let runs = coerced.value.items;
+        const staticFallback = tryStaticDemoRunSummariesPaged(projectId);
+
+        if (runs.length === 0 && staticFallback !== null) {
+          runs = staticFallback.items;
+        }
+
+        setRows(buildSignedRecordsListRowsFromRuns(runs));
+      } catch {
+        if (!cancelled) {
+          setRows([]);
+        }
+      }
+    }
+
     void loadRows();
-  }, [loadRows]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const nextRecord = useMemo(
     () => resolveNextSignedRecordsListRow(rows, props.manifestId),

@@ -40,7 +40,7 @@ public sealed class PolicyPackDryRunIntegrationTests
                 { "maxCriticalFindings", "0" },
                 { "operatorNote", "ping me at alice@example.com about ssn 111-22-3333" }
             },
-            EvaluateAgainstRunIds = new[] { "ghost-run-id-not-in-db" }
+            EvaluateAgainstRunIds = new[] { "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
         };
 
         StringContent json = new(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");
@@ -68,7 +68,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         using JsonDocument doc = JsonDocument.Parse(dryRunRow.DataJson);
         doc.RootElement.GetProperty("policyPackId").GetGuid().Should().Be(policyPackId);
         doc.RootElement.GetProperty("evaluatedRunIds").EnumerateArray()
-            .Select(e => e.GetString()).Should().BeEquivalentTo("ghost-run-id-not-in-db");
+            .Select(e => e.GetString()).Should().BeEquivalentTo("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         doc.RootElement.GetProperty("deltaCounts").GetProperty("evaluated").GetInt32().Should().Be(1);
         doc.RootElement.GetProperty("deltaCounts").GetProperty("runMissing").GetInt32().Should().Be(1);
     }

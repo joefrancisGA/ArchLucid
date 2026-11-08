@@ -1,7 +1,3 @@
-using ArchLucid.Persistence.Connections;
-
-using Microsoft.Data.SqlClient;
-
 namespace ArchLucid.Application.Tenancy;
 
 /// <summary>Detects duplicate-organization failures from SQL and other providers during self-service registration.</summary>
@@ -23,9 +19,8 @@ public static class TenantOrganizationDuplicateDetector
         if (ex is null)
             return false;
 
-        if (IsTenantOrganizationSqlUniqueViolation(ex))
-            return true;
-
+        // Classify provider exceptions using constrained tenant table/index evidence,
+        // not database-client types in the application orchestration layer.
         string text = ex.ToString();
 
         if (ContainsTenantOrganizationUniqueIndexReference(text))
@@ -42,19 +37,6 @@ public static class TenantOrganizationDuplicateDetector
             return true;
 
         return IsDuplicateOrganization(ex.InnerException);
-    }
-
-    private static bool IsTenantOrganizationSqlUniqueViolation(Exception? ex)
-    {
-        if (ex is SqlException { Number: 2601 or 2627 } sqlException)
-        {
-            string text = sqlException.ToString();
-
-            return ContainsOrganizationDuplicateContext(text)
-                || ContainsTenantOrganizationUniqueIndexReference(text);
-        }
-
-        return ex?.InnerException is not null && IsTenantOrganizationSqlUniqueViolation(ex.InnerException);
     }
 
     private static bool ContainsDuplicateOrganizationText(string text) =>

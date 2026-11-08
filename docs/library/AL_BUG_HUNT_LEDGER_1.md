@@ -7417,6 +7417,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 2026-10-31 thorough hunt #251 (dry): no rotation. Picker `(candidate)` document name internal space is stale — **invalid** vs **proven hit 2026-10-30 thorough hunt** (`HasUsableMultilineBodyText` on names; regression `Deserialize_keeps_document_when_name_contains_internal_spaces`). Cheap-disproof closed five open `(candidate)` rows — **invalid** declaration `format` with `; charset=` suffix (compact format token by design; API validator exact match at intake per set-4 `#1108` family; document `contentType` intentionally uses `NormalizeContentTypeForLookup`), **invalid** dead `MaterializeStringList` helper (unused; live lists route through `MaterializeReferenceStringList` / `MaterializePathReferenceStringList`), **valid-no-repro** U+2028/U+2029 in policy lines rejected by `HasUsableMultilineBodyText` exotic whitespace rule (intentional paste hygiene), **valid-no-repro** orchestrator serialize without pre-materialize (`AuthorityPipelineWorkProcessor` always deserializes and `EnsureMutableCollections` before gate; 2026-10-30 seed hunt), **invalid** declaration `format` with embedded newline (compact identifier; trimmed paste belongs in `content`). Reseeded five `(candidate)` rows; scoped payload JSON tests **50/50** (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
 - [x] (invalid) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — document name with internal space dropped (`network diagram`) — **cheap-disproof 2026-10-31 thorough hunt #251:** regression `Deserialize_keeps_document_when_name_contains_internal_spaces`; hit 2026-10-30 thorough hunt.
@@ -7498,6 +7499,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
 
 - [x] (proven) `HasUsableEvidenceBundleId` — embedded no-break space in `evidenceBundleId` passed `HasSubstantiveText` and combining-mark checks but survived `Trim()` in `AuthorityPipelineMaterializeWork`, causing bundle lookup failure and outbox retries — **hit 2026-10-04 seed hunt:** `HasNoInternalWhitespace` guard on evidence bundle ids only; regressions `IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id` and `Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp`.

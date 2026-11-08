@@ -146,7 +146,7 @@ describe("resolveBuyerCtoDemoTourNavigation", () => {
 
     expect(nav.onSpine).toBe(true);
 
-    expect(nav.summaryLine).toContain("Step 1 of 5");
+    expect(nav.summaryLine).toContain("Step 1 of 4");
 
     expect(nav.prev).toBeNull();
 
@@ -176,16 +176,16 @@ describe("buyerCtoDemoRemainingBudgetMinutes", () => {
 
   it("sums remaining step budgets from the current index", () => {
 
-    expect(buyerCtoDemoRemainingBudgetMinutes(0)).toBe(26);
+    expect(buyerCtoDemoRemainingBudgetMinutes(0)).toBe(21);
 
-    expect(buyerCtoDemoRemainingBudgetMinutes(4)).toBe(5);
+    expect(buyerCtoDemoRemainingBudgetMinutes(3)).toBe(5);
 
   });
 
   it("returns zero when the step index is past the final budgeted step", () => {
-    expect(buyerCtoDemoRemainingBudgetMinutes(5)).toBe(0);
-    expect(formatCtoDemoStepBudgetLabel(5)).toBe("Budget: 0 min");
-    expect(buyerCtoDemoStepBudgetSeconds(5)).toBe(0);
+    expect(buyerCtoDemoRemainingBudgetMinutes(4)).toBe(0);
+    expect(formatCtoDemoStepBudgetLabel(4)).toBe("Budget: 0 min");
+    expect(buyerCtoDemoStepBudgetSeconds(4)).toBe(0);
   });
 
 });
@@ -216,7 +216,7 @@ describe("visited step storage", () => {
 
 describe("buildCtoDemoRunOfShowMarkdown", () => {
 
-  it("includes all five journey steps and keyboard shortcuts", () => {
+  it("includes all four journey steps and keyboard shortcuts", () => {
 
     const markdown = buildCtoDemoRunOfShowMarkdown();
 
@@ -226,11 +226,11 @@ describe("buildCtoDemoRunOfShowMarkdown", () => {
 
     expect(markdown).toContain("Evidence graph");
 
-    expect(markdown).toContain("Approval");
+    expect(markdown).toContain("recorded approval decisions");
 
     expect(markdown).toContain("Audit trail");
 
-    expect(markdown).toContain("Press 1–5");
+    expect(markdown).toContain("Press 1–4");
 
   });
 

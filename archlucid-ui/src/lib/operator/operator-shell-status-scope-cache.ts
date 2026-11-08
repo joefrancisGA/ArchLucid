@@ -5,6 +5,8 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 /** TanStack keys hydrated by shell status without a scope segment — must not survive tenant switch. */
 export const OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS = [
   operatorQueryKeys.tenantTrialStatus,
+  // ROI cost assumptions are tenant-specific even though their cache key is not scoped.
+  operatorQueryKeys.tenantCostSettings,
   operatorQueryKeys.tenantCatalogMigrationStatus,
   operatorQueryKeys.llmMonthlyBudgetStatus,
   operatorQueryKeys.tenantUsageStatus,

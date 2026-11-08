@@ -72,4 +72,15 @@ public class ArchLucidApiFactory : SqlIntegrationTestWebAppFactoryBase
         // appsettings.Development.json enables Demo:SeedOnStartup; integration tests seed explicitly via IDemoSeedService.
         settings["Demo:SeedOnStartup"] = "false";
     }
+
+    /// <inheritdoc />
+    protected override async Task OnAfterHostStartedAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        IntegrationTestSqlCatalogBootstrap.EnsureMigratedAndDefaultScope(SqlConnectionString);
+        await IntegrationTestWorkspaceModeSupport
+            .PinGuidedWorkspaceModeForDevUserAsync(this, cancellationToken)
+            .ConfigureAwait(false);
+
+        await base.OnAfterHostStartedAsync(services, cancellationToken).ConfigureAwait(false);
+    }
 }

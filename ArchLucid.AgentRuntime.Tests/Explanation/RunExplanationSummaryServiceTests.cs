@@ -4,6 +4,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
@@ -17,6 +18,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+#pragma warning disable CS0618 // Tests assert AuthorityManifestRiskPosture honesty labels until TradeoffDetectionEngine replaces it.
 
 namespace ArchLucid.AgentRuntime.Tests.Explanation;
 
@@ -61,11 +64,13 @@ public sealed class RunExplanationSummaryServiceTests
     }
 
     [SkippableFact]
-    public void DeriveRiskPosture_no_unresolved_issues_is_Low()
+    public void DeriveRiskPosture_no_unresolved_issues_returns_not_derived_honesty_label()
     {
         ManifestDocument manifest = new() { UnresolvedIssues = new UnresolvedIssuesSection() };
 
-        RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Low");
+        RunExplanationSummaryService.DeriveRiskPosture(manifest)
+            .Should()
+            .Be(AuthorityManifestRiskPosture.NotDerivedFromUnresolvedIssuesLabel);
     }
 
     [SkippableFact]
@@ -251,7 +256,7 @@ public sealed class RunExplanationSummaryServiceTests
         summary.DecisionCount.Should().Be(1);
         summary.UnresolvedIssueCount.Should().Be(0);
         summary.ComplianceGapCount.Should().Be(1);
-        summary.RiskPosture.Should().Be("Low");
+        summary.RiskPosture.Should().Be(AuthorityManifestRiskPosture.NotDerivedFromUnresolvedIssuesLabel);
         summary.ThemeSummaries.Should().Contain(t => t.StartsWith("Cost:", StringComparison.Ordinal));
     }
 

@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it , vi} from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { ReplayEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -9,6 +9,10 @@ import {
   REPLAY_SOURCES,
   REPLAY_SOURCES_INTRO,
 } from "@/lib/replay-evidence-copy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("replay-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -23,9 +27,7 @@ describe("replay-evidence-copy", () => {
 
     const sources = screen.getByTestId("validate-route-sources");
 
-    for (const link of REPLAY_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), REPLAY_SOURCES, REPLAY_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${REPLAY_CANONICAL_PATH}$`, "i") }),

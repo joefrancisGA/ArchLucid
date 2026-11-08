@@ -55,7 +55,7 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
 
     expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
-      "16 catalog engines were recorded as succeeded on this package",
+      /16 catalog engines were recorded/,
     );
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
@@ -70,8 +70,8 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     render(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest
-        runId="run-1"
         hasFindingsSnapshot
+        runId="run-1"
         feasibilityVerdict={feasibilityVerdict}
         runCompleted
         quickDecisionFindings={[

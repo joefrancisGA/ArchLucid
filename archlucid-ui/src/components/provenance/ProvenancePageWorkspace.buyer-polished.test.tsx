@@ -21,6 +21,7 @@ import {
   PROVENANCE_START_HERE_CARD_TITLE,
   PROVENANCE_WORKSPACE_TEST_ID,
 } from "@/lib/provenance-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
@@ -38,6 +39,25 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/demo-run/provenance",
@@ -187,7 +207,12 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
     expect(workspace).toContainElement(screen.getByTestId("provenance-graph-viewport"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(buildProvenanceSources("demo-run"))) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(buildProvenanceSources("demo-run")),
+      "/architecture/reviews/demo-run/provenance",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

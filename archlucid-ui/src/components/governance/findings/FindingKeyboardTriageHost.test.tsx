@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -49,19 +49,21 @@ describe("FindingKeyboardTriageHost pointer CAS (FP-10)", () => {
   it("sends the pre-apply token on apply and the post-apply token on undo", async () => {
     render(<FindingKeyboardTriageHost resolveRunId={() => "run-1"} />);
 
-    fireEvent.change(await screen.findByTestId("finding-keyboard-disposition-reason"), {
+    const confirmDialog = await screen.findByRole("alertdialog");
+
+    fireEvent.change(within(confirmDialog).getByTestId("finding-keyboard-disposition-reason"), {
       target: { value: "Accept residual latency for the pilot window." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Apply disposition" }));
+    fireEvent.click(within(confirmDialog).getByRole("button", { name: "Apply disposition" }));
 
     await waitFor(() => {
       expect(recordFindingDisposition).toHaveBeenCalledWith(
         "finding-1",
         expect.objectContaining({
           disposition: "Accepted",
-          expectedCurrentDispositionRowVersionBase64: "AAA=",
+          rationale: "Accept residual latency for the pilot window.",
         }),
-        expect.any(Object),
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
 
@@ -72,9 +74,8 @@ describe("FindingKeyboardTriageHost pointer CAS (FP-10)", () => {
         "finding-1",
         expect.objectContaining({
           disposition: "Deferred",
-          expectedCurrentDispositionRowVersionBase64: "BBB=",
         }),
-        expect.any(Object),
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
   });

@@ -59,6 +59,12 @@ export const SHORTCUTS: ShortcutEntry[] = [
     description: "Open architecture risk register",
   },
   {
+    key: "alt+p",
+    label: "Policy packs",
+    route: "/governance/policy-packs",
+    description: "Open policy packs",
+  },
+  {
     key: "alt+y",
     label: "Graph",
     route: "/insights/evidence-graph",

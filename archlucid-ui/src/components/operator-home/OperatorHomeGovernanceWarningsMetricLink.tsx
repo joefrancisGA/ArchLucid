@@ -38,7 +38,7 @@ export function OperatorHomeGovernanceWarningsMetricLink(
       href={href}
       scroll={false}
       className={cn(
-        "rounded-sm no-underline transition-colors hover:text-[var(--al-accent-link)]",
+        "text-al-link rounded-sm no-underline transition-colors hover:text-[var(--al-accent-link)]",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
         warningsFilterActive ? "text-al-text-primary" : undefined,
         props.className,

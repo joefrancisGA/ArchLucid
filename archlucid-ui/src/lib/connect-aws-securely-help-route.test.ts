@@ -5,19 +5,23 @@ import { describe, expect, it } from "vitest";
 
 import { CONNECT_AWS_SECURELY_CANONICAL_PATH } from "@/lib/connect-aws-securely-help-evidence-copy";
 
-const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+const HELP_TOPIC_VIEW_RESOLVER = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-integrations.tsx",
+);
 
 describe("connect-aws-securely-help-route (HEC)", () => {
   it("routes cloud-connections-aws through HelpConnectAwsSecurelyGuideView instead of bare markdown", () => {
-    const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
-    const awsBranch = pageSource.match(
-      /if \(loaded\.entry\.slug === "cloud-connections-aws"\) \{[\s\S]*?\n  \}/,
-    )?.[0];
+    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER, "utf8");
 
-    expect(awsBranch).toBeDefined();
-    expect(awsBranch).toContain("HelpConnectAwsSecurelyGuideView");
-    expect(awsBranch).not.toContain("HelpTopicMarkdownView");
-    expect(pageSource).toContain('loaded.entry.slug === "cloud-connections-aws"');
+    expect(resolverSource).toContain('loaded.entry.slug === "cloud-connections-aws"');
+    expect(resolverSource).toContain("HelpConnectAwsSecurelyGuideView");
+    expect(resolverSource).not.toMatch(
+      /cloud-connections-aws[\s\S]{0,400}HelpTopicMarkdownView/,
+    );
   });
 
   it("keeps the canonical help path aligned with the registry slug", () => {

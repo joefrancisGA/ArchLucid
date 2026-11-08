@@ -174,6 +174,9 @@ describe("ReviewAskDock URL sync", () => {
       </SearchParamsRerenderHost>,
     );
 
+    fireEvent.change(screen.getByLabelText("Your question"), {
+      target: { value: "What changed in this review?" },
+    });
     fireEvent.click(screen.getByTestId("review-ask-dock-submit"));
 
     await waitFor(() => {

@@ -28,7 +28,7 @@ describe("PackagePrintTransparencyTrailSection", () => {
     expect(screen.getByText("Skipped SHOULD questions were stored empty.")).toBeInTheDocument();
     expect(screen.getByText("Open questions were not stored.")).toBeInTheDocument();
     expect(screen.getByText(/Inferred value was stored empty\./)).toBeInTheDocument();
-    expect(screen.getByText(/Confidence was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText(/Confidence 0 is outside the stored 1–100 scale\./)).toBeInTheDocument();
     expect(screen.getByText(/not a signed export artifact/i)).toBeInTheDocument();
   });
 

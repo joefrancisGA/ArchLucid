@@ -1,3 +1,5 @@
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
 export const SECURENOW_COMPLIANCE_NOTES_HEADING = "Compliance notes" as const;
 
 export const SECURENOW_COMPLIANCE_NOTES_LEAD =
@@ -32,10 +34,10 @@ export const SECURENOW_COMPLIANCE_NOTES_EXPECTATION_KEYS_LEAD =
 export const SECURENOW_COMPLIANCE_NOTES_LINKS = [
   {
     label: "Control-evidence responsibility",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/CONTROL_EVIDENCE_RESPONSIBILITY.md",
+    href: securenowInternalDocHref("CONTROL_EVIDENCE_RESPONSIBILITY.md"),
   },
   {
     label: "Framework coverage",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/FRAMEWORK_COVERAGE.md",
+    href: securenowInternalDocHref("FRAMEWORK_COVERAGE.md"),
   },
 ] as const;

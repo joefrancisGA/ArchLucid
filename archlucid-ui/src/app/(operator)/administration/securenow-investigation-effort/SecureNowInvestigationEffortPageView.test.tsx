@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { SECURENOW_INVESTIGATION_EFFORT_NOTES } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
   secureNowInvestigationEffortInputStorageKeyForScope,
@@ -39,26 +40,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
     expect(screen.getByText(/This page is not a savings claim\./)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Pilot measurement log" }),
-    ).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/PILOT_MEASUREMENT_LOG.md",
-    );
-    expect(screen.getByRole("link", { name: "Cost input" })).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_COST_INPUT.md",
-    );
-    expect(
-      screen.getByRole("link", { name: "Fixture worksheet" }),
-    ).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_FIXTURE_WORKSHEET.md",
-    );
-    expect(screen.getByRole("link", { name: "Send rule" })).toHaveAttribute(
-      "href",
-      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_SEND_RULE.md",
-    );
+    for (const note of SECURENOW_INVESTIGATION_EFFORT_NOTES) {
+      expect(screen.getByRole("link", { name: note.label })).toHaveAttribute("href", note.href);
+    }
     expect(
       screen.getByTestId("securenow-investigation-effort-page"),
     ).not.toHaveTextContent(/\$/);

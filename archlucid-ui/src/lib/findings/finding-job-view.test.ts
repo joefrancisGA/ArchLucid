@@ -98,7 +98,8 @@ describe("finding-job-view", () => {
     const finding = reviewFinding({
       findingId: "f-3",
       humanReviewStatus: 2,
-      policyRuleId: "cost-constraint.budget",
+      trustLabel: "EvidenceBacked",
+      evidenceRefCount: 2,
     });
 
     expect(classifyReviewFindingJobView(finding)).toBe("ready-for-sponsor-packet");
@@ -149,8 +150,8 @@ describe("finding-job-view", () => {
     const decisionQueue = filterReviewFindingsForJobView(rows, "needs-my-decision");
     const sponsorReady = filterReviewFindingsForJobView(rows, "ready-for-sponsor-packet");
 
-    expect(decisionQueue.map((entry) => entry.findingId)).toEqual(["f-4"]);
-    expect(sponsorReady.map((entry) => entry.findingId)).toEqual(["f-5"]);
+    expect(decisionQueue.map((entry) => entry.findingId)).toEqual(["f-4", "f-5"]);
+    expect(sponsorReady.map((entry) => entry.findingId)).toEqual([]);
   });
 
   it("maps governance adversarial phrasing to verify-hypotheses (TB-2315)", () => {

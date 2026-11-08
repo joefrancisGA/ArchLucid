@@ -53,7 +53,7 @@ describe("RunDetailReviewPackageSemanticSupportBandSummary (AS-062)", () => {
     );
     expect(screen.queryByTestId("run-detail-stamp-semantic-support-all-clear")).toBeNull();
     expect(screen.getByTestId("run-detail-stamp-semantic-support-unsupported-list")).toHaveTextContent(
-      "f-3: Unsupported claim",
+      "Finding id: f-3 — Unsupported claim",
     );
   });
 

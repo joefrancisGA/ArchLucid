@@ -13,61 +13,42 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));
 
+vi.mock("@/lib/fetch-identity-providers-page-bundle-client", () => ({
+  fetchIdentityProvidersPageBundle: vi.fn(),
+}));
+
 import { useIdentityProvidersSettingsPage } from "./use-identity-providers-settings-page";
 import {
   IDENTITY_PROVIDERS_SAML_SAVE_ENABLEMENT_LINK_HREF,
 } from "@/lib/identity-providers-settings-copy";
+import { fetchIdentityProvidersPageBundle } from "@/lib/fetch-identity-providers-page-bundle-client";
+
+const mockFetchIdentityProvidersPageBundle = vi.mocked(fetchIdentityProvidersPageBundle);
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  mockFetchIdentityProvidersPageBundle.mockReset();
 });
 
 describe("useIdentityProvidersSettingsPage", () => {
   it("recommends SSO wizard for DevelopmentBypass after diagnostics load", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
-
-        if (url.includes("/auth/configuration-diagnostics")) {
-          return new Response(
-            JSON.stringify({
-              authMode: "DevelopmentBypass",
-              audienceConfigured: false,
-              issuerOrAuthorityConfigured: false,
-              openIdDiscoverySucceeded: null,
-              saml2Enabled: false,
-              roleClaimNameConfigured: false,
-              tenantClaimMappingConfigured: false,
-            }),
-            { status: 200, headers: { "Content-Type": "application/json" } },
-          );
-        }
-
-        if (url.includes("/diagnostics/identity-providers")) {
-          return new Response(
-            JSON.stringify({ oidc: { status: "Healthy" }, saml: { status: "NotApplicable" } }),
-            { status: 200, headers: { "Content-Type": "application/json" } },
-          );
-        }
-
-        if (url.includes("/auth/oidc-diagnostics")) {
-          return new Response(JSON.stringify({ authMode: "DevelopmentBypass" }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
-        if (url.includes("/auth/saml-operational-health")) {
-          return new Response(JSON.stringify({ saml2Enabled: false }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
-        return new Response(null, { status: 404 });
-      }),
-    );
+    mockFetchIdentityProvidersPageBundle.mockResolvedValue({
+      authConfigurationDiagnostics: {
+        authMode: "DevelopmentBypass",
+        audienceConfigured: false,
+        issuerOrAuthorityConfigured: false,
+        openIdDiscoverySucceeded: null,
+        saml2Enabled: false,
+        roleClaimNameConfigured: false,
+        tenantClaimMappingConfigured: false,
+      },
+      identityProviderDiagnostics: {
+        oidc: { status: "Healthy" },
+        saml: { status: "NotApplicable" },
+      },
+      oidcDiagnostics: { authMode: "DevelopmentBypass" },
+      samlOperationalHealth: { saml2Enabled: false },
+    });
 
     const { result } = renderHook(() => useIdentityProvidersSettingsPage({ demo: false }));
 

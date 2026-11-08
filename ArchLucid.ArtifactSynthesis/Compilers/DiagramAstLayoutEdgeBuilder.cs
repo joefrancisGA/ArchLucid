@@ -116,7 +116,7 @@ internal static class DiagramAstLayoutEdgeBuilder
         {
             FromNodeId = fromDiagramId,
             ToNodeId = toDiagramId,
-            Label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved,
+            Label = "in",
             InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
         });
 

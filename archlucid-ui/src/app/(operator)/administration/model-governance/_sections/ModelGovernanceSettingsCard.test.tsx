@@ -1,5 +1,22 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const searchParamsState = vi.hoisted(() => ({ query: "" }));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/model-governance",
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: (href: string) => {
+      const query = href.includes("?") ? (href.split("?")[1] ?? "") : "";
+      searchParamsState.query = query;
+    },
+    back: vi.fn(),
+    prefetch: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(searchParamsState.query),
+}));
 
 import { ModelGovernanceSettingsCard } from "@/app/(operator)/administration/model-governance/_sections/ModelGovernanceSettingsCard";
 import {
@@ -11,6 +28,7 @@ import {
   MODEL_GOVERNANCE_LOAD_UNAVAILABLE_COPY,
   MODEL_GOVERNANCE_MUTATION_RETRY_LABEL,
   MODEL_GOVERNANCE_PROFILE_AUDIT_DEEP_LINK_EVENT_TYPE,
+  MODEL_GOVERNANCE_PROFILE_CONFIRM_CLEAR_LABEL_COPY,
   MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY,
   MODEL_GOVERNANCE_PROFILE_LAST_CHANGED_UNAVAILABLE_COPY,
   MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY,
@@ -42,7 +60,32 @@ function expectAlertWithoutEngineeringLeakage() {
   expect(alert.textContent).not.toMatch(/HTTP\s*\d+/i);
 }
 
+async function confirmPendingProfileChange(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByTestId("model-execution-profile-confirm-tradeoffs")).toBeInTheDocument();
+  });
+
+  const dialog = screen.getByRole("alertdialog");
+  fireEvent.click(within(dialog).getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
+}
+
+function defaultAllowedEngineSetResponse(): Response {
+  return new Response(
+    JSON.stringify({
+      allowedAliasIds: ["balanced-default"],
+      defaultAliasId: "balanced-default",
+      source: "WorkspaceDefault",
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } },
+  );
+}
+
 describe("ModelGovernanceSettingsCard", () => {
+  beforeEach(() => {
+    searchParamsState.query = "";
+  });
+
   it("loads catalog and profile controls for admin session", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
@@ -76,6 +119,10 @@ describe("ModelGovernanceSettingsCard", () => {
           ),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
+      }
+
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
       }
 
       return new Response("not found", { status: 404 });
@@ -125,6 +172,10 @@ describe("ModelGovernanceSettingsCard", () => {
           ),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
+      }
+
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
       }
 
       return new Response("not found", { status: 404 });
@@ -213,6 +264,10 @@ describe("ModelGovernanceSettingsCard", () => {
         });
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -225,7 +280,7 @@ describe("ModelGovernanceSettingsCard", () => {
     });
 
     fireEvent.click(screen.getByTestId("model-execution-profile-option-HighAssurance"));
-    fireEvent.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
+    await confirmPendingProfileChange();
 
     await waitFor(() => {
       expect(screen.getByTestId("model-execution-profile-mutation-error")).toHaveTextContent(
@@ -270,6 +325,10 @@ describe("ModelGovernanceSettingsCard", () => {
         });
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -282,11 +341,7 @@ describe("ModelGovernanceSettingsCard", () => {
     });
 
     fireEvent.click(screen.getByTestId("model-execution-profile-option-HighAssurance"));
-
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-    expect(screen.getByTestId("model-execution-profile-confirm-tradeoffs")).toHaveTextContent("High assurance trade-offs");
-
-    fireEvent.click(screen.getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_LABEL_COPY }));
+    await confirmPendingProfileChange();
 
     await waitFor(() => {
       expect(screen.getByRole("status")).toHaveTextContent("Workspace execution profile updated to High assurance.");
@@ -309,6 +364,10 @@ describe("ModelGovernanceSettingsCard", () => {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
+      }
+
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
       }
 
       return new Response("not found", { status: 404 });
@@ -351,6 +410,10 @@ describe("ModelGovernanceSettingsCard", () => {
         });
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -387,6 +450,10 @@ describe("ModelGovernanceSettingsCard", () => {
         });
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -416,6 +483,10 @@ describe("ModelGovernanceSettingsCard", () => {
 
       if (url.includes("model-governance-catalog")) {
         return new Response("error", { status: 503 });
+      }
+
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
       }
 
       return new Response("not found", { status: 404 });
@@ -452,6 +523,10 @@ describe("ModelGovernanceSettingsCard", () => {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
+      }
+
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
       }
 
       return new Response("not found", { status: 404 });
@@ -500,6 +575,10 @@ describe("ModelGovernanceSettingsCard", () => {
         );
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -543,6 +622,10 @@ describe("ModelGovernanceSettingsCard", () => {
         });
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -555,7 +638,10 @@ describe("ModelGovernanceSettingsCard", () => {
     });
 
     fireEvent.click(screen.getByTestId("model-execution-profile-clear-override"));
-    fireEvent.click(screen.getByRole("button", { name: "Use workspace default" }));
+    const clearDialog = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(clearDialog).getByRole("button", { name: MODEL_GOVERNANCE_PROFILE_CONFIRM_CLEAR_LABEL_COPY }),
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("model-execution-profile-mutation-error")).toHaveTextContent(
@@ -613,6 +699,10 @@ describe("ModelGovernanceSettingsCard", () => {
         );
       }
 
+      if (url.includes("allowed-engine-set")) {
+        return defaultAllowedEngineSetResponse();
+      }
+
       return new Response("not found", { status: 404 });
     });
 
@@ -624,9 +714,9 @@ describe("ModelGovernanceSettingsCard", () => {
 
     fireEvent.click(resetTrigger);
 
-    expect(
-      screen.getByText(MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY)).toBeInTheDocument();
+    });
     expect(allowedSetDeletes).toHaveLength(0);
 
     const dialog = screen.getByRole("alertdialog");

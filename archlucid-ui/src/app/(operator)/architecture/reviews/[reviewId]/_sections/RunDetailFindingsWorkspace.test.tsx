@@ -152,6 +152,7 @@ describe("RunDetailFindingsWorkspace", () => {
   });
 
   it("names the confidence gate in the visibility summary when rows are hidden", () => {
+    navigationMocks.searchParams = new URLSearchParams("showAdvisory=1&showLow=0");
     const findings: QuickDecisionFinding[] = [
       finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
       finding({ findingId: "f-medium-2", severityValue: 1, findingOrder: 1 }),
@@ -164,10 +165,17 @@ describe("RunDetailFindingsWorkspace", () => {
       }),
     ];
 
-    render(<RunDetailFindingsWorkspace runId="run-1" findings={findings} />);
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={findings}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+      />,
+    );
 
     expect(screen.getByTestId("run-detail-findings-visibility-summary")).toHaveTextContent(
-      "Showing 2 of 3 — 1 hidden by confidence filter",
+      "Showing 2 of 3 — 1 hidden by confidence filter (still stored)",
     );
   });
 

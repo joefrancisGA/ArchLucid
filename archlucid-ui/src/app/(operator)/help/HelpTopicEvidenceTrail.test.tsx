@@ -1,6 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/evidence-trail",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/components/help/MermaidDiagram", () => ({
   MermaidDiagram: ({ source }: { readonly source: string }) => (
     <div data-testid="help-evidence-trail-provenance-diagram">{source}</div>
@@ -31,8 +37,7 @@ import {
 import {
   EVIDENCE_TRAIL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
 } from "@/lib/evidence-trail-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -128,10 +133,7 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
 
     const sourcesSection = screen.getByTestId("help-evidence-trail-sources");
 
-    for (const source of filterWhereToGoNextFollowUpLinks(EVIDENCE_TRAIL_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), EVIDENCE_TRAIL_HELP_SOURCES, "/help/evidence-trail");
 
     const exportActions = screen.getByTestId("help-topic-export-actions");
 

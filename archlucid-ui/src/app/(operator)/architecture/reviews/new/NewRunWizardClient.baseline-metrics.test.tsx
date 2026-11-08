@@ -70,7 +70,7 @@ import "./new-run-wizard-test-helpers";
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import {
-  NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
+  fillNewRunWizardIdentityStep,
   optIntoAdvancedNewRunWizardConfiguration,
   prepareNewRunWizardVitestHarness,
 } from "./new-run-wizard-test-helpers";
@@ -106,6 +106,13 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
           };
         }
 
+        if (url.includes("/v1/tenant/baseline")) {
+          return {
+            ok: true,
+            json: async () => ({ baselineReviewCycleHours: null }),
+          };
+        }
+
         return { ok: false, status: 404, json: async () => ({}) };
       }),
     );
@@ -137,9 +144,7 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
     fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
-    });
+    await fillNewRunWizardIdentityStep();
 
     for (let i = 0; i < 4; i += 1) {
       await clickPrimaryForward();

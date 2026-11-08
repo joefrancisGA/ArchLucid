@@ -22,7 +22,9 @@ const pilotNavSource = readFileSync(
 describe("architecture creation vs review workflow separation", () => {
   it("routes homepage create architecture through the dedicated navigation hook", () => {
     expect(dualPathSource).toContain("useCreateArchitectureNavigation");
-    expect(dualPathSource).not.toContain("REVIEWS_NEW_GUIDED_INTAKE_HREF");
+    expect(dualPathSource).not.toMatch(
+      /selectedPath === "create-architecture"[\s\S]*REVIEWS_NEW_GUIDED_INTAKE_HREF/,
+    );
     expect(dualPathSource).toContain('selectedPath === "create-architecture"');
   });
 

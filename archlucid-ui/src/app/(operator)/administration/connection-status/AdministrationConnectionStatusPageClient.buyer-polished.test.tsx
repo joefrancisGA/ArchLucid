@@ -10,12 +10,30 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/integrations/ConnectorOperationsDashboard", () => ({
   ConnectorOperationsDashboard: () => <div data-testid="connector-operations-dashboard" />,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/administration/connection-status",
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { AdministrationConnectionStatusPageClient } from "@/app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient";
@@ -36,8 +54,9 @@ import {
   CONNECTION_STATUS_FOLLOW_UPS_TITLE,
   CONNECTION_STATUS_SOURCES,
 } from "@/lib/connection-status-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { ADMINISTRATION_CONNECTION_STATUS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 describe("AdministrationConnectionStatusPageClient buyer-polished shell (ADC)", () => {
@@ -82,7 +101,10 @@ describe("AdministrationConnectionStatusPageClient buyer-polished shell (ADC)", 
       screen.getByRole("heading", { name: OPERATOR_NAV_LINK_LABELS.connectionStatus }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      CONNECTION_STATUS_SOURCES,
+      ADMINISTRATION_CONNECTION_STATUS_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
@@ -90,3 +112,22 @@ describe("AdministrationConnectionStatusPageClient buyer-polished shell (ADC)", 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

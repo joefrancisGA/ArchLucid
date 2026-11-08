@@ -19,6 +19,8 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+
 import { useWhatIfBranchAutoCompare } from "./useWhatIfBranchAutoCompare";
 
 describe("useWhatIfBranchAutoCompare", () => {
@@ -38,9 +40,7 @@ describe("useWhatIfBranchAutoCompare", () => {
     );
 
     await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith(
-        "/insights/compare-two-reviews?priorRunId=parent-run&laterRunId=branch-run",
-      );
+      expect(routerPush).toHaveBeenCalledWith(comparePageHrefAdaptive("parent-run", "branch-run"));
     });
   });
 });

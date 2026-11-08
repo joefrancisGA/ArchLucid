@@ -127,6 +127,7 @@
     "dbo.LlmTenantWalletLedger",
     "dbo.LlmTenantWalletState",
     "dbo.PlatformTenantAuthRecoveryGrants",
+    "dbo.SecurityEvidencePathExplanations",
     "dbo.SecurityEvidencePathRankWeights",
     "dbo.SentEmails",
     "dbo.TenantAiBudgetPolicy",

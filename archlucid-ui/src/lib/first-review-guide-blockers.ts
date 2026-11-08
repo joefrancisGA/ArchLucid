@@ -34,8 +34,8 @@ export function resolveFirstReviewGuideOnePrerequisite(
   if (!input.samplePackageSelected) {
     return {
       id: "sample-package",
-      title: "Sample package",
-      description: "Select a completed sample package for this workspace.",
+      title: "Sample review",
+      description: "Select a completed sample review for this workspace.",
       href: "/",
       actionLabel: OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA,
     };

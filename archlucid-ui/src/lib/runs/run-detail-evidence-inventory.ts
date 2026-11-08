@@ -404,7 +404,7 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
   }
 
   if (input.findingsSnapshotStored === false) {
-    return "Submitted evidence list was not stored.";
+    return SUBMITTED_EVIDENCE_LIST_NOT_STORED;
   }
 
   if (input.findingsSnapshotStored === true) {

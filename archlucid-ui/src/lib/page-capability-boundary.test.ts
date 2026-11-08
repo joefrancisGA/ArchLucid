@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -98,5 +101,25 @@ describe("page-capability-boundary (TB-2197 / TB-2274)", () => {
     expect(PAGE_CAPABILITY_BOUNDARY_SEARCH_REVIEW_EVIDENCE.items.join(" ").toLowerCase()).toContain(
       "evidence",
     );
+  });
+
+  it("keeps the SecureNow capability heading independent of the boundary module at runtime", () => {
+    const secureSource = readFileSync(
+      resolve(process.cwd(), "src/lib/product-line/securenow-governance-findings-copy.ts"),
+      "utf8",
+    );
+    const headingSource = readFileSync(
+      resolve(process.cwd(), "src/lib/page-capability-boundary-heading.ts"),
+      "utf8",
+    );
+
+    expect(secureSource).toContain(
+      'import { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY } from "@/lib/page-capability-boundary-heading";',
+    );
+    // Type-only imports do not survive compilation; value imports recreate the
+    // production initialization cycle and its "before initialization" crash.
+    expect(secureSource).not.toMatch(/^import (?!type\b).*from ["']@\/lib\/page-capability-boundary["'];?$/gm);
+    expect(headingSource).not.toMatch(/^import\s/gm);
+    expect(headingSource).toContain('"What this page does not do"');
   });
 });

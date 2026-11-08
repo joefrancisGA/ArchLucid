@@ -105,7 +105,7 @@ describe("ProvenanceGraphViewport", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Zoom in" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Zoom in/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Fit graph to view" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reset graph layout" })).toBeInTheDocument();
   });

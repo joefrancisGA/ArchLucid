@@ -1,12 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   SUPPORT_WORKSPACE_FOLLOW_UPS_TITLE,
   SUPPORT_WORKSPACE_SOURCES,
 } from "@/lib/support-workspace-evidence-copy";
+import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { AdminSupportPageView } from "./AdminSupportPageView";
 import {
@@ -18,6 +20,15 @@ import {
 } from "./admin-support-page-copy";
 import type { UseAdminSupportPageModel } from "./use-admin-support-page";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => SETTINGS_SUPPORT_PATH,
+  };
+});
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -26,6 +37,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/components/ReportProblemSupportWorkspaceVocabularyRail", () => ({
   ReportProblemSupportWorkspaceVocabularyRail: () => (
@@ -78,9 +94,32 @@ describe("AdminSupportPageView buyer-polished shell (ASX)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(reportProblem) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SUPPORT_WORKSPACE_SOURCES)) {
+    const visibleSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(SUPPORT_WORKSPACE_SOURCES),
+      SETTINGS_SUPPORT_PATH,
+    );
+    for (const source of visibleSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

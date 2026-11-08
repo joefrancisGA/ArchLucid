@@ -21,6 +21,16 @@ export function AlertRulesHubTabCountsBootstrap(): null {
   const routingQuery = useAlertRoutingSubscriptionsQuery();
   const compositeQuery = useCompositeAlertRulesListQuery();
 
+  // Do not observe list-array identity: query mocks (and fresh API results) can
+  // create equivalent arrays on each render. Updating the hub state in response
+  // to those references produces a self-sustaining render/effect cycle.
+  // dataUpdatedAt retains honest refresh timestamps when list contents are unchanged.
+  const rulesCount = rulesQuery.items.length;
+  const routingCount = routingQuery.items.length;
+  const compositeCount = compositeQuery.items.length;
+  const rulesConfigUtc = latestAlertRulesConfigChange(rulesQuery.items)?.recordedUtc ?? null;
+  const compositeConfigUtc = latestCompositeAlertRulesConfigChange(compositeQuery.items)?.recordedUtc ?? null;
+
   useEffect(() => {
     if (rulesQuery.loading || rulesQuery.failure !== null) {
       return;
@@ -28,18 +38,31 @@ export function AlertRulesHubTabCountsBootstrap(): null {
 
     reportTabLoaded(
       "rules",
-      rulesQuery.items.length,
-      latestAlertRulesConfigChange(rulesQuery.items),
+      rulesCount,
+      rulesConfigUtc === null ? null : { recordedUtc: rulesConfigUtc, actor: null },
     );
-  }, [reportTabLoaded, rulesQuery.failure, rulesQuery.items, rulesQuery.loading]);
+  }, [
+    reportTabLoaded,
+    rulesQuery.failure,
+    rulesQuery.loading,
+    rulesQuery.dataUpdatedAt,
+    rulesCount,
+    rulesConfigUtc,
+  ]);
 
   useEffect(() => {
     if (routingQuery.loading || routingQuery.failure !== null) {
       return;
     }
 
-    reportTabLoaded("notifications", routingQuery.items.length);
-  }, [reportTabLoaded, routingQuery.failure, routingQuery.items, routingQuery.loading]);
+    reportTabLoaded("notifications", routingCount);
+  }, [
+    reportTabLoaded,
+    routingQuery.failure,
+    routingQuery.loading,
+    routingQuery.dataUpdatedAt,
+    routingCount,
+  ]);
 
   useEffect(() => {
     if (compositeQuery.loading || compositeQuery.failure !== null) {
@@ -48,10 +71,17 @@ export function AlertRulesHubTabCountsBootstrap(): null {
 
     reportTabLoaded(
       "advanced-rules",
-      compositeQuery.items.length,
-      latestCompositeAlertRulesConfigChange(compositeQuery.items),
+      compositeCount,
+      compositeConfigUtc === null ? null : { recordedUtc: compositeConfigUtc, actor: null },
     );
-  }, [compositeQuery.failure, compositeQuery.items, compositeQuery.loading, reportTabLoaded]);
+  }, [
+    compositeQuery.failure,
+    compositeQuery.loading,
+    compositeQuery.dataUpdatedAt,
+    compositeCount,
+    compositeConfigUtc,
+    reportTabLoaded,
+  ]);
 
   return null;
 }

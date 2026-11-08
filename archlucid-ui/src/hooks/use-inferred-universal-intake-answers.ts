@@ -64,6 +64,16 @@ export function useInferredUniversalIntakeAnswers(
   const inputRef = useRef(input);
   const evidenceExtractionProgress = useEvidenceExtractionProgress();
   const evidenceExtractionProgressRef = useRef(evidenceExtractionProgress);
+  // Vitest tears down jsdom before late evidence extraction settles — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   onAnswersChangeRef.current = input.onAnswersChange;
   answersRef.current = input.answers;
@@ -86,7 +96,9 @@ export function useInferredUniversalIntakeAnswers(
     const hasBinaryDocuments = evidenceFilesIncludeBinaryArchitectureDocument(currentInput.evidenceFiles);
     const canDraftClarificationAnswers = currentInput.blocksLlmRephrase !== true;
 
-    setIsExtractingEvidenceText(true);
+    if (mountedRef.current) {
+      setIsExtractingEvidenceText(true);
+    }
 
     if (needsDocumentExtraction) {
       progress.begin({
@@ -118,6 +130,10 @@ export function useInferredUniversalIntakeAnswers(
         },
       );
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       const hasInferenceSource =
         currentInput.evidenceFiles.length > 0
         || currentInput.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
@@ -127,9 +143,12 @@ export function useInferredUniversalIntakeAnswers(
       }
 
       const inferenceCandidates = inferUniversalIntakeAnswerCandidatesFromCorpus(corpus);
-      setDroppedClarificationExtractSummary(
-        formatDroppedClarificationExtractsSummary(listDroppedClarificationExtracts(inferenceCandidates)),
-      );
+
+      if (mountedRef.current) {
+        setDroppedClarificationExtractSummary(
+          formatDroppedClarificationExtractsSummary(listDroppedClarificationExtracts(inferenceCandidates)),
+        );
+      }
 
       const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
       let answersToApply = inferredAnswers;
@@ -157,6 +176,11 @@ export function useInferredUniversalIntakeAnswers(
         if (rephraseItems.length > 0) {
           try {
             const rephrased = await rephraseClarificationAnswersFromExtractedText({ items: rephraseItems });
+
+            if (!mountedRef.current) {
+              return;
+            }
+
             const merged = mergeRephrasedClarificationAnswers({
               currentAnswers: answersRef.current,
               inferredAnswers,
@@ -195,6 +219,10 @@ export function useInferredUniversalIntakeAnswers(
         answersToApply = filterQualityGatedInferredAnswers(inferredAnswers);
       }
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
         currentAnswers: answersRef.current,
         inferredAnswers: answersToApply,
@@ -202,6 +230,10 @@ export function useInferredUniversalIntakeAnswers(
       });
 
       suggestedAnswerCount = newlyInferredQuestionKeys.length;
+
+      if (!mountedRef.current) {
+        return;
+      }
 
       setClarificationSuggestionsUnavailable(
         hasInferenceSource
@@ -230,14 +262,18 @@ export function useInferredUniversalIntakeAnswers(
         progress.complete({ suggestedAnswerCount });
       }
 
-      setIsExtractingEvidenceText(false);
+      if (mountedRef.current) {
+        setIsExtractingEvidenceText(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     if (!canSuggestFromEvidence) {
-      setClarificationSuggestionsUnavailable(false);
-      setDroppedClarificationExtractSummary(null);
+      if (mountedRef.current) {
+        setClarificationSuggestionsUnavailable(false);
+        setDroppedClarificationExtractSummary(null);
+      }
 
       return;
     }

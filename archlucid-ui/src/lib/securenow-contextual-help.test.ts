@@ -18,8 +18,7 @@ describe("SecureNow contextual help (SH-01)", () => {
 
     expect(entry).not.toBeNull();
     expect(entry?.whatIsThisPage).toContain("Security");
-    expect(entry?.whatIsThisPage).toContain("ARC-AMPE");
-    expect(entry?.whatIsThisPage).toContain("Infrastructure");
+    expect(entry?.whatIsThisPage).toMatch(/Azure|permission|access path/i);
     expect(entry?.whatToDoNext).toContain("assigned to you");
     expect(entry?.whatToDoNextAction?.href).toBe("/security/assigned-to-me");
     expect(entry?.whatIsThisPage).not.toMatch(/architecture identity/i);
@@ -58,7 +57,7 @@ describe("SecureNow contextual help (SH-01)", () => {
 
   it("maps remediation factory Learn more away from governance-approval in Security", () => {
     expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, "security")?.slug).toBe(
-      "remediation-factory",
+      "security-evidence-paths",
     );
     expect(pageHelpTopicForPathname(GOVERNANCE_REMEDIATION_FACTORY_PATH, "architecture")?.slug).toBe(
       "governance-approval",
@@ -69,13 +68,15 @@ describe("SecureNow contextual help (SH-01)", () => {
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_PATH, "security")?.slug).toBe(
       "governance-infrastructure-overview",
     );
-    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-resources",
+    );
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.label).toBe(
       "Resource explorer",
     );
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_PATH, "architecture")?.slug).toBe("cloud-connections");
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, "architecture")?.slug).toBe(
-      "cloud-connections",
+      "governance-infrastructure-resources",
     );
   });
 });

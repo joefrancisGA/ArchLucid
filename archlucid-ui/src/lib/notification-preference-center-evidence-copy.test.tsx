@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { NotificationPreferenceCenterEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -13,6 +13,10 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES_INTRO,
 } from "@/lib/notification-preference-center-evidence-copy";
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 describe("notification-preference-center-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -31,9 +35,7 @@ describe("notification-preference-center-evidence-copy", () => {
 
     const sources = screen.getByTestId("notification-preference-center-sources");
 
-    for (const link of NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES, NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CANONICAL_PATH}$`, "i") }),
@@ -43,11 +45,14 @@ describe("notification-preference-center-evidence-copy", () => {
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<NotificationPreferenceCenterEvidenceOrientationStrip />);
 
-    const claim = screen.getByTestId("notification-preference-center-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_HEADING_ID);
-    expect(
-      screen.getByRole("heading", { name: NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    if (!shouldOmitClaimDisciplineBand("notification-preference-center")) {
+      const claim = screen.getByTestId("notification-preference-center-claim-discipline");
+      expect(claim).toHaveAttribute("aria-labelledby", NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_HEADING_ID);
+      expect(
+        screen.getByRole("heading", { name: NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE_HEADING }),
+      ).toBeInTheDocument();
+    }
+
     expect(screen.getByRole("heading", { name: NOTIFICATION_PREFERENCE_CENTER_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
   });
 });

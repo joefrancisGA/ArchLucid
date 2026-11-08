@@ -1,3 +1,4 @@
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
@@ -14,7 +15,7 @@ export function ScimProvisioningLoadingView(): React.JSX.Element {
       data-testid="scim-provisioning-settings-page"
       data-scim-provisioning-state="loading"
     >
-      <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SCIM_PROVISIONING_PAGE_TITLE}</h1>
+      <OperatorPageHeader title={SCIM_PROVISIONING_PAGE_TITLE} />
 
       <Skeleton className="mt-3 h-4 w-full max-w-md" data-testid="scim-provisioning-loading-lead-skeleton" />
 

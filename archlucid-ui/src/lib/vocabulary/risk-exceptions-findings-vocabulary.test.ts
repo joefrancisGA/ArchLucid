@@ -23,7 +23,7 @@ describe("risk-exceptions-findings-vocabulary (TB-2249)", () => {
     expect(model.whyTwo).toBe(RISK_EXCEPTIONS_FINDINGS_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("waiver");
     expect(model.whyTwo.toLowerCase()).toContain("finding");
-    expect(model.whyTwo.toLowerCase()).toContain("disposition");
+    expect(model.whyTwo.toLowerCase()).toContain("resolve");
     expect(model.compactLine).toBe(RISK_EXCEPTIONS_FINDINGS_COMPACT_LINE);
 
     expect(model.riskExceptionsLink).toEqual(RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK);

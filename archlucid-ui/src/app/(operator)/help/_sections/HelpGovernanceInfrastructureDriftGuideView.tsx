@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -15,7 +17,6 @@ import { operatorPageContainerClass } from "@/components/operator/OperatorPageCo
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -192,7 +193,7 @@ export function HelpGovernanceInfrastructureDriftGuideView(
 ): React.ReactElement {
   const { entry } = props;
   const { productLine: productLineId } = useProductLine();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const relatedLinks = filterRelatedLinks(productLineId);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-governance-infrastructure-drift",

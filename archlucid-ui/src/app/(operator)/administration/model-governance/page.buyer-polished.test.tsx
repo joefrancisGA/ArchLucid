@@ -14,6 +14,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -22,6 +27,25 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
     PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 vi.mock("@/components/ModelGovernanceAiUsageVocabularyRail", () => ({
   ModelGovernanceAiUsageVocabularyRail: () => <div data-testid="model-governance-ai-usage-vocabulary-rail" />,
@@ -37,6 +61,8 @@ import {
   MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE,
   MODEL_GOVERNANCE_SETTINGS_SOURCES,
 } from "@/lib/model-governance-settings-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -78,7 +104,12 @@ describe("ModelGovernanceSettingsPage buyer-polished shell (AMO)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(settingsCard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(MODEL_GOVERNANCE_SETTINGS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(MODEL_GOVERNANCE_SETTINGS_SOURCES),
+      MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

@@ -46,7 +46,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
     expect(screen.getByTestId(RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Missing private endpoint/i })).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-abc/findings/finding-1",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
     );
     expect(screen.getByTestId("finding-policy-rule-badge")).toHaveTextContent("net-base-001");
     expect(screen.getByTestId("finding-trust-chip-deterministic-rule")).toBeInTheDocument();

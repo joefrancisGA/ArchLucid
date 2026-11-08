@@ -4,7 +4,7 @@ import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-
 export const SECURENOW_FIRST_HOUR_HEADING = "First hour preparation" as const;
 
 export const SECURENOW_FIRST_HOUR_LEAD =
-  "Internal operator path for the first useful review. SecureNow beta remains NO_GO." as const;
+  "Internal workflow for the first useful review. SecureNow beta remains NO_GO." as const;
 
 export type SecureNowFirstHourStep = {
   readonly title: string;

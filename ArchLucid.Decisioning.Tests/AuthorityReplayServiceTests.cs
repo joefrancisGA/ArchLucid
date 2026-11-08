@@ -301,16 +301,7 @@ public sealed class AuthorityReplayServiceTests
         ledgerRepo.Reset();
         ledgerRepo
             .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        ledgerRepo
-            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyEntry]);
-        ledgerRepo
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.IsAny<ScopeContext>(),
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         IReadOnlyList<TechnologyLedgerEntry>? capturedLedger = null;
         artifactSvc
@@ -331,7 +322,7 @@ public sealed class AuthorityReplayServiceTests
         capturedLedger.Should().NotBeNull();
         capturedLedger!.Should().ContainSingle(entry => entry.EntryId == "ledger-replay-legacy");
         ledgerRepo.Verify(
-            repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()),
+            repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 }

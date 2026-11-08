@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -9,7 +11,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SLACK_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/slack-integration-evidence-copy";
 import {
   SLACK_ACTION_REFRESHING,
@@ -35,7 +36,7 @@ export type SlackIntegrationPageHeaderProps = {
 };
 
 export function SlackIntegrationPageHeader(props: SlackIntegrationPageHeaderProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const statusLabel = props.refreshing
     ? "Loading"
     : slackIntegrationConfigurationStatusLabel(props.activeDestinationCount);

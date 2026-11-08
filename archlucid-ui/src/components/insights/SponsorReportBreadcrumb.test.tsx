@@ -6,11 +6,10 @@ import { SPONSOR_REPORT_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { SponsorReportBreadcrumb } from "./SponsorReportBreadcrumb";
 
 describe("SponsorReportBreadcrumb", () => {
-  it("renders insights trail ending on Sponsor report", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<SponsorReportBreadcrumb />);
 
-    expect(screen.getByTestId("sponsor-report-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Insights" })).toHaveAttribute("href", "/insights/evidence-graph");
-    expect(screen.getByText(SPONSOR_REPORT_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.queryByTestId("sponsor-report-breadcrumb")).not.toBeInTheDocument();
+    expect(SPONSOR_REPORT_PAGE_TITLE.length).toBeGreaterThan(0);
   });
 });

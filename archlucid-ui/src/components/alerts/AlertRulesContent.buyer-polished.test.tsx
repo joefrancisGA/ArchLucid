@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   ALERT_RULES_CONDITIONS_BUYER_OVERVIEW,
@@ -16,6 +16,23 @@ import {
   ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID,
 } from "@/lib/alert-rules-conditions-evidence-copy";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
+
+const { mockPathname } = vi.hoisted(() => ({
+  mockPathname: vi.fn((): string => "/governance/alert-rules?tab=conditions"),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => mockPathname(),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams("tab=conditions"),
+}));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
@@ -34,6 +51,25 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isOperatorExperienceFullShellEnv: () => false,
   };
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 vi.mock("@/lib/api", () => ({
   listAlertRules: vi.fn().mockResolvedValue([]),
@@ -108,7 +144,10 @@ describe("AlertRulesContent buyer-polished shell (GLR)", () => {
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES)) {
+    for (const source of whereToGoNextFollowUpLinksForTests(
+      ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES,
+      mockPathname(),
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useEffect } from "react";
 
 const replaceMock = vi.fn();
+const commitHrefIfChangedMock = vi.hoisted(() => vi.fn(() => true));
 const pendingInvitationCountMock = vi.hoisted(() => ({ value: 0 }));
 
 vi.mock("next/navigation", () => ({
@@ -12,8 +13,18 @@ vi.mock("next/navigation", () => ({
     replace: replaceMock,
     refresh: vi.fn(),
   }),
-  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(window.location.search),
 }));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    commitHrefIfChanged: (...args: Parameters<typeof actual.commitHrefIfChanged>) =>
+      commitHrefIfChangedMock(...args),
+  };
+});
 
 vi.mock("@/lib/api-keys-settings-access", () => ({
   isApiKeysSettingsSurfaceEnabled: () => true,
@@ -106,6 +117,11 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
 }
 
 describe("SettingsRolesPageView (SSU P0)", () => {
+  beforeEach(() => {
+    commitHrefIfChangedMock.mockClear();
+    window.history.replaceState(null, "", "/administration/users?tab=users");
+  });
+
   it("renders the Members card when the directory API is unavailable", () => {
     render(<SettingsRolesPageView model={buildModel()} />);
 
@@ -198,12 +214,13 @@ describe("SettingsRolesPageView (SSU P0)", () => {
   });
 
   it("persists ?tab=users when the Users tab is selected (TB-1936)", () => {
-    replaceMock.mockClear();
+    window.history.replaceState(null, "", "/administration/users?tab=roles");
+    commitHrefIfChangedMock.mockClear();
     render(<SettingsRolesPageView model={buildModel({ usersNote: null })} />);
 
     fireEvent.click(screen.getByTestId("settings-roles-tab-users"));
 
-    expect(replaceMock).toHaveBeenCalledWith(SETTINGS_USERS_USERS_TAB_PATH);
+    expect(commitHrefIfChangedMock).toHaveBeenCalledWith(SETTINGS_USERS_USERS_TAB_PATH, { notify: false });
   });
 
   it("shows users-specific error copy without principals jargon (TB-1938)", () => {
@@ -273,6 +290,7 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
 
   it("pins continue last viewed principal when the directory has users", () => {
     window.localStorage.removeItem("archlucid_settings_principal_continue_last_v1");
+    window.history.replaceState(null, "", "/administration/users?tab=users");
 
     render(
       <SettingsRolesPageView
@@ -290,6 +308,8 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
         })}
       />,
     );
+
+    fireEvent.click(screen.getByTestId("settings-roles-tab-users"));
 
     expect(screen.getByTestId("settings-roles-continue-last-viewed-row")).toHaveTextContent("Ada");
     expect(screen.getByTestId("settings-roles-continue-last-viewed-open")).toBeInTheDocument();

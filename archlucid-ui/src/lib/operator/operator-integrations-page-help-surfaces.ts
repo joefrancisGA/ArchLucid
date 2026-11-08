@@ -17,7 +17,7 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
     {
       id: "integrations-cloud-connections",
       pathname: "/integrations/cloud-connections",
-      modulePath: "app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsPageClient.tsx",
+      modulePath: "app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsPageShell.tsx",
       notes: "Cloud connections hub — cloud-connections help topic.",
     },
     {
@@ -77,13 +77,13 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
     {
       id: "integrations-atlassian-oauth-callback",
       pathname: "/integrations/itsm/oauth/callback",
-      modulePath: "app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackClient.tsx",
+      modulePath: "app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions.tsx",
       notes: "Atlassian OAuth return — integration-readiness help topic.",
     },
     {
       id: "administration-connection-status",
       pathname: "/administration/connection-status",
-      modulePath: "app/(operator)/administration/connection-status/page.tsx",
+      modulePath: "app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient.tsx",
       notes: "Connection status / integration readiness hub — integration-readiness help topic.",
     },
     {
@@ -95,13 +95,13 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
     {
       id: "insights-patterns",
       pathname: "/insights/patterns",
-      modulePath: "app/(operator)/insights/patterns/_sections/PatternLibraryPageClient.tsx",
+      modulePath: "app/(operator)/insights/patterns/_sections/PatternLibraryPageHeader.tsx",
       notes: "Pattern library hub — repeat-review-loop help topic; detail inherits via prefix match (TB-1814).",
     },
     {
       id: "insights-patterns-detail",
       pathname: "/insights/patterns/api-gateway-bff",
-      modulePath: "app/(operator)/insights/patterns/_sections/PatternLibraryDetailClient.tsx",
+      modulePath: "app/(operator)/insights/patterns/_sections/PatternLibraryDetailPageHeader.tsx",
       notes: "Pattern detail inherits pattern-library hub topic via prefix match.",
     },
     {

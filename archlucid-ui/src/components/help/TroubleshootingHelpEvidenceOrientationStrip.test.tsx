@@ -1,5 +1,20 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/troubleshooting",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
@@ -10,6 +25,7 @@ import { TroubleshootingHelpEvidenceOrientationStrip } from "@/components/help/T
 import {
   TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
   TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING,
+  TROUBLESHOOTING_HELP_CANONICAL_PATH,
   TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE,
   TROUBLESHOOTING_HELP_SOURCES,
 } from "@/lib/troubleshooting-help-evidence-copy";
@@ -35,6 +51,10 @@ describe("TroubleshootingHelpEvidenceOrientationStrip", () => {
       "where-to-go-next",
     );
 
-    expectWhereToGoNextFollowUpLinks(screen, TROUBLESHOOTING_HELP_SOURCES);
+    expectWhereToGoNextFollowUpLinks(
+      screen,
+      TROUBLESHOOTING_HELP_SOURCES,
+      TROUBLESHOOTING_HELP_CANONICAL_PATH,
+    );
   });
 });

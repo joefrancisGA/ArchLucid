@@ -1,6 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink, whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 import { SlackIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -23,9 +27,7 @@ describe("slack-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("slack-integration-sources");
 
-    for (const link of whereToGoNextFollowUpLinksForTests(SLACK_INTEGRATION_SOURCES)) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), SLACK_INTEGRATION_SOURCES, SLACK_INTEGRATION_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${SLACK_INTEGRATION_CANONICAL_PATH}$`, "i") }),

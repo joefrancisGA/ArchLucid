@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Internal configuration-summary saturation and reseed guidance; not customer-facing assurance.
+
 # Configuration summary — saturated /al-bug reseed classes
 
 Owner pivot **2026-10-29:** `core-configuration-summary` dry hunts **#658–#662** closed five `(candidate)` rows per run using **arithmetic sibling** inputs (3802–3806-layer `ClientSecret=` percent chains, 524–528 supplementary-char truncation boundaries, and alternating delimiter / JSON-null / uppercase-key re-verifies). Those mechanisms were already pinned; further siblings are **not hunt-ready**.
