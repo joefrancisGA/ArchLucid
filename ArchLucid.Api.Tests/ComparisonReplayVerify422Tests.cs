@@ -2,57 +2,9 @@
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Application.Analysis;
-using ArchLucid.Contracts.Metadata;
-
 using FluentAssertions;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
 namespace ArchLucid.Api.Tests;
-
-/// <summary>Replaces comparison replay with a service that always fails verify, to assert HTTP 422 pipeline.</summary>
-public sealed class ComparisonVerify422ApiFactory : ArchLucidApiFactory
-{
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        base.ConfigureWebHost(builder);
-        builder.ConfigureTestServices(services =>
-        {
-            services.RemoveAll<IComparisonReplayService>();
-            services.AddScoped<IComparisonReplayService, ForcedComparisonVerificationFailureReplayService>();
-        });
-    }
-}
-
-internal sealed class ForcedComparisonVerificationFailureReplayService : IComparisonReplayService
-{
-    public Task<ReplayComparisonResult> ReplayAsync(
-        ReplayComparisonRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        throw new ComparisonVerificationFailedException(
-            "Regenerated comparison does not match stored payload.",
-            new DriftAnalysisResult { DriftDetected = true, Summary = "integration-test drift" });
-    }
-
-    public Task<DriftAnalysisResult> AnalyzeDriftAsync(
-        string comparisonRecordId,
-        CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(new DriftAnalysisResult());
-    }
-
-    public Task EnsureArtifactReplayAccessAllowedAsync(
-        ComparisonRecord record,
-        CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
-}
 
 /// <summary>
 ///     Tests for Comparison Replay Verify422.
