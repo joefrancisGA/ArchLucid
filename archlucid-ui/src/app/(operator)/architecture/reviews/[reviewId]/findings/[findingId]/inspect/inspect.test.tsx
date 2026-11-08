@@ -57,7 +57,11 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { title: "Rule A", severity: "High" },
+          typedPayload: {
+            title: "Rule A",
+            severity: "High",
+            whyThisMatters: "Ingress paths without TLS expose credentials in transit.",
+          },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -93,7 +97,11 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { title: "Rule A", severity: "High" },
+          typedPayload: {
+            title: "Rule A",
+            severity: "High",
+            whyThisMatters: "Ingress paths without TLS expose credentials in transit.",
+          },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -121,7 +129,11 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { title: "Rule A", severity: "High" },
+          typedPayload: {
+            title: "Rule A",
+            severity: "High",
+            whyThisMatters: "Ingress paths without TLS expose credentials in transit.",
+          },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: null, excerpt: "node-x" }],
