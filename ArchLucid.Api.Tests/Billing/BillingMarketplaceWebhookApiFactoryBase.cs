@@ -50,13 +50,3 @@ internal abstract class BillingMarketplaceWebhookApiFactoryBase : GreenfieldSqlA
         };
     }
 }
-
-internal sealed class BillingMarketplaceWebhookDeferredApiFactory : BillingMarketplaceWebhookApiFactoryBase
-{
-    protected override bool GaEnabled => false;
-}
-
-internal sealed class BillingMarketplaceWebhookGaOnApiFactory : BillingMarketplaceWebhookApiFactoryBase
-{
-    protected override bool GaEnabled => true;
-}
