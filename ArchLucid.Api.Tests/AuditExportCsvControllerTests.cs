@@ -115,9 +115,10 @@ public sealed class AuditExportCsvControllerTests
 
         AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
 
-        Guid runId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
+        // Empty run id exercises filter wiring without sealed-manifest export guard (run-scoped guard skips Guid.Empty).
+        Guid runId = Guid.Empty;
         Uri uri = new(
-            $"/v1/audit/export/csv?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-31T00:00:00.0000000Z&eventType=RunCreated&correlationId=cx&actorUserId=ux&runId={runId:D}",
+            "/v1/audit/export/csv?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-31T00:00:00.0000000Z&eventType=RunCreated&correlationId=cx&actorUserId=ux&runId=00000000-0000-0000-0000-000000000000",
             UriKind.Relative);
 
         HttpResponseMessage response = await client.GetAsync(uri);

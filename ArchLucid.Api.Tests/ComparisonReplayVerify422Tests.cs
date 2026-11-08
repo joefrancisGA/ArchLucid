@@ -65,7 +65,7 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, "REQ-VERIFY-422-001");
+            Client, JsonOptions, Factory, "REQ-VERIFY-422-001");
         string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
