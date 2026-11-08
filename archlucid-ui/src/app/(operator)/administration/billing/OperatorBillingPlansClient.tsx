@@ -170,10 +170,6 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
 
   useEffect(() => {
     if (!urlCheckoutConfirm || selectedPlanId === null || pricing === null) {
-      if (!urlCheckoutConfirm && pendingCheckout !== null) {
-        setPendingCheckoutState(null);
-      }
-
       return;
     }
 

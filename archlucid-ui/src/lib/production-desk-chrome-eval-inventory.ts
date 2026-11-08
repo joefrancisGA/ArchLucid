@@ -28,7 +28,6 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "app/(operator)/administration/billing/OperatorBillingSettingsHeaderActions.tsx",
   "app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient.tsx",
   "app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx",
-  "app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
   "app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageHeader.tsx",
   "app/(operator)/administration/identity-providers/_sections/IdentityProvidersDiagnosticsPageView.tsx",
   "app/(operator)/administration/identity-providers/_sections/IdentityProvidersOidcPageView.tsx",

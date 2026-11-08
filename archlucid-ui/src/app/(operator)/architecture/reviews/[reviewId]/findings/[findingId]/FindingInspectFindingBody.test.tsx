@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
 
@@ -27,6 +29,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   isNextPublicDemoMode: () => false,
 };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 vi.mock("@/lib/buyer/buyer-safe-review-navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/buyer/buyer-safe-review-navigation")>();
@@ -66,7 +73,7 @@ describe("FindingInspectFindingBody", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Why this matters" })).toBeTruthy();
     expect(screen.getByTestId("finding-evidence-collapsible")).toBeTruthy();
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();

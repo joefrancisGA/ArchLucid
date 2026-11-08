@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { fetchGovernanceFindingsRegistersBundle } from "@/lib/api/governance-stickiness-api";
@@ -153,15 +153,27 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
   const [snapshot, setSnapshot] = useState<Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload">>(
     INITIAL_SNAPSHOT,
   );
+  // Vitest tears down jsdom before late governance-register fetches settle — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const load = useCallback(async (): Promise<void> => {
-    setSnapshot((prev) => ({
-      ...prev,
-      loading: true,
-      loadFailed: false,
-      loadForbidden: false,
-      workspaceScopeLabel: null,
-    }));
+    if (mountedRef.current) {
+      setSnapshot((prev) => ({
+        ...prev,
+        loading: true,
+        loadFailed: false,
+        loadForbidden: false,
+        workspaceScopeLabel: null,
+      }));
+    }
 
     try {
       const bundle = await fetchGovernanceFindingsRegistersBundle();
@@ -173,6 +185,10 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
       ]);
       const summary = summarizeFindingsRows(rows);
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       setSnapshot({
         loading: false,
         loadFailed: false,
@@ -182,6 +198,10 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
         loadedAtUtc: new Date().toISOString(),
       });
     } catch (error) {
+      if (!mountedRef.current) {
+        return;
+      }
+
       if (isAuthorizationFailure(error)) {
         setSnapshot({
           loading: false,

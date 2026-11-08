@@ -1,5 +1,18 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/api/wizard-intake-draft-api", () => ({
+  fetchWizardIntakeDraft: vi.fn().mockResolvedValue(null),
+  upsertWizardIntakeDraft: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/architecture/reviews/new",
+  });
+});
 
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import {
@@ -53,7 +66,9 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
 
     render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
 
-    expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    });
 
     await act(async () => {
       screen.getByRole("button", { name: "Resume saved wizard" }).click();
@@ -73,12 +88,11 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
 
     render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(onRestore).toHaveBeenCalledWith("Saved title");
     });
 
     expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
-    expect(onRestore).toHaveBeenCalledWith("Saved title");
   });
 
   it("auto-accepts restore when the hub resume strip continues on the same page", async () => {
@@ -91,7 +105,9 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
 
     render(<TestHarness state={{ title: "" }} onRestore={onRestore} />);
 
-    expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Resume saved wizard" })).toBeInTheDocument();
+    });
 
     requestReviewsNewWizardAutoRestore(WIZARD_SESSION_IDS.reviewsNewQuickStart);
 
@@ -100,7 +116,10 @@ describe("useWizardSessionPersistence (TB-2157)", () => {
       await Promise.resolve();
     });
 
+    await waitFor(() => {
+      expect(onRestore).toHaveBeenCalledWith("Saved title");
+    });
+
     expect(screen.queryByRole("button", { name: "Resume saved wizard" })).not.toBeInTheDocument();
-    expect(onRestore).toHaveBeenCalledWith("Saved title");
   });
 });

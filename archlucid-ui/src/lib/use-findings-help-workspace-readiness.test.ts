@@ -1,20 +1,15 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  getArchitectureDecisionRegister,
-  getArchitectureRiskRegister,
-} from "@/lib/api/governance-stickiness-api";
+import { fetchGovernanceFindingsRegistersBundle } from "@/lib/api/governance-stickiness-api";
 import { FINDINGS_HELP_READINESS_LABELS } from "@/lib/findings/findings-help-guide-content";
 import { useFindingsHelpWorkspaceReadiness } from "@/lib/use-findings-help-workspace-readiness";
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
-  getArchitectureRiskRegister: vi.fn(),
-  getArchitectureDecisionRegister: vi.fn(),
+  fetchGovernanceFindingsRegistersBundle: vi.fn(),
 }));
 
-const mockedRiskRegister = vi.mocked(getArchitectureRiskRegister);
-const mockedDecisionRegister = vi.mocked(getArchitectureDecisionRegister);
+const mockedBundle = vi.mocked(fetchGovernanceFindingsRegistersBundle);
 
 describe("useFindingsHelpWorkspaceReadiness", () => {
   beforeEach(() => {
@@ -24,35 +19,37 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
   it("summarizes open, critical/error, awaiting decision, and recent remediations", async () => {
     const recentUtc = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
-    mockedRiskRegister.mockResolvedValue({
-      entries: [
-        {
-          findingId: "f-open-critical",
-          title: "Open critical",
-          severity: "Critical",
-          category: "Security",
-          statusLabel: "Open",
-          agingDays: 1,
-          isStale: false,
-          evidenceHref: "/evidence/1",
-          latestDisposition: null,
-          humanReviewStatus: 1,
-        },
-        {
-          findingId: "f-resolved",
-          title: "Resolved",
-          severity: "Warning",
-          category: "Ops",
-          statusLabel: "Closed",
-          agingDays: 3,
-          isStale: false,
-          evidenceHref: "/evidence/2",
-          latestDisposition: "Remediated",
-          lastReviewedUtc: recentUtc,
-        },
-      ],
+    mockedBundle.mockResolvedValue({
+      riskRegister: {
+        entries: [
+          {
+            findingId: "f-open-critical",
+            title: "Open critical",
+            severity: "Critical",
+            category: "Security",
+            statusLabel: "Open",
+            agingDays: 1,
+            isStale: false,
+            evidenceHref: "/evidence/1",
+            latestDisposition: null,
+            humanReviewStatus: 1,
+          },
+          {
+            findingId: "f-resolved",
+            title: "Resolved",
+            severity: "Warning",
+            category: "Ops",
+            statusLabel: "Closed",
+            agingDays: 3,
+            isStale: false,
+            evidenceHref: "/evidence/2",
+            latestDisposition: "Remediated",
+            lastReviewedUtc: recentUtc,
+          },
+        ],
+      },
+      decisionRegister: { decisions: [] },
     });
-    mockedDecisionRegister.mockResolvedValue({ decisions: [] });
 
     const { result } = renderHook(() => useFindingsHelpWorkspaceReadiness());
 
@@ -75,23 +72,25 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
   });
 
   it("does not count warning severity in the critical and error tile", async () => {
-    mockedRiskRegister.mockResolvedValue({
-      entries: [
-        {
-          findingId: "f-open-warning",
-          title: "Open warning",
-          severity: "Warning",
-          category: "Security",
-          statusLabel: "Open",
-          agingDays: 1,
-          isStale: false,
-          evidenceHref: "/evidence/1",
-          latestDisposition: null,
-          humanReviewStatus: 1,
-        },
-      ],
+    mockedBundle.mockResolvedValue({
+      riskRegister: {
+        entries: [
+          {
+            findingId: "f-open-warning",
+            title: "Open warning",
+            severity: "Warning",
+            category: "Security",
+            statusLabel: "Open",
+            agingDays: 1,
+            isStale: false,
+            evidenceHref: "/evidence/1",
+            latestDisposition: null,
+            humanReviewStatus: 1,
+          },
+        ],
+      },
+      decisionRegister: { decisions: [] },
     });
-    mockedDecisionRegister.mockResolvedValue({ decisions: [] });
 
     const { result } = renderHook(() => useFindingsHelpWorkspaceReadiness());
 
@@ -104,8 +103,10 @@ describe("useFindingsHelpWorkspaceReadiness", () => {
   });
 
   it("uses zero counts when no findings match", async () => {
-    mockedRiskRegister.mockResolvedValue({ entries: [] });
-    mockedDecisionRegister.mockResolvedValue({ decisions: [] });
+    mockedBundle.mockResolvedValue({
+      riskRegister: { entries: [] },
+      decisionRegister: { decisions: [] },
+    });
 
     const { result } = renderHook(() => useFindingsHelpWorkspaceReadiness());
 

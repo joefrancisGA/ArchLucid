@@ -31,8 +31,8 @@ describe("PlanningPlanDetailPageHeader", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Improvement plan" })).toBeInTheDocument();
     expect(screen.getByText(PLANNING_PLAN_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("improvement-planning-plan-detail-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByText("Modernize intake workflow")).toBeInTheDocument();
+    expect(screen.getByTestId("planning-plan-detail-title")).toBeInTheDocument();
+    expect(screen.getByTestId("planning-plan-detail-claim-discipline")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });

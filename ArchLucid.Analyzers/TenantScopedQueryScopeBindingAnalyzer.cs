@@ -395,7 +395,12 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         }
 
         foreach (string sqlText in sqlTexts)
+        {
+            if (string.IsNullOrWhiteSpace(sqlText))
+                continue;
+
             AnalyzeResolvedSql(context, registry, resolution, reportLocation, sqlText);
+        }
     }
 
     private static void AnalyzeResolvedSql(

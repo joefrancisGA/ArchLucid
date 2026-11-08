@@ -28,6 +28,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/buyer/buyer-demo-content-gating", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/buyer/buyer-demo-content-gating")>();
 
@@ -62,6 +67,7 @@ import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-
 
 describe("ScopeSwitcher — operator shell", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/");
     demoUiEnvMock.buyerPolishedShell = false;
     demoUiEnvMock.demoMode = false;
     vi.mocked(operatorScopeStorage.getEffectiveBrowserProxyScopeHeaders).mockReturnValue({
@@ -295,6 +301,7 @@ describe("ScopeSwitcher — operator shell", () => {
 
 describe("ScopeSwitcher — buyer-polished shell", () => {
   beforeEach(() => {
+    window.history.replaceState({}, "", "/");
     demoUiEnvMock.buyerPolishedShell = true;
     demoUiEnvMock.demoMode = true;
     vi.stubGlobal(

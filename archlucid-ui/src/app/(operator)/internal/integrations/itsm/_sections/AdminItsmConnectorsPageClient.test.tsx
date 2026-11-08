@@ -26,7 +26,27 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/internal/integrations/itsm",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { AdminItsmConnectorsPageClient } from "./AdminItsmConnectorsPageClient";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+import {
+  ADMIN_ITSM_CONNECTORS_CANONICAL_PATH,
+  ADMIN_ITSM_CONNECTORS_SOURCES,
+} from "@/lib/admin-itsm-connectors-evidence-copy";
 
 describe("AdminItsmConnectorsPageClient", () => {
   afterEach(() => {
@@ -57,9 +77,11 @@ describe("AdminItsmConnectorsPageClient", () => {
     expect(screen.queryByTestId("admin-itsm-connectors-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ITSM connectors", level: 1 })).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId("admin-itsm-connectors-sources")).getByRole("link", { name: "Integration readiness" }),
-    ).toHaveAttribute("href", "/administration/connection-status");
+    expectWhereToGoNextFollowUpLinks(
+      within(screen.getByTestId("admin-itsm-connectors-sources")),
+      ADMIN_ITSM_CONNECTORS_SOURCES,
+      ADMIN_ITSM_CONNECTORS_CANONICAL_PATH,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();

@@ -2,6 +2,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { ADMINISTRATION_CONNECTION_STATUS_PATH } from "@/lib/integrations-nav-paths";
+import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { API_KEYS_PAGE_SUBTITLE, API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { SYSTEM_HEALTH_PAGE_SUBTITLE_OPERATOR, SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
 import { ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_OPERATOR } from "@/lib/administration-connection-status-page-copy";
@@ -145,21 +146,25 @@ export const SETTINGS_MASTER_SECTIONS_WORKSPACE: readonly SettingsMasterSection[
         source: "default",
         editability: "read-only",
       },
-      {
-        id: "api-keys",
-        title: API_KEYS_PAGE_TITLE,
-        description: API_KEYS_PAGE_SUBTITLE,
-        href: "/administration/api-keys",
-        cta: "Open API keys",
-        keywords: ["api", "key", "automation", "integration", "token"],
-        requiredAuthority: "AdminAuthority",
-        tier: "common",
-        scope: "tenant",
-        source: "overridden",
-        editability: "admin-only",
-        saveBehavior: "Save on destination page",
-        highImpact: true,
-      },
+      ...(isApiKeysSettingsSurfaceEnabled()
+        ? [
+            {
+              id: "api-keys",
+              title: API_KEYS_PAGE_TITLE,
+              description: API_KEYS_PAGE_SUBTITLE,
+              href: "/administration/api-keys",
+              cta: "Open API keys",
+              keywords: ["api", "key", "automation", "integration", "token"],
+              requiredAuthority: "AdminAuthority" as const,
+              tier: "common" as const,
+              scope: "tenant" as const,
+              source: "overridden" as const,
+              editability: "admin-only" as const,
+              saveBehavior: "Save on destination page",
+              highImpact: true,
+            },
+          ]
+        : []),
       {
         id: "connection-status",
         title: "Connection status",

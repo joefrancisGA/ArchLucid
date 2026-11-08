@@ -14,9 +14,9 @@ const FLAT_LABEL_VALUE_BAND_TEST_FILES = [
 ] as const;
 
 const TB_1999_SHIPPED_SOURCE_ROOTS = [
-  "src/app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
+  "src/app/(operator)/insights/sponsor-report/_sections/PilotValueReportFindingsSection.tsx",
   "src/app/(operator)/governance/policy-packs/[id]/PolicyPackGenericDetail.tsx",
-  "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
+  "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizardStepConfirm.tsx",
 ] as const;
 
 function readUiUtf8(pathFromUiRoot: string): string {
@@ -41,11 +41,11 @@ describe("flat label:value metadata band regression (TB-1999)", () => {
   });
 
   it("forbids raw Label: value prose on pilot value report disposition rows (TB-1999)", () => {
-    const pilotReport = readUiUtf8(
-      "src/app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
+    const pilotReportFindings = readUiUtf8(
+      "src/app/(operator)/insights/sponsor-report/_sections/PilotValueReportFindingsSection.tsx",
     );
 
-    expect(pilotReport).toContain("InlineMetadataLabel");
-    expect(pilotReport).not.toMatch(/Approved:\s*\{/);
+    expect(pilotReportFindings).toContain("InlineMetadataLabel");
+    expect(pilotReportFindings).not.toMatch(/Approved:\s*\{/);
   });
 });

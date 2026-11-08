@@ -26,6 +26,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView";
@@ -99,6 +104,7 @@ describe("specialty help guides — operator surfaces batch", () => {
       "search-review-evidence",
       "servicenow-integration",
       "sponsor-dashboard",
+      "structured-brief",
       "system-health",
       "workspace-settings",
     ]);

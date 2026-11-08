@@ -184,7 +184,7 @@ describe("TeamExpansionNudge", () => {
     fireEvent.click(screen.getByRole("link", { name: /request a quote/i }));
     expect(mockClicked).toHaveBeenCalledWith("workspaces");
 
-    fireEvent.click(screen.getByRole("button", { name: /dismiss team expansion nudge for 24 hours/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
 
     await waitFor(() => {
       expect(screen.queryByTestId("team-expansion-nudge")).not.toBeInTheDocument();

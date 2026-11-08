@@ -123,14 +123,15 @@ export function recommendedHelpSearchPanelTopicIds(
   situation: HelpPageSituation | null = null,
   workingMode: boolean = false,
 ): string[] {
+  const path = normalizePathname(pathname);
   const situationTopicIds = helpPageSituationTopicIds(situation);
 
   // A published situation describes the review in front of the user; it outranks the route.
   if (situationTopicIds.length > 0) {
-    return filterWorkingHomeHelpTopicIds(situationTopicIds, workingMode);
+    return path === "/"
+      ? filterWorkingHomeHelpTopicIds(situationTopicIds, workingMode)
+      : [...situationTopicIds];
   }
-
-  const path = normalizePathname(pathname);
 
   if (path === "/") {
     const homeTopicIds = ROUTE_RECOMMENDED_TOPIC_IDS.find((row) => row.prefix === "/")?.topicIds ?? [];
@@ -146,7 +147,7 @@ export function recommendedHelpSearchPanelTopicIds(
     }
 
     if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
-      return filterWorkingHomeHelpTopicIds(row.topicIds, workingMode);
+      return [...row.topicIds];
     }
   }
 

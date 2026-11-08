@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { getHelpTopicHref, type HelpTopic } from "@/lib/help/help-topics";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -154,6 +156,14 @@ export function HelpPanel(props: HelpPanelProps) {
             In-app:{" "}
             <Link href="/architecture/first-review-guide" className={OPERATOR_LINK.nav} onClick={() => onOpenChange(false)}>
               Getting started
+            </Link>
+            {" · "}
+            <Link
+              href={FIRST_ARCHITECTURE_REVIEW_HELP_PATH}
+              className={OPERATOR_LINK.nav}
+              onClick={() => onOpenChange(false)}
+            >
+              {FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE}
             </Link>{" "}
             (first-review checklist on Home)
           </p>

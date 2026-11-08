@@ -1,6 +1,6 @@
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
@@ -211,11 +211,51 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(confirmButtonIndex).toBeGreaterThanOrEqual(0);
     expect(denyButtonIndex).toBeGreaterThanOrEqual(0);
     expect(confirmButtonIndex).toBeLessThan(denyButtonIndex);
-    expect(explainButton.className).toContain("text-xs");
-    expect(confirmButton.className).toContain("text-xs");
-    expect(denyButton.className).toContain("text-xs");
+    expect(explainButton.className).toContain("text-[11px]");
+    expect(confirmButton.className).toContain("text-[11px]");
+    expect(denyButton.className).toContain("text-[11px]");
     expect(screen.getByTestId("architecture-draft-constraints-confirm-all-suggestions")).toBeInTheDocument();
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
+  });
+
+describe.sequential("structured brief suggestion explain", () => {
+  afterEach(() => {
+    cleanup();
+    clearStructuredBriefSuggestionExplainCache();
+    mockedExplainStructuredBriefSuggestion.mockReset();
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("still allows confirm after explain fetch fails", async () => {
+    mockDraftSuggestResponse({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+    mockedExplainStructuredBriefSuggestion.mockRejectedValueOnce(
+      new ApiRequestError("Explain failed.", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 500,
+      }),
+    );
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: /Explain/i }));
+    expect(await within(suggestion).findByText(/Explain failed/i)).toBeInTheDocument();
+
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
   it("fetches explanation on demand when Explain is opened", async () => {
@@ -226,7 +266,8 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       topologyHints: [],
       securityBaselineHints: [],
     });
-    mockedExplainStructuredBriefSuggestion.mockResolvedValue({
+    clearStructuredBriefSuggestionExplainCache();
+    mockedExplainStructuredBriefSuggestion.mockResolvedValueOnce({
       explanation:
         "Your overview mentioned EU customers. Confirming this tells the review to keep data in EU regions.",
     });
@@ -245,37 +286,6 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     ).toBeInTheDocument();
     expect(mockedExplainStructuredBriefSuggestion).toHaveBeenCalledTimes(1);
   });
-
-  it("still allows confirm after explain fetch fails", async () => {
-    mockDraftSuggestResponse({
-      suggestedConstraints: ["EU data residency"],
-      suggestedAssumptions: [],
-      suggestedCapabilities: [],
-      topologyHints: [],
-      securityBaselineHints: [],
-    });
-    mockedExplainStructuredBriefSuggestion.mockRejectedValue(
-      new ApiRequestError("Explain failed.", {
-        problem: null,
-        correlationId: null,
-        httpStatus: 500,
-      }),
-    );
-
-    render(
-      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
-    );
-
-    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
-
-    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
-    fireEvent.click(within(suggestion).getByRole("button", { name: /Explain/i }));
-    expect(await within(suggestion).findByText("Explain failed.")).toBeInTheDocument();
-
-    fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
-
-    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
   it("removes a suggestion when denied", async () => {
@@ -440,7 +450,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(await screen.findByText("Shared DB with TenantId")).toBeInTheDocument();
     expect(screen.getByText("Availability 99.9%")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-suggest-structured-brief-success")).toHaveTextContent(
-      "Added 7 suggestions below",
+      "Added 6 suggestions below — confirm each one before review uses them.",
     );
     expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-failure-mode-suggestion")).toBeInTheDocument();

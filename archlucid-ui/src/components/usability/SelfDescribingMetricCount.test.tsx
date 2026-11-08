@@ -20,7 +20,7 @@ describe("SelfDescribingMetricCount", () => {
       "href",
       "/governance/findings?filter=open",
     );
-    expect(screen.getByText(/open findings · this workspace/i)).toBeInTheDocument();
+    expect(screen.getByText("open findings")).toBeInTheDocument();
   });
 
   it("uses middle-dot separators and suppresses redundant scope labels", () => {
@@ -39,18 +39,17 @@ describe("SelfDescribingMetricCount", () => {
     );
   });
 
-  it("renders quiet zero tiles without kpi scale", () => {
+  it("renders zero counts with workspace-scoped copy", () => {
     render(
       <SelfDescribingMetricCount
         presentation={operatorHomeActiveReviewsPresentation(0)}
         testId="home-active-reviews-zero"
-        valueVariant="quiet"
       />,
     );
 
     const value = screen.getByTestId("home-active-reviews-zero-value");
 
     expect(value).toHaveTextContent("0");
-    expect(value.className).not.toMatch(/text-4xl/);
+    expect(screen.getByText("active reviews")).toBeInTheDocument();
   });
 });

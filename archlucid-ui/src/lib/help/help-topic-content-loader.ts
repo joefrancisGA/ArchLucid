@@ -44,6 +44,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "workspace-settings",
   "evidence-graph",
   "search-review-evidence",
+  "security-evidence-paths",
   "architecture-intelligence",
   "sponsor-dashboard",
   "architecture-desk",

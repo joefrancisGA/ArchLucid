@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -17,7 +19,6 @@ import {
 } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
@@ -98,7 +99,7 @@ export function ReviewsNewPathSwitcher() {
       isAcceleratorPackId(acceleratorPackId));
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const commitQuery = useCorePilotCommitContextQuery();
   const isReturningTenant =
     commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;

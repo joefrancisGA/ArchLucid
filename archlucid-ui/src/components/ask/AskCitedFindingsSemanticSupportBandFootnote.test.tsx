@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
+import { ASK_CITED_FINDING_NOT_IN_LOADED_INDEX_COPY } from "@/lib/ask/ask-cited-findings-semantic-support-band";
 
 describe("AskCitedFindingsSemanticSupportBandFootnote", () => {
   it("renders weakest-band footnote for cited findings", () => {
@@ -20,14 +21,17 @@ describe("AskCitedFindingsSemanticSupportBandFootnote", () => {
     expect(screen.getByText(/TB-1003/i)).toBeInTheDocument();
   });
 
-  it("renders nothing when no cited findings match the index", () => {
-    const { container } = render(
+  it("explains when a cited finding is missing from the loaded index", () => {
+    render(
       <AskCitedFindingsSemanticSupportBandFootnote
         referencedFindingIds={["missing-id"]}
         findingBandIndex={[{ findingId: "f-1", band: "Unsupported", bandStored: true }]}
       />,
     );
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByTestId("ask-cited-findings-semantic-support-band-footnote")).toBeInTheDocument();
+    expect(screen.getByTestId("ask-cited-findings-semantic-support-band-footnote")).toHaveTextContent(
+      ASK_CITED_FINDING_NOT_IN_LOADED_INDEX_COPY,
+    );
   });
 });

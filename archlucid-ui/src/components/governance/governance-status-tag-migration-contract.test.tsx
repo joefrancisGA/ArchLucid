@@ -9,10 +9,10 @@ import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag
 const SRC_ROOT = join(process.cwd(), "src");
 
 const TB_2286_MIGRATED_MODULES = [
-  "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList.tsx",
+  "app/(operator)/governance/_sections/GovernanceWorkflowApprovalsQueue.tsx",
   "components/governance/GovernanceApprovalInspectorPreview.tsx",
   "components/runs/RunDetailPageHeader.tsx",
-  "components/runs/RunDetailOutcomeCards.tsx",
+  "components/runs/RunDetailPackageStatusStrip.tsx",
 ] as const;
 
 describe("TB-2286 governance StatusTag migration contract", () => {
@@ -39,6 +39,6 @@ describe("GovernanceStatusTag", () => {
 
     const tag = screen.getByLabelText("Status: Pending architecture review");
 
-    expect(tag.className).toContain("border-l-sky-700");
+    expect(tag.className).toContain("border-l-[var(--al-accent-interactive)]");
   });
 });

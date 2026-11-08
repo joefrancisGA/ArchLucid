@@ -42,7 +42,7 @@ describe("create-home evidence band regression (TB-1850)", () => {
     const ree = findUiRouteTrafficRow("REE");
 
     expect(ree).toBeDefined();
-    expect(ree?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=evidence");
+    expect(ree?.path).toBe("/architecture/reviews/[reviewId]?archTab=evidence");
     expect(ree?.section).toBe("Tab surface");
 
     for (const phrase of REE_TRAFFIC_HONESTY_PHRASES) {

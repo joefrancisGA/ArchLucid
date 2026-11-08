@@ -5,6 +5,12 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/help/advisory-scans",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams("helpAdvisoryScansSourcesOpen=1"),
+}));
+
 import { HelpAdvisoryScansGuideView } from "@/app/(operator)/help/_sections/HelpAdvisoryScansGuideView";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
@@ -244,12 +250,21 @@ describe("HelpAdvisoryScansGuideView", () => {
       ).toHaveAttribute("href", source.href);
     }
 
-    expect(screen.getByRole("link", { name: "Read AI usage help" })).toHaveAttribute("href", "/help/ai-usage");
-    expect(screen.getByRole("link", { name: "Read Architecture review guide" })).toHaveAttribute(
-      "href",
-      "/help/review-guide",
-    );
-    expect(screen.getByRole("link", { name: "Read Audit trail help" })).toHaveAttribute("href", "/help/audit-trail");
+    expect(
+      screen.getByRole("link", {
+        name: formatHelpFollowUpLinkAccessibleName("/help/ai-usage", "AI usage help"),
+      }),
+    ).toHaveAttribute("href", "/help/ai-usage");
+    expect(
+      screen.getByRole("link", {
+        name: formatHelpFollowUpLinkAccessibleName("/help/review-guide", "Architecture review guide"),
+      }),
+    ).toHaveAttribute("href", "/help/review-guide");
+    expect(
+      screen.getByRole("link", {
+        name: formatHelpFollowUpLinkAccessibleName("/help/audit-trail", "Audit trail help"),
+      }),
+    ).toHaveAttribute("href", "/help/audit-trail");
     expect(screen.queryByRole("link", { name: "Architecture reviews" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Scan generation" })).not.toBeInTheDocument();
   });

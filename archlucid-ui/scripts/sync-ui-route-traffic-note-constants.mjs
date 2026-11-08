@@ -11,27 +11,32 @@ const libDir = path.join(repoRoot, "archlucid-ui/src/lib");
 
 function loadRows(markdown) {
   const start = markdown.indexOf("## Master table");
-  const rows = new Map();
+  const byId = new Map();
+  const byPath = new Map();
 
   for (const line of markdown.slice(start).split("\n")) {
     if (!line.startsWith("|")) {
       continue;
     }
 
-    const cells = line.split("|").map((cell) => cell.trim());
+    const cells = line.split("|").map((cell) => cell.trim().replace(/^`|`$/g, ""));
 
-    if (cells.length < 9 || cells[1] === "ID") {
+    if (cells.length < 10 || cells[1] === "ID") {
       continue;
     }
 
-    rows.set(cells[1], {
+    const row = {
+      id: cells[1],
       path: cells[2] ?? "",
       section: cells[7] ?? "",
-      notes: cells[8] ?? "",
-    });
+      notes: cells[9] ?? "",
+    };
+
+    byId.set(row.id, row);
+    byPath.set(row.path, row);
   }
 
-  return rows;
+  return { byId, byPath };
 }
 
 function replaceTrafficNoteExport(text, noteConstName, noteValue) {
@@ -45,16 +50,54 @@ function replaceTrafficNoteExport(text, noteConstName, noteValue) {
   const afterMarker = text.slice(start + marker.length);
   const match = afterMarker.match(/^\s*(\r?\n\s*)?("(?:\\.|[^"\\])*");/);
 
-  if (match === null) {
-    throw new Error(`Could not parse ${noteConstName}`);
+  if (match !== null) {
+    const replacement = `\n  ${JSON.stringify(noteValue)};`;
+    return (
+      text.slice(0, start + marker.length) + replacement + text.slice(start + marker.length + match[0].length)
+    );
   }
 
-  const replacement = `\n  ${JSON.stringify(noteValue)};`;
+  const backtickMatch = afterMarker.match(/^\s*`(?:\\.|[^`\\])*`;/s);
 
-  return text.slice(0, start + marker.length) + replacement + text.slice(start + marker.length + match[0].length);
+  if (backtickMatch !== null) {
+    const replacement = `\n  ${JSON.stringify(noteValue)};`;
+    return (
+      text.slice(0, start + marker.length) +
+      replacement +
+      text.slice(start + marker.length + backtickMatch[0].length)
+    );
+  }
+
+  throw new Error(`Could not parse ${noteConstName}`);
 }
 
-const rows = loadRows(fs.readFileSync(templatePath, "utf8"));
+function replaceStringExport(text, constName, value) {
+  const pattern = new RegExp(`(export const ${constName} = )"[^"]*"`, "m");
+
+  if (!pattern.test(text)) {
+    return text;
+  }
+
+  return text.replace(pattern, `$1${JSON.stringify(value)}`);
+}
+
+function extractModulePath(text) {
+  const pathMatch = text.match(/export const \w+_TRAFFIC_PATH\s*=\s*\n?\s*([^;\n]+);/);
+
+  if (pathMatch === null) {
+    return null;
+  }
+
+  const rhs = pathMatch[1].trim();
+
+  if (rhs.startsWith('"') && rhs.endsWith('"')) {
+    return JSON.parse(rhs);
+  }
+
+  return null;
+}
+
+const { byId, byPath } = loadRows(fs.readFileSync(templatePath, "utf8"));
 let updated = 0;
 
 for (const file of fs.readdirSync(libDir)) {
@@ -63,21 +106,40 @@ for (const file of fs.readdirSync(libDir)) {
   }
 
   const fullPath = path.join(libDir, file);
-  const text = fs.readFileSync(fullPath, "utf8");
-  const rowIdMatch = text.match(/export const \w+_TRAFFIC_ROW_ID = "([^"]+)"/);
+  let text = fs.readFileSync(fullPath, "utf8");
+  const rowIdMatch = text.match(/export const (\w+_TRAFFIC_ROW_ID) = "([^"]+)"/);
+  const sectionMatch = text.match(/export const (\w+_TRAFFIC_SECTION) =/);
   const noteConstMatch = text.match(/export const (\w+_TRAFFIC_NOTE) =/);
 
   if (rowIdMatch === null || noteConstMatch === null) {
     continue;
   }
 
-  const row = rows.get(rowIdMatch[1]);
+  let row = byId.get(rowIdMatch[2]);
+
+  if (row === undefined) {
+    const modulePath = extractModulePath(text);
+
+    if (modulePath !== null) {
+      row = byPath.get(modulePath);
+    }
+  }
 
   if (row === undefined) {
     continue;
   }
 
-  const next = replaceTrafficNoteExport(text, noteConstMatch[1], row.notes);
+  let next = text;
+
+  if (rowIdMatch[2] !== row.id) {
+    next = replaceStringExport(next, rowIdMatch[1], row.id);
+  }
+
+  if (sectionMatch !== null) {
+    next = replaceStringExport(next, sectionMatch[1], row.section);
+  }
+
+  next = replaceTrafficNoteExport(next, noteConstMatch[1], row.notes);
 
   if (next !== text) {
     fs.writeFileSync(fullPath, next, "utf8");

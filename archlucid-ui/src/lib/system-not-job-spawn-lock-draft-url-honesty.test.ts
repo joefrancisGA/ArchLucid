@@ -44,7 +44,7 @@ describe("system-not-job spawn-lock draft URL honesty (SN-003)", () => {
     expect(handoffPanel).toContain("data-spawn-lock-url-honesty");
     expect(handoffPanel).toContain("architecture-draft-spawn-lock-clone-honesty");
     expect(handoffPanel).toContain("ArchitectureDraftCloneSnapshotControl");
-    expect(workspaceBody).toMatch(/handoffEditorLocked && linkedReviewId !== null/);
+    expect(workspaceBody).toContain("shouldRenderSpawnLockedHandoffLayout");
     expect(workspaceBody).not.toMatch(/isWorkingMode && handoffEditorLocked/);
     expect(existsSync(join(REPO_ROOT, "archlucid-ui/src/lib/architecture/architecture-draft-spawn-lock-url-honesty.ts"))).toBe(
       true,

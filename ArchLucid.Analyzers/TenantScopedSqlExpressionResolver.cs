@@ -335,6 +335,13 @@ internal static class TenantScopedSqlExpressionResolver
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
         ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+
+        if (fromAssignment is not null &&
+            fromInitializer is { IsStaticallyResolved: true, SqlText: "" or null, BranchSqlTexts.Count: 0 })
+        {
+            return fromAssignment;
+        }
+
         ResolutionResult? merged = MergeBranchResolutions(fromInitializer, fromAssignment);
 
         if (merged is not null)

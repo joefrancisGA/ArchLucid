@@ -32,6 +32,12 @@ const elicitationMock = vi.hoisted(() => ({
     askAnother: vi.fn(async () => undefined),
     transparencyTrail: null,
     lastRecordedEntry: null,
+    questionsBlockedReason: null,
+    questionsFailure: null,
+    questionListStored: true,
+    questionListMissing: false,
+    questionsLoading: false,
+    primaryQuestionPromptStored: true,
   } satisfies UseReviewPresenterElicitationResult,
 }));
 
@@ -115,6 +121,12 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
       askAnother: vi.fn(async () => undefined),
       transparencyTrail: null,
       lastRecordedEntry: null,
+      questionsBlockedReason: null,
+      questionsFailure: null,
+      questionListStored: true,
+      questionListMissing: false,
+      questionsLoading: false,
+      primaryQuestionPromptStored: true,
     };
   });
 

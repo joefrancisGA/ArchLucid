@@ -40,7 +40,13 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID } from "@/lib/alert-rules-conditions-evidence-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND } from "@/lib/operator/operator-live-preview-readiness-rail";
+import {
+  hasAlertRulesLivePreviewPinContent,
+  OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND,
+  shouldPinLivePreviewReadinessRail,
+} from "@/lib/operator/operator-live-preview-readiness-rail";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { alertRuleFormDiffersFromDefaultDraft } from "@/lib/alert-rule-conditions";
 
 export function AlertRulesContent() {
   const buyerPolishedShell = useProductionEvalChrome();
@@ -63,7 +69,13 @@ export function AlertRulesContent() {
   });
 
   const failure = list.listFailure ?? create.mutationFailure;
-  const sectionGap = preview.pinLivePreviewRail ? "gap-8" : "gap-4";
+  const pinLivePreviewRail = shouldPinLivePreviewReadinessRail(
+    hasAlertRulesLivePreviewPinContent({
+      existingRuleCount: list.items.length,
+      draftDiffersFromDefault: alertRuleFormDiffersFromDefaultDraft(create.formInput),
+    }),
+  );
+  const sectionGap = pinLivePreviewRail ? "gap-8" : "gap-4";
 
   const emptyStateFooter = list.canEdit && list.scopedRunFilterActive && create.emptyIntroMode && !buyerPolishedShell ? (
     <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
@@ -175,11 +187,11 @@ export function AlertRulesContent() {
         className={cn(
           "grid",
           sectionGap,
-          preview.pinLivePreviewRail && "xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]",
+          pinLivePreviewRail && "xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]",
         )}
         data-testid="alert-rules-layout"
         data-rail-kind={OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND}
-        data-live-rail-pinned={preview.pinLivePreviewRail ? "true" : "false"}
+        data-live-rail-pinned={pinLivePreviewRail ? "true" : "false"}
         data-empty-intro={list.showEmptyCard && list.canEdit ? "true" : "false"}
       >
         <div className={cn("flex min-w-0 flex-col", sectionGap)}>
@@ -228,7 +240,7 @@ export function AlertRulesContent() {
           ) : null}
         </div>
 
-        {preview.pinLivePreviewRail ? (
+        {pinLivePreviewRail ? (
           <div className="grid min-w-0 gap-4">
             <AlertRuleLivePreviewPanel form={preview.formInput} />
             <AlertRuleNotificationReadinessPanel

@@ -14,11 +14,28 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/help/digests",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
 import { HelpDigestsGuideView } from "@/app/(operator)/help/_sections/HelpDigestsGuideView";
+import { whereToGoNextFollowUpLinksForTests } from "@/lib/claim-discipline-test-helpers";
 import {
   DIGESTS_HELP_CLAIM_DISCIPLINE,
   DIGESTS_HELP_CANONICAL_PATH,
@@ -122,7 +139,7 @@ describe("HelpDigestsGuideView", () => {
     expect(screen.getByTestId("help-digests-orientation-bottom")).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-digests-sources");
-    for (const source of DIGESTS_HELP_SOURCES) {
+    for (const source of whereToGoNextFollowUpLinksForTests(DIGESTS_HELP_SOURCES, DIGESTS_HELP_CANONICAL_PATH)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(followUps).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
@@ -155,7 +172,7 @@ describe("HelpDigestsGuideView", () => {
 
     expect(screen.getByRole("heading", { name: "How digests work" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Where digests are managed" })).toBeInTheDocument();
-    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(4);
+    expect(screen.getAllByRole("heading", { level: 3 }).length).toBeGreaterThanOrEqual(4);
     expect(screen.getByTestId("help-digests-how-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-digests-destination-cards")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();

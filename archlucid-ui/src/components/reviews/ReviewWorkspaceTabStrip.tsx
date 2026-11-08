@@ -232,7 +232,6 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
     showThisBrowserVisitHonesty,
   };
   const counts = props.tabCounts ?? {};
-  const tabsVariant = props.lifecycle === "create-home" ? "pill" : "line";
   const primaryTabIds = props.resolvedTabs.visibleTabIds;
   const secondaryTabIds = props.resolvedTabs.moreTabIds;
   const allTabIds = [...primaryTabIds, ...secondaryTabIds];
@@ -287,17 +286,14 @@ export function ReviewWorkspaceTabStrip(props: ReviewWorkspaceTabStripProps): Re
       <div className="-mx-1 hidden overflow-x-auto px-1 md:block">
         <Tabs
           className="min-w-0"
-          variant={tabsVariant}
+          variant="line"
           value={props.activeTab}
           onValueChange={(value) => props.onTabChange(resolveReviewDetailTab(value))}
         >
           <TabsList
             aria-label="Review workspace sections"
             data-testid={REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID}
-            className={cn(
-              tabsVariant === "line" ? "h-auto flex-wrap overflow-y-hidden" : "flex-wrap",
-              "-mx-1 overflow-x-auto px-1",
-            )}
+            className={cn("h-auto flex-wrap overflow-y-hidden", "-mx-1 overflow-x-auto px-1")}
           >
             {primaryTabIds.map((tabId) => renderTabTrigger(stripProps, tabId, counts))}
             {secondaryTabIds.length > 0 ? (

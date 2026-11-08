@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +38,6 @@ import {
 } from "@/components/usability/PageContextualHelpButton";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { PolicyPackGenericTechnicalDetailsDisclosure } from "./PolicyPackGenericTechnicalDetailsDisclosure";
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import {
@@ -96,7 +97,7 @@ function resolveEnablementStatusTag(isEnabled: boolean, isGloballyActive: boolea
 export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const { productLine } = useProductLine();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
   const policyPacksHubHref =

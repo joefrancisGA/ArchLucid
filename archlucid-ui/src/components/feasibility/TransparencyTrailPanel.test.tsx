@@ -48,7 +48,7 @@ describe("TransparencyTrailPanel", () => {
 
     expect(skippedMust).toBeInTheDocument();
     expect(screen.getByText(/skipped must questions \(0\)/i)).toBeInTheDocument();
-    expect(within(skippedMust).getByText(/none recorded\./i)).toBeInTheDocument();
+    expect(within(skippedMust).getByText(/skipped must questions were stored empty\./i)).toBeInTheDocument();
   });
 
   it("collapses behind a disclosure when defaultExpanded is false", () => {

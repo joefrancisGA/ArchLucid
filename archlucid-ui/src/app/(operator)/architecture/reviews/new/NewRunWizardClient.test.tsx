@@ -142,6 +142,10 @@ async function skipEvidenceStep() {
   });
 
   await act(async () => {
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-brief"));
+  });
+
+  await act(async () => {
     fireEvent.click(screen.getByTestId("wizard-evidence-brief-continue"));
   });
 }

@@ -38,7 +38,7 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
       <span className="inline-flex flex-wrap items-baseline gap-x-1" data-testid={testId}>
         <Link
           href={presentation.href}
-          className={cn("font-medium tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}
+          className={cn("text-al-link font-medium tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}
           data-testid={testId ? `${testId}-value` : undefined}
           aria-label={headline}
         >
@@ -61,7 +61,7 @@ export function SelfDescribingMetricCount(props: SelfDescribingMetricCountProps)
   return (
     <Link
       href={presentation.href}
-      className={cn(METRIC_TILE_INTERACTIVE_SHELL_CLASS, "min-w-0 space-y-0.5")}
+      className={cn(METRIC_TILE_INTERACTIVE_SHELL_CLASS, "text-al-link min-w-0 space-y-0.5")}
       data-testid={testId}
       aria-label={headline}
     >

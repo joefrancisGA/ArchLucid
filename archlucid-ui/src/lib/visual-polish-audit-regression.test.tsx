@@ -30,9 +30,9 @@ describe("visual polish audit regressions (TB-535–TB-544)", () => {
 
     expect(fallback).toHaveAttribute(
       "aria-label",
-      "Evidence trail: context, primary finding, decisions, and finalized signed package",
+      "Evidence graph: context, primary finding, decisions, and finalized signed package",
     );
-    expect(screen.getByText(/Evidence trail — the interactive graph appears once the viewer has loaded\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Evidence graph — the interactive graph appears once the viewer has loaded\./i)).toBeInTheDocument();
     expect(fallback.textContent?.toLowerCase()).not.toContain("sample");
   });
 
@@ -51,7 +51,7 @@ describe("visual polish audit regressions (TB-535–TB-544)", () => {
   it("TB-543: FirstWeekRouteGuidance home variant does not use native details/summary", () => {
     const source = readFileSync(join(REPO_UI_ROOT, "src/components/FirstWeekRouteGuidance.tsx"), "utf8");
 
-    expect(source).toContain("OperatorHomeDisclosureSection");
+    expect(source).toContain("FirstWeekRouteGuidanceHomeDisclosure");
     expect(source).not.toMatch(/<details[\s>]/);
     expect(source).not.toMatch(/<summary[\s>]/);
   });

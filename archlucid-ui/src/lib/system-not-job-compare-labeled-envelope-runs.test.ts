@@ -12,6 +12,10 @@ import {
   SYSTEM_NOT_JOB_COMPARE_LABELED_ENVELOPE_RUNS_DOC_ANCHOR,
   SYSTEM_NOT_JOB_COMPARE_LABELED_ENVELOPE_RUNS_OWNER,
 } from "@/lib/system-not-job-compare-labeled-envelope-runs";
+import {
+  WORKING_CAREER_DOOR_LABEL,
+  WORKING_REHEARSAL_DOOR_LABEL,
+} from "@/lib/governance/working-career-rehearsal-door-copy";
 import type { RunSummary } from "@/types/authority";
 
 const REPO_ROOT = join(process.cwd(), "..");
@@ -39,20 +43,20 @@ describe("SN-014 compare labeled envelope runs", () => {
   });
 
   it("labels rehearsal and career stamps for committed rows (CG-057)", () => {
-    expect(resolveCompareRunDoorStampLabel(committedRun())).toBe("Rehearsal");
+    expect(resolveCompareRunDoorStampLabel(committedRun())).toBe(WORKING_REHEARSAL_DOOR_LABEL);
     expect(
       resolveCompareRunDoorStampLabel(
         committedRun({ workingCareerRehearsalDoor: "career" }),
       ),
-    ).toBe("Career");
+    ).toBe(WORKING_CAREER_DOOR_LABEL);
     expect(resolveCompareRunPickerDropdownSecondaryLine(committedRun())).toBe(
-      "Rehearsal · run-envelope-001",
+      `${WORKING_REHEARSAL_DOOR_LABEL} · run-envelope-001`,
     );
   });
 
   it("builds picker footnotes with stamp plus title when picked from list", () => {
     expect(resolveComparePickerFootnote("run-envelope-001", committedRun())).toBe(
-      "Rehearsal · What-if envelope branch",
+      `${WORKING_REHEARSAL_DOOR_LABEL} · What-if envelope branch`,
     );
   });
 

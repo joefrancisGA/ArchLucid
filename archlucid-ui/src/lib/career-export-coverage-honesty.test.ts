@@ -229,7 +229,7 @@ describe("career-export-coverage-honesty (PC-13)", () => {
         enginesSucceeded: 16,
         workingDesk: true,
       }),
-    ).toMatch(/required intake questions are unanswered/i);
+    ).toMatch(/MUST question was skipped/i);
   });
 
   it("returns a blocked reason helper for manifest export gates", () => {

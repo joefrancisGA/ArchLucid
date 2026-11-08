@@ -2,12 +2,41 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const buyerPolishedChromeFixture = vi.hoisted(() => ({ enabled: true }));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
   return {
     ...actual,
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
+
+vi.mock("@/hooks/useProductionDeskChrome", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/useProductionDeskChrome")>();
+
+  return {
+    ...actual,
+    useProductionDeskChrome: () => !buyerPolishedChromeFixture.enabled,
+    useProductionEvalChrome: () => buyerPolishedChromeFixture.enabled,
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
   };
 });
 
@@ -135,3 +164,22 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     expectWhereToGoNextFollowUpLinks(within(sourcesSection), CORE_PILOT_HELP_SOURCES, "/help/first-architecture-review");
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

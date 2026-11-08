@@ -1,14 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
 import {
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
+  expectWhereToGoNextFollowUpLinks,
 } from "@/lib/claim-discipline-test-helpers";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import {
@@ -25,7 +30,6 @@ import {
   JIRA_INTEGRATION_HELP_SOURCES,
 } from "@/lib/jira-integration-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpJiraIntegrationGuideView", () => {
@@ -74,11 +78,9 @@ describe("HelpJiraIntegrationGuideView", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Before you start" })).toBeInTheDocument();
     expect(screen.getByTestId("help-jira-integration-before-you-start")).toBeInTheDocument();
 
-    for (const source of JIRA_INTEGRATION_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+    const sourcesSection = screen.getByTestId("help-jira-integration-sources");
 
-      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), JIRA_INTEGRATION_HELP_SOURCES, "/");
 
     expect(screen.getAllByRole("link", { name: "Read Integration readiness help" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(

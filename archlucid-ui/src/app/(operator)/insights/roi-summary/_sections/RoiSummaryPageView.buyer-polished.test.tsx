@@ -27,6 +27,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/LayerHeader", () => ({
   LayerHeader: () => <div data-testid="layer-header" />,
 }));
@@ -37,6 +42,10 @@ vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("./RoiSummaryNextReviewFooterClient", () => ({
+  RoiSummaryNextReviewFooterClient: () => <div data-testid="roi-summary-next-review-footer-stub" />,
 }));
 
 vi.mock("@/components/RoiSponsorExportVocabularyRail", () => ({
@@ -70,6 +79,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/insights/roi-summary",
   useSearchParams: () => new URLSearchParams("runId=run-roi-1"),
 }));
 
@@ -82,6 +92,25 @@ beforeAll(() => {
     disconnect(): void {}
   } as unknown as typeof ResizeObserver;
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 function emptyReport(): PilotValueReportJson {
   return {

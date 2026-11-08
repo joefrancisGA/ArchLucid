@@ -9,9 +9,10 @@ import {
   REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_SHORT_HELPER_MEASURE_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   showcaseSpecimenFindingsHref,
-  showcaseSpecimenSignedReviewRecordHref,
+  showcaseSpecimenSealedReviewRecordHref,
 } from "@/lib/showcase-sample-review-registry";
 
 describe("SpecimenDeliverablePreviewCallout", () => {
@@ -24,12 +25,10 @@ describe("SpecimenDeliverablePreviewCallout", () => {
     expect(lead.className).toContain(OPERATOR_SHORT_HELPER_MEASURE_CLASS);
     expect(lead.className).not.toContain("max-w-prose");
     const primaryCta = screen.getByTestId("reviews-new-specimen-preview-primary-cta");
-    expect(primaryCta).toHaveAttribute("href", showcaseSpecimenSignedReviewRecordHref());
+    expect(primaryCta).toHaveAttribute("href", showcaseSpecimenSealedReviewRecordHref());
     expect(primaryCta.className).toContain("border-neutral-300");
     expect(primaryCta.className).not.toContain("bg-[var(--al-primary-action-bg)]");
-    expect(primaryCta.className).toContain("font-semibold");
-    expect(primaryCta.className).toContain("text-[13px]");
-    expect(primaryCta.className).not.toContain("text-xs");
+    expect(primaryCta.className).toContain(OPERATOR_TYPOGRAPHY.button);
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK })).toHaveAttribute(
       "href",
       showcaseSpecimenFindingsHref(),
@@ -41,7 +40,7 @@ describe("SpecimenDeliverablePreviewCallout", () => {
 
     expect(screen.getByTestId("home-specimen-preview-primary-link")).toHaveAttribute(
       "href",
-      showcaseSpecimenSignedReviewRecordHref(),
+      showcaseSpecimenSealedReviewRecordHref(),
     );
     expect(screen.getByTestId("home-specimen-preview-findings-link")).toHaveAttribute(
       "href",
@@ -60,7 +59,7 @@ describe("SpecimenDeliverablePreviewCallout", () => {
 
     expect(screen.getByTestId("reviews-new-specimen-preview-primary-link")).toHaveAttribute(
       "href",
-      showcaseSpecimenSignedReviewRecordHref(),
+      showcaseSpecimenSealedReviewRecordHref(),
     );
     expect(screen.getByTestId("reviews-new-specimen-preview-findings-link")).toHaveAttribute(
       "href",

@@ -204,3 +204,8 @@ describe("TenantMigrationMaintenanceBanner", () => {
     expect(screen.getByText(/could not be loaded/i)).toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

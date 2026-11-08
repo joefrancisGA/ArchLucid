@@ -5,6 +5,19 @@ const mockFetchAzureSettings = vi.fn();
 const mockFetchItsmHealth = vi.fn();
 const mockFetchConnection = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/integrations/azure-boards",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
@@ -21,6 +34,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
@@ -55,6 +73,7 @@ import {
   AZURE_BOARDS_INTEGRATION_SOURCES,
 } from "@/lib/azure-boards-integration-evidence-copy";
 import { AZURE_BOARDS_PAGE_SUBTITLE, AZURE_BOARDS_PAGE_TITLE } from "@/lib/azure-boards-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -118,7 +137,12 @@ describe("AzureBoardsIntegrationPageClient buyer-polished shell (INZ)", () => {
     expect(firstViewport).toContainElement(pageContent);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AZURE_BOARDS_INTEGRATION_SOURCES)) {
+    const visibleSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(AZURE_BOARDS_INTEGRATION_SOURCES),
+      "/integrations/azure-boards",
+    );
+
+    for (const source of visibleSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
@@ -126,3 +150,22 @@ describe("AzureBoardsIntegrationPageClient buyer-polished shell (INZ)", () => {
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

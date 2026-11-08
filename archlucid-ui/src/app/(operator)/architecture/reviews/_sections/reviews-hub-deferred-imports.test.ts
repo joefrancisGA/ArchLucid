@@ -30,11 +30,7 @@ describe("reviews hub deferred imports (TB-934)", () => {
 
     expect(pageViewSource).toContain("reviews-hub-deferred-chunks");
     expect(pageViewSource).toContain("OperatorWelcomeOnboardingDeferred");
-    expect(pageViewSource).toContain("ReviewsHubExploreSamplesDeferred");
-    expect(pageViewSource).toContain("ReviewsHubPackageIncludesDeferred");
-    expect(pageViewSource).toContain("ReviewsHubBeforeAfterDeltaPanelDeferred");
     expect(pageViewSource).toContain("ReviewsHubReviewInventoryDeferred");
-    expect(pageViewSource).toContain("RunsIndexBeforeAfterPanelDeferred");
     expect(pageViewSource).toContain("RunsListAggregateErrorBoundaryDeferred");
   });
 

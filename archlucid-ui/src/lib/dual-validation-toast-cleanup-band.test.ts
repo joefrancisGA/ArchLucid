@@ -6,9 +6,9 @@ import { describe, expect, it } from "vitest";
 const UI_ROOT = join(process.cwd());
 
 const TB_2009_SOURCE_ROOTS = [
-  "src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
+  "src/app/(operator)/administration/extract-upload/_sections/use-extract-upload-settings.ts",
   "src/components/wizard/steps/AzureExtractorPackageZipField.tsx",
-  "src/app/(operator)/administration/baseline/BaselineSettingsClient.tsx",
+  "src/app/(operator)/administration/baseline/use-baseline-settings.ts",
 ] as const;
 
 const TB_2009_BAND_TEST_FILES = [

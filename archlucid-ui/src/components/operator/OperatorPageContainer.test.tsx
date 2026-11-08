@@ -48,7 +48,7 @@ describe("OperatorPageContainer", () => {
     );
 
     const surface = screen.getByTestId("settings-page");
-    expect(surface).toHaveClass("w-full", "max-w-[62rem]");
+    expect(surface).toHaveClass("w-full", "max-w-[68rem]");
     expect(surface.className).not.toMatch(/mx-auto/);
   });
 });

@@ -3,6 +3,10 @@ import { join } from "node:path";
 
 const LAST_REVIEWED_PATTERN = /<!--\s*TRUST_CENTER_LAST_REVIEWED_UTC:([^>]+)\s*-->/;
 
+/** Monorepo-relative path to the buyer-facing trust center markdown source file. */
+export const TRUST_CENTER_CANONICAL_MARKDOWN_RELATIVE_PATH =
+  "docs/go-to-market/trust-center.md" as const;
+
 /**
  * Reads `docs/go-to-market/trust-center.md` from the monorepo root, or `go-to-market-samples/trust-center.md`
  * inside the Docker UI build (see `archlucid-ui/Dockerfile`).

@@ -113,6 +113,15 @@ const AUDIENCE_SECTION_COPY: Record<
 
 /** Buckets sponsor-mode rows for manifest-style grouping (uses {@link sponsorArtifactAudienceLine} semantics). */
 export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArtifactAudienceBucket {
+  const normalizedType = artifactType.trim();
+  if (
+    normalizedType === "MarkdownReport"
+    || normalizedType === "ArchitectureNarrative"
+    || normalizedType === "UnresolvedIssuesReport"
+  ) {
+    return "sponsor";
+  }
+
   const raw = sponsorArtifactAudienceLine(artifactType);
 
   if (raw === null || raw.trim().length === 0) {

@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 import { describe, expect, it, vi } from "vitest";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -12,6 +13,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("./AzureConnectionDetailsPanel", () => ({
 
@@ -152,11 +158,11 @@ describe("AzureCloudConnectionDetailClient", () => {
 
 
 
-    expect(screen.getByTestId("cloud-connections-azure-claim-discipline")).toHaveTextContent(
-
-      CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
-
-    );
+    if (!shouldOmitClaimDisciplineBand("cloud-connections-azure")) {
+      expect(screen.getByTestId("cloud-connections-azure-claim-discipline")).toHaveTextContent(
+        CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+      );
+    }
 
     const sources = screen.getByTestId("cloud-connections-azure-sources");
 
@@ -164,12 +170,12 @@ describe("AzureCloudConnectionDetailClient", () => {
       "href",
       "/integrations/cloud-connections",
     );
-
-    expect(
-
-      within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/azure/i }),
-
-    ).not.toBeInTheDocument();
+    expect(within(sources).getByRole("link", { name: "Read Connect Azure securely" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/azure",
+    );
+    expect(within(sources).queryByRole("link", { name: "Open Connection status" })).not.toBeInTheDocument();
+    expect(within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/azure/i })).not.toBeInTheDocument();
 
   });
 

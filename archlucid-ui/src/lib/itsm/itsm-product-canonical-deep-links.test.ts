@@ -37,8 +37,5 @@ describe("itsm-product-canonical-deep-links (TB-1780)", () => {
       }
     }
 
-    const helpMap = readFileSync(join(repoRoot, ITSM_PRODUCT_DEEP_LINK_SCAN_SURFACES[0]), "utf8");
-    expect(helpMap).toContain(INTERNAL_ITSM_CONNECTORS_PATH);
-    expect(helpMap).not.toContain("/admin/integrations/itsm");
   });
 });

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
+import { buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
 import { isAuditNavPath } from "@/lib/audit-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { applyAuditNavRunScope } from "@/lib/nav-audit-run-scope";
@@ -11,6 +12,10 @@ import {
 } from "@/lib/nav-shell-visibility";
 
 describe("filterNavLinksForOperatorShell", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
   const policy = NAV_GROUPS.find((g) => g.id === "operate-policy");
 
@@ -89,26 +94,38 @@ describe("filterNavLinksForOperatorShell", () => {
   });
 
   it("shows system health in System Administration for Admin rank when advanced and extended disclosure are on", () => {
-    const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
 
-    expect(systemAdmin).toBeDefined();
+    const systemAdminLinks = buildOperatorSystemAdminNavLinks();
 
-    const visible = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
+    const visible = filterNavLinksForOperatorShell(
+      systemAdminLinks,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+      true,
+    );
 
     expect(visible.some((l) => l.href === "/internal/health")).toBe(true);
     expect(visible.some((l) => l.href === "/internal/configuration")).toBe(true);
   });
 
   it("shows System Administration Execute link (/replay) for Admin even when showExtended is off", () => {
-    const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
 
-    expect(systemAdmin).toBeDefined();
+    const systemAdminLinks = buildOperatorSystemAdminNavLinks();
 
-    const extendedOff = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
+    const extendedOff = filterNavLinksForOperatorShell(
+      systemAdminLinks,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+      true,
+    );
 
     expect(extendedOff.some((l) => l.href === "/internal/validate-route")).toBe(true);
 
-    const extendedOn = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
+    const extendedOn = filterNavLinksForOperatorShell(
+      systemAdminLinks,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+      true,
+    );
 
     expect(extendedOn.some((l) => l.href === "/internal/validate-route")).toBe(true);
   });
@@ -321,12 +338,14 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
 
   it("omits internal sales-ops nav unless vendor staff and NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR are set", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "");
 
     const hidden = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 
     expect(hidden.some((r) => r.group.id === "operator-system-admin")).toBe(false);
 
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
 
     const tenantAdminVisible = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
@@ -339,7 +358,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
 
     const visible = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
-      AUTHORITY_RANK.AdminAuthority,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
       "system-admin",
       true,
       false,

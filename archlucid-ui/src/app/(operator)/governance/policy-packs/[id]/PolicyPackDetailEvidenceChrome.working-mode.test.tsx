@@ -1,8 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
 vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: (): boolean => false,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

@@ -23,7 +23,7 @@ public sealed class DiagramFullSubscriptionNetworkDetailsTests
         ast.Nodes.Should().NotContain(node => node.Label == "rt-app");
         ast.Nodes.Should().NotContain(node => node.Label == "pe-app");
         ast.Nodes.Should().NotContain(node => node.Label == "nic-app");
-        ast.Nodes.Should().NotContain(node => node.Label == "subnet-app");
+        ast.Nodes.Should().Contain(node => node.Label == "subnet-app");
         ast.Nodes.Should().Contain(node => node.Label == "vm-app");
         ast.Nodes.Should().Contain(node => node.Label == "vnet-app");
     }
@@ -41,7 +41,7 @@ public sealed class DiagramFullSubscriptionNetworkDetailsTests
         ast.Nodes.Should().Contain(node => node.Label == "rt-app");
         ast.Nodes.Should().Contain(node => node.Label == "pe-app");
         ast.Nodes.Should().NotContain(node => node.Label == "nic-app");
-        ast.Nodes.Should().NotContain(node => node.Label == "subnet-app");
+        ast.Nodes.Should().Contain(node => node.Label == "subnet-app");
     }
 
     [Fact]
@@ -50,7 +50,11 @@ public sealed class DiagramFullSubscriptionNetworkDetailsTests
         DiagramAst ast = compiler.Compile(
             BuildNetworkDetailGraph(),
             DiagramMode.ResourceGroup,
-            new DiagramAstCompileOptions { ResourceGroupName = "rg" });
+            new DiagramAstCompileOptions
+            {
+                ResourceGroupName = "rg",
+                IncludePrivateEndpointNodes = true,
+            });
 
         ast.Nodes.Should().Contain(node => node.Label == "nic-app");
         ast.Nodes.Should().Contain(node => node.Label == "subnet-app");
@@ -66,8 +70,8 @@ public sealed class DiagramFullSubscriptionNetworkDetailsTests
         DiagramAst ast = compiler.Compile(BuildVmNicSubnetVnetGraph(), DiagramMode.FullSubscription);
 
         ast.Nodes.Should().NotContain(node => node.Label == "nic-app");
-        ast.Nodes.Should().NotContain(node => node.Label == "subnet-app");
-        CountLines(ast, "vm-app", "vnet-app").Should().Be(1);
+        ast.Nodes.Should().Contain(node => node.Label == "subnet-app");
+        CountLines(ast, "vm-app", "subnet-app").Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]

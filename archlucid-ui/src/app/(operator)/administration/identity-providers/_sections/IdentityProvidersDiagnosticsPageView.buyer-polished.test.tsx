@@ -18,6 +18,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/internal-operator-env", () => ({
   isArchLucidInternalOperatorShellEnv: () => false,
 }));
@@ -37,6 +42,7 @@ import {
   DIAGNOSTICS_SETTINGS_PRIMARY_CONTENT_ID,
   DIAGNOSTICS_SETTINGS_SKIP_LINK_LABEL,
 } from "./diagnostics-settings-page-copy";
+import { IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID } from "./identity-providers-settings-page-copy";
 
 function buildModel(
   overrides: Partial<UseIdentityProvidersSettingsPageModel> = {},
@@ -106,7 +112,7 @@ describe("IdentityProvidersDiagnosticsPageView buyer-polished shell (SEI)", () =
 
     expect(screen.getByRole("link", { name: DIAGNOSTICS_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${DIAGNOSTICS_SETTINGS_PRIMARY_CONTENT_ID}`,
+      `#${IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("identity-providers-settings-primary-content")).toHaveAttribute(
       "id",
@@ -134,3 +140,22 @@ describe("IdentityProvidersDiagnosticsPageView buyer-polished shell (SEI)", () =
     ]);
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

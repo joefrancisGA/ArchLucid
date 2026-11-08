@@ -43,10 +43,12 @@ public sealed class ArchivalConcurrencyIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
+        string requestId = "REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8];
+        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(
-                TestRequestFactory.CreateArchitectureRequest("REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8])));
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -83,7 +85,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
             IRunRepository runRepository = factory.Services.GetRequiredService<IRunRepository>();
             IReadOnlyList<RunRecord> active = await runRepository.ListByProjectAsync(
                 scope,
-                "EnterpriseRag",
+                systemName,
                 200,
                 CancellationToken.None);
             active.Should().NotContain(r => r.RunId == runKey);

@@ -5,11 +5,10 @@ import { PrivacyPolicyBreadcrumb } from "@/components/marketing/privacy-policy/P
 import { TRUST_CENTER_PUBLIC_PATH } from "@/lib/marketing-assurance-public-labels";
 
 describe("PrivacyPolicyBreadcrumb", () => {
-  it("links Trust Center and labels the current privacy policy page", () => {
+  it("defers to page titles after TB-2090 breadcrumb removal", () => {
     render(<PrivacyPolicyBreadcrumb />);
 
-    expect(screen.getByTestId("privacy-policy-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", TRUST_CENTER_PUBLIC_PATH);
-    expect(screen.getByText("Privacy Policy")).toBeInTheDocument();
+    expect(screen.queryByTestId("privacy-policy-breadcrumb")).not.toBeInTheDocument();
+    expect(TRUST_CENTER_PUBLIC_PATH.length).toBeGreaterThan(0);
   });
 });

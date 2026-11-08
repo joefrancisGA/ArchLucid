@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
 
 vi.mock("next/navigation", () => ({
@@ -22,6 +24,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   isBuyerPolishedOperatorShellEnv: () => false,
 };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
 
 vi.mock("./FindingInspectPolicyRuleCallout", () => ({
   FindingInspectPolicyRuleCallout: () => (

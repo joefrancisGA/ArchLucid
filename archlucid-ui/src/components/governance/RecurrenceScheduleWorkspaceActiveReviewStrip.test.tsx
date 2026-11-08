@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { RecurrenceScheduleWorkspaceActiveReviewStrip } from "./RecurrenceScheduleWorkspaceActiveReviewStrip";
 
 vi.mock("@/components/WorkspaceActiveRunContext", () => ({
-  useWorkspaceActiveRun: () => ({ runId: "run-workspace-1", displayTitle: "Workspace review" }),
+  useWorkspaceActiveRun: () => ({ activeRunId: "run-workspace-1", displayTitle: "Workspace review" }),
 }));
 
 describe("RecurrenceScheduleWorkspaceActiveReviewStrip", () => {

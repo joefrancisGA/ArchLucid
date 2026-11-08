@@ -62,6 +62,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
   useArchitectWorkspaceChrome: () => architectWorkspaceChromeMock.value,
 }));
@@ -98,7 +103,7 @@ describe("GlobalSearchBar", () => {
     );
   });
 
-  it("uses a lightweight search input without an embedded shortcut chip", () => {
+  it("exposes the command palette shortcut beside the search input", () => {
     render(<GlobalSearchBar />);
 
     const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
@@ -109,8 +114,7 @@ describe("GlobalSearchBar", () => {
     expect(input).toHaveAttribute("aria-keyshortcuts", COMMAND_PALETTE_ARIA_KEYSHORTCUTS);
     expect(input).toHaveAttribute("aria-describedby");
     expect(screen.getByText(GLOBAL_FIND_PAGE_SEARCH.helper)).toBeInTheDocument();
-    expect(screen.queryByTestId("global-search-command-palette-hint")).toBeNull();
-    expect(screen.queryByText("Ctrl+K")).toBeNull();
+    expect(screen.getByTestId("global-search-command-palette-shortcut")).toBeInTheDocument();
   });
 
   it("does not replace the URL while rendering a closed search bar", () => {
@@ -230,7 +234,7 @@ describe("GlobalSearchBar", () => {
     const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
     fireEvent.change(input, { target: { value: "ab" } });
 
-    expect(await screen.findByRole("button", { name: "Untitled review" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Review description was not stored." })).toBeInTheDocument();
     expect(screen.queryByText("run-abc-123")).not.toBeInTheDocument();
   });
 
@@ -388,10 +392,7 @@ describe("GlobalSearchBar", () => {
       "href",
       "/architecture/architectures/architecture-identity-001",
     );
-    expect(paymentLinks[1]).toHaveAttribute(
-      "href",
-      "/architecture/architectures/architecture-identity-001?draft=draft-payments-1",
-    );
+    expect(paymentLinks[1]?.getAttribute("href") ?? "").toContain("/drafts/draft-payments-1");
     expect(screen.getByText("Draft")).toBeInTheDocument();
   });
 

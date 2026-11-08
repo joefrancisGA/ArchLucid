@@ -34,6 +34,22 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/integrations/teams",
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  };
+});
+
+vi.mock("@/lib/auth/livelihood-mutation-401-resume-wrappers", () => ({
+  saveItsmConnectorWith401Resume: async (input: { body: Record<string, unknown> }): Promise<unknown> =>
+    mockUpsert(input.body),
+}));
+
 import { TeamsNotificationsIntegrationPageClient } from "@/app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageClient";
 import { TEAMS_INTEGRATION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
@@ -47,9 +63,8 @@ import {
   TEAMS_INTEGRATION_SECURITY_NOTE,
   TEAMS_INTEGRATION_TEST_DISABLED_HELPER,
 } from "@/lib/teams-integration-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { TEAMS_INTEGRATION_SOURCES } from "@/lib/teams-integration-evidence-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+import { TEAMS_INTEGRATION_CANONICAL_PATH, TEAMS_INTEGRATION_SOURCES } from "@/lib/teams-integration-evidence-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { TEAMS_RECOMMENDED_EVENT_TYPES } from "@/lib/teams-integration-notification-catalog";
 import { showSuccess } from "@/lib/toast";
@@ -271,15 +286,9 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     await screen.findByTestId("teams-integration-orientation");
 
     const sources = screen.getByTestId("teams-integration-sources");
-    const visibleSources = filterWhereToGoNextFollowUpLinks(TEAMS_INTEGRATION_SOURCES);
 
-    for (const link of visibleSources) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
-
-      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
-    }
-
-    expect(visibleSources.some((link) => link.href === INTEGRATIONS_READINESS_PATH)).toBe(false);
+    expectWhereToGoNextFollowUpLinks(within(sources), TEAMS_INTEGRATION_SOURCES, TEAMS_INTEGRATION_CANONICAL_PATH);
+    expect(within(sources).queryByRole("link", { name: "Open Integration readiness" })).not.toBeInTheDocument();
   });
 
   it("mounts one channel-disambiguation vocabulary rail", async () => {

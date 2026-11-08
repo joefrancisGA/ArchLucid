@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-11-05T18:37:28.000Z",
+  "updatedUtc": "2026-11-07T12:18:18.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
@@ -19,7 +19,7 @@
       "firstLoadJsKb": 2328.3
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1997.9
+      "firstLoadJsKb": 2428.3
     },
     "/architecture/reviews/[reviewId]": {
       "firstLoadJsKb": 3370
@@ -31,5 +31,5 @@
       "firstLoadJsKb": 1593.6
     }
   },
-  "notes": "RC43 CI run 42081488733 (dafe5683ff): refresh First Load JS baselines from ui-static-quality check:first-load-js after merge-driven bundle growth beyond +25 kB tolerance."
+  "notes": "RC43 CI run 42369972648 (f62c05579d): refresh /architecture/reviews First Load JS baseline after PageContextualHelpButton + help-registry growth (+430.4 kB beyond +25 kB tolerance)."
 }

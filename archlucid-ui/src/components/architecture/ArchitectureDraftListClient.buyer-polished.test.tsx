@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 
-const useArchitectureDraftRegistryEntries = vi.fn<() => readonly ArchitectureDraftRegistryEntry[]>();
-const useArchitectureDraftRegistryHydrated = vi.fn<() => boolean>();
+const useArchitectureDraftListQueryMock = vi.fn();
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -15,10 +14,50 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
-  useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
-  useArchitectureDraftRegistryHydrated: () => useArchitectureDraftRegistryHydrated(),
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
 }));
+
+vi.mock("@/hooks/use-architecture-draft-list-query", () => ({
+  useArchitectureDraftListQuery: () => useArchitectureDraftListQueryMock(),
+  selectArchitectureDraftRegistryEntries: (query: { data?: readonly ArchitectureDraftRegistryEntry[] }) =>
+    query.data ?? [],
+}));
+
+vi.mock("@/hooks/use-architecture-identities-list-query", () => ({
+  useArchitectureIdentitiesListQuery: () => ({
+    data: { items: [] },
+    isFetched: true,
+  }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-record", () => ({
+  useOperatorScopeRecord: () => ({
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    tenantId: "tenant-1",
+    workspaceLabel: "Default workspace",
+    projectLabel: "Default project",
+  }),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
 
 import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
@@ -49,13 +88,24 @@ function entry(
 
 describe("ArchitectureDraftListClient buyer-polished shell", () => {
   beforeEach(() => {
-    useArchitectureDraftRegistryEntries.mockReset();
-    useArchitectureDraftRegistryHydrated.mockReset();
-    useArchitectureDraftRegistryHydrated.mockReturnValue(true);
+    useArchitectureDraftListQueryMock.mockReset();
+    useArchitectureDraftListQueryMock.mockReturnValue({
+      data: [],
+      isFetched: true,
+      isError: false,
+      failure: null,
+      blockedReason: null,
+    });
   });
 
   it("hides vocabulary rails and shows draft id disclosure", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "draft-abc-123" })]);
+    useArchitectureDraftListQueryMock.mockReturnValue({
+      data: [entry({ draftId: "draft-abc-123" })],
+      isFetched: true,
+      isError: false,
+      failure: null,
+      blockedReason: null,
+    });
 
     render(<ArchitectureDraftListClient />);
 

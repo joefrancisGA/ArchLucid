@@ -28,6 +28,14 @@ vi.mock(
   }),
 );
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "ArchLucid" }),
+}));
+
+vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
+  useTeachingChromeVisible: () => true,
+}));
+
 import { render, screen } from "@testing-library/react";
 
 import { CorePilotCompleteCelebrateStrip } from "./CorePilotCompleteCelebrateStrip";

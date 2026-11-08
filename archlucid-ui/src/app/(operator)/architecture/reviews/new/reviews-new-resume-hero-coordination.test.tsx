@@ -35,6 +35,12 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => workspaceModeMock.value === "working",
+  useProductionEvalChrome: () =>
+    workspaceModeMock.value !== "working" || buyerPolishedShellMock.value,
+}));
+
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
 

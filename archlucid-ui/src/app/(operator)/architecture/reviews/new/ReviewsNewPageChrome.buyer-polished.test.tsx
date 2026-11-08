@@ -25,6 +25,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
@@ -36,6 +41,8 @@ import {
   BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
   reviewsNewPageSubtitle,
 } from "@/lib/reviews-new-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { REVIEWS_NEW_CANONICAL_PATH } from "@/lib/reviews-new-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { REVIEWS_NEW_ORIENTATION_SOURCES } from "@/lib/reviews-new-evidence-copy";
@@ -57,6 +64,25 @@ beforeEach(() => {
     showHeaderLinks: false,
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+
 
 function expectFirstViewportOrientationAboveWorkspace(pathSwitcherTestId: string): void {
   const primaryContent = screen.getByTestId("reviews-new-primary-content");
@@ -145,7 +171,12 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
 
     const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
-    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES),
+      "/architecture/reviews/new",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
@@ -210,7 +241,12 @@ describe("ReviewsNewPageChrome buyer-polished shell (REQ)", () => {
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
 
     const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
-    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES),
+      REVIEWS_NEW_CANONICAL_PATH,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

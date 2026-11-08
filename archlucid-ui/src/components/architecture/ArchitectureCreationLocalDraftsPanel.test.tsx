@@ -5,6 +5,7 @@ import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/architecture/reviews/new",
 }));
 
 vi.mock("@/lib/api/draft-intake-api", () => ({

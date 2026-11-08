@@ -22,12 +22,17 @@ describe("review intake terminology", () => {
 
   it("does not pair Create review section titles with Start review CTAs in intake wizards", () => {
     const reviewsNewDir = join(APP_ROOT, "(operator)", "architecture", "reviews", "new");
-    const firstPilotSource = readFileSync(join(reviewsNewDir, "FirstPilotIntakeWizard.tsx"), "utf8");
+    const firstPilotSource = [
+      readFileSync(join(reviewsNewDir, "FirstPilotIntakeWizard.tsx"), "utf8"),
+      readFileSync(join(reviewsNewDir, "FirstPilotIntakeFields.tsx"), "utf8"),
+      readFileSync(join(reviewsNewDir, "FirstPilotIntakeStartFooter.tsx"), "utf8"),
+    ].join("\n");
     // Guided intake keeps its step titles in the step table beside the wizard, so both files carry
     // the copy this guard is about.
     const socraticSource = [
       readFileSync(join(reviewsNewDir, "SocraticIntakeWizard.tsx"), "utf8"),
       readFileSync(join(reviewsNewDir, "guided-intake-steps.ts"), "utf8"),
+      readFileSync(join(reviewsNewDir, "SocraticIntakeWizardStepConfirm.tsx"), "utf8"),
     ].join("\n");
 
     expect(firstPilotSource).toContain("CREATE_REVIEW_PACKAGE_HEADING");

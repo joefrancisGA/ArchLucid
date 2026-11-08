@@ -20,7 +20,7 @@ describe("PricingPageChrome", () => {
       "href",
       `#${PRICING_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("pricing-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("pricing-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("pricing-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("pricing-claim-discipline")).not.toBeInTheDocument();
@@ -30,6 +30,6 @@ describe("PricingPageChrome", () => {
     const body = screen.getByTestId("pricing-body-stub");
 
     expect(primaryContent).toContainElement(body);
-    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(primaryContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

@@ -7,6 +7,7 @@ import {
   IDENTITY_PROVIDERS_FORBIDDEN_NOTE,
   IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
 } from "@/lib/identity-providers-settings-copy";
+import { isApiLoadFailureState } from "@/lib/api-load-failure";
 import type { IdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
 import { formatIdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
 import { fetchIdentityProvidersPageBundle } from "@/lib/fetch-identity-providers-page-bundle-client";
@@ -56,6 +57,16 @@ function diagnosticsUnavailableNote(message: string, status: number): string {
 }
 
 function resolveHttpStatus(error: unknown): number | undefined {
+  if (isApiLoadFailureState(error)) {
+    if (typeof error.httpStatus === "number") {
+      return error.httpStatus;
+    }
+
+    const problemStatus = error.problem?.status;
+
+    return typeof problemStatus === "number" ? problemStatus : undefined;
+  }
+
   if (typeof error !== "object" || error === null || !("status" in error)) {
     return undefined;
   }

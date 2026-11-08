@@ -16,9 +16,12 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {
+        const string requestId = "REQ-EVIDENCE-001";
+        string expectedSystemName = TestRequestFactory.SystemNameForRequest(requestId);
+
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EVIDENCE-001")));
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -34,7 +37,7 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
             await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Evidence.RunId.Should().Be(runId);
-        payload.Evidence.SystemName.Should().Be("EnterpriseRag");
+        payload.Evidence.SystemName.Should().Be($"<untrusted_input>{expectedSystemName}</untrusted_input>");
         payload.Evidence.Request.Description.Should().Contain("secure Azure RAG system");
         payload.Evidence.Policies.Should().NotBeEmpty();
         payload.Evidence.ServiceCatalog.Should().NotBeEmpty();

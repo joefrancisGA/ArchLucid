@@ -249,6 +249,12 @@ describe("AdminHealthPage", () => {
             firstRunCommittedPerSessionRatio: 0,
           });
         }
+        if (s.includes("config-lint")) {
+          return jsonResponse({ checks: [] });
+        }
+        if (s.includes("configuration-health")) {
+          return jsonResponse({ probes: [] });
+        }
         return new Response("n", { status: 404 });
       },
     );
@@ -257,13 +263,19 @@ describe("AdminHealthPage", () => {
 
     render(page);
     await waitFor(() => {
-      expect(fetchMock.mock.calls.length).toBeGreaterThan(0);
+      expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(6);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-health-refresh")).not.toHaveAttribute("aria-busy", "true");
     });
     const before = fetchMock.mock.calls.length;
     fireEvent.click(await screen.findByTestId("admin-health-refresh"));
-    await waitFor(() => {
-      expect(fetchMock.mock.calls.length).toBeGreaterThan(before);
-    });
+    await waitFor(
+      () => {
+        expect(fetchMock.mock.calls.length).toBeGreaterThan(before);
+      },
+      { timeout: 5000 },
+    );
     vi.unstubAllGlobals();
   });
 });

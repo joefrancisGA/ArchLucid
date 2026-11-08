@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -23,29 +23,41 @@ export function PlanningNextReviewFooterClient(
 ): React.JSX.Element | null {
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
 
-  const loadRuns = useCallback(async () => {
-    const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
-    const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
-
-    try {
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
-      const coerced = coerceRunSummaryPaged(raw, { page: 1 });
-
-      if (!coerced.ok) {
-        setRuns([]);
-
-        return;
-      }
-
-      setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
-    } catch {
-      setRuns([]);
-    }
-  }, []);
-
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadRuns(): Promise<void> {
+      const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+      const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
+
+      try {
+        const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
+        const coerced = coerceRunSummaryPaged(raw, { page: 1 });
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!coerced.ok) {
+          setRuns([]);
+
+          return;
+        }
+
+        setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
+      } catch {
+        if (!cancelled) {
+          setRuns([]);
+        }
+      }
+    }
+
     void loadRuns();
-  }, [loadRuns]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const nextReview = useMemo(() => {
     const target = resolveNextRunsListRow(runs, props.runId);

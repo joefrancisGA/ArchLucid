@@ -29,7 +29,7 @@ describe("PatternLibraryDetailPageHeader", () => {
       />,
     );
 
-    expect(screen.getByTestId("pattern-library-detail-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("pattern-library-detail-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-detail-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-detail-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-detail-provenance-badge")).toHaveTextContent("Sample data");

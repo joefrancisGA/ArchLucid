@@ -14,7 +14,7 @@ import { BUYER_COPY_MODULE_PATHS } from "./module-paths";
 const MODULE_DIRECTORY = "src/lib/buyer-copy";
 
 /** Barrel and tests hold no copy of their own, so guards have nothing to scan in them. */
-const NON_SURFACE_MODULES = new Set<string>(["index.ts", "module-paths.ts"]);
+const NON_SURFACE_MODULES = new Set<string>(["index.ts", "module-paths.ts", "operator-home.ts"]);
 
 function listSurfaceModuleFiles(): string[] {
   return readdirSync(join(process.cwd(), MODULE_DIRECTORY))

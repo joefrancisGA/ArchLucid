@@ -50,10 +50,16 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
                 "_sections",
                 "ImpactPreviewEvidenceBasisSection.tsx"));
 
-        evolutionView.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
+        // Impact preview routes through the desk-continuity wrapper, which calls the nested resolver.
+        evolutionView.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
         evolutionView.Should().Contain("pinnedArchitectureId");
-        evidenceBasis.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
+        evidenceBasis.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
         evidenceBasis.Should().Contain("architectureId");
+
+        string scopedWrapper = ArchitectureSourceProbe.ReadPathWithPartials(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "insights", "scoped-insight-open-review-href.ts"));
+
+        scopedWrapper.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
     }
 
     [Fact]

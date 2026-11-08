@@ -21,7 +21,8 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_ReturnsCsvContentType_WithAttachmentDisposition()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
@@ -47,7 +48,8 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_ResponseBodyContainsCsvHeader()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
@@ -70,7 +72,8 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_WithEvent_IncludesRowInBody()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditEvent evt = new()
@@ -106,7 +109,8 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_PassesAllFilterParameters_ToRepository()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);
@@ -139,7 +143,8 @@ public sealed class AuditExportCsvControllerTests
     public async Task ExportAuditCsv_ClampsMaxRows_BeforeCallingRepository()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo);

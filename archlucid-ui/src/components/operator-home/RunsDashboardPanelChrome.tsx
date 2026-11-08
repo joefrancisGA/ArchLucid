@@ -47,7 +47,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
       ) : null}
       <Tabs
         value={model.tab}
-        variant="pill"
+        variant="line"
         onValueChange={(next) => {
           model.selectDashboardTab(next as RunsDashboardTabId);
         }}

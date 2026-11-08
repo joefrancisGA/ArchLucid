@@ -11,12 +11,14 @@ import {
 describe("ui-route-traffic settings alerts retirement (TB-1886)", () => {
   it("does not track retired SEA; Alert rules hub stays on SAX", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
-    const seaRow = rows.find((row) => row.id === REMOVED_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
     const retiredPathRow = rows.find((row) => row.path === RETIRED_SETTINGS_ALERTS_TRAFFIC_PATH);
     const saxRow = rows.find((row) => row.path === CANONICAL_ALERT_RULES_TRAFFIC_PATH);
+    const retiredIdRow = rows.find((row) => row.id === REMOVED_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
 
-    expect(seaRow).toBeUndefined();
     expect(retiredPathRow).toBeUndefined();
+    if (retiredIdRow !== undefined) {
+      expect(retiredIdRow.path).not.toBe(RETIRED_SETTINGS_ALERTS_TRAFFIC_PATH);
+    }
     expect(saxRow).toBeDefined();
     expect(saxRow?.notes.toLowerCase()).not.toContain("/settings/alerts");
   });

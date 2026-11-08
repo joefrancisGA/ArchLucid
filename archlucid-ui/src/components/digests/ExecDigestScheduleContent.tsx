@@ -36,6 +36,7 @@ const SELECT_CLASS = cn(
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const schedule = useExecDigestSchedule(props);
+  const pinLivePreviewRail = schedule.pinLivePreviewRail;
   const documentGuards = useLivelihoodDocumentGuards({ when: schedule.unsavedChanges });
 
   const scopedRunId = (props.scopedRunId ?? "").trim();
@@ -133,7 +134,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         </p>
       ) : (
         <OperatorLivePreviewPinLayout
-          pinRail={schedule.pinLivePreviewRail}
+          pinRail={pinLivePreviewRail}
           testId="exec-digest-schedule-layout"
           primary={
             <ExecDigestScheduleForm
