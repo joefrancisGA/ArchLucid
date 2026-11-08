@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory factory)
-    : IntegrationTestBase(factory)
+    : IntegrationTestBase(factory), IClassFixture<ComparisonVerify422ApiFactory>
 {
     [SkippableFact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()

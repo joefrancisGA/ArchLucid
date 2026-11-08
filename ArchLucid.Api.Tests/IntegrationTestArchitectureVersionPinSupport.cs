@@ -1,5 +1,6 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Persistence.Ports;
@@ -26,7 +27,7 @@ internal static class IntegrationTestArchitectureVersionPinSupport
     };
 
     internal static async Task EnsureCurrentPinForRunAsync(
-        ArchLucidApiFactory factory,
+        IntegrationTestWebAppFactoryBase factory,
         string runId,
         CancellationToken cancellationToken = default)
     {
@@ -65,6 +66,28 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             .GetForRunAsync(DefaultScope, runGuid, cancellationToken)
             .ConfigureAwait(false);
 
+        if (HasIncompleteCreateTimePinFingerprints(header))
+        {
+            IRunCreatePinOrchestrator? createPinOrchestrator = services.GetService<IRunCreatePinOrchestrator>();
+
+            if (createPinOrchestrator is not null)
+            {
+                await createPinOrchestrator
+                    .ApplyCreateTimePinsAsync(header, DefaultScope, request, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            if (knowledgeModel is not null)
+            {
+                RunHeaderKnowledgeModelContentPin.ApplyToHeader(
+                    header,
+                    knowledgeModel,
+                    knowledgeModel.ModelId ?? header.KnowledgeModelId);
+            }
+
+            await runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
+        }
+
         IArchitectureVersionKnowledgeModelPinSync? pinSync =
             services.GetService<IArchitectureVersionKnowledgeModelPinSync>();
 
@@ -91,5 +114,13 @@ internal static class IntegrationTestArchitectureVersionPinSupport
                     cancellationToken)
                 .ConfigureAwait(false);
         }
+    }
+
+    private static bool HasIncompleteCreateTimePinFingerprints(RunRecord header)
+    {
+        return header.PinnedPolicyPackIdsHashSha256 is null or { Length: 0 }
+               || header.PinnedEvidencePackagePinsHashSha256 is null or { Length: 0 }
+               || header.PinnedArchitectureVersionContentHashSha256 is null or { Length: 0 }
+               || header.PinnedKnowledgeModelContentHashSha256 is null or { Length: 0 };
     }
 }

@@ -76,7 +76,7 @@ public abstract class IntegrationTestWebAppFactoryBase : BaseIntegrationTestFixt
         await EnsureServicesStartedAsync().ConfigureAwait(false);
 
         return await IntegrationTestHostStartup.EnsureCompletedAsync(
-            () => CreateClient(),
+            () => CreateDefaultClient(new IntegrationTestHttpClientPinRefreshHandler(this)),
             IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
     }
 
