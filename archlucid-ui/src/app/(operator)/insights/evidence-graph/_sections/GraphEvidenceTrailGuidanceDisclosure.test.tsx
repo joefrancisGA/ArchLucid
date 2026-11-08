@@ -23,12 +23,12 @@ describe("GraphEvidenceTrailGuidanceDisclosure", () => {
     expect(disclosure.textContent ?? "").not.toContain("Advanced operations");
   });
 
-  it("links to the evidence-trail help topic from page-help-topic-map", () => {
+  it("links to the evidence-graph help topic from page-help-topic-map", () => {
     render(<GraphEvidenceTrailGuidanceDisclosure />);
 
     expect(screen.getByRole("link", { name: "Evidence graph guide" })).toHaveAttribute(
       "href",
-      "/help/evidence-trail",
+      "/help/evidence-graph",
     );
   });
 });
