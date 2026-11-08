@@ -126,7 +126,14 @@ internal static class TenantScopedSqlExpressionResolver
                      string.Equals(concatAccess.Name.Identifier.Text, "Join", StringComparison.Ordinal)))
                     return ResolveStringConcat(invocation, semanticModel);
 
-                if (TryResolveFromMethodInvocation(invocation, semanticModel, out ResolutionResult methodResolution))
+                // Direct Dapper arguments such as Query(FormatRunSql(tenantId)) are
+                // parameterized. Fold them the same way record : this(...) chains do,
+                // or the tenant table inside the callee never reaches ARCH006.
+                if (TryResolveFromMethodInvocation(
+                        invocation,
+                        semanticModel,
+                        out ResolutionResult methodResolution,
+                        allowParameterizedCallee: true))
                     return methodResolution;
 
                 return ResolveFromSymbol(invocation, semanticModel);

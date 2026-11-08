@@ -950,6 +950,39 @@ public sealed record StringFormatMethodSqlRepository(string Sql)
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_direct_interpolated_method_invocation()
+    {
+        const string testCode = MinimalStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System;
+using System.Data;
+using Dapper;
+
+public sealed class DirectInterpolatedMethodSqlRepository
+{
+    private static string FormatRunSql(Guid tenantId) =>
+        $"SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL AND RunId = {tenantId}";
+
+    public void Load(System.Data.IDbConnection connection, Guid tenantId)
+    {
+        _ = connection.Query<int>(FormatRunSql(tenantId));
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(153, 13, 153, 58)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_does_not_analyze_execute_scalar_async_string_when_command_type_is_stored_procedure()
     {
         const string testCode = MinimalStubs +
