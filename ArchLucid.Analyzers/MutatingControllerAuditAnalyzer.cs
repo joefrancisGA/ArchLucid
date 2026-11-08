@@ -568,6 +568,103 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
     }
 
+    // Stored lambdas that are never invoked do not run on the request; count LogAsync only when the lambda is used.
+    private static bool AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(
+        SyntaxNode logAsyncSyntaxNode,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        foreach (SyntaxNode ancestor in logAsyncSyntaxNode.Ancestors())
+        {
+            if (ReferenceEquals(ancestor, containingMethodDeclarationSyntax))
+                break;
+
+            if (ancestor is not AnonymousFunctionExpressionSyntax anonymousFunction)
+                continue;
+
+            if (!AnonymousFunctionIsInvoked(anonymousFunction, containingMethodDeclarationSyntax))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static bool AnonymousFunctionIsInvoked(
+        AnonymousFunctionExpressionSyntax anonymousFunction,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        SyntaxNode usedNode = anonymousFunction;
+
+        while (usedNode.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax)
+            usedNode = usedNode.Parent;
+
+        SyntaxNode? useSite = usedNode.Parent;
+
+        if (useSite is ArgumentSyntax)
+            return true;
+
+        if (useSite is InvocationExpressionSyntax invocationExpression &&
+            ReferenceEquals(invocationExpression.Expression, usedNode))
+        {
+            return true;
+        }
+
+        if (useSite is EqualsValueClauseSyntax equalsValueClause &&
+            equalsValueClause.Parent is VariableDeclaratorSyntax variableDeclarator)
+        {
+            return LocalNameIsInvokedOutsideAnonymousFunction(
+                variableDeclarator.Identifier.Text,
+                containingMethodDeclarationSyntax,
+                anonymousFunction);
+        }
+
+        if (useSite is AssignmentExpressionSyntax assignmentExpression &&
+            ReferenceEquals(assignmentExpression.Right, usedNode) &&
+            assignmentExpression.Left is IdentifierNameSyntax assignedName)
+        {
+            return LocalNameIsInvokedOutsideAnonymousFunction(
+                assignedName.Identifier.Text,
+                containingMethodDeclarationSyntax,
+                anonymousFunction);
+        }
+
+        return false;
+    }
+
+    private static bool LocalNameIsInvokedOutsideAnonymousFunction(
+        string localName,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        AnonymousFunctionExpressionSyntax definingAnonymousFunction)
+    {
+        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
+                     .DescendantNodes()
+                     .OfType<InvocationExpressionSyntax>())
+        {
+            if (IsInsideAnonymousFunction(invocationSyntax, definingAnonymousFunction))
+                continue;
+
+            if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+                identifierNameSyntax.Identifier.Text == localName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsInsideAnonymousFunction(
+        SyntaxNode node,
+        AnonymousFunctionExpressionSyntax anonymousFunction)
+    {
+        for (SyntaxNode? current = node.Parent; current is not null; current = current.Parent)
+        {
+            if (ReferenceEquals(current, anonymousFunction))
+                return true;
+        }
+
+        return false;
+    }
+
     private static bool LogAsyncMemberAccessCountsForAuditProof(
         MemberAccessExpressionSyntax memberAccessExpressionSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax,
@@ -580,6 +677,15 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         LocalFunctionStatementSyntax? enclosingLocalFunction =
             memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
+        if (enclosingLocalFunction is not null &&
+            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
+        {
+            return false;
+        }
+
+        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(memberAccessExpressionSyntax, containingMethodDeclarationSyntax))
+            return false;
+
         if (enclosingLocalFunction is null)
         {
             if (memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
@@ -588,7 +694,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return IsLogAsyncSyntaxProofReachable(semanticModel, memberAccessExpressionSyntax, cancellationToken);
         }
 
-        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+        return IsLogAsyncSyntaxProofReachable(semanticModel, memberAccessExpressionSyntax, cancellationToken);
     }
 
     private static bool AuditLogAsyncInvocationCountsForAuditProof(
@@ -600,6 +706,15 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         LocalFunctionStatementSyntax? enclosingLocalFunction =
             invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
+        if (enclosingLocalFunction is not null &&
+            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
+        {
+            return false;
+        }
+
+        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(invocationExpressionSyntax, containingMethodDeclarationSyntax))
+            return false;
+
         if (enclosingLocalFunction is null)
         {
             if (invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
@@ -608,7 +723,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
         }
 
-        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+        return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
     }
 
     private static bool IsLogAsyncSyntaxProofReachable(
