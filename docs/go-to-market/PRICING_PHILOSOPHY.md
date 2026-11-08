@@ -267,7 +267,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
     {
       "id": "team",
       "title": "Team",
-      "summary": "Small architecture team with basic governance",
+      "summary": "Small architecture team with policy controls and approval workflows",
       "planMonthlyUsd": 1169,
       "pricingDisplay": "monthly",
       "includedUsers": 5,
