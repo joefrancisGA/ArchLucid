@@ -11,9 +11,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
 import {
+  GUIDED_INTAKE_CONFIRM_INTENT_NOT_STORED_YET,
+  GUIDED_INTAKE_CONFIRM_OUTCOME_NOT_STORED_YET,
+  GUIDED_INTAKE_CONFIRM_SYSTEM_NOT_STORED_YET,
+  GUIDED_INTAKE_CONFIRMED_SCOPE_INFERRED_SUMMARY_HEADING,
+  GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED,
   GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
 } from "@/lib/guided-intake-copy";
+import { SCOPE_BRIEF_INFERRED_LINE_PREFIX } from "@/lib/architecture/architecture-scope-understanding-derive";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidencePresenceFlags } from "@/lib/evidence-gap-forecast";
 
@@ -25,6 +31,7 @@ export type SocraticIntakeWizardStepConfirmProps = {
   readonly businessOutcome: string;
   readonly systemName: string;
   readonly guidedIntakeEvidencePresence: EvidencePresenceFlags;
+  readonly guidedIntakeAttachmentFileNames?: readonly string[];
   readonly confirmedScopeLines: readonly string[];
   readonly submitError: unknown;
   readonly policyPackCloudMismatch: string | null;
@@ -39,6 +46,7 @@ export function SocraticIntakeWizardStepConfirm({
   businessOutcome,
   systemName,
   guidedIntakeEvidencePresence,
+  guidedIntakeAttachmentFileNames,
   confirmedScopeLines,
   submitError,
   policyPackCloudMismatch,
@@ -47,6 +55,13 @@ export function SocraticIntakeWizardStepConfirm({
   onBack,
   onSubmit,
 }: SocraticIntakeWizardStepConfirmProps) {
+  const hasInferredScopeLines = confirmedScopeLines.some((line) =>
+    line.startsWith(SCOPE_BRIEF_INFERRED_LINE_PREFIX),
+  );
+  const confirmedScopeHeading = hasInferredScopeLines
+    ? GUIDED_INTAKE_CONFIRMED_SCOPE_INFERRED_SUMMARY_HEADING
+    : GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING;
+
   return (
     <Card data-testid="guided-intake-primary-panel">
       <CardHeader className={OPERATOR_LAYOUT.sectionHeadingStack}>
@@ -61,26 +76,35 @@ export function SocraticIntakeWizardStepConfirm({
           )}
         >
           <li>
-            <InlineMetadataLabel label="Intent" />{" "}
+            <InlineMetadataLabel label="Intent preview" />{" "}
             {freeTextIntent.trim().length > 0
               ? `${freeTextIntent.trim().slice(0, 120)}${freeTextIntent.trim().length > 120 ? "…" : ""}`
-              : "Intent was left blank."}
+              : GUIDED_INTAKE_CONFIRM_INTENT_NOT_STORED_YET}
+            {freeTextIntent.trim().length > 120 ? (
+              <span className="block text-neutral-600 dark:text-neutral-400">
+                The rest of the intent is still on the previous step.
+              </span>
+            ) : null}
           </li>
           <li>
             <InlineMetadataLabel label="Outcome" />{" "}
-            {businessOutcome.trim().length > 0 ? businessOutcome.trim() : "Outcome was left blank."}
+            {businessOutcome.trim().length > 0 ? businessOutcome.trim() : GUIDED_INTAKE_CONFIRM_OUTCOME_NOT_STORED_YET}
           </li>
           <li>
             <InlineMetadataLabel label="System" />{" "}
-            {systemName.trim().length > 0 ? systemName.trim() : "System name was left blank."}
+            {systemName.trim().length > 0 ? systemName.trim() : GUIDED_INTAKE_CONFIRM_SYSTEM_NOT_STORED_YET}
           </li>
         </ul>
-        <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
-        {confirmedScopeLines.length > 0 ? (
-          <section className={OPERATOR_LAYOUT.sectionHeadingStack} data-testid="socratic-confirmed-scope-summary">
-            <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
-              {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}
-            </h3>
+        <EvidenceGapForecastPanel
+          presence={guidedIntakeEvidencePresence}
+          attachmentFileNames={guidedIntakeAttachmentFileNames}
+          presentation="summary"
+        />
+        <section className={OPERATOR_LAYOUT.sectionHeadingStack} data-testid="socratic-confirmed-scope-summary">
+          <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
+            {confirmedScopeHeading}
+          </h3>
+          {confirmedScopeLines.length > 0 ? (
             <ul
               className={cn(
                 "m-0 list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300",
@@ -91,8 +115,15 @@ export function SocraticIntakeWizardStepConfirm({
                 <li key={line}>{line}</li>
               ))}
             </ul>
-          </section>
-        ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="guided-intake-confirmed-scope-not-stored"
+            >
+              {GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED}
+            </p>
+          )}
+        </section>
         {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
         {policyPackCloudMismatch !== null ? (
           <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />

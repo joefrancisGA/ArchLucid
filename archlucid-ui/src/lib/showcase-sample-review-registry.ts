@@ -1,5 +1,6 @@
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { getActiveSampleScenario } from "@/lib/samples/registry";
 
@@ -30,7 +31,7 @@ export function isShowcaseCanonicalPrimaryFindingRoute(runId: string, findingId:
 export function showcaseSampleReviewPackageHref(
   runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
 ): string {
-  return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+  return resolveScopedInsightOpenReviewHrefWithDeskContinuity(canonicalizeDemoRunId(runId));
 }
 
 /** SG-063 — Working showcase links open the architecture portfolio, not peer review Home. */

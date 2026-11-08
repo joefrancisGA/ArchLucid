@@ -45,7 +45,8 @@ public sealed class RequirementCoverageFindingEngineTests
             RequirementNodeCount = 2,
             RelatedRequirementCount = 1,
             UnrelatedRequirementCount = 1,
-            UncoveredRequirements = ["REQ-99"]
+            UncoveredRequirements = ["REQ-99"],
+            UncoveredRequirementNodeIds = ["REQ-99"]
         };
         _analyzer.Setup(a => a.AnalyzeRequirements(It.IsAny<GraphSnapshot>())).Returns(result);
 

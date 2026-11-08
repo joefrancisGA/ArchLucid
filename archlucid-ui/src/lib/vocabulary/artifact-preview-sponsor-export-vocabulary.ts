@@ -13,6 +13,7 @@
  * ROI summary ≠ sponsor export (TB-2258).
  */
 
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import type { ExternalPeerPairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
@@ -72,7 +73,7 @@ export function buildArtifactPreviewSponsorExportHref(runId?: string | null): st
     return ARTIFACT_PREVIEW_SPONSOR_EXPORT_SPONSOR_LINK.href;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}#sponsor-handoff`;
+  return resolveLibOpenReviewHref(trimmed, { hash: "sponsor-handoff" });
 }
 
 /** Pairwise model for Artifact preview ↔ Sponsor export. */

@@ -55,8 +55,7 @@ public sealed class PilotRunDeltaComputerTests
         };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
 
-        traces.Setup(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(3);
+        SetupMergedTraceCount(traces, detail.Run.RunId, 3);
 
         audit.Setup(a => a.CountFilteredAsync(
                 sc.TenantId,
@@ -99,8 +98,64 @@ public sealed class PilotRunDeltaComputerTests
         result.IsDemoTenant.Should().BeFalse();
         result.SynthesizedArtifactDescriptorCountResolved.Should().BeFalse();
         result.SynthesizedArtifactDescriptorCount.Should().BeNull();
-        traces.Verify(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()), Times.Once);
-        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        traces.Verify(
+            t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+    }
+
+    [SkippableFact]
+    public async Task CompareQuality_ComputeAsync_merges_trace_count_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("53535353-5353-5353-5353-535353535353");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = runId.ToUpperInvariant();
+        ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
+        detail.Run.RunId = runId;
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        Mock<IAuditRepository> audit = new();
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTrace { TraceId = "legacy-1", RunId = legacyUpper, TaskId = "t1" },
+                new AgentExecutionTrace { TraceId = "legacy-2", RunId = legacyUpper, TaskId = "t2" },
+            ]);
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        audit
+            .Setup(repository => repository.CountFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
+
+        PilotRunDeltas result = await sut.ComputeAsync(detail);
+
+        result.LlmCallCount.Should().Be(2);
+        result.LlmCallCountResolved.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -192,7 +247,8 @@ public sealed class PilotRunDeltaComputerTests
 
         Mock<IFindingEvidenceChainService> evidence = new();
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()))
+        traces
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("traces offline"));
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
@@ -228,8 +284,9 @@ public sealed class PilotRunDeltaComputerTests
         result.TopFindingSeverity.Should().BeNull();
         result.TopFindingEvidenceChain.Should().BeNull();
         evidence.Verify(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-        traces.Verify(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()), Times.Once);
-        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        traces.Verify(
+            t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     [SkippableFact]
@@ -431,8 +488,9 @@ public sealed class PilotRunDeltaComputerTests
                 It.IsAny<RunExplanationSummary?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()), Times.Once);
-        traces.Verify(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        traces.Verify(
+            t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     private static PilotRunDeltaComputer BuildSutWithEmptyDependencies(out Mock<IAgentExecutionTraceRepository> traces,
@@ -440,7 +498,7 @@ public sealed class PilotRunDeltaComputerTests
     {
         evidence = new Mock<IFindingEvidenceChainService>();
         traces = new Mock<IAgentExecutionTraceRepository>();
-        traces.Setup(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(0);
+        SetupMergedTracesEmpty(traces);
         Mock<IAuditRepository> audit = new();
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
@@ -1750,5 +1808,39 @@ public sealed class PilotRunDeltaComputerTests
         deltas.FindingsBySeverity.Should().Contain(static p => p.Key == "Critical" && p.Value == 1);
         deltas.TopFindingId.Should().Be("agent-critical");
         deltas.TopFindingSeverity.Should().Be("Critical");
+    }
+
+    private static void SetupMergedTracesEmpty(Mock<IAgentExecutionTraceRepository> traces)
+    {
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+    }
+
+    private static void SetupMergedTraceCount(Mock<IAgentExecutionTraceRepository> traces, string primaryRunId, int count)
+    {
+        List<AgentExecutionTrace> rows = new(count);
+        for (int i = 0; i < count; i++)
+        {
+            rows.Add(new AgentExecutionTrace
+            {
+                TraceId = $"trace-{primaryRunId}-{i}",
+                RunId = primaryRunId,
+                TaskId = $"task-{i}",
+            });
+        }
+
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), primaryRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rows);
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<string>(id => !string.Equals(id, primaryRunId, StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
     }
 }

@@ -40,16 +40,20 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string? activeTrialExportNotice = null,
         string? careerExportHonestyPlainText = null,
         string? sendableExportCoverPlainText = null,
-        string? architectRestatementMarkdown = null)
+        string? architectRestatementMarkdown = null,
+        int? findingsSnapshotFindingCount = null,
+        string? sponsorReportGeneratedDisclaimer = null)
 
         => RunSummaryOnePagerDocumentFactory.Create(
             detail,
             SponsorReport,
             topFindingTitles,
             activeTrialExportNotice,
+            findingsSnapshotFindingCount: findingsSnapshotFindingCount,
             careerExportHonestyPlainText: careerExportHonestyPlainText,
             sendableExportCoverPlainText: sendableExportCoverPlainText,
-            architectRestatementMarkdown: architectRestatementMarkdown);
+            architectRestatementMarkdown: architectRestatementMarkdown,
+            sponsorReportGeneratedDisclaimer: sponsorReportGeneratedDisclaimer);
 
 
     /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>
@@ -82,8 +86,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             ReviewId = CreateStableReviewId(runId),
             RunId = runId,
             RequestId = detail.Run.RequestId,
-            SystemName = report.Manifest?.SystemName ?? report.Evidence?.SystemName ?? detail.Manifest?.SystemName,
-            ManifestVersion = detail.Run.CurrentManifestVersion ?? detail.Manifest?.Metadata.ManifestVersion,
+            SystemName = ArchitectureReviewBoardExportSystemNameResolver.Resolve(detail, report),
+            ManifestVersion = ArchitectureReviewBoardExportManifestVersionResolver.Resolve(detail),
             SponsorReport = report.Summary,
             HttpCorrelationId = httpCorrelationId,
             ExtractorTimestampUtcLabel = extractorTimestampUtcLabel,

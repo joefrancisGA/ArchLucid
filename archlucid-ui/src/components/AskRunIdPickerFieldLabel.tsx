@@ -10,6 +10,7 @@ export type AskRunIdPickerFieldLabelProps = {
   readonly selectControlId: string;
   readonly trimmedValue: string;
   readonly selectedThreadId: string;
+  readonly optionalHintMode?: "default" | "compare";
 };
 
 export function AskRunIdPickerFieldLabel({
@@ -17,13 +18,16 @@ export function AskRunIdPickerFieldLabel({
   selectControlId,
   trimmedValue,
   selectedThreadId,
+  optionalHintMode = "default",
 }: AskRunIdPickerFieldLabelProps) {
   const optionalHint =
     trimmedValue.length > 0
       ? null
-      : selectedThreadId.trim().length > 0
-        ? "(optional when a conversation already has review context)"
-        : "(optional — default searches all reviews in this workspace)";
+      : optionalHintMode === "compare"
+        ? "(review id was not chosen — comparison is sent only when both ids are chosen)"
+        : selectedThreadId.trim().length > 0
+          ? "(optional when a conversation already has review context)"
+          : "(optional — default searches all reviews in this workspace)";
 
   return (
     <Label htmlFor={selectControlId} data-testid="ask-run-id-picker-label">

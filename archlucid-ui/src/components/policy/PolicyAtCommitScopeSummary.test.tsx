@@ -42,4 +42,31 @@ describe("PolicyAtCommitScopeSummary", () => {
     expect(screen.getByTestId("policy-at-commit-test-coverage")).toHaveTextContent("Reliability");
     expect(screen.getByTestId("policy-at-commit-test-counts")).toHaveTextContent("merge conflict");
   });
+
+  it("does not invent a policy pack detail link when none is stored (P-03)", () => {
+    render(
+      <PolicyAtCommitScopeSummary
+        snapshot={{
+          generatedUtc: null,
+          ruleSetHash: null,
+          complianceRuleKeyCount: 0,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+          hasEffectivePolicy: true,
+          packAssignments: [
+            {
+              policyPackId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              policyPackVersion: "1.0.0",
+              scopeLevel: "Tenant",
+            },
+          ],
+          coverageAssignments: [],
+        }}
+        testIdPrefix="policy-at-commit-link-test"
+      />,
+    );
+
+    expect(screen.getByText(/Policy pack detail link was not stored\./)).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
 });

@@ -34,8 +34,8 @@ describe("findings help drift guard", () => {
   });
 
   it("lists ten guide headings including claim discipline and follow-ups", () => {
-    expect(FINDINGS_HELP_GUIDE_HEADINGS).toHaveLength(10);
-    expect(FINDINGS_HELP_GUIDE_HEADINGS[9]?.id).toBe("where-to-go-next");
+    expect(FINDINGS_HELP_GUIDE_HEADINGS).toHaveLength(11);
+    expect(FINDINGS_HELP_GUIDE_HEADINGS[10]?.id).toBe("where-to-go-next");
     expect(
       FINDINGS_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-findings-claim-discipline-heading"),
     ).toBe(true);

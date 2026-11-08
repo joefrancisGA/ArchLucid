@@ -1,11 +1,12 @@
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Integrations;
+using ArchLucid.Core.ProductCapability;
 using ArchLucid.Core.ProductLine;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Composition.Startup;
@@ -13,6 +14,8 @@ using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.ProductLine;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Persistence.Coordination.Retrieval;
@@ -633,6 +636,189 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         count.Should().Be(1,
             "product-line accessor must not register duplicate singleton descriptors");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_preserves_pre_registered_IProductLineRequestAccessor()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductLineRequestAccessor> injectedAccessor = new();
+        services.AddSingleton(injectedAccessor.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<IProductLineRequestAccessor>().Should().BeSameAs(injectedAccessor.Object,
+            "composition must not replace a test or host-supplied product-line accessor registered before AddArchLucidApplicationServices");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_preserves_pre_registered_IProductCapabilityControllerCatalog()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductCapabilityControllerCatalog> injectedCatalog = new();
+        services.AddSingleton(injectedCatalog.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<IProductCapabilityControllerCatalog>().Should().BeSameAs(injectedCatalog.Object,
+            "composition must not replace a test or host-supplied capability catalog registered before AddArchLucidApplicationServices");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_startup_migration_health_state_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d => d.ServiceType == typeof(StartupMigrationHealthState));
+
+        count.Should().Be(1,
+            "startup migration health state must not register duplicate singleton descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_integration_event_publisher_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d => d.ServiceType == typeof(IIntegrationEventPublisher));
+
+        count.Should().Be(1,
+            "integration event publishing must not register duplicate IIntegrationEventPublisher factory descriptors on the shipped composition path");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_oidc_authority_startup_probe_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OidcAuthorityStartupProbeHostedService));
+
+        count.Should().Be(1,
+            "OIDC authority startup probe must not register duplicate IHostedService descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_saml_signing_certificate_startup_warning_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(SamlSigningCertificateStartupWarningHostedService));
+
+        count.Should().Be(1,
+            "SAML signing certificate startup warning must not register duplicate IHostedService descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_leaves_default_product_line_accessor_when_only_capability_catalog_is_pre_registered()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductCapabilityControllerCatalog> injectedCatalog = new();
+        services.AddSingleton(injectedCatalog.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        IProductCapabilityControllerCatalog catalogInstance = injectedCatalog.Object;
+
+        services.Count(static d => d.ServiceType == typeof(IProductCapabilityControllerCatalog)).Should().Be(1);
+        services.Should().ContainSingle(d =>
+            d.ServiceType == typeof(IProductCapabilityControllerCatalog)
+            && ReferenceEquals(d.ImplementationInstance, catalogInstance),
+            "pre-registered capability catalog must be preserved");
+
+        services.Count(static d => d.ServiceType == typeof(IProductLineRequestAccessor)).Should().Be(1);
+        services.Should().ContainSingle(static d =>
+            d.ServiceType == typeof(IProductLineRequestAccessor)
+            && d.ImplementationType == typeof(ProductLineRequestAccessor),
+            "partial test-host overrides register the capability catalog independently from the default product-line accessor");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_leaves_default_capability_catalog_when_only_product_line_accessor_is_pre_registered()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductLineRequestAccessor> injectedAccessor = new();
+        services.AddSingleton(injectedAccessor.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<IProductLineRequestAccessor>().Should().BeSameAs(injectedAccessor.Object);
+
+        services.Count(static d => d.ServiceType == typeof(IProductCapabilityControllerCatalog)).Should().Be(1);
+        services.Should().ContainSingle(static d =>
+            d.ServiceType == typeof(IProductCapabilityControllerCatalog)
+            && d.ImplementationType == typeof(ProductCapabilityControllerCatalog),
+            "partial test-host overrides register the accessor independently from the default capability catalog");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_preserves_pre_registered_TimeProvider()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        TimeProvider injectedClock = new FixedTimeProvider(new DateTimeOffset(2026, 10, 30, 12, 0, 0, TimeSpan.Zero));
+        services.AddSingleton(injectedClock);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<TimeProvider>().Should().BeSameAs(injectedClock,
+            "composition must not replace a host- or test-supplied TimeProvider with TimeProvider.System");
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
     [Fact]

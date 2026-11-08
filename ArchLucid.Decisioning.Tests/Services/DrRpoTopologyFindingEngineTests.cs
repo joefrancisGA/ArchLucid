@@ -267,6 +267,33 @@ public sealed class DrRpoTopologyFindingEngineTests
             .Subject.RtoMinutes.Should().Be(240);
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_requirement_has_rpo_but_no_linked_datastore()
+    {
+        GraphNode requirement = new()
+        {
+            NodeId = "req-dr-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "Payment DR",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["text"] = "Payment SQL must meet RPO 15 min.",
+            },
+        };
+
+        GraphSnapshot graph = new() { Nodes = [requirement] };
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("Linked recovery datastore was not stored.");
+        finding.RelatedNodeIds.Should().Equal("req-dr-1");
+        finding.Payload.Should().BeOfType<DrRpoTopologyFindingPayload>()
+            .Subject.DatastoreNodeId.Should().BeEmpty();
+    }
+
     private static GraphSnapshot BuildQualityAttributeFixture(bool includeFailoverGroup)
     {
         Dictionary<string, string> sqlProperties = new(StringComparer.OrdinalIgnoreCase)

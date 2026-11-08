@@ -71,7 +71,7 @@ export function GovernanceFindingsQueueResultsSection(
             counts={props.sponsorSynopsisCounts}
             sponsorHandoffHref={props.sponsorHandoffHref}
           />
-          {props.scopedRunId !== null && props.scopedRunId.length > 0 ? (
+          {props.scopedRunFilterActive && props.scopedRunId !== null ? (
             <PolicyPackAssignFromReviewStrip
               reviewId={props.scopedRunId}
               reviewTitle={props.scopedRunContextTitle}

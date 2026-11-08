@@ -1,3 +1,4 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import type { AdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { mapConfigLintReadinessForShell, shellHealthReadinessSummary } from "@/lib/buyer/buyer-shell-home-present";
@@ -88,8 +89,8 @@ export function buildFirstPilotReadinessRows(input: {
   const canExecute = input.principal.authorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const canAdmin = input.principal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
   const baselinesEntered = allBaselinesEntered(input.scorecard);
-  const committedRunHref = input.signals.firstCommittedRunId
-    ? `/architecture/reviews/${encodeURIComponent(input.signals.firstCommittedRunId)}`
+  const committedRunHref = input.signals.firstCommittedRunId !== null
+    ? resolveLibOpenReviewHref(input.signals.firstCommittedRunId)
     : "/architecture/reviews";
   const configLintCopy = mapConfigLintReadinessForShell({ canAdmin, lint: input.configLint });
 
@@ -156,7 +157,10 @@ export function buildFirstPilotReadinessRows(input: {
           : canExecute
             ? "Create or continue the first architecture review."
             : "Read-only role cannot execute or finalize. Ask an operator or admin.",
-      href: input.signals.latestRunId ? `/architecture/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/architecture/reviews/new",
+      href:
+        input.signals.latestRunId !== null
+          ? resolveLibOpenReviewHref(input.signals.latestRunId)
+          : "/architecture/reviews/new",
       cta: input.signals.latestRunId ? "Open latest review" : CREATE_ARCHITECTURE_LABEL,
     },
     {

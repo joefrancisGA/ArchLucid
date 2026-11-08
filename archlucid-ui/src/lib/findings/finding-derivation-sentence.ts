@@ -1,13 +1,26 @@
 import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-import { firstRecommendationSentence, severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  firstRecommendationSentence,
+  severityBadgeLabel,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
+import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
 export const FINDING_DERIVATION_NOT_AVAILABLE = "Derivation not available";
+export const FINDING_DERIVATION_NOT_STORED = "Derivation was not stored.";
+export const FINDING_DERIVATION_STORED_EMPTY = "Derivation was stored empty.";
 export const FINDING_DERIVATION_ASSEMBLED_PREFIX =
   "Assembled from stored rule and evidence fields, not a stored explanation.";
 export const FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX =
   "Assembled from stored rule fields, not a stored explanation.";
+export const FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED =
+  "Evidence reference count was not stored." as const;
+export const FINDING_DERIVATION_TRACE_CONFIDENCE_NOT_STORED =
+  "Trace confidence was not stored." as const;
+export const FINDING_DERIVATION_TRACE_CONFIDENCE_STORED_EMPTY =
+  "Trace confidence was stored empty." as const;
 
 export type FindingDerivationInput = {
   readonly ruleName?: string | null;
@@ -38,6 +51,16 @@ function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
 
   return trimmed.length > 0 ? trimmed : null;
+}
+
+const SEVERITY_LABEL_NOT_STORED = "Severity label was not stored.";
+
+function severityDerivationClause(severityLabel: string | null): string {
+  if (severityLabel === null || severityLabel === SEVERITY_LABEL_NOT_STORED) {
+    return "Severity was not stored.";
+  }
+
+  return `a ${severityLabel} severity finding`;
 }
 
 type ResolvedRulePhrase = {
@@ -92,13 +115,25 @@ function evidencePhrase(input: FindingDerivationInput): string | null {
 }
 
 function traceConfidencePhrase(input: FindingDerivationInput): string | null {
-  const traceConfidence = nonEmpty(input.traceConfidenceLabel);
-
-  if (traceConfidence === null) {
+  if (input.traceConfidenceLabel === null || input.traceConfidenceLabel === undefined) {
     return null;
   }
 
+  const traceConfidence = nonEmpty(input.traceConfidenceLabel);
+
+  if (traceConfidence === null) {
+    return FINDING_DERIVATION_TRACE_CONFIDENCE_STORED_EMPTY;
+  }
+
   return `Trace confidence: ${traceConfidence}. ${TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX}`;
+}
+
+function traceConfidenceDerivationHonesty(input: FindingDerivationInput): string | null {
+  if (input.traceConfidenceLabel === null || input.traceConfidenceLabel === undefined) {
+    return FINDING_DERIVATION_TRACE_CONFIDENCE_NOT_STORED;
+  }
+
+  return traceConfidencePhrase(input);
 }
 
 function assembledSentence(sentence: string, hasPositiveEvidenceRefs: boolean): FindingDerivationResult {
@@ -114,29 +149,40 @@ function assembledSentence(sentence: string, hasPositiveEvidenceRefs: boolean): 
 
 /** Builds one plain-language derivation sentence — never fabricates confidence when inputs are missing. */
 export function buildFindingDerivationSentence(input: FindingDerivationInput): FindingDerivationResult {
-  const reasoningSummary = nonEmpty(input.reasoningSummary);
+  if (input.reasoningSummary !== null && input.reasoningSummary !== undefined) {
+    const trimmedReasoning = input.reasoningSummary.trim();
 
-  if (reasoningSummary !== null) {
-    const sentence = firstRecommendationSentence(reasoningSummary);
+    if (trimmedReasoning.length === 0) {
+      return { sentence: FINDING_DERIVATION_STORED_EMPTY, synthesised: false };
+    }
+
+    const sentence = formatRecommendationFirstSentenceWithTruncationHonesty(trimmedReasoning);
 
     if (sentence.length > 0) {
       return { sentence, synthesised: false };
     }
+
+    return { sentence: FINDING_DERIVATION_STORED_EMPTY, synthesised: false };
   }
 
   const rulePhrase = resolveRulePhrase(input);
   const categoryLead = rulePhrase === null ? resolveCategoryOnlyLead(nonEmpty(input.categoryLabel)) : null;
-  const evidence = evidencePhrase(input);
-  const traceConfidence = traceConfidencePhrase(input);
-  const severityLabel = nonEmpty(input.severityLabel);
-  const positiveEvidenceRefs = (citedEvidenceRefCount(input) ?? 0) > 0;
+  const evidenceRefCountKnown =
+    typeof input.evidenceRefCount === "number" && Number.isFinite(input.evidenceRefCount);
+  const evidence = evidenceRefCountKnown ? evidencePhrase(input) : null;
+  const hasRuleOrCategory = rulePhrase !== null || categoryLead !== null;
+  const hasSynthesisInputs = hasRuleOrCategory || evidence !== null;
 
-  if (rulePhrase === null && categoryLead === null && evidence === null && traceConfidence === null) {
-    return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
+  if (!hasSynthesisInputs) {
+    return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };
   }
 
-  const severitySuffix =
-    severityLabel !== null ? `a ${severityLabel} severity finding` : "this finding";
+  const evidenceCountHonesty = evidenceRefCountKnown ? null : FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED;
+  const traceConfidence = traceConfidenceDerivationHonesty(input);
+  const severityLabel = nonEmpty(input.severityLabel);
+  const positiveEvidenceRefs = evidenceRefCountKnown && (citedEvidenceRefCount(input) ?? 0) > 0;
+
+  const severitySuffix = severityDerivationClause(severityLabel);
 
   const ruleLead =
     rulePhrase === null
@@ -145,30 +191,22 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
         ? `Policy rule "${rulePhrase.text}"`
         : rulePhrase.text;
 
-  const evidenceParts = [evidence, traceConfidence].filter((part): part is string => part !== null);
-  const evidenceLead =
-    evidenceParts.length === 0
-      ? null
-      : evidenceParts.length === 1
-        ? evidenceParts[0]
-        : `${evidenceParts[0]} ${evidenceParts[1]}`;
+  const evidenceParts = [evidence, evidenceCountHonesty, traceConfidence].filter((part): part is string => part !== null);
+  const evidenceLead = evidenceParts.length === 0 ? null : evidenceParts.join(". ");
 
   if (ruleLead !== null && evidenceLead !== null) {
-    return assembledSentence(`${ruleLead} matched ${evidenceLead} and produced ${severitySuffix}.`, positiveEvidenceRefs);
+    return assembledSentence(`${ruleLead}. ${evidenceLead}. ${severitySuffix}`, positiveEvidenceRefs);
   }
 
   if (ruleLead !== null) {
-    return assembledSentence(`${ruleLead} produced ${severitySuffix}.`, positiveEvidenceRefs);
+    return assembledSentence(`${ruleLead}. ${severitySuffix}`, positiveEvidenceRefs);
   }
 
   if (evidenceLead !== null) {
-    return assembledSentence(
-      `${evidenceLead.charAt(0).toUpperCase()}${evidenceLead.slice(1)} supported ${severitySuffix}.`,
-      positiveEvidenceRefs,
-    );
+    return assembledSentence(`${evidenceLead}. ${severitySuffix}`, positiveEvidenceRefs);
   }
 
-  return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
+  return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };
 }
 
 export function parseFindingWireDerivationFields(wireJson: string): FindingWireDerivationFields {

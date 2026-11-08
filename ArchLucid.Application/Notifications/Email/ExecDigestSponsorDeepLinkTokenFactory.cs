@@ -106,11 +106,7 @@ public sealed class ExecDigestSponsorDeepLinkTokenFactory(IDataProtectionProvide
 
     private static string NormalizeIsoWeekKey(string isoWeekIdempotencyKey)
     {
-        string trimmed = isoWeekIdempotencyKey.Trim();
-        if (trimmed.Length == 0)
-            throw new ArgumentException("ISO week key is required.", nameof(isoWeekIdempotencyKey));
-
-        return trimmed;
+        return WeeklyDigestIsoWeekIdempotencyKeyValidator.NormalizeOrThrow(isoWeekIdempotencyKey);
     }
 
     private static string NormalizeRunIdHex(string runIdHex)

@@ -7,6 +7,7 @@ const teachingChromeVisibleMock = vi.hoisted(() => ({ value: true }));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({

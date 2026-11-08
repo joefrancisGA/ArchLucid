@@ -38,6 +38,12 @@ describe("bulk-evidence-upload-outcome", () => {
     expect(outcomes[2]?.reason).toBe("Upload failed");
   });
 
+  it("fills missing failure reasons with not-stored copy (P-14)", () => {
+    const outcomes = mapBulkEvidenceFileOutcomes([new File(["a"], "a.txt")], 0, "   ");
+
+    expect(outcomes[0]?.reason).toBe("Failure reason was not stored.");
+  });
+
   it("builds partial summary when some files fail", () => {
     const files = [new File(["a"], "a.txt"), new File(["b"], "b.txt")];
     const summary = buildBulkEvidenceUploadSummary(files, 1, "Upload failed", "Done");

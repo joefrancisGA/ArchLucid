@@ -45,8 +45,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = namespaceResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(namespaceResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -93,8 +93,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = namespaceResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(namespaceResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -117,5 +117,4 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
     }
-
 }

@@ -25,7 +25,8 @@ import {
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
-import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
+import { resolveComparePairPrimaryFindingIds } from "@/lib/compare-pair-grounding-links";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { CompareClassificationBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareClassificationBandDeltaPanel";
 import { CompareTreatmentBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareTreatmentBandDeltaPanel";
 import { CompareRoiHeadlineDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRoiHeadlineDeltaPanel";
@@ -34,6 +35,7 @@ import { ComparePackAssignmentDeltaPanel } from "@/app/(operator)/insights/compa
 import { CompareExecutionModeDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareExecutionModeDeltaPanel";
 import { CompareSemanticSupportBandDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSemanticSupportBandDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
+import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 
@@ -113,6 +115,9 @@ export function CompareResultsPanelVerdictChrome({
   const aiCompareBlockedReason =
     compareRunPairBlockedReason(aiFailure) ?? compareExplainMutationBlockedReason(aiFailure);
 
+  const compareArchitectureId =
+    searchParams.get("architectureId")?.trim() ?? readCachedLastOpenArchitectureId() ?? null;
+
   return (
     <>
       <div className="sr-only" aria-live="polite" aria-atomic="true" data-testid="compare-results-live-region">
@@ -149,6 +154,10 @@ export function CompareResultsPanelVerdictChrome({
           baselinePickedSummary={leftPickedSummary}
           targetPickedSummary={rightPickedSummary}
           manifestDiffs={result?.manifestComparison?.diffs}
+          groundingOptions={{
+            ...resolveComparePairPrimaryFindingIds(findingCorrelationState.lifecycleRecords),
+            architectureId: compareArchitectureId,
+          }}
         />
       ) : null}
 

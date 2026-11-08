@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Contracts.Agents;
@@ -86,7 +87,12 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
         Task<AgentEvidencePackage> evidenceTask = GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
         Task<GraphSnapshot?> graphTask = _graphSnapshotRepository.GetByIdAsync(scope, graphId, cancellationToken);
         Task<IReadOnlyList<AgentResult>> agentResultsTask =
-            _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                runId,
+                useRollupProjection: false,
+                cancellationToken);
         Task<FindingsSnapshot?> findingsTask = _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
         Task<IReadOnlyList<PolicyPackAssignment>> scopePolicyPackAssignmentsTask =
             RunHeaderPinnedPolicyPackAssignmentFactory.ResolveCommitTimeAssignmentsWithEnforcementAsync(
@@ -209,7 +215,12 @@ public sealed class AuthorityCommitDecisionMaterializationStage(
     {
         // ADR 0030 PR A3 (2026-04-24): missing evidence package = run hasn't been executed yet,
         // which is a conflict with the current run state, not a malformed request → 409 (not 400).
-        return await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken) ??
+        AgentEvidencePackage? evidence = await AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
+            _agentEvidencePackageRepository,
+            runId,
+            cancellationToken);
+
+        return evidence ??
                throw new ConflictException($"Run '{runId}' cannot be committed: no evidence package exists. Execute the run first.");
     }
 

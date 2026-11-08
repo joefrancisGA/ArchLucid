@@ -16,7 +16,7 @@ public static class BuyerSafeAuditEvidenceSummaryBuilder
     public static string BuildJson(string runId, IReadOnlyList<AuditEvent> audits, bool truncated)
     {
         Dictionary<string, int> categoryCounts = audits
-            .GroupBy(static audit => audit.EventType ?? "Unknown")
+            .GroupBy(static audit => audit.EventType ?? "Event type was not stored.")
             .ToDictionary(static group => group.Key, static group => group.Count(), StringComparer.Ordinal);
 
         List<string> sampleEventIds = audits
@@ -24,7 +24,7 @@ public static class BuyerSafeAuditEvidenceSummaryBuilder
             .Take(10)
             .ToList();
 
-        string disposition = audits.Count > 0 || truncated ? "PASS" : "WARN";
+        string disposition = ResolveDisposition(audits.Count, truncated);
 
         Dictionary<string, object?> payload = new(StringComparer.Ordinal)
         {
@@ -57,7 +57,7 @@ public static class BuyerSafeAuditEvidenceSummaryBuilder
         using JsonDocument doc = JsonDocument.Parse(json);
         JsonElement root = doc.RootElement;
 
-        string disposition = root.GetProperty("disposition").GetString() ?? "WARN";
+        string disposition = root.GetProperty("disposition").GetString() ?? "Audit disposition was not stored.";
         int auditRowCount = root.GetProperty("auditRowCount").GetInt32();
         bool auditTruncated = root.GetProperty("auditRowCountTruncated").GetBoolean();
 
@@ -118,5 +118,16 @@ public static class BuyerSafeAuditEvidenceSummaryBuilder
         }
 
         return sb.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private static string ResolveDisposition(int auditRowCount, bool truncated)
+    {
+        if (truncated)
+            return "TRUNCATED";
+
+        if (auditRowCount > 0)
+            return "COLLECTED";
+
+        return "NOT_COLLECTED";
     }
 }

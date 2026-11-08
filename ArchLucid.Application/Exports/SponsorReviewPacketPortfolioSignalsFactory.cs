@@ -11,15 +11,19 @@ public static class SponsorReviewPacketPortfolioSignalsFactory
         ArgumentNullException.ThrowIfNull(roiSummary);
 
         List<string> nextActions = [];
+        const string derivedFromAmountsPrefix = "Derived from disposition amounts: ";
 
         if (roiSummary.BasisBreakdown?.DeferredUsd > 0m)
-            nextActions.Add("Review deferred findings before the next architecture board cycle.");
+        {
+            nextActions.Add(
+                $"{derivedFromAmountsPrefix}Review deferred findings before the next architecture board cycle.");
+        }
 
         if (roiSummary.BasisBreakdown?.WaivedUsd > 0m)
-            nextActions.Add("Confirm active waivers remain within policy before sponsor distribution.");
-
-        if (nextActions.Count == 0)
-            nextActions.Add("Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off.");
+        {
+            nextActions.Add(
+                $"{derivedFromAmountsPrefix}Confirm active waivers remain within policy before sponsor distribution.");
+        }
 
         return new SponsorReviewPacketPortfolioSignals
         {

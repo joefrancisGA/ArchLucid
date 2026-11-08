@@ -170,11 +170,34 @@ export function findingHasNoSourceEvidence(finding: QuickDecisionFinding): boole
   return !hasRefCount && !hasSnippets && !hasPolicyRule;
 }
 
+/** True when the API stored an explicit zero evidence-ref count (distinct from a missing count). */
+export function findingHasStoredZeroEvidenceRefCount(finding: QuickDecisionFinding): boolean {
+  return finding.evidenceRefCount === 0;
+}
+
+/** True when no evidence-ref count was stored on the finding or explainability row. */
+export function findingHasMissingEvidenceRefCount(finding: QuickDecisionFinding): boolean {
+  return finding.evidenceRefCount === null || finding.evidenceRefCount === undefined;
+}
+
+/** True when a finding is stored as a policy-blocking violation (not advisory, tier stored). */
+export function isQuickDecisionPolicyBlockingFinding(finding: QuickDecisionFinding): boolean {
+  if (finding.enforcementTierStored === false) {
+    return false;
+  }
+
+  if (finding.enforcementTier === null || finding.enforcementTier === undefined) {
+    return false;
+  }
+
+  return finding.enforcementTier !== "Advisory";
+}
+
 /** Highest severity first, then original finding order. Policy violations precede advisory notes. */
 export function sortQuickDecisionFindings(findings: readonly QuickDecisionFinding[]): QuickDecisionFinding[] {
   return [...findings].sort((a, b) => {
-    const aAdvisory = a.enforcementTier === "Advisory" ? 1 : 0;
-    const bAdvisory = b.enforcementTier === "Advisory" ? 1 : 0;
+    const aAdvisory = a.enforcementTier === "Advisory" ? 1 : isQuickDecisionPolicyBlockingFinding(a) ? 0 : 2;
+    const bAdvisory = b.enforcementTier === "Advisory" ? 1 : isQuickDecisionPolicyBlockingFinding(b) ? 0 : 2;
 
     if (aAdvisory !== bAdvisory) {
       return aAdvisory - bAdvisory;
@@ -193,19 +216,23 @@ export function sortQuickDecisionFindings(findings: readonly QuickDecisionFindin
 export function partitionQuickDecisionFindings(findings: readonly QuickDecisionFinding[]): {
   policyViolations: QuickDecisionFinding[];
   advisoryNotes: QuickDecisionFinding[];
+  enforcementTierUnspecified: QuickDecisionFinding[];
 } {
   const policyViolations: QuickDecisionFinding[] = [];
   const advisoryNotes: QuickDecisionFinding[] = [];
+  const enforcementTierUnspecified: QuickDecisionFinding[] = [];
 
   for (const finding of findings) {
     if (finding.enforcementTier === "Advisory") {
       advisoryNotes.push(finding);
-    } else {
+    } else if (isQuickDecisionPolicyBlockingFinding(finding)) {
       policyViolations.push(finding);
+    } else {
+      enforcementTierUnspecified.push(finding);
     }
   }
 
-  return { policyViolations, advisoryNotes };
+  return { policyViolations, advisoryNotes, enforcementTierUnspecified };
 }
 
 /** Findings rendered as workspace cards (excludes collapsed advisory notes by default). */

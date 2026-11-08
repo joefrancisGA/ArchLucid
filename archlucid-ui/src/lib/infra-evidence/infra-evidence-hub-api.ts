@@ -95,9 +95,15 @@ export async function fetchCloudResourceExplorerPage(
       workCounts: row.workCounts == null
         ? null
         : {
-            openOperationalFindingsCount: Number.isFinite(row.workCounts.openOperationalFindingsCount) ? Number(row.workCounts.openOperationalFindingsCount) : 0,
-            openRemediationInstancesCount: Number.isFinite(row.workCounts.openRemediationInstancesCount) ? Number(row.workCounts.openRemediationInstancesCount) : 0,
-            inventoryDriftChangeCount: Number.isFinite(row.workCounts.inventoryDriftChangeCount) ? Number(row.workCounts.inventoryDriftChangeCount) : 0,
+            openOperationalFindingsCount: Number.isFinite(row.workCounts.openOperationalFindingsCount)
+              ? Number(row.workCounts.openOperationalFindingsCount)
+              : undefined,
+            openRemediationInstancesCount: Number.isFinite(row.workCounts.openRemediationInstancesCount)
+              ? Number(row.workCounts.openRemediationInstancesCount)
+              : undefined,
+            inventoryDriftChangeCount: Number.isFinite(row.workCounts.inventoryDriftChangeCount)
+              ? Number(row.workCounts.inventoryDriftChangeCount)
+              : undefined,
           },
     }));
 

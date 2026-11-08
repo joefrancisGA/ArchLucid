@@ -28,6 +28,9 @@ public static class CostConstraintProjectedSpendEnricher
         if (queryNodes.Count == 0)
             return;
 
+        bool topologyInstanceCountAssumed = queryNodes.Any(static node => node.Quantity == 1 && node.InstanceCountWasNotStored);
+        bool unknownPlatformIllustrativePlaceholder = queryNodes.Any(static node => node.Platform == RuntimePlatform.Unknown);
+
         InfrastructureMonthlyUsdCostEstimator estimator = new(null);
         InfrastructureCostEstimateTotals totals = await estimator.EstimateNodesAsync(
             queryNodes,
@@ -47,6 +50,7 @@ public static class CostConstraintProjectedSpendEnricher
         string confidenceReasoning = totals.AnyRetailPricing
             ? "Topology-derived projected monthly spend (retail blend)."
             : "Topology-derived projected monthly spend (illustrative fallback).";
+        bool projectedSpendIllustrative = !totals.AnyRetailPricing;
 
         foreach (GraphNode node in nodes)
         {
@@ -60,6 +64,21 @@ public static class CostConstraintProjectedSpendEnricher
             node.Properties["projectedImpactUsdLowerBound"] = lowerText;
             node.Properties["projectedImpactUsdUpperBound"] = upperText;
             node.Properties["confidenceReasoning"] = confidenceReasoning;
+
+            if (projectedSpendIllustrative)
+            {
+                node.Properties["projectedSpendIllustrative"] = "true";
+            }
+
+            if (topologyInstanceCountAssumed)
+            {
+                node.Properties["topologyInstanceCountAssumed"] = "true";
+            }
+
+            if (unknownPlatformIllustrativePlaceholder)
+            {
+                node.Properties["unknownPlatformIllustrativePlaceholder"] = "true";
+            }
         }
     }
 
@@ -99,7 +118,7 @@ internal static class GraphTopologyInfrastructureCostNodes
             string displayName = string.IsNullOrWhiteSpace(topologyNode.Label) ? "(topology resource)" : topologyNode.Label.Trim();
             string? region = ReadProperty(topologyNode, "armRegion", "azureArmRegion", "region");
             string? sku = ReadProperty(topologyNode, "sku", "azurePricingSku", "pricingSku");
-            int quantity = TryReadQuantity(topologyNode);
+            int quantity = TryReadQuantity(topologyNode, out bool instanceCountAssumed);
 
             string category = string.IsNullOrWhiteSpace(topologyNode.Category)
                 ? "TopologyResource"
@@ -111,7 +130,8 @@ internal static class GraphTopologyInfrastructureCostNodes
                 platform,
                 region,
                 sku,
-                quantity));
+                quantity,
+                instanceCountAssumed));
         }
 
         return nodes;
@@ -144,16 +164,23 @@ internal static class GraphTopologyInfrastructureCostNodes
         return RuntimePlatform.Unknown;
     }
 
-    private static int TryReadQuantity(GraphNode topologyNode)
+    private static int TryReadQuantity(GraphNode topologyNode, out bool instanceCountAssumed)
     {
         string? quantityRaw = ReadProperty(topologyNode, "instanceCount", "quantity");
 
         if (string.IsNullOrWhiteSpace(quantityRaw))
+        {
+            instanceCountAssumed = true;
             return 1;
+        }
 
         if (int.TryParse(quantityRaw, out int quantity) && quantity > 0)
+        {
+            instanceCountAssumed = false;
             return quantity;
+        }
 
+        instanceCountAssumed = true;
         return 1;
     }
 

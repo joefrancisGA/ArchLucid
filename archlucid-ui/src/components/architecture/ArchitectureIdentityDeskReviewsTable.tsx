@@ -178,7 +178,9 @@ export function ArchitectureIdentityDeskReviewsTable(
                       data-testid={`architecture-identity-review-in-flight-${review.runId}`}
                     />
                   ) : (
-                    <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>—</span>
+                    <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+                      Review step status was not stored.
+                    </span>
                   )}
                 </EnterpriseTableCell>
               ) : null}

@@ -30,10 +30,14 @@ function normalizeCount(value: number | null | undefined): number {
 export function projectReviewLifecycleForDisplay(
   input: ProjectReviewLifecycleForDisplayInput,
 ): ProjectReviewLifecycleForDisplay {
-  const status = (input.manifestStatus ?? "").trim();
+  const rawStatus = input.manifestStatus;
+  const status = (rawStatus ?? "").trim();
   let manifestStatusLabel = "Not finalized";
 
-  if (/^committed$/i.test(status)) {
+  if (rawStatus !== null && rawStatus !== undefined && status.length === 0) {
+    manifestStatusLabel = "Status was stored empty.";
+  }
+  else if (/^committed$/i.test(status)) {
     manifestStatusLabel = REVIEW_LIFECYCLE_FINALIZED_STATE_LABEL;
   }
   else if (status.length > 0) {

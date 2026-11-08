@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   applyFindingsConfidenceVisibility,
+  formatHiddenLowConfidenceHint,
   formatFindingsVisibilitySummaryLine,
   isApprovalBlockingFinding,
   isLowConfidenceFinding,
@@ -34,9 +35,8 @@ describe("finding-confidence-filter", () => {
     expect(isLowConfidenceFinding(finding({ evaluationConfidenceScore: 0.25 }))).toBe(true);
   });
 
-  it("isLowConfidenceFinding returns false for medium/high confidence", () => {
-    expect(isLowConfidenceFinding(finding({ confidenceLevel: "High" }))).toBe(false);
-    expect(isLowConfidenceFinding(finding({ evaluationConfidenceScore: 72 }))).toBe(false);
+  it("keeps fractional evaluation scores for filtering (P-10)", () => {
+    expect(isLowConfidenceFinding(finding({ evaluationConfidenceScore: 0.85 }))).toBe(false);
   });
 
   it("partitionQuickDecisionFindingsByConfidence splits trusted and low-confidence rows", () => {
@@ -93,10 +93,23 @@ describe("finding-confidence-filter", () => {
   });
 });
 
+describe("formatHiddenLowConfidenceHint", () => {
+  it("states when hidden count was not stored", () => {
+    expect(formatHiddenLowConfidenceHint(undefined)).toBe("Hidden finding count was not stored.");
+    expect(formatHiddenLowConfidenceHint(0)).toBeNull();
+  });
+});
+
 describe("formatFindingsVisibilitySummaryLine", () => {
   it("labels missing hidden count honestly", () => {
     expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toBe(
       "Showing 3 of 5. Hidden finding count was not stored.",
+    );
+  });
+
+  it("notes hidden findings remain stored (P-20)", () => {
+    expect(formatFindingsVisibilitySummaryLine(2, 5, 3)).toBe(
+      "Showing 2 of 5 — 3 hidden by confidence filter (still stored)",
     );
   });
 });

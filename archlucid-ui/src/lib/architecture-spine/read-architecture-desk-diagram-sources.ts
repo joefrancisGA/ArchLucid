@@ -7,11 +7,16 @@ import {
   ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import {
+  PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
   readPixelDiagramNotVerifiableSourcesFromContextSnapshot,
 } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 
 /** Matches <see cref="StructuredDiagramCanonicalSourceTypes.StructuredDiagram" /> on canonical objects. */
 export const STRUCTURED_DIAGRAM_CANONICAL_SOURCE_TYPE = "StructuredDiagram";
+
+export const STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED = "Diagram source id was not stored." as const;
+
+export const STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY = "Diagram source id was stored empty." as const;
 
 export type ArchitectureDeskDiagramSourceStatus = "analyzed" | "not-extracted";
 
@@ -29,12 +34,22 @@ type CanonicalObjectWire = {
 
 export function formatArchitectureDeskDiagramSourceRow(row: ArchitectureDeskDiagramSourceRow): string {
   if (row.status === "not-extracted") {
-    return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS}`;
+    const countSuffix =
+      row.nodeCount === null
+        ? " Node count was not stored."
+        : typeof row.nodeCount === "number" && Number.isFinite(row.nodeCount)
+          ? ` (${row.nodeCount} node${row.nodeCount === 1 ? "" : "s"})`
+          : "";
+
+    return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS}${countSuffix}`;
   }
 
-  const nodeCount = row.nodeCount ?? 0;
-  const nodeClause =
-    nodeCount > 0 ? ` (${nodeCount} node${nodeCount === 1 ? "" : "s"})` : "";
+  if (row.nodeCount === null) {
+    return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ANALYZED_STATUS} Node count was not stored.`;
+  }
+
+  const nodeCount = row.nodeCount;
+  const nodeClause = ` (${nodeCount} node${nodeCount === 1 ? "" : "s"})`;
 
   return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ANALYZED_STATUS}${nodeClause}`;
 }
@@ -60,9 +75,31 @@ function readStructuredDiagramSourceRows(contextSnapshot: Record<string, unknown
       continue;
     }
 
-    const sourceId = wire.sourceId?.trim() ?? "";
+    const sourceIdRaw = wire.sourceId;
+
+    if (sourceIdRaw === null || sourceIdRaw === undefined) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED) ?? 0) + 1,
+      );
+      continue;
+    }
+
+    if (sourceIdRaw.length === 0) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_NOT_STORED) ?? 0) + 1,
+      );
+      continue;
+    }
+
+    const sourceId = sourceIdRaw.trim();
 
     if (sourceId.length === 0) {
+      nodeCountBySourceId.set(
+        STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY,
+        (nodeCountBySourceId.get(STRUCTURED_DIAGRAM_SOURCE_ID_STORED_EMPTY) ?? 0) + 1,
+      );
       continue;
     }
 
@@ -79,15 +116,33 @@ function readStructuredDiagramSourceRows(contextSnapshot: Record<string, unknown
     }));
 }
 
+const PIXEL_DIAGRAM_MISSING_FILE_NAME_SOURCE_KEY = "pixel:file-name-not-stored" as const;
+
 function readPixelDiagramSourceRows(contextSnapshot: unknown): ArchitectureDeskDiagramSourceRow[] {
   const pixelSources = readPixelDiagramNotVerifiableSourcesFromContextSnapshot(contextSnapshot);
   const seenFileNames = new Set<string>();
+  let sawMissingFileName = false;
   const rows: ArchitectureDeskDiagramSourceRow[] = [];
 
   for (const source of pixelSources) {
+    if (source.fileName === null || source.fileName.trim().length === 0) {
+      if (sawMissingFileName) {
+        continue;
+      }
+
+      sawMissingFileName = true;
+      rows.push({
+        sourceKey: PIXEL_DIAGRAM_MISSING_FILE_NAME_SOURCE_KEY,
+        label: PIXEL_DIAGRAM_FILE_NAME_NOT_STORED,
+        status: "not-extracted",
+        nodeCount: null,
+      });
+      continue;
+    }
+
     const fileName = source.fileName.trim();
 
-    if (fileName.length === 0 || seenFileNames.has(fileName)) {
+    if (seenFileNames.has(fileName)) {
       continue;
     }
 

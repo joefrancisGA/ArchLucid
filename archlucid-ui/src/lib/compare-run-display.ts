@@ -17,7 +17,13 @@ export function compareRunHeadingLabel(runId: string, pickedSummary?: RunSummary
     if (
       canonicalizeDemoRunId(pickedId).toLowerCase() === canonicalizeDemoRunId(trimmed).toLowerCase()
     ) {
-      return runSummaryDisplayLabel(pickedSummary);
+      const label = runSummaryDisplayLabel(pickedSummary);
+
+      if (label.trim().toLowerCase() === canonicalizeDemoRunId(trimmed).toLowerCase()) {
+        return "Review title was not stored.";
+      }
+
+      return label;
     }
   }
 
@@ -31,5 +37,5 @@ export function compareRunHeadingLabel(runId: string, pickedSummary?: RunSummary
     return "Claims Intake (completed review)";
   }
 
-  return trimmed;
+  return "Review title was not stored.";
 }

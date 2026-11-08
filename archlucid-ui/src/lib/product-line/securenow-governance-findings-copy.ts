@@ -1,7 +1,7 @@
 import { SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE } from "@/lib/findings/findings-help-guide-content";
 import type { LayerGuidanceBlock } from "@/lib/layer-guidance";
 import type { PageCapabilityBoundary } from "@/lib/page-capability-boundary";
-import { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY } from "@/lib/page-capability-boundary";
+import { PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY } from "@/lib/page-capability-boundary-heading";
 import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { SECURENOW_GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 

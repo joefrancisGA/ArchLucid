@@ -113,6 +113,15 @@ const AUDIENCE_SECTION_COPY: Record<
 
 /** Buckets sponsor-mode rows for manifest-style grouping (uses {@link sponsorArtifactAudienceLine} semantics). */
 export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArtifactAudienceBucket {
+  const normalizedType = artifactType.trim();
+  if (
+    normalizedType === "MarkdownReport"
+    || normalizedType === "ArchitectureNarrative"
+    || normalizedType === "UnresolvedIssuesReport"
+  ) {
+    return "sponsor";
+  }
+
   const raw = sponsorArtifactAudienceLine(artifactType);
 
   if (raw === null || raw.trim().length === 0) {
@@ -120,11 +129,14 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
   }
 
   const line = raw.toLowerCase();
-  const mentionsSponsorAudience = line.includes("sponsor") || line.includes("sponsor");
+  const mentionsExecutiveAudience = line.includes("executives") || line.includes("executive");
+  const mentionsSponsorAudience = line.includes("sponsor");
   const mentionsArchitect = line.includes("architect");
   const mentionsAudit = line.includes("audit") || line.includes("compliance");
 
-  const topicHits = [mentionsSponsorAudience, mentionsArchitect, mentionsAudit].filter(Boolean).length;
+  const topicHits = [mentionsExecutiveAudience, mentionsSponsorAudience, mentionsArchitect, mentionsAudit].filter(
+    Boolean,
+  ).length;
 
   if (topicHits >= 2) {
     return "shared";
@@ -138,7 +150,7 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
     return "architects";
   }
 
-  if (mentionsSponsorAudience) {
+  if (mentionsExecutiveAudience || mentionsSponsorAudience) {
     return "sponsor";
   }
 

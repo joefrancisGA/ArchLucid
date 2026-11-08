@@ -38,12 +38,16 @@ public sealed class WhyArchLucidSnapshotResponse
     ///     Cumulative <c>archlucid_findings_produced_total</c>, grouped by the <c>severity</c> tag.
     ///     Severity is whatever upstream emitters report (commonly <c>Critical|High|Medium|Low|Info|Unknown</c>).
     /// </summary>
+    private Dictionary<string, long> findingsProducedBySeverity =
+        new(StringComparer.Ordinal);
+
     public IReadOnlyDictionary<string, long> FindingsProducedBySeverity
     {
-        get;
-        set;
+        get => findingsProducedBySeverity;
+        set => findingsProducedBySeverity = value is null
+            ? new Dictionary<string, long>(StringComparer.Ordinal)
+            : new Dictionary<string, long>(value, StringComparer.Ordinal);
     }
-        = new Dictionary<string, long>(StringComparer.Ordinal);
 
     /// <summary>
     ///     Audit row count returned by <c>IAuditRepository</c> for the default demo scope

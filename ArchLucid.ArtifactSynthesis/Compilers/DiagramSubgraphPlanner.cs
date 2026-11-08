@@ -82,7 +82,7 @@ internal sealed class DiagramSubgraphPlanner
                     EnsureSubgraph(
                         subgraphs,
                         subnetSubgraphId,
-                        $"Subnet {node.Label}",
+                        FormatSubnetSubgraphLabel(node.Label),
                         vnetSubgraphId,
                         orderKey: 3);
 
@@ -130,24 +130,64 @@ internal sealed class DiagramSubgraphPlanner
         return subgraphs.FirstOrDefault()?.SubgraphId;
     }
 
+    private static string FormatSubnetSubgraphLabel(string? label)
+    {
+        if (label is null)
+        {
+            return "Subnet name was not stored.";
+        }
+
+        if (label.Length == 0 || label.Trim().Length == 0)
+        {
+            return "Subnet name was stored empty.";
+        }
+
+        return $"Subnet {label.Trim()}";
+    }
+
     private static string ReadParentVnetLabel(IReadOnlyList<GraphNode> nodes, string parentArmId)
     {
         GraphNode? parentVnet = nodes.FirstOrDefault(candidate =>
             string.Equals(DiagramAstGraphNodeClassifier.ReadArmId(candidate), parentArmId, StringComparison.OrdinalIgnoreCase));
 
-        if (parentVnet != null && !string.IsNullOrWhiteSpace(parentVnet.Label))
+        if (parentVnet is not null)
         {
-            return parentVnet.Label;
+            if (parentVnet.Label is null)
+            {
+                return FormatVnetArmSegmentFallback(parentArmId);
+            }
+
+            if (parentVnet.Label.Length == 0)
+            {
+                return "Virtual network name was stored empty.";
+            }
+
+            string trimmedLabel = parentVnet.Label.Trim();
+            if (trimmedLabel.Length > 0)
+            {
+                return trimmedLabel;
+            }
+
+            return "Virtual network name was stored empty.";
         }
 
+        return FormatVnetArmSegmentFallback(parentArmId);
+    }
+
+    private static string FormatVnetArmSegmentFallback(string parentArmId)
+    {
         int nameStart = parentArmId.LastIndexOf('/');
 
         if (nameStart >= 0 && nameStart < parentArmId.Length - 1)
         {
-            return parentArmId[(nameStart + 1)..];
+            string armSegment = parentArmId[(nameStart + 1)..].Trim();
+            if (armSegment.Length > 0)
+            {
+                return $"{armSegment} (ARM segment)";
+            }
         }
 
-        return parentArmId;
+        return "Virtual network name was not stored.";
     }
 
     private static void EnsureSubgraph(

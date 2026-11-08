@@ -6,7 +6,9 @@ import type { RunSummary } from "@/types/authority";
 import {
   lookupArchitectureDraftOwnerLabel,
   lookupArchitectureDraftParentArchitectureId,
+  reviewPackageCreatedDateLabel,
   reviewPackageFinalizedDateLabel,
+  reviewPackageFinalizedTimeLabel,
   reviewPackageOwnerLabel,
   REVIEW_PACKAGE_OWNER_UNAVAILABLE,
   REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED,
@@ -14,14 +16,27 @@ import {
 } from "./review-package-validation-picker";
 
 describe("reviewPackageFinalizedDateLabel", () => {
-  it("labels in-progress packages as Not finalized", () => {
-    expect(
-      reviewPackageFinalizedDateLabel({
-        runId: "draft-review",
-        projectId: "default",
-        createdUtc: "2026-01-14T12:00:00.000Z",
-      } satisfies RunSummary),
-    ).toBe("Not finalized");
+  const createdSample = {
+    runId: "draft-review",
+    projectId: "default",
+    createdUtc: "2026-01-14T12:00:00.000Z",
+  } satisfies RunSummary;
+
+  it("is a legacy alias for created date on in-progress packages", () => {
+    expect(reviewPackageFinalizedDateLabel(createdSample)).toBe(reviewPackageCreatedDateLabel(createdSample));
+  });
+
+  it("does not surface finalize time on the legacy finalized date alias", () => {
+    const finalizedWithoutCompleted = {
+      ...createdSample,
+      runId: "finalized-review",
+      hasGoldenManifest: true,
+    } satisfies RunSummary;
+
+    expect(reviewPackageFinalizedDateLabel(finalizedWithoutCompleted)).toBe(
+      reviewPackageCreatedDateLabel(finalizedWithoutCompleted),
+    );
+    expect(reviewPackageFinalizedTimeLabel(finalizedWithoutCompleted)).toBe("Finalized time was not stored.");
   });
 });
 

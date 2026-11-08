@@ -17,6 +17,7 @@ type ProvenanceGraphEdge = ArchitectureRunProvenanceGraph["edges"][number];
 
 export type ProvenancePageWorkspaceGraphSectionProps = {
   readonly runId: string;
+  readonly reviewPathname: string;
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly layoutSeed: number;
   readonly selectedNodeId: string | null;
@@ -40,6 +41,7 @@ export function ProvenancePageWorkspaceGraphSection(
 ): React.JSX.Element {
   const {
     runId,
+    reviewPathname,
     graph,
     layoutSeed,
     selectedNodeId,
@@ -112,6 +114,7 @@ export function ProvenancePageWorkspaceGraphSection(
       {selectedNode !== null ? (
         <ProvenancePageWorkspaceNodeAside
           runId={runId}
+          reviewPathname={reviewPathname}
           selectedNode={selectedNode}
           graphNodes={graph.nodes}
           nodeById={nodeById}

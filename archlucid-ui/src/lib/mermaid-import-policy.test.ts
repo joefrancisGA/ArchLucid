@@ -60,7 +60,7 @@ describe("mermaid import policy (TB-863)", () => {
 
   it("loads architecture diagrams through a deferred run-detail chunk", () => {
     const pageViewSource = readFileSync(
-      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[reviewId]", "_sections", "RunDetailPageView.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[reviewId]", "_sections", "RunDetailPageViewCreateHome.tsx"),
       "utf8",
     );
     const deferredChunksSource = readFileSync(
@@ -72,7 +72,7 @@ describe("mermaid import policy (TB-863)", () => {
         "reviews",
         "[reviewId]",
         "_sections",
-        "run-detail-page-view-deferred-chunks.tsx",
+        "run-detail-page-view-deferred-chunks-architecture.ts",
       ),
       "utf8",
     );
@@ -83,12 +83,18 @@ describe("mermaid import policy (TB-863)", () => {
 
     expect(pageViewSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
     expect(pageViewSource).not.toContain('import("@/components/architecture/ArchitectureCreatedWorkspace")');
-    expect(deferredChunksSource).toContain("dynamic(");
-    expect(deferredChunksSource).toContain('import("@/components/architecture/ArchitectureCreatedWorkspace")');
+    expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
+    expect(deferredChunksSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredChunksSource).toContain("run-detail-architecture-created-workspace");
+    expect(deferredChunksSource).not.toContain('import("@/components/architecture/ArchitectureCreatedWorkspace")');
     expect(diagramPanelSource).toContain("ArchitectureDiagramViewer");
   });
 
   it("renders help mermaid through MermaidDiagram inside the markdown fragment", () => {
+    const markdownCodeFencesSource = readFileSync(
+      join(SRC_ROOT, "components", "marketing", "MarketingAccessibilityMarkdownCodeFences.tsx"),
+      "utf8",
+    );
     const markdownFragmentSource = readFileSync(
       join(SRC_ROOT, "components", "marketing", "MarketingAccessibilityMarkdownFragment.tsx"),
       "utf8",
@@ -98,8 +104,9 @@ describe("mermaid import policy (TB-863)", () => {
       "utf8",
     );
 
-    expect(markdownFragmentSource).toContain('from "@/components/help/MermaidDiagram"');
-    expect(markdownFragmentSource).toContain("<MermaidDiagram");
+    expect(markdownCodeFencesSource).toContain('from "@/components/help/MermaidDiagram"');
+    expect(markdownCodeFencesSource).toContain("<MermaidDiagram");
+    expect(markdownFragmentSource).toContain("MarketingAccessibilityMarkdownCodeFences");
     expect(helpTopicViewSource).toContain("MarketingAccessibilityMarkdownFragment");
     expect(helpTopicViewSource).not.toMatch(/import\(["']mermaid["']\)/);
   });

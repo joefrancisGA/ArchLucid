@@ -35,6 +35,9 @@ type RunDetailEvidenceTabPanelProps = {
   readonly linkedFindingCount: number;
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
+  readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
+  /** When false, empty inventory uses not-stored readiness copy instead of "empty". */
+  readonly findingsSnapshotStored?: boolean;
   readonly runId: string;
   readonly manifestId: string | null | undefined;
   readonly buyerPolished: boolean;
@@ -45,6 +48,7 @@ type RunDetailEvidenceTabPanelProps = {
   readonly blockingFindingId: string | null;
   readonly blockingFindingTitle: string | null;
   readonly approvalBlocked: boolean;
+  readonly approvalBlockerUsesStoredFinding?: boolean;
   /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -57,15 +61,26 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
     props.trustEvidenceCard != null
       ? deriveRunTrustEvidenceReadinessFromCard(props.trustEvidenceCard, evalChromeShell)
       : null;
+  const findingsSnapshotStored =
+    props.findingsSnapshotStored ??
+    (props.items.length > 0 ? props.items[0]?.citingFindingCountStored === true : true);
+
+  const evidenceTabScopeIntro = findingsSnapshotStored
+    ? "This list is the submitted evidence stored on the review."
+    : "Findings snapshot was not stored on this review. This list shows intake-linked sources only — not analyzer-cited evidence rows.";
+
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,
     trustReadiness,
+    findingsCiteEvidenceWithoutSourceNames: props.findingsCiteEvidenceWithoutSourceNames === true,
+    findingsSnapshotStored,
   });
   const evidenceCoverageLine = deriveEvidenceScopeCoverageLine({
     inventoryCount,
     findingsCoverageSummaryLine: props.evidenceCoverageSummaryLine,
     linkedFindingCount: props.linkedFindingCount,
     openFindingCount: props.openFindingCount,
+    findingsSnapshotStored,
   });
   const hasManifest = Boolean((props.manifestId ?? "").trim().length > 0);
   const evidencePresence = deriveEvidencePresenceFromInventoryKinds({
@@ -91,14 +106,14 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-evidence-tab-scope"
       >
-        Evidence here is what this review used.
+        {evidenceTabScopeIntro}
       </p>
       <RunDetailSectionNav runId={props.runId} sections={sectionNavSections} />
       <RunDetailEvidenceScopeHeader
         packageName={props.packageName}
         reviewDateLabel={props.reviewDateLabel}
-        evidenceItemCount={inventoryCount}
-        deliverableCount={props.deliverableCount}
+        evidenceItemCount={hasManifest ? inventoryCount : null}
+        deliverableCount={hasManifest ? props.deliverableCount : null}
         readinessHeadline={scopeReadiness.headline}
         readinessVerdict={scopeReadiness.verdict}
         evidenceCoverageLine={evidenceCoverageLine}
@@ -125,6 +140,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
           blockingFindingId={props.blockingFindingId}
           blockingFindingTitle={props.blockingFindingTitle}
           approvalBlocked={props.approvalBlocked}
+          approvalBlockerUsesStoredFinding={props.approvalBlockerUsesStoredFinding}
         />
       ) : null}
       {props.artifactsExportsSection}

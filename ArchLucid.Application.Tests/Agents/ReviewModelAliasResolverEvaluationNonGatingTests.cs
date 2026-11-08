@@ -13,6 +13,43 @@ namespace ArchLucid.Application.Tests.Agents;
 public sealed class ReviewModelAliasResolverEvaluationNonGatingTests
 {
     [Fact]
+    public async Task ResolveForRunCreateAsync_applies_padded_model_alias_override()
+    {
+        FailedEvaluationAliasRegistry aliasRegistry = new();
+        Mock<IWorkspaceAllowedEngineSetService> allowedSetService = new();
+
+        WorkspaceAllowedEngineSetSnapshot allowedSet = new(
+            ["premium-assurance"],
+            "economy-general",
+            WorkspaceAllowedEngineSetSource.CatalogDefault);
+
+        allowedSetService.Setup(service => service.GetAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allowedSet);
+        allowedSetService.Setup(service => service.IsAliasAllowed(allowedSet, "premium-assurance"))
+            .Returns(true);
+
+        ReviewModelAliasResolver resolver = new(
+            allowedSetService.Object,
+            aliasRegistry,
+            new PermissiveExternalSubprocessorAcknowledgmentService());
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-1",
+            SystemName = "Sys",
+            Description = "Desc",
+            ModelAliasOverride = " premium-assurance ",
+        };
+
+        ReviewModelAliasResolution resolution =
+            await resolver.ResolveForRunCreateAsync(request, CancellationToken.None);
+
+        resolution.EffectiveAliasId.Should().Be("premium-assurance");
+        resolution.RequestedOverrideRaw.Should().Be("premium-assurance");
+        resolution.RejectedOutsideAllowedSet.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task ResolveForRunCreateAsync_DoesNotRejectAliasWhenEvaluationStateIsFailed()
     {
         FailedEvaluationAliasRegistry aliasRegistry = new();

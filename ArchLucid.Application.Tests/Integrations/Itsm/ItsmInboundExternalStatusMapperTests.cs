@@ -51,4 +51,21 @@ public sealed class ItsmInboundExternalStatusMapperTests
 
         disposition.Should().BeNull();
     }
+
+    [Fact]
+    public void TryMapServiceNowStateToDisposition_matches_whole_number_float_string_to_integer_map_key()
+    {
+        IntegrationsItsmInboundOptions options = new()
+        {
+            ServiceNowStateDispositionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["6"] = nameof(FindingDisposition.Remediated),
+            },
+        };
+
+        FindingDisposition? disposition =
+            ItsmInboundExternalStatusMapper.TryMapServiceNowStateToDisposition("6.0", options);
+
+        disposition.Should().Be(FindingDisposition.Remediated);
+    }
 }

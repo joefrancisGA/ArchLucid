@@ -57,6 +57,8 @@ describe("architectureReviewTemplates", () => {
         ...base,
         description: t.briefText,
         systemName: suggestedSystemNameFromTemplateId(t.id),
+        // The test represents a user completing the required environment step.
+        environment: "production",
       };
 
       const parsed = wizardFormSchema.parse(merged);
@@ -66,7 +68,7 @@ describe("architectureReviewTemplates", () => {
       expect(payload.systemName).toBe(suggestedSystemNameFromTemplateId(t.id));
       expect(payload.requestId.length).toBeGreaterThanOrEqual(32);
       expect(payload.cloudProvider).toBe("None");
-      expect(payload.environment.length).toBeGreaterThan(0);
+      expect(payload.environment).toBe("production");
     }
   });
 });

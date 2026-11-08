@@ -14,10 +14,10 @@ type HarnessProps = {
  * Wraps wizard step components with the same FormProvider + zod resolver shape as production.
  */
 export function WizardFormTestHarness({ children, values }: HarnessProps) {
-  const defaultValues: WizardFormValues = wizardFormSchema.parse({
+  const defaultValues: WizardFormValues = {
     ...buildDefaultWizardValues(),
     ...values,
-  });
+  };
 
   const methods = useForm<WizardFormValues>({
     resolver: zodResolver(wizardFormSchema),

@@ -195,6 +195,49 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
         released.Should().Be(2);
     }
 
+    [Fact]
+    public async Task ReleaseAllHeldByThisInstanceAsync_propagates_repository_exceptions()
+    {
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("storage unavailable"));
+
+        Mock<IHostProcessInstanceId> instance = new();
+        instance.Setup(i => i.Value).Returns("instance-a");
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, new WorkerHostDrainGate(), instance);
+
+        Func<Task> act = () => sut.ReleaseAllHeldByThisInstanceAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*storage unavailable*");
+    }
+
+    [Fact]
+    public async Task ReleaseAllHeldByThisInstanceAsync_when_repository_throws_preserves_local_acquire_pin()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        leases
+            .Setup(l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("storage unavailable"));
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, new WorkerHostDrainGate());
+
+        await sut.AcquireAsync(runId, CancellationToken.None);
+        sut.IsLocallyHoldingExecuteOwnership(runId).Should().BeTrue();
+
+        Func<Task> act = () => sut.ReleaseAllHeldByThisInstanceAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        sut.IsLocallyHoldingExecuteOwnership(runId).Should().BeTrue(
+            "bulk drain must not clear local admission when repository release fails");
+    }
+
     private static RunExecuteOwnershipLeaseService CreateSut(
         Mock<IRunExecuteOwnershipLeaseRepository> leases,
         IWorkerHostDrainGate drainGate,

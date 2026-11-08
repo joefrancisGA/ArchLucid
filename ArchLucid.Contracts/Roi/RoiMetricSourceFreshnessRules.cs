@@ -26,6 +26,9 @@ public static class RoiMetricSourceFreshnessRules
         if (HasBenchmarkOnlySavingsClaim(estimatedUsdSavings, sources))
             return "WARN";
 
+        if (HasPositiveEstimatedSavings(estimatedUsdSavings) && extractorCollectionTimestampUtc is null)
+            return "HOLD";
+
         return "PASS";
     }
 

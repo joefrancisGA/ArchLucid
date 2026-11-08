@@ -10,7 +10,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseTable } from "@/components/ui/enterprise-table";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  governanceFindingInspectHref,
+  navigateGovernanceFindingDetail,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
@@ -34,6 +34,10 @@ import {
 } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+import {
+  isGovernanceQueueFindingIdSelected,
+  normalizeGovernanceQueueFindingId,
+} from "@/lib/governance/governance-findings-queue-selection";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 import {
@@ -165,8 +169,11 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange !== undefined &&
     selectableDisplayRows.length > 0;
   const allSelected =
-    hasBulkSelect && selectableDisplayRows.every((row) => selectedFindingIds.has(row.findingId));
-  const someSelected = hasBulkSelect && selectableDisplayRows.some((row) => selectedFindingIds.has(row.findingId));
+    hasBulkSelect &&
+    selectableDisplayRows.every((row) => isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId));
+  const someSelected =
+    hasBulkSelect &&
+    selectableDisplayRows.some((row) => isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId));
   const useVirtualization = !groupByResource && shouldVirtualizeGovernanceFindingsQueue(displayRows.length);
 
   const keyboardNav = useEnterpriseTableKeyboardNav({
@@ -188,7 +195,7 @@ export function GovernanceFindingsQueueDesktopTable(
         return;
       }
 
-      router.push(governanceFindingInspectHref(row.runId, row.findingId));
+      navigateGovernanceFindingDetail(router, row);
       onRowOpened?.(row);
     },
   });
@@ -232,12 +239,18 @@ export function GovernanceFindingsQueueDesktopTable(
       return;
     }
 
+    const normalized = normalizeGovernanceQueueFindingId(findingId);
+
+    if (normalized.length === 0) {
+      return;
+    }
+
     const next = new Set(selectedFindingIds);
 
-    if (next.has(findingId)) {
-      next.delete(findingId);
+    if (next.has(normalized)) {
+      next.delete(normalized);
     } else {
-      next.add(findingId);
+      next.add(normalized);
     }
 
     onSelectionChange(next);
@@ -249,13 +262,18 @@ export function GovernanceFindingsQueueDesktopTable(
     }
 
     const scopeFindingRows = scopeRows.filter((row) => row.recordKind === "finding");
-    const scopeIds = new Set(scopeFindingRows.map((row) => row.findingId));
+    const scopeIds = new Set(
+      scopeFindingRows
+        .map((row) => normalizeGovernanceQueueFindingId(row.findingId))
+        .filter((id) => id.length > 0),
+    );
     if (scopeFindingRows.length === 0) {
       return;
     }
 
-    const allScopeSelected =
-      scopeFindingRows.every((row) => selectedFindingIds.has(row.findingId));
+    const allScopeSelected = scopeFindingRows.every((row) =>
+      isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId),
+    );
 
     if (allScopeSelected) {
       const next = new Set(selectedFindingIds);
@@ -349,9 +367,12 @@ export function GovernanceFindingsQueueDesktopTable(
             const groupHasBulkSelect = hasBulkSelect && groupFindingRows.length > 0;
             const groupAllSelected =
               groupHasBulkSelect &&
-              groupFindingRows.every((row) => selectedFindingIds.has(row.findingId));
+              groupFindingRows.every((row) =>
+                isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId),
+              );
             const groupSomeSelected =
-              groupHasBulkSelect && groupFindingRows.some((row) => selectedFindingIds.has(row.findingId));
+              groupHasBulkSelect &&
+              groupFindingRows.some((row) => isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId));
             const recordLabel = group.rows.length === 1 ? "record" : "records";
 
             return (

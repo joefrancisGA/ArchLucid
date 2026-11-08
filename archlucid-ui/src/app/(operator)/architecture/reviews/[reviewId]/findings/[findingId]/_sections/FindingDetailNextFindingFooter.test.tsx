@@ -21,4 +21,18 @@ describe("FindingDetailNextFindingFooter", () => {
       "/architecture/reviews/run-1/findings/finding-2",
     );
   });
+
+  it("does not treat the title omission sentence as a finding name", () => {
+    render(
+      <FindingDetailNextFindingFooter
+        target={{
+          findingId: "finding-2",
+          title: "Finding title was not stored",
+          href: "/architecture/reviews/run-1/findings/finding-2",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("The next finding's title was not stored.")).toBeInTheDocument();
+  });
 });

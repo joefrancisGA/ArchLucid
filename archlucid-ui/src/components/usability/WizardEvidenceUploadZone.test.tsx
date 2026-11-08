@@ -8,8 +8,10 @@ import {
 
 describe("formatWizardEvidenceAttachmentSummary", () => {
   it("returns empty copy when no files are attached", () => {
-    expect(formatWizardEvidenceAttachmentSummary(0)).toBe("");
-    expect(formatWizardEvidenceAttachmentSummary(0, "architecture context optional")).toBe("");
+    expect(formatWizardEvidenceAttachmentSummary(0)).toBe("No files selected for upload yet.");
+    expect(formatWizardEvidenceAttachmentSummary(0, "architecture context optional")).toBe(
+      "No files selected for upload yet.",
+    );
   });
 
   it("pluralizes file count and appends an optional suffix", () => {

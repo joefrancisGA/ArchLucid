@@ -68,7 +68,9 @@ export function resolveInfraEvidenceAskCitationLink(
   }
 
   const kind = citation.kind?.trim() ?? "";
-  const label = citation.label?.trim().length ? citation.label.trim() : kind.length > 0 ? `${kind}: ${id}` : id;
+  const label = citation.label?.trim().length
+    ? citation.label.trim()
+    : `Citation label was not stored.${id.length > 0 ? ` Citation id: ${id}.` : ""}`;
   const cloudResourceId = context.cloudResourceId?.trim() ?? "";
   const snapshotId = context.snapshotId?.trim() ?? "";
   const diffId = context.diffId?.trim() ?? "";

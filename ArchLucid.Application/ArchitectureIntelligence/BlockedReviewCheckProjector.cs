@@ -63,12 +63,14 @@ public sealed class BlockedReviewCheckProjector(
                 ElementId = Guid.NewGuid().ToString("N"),
                 Kind = ArchitectureElementKind.UnresolvedQuestion,
                 Name = questionName,
-                Description = gateResult.Reason ?? "Blocked pre-finalize governance check.",
+                Description = gateResult.Reason is { Length: > 0 } reason
+                    ? $"{reason} Finding dispositions do not clear this gate — finalize still requires these checks to pass."
+                    : "Blocked pre-finalize governance check. Finding dispositions do not clear this gate.",
                 Provenance = new ClaimProvenance
                 {
                     Origin = ClaimOrigin.SystemProposed,
                     SupportStatus = SupportStatus.IndirectlySupported,
-                    Notes = "Derived from blocked pre-commit governance gate.",
+                    Notes = "Derived from blocked pre-commit governance gate — not from a finding disposition.",
                 },
             });
 

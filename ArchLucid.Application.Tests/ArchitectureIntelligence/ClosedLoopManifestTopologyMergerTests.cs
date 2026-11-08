@@ -61,6 +61,48 @@ public sealed class ClosedLoopManifestTopologyMergerTests
     }
 
     [Fact]
+    public void MergePublishableTopology_skips_dataflow_when_relationship_type_cannot_be_stored()
+    {
+        ManifestDocument manifest = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-api",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Order API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "ds-sql",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Orders SQL Database",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "flow-link",
+                    Kind = ArchitectureElementKind.DataFlow,
+                    Name = "Link",
+                    Description = "No verb hint for relationship type",
+                    RelatedElementIds = ["svc-api", "ds-sql"],
+                },
+            ],
+        };
+
+        ClosedLoopManifestTopologyMergeResult result =
+            ClosedLoopManifestTopologyMerger.MergePublishableTopology(manifest, model);
+
+        result.MergedRelationshipCount.Should().Be(0);
+        manifest.Topology.Relationships.Should().BeEmpty();
+    }
+
+    [Fact]
     public void MergePublishableTopology_skips_current_state_components()
     {
         ManifestDocument manifest = new();

@@ -37,9 +37,64 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         detail.Should().NotBeNull();
         detail!.RuleVersion.Should().Be(SecurityEvidencePathRankConstants.RuleVersion);
         detail.DimensionProse.TechnicalExposure.Should().Contain("Technical exposure");
-        detail.DimensionProse.BusinessConsequence.Should().Contain("Unknown");
+        detail.DimensionProse.BusinessConsequence.Should().Contain("Business consequence was not stored");
         detail.ExplanationSummary.Should().Contain(SecurityEvidencePathRankConstants.RuleVersion);
         detail.ExplanationSummary.Should().NotContain("%");
+        detail.NextStoredPathRankContext.Should()
+            .Be(SecurityEvidencePathRankContextBuilder.NoNextStoredPathSentence);
+    }
+
+    [Fact]
+    public async Task TryGetPathRankAsync_includes_next_stored_path_rank_context()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository pathRepository = CreateSamplePathRepository();
+        Guid nextPathId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        InMemoryRankRepository rankRepository = new();
+        rankRepository.StoredRanks[(TenantId, PathId)] = new SecurityEvidencePathRankRecord
+        {
+            PathId = PathId,
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            RuleVersion = SecurityEvidencePathRankConstants.RuleVersion,
+            TechnicalExposureScore = 3m,
+            PrivilegeDepthScore = 2.0m,
+            BlastRadiusScore = 1.0m,
+            BusinessConsequenceScore = null,
+            ConfidenceBandScore = 2.0m,
+            CompositeSortScore = 1.8m,
+            RankOrder = 1,
+            ExplanationSummary = $"{SecurityEvidencePathRankConstants.RuleVersion}: sample rank.",
+            BreakdownJson = "[]",
+            ComputedUtc = DateTime.UtcNow,
+        };
+        rankRepository.StoredRanks[(TenantId, nextPathId)] = new SecurityEvidencePathRankRecord
+        {
+            PathId = nextPathId,
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            RuleVersion = SecurityEvidencePathRankConstants.RuleVersion,
+            TechnicalExposureScore = 1m,
+            PrivilegeDepthScore = 2.0m,
+            BlastRadiusScore = 1.0m,
+            BusinessConsequenceScore = null,
+            ConfidenceBandScore = 2.0m,
+            CompositeSortScore = 1.5m,
+            RankOrder = 2,
+            ExplanationSummary = $"{SecurityEvidencePathRankConstants.RuleVersion}: next rank.",
+            BreakdownJson = "[]",
+            ComputedUtc = DateTime.UtcNow,
+        };
+
+        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository, new InMemoryCutPointRepository());
+
+        SecurityEvidencePathRankDetailResponse? detail =
+            await sut.TryGetPathRankAsync(scope, PathId, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.NextStoredPathRankContext.Should().Contain(nextPathId.ToString("D"));
+        detail.NextStoredPathRankContext.Should().Contain("TechnicalExposure");
+        detail.NextStoredPathRankContext.Should().Contain("This does not change the rank.");
     }
 
     [Fact]
@@ -107,6 +162,49 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
     }
 
     [Fact]
+    public async Task ListRankedPathsAsync_indexes_cut_point_citations_without_duplicate_associations()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository paths = CreateSamplePathRepository();
+        InMemoryRankRepository ranks = new();
+        ranks.StoredRanks[(TenantId, PathId)] = CreateSampleRank();
+
+        InMemoryCutPointRepository cutPoints = new();
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            CutPointId = Guid.NewGuid(),
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            CollapsedPathIdsJson = $@"[""{PathId}"",""{PathId}""]",
+            CutKey = "shared-control",
+            PathsCollapsedCount = 1,
+        });
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            CutPointId = Guid.NewGuid(),
+            TenantId = TenantId,
+            SnapshotId = Guid.NewGuid(),
+            CollapsedPathIdsJson = $@"[""{PathId}""]",
+            CutKey = "other-snapshot",
+        });
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            CutPointId = Guid.NewGuid(),
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            CollapsedPathIdsJson = "not-json",
+            CutKey = "invalid-citations",
+        });
+
+        SecurityEvidencePathRankQueryService sut = new(paths, ranks, cutPoints);
+        SecurityEvidencePathRankedPageResponse page = await sut.ListRankedPathsAsync(
+            scope, SnapshotId, page: 1, pageSize: 50, CancellationToken.None);
+
+        page.Items.Should().ContainSingle();
+        page.Items[0].RelatedCutPoints.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task Mismatched_rank_snapshot_is_not_exposed_as_path_evidence()
     {
         ScopeContext scope = CreateScope();
@@ -124,6 +222,41 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         SecurityEvidencePathRankedPageResponse page = await sut.ListRankedPathsAsync(
             scope, SnapshotId, page: 1, pageSize: 50, CancellationToken.None);
         page.Items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ListRankedPathsAsync_indexes_cut_points_by_matching_snapshot_and_path()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository paths = CreateSamplePathRepository();
+        InMemoryRankRepository ranks = new();
+        ranks.StoredRanks[(TenantId, PathId)] = CreateSampleRank();
+
+        Guid unrelatedPathId = Guid.NewGuid();
+        InMemoryCutPointRepository cutPoints = new();
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            TenantId = TenantId, SnapshotId = SnapshotId, CutPointId = Guid.NewGuid(),
+            CollapsedPathIdsJson = System.Text.Json.JsonSerializer.Serialize(new[] { PathId, unrelatedPathId }),
+        });
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            TenantId = TenantId, SnapshotId = Guid.NewGuid(), CutPointId = Guid.NewGuid(),
+            CollapsedPathIdsJson = System.Text.Json.JsonSerializer.Serialize(new[] { PathId }),
+        });
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            TenantId = TenantId, SnapshotId = SnapshotId, CutPointId = Guid.NewGuid(),
+            CollapsedPathIdsJson = "not-json",
+        });
+
+        SecurityEvidencePathRankQueryService sut = new(paths, ranks, cutPoints);
+        SecurityEvidencePathRankedPageResponse page =
+            await sut.ListRankedPathsAsync(scope, SnapshotId, page: 1, pageSize: 50, CancellationToken.None);
+
+        page.Items.Should().ContainSingle();
+        page.Items[0].RelatedCutPoints.Should().ContainSingle();
+        page.TopCutPoints.Should().HaveCount(2);
     }
 
     private static ScopeContext CreateScope() =>
@@ -272,8 +405,11 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
 
         public Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
             ProjectSnapshotScopeKey scope,
-            CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>(
+                StoredRanks.Values
+                    .Where(rank => rank.TenantId == scope.TenantId && rank.SnapshotId == scope.SnapshotId)
+                    .ToList());
 
         public Task ReplaceRanksForSnapshotAsync(
             Guid tenantId,
@@ -315,10 +451,13 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
 
     private sealed class InMemoryCutPointRepository : ISecurityEvidenceCutPointRepository
     {
+        public List<SecurityEvidenceCutPointRecord> StoredCutPoints { get; } = [];
+
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
             ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>(
+                StoredCutPoints.Where(cutPoint => cutPoint.SnapshotId == scope.SnapshotId).ToList());
 
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdAsync(
             Guid tenantId,

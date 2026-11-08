@@ -41,7 +41,12 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.Unclassified;
         }
 
-        return DiagramEdgeVisualKind.Observed;
+        if (!string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return DiagramEdgeVisualKind.Unclassified;
+        }
+
+        return DiagramEdgeVisualKind.Unclassified;
     }
 
     public static bool IsDeclared(string? provenanceKind, string? inferenceSource)
@@ -51,21 +56,9 @@ public static class DiagramEdgeVisualKindResolver
             return true;
         }
 
-        if (string.Equals(provenanceKind, "DeterministicInference", StringComparison.OrdinalIgnoreCase)
-            && IsAppSettingsHostInferenceSource(inferenceSource))
-        {
-            return true;
-        }
-
         return string.Equals(
             inferenceSource,
             GraphEdgeInferenceSources.HumanDeclaredConnection,
             StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsAppSettingsHostInferenceSource(string? inferenceSource)
-    {
-        return string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryHostnameInferredTarget, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryStorageHostRef, StringComparison.OrdinalIgnoreCase);
     }
 }

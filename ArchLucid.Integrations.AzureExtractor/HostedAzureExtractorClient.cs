@@ -265,6 +265,14 @@ public sealed class HostedAzureExtractorClient(
         collectionWarnings.AddRange(defenderCompanions.Warnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderCompanions.Pricings, inventoryResources));
+        HostedAzureDefenderFollowOnCollectResult defenderFollowOn =
+            await CollectDefenderFollowOnOrEmptyAsync(
+                accessToken.Token,
+                subscriptionId,
+                defenderCompanions.Pricings,
+                defenderCompanions.Assessments.Select(static row => row.AssessmentKey).ToArray(),
+                cancellationToken).ConfigureAwait(false);
+        collectionWarnings.AddRange(defenderFollowOn.Warnings);
 
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId,
@@ -307,7 +315,14 @@ public sealed class HostedAzureExtractorClient(
             defenderScoreControls: defenderCompanions.ScoreControls,
             defenderAssessments: defenderCompanions.Assessments,
             defenderAssessmentCounts: defenderCompanions.AssessmentCounts,
-            defenderSecurityContacts: defenderCompanions.SecurityContacts);
+            defenderSecurityContacts: defenderCompanions.SecurityContacts,
+            defenderGovernanceAssignments: defenderFollowOn.GovernanceAssignments,
+            defenderComplianceStandards: defenderFollowOn.ComplianceStandards,
+            defenderComplianceControls: defenderFollowOn.ComplianceControls,
+            defenderAlerts: defenderFollowOn.Alerts,
+            defenderAttackPaths: defenderFollowOn.AttackPaths,
+            defenderVulnerabilityCounts: defenderFollowOn.VulnerabilityCounts,
+            defenderVulnerabilityFindings: defenderFollowOn.VulnerabilityFindings);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -349,6 +364,13 @@ public sealed class HostedAzureExtractorClient(
         List<HostedAzureArmDefenderAssessmentRecord> defenderAssessments = [];
         List<HostedAzureArmDefenderAssessmentCountRecord> defenderAssessmentCounts = [];
         List<HostedAzureArmDefenderSecurityContactRecord> defenderSecurityContacts = [];
+        List<HostedAzureArmDefenderGovernanceRecord> defenderGovernanceAssignments = [];
+        List<HostedAzureArmDefenderComplianceStandardRecord> defenderComplianceStandards = [];
+        List<HostedAzureArmDefenderComplianceControlRecord> defenderComplianceControls = [];
+        List<HostedAzureArmDefenderAlertRecord> defenderAlerts = [];
+        List<HostedAzureArmDefenderAttackPathRecord> defenderAttackPaths = [];
+        List<HostedAzureArmDefenderVulnerabilityCountRecord> defenderVulnerabilityCounts = [];
+        List<HostedAzureArmDefenderVulnerabilityFindingRecord> defenderVulnerabilityFindings = [];
         List<string> defenderCompanionWarnings = [];
 
         standingRoleAssignments.AddRange(
@@ -423,6 +445,21 @@ public sealed class HostedAzureExtractorClient(
             defenderAssessmentCounts.AddRange(subscriptionCompanions.AssessmentCounts);
             defenderSecurityContacts.AddRange(subscriptionCompanions.SecurityContacts);
             defenderCompanionWarnings.AddRange(subscriptionCompanions.Warnings);
+            HostedAzureDefenderFollowOnCollectResult subscriptionFollowOn =
+                await CollectDefenderFollowOnOrEmptyAsync(
+                    accessTokenValue,
+                    subscriptionId,
+                    subscriptionCompanions.Pricings,
+                    subscriptionCompanions.Assessments.Select(static row => row.AssessmentKey).ToArray(),
+                    cancellationToken).ConfigureAwait(false);
+            defenderGovernanceAssignments.AddRange(subscriptionFollowOn.GovernanceAssignments);
+            defenderComplianceStandards.AddRange(subscriptionFollowOn.ComplianceStandards);
+            defenderComplianceControls.AddRange(subscriptionFollowOn.ComplianceControls);
+            defenderAlerts.AddRange(subscriptionFollowOn.Alerts);
+            defenderAttackPaths.AddRange(subscriptionFollowOn.AttackPaths);
+            defenderVulnerabilityCounts.AddRange(subscriptionFollowOn.VulnerabilityCounts);
+            defenderVulnerabilityFindings.AddRange(subscriptionFollowOn.VulnerabilityFindings);
+            defenderCompanionWarnings.AddRange(subscriptionFollowOn.Warnings);
         }
 
         defenderSummaries = defenderSummaries
@@ -566,7 +603,14 @@ public sealed class HostedAzureExtractorClient(
             defenderScoreControls: defenderScoreControls,
             defenderAssessments: defenderAssessments,
             defenderAssessmentCounts: defenderAssessmentCounts,
-            defenderSecurityContacts: defenderSecurityContacts);
+            defenderSecurityContacts: defenderSecurityContacts,
+            defenderGovernanceAssignments: defenderGovernanceAssignments,
+            defenderComplianceStandards: defenderComplianceStandards,
+            defenderComplianceControls: defenderComplianceControls,
+            defenderAlerts: defenderAlerts,
+            defenderAttackPaths: defenderAttackPaths,
+            defenderVulnerabilityCounts: defenderVulnerabilityCounts,
+            defenderVulnerabilityFindings: defenderVulnerabilityFindings);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -612,6 +656,38 @@ public sealed class HostedAzureExtractorClient(
                     "defender-companions-failed",
                     "defender-security-contacts-not-collected",
                 ],
+            };
+        }
+    }
+
+    private async Task<HostedAzureDefenderFollowOnCollectResult> CollectDefenderFollowOnOrEmptyAsync(
+        string accessToken,
+        string subscriptionId,
+        IReadOnlyList<HostedAzureArmDefenderPricingRecord> pricings,
+        IReadOnlyList<string> assessmentKeys,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _armReadClient
+                .CollectSubscriptionDefenderFollowOnAsync(
+                    accessToken,
+                    subscriptionId,
+                    pricings,
+                    assessmentKeys,
+                    cancellationToken)
+                .ConfigureAwait(false)
+                ?? new HostedAzureDefenderFollowOnCollectResult();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return new HostedAzureDefenderFollowOnCollectResult
+            {
+                Warnings = ["defender-follow-on-failed"],
             };
         }
     }

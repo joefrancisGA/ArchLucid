@@ -39,10 +39,23 @@ public sealed class DrRpoTopologyFindingEngine : IFindingEngine
     private static Finding BuildFinding(GraphSnapshot graphSnapshot, DrRpoTopologyGap gap)
     {
         string objectiveText = BuildObjectiveText(gap.RpoMinutes, gap.RtoMinutes);
-        List<string> relatedNodeIds = [gap.RequirementNodeId, gap.DatastoreNodeId];
+        bool unlinkedRecovery = string.IsNullOrWhiteSpace(gap.DatastoreNodeId);
+        List<string> relatedNodeIds = unlinkedRecovery
+            ? [gap.RequirementNodeId]
+            : [gap.RequirementNodeId, gap.DatastoreNodeId];
         List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
             graphSnapshot,
             relatedNodeIds);
+
+        List<string> traceNotes =
+        [
+            $"evidence:graph-node:{gap.RequirementNodeId}",
+        ];
+
+        if (!unlinkedRecovery)
+        {
+            traceNotes.Add($"evidence:graph-node:{gap.DatastoreNodeId}");
+        }
 
         return new Finding
         {
@@ -51,12 +64,15 @@ public sealed class DrRpoTopologyFindingEngine : IFindingEngine
             Category = "Requirement",
             EngineType = "dr-rpo-topology",
             Severity = FindingSeverity.Warning,
-            Title =
-                $"Requirement '{gap.RequirementLabel}' declares {objectiveText} but datastore '{gap.DatastoreLabel}' lacks replica or failover properties",
-            Rationale =
-                $"Linked datastore '{gap.DatastoreLabel}' does not declare geo-replica, failover group, or equivalent recovery topology for {objectiveText}.",
-            DecisionConsequence =
-                "Add replica, failover group, or geo-redundant configuration to the linked datastore or revise the stated recovery objective before approval.",
+            Title = unlinkedRecovery
+                ? $"Requirement '{gap.RequirementLabel}' declares {objectiveText} but {gap.DatastoreLabel}"
+                : $"Requirement '{gap.RequirementLabel}' declares {objectiveText} but datastore '{gap.DatastoreLabel}' lacks replica or failover properties",
+            Rationale = unlinkedRecovery
+                ? $"Requirement '{gap.RequirementLabel}' states {objectiveText}, but no linked recovery datastore was stored on the graph."
+                : $"Linked datastore '{gap.DatastoreLabel}' does not declare geo-replica, failover group, or equivalent recovery topology for {objectiveText}.",
+            DecisionConsequence = unlinkedRecovery
+                ? "Link the requirement to a recovery datastore on the graph or revise the stated recovery objective before approval."
+                : "Add replica, failover group, or geo-redundant configuration to the linked datastore or revise the stated recovery objective before approval.",
             RelatedNodeIds = relatedNodeIds,
             EvidenceRefs = evidenceRefs,
             PayloadType = nameof(DrRpoTopologyFindingPayload),
@@ -69,21 +85,21 @@ public sealed class DrRpoTopologyFindingEngine : IFindingEngine
             },
             RecommendedActions =
             [
-                "Configure geo-redundant storage, SQL failover group, or read replicas that meet the declared recovery objective.",
+                unlinkedRecovery
+                    ? "Store a linked recovery datastore on the graph or revise the declared recovery objective."
+                    : "Configure geo-redundant storage, SQL failover group, or read replicas that meet the declared recovery objective.",
             ],
             Trace = new ExplainabilityTrace
             {
-                GraphNodeIdsExamined = [gap.RequirementNodeId, gap.DatastoreNodeId],
+                GraphNodeIdsExamined = relatedNodeIds,
                 RulesApplied = ["dr-rpo-topology", "replica-property-heuristic"],
                 DecisionsTaken =
                 [
-                    "Parsed recovery objective on requirement without matching replica declaration on linked datastore.",
+                    unlinkedRecovery
+                        ? "Parsed recovery objective on requirement without a stored linked recovery datastore."
+                        : "Parsed recovery objective on requirement without matching replica declaration on linked datastore.",
                 ],
-                Notes =
-                [
-                    $"evidence:graph-node:{gap.RequirementNodeId}",
-                    $"evidence:graph-node:{gap.DatastoreNodeId}",
-                ],
+                Notes = traceNotes,
             },
         };
     }

@@ -139,6 +139,33 @@ internal static class DiagramForestDataFlowRollup
             }
         }
 
+        foreach (DiagramNode node in nodes)
+        {
+            if (!IsDataFactoryRollupHub(node))
+            {
+                continue;
+            }
+
+            List<string> writeTargetIds = edges
+                .Where(edge =>
+                    !edge.IsLayoutOnly
+                    && string.Equals(edge.FromNodeId, node.NodeId, StringComparison.Ordinal))
+                .Select(edge => edge.ToNodeId)
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (writeTargetIds.Count < MinimumMembersToRollUp)
+            {
+                continue;
+            }
+
+            exemptNodeIds.Add(node.NodeId);
+            foreach (string targetId in writeTargetIds)
+            {
+                exemptNodeIds.Add(targetId);
+            }
+        }
+
         return exemptNodeIds;
     }
 
@@ -208,7 +235,7 @@ internal static class DiagramForestDataFlowRollup
         int withNeighbor = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
         int withoutNeighbor = members.Count - withNeighbor;
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)
-            ? $"{withNeighbor} with a diagram neighbor on this view · {withoutNeighbor} with no diagram neighbor on this view"
+            ? DiagramForestDiagramNeighborOnViewCopy.FormatRollupMemberNeighborSummary(withNeighbor, withoutNeighbor)
             : null;
         List<string> factoryNames = members
             .SelectMany(member => member.ExternalFactoryNames)
@@ -227,6 +254,26 @@ internal static class DiagramForestDataFlowRollup
         List<string> integrationRuntimes = CollectDistinctExternalValues(
             members.SelectMany(member => member.ExternalIntegrationRuntimes),
             members.Select(member => member.ExternalIntegrationRuntime));
+        List<string> hiddenPublicIpAddresses = members
+            .Select(member => member.HiddenPublicIpAddress)
+            .Where(address => !string.IsNullOrWhiteSpace(address))
+            .Select(address => address!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(address => address, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        string? rollupHiddenPublicIp = hiddenPublicIpAddresses.Count == 1
+            ? hiddenPublicIpAddresses[0]
+            : null;
+        List<string> privateEndpointNames = members
+            .Select(member => member.PrivateEndpointAccessName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        string? rollupPrivateEndpointName = privateEndpointNames.Count == 1
+            ? privateEndpointNames[0]
+            : null;
 
         return new DiagramNode
         {
@@ -248,7 +295,11 @@ internal static class DiagramForestDataFlowRollup
             ArmResourceGroup = first.ArmResourceGroup,
             IncludeResourceGroupInCaption = false,
             HasPrivateEndpointAccess = members.Any(member => member.HasPrivateEndpointAccess),
+            PrivateEndpointAccessName = rollupPrivateEndpointName,
             HasPublicInternetExposure = members.Any(member => member.HasPublicInternetExposure),
+            HiddenPublicIpAddress = rollupHiddenPublicIp,
+            RollupMultipleHiddenPublicIpAddresses = hiddenPublicIpAddresses.Count > 1,
+            RollupMultiplePrivateEndpointAccessNames = privateEndpointNames.Count > 1,
             IsDataFlowRollup = true,
             DataFlowRollupOrdinal = ordinal,
             DataFlowRollupMemberIds = members.Select(member => member.NodeId).ToList(),
@@ -279,7 +330,12 @@ internal static class DiagramForestDataFlowRollup
 
         if (distinct.Count == 0)
         {
-            return [];
+            return
+            [
+                new DiagramNsgInboundRuleChip(
+                    "NSG inbound rules were not stored on rolled-up members.",
+                    IsRisky: false),
+            ];
         }
 
         List<DiagramNsgInboundRuleChip> chips = distinct.Take(maxVisibleChips).ToList();
@@ -287,7 +343,9 @@ internal static class DiagramForestDataFlowRollup
 
         if (remainder > 0)
         {
-            chips.Add(new DiagramNsgInboundRuleChip($"+{remainder}", IsRisky: false));
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"{remainder} more inbound rules were not listed on this card.",
+                IsRisky: false));
         }
 
         return chips;
@@ -319,12 +377,16 @@ internal static class DiagramForestDataFlowRollup
         {
             int neighborCount = neighborIdsByNodeId[member.NodeId].Count;
             status = neighborCount == 0
-                ? "No diagram neighbor on this view."
-                : $"{neighborCount} diagram neighbors on this view.";
+                ? DiagramForestDiagramNeighborOnViewCopy.FormatNoNeighborOnViewStatusLine()
+                : DiagramForestDiagramNeighborOnViewCopy.FormatNeighborCountStatus(neighborCount);
         }
-        string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
-            ? "Resource group was not stored."
-            : member.ArmResourceGroup.Trim();
+        string resourceGroup = member.ArmResourceGroup switch
+        {
+            null => "Resource group was not stored.",
+            { Length: 0 } => "Resource group was stored empty.",
+            var value when string.IsNullOrWhiteSpace(value) => "Resource group was stored empty.",
+            var value => value.Trim(),
+        };
         return string.Join(
             " · ",
             new[] { caption.ResourceName, resourceGroup, status }
@@ -343,6 +405,9 @@ internal static class DiagramForestDataFlowRollup
             _ => $"{caption}s",
         };
     }
+
+    private static bool IsDataFactoryRollupHub(DiagramNode node) =>
+        node.ArmResourceType?.StartsWith("Microsoft.DataFactory/", StringComparison.OrdinalIgnoreCase) == true;
 
     private static bool IsConsumerStatusResource(string? armResourceType)
     {

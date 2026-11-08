@@ -229,7 +229,7 @@ public sealed partial class CompareRunsApplicationFacade
         CancellationToken ct)
     {
         string systemName = runHeader.ScopeProjectId == Guid.Empty
-            ? "Unknown"
+            ? ConsultingDocxAppendixHonestyCopy.CompareSystemNameNotStored
             : runHeader.ScopeProjectId.ToString("D");
 
         return await _projectionBuilder.BuildAsync(

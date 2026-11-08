@@ -58,13 +58,13 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     {
         ArgumentNullException.ThrowIfNull(text);
         Body.AppendChild(new WpParagraph(new WpParagraphProperties(new ParagraphStyleId { Val = $"Heading{level}" }),
-            new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve })));
+            new WpRun(WordText(text))));
     }
 
     public void AddParagraph(string text, bool bold = false)
     {
         ArgumentNullException.ThrowIfNull(text);
-        WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        WpRun run = new(WordText(text));
         if (bold)
             run.RunProperties = new WpRunProperties(new Bold());
         Body.AppendChild(new WpParagraph(run));
@@ -73,7 +73,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     public void AddBullet(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        Body.AppendChild(new WpParagraph(new WpRun(new WpText($"• {text}") { Space = SpaceProcessingModeValues.Preserve })));
+        Body.AppendChild(new WpParagraph(new WpRun(WordText($"• {text}"))));
     }
 
     public void AddSpacer(int lines = 1)
@@ -95,9 +95,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         ArgumentNullException.ThrowIfNull(text);
         ArgumentNullException.ThrowIfNull(language);
         AddParagraph($"[{language}]");
-        foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
+        foreach (string line in OpenXmlWordText.ForXml(text).Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
-            WpRun run = new(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
+            WpRun run = new(WordText(line))
             {
                 RunProperties = new WpRunProperties(new RunFonts { Ascii = "Consolas" })
             };
@@ -112,12 +112,12 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         AddParagraph(title, true);
         if (items.Count == 0)
         {
-            AddBullet("None");
+            AddBullet("No entries were stored in this list.");
             return;
         }
 
         foreach (string item in items)
-            AddBullet(item);
+            AddBullet(ArchitectureEvidenceRequestExport.FormatDiffListEntry(item));
     }
 
     public void AddImage(byte[] imageBytes, string imageName, long widthEmus, long heightEmus)
@@ -148,4 +148,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         _document.Dispose();
         return _stream.ToArray();
     }
+
+    private static WpText WordText(string text) =>
+        new(OpenXmlWordText.ForXml(text)) { Space = SpaceProcessingModeValues.Preserve };
 }

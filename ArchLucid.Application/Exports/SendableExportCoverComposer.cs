@@ -27,23 +27,39 @@ public static class SendableExportCoverComposer
     public const string SponsorRoiNonSummingHeadlineLine =
         "Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline.";
 
+    public const string PolicyPackNotStoredLine = "Policy pack was not stored.";
+
+    public const string PolicyPackIdNotStoredLine = "Policy pack id was not stored.";
+
+    public const string PolicyPackVersionNotStoredLine = "Policy pack version was not stored.";
+
+    public const string SponsorRoiAmountNotStoredOnCoverLine =
+        "Sponsor ROI amount was not stored on this cover.";
+
+    public const string ReviewIdNotStoredLine = "Review id was not stored.";
+
+    public const string ReviewRecordStatusNotStoredLine = "Review record status was not stored.";
+
+    public const string GateOutcomeNotStoredLine = "Gate outcome was not stored.";
+
     public static IReadOnlyList<string> RenderPlainTextLines(CareerExportCoverageHonestyInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
         List<string> lines = [];
 
-        if (!string.IsNullOrWhiteSpace(input.RuleSetId) && !string.IsNullOrWhiteSpace(input.RuleSetVersion))
-        {
-            lines.Add($"Policy pack: {input.RuleSetId.Trim()} @ {input.RuleSetVersion.Trim()}");
-        }
+        lines.Add($"Policy pack: {FormatPolicyPackLine(input.RuleSetId, input.RuleSetVersion)}");
 
         FeasibilityVerdict? verdict = input.CoverageContext.Verdict;
 
-        if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is not null && IsSendableCoverGateOutcomeStored(verdict.Kind))
         {
             lines.Add(
                 $"Gate outcome: {FormatVerdictKindLabel(verdict.Kind)} — treat exports as a reasoned decision record, not approval to proceed.");
+        }
+        else
+        {
+            lines.Add($"Gate outcome: {GateOutcomeNotStoredLine}");
         }
 
         lines.Add(
@@ -56,6 +72,7 @@ public static class SendableExportCoverComposer
             lines.Add($"Semantic support: {SemanticSupportBandLaneBAsyncHonestyLine}");
         }
 
+        lines.Add($"Sponsor ROI amount: {SponsorRoiAmountNotStoredOnCoverLine}");
         lines.Add($"Sponsor ROI: {SponsorRoiNonSummingHeadlineLine}");
 
         return lines;
@@ -78,8 +95,16 @@ public static class SendableExportCoverComposer
 
         if (!string.IsNullOrWhiteSpace(input.CoverageContext.RunId))
         {
-            sb.AppendLine($"- **Review id:** `{input.CoverageContext.RunId.Trim()}`");
+            sb.AppendLine(
+                $"- **Review id:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(input.CoverageContext.RunId.Trim())}");
         }
+        else
+        {
+            sb.AppendLine($"- **Review id:** {ReviewIdNotStoredLine}");
+        }
+
+        sb.AppendLine(
+            FormatReviewRecordStatusMarkdownLine(input.ReviewRecordStatus));
 
         foreach (string line in lines)
         {
@@ -92,9 +117,55 @@ public static class SendableExportCoverComposer
         sb.AppendLine();
     }
 
+    internal static string FormatPolicyPackLine(string? ruleSetId, string? ruleSetVersion)
+    {
+        string id = ruleSetId?.Trim() ?? string.Empty;
+        string version = ruleSetVersion?.Trim() ?? string.Empty;
+
+        if (id.Length > 0 && version.Length > 0)
+        {
+            return FormattableString.Invariant(
+                $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
+        }
+
+        if (id.Length > 0 && version.Length == 0)
+        {
+            return FormattableString.Invariant(
+                $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PolicyPackVersionNotStoredLine}");
+        }
+
+        if (id.Length == 0 && version.Length > 0)
+        {
+            return FormattableString.Invariant(
+                $"{PolicyPackIdNotStoredLine} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
+        }
+
+        return PolicyPackNotStoredLine;
+    }
+
+    internal static string FormatReviewRecordStatusMarkdownLine(string? reviewRecordStatus)
+    {
+        if (reviewRecordStatus is null)
+        {
+            return $"- **Review record status:** {ReviewRecordStatusNotStoredLine}";
+        }
+
+        string trimmed = reviewRecordStatus.Trim();
+
+        return trimmed.Length > 0
+            ? $"- **Review record status:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
+            : "- **Review record status:** Review record status was stored empty.";
+    }
+
+    internal static bool IsSendableCoverGateOutcomeStored(FeasibilityVerdictKind kind) =>
+        kind is FeasibilityVerdictKind.Feasible
+            or FeasibilityVerdictKind.SoftInfeasible
+            or FeasibilityVerdictKind.HardInfeasible;
+
     private static string FormatVerdictKindLabel(FeasibilityVerdictKind kind) =>
         kind switch
         {
+            FeasibilityVerdictKind.Feasible => "Feasible",
             FeasibilityVerdictKind.SoftInfeasible => "Soft infeasible",
             FeasibilityVerdictKind.HardInfeasible => "Hard infeasible",
             _ => kind.ToString(),

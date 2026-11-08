@@ -24,6 +24,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_LINK } from "@/lib/design-tokens-shell-typography";
@@ -41,11 +42,16 @@ import {
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
-  SECURENOW_PATH_INSPECT_EXPLANATION_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON,
   SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
+  SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
+  SECURENOW_PATH_INSPECT_FRAMEWORK_THEME,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
   SECURENOW_PATH_INSPECT_LOADING,
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
@@ -70,6 +76,12 @@ import {
 } from "@/lib/security-evidence-path-presentation";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
+import {
+  SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
+  type SecureNowPilotDispositionRecord,
+} from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { loadSecureNowPilotDispositionForPath } from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
 import type {
   SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
@@ -86,7 +98,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
-  readonly weakestHopOrdinal: number;
+  readonly weakestHopOrdinal: number | null;
   readonly snapshotId: string;
 }) {
   const internetHopOrdinal = props.hops.find(
@@ -96,20 +108,13 @@ function PathHopsTable(props: {
   )?.hopOrdinal;
 
   const bandMeaning = (band: string): string | null => {
-    switch (band) {
-      case "Confirmed":
-        return "The evidence for this hop is confirmed.";
-      case "HighlyLikely":
-        return "The evidence for this hop is highly likely.";
-      case "Probable":
-        return "The evidence for this hop is probable.";
-      case "Possible":
-        return "The control plane allows this hop. No traffic was seen.";
-      case "InsufficientEvidence":
-        return "This hop does not have enough evidence.";
-      default:
-        return null;
+    const label = formatSecurityEvidencePathConfidenceBandLabel(band);
+
+    if (label === "Confidence band was not stored.") {
+      return null;
     }
+
+    return `Stored confidence band is ${label}. An observed flow was not stored.`;
   };
 
   return (
@@ -162,7 +167,10 @@ function PathHopsTable(props: {
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {props.hops.map((hop) => {
-          const isWeakest = hop.hopOrdinal === props.weakestHopOrdinal;
+          const isWeakest =
+            props.weakestHopOrdinal !== null
+            && hop.hopOrdinal !== null
+            && hop.hopOrdinal === props.weakestHopOrdinal;
 
           return (
             <EnterpriseTableRow
@@ -171,10 +179,13 @@ function PathHopsTable(props: {
               className={isWeakest ? "bg-muted/50 ring-1 ring-inset ring-border" : undefined}
               aria-current={isWeakest ? "true" : undefined}
             >
-              <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                {hop.hopOrdinal ?? "Hop order was not stored."}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by {hop.edgeType}. Source:{" "}
+                  {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by{" "}
+                  {formatSecurityEvidencePathRelationshipLabel(hop.edgeType)}. Source:{" "}
                   {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}.
                 </p>
                 {hop.hopOrdinal === internetHopOrdinal ? (
@@ -194,14 +205,16 @@ function PathHopsTable(props: {
                       Open resource evidence
                     </Link>
                   </p>
-                ) : null}
+                ) : (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>Resource evidence link was not stored.</p>
+                )}
               </EnterpriseTableCell>
               <EnterpriseTableCell title={hop.fromNodeLabel}>{securityEvidencePathHopNodeName(hop.fromNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell title={hop.toNodeLabel}>{securityEvidencePathHopNodeName(hop.toNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell>{formatSecurityEvidencePathRelationshipLabel(hop.edgeType)}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid="security-evidence-path-hop-provenance">
                 {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}
-                {hop.hopOrdinal === 1 && explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (
+                {explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                     {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
                   </p>
@@ -242,7 +255,7 @@ function PathBandWeakestHopLimitNote(props: {
       data-testid="security-evidence-path-band-weakest-hop-limit"
     >
       Path band {formatSecurityEvidencePathConfidenceBandLabel(props.pathBand)} is capped by weakest hop{" "}
-      {props.weakestHop.hopOrdinal} ({hopBandLabel}). Stronger path bands are not claimed.
+      {props.weakestHop.hopOrdinal ?? "Hop order was not stored."} ({hopBandLabel}). Stronger path bands are not claimed.
     </p>
   );
 }
@@ -255,7 +268,7 @@ function PathConfidenceWhy(props: { readonly band: string }): React.JSX.Element 
   const message =
     props.band === "InsufficientEvidence"
       ? "This result stays open because the cited evidence does not support a stronger band."
-      : "The control plane allows this path. No observed traffic is claimed.";
+      : `Stored confidence band is ${formatSecurityEvidencePathConfidenceBandLabel(props.band)}. An observed flow was not stored.`;
 
   return (
     <details className="text-sm" data-testid="security-evidence-path-confidence-why">
@@ -274,13 +287,20 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
     { key: "blastRadius", label: "Blast radius", value: props.rank.dimensionProse.blastRadius },
     { key: "businessConsequence", label: "Business consequence", value: props.rank.dimensionProse.businessConsequence },
     { key: "confidenceBand", label: "Confidence band", value: props.rank.dimensionProse.confidenceBand },
-  ].filter((entry) => entry.value.trim().length > 0);
+  ];
 
   return (
     <div className="rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-rank">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_RANK_TITLE}</h3>
-        <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
+        <StatusTag
+          kind="neutral"
+          label={
+            props.rank.rankOrder !== null
+              ? `Rank ${props.rank.rankOrder}`
+              : "Rank was not stored"
+          }
+        />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         Dimension prose below expands the reader sentence. The composite key is ordering only.
@@ -290,6 +310,14 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
       </div>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
+      ) : null}
+      {props.rank.nextStoredPathRankContext.trim().length > 0 ? (
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-rank-next-stored-context"
+        >
+          {props.rank.nextStoredPathRankContext}
+        </p>
       ) : null}
       {dimensionEntries.length > 0 ? (
         <ul
@@ -302,7 +330,8 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
               className={OPERATOR_TYPOGRAPHY.helper}
               data-testid={`security-evidence-path-rank-dimension-${entry.key}`}
             >
-              <span className="font-medium text-foreground">{entry.label}:</span> {entry.value}
+              <span className="font-medium text-foreground">{entry.label}:</span>{" "}
+              {entry.value.trim().length > 0 ? entry.value : `${entry.label} was not stored.`}
             </li>
           ))}
         </ul>
@@ -317,9 +346,27 @@ function PathExplanationSection(props: {
   readonly explanation: SecurityEvidencePathExplanation | null;
   readonly explanationError: string | null;
   readonly isGenerating: boolean;
+  readonly useSimulator: boolean;
   readonly generatedAt: Date | null;
+  readonly nextStoredPathRankContext?: string | null;
   readonly onGenerate: () => void;
 }) {
+  const isModelExplanation = props.explanation?.provenanceKind === "AiInference";
+  const explanationTag = isModelExplanation
+    ? SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG
+    : SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG;
+  const explanationLead = props.useSimulator
+    ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD
+    : SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD;
+  const rankContext = props.nextStoredPathRankContext?.trim() ?? "";
+  const executiveSummary = props.explanation?.executiveSummary.trim() ?? "";
+  const showRankContextInExplanation =
+    rankContext.length > 0
+    && (executiveSummary.length === 0 || !executiveSummary.includes(rankContext));
+  const citationRejection = props.explanation?.modelOutputRejection?.trim() ?? "";
+  const showCitationRejection =
+    props.explanation?.provenanceKind === "DeterministicInference" && citationRejection.length > 0;
+
   return (
     <div
       className="space-y-3 rounded border border-dashed border-border p-3"
@@ -327,9 +374,9 @@ function PathExplanationSection(props: {
     >
       <div className="flex flex-wrap items-center gap-2">
         <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_EXPLANATION_TITLE}</h3>
-        <StatusTag kind="neutral" label={SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG} />
+        <StatusTag kind="neutral" label={explanationTag} />
       </div>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PATH_INSPECT_EXPLANATION_LEAD}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{explanationLead}</p>
       <Button
         type="button"
         variant="outline"
@@ -343,10 +390,16 @@ function PathExplanationSection(props: {
       {props.explanationError != null ? (
         <StatusTag kind="needs-attention" label={props.explanationError} />
       ) : null}
+      {showCitationRejection ? (
+        <div data-testid="security-evidence-path-explanation-citation-rejection">
+          <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG} />
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{citationRejection}</p>
+        </div>
+      ) : null}
       {props.explanation != null ? (
         <OperatorAdvisorySimulatorProvenanceBlock
           title={SECURENOW_PATH_INSPECT_EXPLANATION_TITLE}
-          simulatorTag={SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG}
+          simulatorTag={explanationTag}
           ruleVersion={props.explanation.simulatorLabel}
           generatedAt={props.generatedAt}
           targetLabel={props.targetLabel}
@@ -355,14 +408,19 @@ function PathExplanationSection(props: {
             ...props.explanation.businessImpactHypotheses,
             props.explanation.proposedRemediation.recommendedChange.trim().length > 0
               ? `Recommended change: ${props.explanation.proposedRemediation.recommendedChange}`
-              : "",
+              : "Recommended change was not stored.",
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
+              : "Cited evidence was not stored.",
+            props.explanation.citedEvidenceRefs.length > 0
+              ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`
               : "",
+            showRankContextInExplanation ? rankContext : "",
+            props.explanation.modelOutputRejection?.trim() ?? "",
           ]
             .filter((line) => line.trim().length > 0)
             .join("\n\n")}
-          auditTrailRecorded={false}
+          auditTrailRecorded={isModelExplanation}
           testId="security-evidence-path-explanation-output"
         />
       ) : null}
@@ -374,22 +432,25 @@ function RecommendedActionSection(props: {
   readonly path: SecurityEvidencePathDetail;
   readonly rank: SecurityEvidencePathRankDetail | null;
 }): React.JSX.Element {
-  const firstCutPoint = props.path.relatedCutPoints[0];
   const firstRoute = props.path.routing[0];
+  const architectSentence = props.path.explanationTemplate?.architectSentence?.trim() ?? "";
+  const hopEvidenceRef = props.path.hops[0]?.evidenceReference?.trim() ?? "";
+
   const lines = [
     {
       label: "Problem",
-      value:
-        props.path.explanationTemplate?.architectSentence ??
-        props.rank?.explanationSummary ??
-        "Problem statement was not stored.",
+      value: architectSentence.length > 0 ? architectSentence : "Problem statement was not stored.",
     },
     {
-      label: "Evidence",
+      label: "Weakest-hop reason",
       value:
-        props.path.weakestHop?.reason?.trim() ||
-        props.path.hops[0]?.evidenceReference?.trim() ||
-        "Not cited.",
+        props.path.weakestHop?.reason?.trim() && props.path.weakestHop.reason.trim().length > 0
+          ? props.path.weakestHop.reason.trim()
+          : "Weakest-hop reason was not stored.",
+    },
+    {
+      label: "Hop evidence",
+      value: hopEvidenceRef.length > 0 ? hopEvidenceRef : "Hop evidence was not stored.",
     },
     {
       label: "Consequence",
@@ -398,13 +459,16 @@ function RecommendedActionSection(props: {
     {
       label: "Recommended change",
       value:
-        firstCutPoint?.explanationSummary ??
-        props.path.explanationTemplate?.proposedChange ??
-        "Proposed change was not stored.",
+        props.path.explanationTemplate?.proposedChange?.trim() && props.path.explanationTemplate.proposedChange.trim().length > 0
+          ? props.path.explanationTemplate.proposedChange.trim()
+          : "Proposed change was not stored.",
     },
     {
-      label: "Owner",
-      value: firstRoute?.displayName?.trim() || firstRoute?.role?.trim() || "Not cited.",
+      label: "Routing display name",
+      value:
+        firstRoute?.displayName?.trim() && firstRoute.displayName.trim().length > 0
+          ? firstRoute.displayName.trim()
+          : "Routing display name was not stored.",
     },
     {
       label: "How to check",
@@ -417,8 +481,8 @@ function RecommendedActionSection(props: {
         return "How to check was not stored.";
       }
 
-      if (line.value === "Not cited.") {
-        return "Not cited.";
+      if (line.value === "Evidence citation was not stored.") {
+        return "Evidence citation was not stored.";
       }
 
       return line.value;
@@ -431,8 +495,10 @@ function RecommendedActionSection(props: {
     ...line,
     display: displayForLine(line),
   }));
-  const notCitedLabels = linesWithDisplay.filter((line) => line.display === "Not cited.").map((line) => line.label);
-  const citedLines = linesWithDisplay.filter((line) => line.display !== "Not cited.");
+  const notCitedLabels = linesWithDisplay
+    .filter((line) => line.display === "Evidence citation was not stored.")
+    .map((line) => line.label);
+  const citedLines = linesWithDisplay.filter((line) => line.display !== "Evidence citation was not stored.");
   const showSingleNotCitedLine = notCitedLabels.length === 1;
   const showNotCitedSummary = notCitedLabels.length >= 2;
 
@@ -441,7 +507,7 @@ function RecommendedActionSection(props: {
       <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Recommended action</h3>
       {showNotCitedSummary ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-recommended-action-not-cited-summary">
-          Not cited: {notCitedLabels.join(", ")}.
+          Evidence citation was not stored: {notCitedLabels.join(", ")}.
         </p>
       ) : null}
       <dl className="m-0 space-y-2">
@@ -454,7 +520,7 @@ function RecommendedActionSection(props: {
         {showSingleNotCitedLine ? (
           <div>
             <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{notCitedLabels[0]}</dt>
-            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Not cited.</dd>
+            <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)}>Evidence citation was not stored.</dd>
           </div>
         ) : null}
       </dl>
@@ -480,7 +546,11 @@ function InspectSelectionIdentityHeader(props: {
     return (
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          Path rank {props.pathSummary.rankOrder} · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
+          Path rank{" "}
+          {props.pathSummary.rankOrder !== null && props.pathSummary.rankOrder !== undefined
+            ? props.pathSummary.rankOrder
+            : "Rank was not stored"}{" "}
+          · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
         <SecurityEvidencePathRankReaderDisclosures rank={props.pathSummary} />
         <Link
@@ -492,7 +562,10 @@ function InspectSelectionIdentityHeader(props: {
         </Link>
         {idsOpen ? (
           <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-path-id">
-            Path ID: {props.pathId}
+            Path ID:{" "}
+            {props.pathId != null && props.pathId.trim().length > 0
+              ? props.pathId
+              : "Path id was not stored."}
           </p>
         ) : null}
       </div>
@@ -525,16 +598,18 @@ function InspectSelectionIdentityHeader(props: {
             <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-finding-id">
               Finding ID: {props.findingId}
             </p>
-            {props.findingSummary?.patternKey != null ? (
-              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-                Pattern key: {props.findingSummary.patternKey}
-              </p>
-            ) : null}
-            {props.verificationId != null && props.verificationId.trim().length > 0 ? (
-              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-                Verification ID: {props.verificationId}
-              </p>
-            ) : null}
+            <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+              Pattern key:{" "}
+              {props.findingSummary.patternKey != null && props.findingSummary.patternKey.trim().length > 0
+                ? props.findingSummary.patternKey
+                : "Pattern key was not stored."}
+            </p>
+            <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+              Verification ID:{" "}
+              {props.verificationId != null && props.verificationId.trim().length > 0
+                ? props.verificationId
+                : "Verification id was not stored."}
+            </p>
           </div>
         ) : null}
       </div>
@@ -551,16 +626,16 @@ function resolvePathInspectSubjectLabel(input: {
 }): string | null {
   if (input.selectedFinding != null) {
     const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.findingId;
-    const patternLead =
+    const patternKey =
       input.selectedFinding.patternKey != null && input.selectedFinding.patternKey.trim().length > 0
-        ? "Pattern"
-        : "Pattern was not stored";
+        ? input.selectedFinding.patternKey.trim()
+        : "Pattern key was not stored.";
 
-    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · ${patternLead}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · Pattern key ${patternKey}`;
   }
 
   if (input.selectedPath != null) {
-    return `Path ${input.selectedPath.pathKind} · rank ${input.selectedPath.rankOrder} · ${input.selectedPath.pathId}`;
+    return `Path ${formatSecurityEvidencePathKindLabel(input.selectedPath.pathKind)} · rank ${input.selectedPath.rankOrder ?? "Rank was not stored"} · ${input.selectedPath.pathId?.trim() || "Path id was not stored."}`;
   }
 
   if (input.findingId != null) {
@@ -593,6 +668,12 @@ export function SecurityEvidencePathInspectPanel(props: {
   const [explanationError, setExplanationError] = useState<string | null>(null);
   const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
   const [explanationGeneratedAt, setExplanationGeneratedAt] = useState<Date | null>(null);
+  const [pilotDisposition, setPilotDisposition] = useState<SecureNowPilotDispositionRecord | null>(null);
+  const { mode, isLoading: isAgentExecutionModeLoading } = useAgentExecutionMode();
+  const useSimulatorForExplanation =
+    mode === "Real" && !isAgentExecutionModeLoading
+      ? false
+      : true;
   const instancesQuery = useQuery({
     queryKey: ["remediation-instances", "by-finding", props.findingId],
     queryFn: () => fetchRemediationInstances({ findingId: props.findingId }),
@@ -602,6 +683,24 @@ export function SecurityEvidencePathInspectPanel(props: {
     retry: false,
   });
   const advisoryInstance = instancesQuery.data?.[0] ?? null;
+  useEffect(() => {
+    if (resolvedPathId == null || resolvedPathId.trim().length === 0) {
+      setPilotDisposition(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    void loadSecureNowPilotDispositionForPath(resolvedPathId).then((record) => {
+      if (!cancelled) {
+        setPilotDisposition(record);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedPathId]);
   const decisionReadiness = pathQuery.data != null
     ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
     : null;
@@ -638,7 +737,7 @@ export function SecurityEvidencePathInspectPanel(props: {
 
     try {
       const result = await buildSecurityEvidencePathExplanation(resolvedPathId, {
-        useSimulator: true,
+        useSimulator: useSimulatorForExplanation,
         allowInsufficientEvidence: false,
       });
 
@@ -690,6 +789,17 @@ export function SecurityEvidencePathInspectPanel(props: {
             data-testid="security-evidence-path-inspect-subject"
           >
             Selected subject: {subjectLabel}
+          </p>
+        ) : null}
+        {resolvedPathId != null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link
+              href={`/administration/securenow-sponsor-path?pathId=${encodeURIComponent(resolvedPathId)}`}
+              className={OPERATOR_LINK.inline}
+              data-testid="security-evidence-path-sponsor-link"
+            >
+              Sponsor page for this path
+            </Link>
           </p>
         ) : null}
       </header>
@@ -787,6 +897,36 @@ export function SecurityEvidencePathInspectPanel(props: {
             </div>
           ) : null}
 
+          {pilotDisposition != null && resolvedPathId != null ? (
+            <div
+              className="space-y-2 rounded border border-border bg-muted/30 p-3"
+              data-testid="security-evidence-path-pilot-disposition"
+            >
+              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Saved path disposition</h3>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                {pilotDisposition.outcome}: {pilotDisposition.rationale}
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                {SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}
+              </p>
+              {pilotDisposition.outcome === "Stop" ? (
+                <SecureNowPilotStopItsmHandoffBlock
+                  pathId={resolvedPathId}
+                  rationale={pilotDisposition.rationale}
+                  findingId={props.findingId}
+                  snapshotId={pathQuery.data?.snapshotId}
+                  handoffTestId="security-evidence-path-pilot-stop-itsm-handoff"
+                />
+              ) : null}
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(resolvedPathId)}`}
+              >
+                Open pilot decision record
+              </Link>
+            </div>
+          ) : null}
+
           {pathRankQuery.isLoading ? (
             <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_RANK_LOADING}</p>
           ) : pathRankQuery.isError ? (
@@ -815,22 +955,23 @@ export function SecurityEvidencePathInspectPanel(props: {
             explanation={explanation}
             explanationError={explanationError}
             isGenerating={isGeneratingExplanation}
+            useSimulator={useSimulatorForExplanation}
             generatedAt={explanationGeneratedAt}
+            nextStoredPathRankContext={pathRankQuery.data?.nextStoredPathRankContext ?? null}
             onGenerate={generateExplanation}
           />
 
-          {pathQuery.data.explanationTemplate?.architectSentence != null
-          && pathQuery.data.explanationTemplate.architectSentence.trim().length > 0 ? (
-            <div
-              className="rounded border border-border bg-muted/30 p-3"
-              data-testid="security-evidence-path-architect-sentence"
-            >
-              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE}</h3>
-              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-                {pathQuery.data.explanationTemplate.architectSentence}
-              </p>
-            </div>
-          ) : null}
+          <div
+            className="rounded border border-border bg-muted/30 p-3"
+            data-testid="security-evidence-path-architect-sentence"
+          >
+            <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE}</h3>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {(pathQuery.data.explanationTemplate?.architectSentence?.trim() ?? "").length > 0
+                ? pathQuery.data.explanationTemplate!.architectSentence!.trim()
+                : "Architect path summary was not stored."}
+            </p>
+          </div>
 
           {pathQuery.data.weakestHop != null ? (
             <div
@@ -839,16 +980,21 @@ export function SecurityEvidencePathInspectPanel(props: {
             >
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE}</h3>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                This hop limits how strong the path evidence can be.
+                This is the stored weakest hop. Evidence strength was not stored.
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
-                Hop {pathQuery.data.weakestHop.hopOrdinal}: {pathQuery.data.weakestHop.edgeType}
+                Hop {pathQuery.data.weakestHop.hopOrdinal ?? "Hop order was not stored."}:{" "}
+                {formatSecurityEvidencePathRelationshipLabel(pathQuery.data.weakestHop.edgeType)}
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 {formatSecurityEvidenceProvenanceKindLabel(pathQuery.data.weakestHop.provenanceKind)} ·{" "}
                 {formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.weakestHop.hopConfidenceBand)}
               </p>
-              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{pathQuery.data.weakestHop.reason}</p>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                {pathQuery.data.weakestHop.reason.trim().length > 0
+                  ? pathQuery.data.weakestHop.reason
+                  : "Weakest-hop reason was not stored."}
+              </p>
             </div>
           ) : null}
 
@@ -858,12 +1004,25 @@ export function SecurityEvidencePathInspectPanel(props: {
               weakestHopOrdinal={pathQuery.data.weakestHopOrdinal}
               snapshotId={pathQuery.data.snapshotId}
             />
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-hops-empty"
+            >
+              No hops were stored.
+            </p>
+          )}
 
           {pathQuery.data.relatedCutPoints.length > 0 ? (
             <div className="space-y-2" data-testid="security-evidence-path-cut-points">
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE}</h3>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Where you could break this path.</p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="securenow-path-framework-theme"
+              >
+                {SECURENOW_PATH_INSPECT_FRAMEWORK_THEME}
+              </p>
               <ul className="space-y-2">
                 {pathQuery.data.relatedCutPoints.map((cutPoint) => (
                   <li
@@ -873,16 +1032,19 @@ export function SecurityEvidencePathInspectPanel(props: {
                   >
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                       {cutPoint.cutKind}
-                      {cutPoint.fromNodeLabel != null && cutPoint.toNodeLabel != null
+                      {cutPoint.fromNodeLabel != null &&
+                      cutPoint.toNodeLabel != null &&
+                      cutPoint.fromNodeLabel.trim().length > 0 &&
+                      cutPoint.toNodeLabel.trim().length > 0
                         ? ` · ${cutPoint.fromNodeLabel} → ${cutPoint.toNodeLabel}`
-                        : ""}
+                        : " · Endpoint was not stored."}
                     </p>
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{cutPoint.explanationSummary}</p>
-                    {cutPoint.suggestedPatternKey != null ? (
-                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                        Pattern: {cutPoint.suggestedPatternKey}
-                      </p>
-                    ) : null}
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      {cutPoint.suggestedPatternKey != null && cutPoint.suggestedPatternKey.trim().length > 0
+                        ? `Pattern: ${cutPoint.suggestedPatternKey}`
+                        : "Pattern was not stored."}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -945,7 +1107,18 @@ export function SecurityEvidencePathInspectPanel(props: {
                     <EnterpriseTableRow key={`${row.role}-${row.principalId ?? row.displayName ?? row.sourceReference}`}>
                       <EnterpriseTableCell>{row.role}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        {row.displayName?.trim() || row.principalId?.trim() || "Owner was not stored"}
+                        {row.displayName !== null && row.displayName !== undefined && row.displayName.trim().length > 0
+                          ? row.displayName.trim()
+                          : row.principalId !== null && row.principalId !== undefined && row.principalId.trim().length > 0
+                            ? (
+                              <span className="space-y-0.5">
+                                <span className="block">Display name was not stored.</span>
+                                <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
+                                  Principal: {row.principalId.trim()}
+                                </span>
+                              </span>
+                            )
+                            : "Owner was not stored"}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{formatSecurityEvidenceProvenanceKindLabel(row.provenanceKind)}</EnterpriseTableCell>
                     </EnterpriseTableRow>
@@ -953,7 +1126,14 @@ export function SecurityEvidencePathInspectPanel(props: {
                 </EnterpriseTableBody>
               </EnterpriseTable>
             </div>
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-routing-empty"
+            >
+              No routing citations were stored.
+            </p>
+          )}
 
           {advisoryInstance != null && props.findingId != null ? (
             <div className="space-y-1" data-testid="security-evidence-path-workbench-handoff">

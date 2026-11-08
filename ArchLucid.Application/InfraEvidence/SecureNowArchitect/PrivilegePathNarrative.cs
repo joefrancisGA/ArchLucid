@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -8,7 +9,7 @@ internal static class PrivilegePathNarrative
     public static string BuildTitle(PrivilegePathCandidate candidate)
     {
         string action = candidate.HasInsufficientEvidenceHop
-            ? "unknown role actions"
+            ? "Role actions were not stored."
             : ResolveActionLabel(candidate);
         string scope = ShortNodeLabel(candidate.TerminalScopeNodeId);
 
@@ -29,8 +30,11 @@ internal static class PrivilegePathNarrative
 
     public static string BuildDescription(PrivilegePathCandidate candidate)
     {
-        IEnumerable<string> hopDescriptions = candidate.Hops.Select(static hop =>
-            $"{ShortNodeLabel(hop.FromNodeId)} -[{hop.EdgeType}]-> {ShortNodeLabel(hop.ToNodeId)}");
+        IEnumerable<string> hopDescriptions = candidate.Hops.Select(hop =>
+            SecurityEvidencePathHopRelationshipLabel.FormatHopSegment(
+                ShortNodeLabel(hop.FromNodeId),
+                hop.EdgeType,
+                ShortNodeLabel(hop.ToNodeId)));
 
         string pathSummary = string.Join("; ", hopDescriptions);
 
@@ -64,12 +68,16 @@ internal static class PrivilegePathNarrative
                 ? string.Empty
                 : $" ({candidate.EffectiveRoleName})";
 
-            return actionHop.EdgeType == GraphEdgeTypes.CanWrite
-                ? $"write access{roleSuffix}"
-                : $"read access{roleSuffix}";
+            string actionLabel = actionHop.EdgeType == GraphEdgeTypes.CanWrite
+                ? "Role allows write. This is not observed use."
+                : "Role allows read. This is not observed use.";
+
+            return $"{actionLabel}{roleSuffix}";
         }
 
-        return candidate.EffectiveRoleName ?? "privileged access";
+        return string.IsNullOrWhiteSpace(candidate.EffectiveRoleName)
+            ? "Role name was not stored."
+            : candidate.EffectiveRoleName;
     }
 
     private static string ShortNodeLabel(string nodeId)
@@ -81,11 +89,17 @@ internal static class PrivilegePathNarrative
 
         if (nodeId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal))
         {
-            return $"principal:{nodeId[^8..]}";
+            return "Principal name was not stored.";
+        }
+
+        if (nodeId.Contains("/providers/", StringComparison.OrdinalIgnoreCase)
+            || nodeId.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored;
         }
 
         int lastSlash = nodeId.LastIndexOf('/');
 
-        return lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+        return lastSlash >= 0 ? InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored : nodeId;
     }
 }

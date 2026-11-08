@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -44,7 +45,8 @@ public sealed class RunSummaryOnePagerExportService(
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
-        + "Given severity counts and the top architecture findings below, write exactly three concise sentences: "
+        + "Given severity counts labeled Critical, Error, Warning, and Info (not High, Medium, or Low) and the top architecture findings below, "
+        + "write exactly three concise sentences: "
         + "(1) overall risk posture, (2) the dominant theme, (3) the recommended next step. Return ONLY the prose.";
 
     private readonly IRunDetailQueryService _runDetailQueryService =
@@ -147,7 +149,7 @@ public sealed class RunSummaryOnePagerExportService(
 
         string SponsorReport = await BuildSponsorReportAsync(detail, topFindings, cancellationToken);
         IReadOnlyList<string> topTitles = topFindings
-            .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
+            .Select(static f => RunSummaryOnePagerHonestyCopy.FormatTopFindingListLine(f.Message))
             .ToArray();
 
         IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
@@ -174,6 +176,16 @@ public sealed class RunSummaryOnePagerExportService(
         if (string.IsNullOrWhiteSpace(sendableExportCoverPlainText))
             sendableExportCoverPlainText = null;
 
+        int? findingsSnapshotFindingCount = null;
+        if (Guid.TryParse(runId.Trim(), out Guid runGuidForSnapshot))
+        {
+            RunDetailDto? exportDetail = await _authorityQueryService
+                .GetRunDetailForExportAsync(scope, runGuidForSnapshot, cancellationToken)
+                .ConfigureAwait(false);
+
+            findingsSnapshotFindingCount = exportDetail?.FindingsSnapshot?.Findings?.Count;
+        }
+
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
@@ -182,7 +194,9 @@ public sealed class RunSummaryOnePagerExportService(
                 activeTrialExportNotice,
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
                 sendableExportCoverPlainText: sendableExportCoverPlainText,
-                architectRestatementMarkdown: architectRestatementMarkdownText);
+                architectRestatementMarkdown: architectRestatementMarkdownText,
+                findingsSnapshotFindingCount: findingsSnapshotFindingCount,
+                sponsorReportGeneratedDisclaimer: RunSummaryOnePagerHonestyCopy.SponsorReportGeneratedForExportDisclaimer);
 
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
@@ -208,7 +222,8 @@ public sealed class RunSummaryOnePagerExportService(
                 topFindingTitles: []);
 
         StringBuilder prompt = new();
-        prompt.AppendLine($"Critical: {countsOnly.CriticalCount}, High: {countsOnly.HighCount}, Medium: {countsOnly.MediumCount}, Low: {countsOnly.LowCount}");
+        prompt.AppendLine(
+            $"Critical: {countsOnly.CriticalCount}, Error: {countsOnly.HighCount}, Warning: {countsOnly.MediumCount}, Info: {countsOnly.LowCount}");
         prompt.AppendLine("Top findings:");
 
         foreach (ArchitectureFinding finding in topFindings)
@@ -216,7 +231,9 @@ public sealed class RunSummaryOnePagerExportService(
             prompt.Append("- ");
             prompt.Append(finding.Severity);
             prompt.Append(": ");
-            prompt.AppendLine(string.IsNullOrWhiteSpace(finding.Message) ? finding.Category : finding.Message.Trim());
+            prompt.AppendLine(string.IsNullOrWhiteSpace(finding.Message)
+                ? ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel
+                : finding.Message.Trim());
         }
 
         string raw = await _completionClient.CompleteJsonAsync(

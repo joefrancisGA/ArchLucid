@@ -354,7 +354,13 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                     {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</EnterpriseTableCell>
-                  <EnterpriseTableCell>{t.parseSucceeded ? "yes" : "no"}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {t.parseSucceeded === undefined || t.parseSucceeded === null
+                      ? "Parse result was not stored."
+                      : t.parseSucceeded
+                        ? "yes"
+                        : "no"}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {t.blobUploadFailed === true
                       ? "failed"
@@ -369,7 +375,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                         : sc.structuralCompletenessRatio.toFixed(2)
                       : evaluationFailure
                         ? "Not returned"
-                        : "n/a"}
+                        : "Structural completeness was not stored."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure
@@ -378,7 +384,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                         ? "Not returned"
                         : sem
                           ? ratioText(sem.overallSemanticScore)
-                          : "n/a"}
+                          : "Semantic score was not stored."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem

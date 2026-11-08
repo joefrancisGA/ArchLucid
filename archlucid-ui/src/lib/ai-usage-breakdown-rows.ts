@@ -1,6 +1,7 @@
 import type { AdminAiUsageDashboard } from "@/lib/admin-ai-usage-dashboard";
 import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
 import type { LlmCostReportingDashboard } from "@/lib/llm-cost-reporting";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 import { formatAiUsageFeatureLabel } from "./ai-usage-dashboard-model-activity";
 import type { AiUsageBreakdownRow } from "./ai-usage-dashboard-model-types";
@@ -125,7 +126,7 @@ export function buildBreakdownRows(
         estimatedCostUsd: run.estimatedCostUsd,
         percentOfTotal: 0,
         trendPercent: null,
-        detailHref: `/architecture/reviews/${encodeURIComponent(run.runId)}`,
+        detailHref: resolveOperatorScopedRunReviewHref(run.runId),
       });
     }
   }

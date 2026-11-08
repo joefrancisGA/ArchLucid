@@ -15,7 +15,8 @@ internal static class DiagramPrivateEndpointTargetAnnotator
         DiagramAst ast,
         IReadOnlyList<GraphNode> graphNodes,
         IReadOnlyList<GraphEdge> graphEdges,
-        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        DiagramMode mode = DiagramMode.FullSubscription)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graphNodes);
@@ -69,9 +70,20 @@ internal static class DiagramPrivateEndpointTargetAnnotator
                 continue;
             }
 
+            string? privateEndpointName = fromGraphNode.Label switch
+            {
+                null => null,
+                { Length: 0 } => string.Empty,
+                var label when string.IsNullOrWhiteSpace(label) => string.Empty,
+                var label => label.Trim(),
+            };
+
+            string? storedPrivateEndpointName = mode == DiagramMode.DataFlow ? null : privateEndpointName;
+
             foreach (DiagramNode targetNode in targetNodes)
             {
                 targetNode.HasPrivateEndpointAccess = true;
+                targetNode.PrivateEndpointAccessName = storedPrivateEndpointName;
             }
 
             string? fromDiagramId = null;
@@ -83,7 +95,7 @@ internal static class DiagramPrivateEndpointTargetAnnotator
                 privateEndpointDiagramNodeIdsToHide.Add(mappedFromDiagramId);
             }
 
-            ClearPrivateEndpointEdgeLabels(ast, fromDiagramId, targetNodes);
+            ClearPrivateEndpointEdgeLabels(ast, fromDiagramId, targetNodes, privateEndpointName);
         }
 
         return privateEndpointDiagramNodeIdsToHide;
@@ -149,7 +161,8 @@ internal static class DiagramPrivateEndpointTargetAnnotator
     private static void ClearPrivateEndpointEdgeLabels(
         DiagramAst ast,
         string? fromDiagramId,
-        IReadOnlyList<DiagramNode> targetNodes)
+        IReadOnlyList<DiagramNode> targetNodes,
+        string? privateEndpointName)
     {
         if (string.IsNullOrWhiteSpace(fromDiagramId) || targetNodes.Count == 0)
         {
@@ -159,6 +172,8 @@ internal static class DiagramPrivateEndpointTargetAnnotator
         HashSet<string> targetIds = targetNodes
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
+        string storedLinkLabel =
+            InventoryDiagramRelationshipLabelTexts.FormatPrivateEndpointStoredLinkEdgeLabel(privateEndpointName);
 
         foreach (DiagramEdge diagramEdge in ast.Edges)
         {
@@ -170,7 +185,7 @@ internal static class DiagramPrivateEndpointTargetAnnotator
             if (string.Equals(diagramEdge.FromNodeId, fromDiagramId, StringComparison.Ordinal)
                 && targetIds.Contains(diagramEdge.ToNodeId))
             {
-                diagramEdge.Label = string.Empty;
+                diagramEdge.Label = storedLinkLabel;
             }
         }
     }

@@ -14,6 +14,7 @@ import {
   SYSTEM_NOT_JOB_SEARCH_BOUND_TO_OPEN_PACKAGE_DOC_ANCHOR,
   SYSTEM_NOT_JOB_SEARCH_BOUND_TO_OPEN_PACKAGE_OWNER,
   SYSTEM_NOT_JOB_WORKING_GLOBAL_FIND_PAGE_SEARCH_HELPER,
+  SYSTEM_NOT_JOB_WORKING_NESTED_SEARCH_UNBOUND_DESCRIPTION,
   SYSTEM_NOT_JOB_WORKING_SEARCH_BIND_SURFACES,
 } from "@/lib/system-not-job-search-bound-to-open-package";
 
@@ -100,6 +101,13 @@ describe("SN-026 search bound to open package", () => {
     expect(workingSubtitle.toLowerCase()).toContain("architecture desk");
     expect(SYSTEM_NOT_JOB_WORKING_GLOBAL_FIND_PAGE_SEARCH_HELPER.toLowerCase()).toContain("header search");
     expect(SYSTEM_NOT_JOB_WORKING_GLOBAL_FIND_PAGE_SEARCH_HELPER.toLowerCase()).toContain("evidence trail");
+  });
+
+  it("uses architecture-review terminology in nested search buyer guidance", () => {
+    const guidance = SYSTEM_NOT_JOB_WORKING_NESTED_SEARCH_UNBOUND_DESCRIPTION.toLowerCase();
+
+    expect(guidance).toContain("open architecture review");
+    expect(guidance).not.toContain("review package");
   });
 
   it("wires SN-026 surfaces and ADR 0079 anchor", () => {

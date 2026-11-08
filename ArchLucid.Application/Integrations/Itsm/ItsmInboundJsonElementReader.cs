@@ -47,16 +47,41 @@ internal static class ItsmInboundJsonElementReader
     private static string ReadNumberAsStatusText(JsonElement element)
     {
         if (element.TryGetInt64(out long whole))
-            return whole.ToString(CultureInfo.InvariantCulture);
+            return NormalizeWholeNumberStatusText(whole);
 
         if (element.TryGetDouble(out double numeric) && double.IsFinite(numeric))
-        {
-            double rounded = Math.Round(numeric);
-
-            if (Math.Abs(numeric - rounded) < 0.0000001d)
-                return rounded.ToString(CultureInfo.InvariantCulture);
-        }
+            return TryNormalizeWholeNumberStatusText(numeric) ?? element.GetRawText();
 
         return element.GetRawText();
     }
+
+    internal static string NormalizeStatusText(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return string.Empty;
+
+        string trimmed = raw.Trim();
+
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int whole))
+            return NormalizeWholeNumberStatusText(whole);
+
+        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
+            && double.IsFinite(numeric))
+            return TryNormalizeWholeNumberStatusText(numeric) ?? trimmed;
+
+        return trimmed;
+    }
+
+    private static string? TryNormalizeWholeNumberStatusText(double numeric)
+    {
+        double rounded = Math.Round(numeric);
+
+        if (Math.Abs(numeric - rounded) < 0.0000001d)
+            return NormalizeWholeNumberStatusText((long)rounded);
+
+        return null;
+    }
+
+    private static string NormalizeWholeNumberStatusText(long whole) =>
+        whole.ToString(CultureInfo.InvariantCulture);
 }

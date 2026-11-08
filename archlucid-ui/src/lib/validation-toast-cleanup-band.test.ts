@@ -49,7 +49,11 @@ describe("form validation affordances regression band (TB-2011)", () => {
     const quickStart = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[2]);
     const newRunSubmit = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[3]);
 
-    expect(firstPilot).not.toContain("showError");
+    const firstPilotWithoutDeferredUploadToast = firstPilot.replace(
+      /showError\(\s*"Evidence upload"[\s\S]*?\);/,
+      "",
+    );
+    expect(firstPilotWithoutDeferredUploadToast).not.toMatch(/showError\s*\(/);
     expect(firstPilot).toContain("setClientValidationMessage");
     expect(quickStart).not.toContain("showError");
     expect(quickStart).toContain("stepValidationMessage");

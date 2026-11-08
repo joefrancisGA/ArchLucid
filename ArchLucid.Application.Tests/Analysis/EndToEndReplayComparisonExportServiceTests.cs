@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
@@ -36,6 +37,31 @@ public sealed class EndToEndReplayComparisonExportServiceTests
     }
 
     [SkippableFact]
+    public void GenerateMarkdown_detailed_profile_uses_trimmed_nested_export_record_ids_in_export_diff_section()
+    {
+        EndToEndReplayComparisonExportService sut = new(new MarkdownEndToEndReplayComparisonSummaryFormatter());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "  left-anchor  ",
+                    RightExportRecordId = "  right-anchor  ",
+                    ChangedTopLevelFields = ["Format"],
+                },
+            ],
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        md.Should().Contain("### left-anchor -> right-anchor");
+        md.Should().NotContain("  left-anchor  ");
+    }
+
+    [SkippableFact]
     public void GenerateMarkdown_default_profile_includes_separator_run_metadata_and_top_level_lists()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -63,6 +89,69 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         md.Should().Contain("note-a");
         md.Should().Contain("### Warnings");
         md.Should().Contain("warn-b");
+    }
+
+    [Fact]
+    public void CompareQuality_GenerateHtml_includes_unmatched_finding_counts()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint),
+                PolicyRuleMatchCount = 2,
+                FuzzyMatchCount = 1,
+                UnmatchedLeftCount = 4,
+                UnmatchedRightCount = 3,
+                HonestyNote = "Fuzzy matches are possible, not proven equivalence.",
+            },
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Unmatched left findings: 4");
+        html.Should().Contain("Unmatched right findings: 3");
+        html.Should().Contain("Policy-rule matches: 2");
+    }
+
+    [Fact]
+    public void CompareQuality_GenerateMarkdown_keeps_added_claim_on_its_bullet_when_a_newline_is_stored()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Minimal summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedClaims = ["keep private endpoints\n## Injected heading"],
+                    },
+                ],
+            },
+        };
+
+        string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        markdown.Should().Contain("- keep private endpoints ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
     }
 
     [SkippableFact]

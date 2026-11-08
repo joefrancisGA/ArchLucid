@@ -91,7 +91,12 @@ internal static class InventoryDiagramParentAttachmentApplier
                 continue;
             }
 
-            string childDetailLabel = BuildChildDetailLabel(diagramNode, category);
+            string childDetailLabel = BuildChildDetailLabel(
+                diagramNode,
+                category,
+                category == InventoryDiagramParentAttachmentCategory.PublicIp
+                    ? ReadPublicIpAddress(graphNode)
+                    : null);
             InventoryDiagramEvidenceCurrency? evidenceCurrencyForDetail = ReadEvidenceCurrency(graphNode);
             string formattedDetail = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrencyForDetail, childDetailLabel);
             int attachedParentCount = 0;
@@ -209,7 +214,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(connectorGraphNode);
         string edgeLabel = InventoryDiagramEvidenceCurrencyLabels.Format(
             evidenceCurrency,
-            ReadResourceName(connectorDiagramNode.ArmResourceId, connectorDiagramNode.Label));
+            InventoryDiagramRelationshipLabelTexts.AccessConnectorExternalTargetConfiguredLabel);
         DiagramEdge? existingEdge = ast.Edges.FirstOrDefault(edge =>
             string.Equals(edge.FromNodeId, parentDiagramNodeId, StringComparison.Ordinal)
             && string.Equals(edge.ToNodeId, externalTargetDiagramNodeId, StringComparison.Ordinal)
@@ -233,7 +238,7 @@ internal static class InventoryDiagramParentAttachmentApplier
             FromNodeId = parentDiagramNodeId,
             ToNodeId = externalTargetDiagramNodeId,
             Label = edgeLabel,
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+            ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
             InferenceSource = GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget,
         });
 
@@ -300,40 +305,62 @@ internal static class InventoryDiagramParentAttachmentApplier
         return null;
     }
 
-    private static string BuildChildDetailLabel(
+    internal static string BuildChildDetailLabel(
         DiagramNode childNode,
-        InventoryDiagramParentAttachmentCategory category)
+        InventoryDiagramParentAttachmentCategory category,
+        string? publicIpAddress = null)
     {
-        string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label);
+        string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label, childNode.NodeId);
 
         return category switch
         {
-            InventoryDiagramParentAttachmentCategory.PublicIp => $"Public IP: {resourceName}",
+            InventoryDiagramParentAttachmentCategory.PublicIp =>
+                InventoryDiagramRelationshipLabelTexts.FormatFoldedPublicIpParentDetailLabel(resourceName, publicIpAddress),
             InventoryDiagramParentAttachmentCategory.RestorePointCollection => $"Restore points: {resourceName}",
             InventoryDiagramParentAttachmentCategory.AccessConnector => $"Access connector: {resourceName}",
             _ => resourceName,
         };
     }
 
-    private static string ReadResourceName(string? armResourceId, string fallbackLabel)
+    private static string? ReadPublicIpAddress(GraphNode graphNode)
     {
-        if (string.IsNullOrWhiteSpace(armResourceId))
+        if (graphNode.Properties.TryGetValue("ipAddress", out string? ipAddress)
+            && ipAddress is not null)
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return ipAddress;
         }
 
-        int lastSlash = armResourceId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
+        if (graphNode.Properties.TryGetValue("properties.ipAddress", out string? nestedIpAddress)
+            && nestedIpAddress is not null)
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return nestedIpAddress;
         }
 
-        return armResourceId[(lastSlash + 1)..];
+        return null;
+    }
+
+    private static string ReadResourceName(string? armResourceId, string fallbackLabel, string? nodeId)
+    {
+        return InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            armResourceId,
+            fallbackLabel,
+            nodeId,
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
+    }
+
+    private static string ResolveAttachmentResourceName(string? fallbackLabel)
+    {
+        if (fallbackLabel is null)
+        {
+            return "Resource name was not stored";
+        }
+
+        if (fallbackLabel.Length == 0 || string.IsNullOrWhiteSpace(fallbackLabel))
+        {
+            return "Resource name was stored empty.";
+        }
+
+        return fallbackLabel.Trim();
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(

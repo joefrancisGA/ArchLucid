@@ -36,12 +36,12 @@
     ]
   },
   {
-    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingId": "6e99d0aa-2efe-4ced-9894-5f96e2136e37",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "No topology resources were found",
-    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata). The graph does not contain any TopologyResource nodes.",
     "relatedNodeIds": [],
     "payloadType": "TopologyCoverageFindingPayload",
     "rulesApplied": [

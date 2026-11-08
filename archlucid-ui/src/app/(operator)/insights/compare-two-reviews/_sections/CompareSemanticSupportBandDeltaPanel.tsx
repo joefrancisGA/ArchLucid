@@ -3,7 +3,10 @@
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { CompareSemanticSupportBandDeltaView } from "@/lib/review-quality/compare-semantic-support-band-delta";
+import {
+  formatCompareSemanticSupportBandSideSummary,
+  type CompareSemanticSupportBandDeltaView,
+} from "@/lib/review-quality/compare-semantic-support-band-delta";
 
 export type CompareSemanticSupportBandDeltaPanelProps = {
   readonly view: CompareSemanticSupportBandDeltaView | null;
@@ -57,7 +60,7 @@ export function CompareSemanticSupportBandDeltaPanel(
           >
             <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{side.label}</dt>
             <dd className={cn("m-0 mt-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {side.summaryLine ?? "No decision-grade findings"}
+              {formatCompareSemanticSupportBandSideSummary(side)}
             </dd>
             <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
               Supported {side.counts.supported} · Not yet scored {side.counts.unchecked} · Unsupported{" "}

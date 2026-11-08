@@ -33,7 +33,7 @@ public static class DiagramForestNestedFrameResolver
 
             frames.Add(new DiagramForestNestedFrameBounds(
                 "vnet",
-                vnet.Label,
+                FormatFrameCaption(vnet, "vnet"),
                 $"vnet-{vnet.NodeId}",
                 anchor.X,
                 anchor.Y,
@@ -83,12 +83,24 @@ public static class DiagramForestNestedFrameResolver
 
         return new DiagramForestNestedFrameBounds(
             kind,
-            container.Label,
+            FormatFrameCaption(container, kind),
             $"{kind}-{container.NodeId}",
             minX - pad,
             minY - pad,
             maxX - minX + (pad * 2.0d),
             maxY - minY + (pad * 2.0d));
+    }
+
+    private static string FormatFrameCaption(DiagramNode container, string kind)
+    {
+        if (!string.IsNullOrWhiteSpace(container.Label))
+        {
+            return container.Label.Trim();
+        }
+
+        return kind == "vnet"
+            ? "Virtual network name was not stored."
+            : "Subnet name was not stored.";
     }
 
     private static bool IsVnet(DiagramNode node)

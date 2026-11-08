@@ -1,6 +1,6 @@
 # Sponsor review packet
 
-**Generated (UTC):** 2026-05-16 14:00:00 Z
+**Export written (UTC):** 2026-05-16 14:00:00 Z. This is the packet write time, not a stored review time.
 
 ## Manifest summary
 
@@ -13,11 +13,14 @@
 
 **Simulator** — **Not real-mode AI** — deterministic simulator; do not claim live model quality.
 
-## Top decisions
+## First five decisions (not ranked)
 
 - **PHI ingress classification** — Enforce boundary classifier before persistence
+  - Decision category: Security
   - Confidence: Rule audit (0.92)
-  - Evidence: /governance/decision-register
+  - Supporting finding ids: Supporting finding ids were not stored.
+  - Rationale: Decision rationale was not stored.
+  - Evidence: This packet does not include a decision evidence link because the register row has no evidence-link field.
 
 ## Review summary
 
@@ -25,30 +28,47 @@
 
 **Review ID:** `claims-intake-modernization`
 
-## Findings by severity
+## Deterministic findings (sealed)
+
+Findings snapshot id was not stored.
+
+## Agent findings (advisory)
+
+
+> **Simulator mode — not live AI output** This result was produced by rule-based analysis in simulator mode. Treat findings and rewrites as rehearsal only until you switch to Real mode.
+
+### Findings by severity
 
 | Severity | Count |
 |----------|------:|
 | Critical | 1 |
-| High | 1 |
-| Medium | 1 |
-| Low | 0 |
+| Error | 1 |
+| Warning | 1 |
+| Info | 0 |
 
-## Sponsor report
+### Sponsor report
 
-Proceed with claims intake modernization under monitored PHI minimization controls &#8212; sponsor-facing KPIs remain on track.
 
-## Top findings
+Proceed with claims intake modernization under monitored PHI minimization controls — sponsor-facing KPIs remain on track.
+
+### Top findings
+
+This list includes Critical and Error findings only.
+
+Each bullet below is the stored finding message, not a recommended action or title.
 
 - PHI minimization risk at intake boundary
 - Under-provisioned OCR worker autoscale floor
 - Missing regional failover documentation
 
+
 ---
 
-_This Sponsor report was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
+_This sponsor summary combines sealed snapshot copy (when stored), agent-stream severity counts, and sponsor report prose. Review before sharing with sponsors._
 
-## Portfolio signals (live)
+## Portfolio signals (snapshot at export)
+
+- Portfolio signal counts reflect the workspace snapshot at export time, not live portal totals.
 
 - **Findings resolved (30d):** 2
 - **Findings discovered (30d):** 3
@@ -57,7 +77,6 @@ _This Sponsor report was generated with AI assistance from review findings and s
 
 ### Next actions
 - Review stale PHI minimization risk in the architecture risk register.
-- Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off.
 
 ## ROI basis
 
@@ -71,6 +90,7 @@ _This Sponsor report was generated with AI assistance from review findings and s
 
 ## Sponsor artifact evidence badges
 
+- **Proof package:** Proof package was not loaded for this export.
 - **Evidence source:** **Azure Retail catalog** (`azure-retail`)
 - **Evidence freshness:** **Fresh** (`fresh`)
 

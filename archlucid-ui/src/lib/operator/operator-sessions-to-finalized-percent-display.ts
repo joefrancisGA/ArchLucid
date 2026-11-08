@@ -22,10 +22,13 @@ export function presentOperatorSessionsToFinalizedPercent(
     return { display: "Not returned", footnote: null };
   }
 
-  if (r > 1) {
+  if (r < 0 || r > 1) {
     return {
       display: "Not usable",
-      footnote: `Ratio ${r.toFixed(2)} exceeds 1 — treat as a bad payload, not 100% conversion.`,
+      footnote:
+        r < 0
+          ? `Ratio ${r.toFixed(2)} is negative — treat as a bad payload, not 0% conversion.`
+          : `Ratio ${r.toFixed(2)} exceeds 1 — treat as a bad payload, not 100% conversion.`,
     };
   }
 

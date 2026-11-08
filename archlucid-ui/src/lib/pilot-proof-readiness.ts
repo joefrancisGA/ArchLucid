@@ -147,11 +147,14 @@ export function isAgentOutputPilotStrictSponsorSafe(
   const satisfied = payload?.proofPackageCompleteness?.agentOutputPilotStrictEvidenceSatisfied;
 
   if (satisfied === undefined) {
-    return true;
+    return false;
   }
 
   return satisfied === true;
 }
+
+export const PILOT_STRICT_EVIDENCE_NOT_STORED_LABEL =
+  "Strict AI evidence was not stored for this review." as const;
 
 export function describeSponsorProofReadiness(
   payload: PilotRunDeltasProofSummaryJson | null,
@@ -206,6 +209,15 @@ export function describeSponsorProofReadiness(
   }
 
   const sendability = (c.proofSendability ?? "").trim();
+
+  if (classification.length === 0 && sendability.length === 0) {
+    return {
+      variant: "unknown",
+      classification: null,
+      title: "Proof sendability unknown",
+      detail: "Proof sendability was not stored.",
+    };
+  }
 
   if (sendability === "NotSendable") {
     return {

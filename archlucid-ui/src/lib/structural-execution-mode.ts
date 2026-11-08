@@ -88,7 +88,7 @@ export function formatStructuralExecutionModeBuyerLabel(
     case StructuralExecutionModeWire.Simulator:
       return RULE_BASED_ANALYSIS_BUYER_LABEL;
     default:
-      return "Unknown";
+      return EXECUTION_MODE_NOT_STORED_LABEL;
   }
 }
 

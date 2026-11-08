@@ -1,4 +1,16 @@
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
+import {
+  SOURCE_EVIDENCE_EXCERPTS_NOT_STORED,
+  SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY,
+  type FindingEvidenceRefSnippetsWireState,
+} from "@/lib/findings/finding-source-evidence-excerpt-copy";
+
 const MAX_SNIPPET_LENGTH = 240;
+
+export const FINDING_EVIDENCE_REF_SNIPPET_DISPLAY_LIMIT = 3 as const;
 
 /** Normalizes a persisted evidence ref token into a compact human-readable snippet for review UI. */
 export function normalizeEvidenceRefSnippet(raw: unknown): string | null {
@@ -19,14 +31,25 @@ export function normalizeEvidenceRefSnippet(raw: unknown): string | null {
   const decoded = withoutScheme.replace(/\+/g, " ");
 
   if (decoded.length > MAX_SNIPPET_LENGTH) {
-    return `${decoded.slice(0, MAX_SNIPPET_LENGTH - 1)}…`;
+    return formatStoredTextPreview(decoded, MAX_SNIPPET_LENGTH, STORED_TEXT_PREVIEW_CONTINUATION.evidenceRefSnippet);
   }
 
   return decoded;
 }
 
+export function formatFindingEvidenceRefSnippetsWireHonesty(
+  wireState: FindingEvidenceRefSnippetsWireState,
+): string {
+  return wireState === "stored-empty"
+    ? SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY
+    : SOURCE_EVIDENCE_EXCERPTS_NOT_STORED;
+}
+
 /** Collects up to `limit` display snippets from a finding `evidenceRefs` wire array. */
-export function collectEvidenceRefSnippets(raw: unknown, limit = 3): readonly string[] {
+export function collectEvidenceRefSnippets(
+  raw: unknown,
+  limit = FINDING_EVIDENCE_REF_SNIPPET_DISPLAY_LIMIT,
+): readonly string[] {
   if (!Array.isArray(raw) || limit <= 0) {
     return [];
   }
@@ -46,4 +69,43 @@ export function collectEvidenceRefSnippets(raw: unknown, limit = 3): readonly st
   }
 
   return out;
+}
+
+/** Counts normalized snippets on the wire array (not capped by display limit). */
+export function countStoredEvidenceRefSnippets(raw: unknown): number {
+  if (!Array.isArray(raw)) {
+    return 0;
+  }
+
+  let count = 0;
+
+  for (const item of raw) {
+    if (normalizeEvidenceRefSnippet(item) !== null) {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
+export function formatFindingEvidenceRefSnippetsHeading(
+  displayedSnippets: readonly string[],
+  totalStoredSnippetCount: number | null,
+  storedEvidenceRefCount?: number | null,
+): string {
+  if (displayedSnippets.length === 0) {
+    return "Source evidence";
+  }
+
+  const resolvedTotal =
+    totalStoredSnippetCount
+    ?? (typeof storedEvidenceRefCount === "number" && Number.isFinite(storedEvidenceRefCount)
+      ? Math.trunc(storedEvidenceRefCount)
+      : null);
+
+  if (resolvedTotal === null || resolvedTotal <= displayedSnippets.length) {
+    return "Source evidence";
+  }
+
+  return `Source evidence (showing ${displayedSnippets.length} of ${resolvedTotal} stored refs)`;
 }

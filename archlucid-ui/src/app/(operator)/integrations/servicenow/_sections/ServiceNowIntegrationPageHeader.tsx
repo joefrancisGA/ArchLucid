@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -7,7 +9,6 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
@@ -37,7 +38,7 @@ export type ServiceNowIntegrationPageHeaderProps = {
 export function ServiceNowIntegrationPageHeader(
   props: ServiceNowIntegrationPageHeaderProps,
 ): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <OperatorPageHeader

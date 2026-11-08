@@ -20,7 +20,10 @@ export type FindingProvenanceOrigin =
   | "Deterministic rule"
   | "Deterministic fallback"
   | "AI-generated"
-  | "Simulated";
+  | "Simulated"
+  | "Heuristic"
+  | "MissingCitation"
+  | "RealModel";
 export type FindingProvenanceOriginDisplay = FindingProvenanceOrigin | "Trust label was not stored";
 
 export type FindingProvenanceGrounding =
@@ -28,7 +31,8 @@ export type FindingProvenanceGrounding =
   | "Estimated"
   | "Ungrounded"
   | "Degraded"
-  | "Not applicable";
+  | "Not applicable"
+  | "Grounding was not stored.";
 
 export type FindingProvenanceDisplay = {
   readonly origin: FindingProvenanceOriginDisplay;
@@ -44,6 +48,12 @@ export const FINDING_PROVENANCE_ORIGIN_EXPLANATIONS: Record<FindingProvenanceOri
     "A language model produced this finding; check the grounding label and linked evidence before signing off.",
   Simulated:
     "Produced by the deterministic simulator, not a live model — do not cite as real-model evidence.",
+  Heuristic:
+    "The finding record stored the Heuristic trust label — verify before sign-off.",
+  MissingCitation:
+    "The finding record stored the MissingCitation trust label — citations were not linked.",
+  RealModel:
+    "The finding record stored the RealModel trust label — grounding was not stored on the wire.",
   "Trust label was not stored":
     "The finding did not include a stored trust label.",
 };
@@ -95,19 +105,19 @@ export function mapFindingTrustLabelToProvenance(label: FindingTrustLabelName): 
     case "DeterministicFallback":
       return { origin: "Deterministic fallback", grounding: "Not applicable" };
     case "RealModel":
-      return { origin: "AI-generated", grounding: "Evidence-backed" };
+      return { origin: "RealModel", grounding: "Grounding was not stored." };
     case "EvidenceBacked":
       return { origin: "AI-generated", grounding: "Evidence-backed" };
     case "Estimated":
       return { origin: "AI-generated", grounding: "Estimated" };
     case "Heuristic":
-      return { origin: "AI-generated", grounding: "Ungrounded" };
+      return { origin: "Heuristic", grounding: "Ungrounded" };
     case "Degraded":
       return { origin: "AI-generated", grounding: "Degraded" };
     case "SimulatorDerived":
       return { origin: "Simulated", grounding: "Not applicable" };
     case "MissingCitation":
-      return { origin: "AI-generated", grounding: "Ungrounded" };
+      return { origin: "MissingCitation", grounding: "Ungrounded" };
     default: {
       const exhaustive: never = label;
 
@@ -149,7 +159,7 @@ export function resolveFindingProvenance(input: DeriveFindingTrustLabelInput): F
   const label = deriveFindingTrustLabel(input).label;
 
   if (label === "NotStored") {
-    return { origin: "Trust label was not stored", grounding: "Not applicable" };
+    return { origin: "Trust label was not stored", grounding: "Grounding was not stored." };
   }
 
   return mapFindingTrustLabelToProvenance(label);
@@ -162,6 +172,10 @@ export type FindingProvenanceAggregateCounts = {
   readonly aiGenerated: number;
   readonly aiEvidenceBacked: number;
   readonly simulated: number;
+  readonly heuristic: number;
+  readonly missingCitation: number;
+  readonly realModel: number;
+  readonly trustLabelNotStored: number;
 };
 
 export function aggregateFindingProvenance(
@@ -172,8 +186,17 @@ export function aggregateFindingProvenance(
   let aiGenerated = 0;
   let aiEvidenceBacked = 0;
   let simulated = 0;
+  let heuristic = 0;
+  let missingCitation = 0;
+  let realModel = 0;
+  let trustLabelNotStored = 0;
 
   for (const item of items) {
+    if (deriveFindingTrustLabel(item).label === "NotStored") {
+      trustLabelNotStored += 1;
+      continue;
+    }
+
     const provenance = resolveFindingProvenance(item);
 
     if (provenance.origin === "Deterministic rule") {
@@ -182,7 +205,13 @@ export function aggregateFindingProvenance(
       deterministicFallback += 1;
     } else if (provenance.origin === "Simulated") {
       simulated += 1;
-    } else {
+    } else if (provenance.origin === "Heuristic") {
+      heuristic += 1;
+    } else if (provenance.origin === "MissingCitation") {
+      missingCitation += 1;
+    } else if (provenance.origin === "RealModel") {
+      realModel += 1;
+    } else if (provenance.origin === "AI-generated") {
       aiGenerated += 1;
 
       if (provenance.grounding === "Evidence-backed") {
@@ -198,6 +227,10 @@ export function aggregateFindingProvenance(
     aiGenerated,
     aiEvidenceBacked,
     simulated,
+    heuristic,
+    missingCitation,
+    realModel,
+    trustLabelNotStored,
   };
 }
 
@@ -229,6 +262,28 @@ export function formatFindingProvenanceAggregateLine(counts: FindingProvenanceAg
 
   if (counts.simulated > 0) {
     parts.push(`${counts.simulated} simulated`);
+  }
+
+  if (counts.heuristic > 0) {
+    parts.push(`${counts.heuristic} heuristic${counts.heuristic === 1 ? "" : "s"}`);
+  }
+
+  if (counts.missingCitation > 0) {
+    parts.push(
+      `${counts.missingCitation} MissingCitation${counts.missingCitation === 1 ? "" : "s"}`,
+    );
+  }
+
+  if (counts.realModel > 0) {
+    parts.push(
+      `${counts.realModel} RealModel (grounding was not stored)`,
+    );
+  }
+
+  if (counts.trustLabelNotStored > 0) {
+    parts.push(
+      `${counts.trustLabelNotStored} trust label was not stored`,
+    );
   }
 
   if (parts.length === 0) {

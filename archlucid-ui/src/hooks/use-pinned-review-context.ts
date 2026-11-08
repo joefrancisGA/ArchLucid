@@ -24,6 +24,7 @@ export type UsePinnedReviewContextResult = {
   readonly pinRunId: string | null;
   readonly summary: RunSummary | null;
   readonly findings: readonly GovernanceFindingQueueRow[];
+  readonly findingTraceRowsOmitted: boolean;
   readonly findingsCount: number | null;
   readonly stampStatusLine: string | null;
   readonly loading: boolean;
@@ -49,10 +50,10 @@ export function usePinnedReviewContext(primaryRunId: string): UsePinnedReviewCon
 
   const closePin = useCallback(() => {
     writePinRunIdToUrl(null);
-    commitHrefIfChanged(reviewPinRunHrefFromSearch(window.location.search.slice(1), null, pathname), {
+    commitHrefIfChanged(reviewPinRunHrefFromSearch(searchParams.toString(), null, pathname), {
       notify: false,
     });
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   const summaryFailure = summaryQuery.error !== null && summaryQuery.error !== undefined
     ? toApiLoadFailure(summaryQuery.error)
@@ -72,10 +73,24 @@ export function usePinnedReviewContext(primaryRunId: string): UsePinnedReviewCon
       return [];
     }
 
-    const traces = explanationQuery.data?.findingTraceConfidences ?? [];
+    const traces = explanationQuery.data?.findingTraceConfidences;
+
+    if (traces === undefined || traces === null) {
+      return [];
+    }
 
     return traceRowsForRun(summaryQuery.data, traces);
   }, [explanationQuery.data, summaryQuery.data]);
+
+  const findingTraceRowsOmitted = useMemo(() => {
+    if (explanationQuery.data === undefined || explanationQuery.data === null) {
+      return false;
+    }
+
+    const traces = explanationQuery.data.findingTraceConfidences;
+
+    return traces === undefined || traces === null;
+  }, [explanationQuery.data]);
 
   const stampStatusLine = useMemo(() => {
     if (summaryQuery.data === undefined || summaryQuery.data === null) {
@@ -116,6 +131,7 @@ export function usePinnedReviewContext(primaryRunId: string): UsePinnedReviewCon
     pinRunId: effectivePinRunId,
     summary: summaryQuery.data ?? null,
     findings,
+    findingTraceRowsOmitted,
     findingsCount,
     stampStatusLine,
     loading,

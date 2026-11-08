@@ -31,7 +31,12 @@ public static class ReviewRunEngineProvenanceAggregator
         long reasoningTokens = 0;
 
         foreach (AgentExecutionTrace trace in traces)
+        {
+            if (trace is null)
+                continue;
+
             reasoningTokens += trace.ReasoningTokenCount ?? 0;
+        }
 
         int? inputTokens = costSummary.PromptTokens > 0 ? (int)Math.Min(costSummary.PromptTokens, int.MaxValue) : null;
         long combinedOutputTokens = costSummary.CompletionTokens + reasoningTokens;
@@ -63,9 +68,16 @@ public static class ReviewRunEngineProvenanceAggregator
             return "deterministic";
 
         if (traces.Count == 0)
-            return "azure-openai";
+            return string.Empty;
 
-        if (traces.All(static trace =>
+        List<AgentExecutionTrace> nonNullTraces = traces
+            .Where(static trace => trace is not null)
+            .ToList();
+
+        if (nonNullTraces.Count == 0)
+            return string.Empty;
+
+        if (nonNullTraces.All(static trace =>
                 string.Equals(
                     trace.ModelDeploymentName,
                     AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
@@ -83,6 +95,9 @@ public static class ReviewRunEngineProvenanceAggregator
 
         foreach (AgentExecutionTrace trace in traces)
         {
+            if (trace is null)
+                continue;
+
             if (!string.IsNullOrWhiteSpace(trace.PromptReleaseLabel))
             {
                 labels.Add(trace.PromptReleaseLabel.Trim());
@@ -108,6 +123,7 @@ public static class ReviewRunEngineProvenanceAggregator
             return null;
 
         IEnumerable<string> titles = (evidence.Policies ?? [])
+            .Where(static policy => policy is not null)
             .Select(static policy => policy.Title)
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())

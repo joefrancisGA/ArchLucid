@@ -47,10 +47,12 @@ public sealed class AzureInventoryDiffService(
             }
 
             AzureInventorySnapshotDetailReadModel? snapshotA =
-                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotAId, cancellationToken))?.Snapshot;
+                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotAId, cancellationToken)
+                    .ConfigureAwait(false))?.Snapshot;
 
             AzureInventorySnapshotDetailReadModel? snapshotB =
-                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotBId, cancellationToken))?.Snapshot;
+                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotBId, cancellationToken)
+                    .ConfigureAwait(false))?.Snapshot;
 
             if (snapshotA is null || snapshotB is null)
             {

@@ -585,7 +585,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ast.Nodes.Should().Contain(node => node.Label == "app-vm");
         ast.Nodes.Should().NotContain(node => node.Label == "app-nic");
         ast.Edges.Should().Contain(edge => edge.Label == "in");
-        ast.Edges.Should().Contain(edge => edge.Label == "contains");
+        ast.Edges.Should().Contain(edge => edge.Label == DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel);
         ast.Edges.Should().Contain(edge => edge.Label == "peering");
     }
 
@@ -1970,7 +1970,8 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         dataFlowResult.Value!.Mermaid.Should().Contain("adf1");
         dataFlowResult.Value.Mermaid.Should().Contain("sql1");
         dataFlowResult.Value.Mermaid.Should().Contain("orders-api");
-        dataFlowResult.Value.Mermaid.Should().Contain("Writes to");
+        dataFlowResult.Value.Mermaid.Should().Contain(
+            InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored);
         dataFlowResult.Value.Mermaid.Should().Contain("May access");
         dataFlowResult.Value.Mermaid.Should().Contain("Routes events to");
         dataFlowResult.Value.Mermaid.Should().Contain("Private network path");
@@ -2039,7 +2040,8 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         result.Value.Mermaid.Should().Contain("flowchart LR");
         result.Value.Mermaid.Should().Contain("adf1");
         result.Value.Mermaid.Should().Contain("sql1");
-        result.Value.Mermaid.Should().Contain("Writes to");
+        result.Value.Mermaid.Should().Contain(
+            InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored);
         result.Value.Mermaid.Should().Contain(DiagramDataFlowHonestyLegend.PrimarySentence);
         result.Value.Mermaid.Should().NotContain("corp-vnet");
     }

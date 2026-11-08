@@ -13,10 +13,21 @@ export function buildPolicyPackSimulationSummary(
   if (result === null)
     return null;
 
-  const evaluated = result.deltaCounts?.evaluated ?? 0;
-  const wouldBlock = result.deltaCounts?.wouldBlock ?? 0;
-  const wouldAllow = result.deltaCounts?.wouldAllow ?? 0;
-  const missing = result.deltaCounts?.runMissing ?? 0;
+  const deltaCounts = result.deltaCounts;
+
+  if (deltaCounts === undefined) {
+    return {
+      headline: "Simulation counts were not returned",
+      detail:
+        "Dry-run delta counts were not returned by the API — refresh or retry before treating this preview as complete.",
+      disposition: "WARN",
+    };
+  }
+
+  const evaluated = deltaCounts.evaluated ?? 0;
+  const wouldBlock = deltaCounts.wouldBlock ?? 0;
+  const wouldAllow = deltaCounts.wouldAllow ?? 0;
+  const missing = deltaCounts.runMissing ?? 0;
 
   let disposition: PolicyPackSimulationSummary["disposition"] = "PASS";
 

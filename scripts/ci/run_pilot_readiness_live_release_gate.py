@@ -5,16 +5,21 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from time import time
 from typing import Any
 
 _CI_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_CI_DIR))
 
-from pilot_readiness_bundle_gate_common import validate_live_bundle_report  # noqa: E402
+from pilot_readiness_bundle_gate_common import (  # noqa: E402
+    artifact_change_token,
+    validate_live_bundle_report,
+)
 
 _GATE_SCHEMA = "archlucid.pilot-readiness-live-release-gate.v1"
 
@@ -27,8 +32,19 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+_SAFE_RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
+
+
+def safe_run_id(run_id: str) -> bool:
+    return bool(isinstance(run_id, str) and _SAFE_RUN_ID.fullmatch(run_id.strip()))
+
+
 def resolve_live_bundle_report_path(root: Path, run_id: str) -> Path:
+    if not safe_run_id(run_id):
+        raise ValueError("runId must be a single safe path component (letters, digits, hyphens, underscores).")
     sanitized_run_id = run_id.strip()
+    if not sanitized_run_id or sanitized_run_id in {".", ".."} or "/" in sanitized_run_id or "\\" in sanitized_run_id:
+        raise ValueError("live readiness run ID must be a single path component.")
     return (
         root
         / "artifacts"
@@ -78,7 +94,7 @@ def build_gate_report(
         "includeApi": include_api,
         "cliExitCode": cli_exit_code,
         "overallVerdict": bundle_report.get("overallVerdict"),
-        "slotCount": len(bundle_report.get("slots") or []),
+        "slotCount": len(bundle_report["slots"]) if isinstance(bundle_report.get("slots"), list) else 0,
         "issues": issues,
         "bundleJsonArtifactPath": bundle_report.get("jsonArtifactPath"),
         "bundleMarkdownArtifactPath": bundle_report.get("markdownArtifactPath"),
@@ -190,6 +206,9 @@ def main() -> int:
             run_id=None,
             reason="Supply --run-id for a representative completed first-review run after smoke.",
         )
+        if args.strict_rc:
+            skipped["disposition"] = "FAIL"
+            skipped["issues"] = ["strict RC requires a nonempty --run-id."]
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
         args.json_out.write_text(json.dumps(skipped, indent=2) + "\n", encoding="utf-8")
@@ -205,7 +224,30 @@ def main() -> int:
         print("run_pilot_readiness_live_release_gate: SKIPPED (no --run-id)")
         return 0
 
+    if not safe_run_id(run_id):
+        issues = ["runId must be a single safe path component (letters, digits, hyphens, underscores)."]
+        failed = build_gate_report(
+            bundle_report={}, run_id=run_id, cli_exit_code=1,
+            issues=issues, include_api=include_api,
+        )
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+        args.markdown_out.write_text(render_markdown(failed), encoding="utf-8")
+        print("run_pilot_readiness_live_release_gate: FAIL invalid --run-id", file=sys.stderr)
+        return 1
+
     root = args.repo_root.resolve()
+    if args.skip_cli_run and args.bundle_report is None:
+        print("run_pilot_readiness_live_release_gate: --skip-cli-run requires --bundle-report", file=sys.stderr)
+        return 1
+    bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
+    invocation_started_at = time()
+    prior_signature = None
+    previous_token = artifact_change_token(bundle_path) if not args.skip_cli_run else None
+    if bundle_path.is_file() and not args.skip_cli_run:
+        previous = bundle_path.stat()
+        prior_signature = (previous.st_mtime_ns, previous.st_size)
     cli_exit_code = 0
     cli_output = ""
 
@@ -226,27 +268,46 @@ def main() -> int:
             if cli_output.strip():
                 print(cli_output, file=sys.stderr)
 
-    bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
     issues: list[str] = []
+    if not args.skip_cli_run and previous_token is not None:
+        if artifact_change_token(bundle_path) == previous_token:
+            issues.append("CLI did not refresh the live readiness bundle report; refusing stale evidence.")
 
     if not bundle_path.is_file():
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
-        bundle_report = load_json(bundle_path)
-        issues.extend(
-            validate_live_bundle_report(
-                bundle_report,
-                run_id=run_id,
-                include_warn_slot_blockers=args.strict_rc,
-            )
-        )
+        if not args.skip_cli_run:
+            current = bundle_path.stat()
+            if prior_signature == (current.st_mtime_ns, current.st_size) or current.st_mtime < invocation_started_at - 2:
+                issues.append("bundle report was not refreshed by the current CLI invocation.")
+        try:
+            parsed = load_json(bundle_path)
+        except (OSError, UnicodeError, ValueError, TypeError) as exc:
+            issues.append(f"bundle report is unreadable or invalid JSON: {type(exc).__name__}.")
+            bundle_report = {}
+        else:
+            if not isinstance(parsed, dict):
+                issues.append("bundle report must be a JSON object.")
+                bundle_report = {}
+            else:
+                bundle_report = parsed
+                issues.extend(
+                    validate_live_bundle_report(
+                        bundle_report,
+                        run_id=run_id,
+                        include_warn_slot_blockers=args.strict_rc,
+                    )
+                )
 
-        if args.strict_rc:
             overall = str(bundle_report.get("overallVerdict") or "").strip()
+            if overall not in {"Pass", "Warn"}:
+                issues.append(f"unexpected live overallVerdict: {overall or 'missing'}.")
 
-            if overall in {"Warn", "Unknown"}:
-                issues.append(f"strict RC blocks overallVerdict {overall}.")
+            if args.strict_rc and isinstance(bundle_report.get("overallVerdict"), str) and bundle_report["overallVerdict"] in {"Warn", "Unknown"}:
+                issues.append(
+                    f"strict RC blocks overallVerdict {bundle_report['overallVerdict']}."
+                )
 
     gate_report = build_gate_report(
         bundle_report=bundle_report,

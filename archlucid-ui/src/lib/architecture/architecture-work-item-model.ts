@@ -1,7 +1,10 @@
 import type { WorkItemClipboardFormat } from "@/lib/copy-finding-as-work-item";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
+
+const WORK_ITEM_SEVERITY_LABEL_NOT_STORED = "Severity label was not stored." as const;
 
 export type ArchitectureWorkItemFindingLine = {
   readonly findingId: string;
@@ -13,9 +16,10 @@ export type ArchitectureWorkItemFindingLine = {
 export type ArchitectureWorkItemPreview = {
   readonly title: string;
   readonly description: string;
-  readonly priority: string;
+  readonly highestFindingSeverity: string;
   readonly owner: string;
   readonly findingsIncluded: readonly ArchitectureWorkItemFindingLine[];
+  readonly findingsOmittedCount: number;
   readonly sourceArchitectureLink: string;
 };
 
@@ -36,18 +40,43 @@ function architectureReviewUrl(siteOrigin: string, runId: string): string {
   return `${origin}/architecture/reviews/${encodeURIComponent(runId)}`;
 }
 
-function deriveArchitecturePriority(findings: readonly QuickDecisionFinding[]): string {
+function deriveHighestFindingSeverity(findings: readonly QuickDecisionFinding[]): string {
   const knownSeverities = findings
     .map((finding) => finding.severityValue)
     .filter((severity): severity is number => severity !== null);
 
   if (knownSeverities.length === 0) {
-    return "Priority was not stored.";
+    return "Severity was not stored.";
   }
 
   const highest = Math.max(...knownSeverities);
 
   return severityBadgeLabel(highest);
+}
+
+function formatHighestFindingSeverityLine(findings: readonly QuickDecisionFinding[]): string {
+  const missingCount = findings.filter((finding) => finding.severityValue === null).length;
+  const base = deriveHighestFindingSeverity(findings);
+
+  if (missingCount <= 0 || base === "Severity was not stored.") {
+    return base;
+  }
+
+  const noun = missingCount === 1 ? "finding had" : "findings had";
+  const verb = missingCount === 1 ? "is" : "are";
+
+  return `${base} ${missingCount} ${noun} severity not stored and ${verb} omitted from the highest-severity line.`;
+}
+
+const WORK_ITEM_OVERVIEW_NOT_DESCRIPTION_PREFIX =
+  "Architecture overview, not a stored work-item description:" as const;
+
+function formatWorkItemDescription(overview: string): string {
+  if (overview.length === 0) {
+    return "Architecture overview was not stored.";
+  }
+
+  return `${WORK_ITEM_OVERVIEW_NOT_DESCRIPTION_PREFIX}\n${overview}`;
 }
 
 function resolveArchitectureWorkItemOwnerLabel(ownerLabel: string | null): string {
@@ -62,19 +91,35 @@ function resolveArchitectureWorkItemOwnerLabel(ownerLabel: string | null): strin
   return ownerLabel.trim();
 }
 
-function mapFindingLines(findings: readonly QuickDecisionFinding[]): ArchitectureWorkItemFindingLine[] {
+function sliceFindingsForPreview(findings: readonly QuickDecisionFinding[]): {
+  readonly included: readonly QuickDecisionFinding[];
+  readonly omittedCount: number;
+} {
   const sorted = [...findings].sort((left, right) => compareFindingSeverity(left.severityValue, right.severityValue));
+  const included = sorted.slice(0, MAX_FINDING_LINES);
 
-  return sorted.slice(0, MAX_FINDING_LINES).map((finding) => ({
-    findingId: finding.findingId,
-    title:
-      finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
-    severityLabel: severityBadgeLabel(finding.severityValue),
-    recommendedAction:
-      finding.recommendation.trim().length > 0
-        ? finding.recommendation.trim()
-        : "No recommended action recorded for this finding.",
-  }));
+  return {
+    included,
+    omittedCount: Math.max(0, sorted.length - included.length),
+  };
+}
+
+function mapFindingLines(findings: readonly QuickDecisionFinding[]): {
+  readonly lines: ArchitectureWorkItemFindingLine[];
+  readonly omittedCount: number;
+} {
+  const { included, omittedCount } = sliceFindingsForPreview(findings);
+
+  return {
+    omittedCount,
+    lines: included.map((finding) => ({
+      findingId: finding.findingId,
+      title:
+        finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
+      severityLabel: severityBadgeLabel(finding.severityValue),
+      recommendedAction: formatQuickDecisionRecommendedAction(finding.recommendation),
+    })),
+  };
 }
 
 export function pickNativeCreateFindingId(findings: readonly QuickDecisionFinding[]): string | null {
@@ -91,36 +136,57 @@ export function buildArchitectureWorkItemPreview(
   input: BuildArchitectureWorkItemPreviewInput,
 ): ArchitectureWorkItemPreview {
   const overview = input.architectureOverview.trim();
-  const description =
-    overview.length > 0
-      ? overview
-      : "Architecture overview was not stored.";
+  const description = formatWorkItemDescription(overview);
 
   const architectureName = input.architectureName.trim();
   const title =
     architectureName.length > 0
-      ? `Implement architecture — ${architectureName}`
-      : "Architecture name was not stored.";
+      ? `Draft architecture work item — ${architectureName}`
+      : "Draft architecture work item — architecture name was not stored.";
+
+  const mappedFindings = mapFindingLines(input.findings);
 
   return {
     title,
     description,
-    priority: deriveArchitecturePriority(input.findings),
+    highestFindingSeverity: formatHighestFindingSeverityLine(input.findings),
     owner: resolveArchitectureWorkItemOwnerLabel(input.ownerLabel),
-    findingsIncluded: mapFindingLines(input.findings),
+    findingsIncluded: mappedFindings.lines,
+    findingsOmittedCount: mappedFindings.omittedCount,
     sourceArchitectureLink: architectureReviewUrl(input.siteOrigin, input.runId),
   };
 }
 
-function formatFindingsForClipboard(findings: readonly ArchitectureWorkItemFindingLine[]): string[] {
-  if (findings.length === 0) {
-    return ["No findings recorded yet — add assessment findings before tracking remediation tasks."];
+function formatFindingsCapRemainderLine(omittedCount: number): string | null {
+  if (omittedCount <= 0) {
+    return null;
   }
 
-  return findings.map(
-    (finding, index) =>
-      `${index + 1}. [${finding.severityLabel}] ${finding.title} (${finding.findingId})\n   ${finding.recommendedAction}`,
+  return `${omittedCount} additional finding${omittedCount === 1 ? "" : "s"} were not included in this preview.`;
+}
+
+function formatFindingsForClipboard(
+  findings: readonly ArchitectureWorkItemFindingLine[],
+  omittedCount: number,
+): string[] {
+  if (findings.length === 0) {
+    return ["Findings were not stored."];
+  }
+
+  const lines = findings.map(
+    (finding, index) => {
+      const severityPrefix =
+        finding.severityLabel === WORK_ITEM_SEVERITY_LABEL_NOT_STORED
+          ? ""
+          : `[${finding.severityLabel}] `;
+
+      return `${index + 1}. ${severityPrefix}${finding.title} (${finding.findingId})\n   ${finding.recommendedAction}`;
+    },
   );
+
+  const remainder = formatFindingsCapRemainderLine(omittedCount);
+
+  return remainder !== null ? [...lines, remainder] : lines;
 }
 
 export function clipboardFormatForItsmProvider(provider: "Jira" | "ServiceNow"): WorkItemClipboardFormat {
@@ -135,13 +201,14 @@ export function buildArchitectureWorkItemClipboardBody(
   format: WorkItemClipboardFormat,
   preview: ArchitectureWorkItemPreview,
 ): string {
-  const findingLines = formatFindingsForClipboard(preview.findingsIncluded);
+  const findingLines = formatFindingsForClipboard(preview.findingsIncluded, preview.findingsOmittedCount);
 
   if (format === "jiraWiki") {
     return [
       `h2. ${preview.title}`,
       "",
-      `*Priority:* ${preview.priority}`,
+      `*Severity (highest finding):* ${preview.highestFindingSeverity}`,
+      `*Priority:* Priority was not stored.`,
       `*Owner:* ${preview.owner}`,
       "",
       "*Description*",
@@ -162,7 +229,8 @@ export function buildArchitectureWorkItemClipboardBody(
       "Description:",
       preview.description,
       "",
-      `Priority: ${preview.priority}`,
+      `Severity (highest finding): ${preview.highestFindingSeverity}`,
+      "Priority: Priority was not stored.",
       `Owner: ${preview.owner}`,
       "",
       "Findings or tasks:",
@@ -175,7 +243,8 @@ export function buildArchitectureWorkItemClipboardBody(
   return [
     `## ${preview.title}`,
     "",
-    `**Priority:** ${preview.priority}`,
+    `**Severity (highest finding):** ${preview.highestFindingSeverity}`,
+    "**Priority:** Priority was not stored.",
     `**Owner:** ${preview.owner}`,
     "",
     preview.description,

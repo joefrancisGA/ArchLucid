@@ -71,6 +71,8 @@ public sealed class FourRealityDriftEngineTests
 
         OperationalSecurityFindingRecord finding = findingRepository.StoredFindings.Should().ContainSingle().Subject;
         finding.PathId.Should().Be(driftPath.PathId);
+        finding.Severity.Should().Be(FourRealityDriftNarrative.SeverityNotScoredLabel);
+        finding.BlastRadius.Should().Be(FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel);
         finding.Description.Should().Contain("Advisory Terraform mapping");
         finding.Description.Should().Contain("design-control drift");
     }

@@ -2,6 +2,8 @@ import { render, within } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
+
 expect.extend(toHaveNoViolations);
 
 vi.mock("@/components/operator/OperatorApiProblem", () => ({
@@ -35,6 +37,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
+
 vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
   resolveProductionEvalChromeFromStorage: (): boolean => false,
 }));
@@ -50,7 +57,11 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { title: "Rule A", severity: "High" },
+          typedPayload: {
+            title: "Rule A",
+            severity: "High",
+            whyThisMatters: "Ingress paths without TLS expose credentials in transit.",
+          },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -86,7 +97,11 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { title: "Rule A", severity: "High" },
+          typedPayload: {
+            title: "Rule A",
+            severity: "High",
+            whyThisMatters: "Ingress paths without TLS expose credentials in transit.",
+          },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -114,7 +129,11 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { title: "Rule A", severity: "High" },
+          typedPayload: {
+            title: "Rule A",
+            severity: "High",
+            whyThisMatters: "Ingress paths without TLS expose credentials in transit.",
+          },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: null, excerpt: "node-x" }],

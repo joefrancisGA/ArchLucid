@@ -106,6 +106,16 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(json.ruleId).toBe("Decision rule was not stored.");
   });
 
+  it("labels decision rule by id when the rule name was not stored (P-10)", () => {
+    const markdown = buildInspectFindingWorkItemBody("markdown", {
+      ...inspectInput,
+      decisionRuleName: null,
+      decisionRuleId: "rule-42",
+    });
+
+    expect(markdown).toContain("**Decision rule:** Rule name was not stored. Rule id rule-42.");
+  });
+
   it("preserves stored empty strings on work-item clipboard fields (P-01–P-04)", () => {
     const emptyStored = {
       runId: "r",
@@ -125,8 +135,8 @@ describe("buildInspectFindingWorkItemBody", () => {
     const markdown = buildInspectFindingWorkItemBody("markdown", emptyStored);
     expect(markdown).toContain("**Severity:** ");
     expect(markdown).not.toContain("Severity was not stored.");
-    expect(markdown).toContain("### What was flagged\n\n\n");
-    expect(markdown).toContain("### Recommended actions\n\n\n");
+    expect(markdown).toContain("Description was stored empty.");
+    expect(markdown).toContain("Recommended action was stored empty.");
     expect(markdown).toContain("**Decision rule:** ");
     expect(markdown).toContain("-  (lines 1-2)");
     expect(markdown).not.toContain("(citation)");
@@ -231,7 +241,7 @@ describe("buildTraceRowWorkItemBody", () => {
   it("supports ServiceNow plain text for trace rows", () => {
     const text = buildTraceRowWorkItemBody("serviceNowText", traceInput);
 
-    expect(text).toContain("Short description: ArchLucid finding — Title z (find-z)");
+    expect(text).toContain("Short description: Title z (find-z)");
     expect(text).toContain("Severity: High");
     expect(text).toContain("Restrict egress.");
     expect(text).toContain("ArchLucid inspector link:");

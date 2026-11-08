@@ -100,6 +100,23 @@ public sealed class InMemoryVectorIndexTests
     }
 
     [Fact]
+    public async Task SearchAsync_zero_norm_query_embedding_assigns_zero_cosine_scores()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [
+                MakeChunk("strong", TenantId, WorkspaceId, ProjectId, [1f, 0f]),
+                MakeChunk("weak", TenantId, WorkspaceId, ProjectId, [0.5f, 0.5f]),
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(BaseQuery(), [0f, 0f], CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits.Should().OnlyContain(hit => hit.Score == 0d);
+    }
+
+    [Fact]
     public async Task SearchAsync_MismatchedEmbeddingLength_ExcludesChunkAndRecordsMismatch()
     {
         _ = ArchLucid.Core.Diagnostics.ArchLucidInstrumentation.RetrievalEmbeddingDimensionMismatchTotal;
@@ -172,6 +189,23 @@ public sealed class InMemoryVectorIndexTests
     }
 
     [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_matches_policy_pack_when_assignment_casing_differs_from_indexed_chunk()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [MakePlatformPolicyPackChunk("pack-chunk", "Pack-A", [1f, 0f])],
+            CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "pack-a" };
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("pack-chunk");
+    }
+
+    [Fact]
     public async Task SearchAsync_IncludePlatformCorpora_WithNoAssignedPacks_ExcludesAllPolicyPackChunks()
     {
         InMemoryVectorIndex sut = new();
@@ -221,6 +255,29 @@ public sealed class InMemoryVectorIndexTests
         IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(BaseQuery(), [1f, 0f], CancellationToken.None);
 
         hits.Should().ContainSingle().Which.ChunkId.Should().Be("tenant-a");
+    }
+
+    [Fact]
+    public async Task SearchAsync_ExcludesPlatformDocWhenIncludePlatformCorporaFalse_even_with_identical_embedding()
+    {
+        InMemoryVectorIndex sut = new();
+        RetrievalChunk tenantChunk = MakeChunk("tenant-only", TenantId, WorkspaceId, ProjectId, [0.5f, 0.5f]);
+        RetrievalChunk platformChunk = MakeChunk(
+            "platform-leak",
+            CorpusKindSentinels.PlatformSentinelTenantId,
+            WorkspaceId,
+            ProjectId,
+            [1f, 0f]);
+        platformChunk.CorpusKind = CorpusKind.PlatformDoc;
+
+        await sut.UpsertChunksAsync([tenantChunk, platformChunk], CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = false;
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("tenant-only");
     }
 
     [Fact]

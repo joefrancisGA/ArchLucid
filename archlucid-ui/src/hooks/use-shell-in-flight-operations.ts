@@ -26,6 +26,7 @@ import { isStaleReRunFailureOperationPoll } from "@/lib/operations/is-stale-reru
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { markReviewPipelineCompletionNotified } from "@/lib/review-pipeline-completion-notify-dedupe";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 
 export const SHELL_IN_FLIGHT_POLL_MS = 2000;
 export const SHELL_IN_FLIGHT_TERMINAL_HOLD_MS = 8000;
@@ -36,9 +37,16 @@ function pathnameMatchesOperation(pathname: string, operation: TrackedInFlightOp
   }
 
   if (operation.runId !== null) {
-    const runSegment = `/architecture/reviews/${encodeURIComponent(operation.runId)}`;
+    const pathOnly = pathname.split("?")[0] ?? "";
+    const peerSegment = `/architecture/reviews/${encodeURIComponent(operation.runId)}`;
 
-    if (pathname === runSegment || pathname.startsWith(`${runSegment}/`)) {
+    if (pathOnly === peerSegment || pathOnly.startsWith(`${peerSegment}/`)) {
+      return true;
+    }
+
+    const scopedBase = resolveArchitectureReviewHref(operation.runId, operation.architectureId);
+
+    if (pathOnly === scopedBase || pathOnly.startsWith(`${scopedBase}/`)) {
       return true;
     }
   }

@@ -2,6 +2,8 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 
+using ArchLucid.Persistence.Data.Repositories;
+
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
@@ -57,13 +59,35 @@ internal static class ComparisonRecordRepositoryCore
         IEnumerable<ComparisonRecord> query = source;
 
         if (!string.IsNullOrWhiteSpace(comparisonType))
-            query = query.Where(r => string.Equals(r.ComparisonType, comparisonType, StringComparison.Ordinal));
+        {
+            string normalizedComparisonType = comparisonType.Trim();
+            query = query.Where(r =>
+                !string.IsNullOrWhiteSpace(r.ComparisonType)
+                && string.Equals(
+                    r.ComparisonType.Trim(),
+                    normalizedComparisonType,
+                    StringComparison.OrdinalIgnoreCase));
+        }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
-            query = query.Where(r => string.Equals(r.LeftRunId, leftRunId, StringComparison.Ordinal));
+        {
+            string? normalizedLeftRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(leftRunId);
+            if (normalizedLeftRunId is not null)
+            {
+                query = query.Where(r =>
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.LeftRunId, normalizedLeftRunId));
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(rightRunId))
-            query = query.Where(r => string.Equals(r.RightRunId, rightRunId, StringComparison.Ordinal));
+        {
+            string? normalizedRightRunId = ComparisonRecordRunIdSql.ToCanonicalRunIdStringOrNull(rightRunId);
+            if (normalizedRightRunId is not null)
+            {
+                query = query.Where(r =>
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.RightRunId, normalizedRightRunId));
+            }
+        }
 
         if (createdFromUtc is not null)
             query = query.Where(r => r.CreatedUtc >= createdFromUtc.Value);
@@ -72,22 +96,50 @@ internal static class ComparisonRecordRepositoryCore
             query = query.Where(r => r.CreatedUtc <= createdToUtc.Value);
 
         if (!string.IsNullOrWhiteSpace(leftExportRecordId))
-            query = query.Where(r => string.Equals(r.LeftExportRecordId, leftExportRecordId, StringComparison.Ordinal));
+        {
+            string normalizedLeftExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(leftExportRecordId);
+            query = query.Where(r =>
+                ComparisonExportRecordIdLookup.StoredValueMatchesLookup(
+                    r.LeftExportRecordId,
+                    normalizedLeftExportRecordId));
+        }
 
         if (!string.IsNullOrWhiteSpace(rightExportRecordId))
-            query = query.Where(r => string.Equals(r.RightExportRecordId, rightExportRecordId, StringComparison.Ordinal));
+        {
+            string normalizedRightExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(rightExportRecordId);
+            query = query.Where(r =>
+                ComparisonExportRecordIdLookup.StoredValueMatchesLookup(
+                    r.RightExportRecordId,
+                    normalizedRightExportRecordId));
+        }
 
         if (!string.IsNullOrWhiteSpace(label))
-            query = query.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
+        {
+            string normalizedLabel = label.Trim();
+            query = query.Where(r =>
+                !string.IsNullOrWhiteSpace(r.Label)
+                && string.Equals(
+                    r.Label.Trim(),
+                    normalizedLabel,
+                    StringComparison.OrdinalIgnoreCase));
+        }
 
         if (tags is { Count: > 0 })
         {
             query = tags
                 .Where(static t => !string.IsNullOrWhiteSpace(t))
+                .Select(static t => t.Trim())
                 .Aggregate(
                     query,
                     static (current, needle) => current.Where(r =>
-                        r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal))));
+                        r.Tags.Any(x =>
+                            !string.IsNullOrWhiteSpace(x)
+                            && string.Equals(
+                                x.Trim(),
+                                needle,
+                                StringComparison.OrdinalIgnoreCase))));
         }
 
         return query;
@@ -106,20 +158,30 @@ internal static class ComparisonRecordRepositoryCore
         IOrderedEnumerable<ComparisonRecord> ordered = col.ToLowerInvariant() switch
         {
             "comparisontype" or "type" => desc
-                ? source.OrderByDescending(static r => r.ComparisonType).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.ComparisonType).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.ComparisonType)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.ComparisonType)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             "label" => desc
-                ? source.OrderByDescending(static r => r.Label).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.Label).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.Label)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.Label)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             "leftrunid" => desc
-                ? source.OrderByDescending(static r => r.LeftRunId).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.LeftRunId).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.LeftRunId)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.LeftRunId)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             "rightrunid" => desc
-                ? source.OrderByDescending(static r => r.RightRunId).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.RightRunId).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.RightRunId)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.RightRunId)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
             _ => desc
-                ? source.OrderByDescending(static r => r.CreatedUtc).ThenByDescending(static r => r.ComparisonRecordId)
-                : source.OrderBy(static r => r.CreatedUtc).ThenBy(static r => r.ComparisonRecordId),
+                ? source.OrderByDescending(static r => r.CreatedUtc)
+                    .ThenByDescending(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId))
+                : source.OrderBy(static r => r.CreatedUtc)
+                    .ThenBy(static r => ComparisonRecordIdLookup.TiebreakerSortKey(r.ComparisonRecordId)),
         };
 
         return ordered;
@@ -134,13 +196,22 @@ internal static class ComparisonRecordRepositoryCore
         ArgumentNullException.ThrowIfNull(record);
         ArgumentException.ThrowIfNullOrWhiteSpace(cursorComparisonRecordId);
 
+        string normalizedCursorComparisonRecordId = cursorComparisonRecordId.Trim();
+        string normalizedRecordComparisonRecordId = record.ComparisonRecordId.Trim();
+
         return sortDescending
             ? record.CreatedUtc < cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
-                  && string.Compare(record.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) < 0)
+                  && string.Compare(
+                      normalizedRecordComparisonRecordId,
+                      normalizedCursorComparisonRecordId,
+                      StringComparison.OrdinalIgnoreCase) < 0)
             : record.CreatedUtc > cursorCreatedUtc
               || (record.CreatedUtc == cursorCreatedUtc
-                  && string.Compare(record.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) > 0);
+                  && string.Compare(
+                      normalizedRecordComparisonRecordId,
+                      normalizedCursorComparisonRecordId,
+                      StringComparison.OrdinalIgnoreCase) > 0);
     }
 
     public static ComparisonRecord Clone(ComparisonRecord record)
@@ -169,4 +240,26 @@ internal static class ComparisonRecordRepositoryCore
 
     public static string? SerializeTagsForUpdate(IReadOnlyList<string>? tags) =>
         tags is null || tags.Count == 0 ? null : JsonSerializer.Serialize(tags);
+
+    internal static (string? Label, IReadOnlyList<string>? Tags) NormalizeLabelAndTagsForUpdate(
+        string? label,
+        IReadOnlyList<string>? tags)
+    {
+        string? normalizedLabel = label is null
+            ? null
+            : OptionalExportMetadataStringNormalizer.NormalizeOptionalString(label);
+
+        if (tags is null)
+            return (normalizedLabel, null);
+
+        List<string> normalizedTags = [];
+        foreach (string tag in tags)
+        {
+            string? normalizedTag = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(tag);
+            if (normalizedTag is not null)
+                normalizedTags.Add(normalizedTag);
+        }
+
+        return (normalizedLabel, normalizedTags);
+    }
 }

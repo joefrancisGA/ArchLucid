@@ -84,9 +84,35 @@ public static class SharedResourcePostureCode
 
     private static bool TryDeriveReplicaPresence(IReadOnlyDictionary<string, string> properties, out string normalized)
     {
-        normalized = DrReplicaPropertyHeuristic.HasReplicaEvidence(properties) ? "present" : "none";
+        normalized = string.Empty;
+
+        if (!properties.Keys.Any(ContainsReplicaPropertyKey))
+        {
+            return false;
+        }
+
+        if (DrReplicaPropertyHeuristic.HasReplicaEvidence(properties))
+        {
+            normalized = "present";
+
+            return true;
+        }
+
+        normalized = "stored disabled";
 
         return true;
+    }
+
+    private static bool ContainsReplicaPropertyKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return false;
+        }
+
+        return key.Contains("replica", StringComparison.OrdinalIgnoreCase)
+            || key.Contains("failover", StringComparison.OrdinalIgnoreCase)
+            || key.Contains("geo_redundant", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryNormalizePublicNetworkAccess(string? value, out string normalized)

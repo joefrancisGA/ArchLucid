@@ -26,8 +26,8 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);

@@ -35,9 +35,8 @@ describe("ArtifactListTable", () => {
     const rows = screen.getAllByRole("row");
     expect(rows.length).toBeGreaterThanOrEqual(3);
 
-    const links = screen.getAllByRole("link", { name: "Download" });
-    expect(links).toHaveLength(2);
-    expect(links[0].getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-review-records/manifest-1/artifact/");
+    const downloads = screen.getAllByRole("button", { name: "Download" });
+    expect(downloads).toHaveLength(2);
   });
 
   it("renders headers with zero data rows when artifact list is empty", () => {
@@ -79,7 +78,7 @@ describe("ArtifactListTable", () => {
     const deliverableTables = screen.getAllByRole("table");
     expect(deliverableTables[0]).toHaveClass("table-fixed");
     expect(screen.getByRole("link", { name: "Open sponsor briefing" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download sponsor briefing" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download sponsor briefing" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();
 
     expect(screen.getByText(/Integrity fingerprints/)).toBeInTheDocument();

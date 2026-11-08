@@ -13,12 +13,27 @@ describe("architecture-clarification-gap-present", () => {
     expect(formatGapCapturedAtLabel(null)).toBe("Captured time was not stored.");
     expect(formatGapCapturedAtLabel("")).toBe("Captured time was stored empty.");
     expect(formatGapCapturedAtLabel("not-a-date")).toBe("Captured time could not be read.");
-    expect(formatGapCapturedAtLabel("2026-01-15T12:00:00Z")).toMatch(/^captured /);
+    expect(formatGapCapturedAtLabel("2026-01-15T12:00:00Z")).toMatch(/^captured .* UTC$/);
   });
 
-  it("appends captured time honesty to the gap source label", () => {
-    const source = buildClarificationGapSourcePresentation({ capturedAtUtc: null, fromHandoff: true });
+  it("appends captured time honesty to the gap source label when findings-derived", () => {
+    const source = buildClarificationGapSourcePresentation({
+      capturedAtUtc: null,
+      fromHandoff: false,
+      findingsDerived: true,
+    });
     expect(formatClarificationGapSourceLabel(source)).toContain("Captured time was not stored.");
+  });
+
+  it("uses heuristic intake copy when the gap was derived on-page", () => {
+    const source = buildClarificationGapSourcePresentation({
+      capturedAtUtc: "2026-01-15T12:00:00Z",
+      fromHandoff: false,
+      heuristicDerived: true,
+    });
+
+    expect(source.label).toBe("Checked on this page — not a line from the brief.");
+    expect(formatClarificationGapSourceLabel(source)).toMatch(/captured /);
   });
 
   it("uses gap impact not-stored copy for unknown gap ids", () => {
@@ -30,7 +45,9 @@ describe("architecture-clarification-gap-present", () => {
       source: buildClarificationGapSourcePresentation({ capturedAtUtc: null, fromHandoff: true }),
     };
 
-    expect(clarificationGapImpactCopy(item)).toBe("Gap impact was not stored.");
-    expect(clarificationGapImpactCopy({ ...item, id: "business-outcome" })).toMatch(/Sponsors need/);
+    expect(clarificationGapImpactCopy(item)).toBe("Standard prompt, not a stored impact.");
+    expect(clarificationGapImpactCopy({ ...item, id: "business-outcome" })).toMatch(
+      /Standard prompt, not a stored impact\..*Sponsors need/,
+    );
   });
 });

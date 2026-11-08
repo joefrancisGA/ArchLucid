@@ -118,6 +118,17 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
   return query.length > 0 ? `?${query}` : "";
 }
 
+export function infraEvidenceMermaidRenderQueriesEqual(
+  left: InfraEvidenceMermaidRenderQuery,
+  right: InfraEvidenceMermaidRenderQuery | null | undefined,
+): boolean {
+  if (right == null) {
+    return false;
+  }
+
+  return buildMermaidQuery(left) === buildMermaidQuery(right);
+}
+
 export async function fetchInfraEvidenceMermaidPreview(
   snapshotId: string,
   query: InfraEvidenceMermaidPreviewQuery = {},
@@ -141,7 +152,7 @@ export async function fetchInfraEvidenceMermaidRender(
 function buildInfraEvidenceMermaidPngFileName(snapshotId: string, query: InfraEvidenceMermaidRenderQuery): string {
   const modeToken = query.fallbackKey?.trim()
     || query.mode?.trim()
-    || "diagram";
+    || "mode-not-stored";
 
   return `infra-evidence-mermaid-${snapshotId}-${modeToken}.png`;
 }

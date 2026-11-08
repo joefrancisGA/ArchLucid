@@ -16,10 +16,13 @@ public sealed partial class DifficultyBasedExtractionRouter
         "hipaa",
         "ccpa",
         "soc 2",
+        "soc-2",
         "pci",
         "pci-dss",
         "iso 27001",
+        "iso-27001",
         "fedramp",
+        "fedramp-moderate",
         "nist",
         "sox",
         "glba",
@@ -95,7 +98,9 @@ public sealed partial class DifficultyBasedExtractionRouter
             || ContainsPhraseMarker(sourceText, "future state")
             || ContainsPhraseMarker(sourceText, "present state")
             || ContainsTokenMarker(sourceText, "to-be")
+            || ContainsPhraseMarker(sourceText, "to be")
             || ContainsTokenMarker(sourceText, "as-is")
+            || ContainsPhraseMarker(sourceText, "as is")
             || ContainsPhraseMarker(sourceText, "trust boundary")
             || ContainsContradictMarker(sourceText);
     }
@@ -119,20 +124,20 @@ public sealed partial class DifficultyBasedExtractionRouter
         ReadOnlySpan<char> text = sourceText.AsSpan();
         ReadOnlySpan<char> needle = marker.AsSpan();
 
-        if (startIndex < 0 || startIndex > text.Length || needle.Length > text.Length - startIndex)
+        if (startIndex < 0 || startIndex > text.Length)
         {
             return -1;
         }
 
-        for (int index = startIndex; index <= text.Length - needle.Length; index++)
+        for (int index = startIndex; index < text.Length; index++)
         {
-            if (!text.Slice(index, needle.Length).Equals(needle, StringComparison.OrdinalIgnoreCase))
+            if (!TryMatchBoundedMarker(text, index, needle, out int matchLength))
             {
                 continue;
             }
 
             bool startOk = index == 0 || IsValidMarkerStartBoundary(text[index - 1]);
-            int end = index + needle.Length;
+            int end = index + matchLength;
             bool endOk = end >= text.Length || IsValidMarkerEndBoundary(text[end]);
 
             if (startOk && endOk)
@@ -143,6 +148,59 @@ public sealed partial class DifficultyBasedExtractionRouter
 
         return -1;
     }
+
+    private static bool TryMatchBoundedMarker(
+        ReadOnlySpan<char> text,
+        int startIndex,
+        ReadOnlySpan<char> needle,
+        out int matchLength)
+    {
+        matchLength = 0;
+        int position = startIndex;
+
+        for (int needleIndex = 0; needleIndex < needle.Length; needleIndex++)
+        {
+            if (needle[needleIndex] == ' ')
+            {
+                if (position >= text.Length || !char.IsWhiteSpace(text[position]))
+                {
+                    return false;
+                }
+
+                while (position < text.Length && char.IsWhiteSpace(text[position]))
+                {
+                    position++;
+                }
+
+                continue;
+            }
+
+            if (needle[needleIndex] == '-')
+            {
+                if (position >= text.Length || !MatchesAsciiHyphenNeedle(text[position]))
+                {
+                    return false;
+                }
+
+                position++;
+                continue;
+            }
+
+            if (position >= text.Length
+                || char.ToUpperInvariant(text[position]) != char.ToUpperInvariant(needle[needleIndex]))
+            {
+                return false;
+            }
+
+            position++;
+        }
+
+        matchLength = position - startIndex;
+        return true;
+    }
+
+    private static bool MatchesAsciiHyphenNeedle(char c) =>
+        c == '-' || c is '\u2011' or '\u2012' or '\u2013';
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {

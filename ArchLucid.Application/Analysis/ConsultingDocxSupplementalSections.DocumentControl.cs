@@ -20,11 +20,11 @@ internal static partial class ConsultingDocxSupplementalSections
         ConsultingDocxOpenXmlPrimitives.AddKeyValueTable(body, [
             ("Document Type", "Architecture Analysis Report"),
             ("Run ID", report.Run.RunId),
-            ("Request ID", report.Run.RequestId),
+            ("Request ID", ConsultingDocxExportHonestyCopy.ResolveRequestId(report.Run.RequestId)),
             ("Run Status", report.Run.Status.ToString()),
             ("Created UTC", report.Run.CreatedUtc.ToString("O")),
             ("Completed UTC", report.Run.CompletedUtc?.ToString("O") ?? "Completed time was not stored."),
-            ("Manifest Version", report.Run.CurrentManifestVersion ?? "n/a")
+            ("Manifest Version", ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Run.CurrentManifestVersion))
         ]);
     }
 

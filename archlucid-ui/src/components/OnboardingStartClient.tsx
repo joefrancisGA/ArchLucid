@@ -13,6 +13,7 @@ import {
 } from "@/lib/trial-sample-azure-deploy";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 
 type TenantTrialStatusResponse = {
   status?: string;
@@ -176,7 +177,13 @@ export function OnboardingStartClient() {
           <dl className={cn("mt-3 grid gap-2 text-neutral-800 dark:text-neutral-200 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
-              <dd className="font-medium">{status.status ?? "Unknown"}</dd>
+              <dd className="font-medium">
+                {status.status === null || status.status === undefined
+                  ? "Trial status was not stored."
+                  : status.status.trim().length === 0
+                    ? "Trial status was stored empty."
+                    : status.status}
+              </dd>
             </div>
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Days remaining</dt>
@@ -194,8 +201,14 @@ export function OnboardingStartClient() {
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Seats used</dt>
               <dd className="font-medium">
-                {status.trialSeatsUsed ?? 0}
-                {typeof status.trialSeatsLimit === "number" ? ` / ${status.trialSeatsLimit}` : ""}
+                {typeof status.trialSeatsUsed === "number"
+                  ? status.trialSeatsUsed
+                  : "Trial seats used was not stored."}
+                {typeof status.trialSeatsLimit === "number"
+                  ? ` / ${status.trialSeatsLimit}`
+                  : status.trialSeatsLimit === null || status.trialSeatsLimit === undefined
+                    ? " · Trial seats limit was not stored."
+                    : ""}
               </dd>
             </div>
           </dl>
@@ -242,7 +255,7 @@ export function OnboardingStartClient() {
             ) : null}
             {hasSample ? (
               <Button asChild variant="outline">
-                <Link href={`/architecture/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
+                <Link href={resolveShowcaseOperatorReviewHref(sampleId)} data-testid="onboarding-open-sample-run">
                   Open sample review
                 </Link>
               </Button>

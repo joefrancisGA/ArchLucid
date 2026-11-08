@@ -7,6 +7,11 @@ import {
 } from "@/lib/roi-pricing-basis-label";
 
 describe("roi-pricing-basis-label", () => {
+  it("labels omitted pricing basis and EA multiplier (P-08, P-09)", () => {
+    expect(formatSponsorRoiPricingBasisLabel(undefined, 1)).toBe("Savings pricing basis was not stored.");
+    expect(formatSponsorRoiPricingBasisLabel("EA-adjusted", null)).toContain("EA discount multiplier was not stored");
+  });
+
   it("formats uploaded and EA-adjusted labels", () => {
     expect(formatSponsorRoiPricingBasisLabel("Uploaded actual/amortized", 0.85)).toBe(
       "Uploaded actual/amortized (EA multiplier 0.85)",

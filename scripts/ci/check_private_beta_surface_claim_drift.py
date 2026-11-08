@@ -23,21 +23,37 @@ ROUTE_INVENTORY = {
 }
 
 
+def _safe_read_markdown(root: Path, relative: Path, issues: list[str]) -> str | None:
+    path = root / relative
+    if path.is_symlink():
+        issues.append(f"{relative}: symlinked claim source is not trusted")
+        return None
+    if not path.is_file():
+        issues.append(f"{relative}: claim source is missing")
+        return None
+    try:
+        return path.read_text(encoding="utf-8", errors="strict")
+    except (OSError, UnicodeError) as exc:
+        issues.append(f"{relative}: claim source unreadable ({type(exc).__name__})")
+        return None
+
+
 def collect_violations(root: Path) -> list[str]:
     violations: list[str] = []
 
-    for route, documents in ROUTE_INVENTORY.items():
-        missing_documents = [
-            str(document)
-            for document in documents
-            if not (root / document).is_file() or route not in (root / document).read_text(encoding="utf-8")
-        ]
+    sources: dict[Path, str | None] = {}
+    for documents in ROUTE_INVENTORY.values():
+        for document in documents:
+            if document not in sources:
+                sources[document] = _safe_read_markdown(root, document, violations)
 
+    for route, documents in ROUTE_INVENTORY.items():
+        missing_documents = [str(document) for document in documents if route not in (sources[document] or "")]
         if missing_documents:
             violations.append(f"{route}: missing from {', '.join(missing_documents)}")
 
-    demo_quickstart_path = root / "docs/go-to-market/DEMO_QUICKSTART.md"
-    demo_quickstart = demo_quickstart_path.read_text(encoding="utf-8") if demo_quickstart_path.is_file() else ""
+    demo_quickstart_path = Path("docs/go-to-market/DEMO_QUICKSTART.md")
+    demo_quickstart = sources.get(demo_quickstart_path) or ""
 
     if "/demo/preview" in demo_quickstart and "secondary Product Tour surface" not in demo_quickstart:
         violations.append("/demo/preview appears without its documented secondary-surface boundary")

@@ -44,23 +44,58 @@ public static class AzureInventoryNsgAssociationParser
                 index,
                 InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationTargetSuffix);
 
+            bool hasTargetProperty = properties.Keys.Any(key =>
+                key.StartsWith(
+                    $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationPrefix}{index}",
+                    StringComparison.OrdinalIgnoreCase)
+                && key.EndsWith(
+                    InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationTargetSuffix,
+                    StringComparison.OrdinalIgnoreCase));
+
             if (string.IsNullOrWhiteSpace(targetArmId))
             {
+                if (hasTargetProperty)
+                {
+                    associations.Add(new AzureInventoryNsgAssociation
+                    {
+                        TargetArmId = string.Empty,
+                        TargetKind = ReadAssociationProperty(
+                            properties,
+                            index,
+                            InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationKindSuffix)
+                            ?? string.Empty,
+                    });
+                }
+
                 continue;
             }
 
+            string normalizedTargetArmId = NormalizeAssociationTargetArmId(targetArmId);
+
             associations.Add(new AzureInventoryNsgAssociation
             {
-                TargetArmId = ArmResourceIdNormalizer.Normalize(targetArmId),
+                TargetArmId = normalizedTargetArmId,
                 TargetKind = ReadAssociationProperty(
                     properties,
                     index,
                     InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationKindSuffix)
-                    ?? InferTargetKind(targetArmId),
+                    ?? InferTargetKind(normalizedTargetArmId),
             });
         }
 
         return associations;
+    }
+
+    private static string NormalizeAssociationTargetArmId(string targetArmId)
+    {
+        if (string.IsNullOrWhiteSpace(targetArmId))
+        {
+            return string.Empty;
+        }
+
+        string working = PercentDecodeBounded.Decode(targetArmId.Trim());
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? ReadAssociationProperty(

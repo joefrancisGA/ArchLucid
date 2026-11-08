@@ -11,6 +11,7 @@ import {
   writeWizardSessionSnapshot,
 } from "@/lib/wizard-session-persistence";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import { clampWizardStepIndex } from "@/lib/wizard-step-sequence";
 
 export type WizardDraftSaveFeedback = {
   readonly kind: "ok" | "err";
@@ -19,6 +20,7 @@ export type WizardDraftSaveFeedback = {
 
 export type UseNewRunWizardTemplateRestoreParams = {
   readonly stepIndex: number;
+  readonly wizardStepCount: number;
   readonly templateWizardSessionState: WizardFormValues;
   readonly showFullWizardShell: boolean;
   readonly reset: UseFormReset<WizardFormValues>;
@@ -39,17 +41,25 @@ export type UseNewRunWizardTemplateRestoreResult = {
 export function useNewRunWizardTemplateRestore(
   params: UseNewRunWizardTemplateRestoreParams,
 ): UseNewRunWizardTemplateRestoreResult {
-  const { stepIndex, templateWizardSessionState, showFullWizardShell, reset, setStepIndex, getValues } = params;
+  const {
+    stepIndex,
+    wizardStepCount,
+    templateWizardSessionState,
+    showFullWizardShell,
+    reset,
+    setStepIndex,
+    getValues,
+  } = params;
 
   const clearWizardSessionRef = useRef<() => void>(() => {});
   const [draftSaveFeedback, setDraftSaveFeedback] = useState<WizardDraftSaveFeedback | null>(null);
 
   const handleTemplateWizardRestore = useCallback(
     (snapshot: { stepIndex: number; state: WizardFormValues }) => {
-      setStepIndex(snapshot.stepIndex);
+      setStepIndex(clampWizardStepIndex(snapshot.stepIndex, wizardStepCount));
       reset(snapshot.state);
     },
-    [reset, setStepIndex],
+    [reset, setStepIndex, wizardStepCount],
   );
 
   const templateWizardSession = useWizardSessionPersistence({

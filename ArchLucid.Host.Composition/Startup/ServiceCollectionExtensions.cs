@@ -3,6 +3,7 @@ using ArchLucid.Application.Templates;
 using ArchLucid.Host.Core.Hosting;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -25,7 +26,7 @@ public static partial class ServiceCollectionExtensions
 
         RegisterHostedStartupProbes(services, configuration);
         RegisterProductLineRequestAccessor(services, configuration);
-        services.AddSingleton(TimeProvider.System);
+        services.TryAddSingleton(TimeProvider.System);
         services.AddPlatformCapability(configuration, hostingRole);
         services.AddAuthorityCapability(configuration, hostingRole);
         services.AddInfraEvidenceCapability(configuration, hostingRole);

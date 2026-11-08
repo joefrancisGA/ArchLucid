@@ -27,6 +27,11 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("@/lib/buyer/buyer-cto-demo-orchestration", () => ({
   resetBuyerCtoDemoSession: vi.fn(async () => ({
     seedSucceeded: true,

@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -20,7 +22,9 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         PilotBuyerSafeEvidenceGateResult gate,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        GoldenManifest? manifest = null,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(gate);
@@ -36,20 +40,12 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Structural execution mode:** **{StructuralExecutionModeLabels.ToDisplayLabel(run.StructuralExecutionMode)}** — {StructuralExecutionModeLabels.ToOperatorDetail(run.StructuralExecutionMode)}");
+            $"**Structural execution mode:** {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)}");
         sb.AppendLine();
 
-        if (Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification sponsorReadiness))
-        {
-            sb.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.DescribeForMarkdownTable(sponsorReadiness)}");
-        }
-        else
-        {
-            sb.AppendLine(
-                "**Sponsor-proof readiness:** **Incomplete** — classification was not resolved server-side; treat this export as not sponsor-complete.");
-        }
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.FormatMarkdownTableCell(deltas, gate, proof.SponsorProofReadiness)}");
 
         sb.AppendLine();
         sb.AppendLine(
@@ -59,18 +55,16 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine("**Concrete gaps (automated)**");
         sb.AppendLine();
 
-        foreach (string bullet in EnumerateConcreteGaps(disposition, proof, deltas, run))
+        foreach (string bullet in EnumerateConcreteGaps(disposition, proof, deltas, run, manifest, roiClaimGate))
             sb.AppendLine(CultureInfo.InvariantCulture, $"- {bullet}");
 
         sb.AppendLine();
-        sb.AppendLine(
-            CultureInfo.InvariantCulture,
-            $"**Gate mirrors (structured):** ProofSendability = **{gate.ProofSendability}** · Publishing tier = **{gate.PublishingTier}** · Evidence completeness = **{proof.EvidenceCompleteness}**.");
+        sb.AppendLine(PilotSponsorSafeSendableAllClearHonestyCopy.FormatGateMirrorsStructuredMarkdownLine(proof, gate));
         sb.AppendLine();
         sb.AppendLine(
             disposition == SponsorSafeProofDisposition.Sendable
-                ? "**Sendability note:** Structural sponsor-blocking checks are green — simulator substitution and qualitative baselines elsewhere still apply."
-                : "**Sendability note:** Treat every exported number as provisional until reconciled gaps are cleared.");
+                ? PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenSendable()
+                : PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenNotSendable());
         sb.AppendLine();
     }
 
@@ -90,54 +84,77 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         SponsorSafeProofDisposition disposition,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run) => EnumerateConcreteGaps(disposition, proof, deltas, run);
+        ArchitectureRun run,
+        GoldenManifest? manifest = null,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null) =>
+        EnumerateConcreteGaps(disposition, proof, deltas, run, manifest, roiClaimGate);
 
     private static IEnumerable<string> EnumerateConcreteGaps(
         SponsorSafeProofDisposition disposition,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        GoldenManifest? manifest,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
-        if (proof.DemoTenantWarningRequired)
-            yield return
-                "Demo or sample tenant scope — deltas are illustrative and must **not** be presented as verified customer ROI or procurement-safe proof.";
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
+            yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.SupportRunIdPresent)
-            yield return "Support run id missing — this export cannot be anchored to a persisted architecture review identity.";
+        if (string.IsNullOrWhiteSpace(run.RunId))
+            yield return PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.CommittedManifestPresent || !proof.RunInCommittedStatus)
-            yield return "No committed architecture manifest or run is not Committed — there is nothing sponsor-complete to ship yet.";
+        if (!PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest))
+            yield return PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
-            yield return "Committed manifest timestamp is default/absent — commit-time proof cannot be audited from metadata.";
+        if (manifest is not null && manifest.Metadata.CreatedUtc == default)
+            yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof is { CommittedManifestPresent: true, TimeToCommittedManifestResolved: false })
-            yield return "Time-to-committed-manifest is unresolved — wall-clock throughput claims are unsubstantiated.";
+        if (PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest)
+            && deltas.TimeToCommittedManifest is null)
+            yield return PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
 
-        if (!proof.ArtifactDescriptorCountResolved)
-            yield return "Artifact descriptor inventory did not resolve — package completeness cannot be attested.";
+        if (PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest)
+            && !deltas.SynthesizedArtifactDescriptorCountResolved)
+            yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
-            yield return "Top finding has **no resolved evidence-chain pointer** — sponsors cannot reconstruct the decision fingerprint.";
+        if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
+            yield return PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable();
 
-        if (!proof.AuditRowsPresentOrLowerBound)
-            yield return "Scoped audit-event count for this run is **zero** — durable audit continuity is not demonstrated.";
+        if (!deltas.AuditRowCountResolved)
+            yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+        else if (deltas is { AuditRowCountResolved: true, AuditRowCount: 0, AuditRowCountTruncated: false })
+            yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero();
 
-        if (!proof.LlmCallCountResolved)
-            yield return "**LLM-call count is unattested** (trace/query failure) — the displayed integer is not trustworthy evidence.";
+        if (!deltas.LlmCallCountResolved)
+            yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
-            yield return "PilotStrict agent-output quality gate failed — do not circulate sponsor-grade real-mode assertions until traces read clean.";
+        if (!deltas.AgentOutputPilotStrictSignalsResolved)
+            yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+        else if (deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
+            yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
-            yield return "**Tenant comparative baseline is incomplete or defaulted** — keep sponsor wording qualitative and avoid bespoke dollar narratives.";
+        PilotRoiEvidenceConfidence roiEvidenceConfidence = roiClaimGate?.EvidenceConfidence ?? proof.RoiEvidenceConfidence;
+
+        if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+            yield return SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine();
+
+        if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+            yield return PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow();
+
+        if (!deltas.IsDemoTenant)
+        {
+            bool projectedDollarClaimsSponsorSafe = roiClaimGate?.ProjectedDollarClaimsSponsorSafe
+                ?? proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true;
+
+            if (!projectedDollarClaimsSponsorSafe)
+                yield return PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine();
+        }
 
         if (run.RealModeFellBackToSimulator)
-            yield return
-                "**Simulator substitution is recorded on the run** — disclose before any sponsor conversation implies live-model spend or production agent execution.";
+            yield return PilotSimulatorSubstitutionHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (disposition == SponsorSafeProofDisposition.Sendable)
-            yield return "No remaining automated sponsor-blocking checks — structured gate detail is spelled out later; still reconcile qualitative baselines.";
+            yield return PilotSponsorSafeSendableAllClearHonestyCopy.FormatSponsorSafeConcreteGapLine();
     }
 
     private static string DescribeDisposition(SponsorSafeProofDisposition d) => d switch

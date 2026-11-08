@@ -34,8 +34,8 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
   let critical = 0;
   let high = 0;
   let medium = 0;
-  let low = 0;
-
+  const low = 0;
+  let info = 0;
   for (const finding of findings) {
     if (finding.isMuted) {
       continue;
@@ -45,27 +45,46 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
       continue;
     }
 
-    if (finding.severityValue >= 3) {
+    if (finding.severityValue === 3) {
       critical += 1;
     } else if (finding.severityValue === 2) {
       high += 1;
     } else if (finding.severityValue === 1) {
       medium += 1;
-    } else {
-      low += 1;
+    } else if (finding.severityValue === 0) {
+      info += 1;
     }
   }
 
-  return { critical, high, medium, low };
+  return { critical, high, medium, low, info };
 }
 export function deriveHighestFindingSeverityLabel(
   findings: readonly QuickDecisionFinding[],
   fallback: string | null,
 ): string | null {
   const counts = countFindingsBySeverity(findings);
-  const total = counts.critical + counts.high + counts.medium + counts.low;
+  const total = counts.critical + counts.high + counts.medium + counts.low + counts.info;
 
   if (total === 0) {
+    const hasStoredLowWithoutLabel = findings.some(
+      (finding) => !finding.isMuted && finding.severityValue === -1,
+    );
+
+    if (hasStoredLowWithoutLabel) {
+      return "Stored severity Low has no reviewer label.";
+    }
+
+    const hasStoredSeverityWithoutLabel = findings.some(
+      (finding) =>
+        !finding.isMuted
+        && finding.severityValue !== null
+        && ![0, 1, 2, 3, -1].includes(finding.severityValue),
+    );
+
+    if (hasStoredSeverityWithoutLabel) {
+      return "Severity was stored without a reviewer label.";
+    }
+
     return findings.length > 0 ? "Severity was not stored" : fallback;
   }
 
@@ -74,11 +93,15 @@ export function deriveHighestFindingSeverityLabel(
   }
 
   if (counts.high > 0) {
-    return "High";
+    return "Error";
   }
 
   if (counts.medium > 0) {
-    return "Medium";
+    return "Warning";
+  }
+
+  if (counts.info > 0) {
+    return "Info";
   }
 
   return "Low";
@@ -122,7 +145,9 @@ export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFindin
     return "Finding title was not stored.";
   }
 
-  return evidenceAbsenceFindingLabel(title);
+  const severityLabel = severityBadgeLabel(primary.severityValue);
+
+  return `${severityLabel}: ${evidenceAbsenceFindingLabel(title)}`;
 }
 export function countFindingsAwaitingAction(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter((finding) => {

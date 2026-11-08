@@ -39,4 +39,12 @@ describe("resolveContinueLastArchitectureIdentityTarget (CA-37)", () => {
   it("returns null when no architecture id is cached", () => {
     expect(resolveContinueLastArchitectureIdentityTarget()).toBeNull();
   });
+
+  it("uses not-stored copy when recent label is missing (P-19)", () => {
+    window.localStorage.setItem("archlucid.lastOpenArchitectureId.v1", "architecture-identity-002");
+
+    const target = resolveContinueLastArchitectureIdentityTarget();
+
+    expect(target?.label).toBe("Architecture name was not stored.");
+  });
 });

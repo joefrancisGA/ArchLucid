@@ -27,6 +27,12 @@ public sealed class AzureInventoryNsgSecurityRule
         init;
     }
 
+    public IReadOnlyList<string> DestinationPortRanges
+    {
+        get;
+        init;
+    } = [];
+
     public string? Direction
     {
         get;

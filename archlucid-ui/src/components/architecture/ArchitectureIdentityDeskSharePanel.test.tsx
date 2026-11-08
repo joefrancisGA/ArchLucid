@@ -22,7 +22,8 @@ vi.mock("@/lib/api/architecture-share-api", () => ({
   revokeArchitectureShare: vi.fn(),
 }));
 
-vi.mock("@/hooks/use-livelihood-document-guards", () => ({
+vi.mock("@/hooks/use-livelihood-document-guards", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/hooks/use-livelihood-document-guards")>()),
   useLivelihoodDocumentGuards: (...args: unknown[]) => useLivelihoodDocumentGuardsMock(...args),
 }));
 
@@ -48,6 +49,12 @@ function renderPanel(): ReturnType<typeof render> {
 describe("ArchitectureIdentityDeskSharePanel AS-092 livelihood guards and opt-in confirmation (TB-2005)", () => {
   beforeEach(() => {
     useWorkspaceModeMock.mockReturnValue({ isWorkingMode: true });
+    useLivelihoodDocumentGuardsMock.mockReturnValue({
+      dialogOpen: false,
+      dialogMessage: "",
+      confirmLeave: vi.fn(),
+      cancelLeave: vi.fn(),
+    });
     useArchitectureSharesQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,

@@ -16,7 +16,7 @@ public static class AzureInventoryRecoveryServices
 
     public const string EdgeTargetResourceIdPropertyKey = "recoveryServices.targetResourceId";
 
-    public const string BackupEdgeLabel = "backs up";
+    public const string BackupEdgeLabel = "Backup item was stored. An observed backup was not stored.";
 
-    public const string ReplicateEdgeLabel = "replicates";
+    public const string ReplicateEdgeLabel = "Replication link was stored. Observed replication was not stored.";
 }

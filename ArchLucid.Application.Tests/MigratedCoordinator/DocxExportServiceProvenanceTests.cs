@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Governance.Resolution;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Advisory.Models;
@@ -199,6 +200,42 @@ public sealed class DocxExportServiceProvenanceTests
         xml.Should().Contain("rulesid version");
         xml.Should().NotContain("\u0001");
         xml.Should().NotContain("\u0002");
+    }
+
+    [Fact]
+    public async Task ExportAsync_labels_empty_cost_risks_without_skipping_the_cost_posture_section()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ManifestDocument manifest = CreateMinimalManifest(runId, manifestId);
+        manifest.Cost.CostRisks = [];
+
+        Mock<IImprovementAdvisorService> advisor = CreateAdvisorMock(runId);
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+        DocxExportRequest request = CreateMinimalRequest(runId, manifestId);
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        string xml = ReadMainDocumentXml(result.Content);
+        xml.Should().Contain("Cost risks were stored empty.");
+    }
+
+    [Fact]
+    public async Task ExportAsync_distinguishes_omitted_and_empty_sponsor_narrative_summary()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ManifestDocument manifest = CreateMinimalManifest(runId, manifestId);
+
+        Mock<IImprovementAdvisorService> advisor = CreateAdvisorMock(runId);
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+        DocxExportRequest request = CreateMinimalRequest(runId, manifestId);
+        request.RunExplanation = new ExplanationResult { Summary = string.Empty };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        string xml = ReadMainDocumentXml(result.Content);
+        xml.Should().Contain("Sponsor narrative summary was stored empty.");
     }
 
     private static ManifestDocument CreateMinimalManifest(Guid runId, Guid manifestId)

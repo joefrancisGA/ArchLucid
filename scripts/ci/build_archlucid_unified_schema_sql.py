@@ -65,7 +65,8 @@ def forward_migration_numbers() -> list[str]:
         if match is not None:
             numbers.append(match.group(1))
 
-    return numbers
+    # Numbering is numeric: a 10002_ migration must sort after 9999_, not before it.
+    return sorted(numbers, key=lambda prefix: (int(prefix), prefix))
 
 
 def build_header() -> str:

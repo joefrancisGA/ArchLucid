@@ -17,7 +17,7 @@ public sealed class SpecialistReviewPrivacyComplianceRules
             return SpecialistReviewFindingFactory.CreatePassFinding(
                 model,
                 QualityDimension.PrivacyCompliance,
-                "No explicit compliance jurisdiction signals detected",
+                "No explicit compliance jurisdiction signals detected pass",
                 "Privacy review did not find GDPR, HIPAA, PCI, or residency language requiring compliance obligations.");
         }
 
@@ -41,7 +41,7 @@ public sealed class SpecialistReviewPrivacyComplianceRules
         return SpecialistReviewFindingFactory.CreatePassFinding(
             model,
             QualityDimension.PrivacyCompliance,
-            "Compliance obligations are documented",
+            "Compliance obligations are documented pass",
             "Compliance obligation elements are present alongside jurisdiction or regulatory signals.",
             obligation);
     }

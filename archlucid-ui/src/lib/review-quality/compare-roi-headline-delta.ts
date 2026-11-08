@@ -2,9 +2,12 @@ import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdow
 import { formatUsd } from "@/lib/roi-assumptions";
 import type { RunSavingsSummaryModel } from "@/lib/runs/run-savings-summary-model";
 
+export const COMPARE_ROI_SAVINGS_NOT_RETURNED_LABEL = "Annualized savings were not returned." as const;
+export const COMPARE_ROI_NO_ESTIMATED_SAVINGS_LABEL = "No estimated savings on this run" as const;
+
 export type CompareRoiHeadlineSide = {
   readonly label: string;
-  readonly savingsLabel: string | null;
+  readonly savingsLabel: string;
   readonly basisFootnote: string | null;
 };
 
@@ -18,10 +21,18 @@ function formatCompareRoiSide(
   label: string,
   savings: RunSavingsSummaryModel | null,
 ): CompareRoiHeadlineSide {
-  if (savings === null || !Number.isFinite(savings.annualizedUsd) || savings.annualizedUsd <= 0) {
+  if (savings === null) {
     return {
       label,
-      savingsLabel: null,
+      savingsLabel: COMPARE_ROI_SAVINGS_NOT_RETURNED_LABEL,
+      basisFootnote: null,
+    };
+  }
+
+  if (!Number.isFinite(savings.annualizedUsd) || savings.annualizedUsd <= 0) {
+    return {
+      label,
+      savingsLabel: COMPARE_ROI_NO_ESTIMATED_SAVINGS_LABEL,
       basisFootnote: null,
     };
   }
@@ -38,10 +49,16 @@ export function buildCompareRoiHeadlineDeltaView(input: {
   readonly baselineSavings: RunSavingsSummaryModel | null;
   readonly targetSavings: RunSavingsSummaryModel | null;
 }): CompareRoiHeadlineDeltaView | null {
-  const baselineUsd = input.baselineSavings?.annualizedUsd ?? 0;
-  const targetUsd = input.targetSavings?.annualizedUsd ?? 0;
+  if (input.baselineSavings === null && input.targetSavings === null) {
+    return null;
+  }
 
-  if ((!Number.isFinite(baselineUsd) || baselineUsd <= 0) && (!Number.isFinite(targetUsd) || targetUsd <= 0)) {
+  const baselineUsd = input.baselineSavings?.annualizedUsd;
+  const targetUsd = input.targetSavings?.annualizedUsd;
+  const baselinePositive = baselineUsd != null && Number.isFinite(baselineUsd) && baselineUsd > 0;
+  const targetPositive = targetUsd != null && Number.isFinite(targetUsd) && targetUsd > 0;
+
+  if (!baselinePositive && !targetPositive && input.baselineSavings !== null && input.targetSavings !== null) {
     return null;
   }
 

@@ -11,7 +11,7 @@ public static partial class RequirementRedundancyParser
     private static partial Regex MultiRegionRegex();
 
     [GeneratedRegex(
-        @"\bgeo[\s-]?redundant\b|\bgrs\b",
+        @"\bgeo[\s-]?redundant\b|\bragzrs\b|\bragrs\b|\bgzrs\b|\bgrs\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex GeoRedundancyRegex();
 

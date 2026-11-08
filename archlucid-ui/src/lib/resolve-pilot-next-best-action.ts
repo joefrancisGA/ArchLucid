@@ -9,6 +9,7 @@ import {
   FIRST_WEEK_ROUTE_GUIDANCE,
 } from "@/lib/first-week-route-guidance";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -22,8 +23,8 @@ export type PilotNextBestAction = {
 
 /** Live Overview workspace counts used to gate findings vs start/sample CTAs (TB-1036). */
 export type PilotNextBestActionWorkspaceSignals = {
-  /** Sum of open findings across workspace reviews; treat missing as 0 (fail closed). */
-  readonly openFindingsCount: number;
+  /** Sum of open findings across workspace reviews; null when the dashboard did not return a count. */
+  readonly openFindingsCount: number | null;
   /**
    * True when the workspace runs dashboard has at least one review package.
    * Authoritative for empty-state gating — commit-context alone must not invent occupancy.
@@ -35,6 +36,15 @@ const EMPTY_WORKSPACE_SIGNALS: PilotNextBestActionWorkspaceSignals = {
   openFindingsCount: 0,
   hasWorkspaceReviews: false,
 };
+
+function resolveOpenFindingsCountMissingAction(): PilotNextBestAction {
+  return {
+    label: "Open finding count was not stored.",
+    href: "/governance/findings?filter=open",
+    bridgeCopy:
+      "The workspace dashboard did not return an open-finding count — open the findings list to verify what still needs action.",
+  };
+}
 
 function resolveEmptyWorkspaceAction(): PilotNextBestAction {
   return {
@@ -73,9 +83,15 @@ export function resolvePilotNextBestAction(
   // Nav committed flag alone must not force the findings CTA (empty demo workspaces).
   void hasCommittedArchitectureReview;
 
-  const openFindingsCount = Number.isFinite(workspace.openFindingsCount)
-    ? Math.max(0, Math.trunc(workspace.openFindingsCount))
-    : 0;
+  if (workspace.openFindingsCount === null) {
+    if (!workspace.hasWorkspaceReviews) {
+      return resolveEmptyWorkspaceAction();
+    }
+
+    return resolveOpenFindingsCountMissingAction();
+  }
+
+  const openFindingsCount = Math.max(0, Math.trunc(workspace.openFindingsCount));
 
   // Empty Overview: Start/sample only — never lead with Review open findings.
   // Workspace occupancy is authoritative over commit-context (false committed signals).
@@ -97,7 +113,7 @@ export function resolvePilotNextBestAction(
   if (ctx.latestRunReadyToFinalize && ctx.latestRunId !== null) {
     return {
       label: "Finalize this review",
-      href: `/architecture/reviews/${ctx.latestRunId}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
+      href: `${resolveDeskContinuityReviewOpenHref(ctx.latestRunId)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
       bridgeCopy: FIRST_WEEK_ROUTE_GUIDANCE["review-detail-in-progress"].bridgeCopy,
     };
   }
@@ -105,7 +121,7 @@ export function resolvePilotNextBestAction(
   if (ctx.latestRunId !== null) {
     return {
       label: "Continue review",
-      href: `/architecture/reviews/${ctx.latestRunId}`,
+      href: resolveDeskContinuityReviewOpenHref(ctx.latestRunId),
       bridgeCopy: "Open your in-progress review — complete findings review and finalize when ready.",
     };
   }

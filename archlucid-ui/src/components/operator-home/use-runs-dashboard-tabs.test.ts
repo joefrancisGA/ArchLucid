@@ -16,6 +16,11 @@ describe("use-runs-dashboard-tabs helpers", () => {
     const counts = deriveRunsDashboardTabCounts([]);
 
     expect(resolveRunsDashboardStatusTabIds(true, counts)).toEqual(["all"]);
-    expect(resolveRunsDashboardStatusTabIds(false, counts)).toEqual(["all", "attention", "outcomes"]);
+    expect(resolveRunsDashboardStatusTabIds(false, counts)).toEqual([
+      "all",
+      "awaiting-approval",
+      "attention",
+      "outcomes",
+    ]);
   });
 });

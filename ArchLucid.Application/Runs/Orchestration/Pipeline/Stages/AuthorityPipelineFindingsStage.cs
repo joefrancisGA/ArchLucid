@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
@@ -139,10 +140,14 @@ public sealed class AuthorityPipelineFindingsStage(
                 _timeProvider);
         }
 
-        IReadOnlyList<AgentResult>? agentResults = await _agentResultRepository
-            .GetByRunIdAsync(scope, run.RunId.ToString("D"), cancellationToken)
-            .ConfigureAwait(false)
-            ?? [];
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(run.RunId.ToString());
+        IReadOnlyList<AgentResult> agentResults =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         FindingsSnapshotWithheldMerger.MergeAgentWithheld(
             findingsSnapshot,

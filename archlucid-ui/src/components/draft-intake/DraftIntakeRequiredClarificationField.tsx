@@ -19,6 +19,7 @@ import {
   GUIDED_INTAKE_CLOUD_TARGET_CONTROL_HINT,
   GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_SAVE_ANSWER_LABEL,
+  GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT,
 } from "@/lib/guided-intake-copy";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 import {
@@ -88,6 +89,9 @@ export function DraftIntakeRequiredClarificationField(
     isWorkingMode && props.answer.trim().length === 0
       ? resolveUniversalIntakeMustEngineFieldHint(props.question.questionKey)
       : null;
+  const questionPromptLabel =
+    props.question.prompt.trim().length > 0 ? props.question.prompt : "Question text was not stored.";
+  const questionPromptStored = props.question.prompt.trim().length > 0;
 
   return (
     <fieldset
@@ -124,7 +128,7 @@ export function DraftIntakeRequiredClarificationField(
       </div>
       <IntakeFieldLabel
         htmlFor={labelId}
-        label={props.question.prompt}
+        label={questionPromptLabel}
         required
         asLegend
         showRequirednessSuffix={props.showRequirednessSuffix}
@@ -163,7 +167,7 @@ export function DraftIntakeRequiredClarificationField(
                 resolveDraftIntakeSelectChange(value),
               );
             }}
-            disabled={props.busy}
+            disabled={props.busy || !questionPromptStored}
           >
             <SelectTrigger
               id={controlId}
@@ -210,18 +214,21 @@ export function DraftIntakeRequiredClarificationField(
           }}
           rows={showAllMode ? 2 : isPrimary ? 3 : 2}
           className={showAllMode ? "min-h-[3rem]" : undefined}
-          disabled={props.busy}
+          disabled={props.busy || !questionPromptStored}
         />
       )}
       <div
         className="flex flex-row flex-wrap items-center gap-2"
         data-testid="socratic-question-actions"
       >
+        <p className={cn("m-0 w-full text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT}
+        </p>
         <Button
           type="button"
           size={actionSize}
           variant="outline"
-          disabled={props.busy || props.canSaveAndContinue !== true}
+          disabled={props.busy || props.canSaveAndContinue !== true || !questionPromptStored}
           onClick={() => {
             props.onSaveAndContinue(props.question.questionKey);
           }}
@@ -233,7 +240,7 @@ export function DraftIntakeRequiredClarificationField(
           type="button"
           size={actionSize}
           variant="outline"
-          disabled={props.busy}
+          disabled={props.busy || !questionPromptStored}
           onClick={() => {
             props.onSkip(props.question.questionKey);
           }}

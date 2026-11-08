@@ -284,6 +284,6 @@ Keep **`CD_ROLLBACK_ON_SMOKE_FAILURE=true`** on staging/production Environments 
 ## Related workflows
 
 - **CI** (`.github/workflows/ci.yml`): validation, tests, Docker smoke caches.
-- **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`): optional automatic staging deploy after green CI on `main`/`master` when `AUTO_DEPLOY_STAGING_MERGE=true`; same digest-pinned Container App update + LKG capture + schema-gated auto-rollback as `cd.yml` (manual `rollback_build_id` remains on `cd.yml` only).
+- **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`): **temporary 2026-11-02 CI-stabilization hold** on automatic CI-completion triggering. The owner-approved manual target-SHA dispatch remains available when `AUTO_DEPLOY_STAGING_MERGE=true`, with the same digest-pinned Container App update, last-known-good capture and schema-gated rollback as `cd.yml` (manual `rollback_build_id` remains on `cd.yml` only).
 
 **When something breaks after deploy:** [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) (health failures, deploy-only failures, version identification, manual rollback).

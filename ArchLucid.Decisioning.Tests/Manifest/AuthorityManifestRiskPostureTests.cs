@@ -13,14 +13,32 @@ namespace ArchLucid.Decisioning.Tests.Manifest;
 public sealed class AuthorityManifestRiskPostureTests
 {
     [Fact]
-    public void Derive_When_no_unresolved_issues_Returns_Low()
+    public void Derive_When_no_unresolved_issues_Returns_not_derived()
     {
         ManifestDocument manifest = new()
         {
             UnresolvedIssues = new UnresolvedIssuesSection()
         };
 
-        AuthorityManifestRiskPosture.Derive(manifest).Should().Be("Low");
+        AuthorityManifestRiskPosture.Derive(manifest)
+            .Should()
+            .Be(AuthorityManifestRiskPosture.NotDerivedFromUnresolvedIssuesLabel);
+    }
+
+    [Fact]
+    public void Derive_When_blank_issue_severity_Returns_not_derived_from_severity()
+    {
+        ManifestDocument manifest = new()
+        {
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items = [new ManifestIssue { Severity = "  ", Title = "x" }],
+            },
+        };
+
+        AuthorityManifestRiskPosture.Derive(manifest)
+            .Should()
+            .Be(AuthorityManifestRiskPosture.NotDerivedFromIssueSeverityLabel);
     }
 
     [Fact]

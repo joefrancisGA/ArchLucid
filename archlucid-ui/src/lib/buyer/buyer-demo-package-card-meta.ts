@@ -1,7 +1,3 @@
-import {
-  BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO,
-  formatDemoRelativeTimestamp,
-} from "@/lib/buyer/buyer-cto-demo-orchestration";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -14,6 +10,14 @@ export type BuyerDemoPackageCardMeta = {
   readonly approvalAuthority: string;
   readonly lastAuditEvent: string;
 };
+
+export const BUYER_DEMO_DECISION_DATE_NOT_STORED = "Decision date was not stored." as const;
+
+export const BUYER_DEMO_RISK_OWNER_NOT_STORED = "Risk owner was not stored." as const;
+
+export const BUYER_DEMO_APPROVAL_AUTHORITY_NOT_STORED = "Approval authority was not stored." as const;
+
+export const BUYER_DEMO_PACKAGE_OWNER_NOT_STORED = "Package owner was not stored." as const;
 
 const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>> = {
   [SHOWCASE_STATIC_DEMO_RUN_ID]: {
@@ -34,22 +38,33 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
   },
   "claims-intake-in-progress-003": {
     decisionSummary: "In progress · findings and manifest not finalized",
-    decisionDate: "Not recorded",
-    packageOwner: "Taylor Morgan",
-    riskOwner: "Not recorded",
-    approvalAuthority: "Not recorded",
+    decisionDate: BUYER_DEMO_DECISION_DATE_NOT_STORED,
+    packageOwner: BUYER_DEMO_PACKAGE_OWNER_NOT_STORED,
+    riskOwner: BUYER_DEMO_RISK_OWNER_NOT_STORED,
+    approvalAuthority: BUYER_DEMO_APPROVAL_AUTHORITY_NOT_STORED,
     lastAuditEvent: "Review pipeline started",
   },
 };
 
-function withBuyerSafeActors(meta: BuyerDemoPackageCardMeta): BuyerDemoPackageCardMeta {
-  const decisionAnchor = new Date(BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO);
-  const decisionEventIso = new Date(decisionAnchor.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString();
+function decisionDateWasStored(decisionDate: string): boolean {
+  const trimmed = decisionDate.trim();
 
-  return {
-    ...meta,
-    decisionDate: formatDemoRelativeTimestamp(decisionEventIso, decisionAnchor),
-  };
+  return (
+    trimmed.length > 0
+    && trimmed !== BUYER_DEMO_DECISION_DATE_NOT_STORED
+    && trimmed.toLowerCase() !== "not recorded"
+  );
+}
+
+function withBuyerSafeActors(meta: BuyerDemoPackageCardMeta): BuyerDemoPackageCardMeta {
+  if (!decisionDateWasStored(meta.decisionDate)) {
+    return {
+      ...meta,
+      decisionDate: BUYER_DEMO_DECISION_DATE_NOT_STORED,
+    };
+  }
+
+  return meta;
 }
 
 /** Demo portfolio rows — operational metadata for buyer review cards. */

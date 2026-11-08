@@ -57,6 +57,9 @@ export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_LATEST_REVIEW_LABEL = "L
 export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_EMPTY =
   "No diagram sources on the latest review." as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_SNAPSHOT_NOT_STORED =
+  "Diagram source snapshot was not stored." as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ANALYZED_STATUS = "Topology analyzed" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS = "Topology not extracted" as const;

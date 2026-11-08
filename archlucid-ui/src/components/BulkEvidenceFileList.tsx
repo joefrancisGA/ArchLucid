@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { X } from "lucide-react";
 
+const BULK_EVIDENCE_FILE_NAME_NOT_STORED = "File name was not stored.";
+
 export type BulkEvidenceFileListProps = {
   readonly files: File[];
   readonly uploading: boolean;
@@ -25,7 +27,9 @@ export function BulkEvidenceFileList({ files, uploading, onRemoveFile }: BulkEvi
             OPERATOR_TYPOGRAPHY.body,
           )}
         >
-          <span className="min-w-0 flex-1 break-all text-al-text-primary">{f.name}</span>
+          <span className="min-w-0 flex-1 break-all text-al-text-primary">
+            {f.name.trim().length > 0 ? f.name : BULK_EVIDENCE_FILE_NAME_NOT_STORED}
+          </span>
           <button
             type="button"
             onClick={(e) => {

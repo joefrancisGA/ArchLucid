@@ -9,6 +9,9 @@ namespace ArchLucid.KnowledgeGraph.Materialization;
 /// </summary>
 public static class DeclarationIdentityActorMaterializer
 {
+    internal const string FunctionAppIdentityLabelNotStored = "Function app identity label was not stored.";
+
+    internal const string DeclarationIdentityLabelNotStored = "Identity label was not stored.";
     private static readonly HashSet<string> AllowedTerraformIdentityTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "aws_iam_role",
@@ -302,7 +305,9 @@ public static class DeclarationIdentityActorMaterializer
             return false;
         }
 
-        label = string.IsNullOrWhiteSpace(node.Label) ? "function-app-identity" : node.Label.Trim();
+        label = string.IsNullOrWhiteSpace(node.Label)
+            ? FunctionAppIdentityLabelNotStored
+            : node.Label.Trim();
 
         return true;
     }
@@ -317,7 +322,9 @@ public static class DeclarationIdentityActorMaterializer
             if (ExternalEdgeTerraformTypes.Contains(normalized)
                 || normalized.StartsWith("azurerm_cdn_frontdoor", StringComparison.OrdinalIgnoreCase))
             {
-                label = string.IsNullOrWhiteSpace(node.Label) ? normalized : node.Label.Trim();
+                label = string.IsNullOrWhiteSpace(node.Label)
+                    ? DeclarationIdentityLabelNotStored
+                    : node.Label.Trim();
 
                 return true;
             }
@@ -333,7 +340,9 @@ public static class DeclarationIdentityActorMaterializer
                 || normalized.Contains("loadbalancer", StringComparison.Ordinal)
                 || normalized.Contains("forwardingrule", StringComparison.Ordinal))
             {
-                label = string.IsNullOrWhiteSpace(node.Label) ? normalized : node.Label.Trim();
+                label = string.IsNullOrWhiteSpace(node.Label)
+                    ? DeclarationIdentityLabelNotStored
+                    : node.Label.Trim();
 
                 return true;
             }
@@ -355,7 +364,9 @@ public static class DeclarationIdentityActorMaterializer
             return false;
         }
 
-        label = string.IsNullOrWhiteSpace(node.Label) ? terraformType.Trim() : node.Label.Trim();
+        label = string.IsNullOrWhiteSpace(node.Label)
+            ? DeclarationIdentityLabelNotStored
+            : node.Label.Trim();
 
         return true;
     }
@@ -381,7 +392,9 @@ public static class DeclarationIdentityActorMaterializer
             return false;
         }
 
-        label = string.IsNullOrWhiteSpace(node.Label) ? normalized : node.Label.Trim();
+        label = string.IsNullOrWhiteSpace(node.Label)
+            ? DeclarationIdentityLabelNotStored
+            : node.Label.Trim();
 
         return true;
     }

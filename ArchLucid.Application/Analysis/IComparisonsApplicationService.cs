@@ -15,6 +15,11 @@ public interface IComparisonsApplicationService
 
     Task<ComparisonRecord?> TryGetScopedRecordAsync(string comparisonRecordId, CancellationToken ct);
 
+    /// <summary>
+    ///     Loads a tenant-scoped comparison record and enforces artifact-read gates (lifecycle + career posture).
+    /// </summary>
+    Task<ComparisonRecord?> TryGetScopedRecordForArtifactReadAsync(string comparisonRecordId, CancellationToken ct);
+
     Task<ComparisonReplayCostEstimate?> TryEstimateReplayCostAsync(
         string comparisonRecordId,
         string? format,

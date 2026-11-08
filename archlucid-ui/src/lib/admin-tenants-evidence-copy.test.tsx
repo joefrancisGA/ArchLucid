@@ -1,6 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+import {
+  expectWhereToGoNextFollowUpLinks,
+} from "@/lib/claim-discipline-test-helpers";
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 import { AdminTenantsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -23,9 +29,7 @@ describe("admin-tenants-evidence-copy", () => {
 
     const sources = screen.getByTestId("admin-tenants-sources");
 
-    for (const link of ADMIN_TENANTS_SOURCES) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), ADMIN_TENANTS_SOURCES, ADMIN_TENANTS_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${ADMIN_TENANTS_CANONICAL_PATH}$`, "i") }),

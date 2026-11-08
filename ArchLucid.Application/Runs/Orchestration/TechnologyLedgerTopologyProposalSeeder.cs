@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
@@ -35,8 +36,9 @@ public sealed class TechnologyLedgerTopologyProposalSeeder(
             return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<TechnologyLedgerEntry> existingRows =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            await LoadLedgerRowsAsync(scope, canonicalRunId, cancellationToken);
 
         DateTime utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         IReadOnlyList<TechnologyLedgerEntry> candidates =
@@ -52,7 +54,17 @@ public sealed class TechnologyLedgerTopologyProposalSeeder(
             resolved = TechnologyLedgerColdStartChosenPromoter.Apply(resolved, existingRows);
 
             await _technologyLedgerRepository.AddAsync(resolved, cancellationToken);
-            existingRows = await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            existingRows = await LoadLedgerRowsAsync(scope, canonicalRunId, cancellationToken);
         }
     }
+
+    private async Task<IReadOnlyList<TechnologyLedgerEntry>> LoadLedgerRowsAsync(
+        ScopeContext scope,
+        string canonicalRunId,
+        CancellationToken cancellationToken) =>
+        await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+            _technologyLedgerRepository,
+            scope,
+            canonicalRunId,
+            cancellationToken);
 }

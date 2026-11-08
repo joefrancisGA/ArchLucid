@@ -173,6 +173,10 @@ public static class ClosedLoopManifestTopologyMerger
                 continue;
 
             RelationshipType relationshipType = InferRelationshipType(element);
+
+            if (!Enum.IsDefined(relationshipType))
+                continue;
+
             string relationshipKey = $"{sourceId}->{targetId}:{relationshipType}";
 
             if (existingRelationshipKeys.Contains(relationshipKey))
@@ -338,7 +342,7 @@ public static class ClosedLoopManifestTopologyMerger
         if (hint.Contains("AUTH", StringComparison.Ordinal) || hint.Contains("TOKEN", StringComparison.Ordinal))
             return RelationshipType.AuthenticatesWith;
 
-        return RelationshipType.Calls;
+        return default;
     }
 }
 

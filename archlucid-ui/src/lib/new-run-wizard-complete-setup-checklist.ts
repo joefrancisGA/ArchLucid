@@ -3,6 +3,7 @@ import type { IntegrationConnectChecklistStep } from "@/components/integrations/
 export function resolveNewRunWizardCompleteSetupSteps(input: {
   readonly identityConfigured: boolean;
   readonly evidenceConfigured: boolean;
+  readonly evidenceStepPastWithoutFile?: boolean;
   readonly reviewStarted: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
   return [
@@ -15,6 +16,9 @@ export function resolveNewRunWizardCompleteSetupSteps(input: {
       id: "evidence",
       label: "Add evidence or confirm optional skip",
       complete: input.evidenceConfigured,
+      incompleteStatusLabel: input.evidenceStepPastWithoutFile === true
+        ? "No evidence file stored."
+        : undefined,
     },
     {
       id: "start",
@@ -27,6 +31,7 @@ export function resolveNewRunWizardCompleteSetupSteps(input: {
 export function resolveNewRunWizardCompleteSetupEmphasizedStepId(input: {
   readonly identityConfigured: boolean;
   readonly evidenceConfigured: boolean;
+  readonly evidenceStepPastWithoutFile?: boolean;
   readonly reviewStarted: boolean;
 }): string {
   const steps = resolveNewRunWizardCompleteSetupSteps(input);

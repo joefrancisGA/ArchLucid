@@ -73,6 +73,12 @@ export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
 export const REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT =
   "Counts update as you start and finalize reviews. Ready for review counts architectures that can start a review.";
 
+export const REVIEWS_HUB_SUMMARY_FINDINGS_TOTAL_OMITTED_HINT =
+  "Findings total was not stored on one or more reviews — open a review for counts.";
+
+export const REVIEWS_HUB_SUMMARY_OPEN_RISKS_TOTAL_OMITTED_HINT =
+  "Open risks total was not stored on one or more reviews — open a review for warnings.";
+
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
 /** Shorter header CTA when page context makes the action obvious. */

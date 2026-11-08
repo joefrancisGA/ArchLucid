@@ -323,6 +323,34 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_tags_spaced_as_is_and_to_be_elements_with_lifecycle_scope()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "as is: monolith\nto be: microservices",
+            "src-lifecycle-spaced-as-is-to-be");
+
+        elements.Should().Contain(element =>
+            element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
+    }
+
+    [Fact]
+    public void Classify_returns_ambiguous_for_spaced_as_is_and_to_be_prose()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("as is monolith. to be microservices.");
+
+        difficulty.Should().Be(ExtractionDifficulty.AmbiguousExtraction);
+    }
+
+    [Fact]
+    public void Classify_does_not_treat_gas_is_substring_as_spaced_as_is_marker()
+    {
+        ExtractionDifficulty difficulty = _router.Classify("The gas is monolith-shaped without lifecycle headers.");
+
+        difficulty.Should().Be(ExtractionDifficulty.ClearExtraction);
+    }
+
+    [Fact]
     public void Extract_tags_component_after_current_state_section_even_when_target_state_appears_first()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(

@@ -6,11 +6,20 @@ export type ResolveClarificationFollowUpHrefInput = {
   readonly questionId?: string;
 };
 
-export function resolveClarificationFollowUpHref(input: ResolveClarificationFollowUpHrefInput): string {
+export const CLARIFICATION_FOLLOW_UP_REVIEW_ID_NOT_STORED =
+  "Review id was not stored, so this question cannot open a follow-up review." as const;
+
+export function resolveClarificationFollowUpHref(input: ResolveClarificationFollowUpHrefInput): string | null {
+  const runId = input.runId.trim();
+
+  if (runId.length === 0) {
+    return null;
+  }
+
   const params = new URLSearchParams({
     path: "quick-review",
-    [SECOND_REVIEW_RERUN_QUERY_PARAM]: input.runId.trim(),
-    cloneFromRunId: input.runId.trim(),
+    [SECOND_REVIEW_RERUN_QUERY_PARAM]: runId,
+    cloneFromRunId: runId,
     intent: "revised-clone",
   });
 

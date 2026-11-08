@@ -40,11 +40,32 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
     {
         _ = scope;
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         lock (_gate)
         {
-            List<AgentTask> list = _tasks
-                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+            Dictionary<string, AgentTask> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (AgentTask task in _tasks
+                             .Where(t => string.Equals(t.RunId, lookupKey, StringComparison.Ordinal))
+                             .OrderBy(t => t.CreatedUtc))
+                {
+                    if (string.IsNullOrWhiteSpace(task.TaskId))
+                        continue;
+
+                    if (!merged.TryGetValue(task.TaskId, out AgentTask? existing)
+                        || task.CreatedUtc > existing.CreatedUtc)
+                    {
+                        merged[task.TaskId] = task;
+                    }
+                }
+            }
+
+            List<AgentTask> list = merged.Values
                 .OrderBy(t => t.CreatedUtc)
+                .ThenBy(t => t.TaskId, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AgentTask>>(list);

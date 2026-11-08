@@ -39,6 +39,8 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData("999")]
     [InlineData("-1")]
     [InlineData("bogus")]
+    [InlineData("true")]
+    [InlineData("false")]
     public void TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values(string raw)
     {
         FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(raw);
@@ -249,6 +251,89 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseDisposition_parses_after_leading_invisible_format_characters()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("\u200BAccepted");
+
+        actual.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_interior_format_character_in_disposition_name()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("Acc\u200Bepted").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseHumanReview_rejects_interior_format_character_in_review_status_name()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("Pend\u200Bing");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_interior_format_character_in_severity_name()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("Erro\u200Br");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_one_point_zero_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("1.0").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_plus_one_point_zero_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("+1.0").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_after_trailing_invisible_format_characters()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("Pending\u200B");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_after_leading_invisible_format_characters()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("\u200BPending");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_after_leading_invisible_format_characters()
+    {
+        FindingConfidenceLevel? actual =
+            FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("\u200BHigh");
+
+        actual.Should().Be(FindingConfidenceLevel.High);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_after_trailing_invisible_format_characters()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("Critical\u200B");
+
+        actual.Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_after_leading_invisible_format_characters()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("\u200BCritical");
+
+        actual.Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
     public void ParseFindingSeverity_rejects_negative_numeric_string()
     {
         Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("-1");
@@ -404,6 +489,14 @@ public sealed class FindingInspectReadModelMapperTests
     public void ParseFindingSeverity_rejects_fractional_numeric_string()
     {
         Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("1.5");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_two_point_zero_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("2.0");
 
         act.Should().Throw<InvalidDataException>();
     }

@@ -8,8 +8,8 @@ using ArchLucid.KnowledgeGraph.Inventory;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Emits visible VNet↔VNet peering edges when the graph stored peering JSON but no <c>PEERS_WITH</c> row,
-///     and keeps already-drawn VNet pairs labeled as peering when the stored edge type was blank.
+///     Emits visible VNet↔VNet peering edges when the graph stored connected peering JSON but no <c>PEERS_WITH</c> row,
+///     and stamps provenance only when the edge already names peering in inventory copy.
 /// </summary>
 internal static class ExecutiveVnetPeeringEdgeBuilder
 {
@@ -68,7 +68,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
-            foreach (string remoteArmId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+            foreach (string remoteArmId in AzureInventoryVnetPeeringParser.EnumerateConnectedRemoteVnetArmIds(peeringsJson))
             {
                 if (!mermaidIdByArmId.TryGetValue(remoteArmId, out string? toMermaidId))
                 {
@@ -85,11 +85,9 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 ast.Edges.Add(CreateObservedPeeringEdge(fromMermaidId, toMermaidId));
             }
         }
-
-        EnsureObservedPeeringOnVirtualNetworkPairs(ast);
     }
 
-    private static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
+    internal static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
     {
         Dictionary<string, DiagramNode> nodesById = ast.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
@@ -103,18 +101,62 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
+            if (IsStoredGraphPeersWithLabel(edge.Label))
+            {
+                edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
+                edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
+                edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
+                continue;
+            }
+
+            if (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
+                && (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(edge.Label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase)))
+            {
+                AssignPeeringProvenance(edge, connectedPeeringObserved: true);
+                continue;
+            }
+
             if (!ShouldAnnotateAsObservedPeering(edge))
             {
                 continue;
             }
 
-            AssignObservedPeeringProvenance(edge);
+            AssignPeeringProvenance(edge, connectedPeeringObserved: IsConnectedPeeringLabel(edge.Label));
         }
+    }
+
+    private static bool IsStoredGraphPeersWithLabel(string? label)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return false;
+        }
+
+        return label.Contains(GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasBlankCapturedPeeringLabel(DiagramEdge edge)
+    {
+        return string.IsNullOrWhiteSpace(edge.Label)
+            || string.Equals(
+                edge.Label,
+                DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel,
+                StringComparison.Ordinal)
+            || string.Equals(
+                edge.Label,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.Ordinal)
+            || string.Equals(
+                edge.Label,
+                InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
+                StringComparison.Ordinal);
     }
 
     private static bool ShouldAnnotateAsObservedPeering(DiagramEdge edge)
     {
-        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+            && !string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
@@ -132,27 +174,61 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             || string.Equals(
                 edge.Label,
                 InventoryDiagramRelationshipLabelTexts.Peered,
+                StringComparison.OrdinalIgnoreCase)
+            || string.Equals(
+                edge.Label,
+                InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
                 StringComparison.OrdinalIgnoreCase);
     }
 
-    // ObservedFact keeps DiagramEdgeProvenanceDisplayLabelApplier from replacing the verb
-    // with "Provenance was not stored." when the graph omitted a provenance kind.
     private static DiagramEdge CreateObservedPeeringEdge(string fromNodeId, string toNodeId)
     {
         DiagramEdge edge = new()
         {
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
+            Label = InventoryDiagramRelationshipLabelTexts.Peered,
         };
-        AssignObservedPeeringProvenance(edge);
+        AssignPeeringProvenance(edge, connectedPeeringObserved: true);
         return edge;
     }
 
-    private static void AssignObservedPeeringProvenance(DiagramEdge edge)
+    private static bool IsConnectedPeeringLabel(string? label)
     {
-        edge.Label = "peering";
+        return string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void AssignPeeringProvenance(DiagramEdge edge, bool connectedPeeringObserved)
+    {
         edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
-        edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+
+        if (connectedPeeringObserved)
+        {
+            if (HasBlankCapturedPeeringLabel(edge))
+            {
+                return;
+            }
+
+            if (!IsConnectedPeeringLabel(edge.Label)
+                && !string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+            {
+                edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
+            }
+            else if (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+            {
+                edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
+            }
+
+            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            return;
+        }
+
+        if (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+        {
+            edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringStoredConnectedStateNotStored;
+        }
+
+        edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
     }
 
     private static bool IsVirtualNetworkNode(

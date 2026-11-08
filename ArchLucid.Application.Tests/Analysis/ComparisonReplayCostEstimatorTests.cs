@@ -50,6 +50,104 @@ public sealed class ComparisonReplayCostEstimatorTests
     }
 
     [SkippableFact]
+    public async Task TryEstimateAsync_returns_trimmed_comparison_record_id_from_stored_row()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "  c1  ",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = "{}",
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ComparisonRecordId.Should().Be("c1");
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_returns_trimmed_comparison_type_from_stored_row()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = $"  {ComparisonTypes.EndToEndReplay}  ",
+                PayloadJson = "{}",
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+    }
+
+    [SkippableFact]
+    public async Task CompareQuality_TryEstimateAsync_canonicalizes_known_comparison_type_casing_from_stored_row()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = "  END-TO-END-REPLAY  ",
+                PayloadJson = "{}",
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ComparisonType.Should().Be(ComparisonTypes.EndToEndReplay);
+    }
+
+    [SkippableFact]
+    public async Task CompareQuality_TryEstimateAsync_returns_empty_comparison_type_when_stored_row_is_whitespace_only()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = "   ",
+                PayloadJson = "{}",
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ComparisonType.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_trims_padded_comparison_record_id_before_load()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay, PayloadJson = "{}"
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1\n", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        repo.Verify(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryEstimateAsync_end_to_end_artifact_markdown_is_low_band()
     {
         Mock<IComparisonRecordRepository> repo = new();
@@ -102,6 +200,27 @@ public sealed class ComparisonReplayCostEstimatorTests
         withoutPersist.Should().NotBeNull();
         withPersist.ApproximateRelativeScore.Should().BeGreaterThan(withoutPersist.ApproximateRelativeScore);
         withPersist.Factors.Should().Contain(f => f.Contains("PersistReplay", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public async Task CompareQuality_TryEstimateAsync_whitespace_only_payload_does_not_add_large_payload_factor()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        string whitespacePayload = new(' ', 600_000);
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = whitespacePayload,
+            });
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Factors.Should().NotContain(f => f.Contains("Large stored payload", StringComparison.Ordinal));
     }
 
     [SkippableFact]

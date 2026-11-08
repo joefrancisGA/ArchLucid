@@ -43,6 +43,36 @@ public sealed class TenantSuspendCommandServiceTests
     }
 
     [Fact]
+    public async Task TrySuspendAsync_trims_correlation_id_on_suspend_audit_event()
+    {
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 29, 12, 0, 0, TimeSpan.Zero));
+        PlatformAuditEvent? captured = null;
+
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ActiveTenant());
+        tenants
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantSuspendCommandService sut = new(tenants.Object, audit.Object, clock);
+
+        TenantSuspendOutcome outcome =
+            await sut.TrySuspendAsync(TenantId, "u1", "admin", "  corr-trim-suspend  ", CancellationToken.None);
+
+        outcome.Should().Be(TenantSuspendOutcome.Applied);
+        captured.Should().NotBeNull();
+        captured!.EventType.Should().Be(AuditEventTypes.TenantSuspended);
+        captured.CorrelationId.Should().Be("corr-trim-suspend");
+    }
+
+    [Fact]
     public async Task TrySuspendAsync_is_idempotent_when_already_suspended()
     {
         Mock<ITenantRepository> tenants = new(MockBehavior.Strict);

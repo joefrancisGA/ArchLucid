@@ -9,6 +9,18 @@ export type FindingDetailNextFindingFooterProps = {
   readonly target: FindingDetailNextFindingTarget;
 };
 
+const FINDING_TITLE_NOT_STORED = "Finding title was not stored";
+
+function resolveNextFindingTriageLine(title: string): string {
+  const trimmed = title.trim();
+
+  if (trimmed.length === 0 || trimmed === FINDING_TITLE_NOT_STORED) {
+    return "The next finding's title was not stored.";
+  }
+
+  return `Continue triage with ${trimmed}.`;
+}
+
 /** Footer CTA to continue triage with the next finding in this review. */
 export function FindingDetailNextFindingFooter(
   props: FindingDetailNextFindingFooterProps,
@@ -25,7 +37,7 @@ export function FindingDetailNextFindingFooter(
       <div className="min-w-0">
         <p className="m-0 font-medium text-al-text-primary">Next finding in this review</p>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Continue triage with <span className="font-medium text-al-text-primary">{props.target.title}</span>.
+          {resolveNextFindingTriageLine(props.target.title)}
         </p>
       </div>
       <Button type="button" variant="primary" size="sm" asChild data-testid="finding-detail-next-finding-action">

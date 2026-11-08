@@ -1,4 +1,5 @@
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { formatCloudConnectionImportSuccessMessage } from "@/lib/cloud-connection-import-success-message";
 import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
 
 /** Operator-facing copy for `/integrations/cloud-connections/azure` (TB-1766, TB-1767). */
@@ -71,10 +72,10 @@ export const AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
   "Save a connection and run Validate connection to import inventory.";
 
 export function formatAzureConnectionValidationSuccessMessage(
-  resourceCount: number,
-  packageId: string,
+  resourceCount: number | null | undefined,
+  packageId: string | null | undefined,
 ): string {
-  return `Validation completed (${resourceCount} resources imported as package ${packageId}).`;
+  return formatCloudConnectionImportSuccessMessage("Validation", resourceCount, packageId);
 }
 
 export const AZURE_CONNECTION_SAVE_VALIDATE_LEAD =

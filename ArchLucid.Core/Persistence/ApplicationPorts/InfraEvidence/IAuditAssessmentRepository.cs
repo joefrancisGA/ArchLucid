@@ -33,17 +33,12 @@ public interface IAuditAssessmentRepository
         AuditAssessmentStatus status,
         CancellationToken cancellationToken = default);
 
-    async Task UpdateStatusInScopeAsync(
+    Task UpdateStatusInScopeAsync(
         ProjectScopeKey scope,
         AuditAssessmentStatusMutation mutation,
-        CancellationToken cancellationToken = default)
-    {
-        AuditAssessmentRecord? current = await TryGetByIdInScopeAsync(scope, mutation.AssessmentId, cancellationToken);
-        if (current is null)
-            return;
-
-        await UpdateStatusAsync(scope.TenantId, mutation.AssessmentId, mutation.Status, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException(
+            "Project-scoped assessment status updates require an atomic scoped repository implementation.");
 
     Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
         Guid tenantId,

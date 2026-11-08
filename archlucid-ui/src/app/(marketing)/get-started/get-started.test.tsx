@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { GET_STARTED_SKIP_LINK_LABEL, GET_STARTED_SKIP_TARGET_ID } from "@/lib/get-started-page-copy";
@@ -54,6 +54,7 @@ describe("GetStartedPageClient", () => {
     expect(screen.getByTestId("get-started-guided-path")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-choose-trial-path")).toHaveTextContent("View trial milestones");
     expect(screen.getByTestId("get-started-evaluation-signup-cta")).toHaveAttribute("href", "/signup");
+    expect(screen.getByTestId("archlucid-beta-sku-contents-section")).toBeInTheDocument();
   });
 
   it("does not expose internal template paths or promotional frictionless language", () => {
@@ -101,6 +102,17 @@ describe("GetStartedPageClient", () => {
 
     expect(screen.getByText(GET_STARTED_SAMPLE_DISCLOSURE)).toBeInTheDocument();
     expect(screen.getByTestId("get-started-next-step-panel")).toBeInTheDocument();
+  });
+
+  it("selects the sample path when the bottom sample link is activated", () => {
+    render(<GetStartedPageClient />);
+
+    const samplePath = screen.getByTestId("get-started-sample-path");
+    expect(samplePath).toHaveClass("opacity-80");
+
+    fireEvent.click(screen.getByRole("link", { name: /open another illustrative sample/i }));
+
+    expect(samplePath).not.toHaveClass("opacity-80");
   });
 
   it("does not render a talk to a human CTA", () => {

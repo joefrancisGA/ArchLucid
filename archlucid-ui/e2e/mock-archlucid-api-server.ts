@@ -34,6 +34,7 @@ import { toMockBuyerRunDetailSummary } from "./fixtures/buyer-run-detail-summary
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 import type { RunDetail } from "@/types/authority";
+import type { CoveragePreviewResponse } from "@/lib/api/coverage-preview-api";
 
 import {
   getEmptyGraphViewModelJson,
@@ -435,6 +436,24 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      // Production exposes a read-only POST 200. The offline mock has no
+      // evaluated coverage, so return an explicitly empty, schema-complete
+      // disclosure instead of fabricating assignments or returning HTTP 405.
+      if (req.method === "POST" && pathname === "/v1/governance/coverage/preview") {
+        const preview: CoveragePreviewResponse = {
+          focusedPilotModeEnabled: false,
+          summaryLine: "Mock workspace: policy-pack coverage was not evaluated.",
+          providerNeutralBaselineCount: 0,
+          organizationRequiredCount: 0,
+          platformOverlayCount: 0,
+          contextualRecommendedCount: 0,
+          additionalOptionalCount: 0,
+          assignments: [],
+        };
+        sendJson(res, 200, preview);
+        return;
+      }
+
       if (req.method === "POST" && pathname === "/v1/governance/recurrence-schedules/preview-next-runs") {
         sendJson(res, 200, {
           isValid: true,
@@ -483,6 +502,14 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       }
 
       if (req.method === "PUT" && pathname === "/v1/user/preferences/working-workspace-continuity") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
+      // Mirror the real user-preferences controller: successful desk-continuity
+      // writes return 204. Missing mock support previously emitted repeated 405s.
+      if (req.method === "PUT" && pathname === "/v1/user/preferences/desk-continuity") {
         res.writeHead(204);
         res.end();
         return;

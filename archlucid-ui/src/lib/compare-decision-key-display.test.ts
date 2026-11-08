@@ -9,11 +9,11 @@ describe("decisionKeyDisplay", () => {
     expect(decisionKeyDisplay("claims.intake.boundary")).toContain("boundary");
   });
 
-  it("returns dash for whitespace", () => {
-    expect(decisionKeyDisplay("   ")).toBe(" — ");
+  it("labels whitespace-only keys as not stored", () => {
+    expect(decisionKeyDisplay("   ")).toBe("Decision key was not stored.");
   });
 
-  it("dot-separates unknown keys", () => {
-    expect(decisionKeyDisplay("foo.bar.baz")).toBe("foo · bar · baz");
+  it("labels unmapped keys without implying a friendly title", () => {
+    expect(decisionKeyDisplay("foo.bar.baz")).toBe("Unmapped decision key: foo.bar.baz");
   });
 });

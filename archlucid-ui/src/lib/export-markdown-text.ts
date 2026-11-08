@@ -26,6 +26,11 @@ export function pushBulletLines(target: string[], items: unknown, labelForEmpty?
   }
 
   for (const item of items) {
+    if (typeof item === "string" && item.trim().length === 0) {
+      target.push("- Entry was stored empty.");
+      continue;
+    }
+
     const line = normalizeInlineText(item);
 
     if (line) {

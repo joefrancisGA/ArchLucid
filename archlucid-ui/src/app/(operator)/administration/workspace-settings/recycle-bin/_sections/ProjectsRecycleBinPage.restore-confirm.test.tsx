@@ -3,8 +3,25 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
+const recycleBinNavigation = vi.hoisted(() => ({
+  replace: vi.fn(),
+  push: vi.fn(),
+  searchParams: new URLSearchParams(),
+}));
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: (href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      recycleBinNavigation.searchParams =
+        queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
+      recycleBinNavigation.replace(href);
+    },
+    push: recycleBinNavigation.push,
+  }),
   usePathname: () => "/administration/workspace-settings/recycle-bin",
+  useSearchParams: () => recycleBinNavigation.searchParams,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
@@ -21,6 +38,10 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,
     isAuthorityLoading: false,
   }),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
 }));
 
 import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinPage";

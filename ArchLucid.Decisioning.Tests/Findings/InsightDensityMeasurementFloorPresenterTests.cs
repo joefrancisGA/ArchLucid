@@ -13,8 +13,8 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 23);
 
-        presentation.CatalogEngineCount.Should().Be(53);
-        presentation.HarnessEngineCount.Should().Be(42);
+        presentation.CatalogEngineCount.Should().Be(54);
+        presentation.HarnessEngineCount.Should().Be(47);
         presentation.MeasuredThisRunEngineCount.Should().Be(23);
     }
 
@@ -38,7 +38,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
 
         presentation.MeasuredThisRunEngineCount.Should().Be(0);
         presentation.MeetsCareerExportFloor.Should().BeFalse();
-        presentation.Sentence.Should().Contain("0 of 52");
+        presentation.Sentence.Should().Contain("0 of 54");
     }
 
     [Fact]
@@ -56,7 +56,8 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     public void Present_harness_floor_meets_career_export_gate()
     {
         InsightDensityMeasurementFloorPresentation presentation =
-            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 41);
+            InsightDensityMeasurementFloorPresenter.Present(
+                measuredEnginesSucceeded: InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines);
 
         presentation.MeetsCareerExportFloor.Should().BeTrue();
         presentation.Sentence.Should().NotContain("analytically incomplete");
@@ -128,7 +129,8 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     [Fact]
     public void FormatCareerExportBlockedReason_returns_null_when_floor_is_met()
     {
-        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(41).Should().BeNull();
+        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
+            InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines).Should().BeNull();
     }
 
     [Fact]
@@ -137,7 +139,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(null);
 
         reason.Should().Contain("not been measured");
-        reason.Should().Contain("41");
+        reason.Should().Contain(InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines.ToString());
     }
 
     [Fact]

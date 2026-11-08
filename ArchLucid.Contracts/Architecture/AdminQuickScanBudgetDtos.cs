@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Admin Quick Scan global budget monitoring snapshot (TB-899).</summary>
@@ -31,7 +33,13 @@ public sealed class AdminQuickScanBudgetSnapshotResponse
 
     public required int LastReconciliationExpiredCount { get; init; }
 
-    public required IReadOnlyList<AdminQuickScanUsageRecordRow> RecentUsage { get; init; }
+    private IReadOnlyList<AdminQuickScanUsageRecordRow> recentUsage = [];
+
+    public required IReadOnlyList<AdminQuickScanUsageRecordRow> RecentUsage
+    {
+        get => recentUsage;
+        init => recentUsage = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
 
 /// <summary>Privacy-minimized Quick Scan usage row for admin dashboard.</summary>

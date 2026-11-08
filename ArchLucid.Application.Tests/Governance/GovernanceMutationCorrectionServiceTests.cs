@@ -258,6 +258,93 @@ public sealed class GovernanceMutationCorrectionServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_RecordAsync_workflow_promote_finds_promotion_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        const string promotionRecordId = "promo-correction-legacy-key";
+        InMemoryGovernancePromotionRecordRepository promotions = new();
+        await promotions.CreateAsync(new GovernancePromotionRecord
+        {
+            PromotionRecordId = promotionRecordId,
+            RunId = legacyUpper,
+            ManifestVersion = "v1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+            PromotedBy = "operator-1",
+        });
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(runGuid.ToString("D")).Object,
+            auditService.Object,
+            promotionRepository: promotions);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.WorkflowPromote,
+                SubjectId = promotionRecordId,
+                RunId = runGuid.ToString("D"),
+                Rationale = "Promoted the wrong manifest version under legacy storage.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.SubjectId.Should().Be(promotionRecordId);
+    }
+
+    [Fact]
+    public async Task CompareQuality_RecordAsync_workflow_activate_finds_activation_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        const string activationId = "act-correction-legacy-key";
+        InMemoryGovernanceEnvironmentActivationRepository activations = new();
+        await activations.CreateAsync(new GovernanceEnvironmentActivation
+        {
+            ActivationId = activationId,
+            RunId = legacyUpper,
+            ManifestVersion = "v1",
+            Environment = "prod",
+            IsActive = true,
+        });
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(runGuid.ToString("D")).Object,
+            auditService.Object,
+            activationRepository: activations);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.WorkflowActivate,
+                SubjectId = activationId,
+                RunId = runGuid.ToString("D"),
+                Rationale = "Activated the wrong environment baseline under legacy storage.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.SubjectId.Should().Be(activationId);
+    }
+
+    [Fact]
     public async Task RecordAsync_accepts_dashed_run_id_when_finalize_subject_is_canonical_n()
     {
         Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

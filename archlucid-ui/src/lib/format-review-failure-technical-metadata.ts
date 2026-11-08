@@ -29,36 +29,56 @@ function normalize(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
-function completedPipelineStages(summary: RunSummary | null | undefined): number {
-  if (summary === null || summary === undefined) {
-    return 0;
+function formatPipelineStageFlag(
+  label: string,
+  value: boolean | null | undefined,
+  notStoredLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return `${label}=${notStoredLabel}`;
   }
 
-  return [
-    summary.hasContextSnapshot === true,
-    summary.hasGraphSnapshot === true,
-    summary.hasFindingsSnapshot === true,
-    summary.hasGoldenManifest === true,
-  ].filter(Boolean).length;
+  return `${label}=${value === true ? "yes" : "no"}`;
+}
+
+function formatAssessmentProgressValue(summary: RunSummary | null | undefined): string {
+  if (summary === null || summary === undefined) {
+    return "Assessment progress was not stored.";
+  }
+
+  const flags = [
+    summary.hasContextSnapshot,
+    summary.hasGraphSnapshot,
+    summary.hasFindingsSnapshot,
+    summary.hasGoldenManifest,
+  ];
+
+  if (flags.some((flag) => flag === null || flag === undefined)) {
+    return "Assessment step completion was not stored.";
+  }
+
+  const completed = flags.filter((flag) => flag === true).length;
+
+  return `${completed} / 4 assessment steps`;
 }
 
 function formatPipelineStageFlags(summary: RunSummary | null | undefined): string {
   if (summary === null || summary === undefined) {
-    return "context=no, graph=no, findings=no, manifest=no";
+    return "Assessment progress was not stored.";
   }
 
   return [
-    `context=${summary.hasContextSnapshot === true ? "yes" : "no"}`,
-    `graph=${summary.hasGraphSnapshot === true ? "yes" : "no"}`,
-    `findings=${summary.hasFindingsSnapshot === true ? "yes" : "no"}`,
-    `manifest=${summary.hasGoldenManifest === true ? "yes" : "no"}`,
+    formatPipelineStageFlag("context", summary.hasContextSnapshot, "Context snapshot status was not stored."),
+    formatPipelineStageFlag("graph", summary.hasGraphSnapshot, "Graph snapshot status was not stored."),
+    formatPipelineStageFlag("findings", summary.hasFindingsSnapshot, "Findings snapshot status was not stored."),
+    formatPipelineStageFlag("manifest", summary.hasGoldenManifest, "Package snapshot status was not stored."),
   ].join(", ");
 }
 
 function resolveLikelyCauseSentence(input: {
   readonly failureClass: string;
   readonly reasonCode: string;
-  readonly completedStages: number;
+  readonly completedStages: number | null;
 }): string | null {
   if (input.reasonCode === "NoScheduledAgentTasks") {
     return "Execute ran before any agent tasks were scheduled — typical deferred authority-pipeline timing miss. Re-run should resume the queued pipeline on current builds.";
@@ -72,8 +92,14 @@ function resolveLikelyCauseSentence(input: {
     return "Execute worker lost its ownership lease before finishing — reopen or retry execute; retry skips persisted agents but may rebill unpersisted LLM spend.";
   }
 
-  if (input.failureClass === "invalidOperation" && input.completedStages === 0) {
-    return "Pre-stage invalid operation — processing stopped before pipeline stage 1. Often the same deferred-pipeline scheduling miss when reasonCode is absent on older failure records.";
+  if (input.failureClass === "invalidOperation") {
+    if (input.completedStages === null) {
+      return "Completed stage count was not stored.";
+    }
+
+    if (input.completedStages === 0) {
+      return "Pre-stage invalid operation — processing stopped before pipeline stage 1. Often the same deferred-pipeline scheduling miss when reasonCode is absent on older failure records.";
+    }
   }
 
   if (input.failureClass === "pipelineDeadLetter") {
@@ -87,11 +113,12 @@ function resolveLikelyCauseSentence(input: {
 export function resolveReviewFailureLikelyCause(input: {
   readonly failureClass?: string | null;
   readonly reasonCode?: string | null;
-  readonly completedStages?: number;
+  readonly completedStages?: number | null;
 }): string | null {
   const failureClass = normalize(input.failureClass);
   const reasonCode = normalize(input.reasonCode);
-  const completedStages = input.completedStages ?? 0;
+  const completedStages =
+    input.completedStages === null || input.completedStages === undefined ? null : input.completedStages;
 
   if (failureClass.length === 0 && reasonCode.length === 0) {
     return null;
@@ -150,7 +177,15 @@ export function formatReviewFailureTechnicalMetadataRows(
   const failureClass = normalize(summary?.failureClass);
   const reasonCode = normalize(summary?.reasonCode);
   const legacyRunStatus = normalize(diagnosticContext?.legacyRunStatus);
-  const completedStages = completedPipelineStages(pipelineSummary);
+  const completedStages =
+    pipelineSummary === null || pipelineSummary === undefined
+      ? null
+      : [
+          pipelineSummary.hasContextSnapshot === true,
+          pipelineSummary.hasGraphSnapshot === true,
+          pipelineSummary.hasFindingsSnapshot === true,
+          pipelineSummary.hasGoldenManifest === true,
+        ].filter(Boolean).length;
   const axis = resolveExecutionVsQualityAxis({
     failureClass: summary?.failureClass,
     legacyRunStatus: diagnosticContext?.legacyRunStatus,
@@ -165,7 +200,7 @@ export function formatReviewFailureTechnicalMetadataRows(
   );
   pushRow(rows, "Review outcome", legacyRunStatus, true);
   pushRow(rows, "Failure axis", axis, true);
-  pushRow(rows, "Assessment progress", `${completedStages} / 4 assessment steps`);
+  pushRow(rows, "Assessment progress", formatAssessmentProgressValue(pipelineSummary));
   pushRow(rows, "Assessment step flags", formatPipelineStageFlags(pipelineSummary), true);
   pushRow(rows, "Failure class", failureClass, true);
   pushRow(rows, "Failure class (label)", plainLanguageFailureClassLabel(summary?.failureClass));

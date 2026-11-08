@@ -29,6 +29,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
@@ -71,7 +76,7 @@ describe("DeveloperSettingsPageClient", () => {
     render(<DeveloperSettingsPageClient />);
 
     const page = screen.getByTestId("developer-settings-page");
-    expect(page).toHaveClass("w-full", "max-w-[62rem]");
+    expect(page).toHaveClass("w-full", "max-w-[68rem]");
 
     const vocabularyRail = screen.getByTestId("developer-api-contracts-api-keys-vocabulary");
     const buildIdentityCard = screen.getByTestId("developer-settings-build-identity-card");

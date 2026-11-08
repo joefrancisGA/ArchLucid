@@ -10,7 +10,7 @@ describe("diagram-reconcile-match-kind-display", () => {
     expect(formatDiagramReconcileMatchKindLabel("Conflict")).toBe("Conflict");
     expect(formatDiagramReconcileMatchKindLabel("DiagramOnly")).toBe("Diagram only");
     expect(formatDiagramReconcileMatchKindLabel(null)).toBe("Match kind was not stored.");
-    expect(formatDiagramReconcileMatchKindLabel("")).toBe("Match kind was not stored.");
+    expect(formatDiagramReconcileMatchKindLabel("")).toBe("Match kind was stored empty.");
     expect(formatDiagramReconcileMatchKindLabel("Unknown")).toBe("Match kind recorded as unknown.");
     expect(formatDiagramReconcileMatchKindLabel("NewKind")).toBe("NewKind");
   });

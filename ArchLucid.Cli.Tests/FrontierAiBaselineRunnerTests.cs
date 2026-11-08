@@ -55,6 +55,30 @@ public sealed class FrontierAiBaselineRunnerTests
             check.Name == "Anti-claims audit" && check.Verdict == FrontierAiBaselineVerdict.Fail);
     }
 
+    [Fact]
+    public void Run_WithOfflineReleaseTrainScoreboard_Passes()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        FrontierAiBaselineRunner runner = new();
+        FrontierAiBaselineReport report = runner.Run(
+            repositoryRoot!,
+            new FrontierAiBaselineOptions
+            {
+                ScoreboardPath = Path.Combine(
+                    repositoryRoot!,
+                    "fixtures",
+                    "bakeoff",
+                    "offline-release-train-scoreboard.md"),
+            });
+
+        report.OverallVerdict.Should().Be(FrontierAiBaselineVerdict.Pass);
+        report.Sessions.Should().HaveCount(3);
+        report.CohortMetrics.Should().NotBeNull();
+    }
+
     private sealed class TempRepoFixture : IDisposable
     {
         public string Root { get; }

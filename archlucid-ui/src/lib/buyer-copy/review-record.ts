@@ -70,8 +70,41 @@ export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open finalized record";
 
 export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View finalized review record";
 
+/** @deprecated Prefer {@link formatBuyerReviewOutcomeBlockingIssuesLine}. */
 export const BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE =
   "Blocking issues: 0 · Evidence basis: finalized review record, evidence trail, audit trail";
+
+export const BUYER_REVIEW_OUTCOME_BLOCKING_ISSUE_COUNT_NOT_STORED =
+  "Blocking issue count was not stored." as const;
+
+export const BUYER_REVIEW_SUMMARY_EXPORT_LIST_NOT_STORED =
+  "Export list was not stored on this summary." as const;
+
+export function formatBuyerReviewOutcomeBlockingIssuesLine(
+  unresolvedIssueCountDisplay: number | null,
+): string {
+  if (unresolvedIssueCountDisplay === null || !Number.isFinite(unresolvedIssueCountDisplay)) {
+    return BUYER_REVIEW_OUTCOME_BLOCKING_ISSUE_COUNT_NOT_STORED;
+  }
+
+  const count = Math.trunc(unresolvedIssueCountDisplay);
+
+  return count === 1 ? "Blocking issues: 1" : `Blocking issues: ${count}`;
+}
+
+export function formatBuyerReviewSummaryExportsLine(
+  storedExportLabels: readonly string[] | null | undefined,
+): string {
+  if (storedExportLabels === null || storedExportLabels === undefined) {
+    return BUYER_REVIEW_SUMMARY_EXPORT_LIST_NOT_STORED;
+  }
+
+  if (storedExportLabels.length === 0) {
+    return "Export list was stored empty.";
+  }
+
+  return storedExportLabels.join(", ");
+}
 
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 

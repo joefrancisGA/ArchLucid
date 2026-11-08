@@ -10,7 +10,7 @@ import {
 describe("OPERATOR_ATTENTION_KIND_DESTINATIONS", () => {
   it("describes awaiting-approval as reviews waiting for approval", () => {
     expect(OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].description).toBe(
-      "Reviews waiting for approval.",
+      "Reviews waiting for approval before the sealed review record is finalized.",
     );
   });
 

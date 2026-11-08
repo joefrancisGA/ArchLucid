@@ -19,6 +19,73 @@ function ConvertTo-PowerShellSingleQuotedLiteral {
     return ("'{0}'" -f ($Value.Replace("'", "''")))
 }
 
+function Get-LocalDevNodeInstallCandidateDirectories {
+    [System.Collections.Generic.List[string]] $dirs = [System.Collections.Generic.List[string]]::new()
+
+    if (-not [string]::IsNullOrWhiteSpace($env:ProgramFiles)) {
+        $dirs.Add((Join-Path $env:ProgramFiles 'nodejs'))
+    }
+
+    $programFilesX86 = ${env:ProgramFiles(x86)}
+
+    if (-not [string]::IsNullOrWhiteSpace($programFilesX86)) {
+        $dirs.Add((Join-Path $programFilesX86 'nodejs'))
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+        $dirs.Add((Join-Path $env:LOCALAPPDATA 'Programs\nodejs'))
+    }
+
+    return $dirs
+}
+
+function Ensure-LocalDevNodeOnPath {
+    param(
+        [ref] $NodeToolsDirectoryForSpawn = $null
+    )
+
+    if ($null -ne $NodeToolsDirectoryForSpawn) {
+        $NodeToolsDirectoryForSpawn.Value = $null
+    }
+
+    if (Get-Command node -ErrorAction SilentlyContinue) {
+        return $true
+    }
+
+    foreach ($dir in (Get-LocalDevNodeInstallCandidateDirectories)) {
+        [string] $nodeExe = Join-Path $dir 'node.exe'
+
+        if (-not (Test-Path -LiteralPath $nodeExe)) {
+            continue
+        }
+
+        $env:PATH = ('{0};{1}' -f $dir, $env:PATH)
+
+        if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+            continue
+        }
+
+        if ($null -ne $NodeToolsDirectoryForSpawn) {
+            $NodeToolsDirectoryForSpawn.Value = $dir
+        }
+
+        return $true
+    }
+
+    return $false
+}
+
+function Get-LocalDevNodePathPrependCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $NodeToolsDirectory
+    )
+
+    [string] $quotedDirWithSemi = ConvertTo-PowerShellSingleQuotedLiteral -Value ("{0};" -f $NodeToolsDirectory)
+
+    return ('$env:PATH = {0} + $env:PATH' -f $quotedDirWithSemi)
+}
+
 function Get-LocalApiDotnetBuildCommand {
     param(
         [ValidateRange(1, 64)]
@@ -340,12 +407,18 @@ function Get-LocalUiWindowCommand {
         [string] $WindowLabel = '',
 
         [ValidateRange(1, 65535)]
-        [int] $Port = 3000
+        [int] $Port = 3000,
+
+        [string] $NodeToolsDirectory = ''
     )
 
     [string] $quotedRoot = ConvertTo-PowerShellSingleQuotedLiteral -Value $UiRoot
     [System.Collections.Generic.List[string]] $lines = [System.Collections.Generic.List[string]]::new()
     $lines.Add("Set-Location -LiteralPath $quotedRoot")
+
+    if (-not [string]::IsNullOrWhiteSpace($NodeToolsDirectory)) {
+        $lines.Add((Get-LocalDevNodePathPrependCommand -NodeToolsDirectory $NodeToolsDirectory))
+    }
     # Engineer-local shell: show Internal nav (operator-system-admin) even when .env.local follows pilot API posture.
     $productEnvLine = '$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''{0}''' -f $ProductLine
     $lines.Add($productEnvLine)
@@ -388,7 +461,9 @@ function Get-LocalUiWindowCommandForSite {
         [string] $UiRoot,
 
         [Parameter(Mandatory = $true)]
-        $Site
+        $Site,
+
+        [string] $NodeToolsDirectory = ''
     )
 
     $params = @{
@@ -396,6 +471,10 @@ function Get-LocalUiWindowCommandForSite {
         ProductLine = [string]$Site.ProductLine
         Port        = [int]$Site.Port
         WindowLabel = [string]$Site.ReadyLabel
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($NodeToolsDirectory)) {
+        $params['NodeToolsDirectory'] = $NodeToolsDirectory
     }
 
     if (-not [string]::IsNullOrWhiteSpace([string]$Site.Edition)) {

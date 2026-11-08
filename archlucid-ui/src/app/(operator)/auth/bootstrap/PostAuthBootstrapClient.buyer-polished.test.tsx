@@ -12,6 +12,7 @@ import {
   AUTH_BOOTSTRAP_SKIP_LINK_LABEL,
   AUTH_BOOTSTRAP_SKIP_TARGET_ID,
 } from "@/lib/auth/auth-bootstrap-page-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -19,6 +20,7 @@ const fetchPostAuthBootstrapStatus = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
+  usePathname: () => "/auth/bootstrap",
 }));
 
 vi.mock("@/lib/auth/post-auth-bootstrap-api", () => ({
@@ -80,7 +82,12 @@ describe("PostAuthBootstrapClient buyer-polished shell", () => {
     expect(screen.queryByRole("heading", { level: 2, name: /What this/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUTH_BOOTSTRAP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_BOOTSTRAP_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(AUTH_BOOTSTRAP_SOURCES),
+      "/auth/bootstrap",
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

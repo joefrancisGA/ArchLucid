@@ -41,6 +41,10 @@ import {
   itsmOnboardingWizardStepHrefFromSearch,
   parseItsmOnboardingWizardStepFromSearch,
 } from "@/lib/itsm/itsm-onboarding-wizard-step-url";
+import {
+  parseSecureNowStopItsmOutboundDraftFromSearch,
+  SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE,
+} from "@/lib/product-line/securenow-stop-itsm-handoff";
 
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;
@@ -62,6 +66,8 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
   const pathname = usePathname() ?? "/internal/integrations/itsm";
   const searchParams = useSearchParams();
   const urlStep = parseItsmOnboardingWizardStepFromSearch(searchParams.get("itsmStep"));
+  const pilotStopDraft = parseSecureNowStopItsmOutboundDraftFromSearch(searchParams);
+  const [pilotStopDraftBody, setPilotStopDraftBody] = useState("");
   const [step, setStepState] = useState<ItsmOnboardingWizardStep>(() =>
     urlStep ?? resolveItsmOnboardingWizardInitialStep(props.initialHealth, props.initialSettings),
   );
@@ -90,6 +96,17 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
       setStepState(fromUrl);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (pilotStopDraft === null) {
+      setPilotStopDraftBody("");
+      return;
+    }
+
+    setPilotStopDraftBody(
+      `SecureNow pilot Stop disposition\nPath: ${pilotStopDraft.pathId}\nRationale: ${pilotStopDraft.rationale}`,
+    );
+  }, [pilotStopDraft?.pathId, pilotStopDraft?.rationale, pilotStopDraft]);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(props.initialSettings);
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(props.initialHealth);
   const [jiraProjectKey, setJiraProjectKey] = useState(props.initialSettings?.jiraProjectKeyOverride ?? "");
@@ -373,6 +390,25 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
             </CardDescription>
           </CardHeader>
           <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+            {pilotStopDraft !== null ? (
+              <div
+                className="space-y-2 rounded border border-dashed border-border p-3"
+                data-testid="admin-itsm-pilot-stop-draft-handoff"
+              >
+                <p className={cn("m-0 font-medium text-foreground", OPERATOR_TYPOGRAPHY.body)}>
+                  Draft outbound from SecureNow pilot Stop
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE}</p>
+                <Label htmlFor="admin-itsm-pilot-stop-draft-body">Draft message</Label>
+                <Textarea
+                  id="admin-itsm-pilot-stop-draft-body"
+                  value={pilotStopDraftBody}
+                  onChange={(event) => setPilotStopDraftBody(event.target.value)}
+                  rows={5}
+                  data-testid="admin-itsm-pilot-stop-draft-body"
+                />
+              </div>
+            ) : null}
             <p className="m-0">
               <Link href={ITSM_CONNECTOR_SMOKE_HELP.jira} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
                 Jira connector smoke checklist

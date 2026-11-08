@@ -33,7 +33,7 @@ describe("advisory-scans help negation drift guard", () => {
     const auditTile = ADVISORY_SCANS_HELP_TILE_ITEMS.find((item) => item.label === "Audit trail");
 
     expect(auditTile).toBeDefined();
-    expect(auditTile?.detail.toLowerCase()).toContain("governed");
+    expect(auditTile?.detail.toLowerCase()).toContain("formal assurance");
     expect(auditTile?.href).toContain("/governance/audit");
   });
 

@@ -2,6 +2,9 @@ namespace ArchLucid.Cli.Commands.PilotReadiness;
 
 internal sealed class FrontierAiBaselineSlotRunner : PilotReadinessSlotRunnerBase, IPilotReadinessSlotRunner
 {
+    private const string OfflineFrontierAiScoreboardRelative =
+        "fixtures/bakeoff/offline-release-train-scoreboard.md";
+
     public async Task<PilotReadinessBundleSlotResult> RunAsync(
         PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken = default)
@@ -11,6 +14,7 @@ internal sealed class FrontierAiBaselineSlotRunner : PilotReadinessSlotRunnerBas
         FrontierAiBaselineOptions childOptions = new()
         {
             SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
+            ScoreboardPath = context.TryResolveOfflineFixturePath(OfflineFrontierAiScoreboardRelative),
         };
         FrontierAiBaselineRunner runner = new();
         FrontierAiBaselineReport report = runner.Run(context.RepositoryRoot, childOptions);

@@ -159,7 +159,15 @@ export function useSsoWizardPage(): UseSsoWizardPageResult {
 
   const syncStepToUrl = useCallback(
     (nextStep: number) => {
-      router.replace(ssoWizardStepHrefFromSearch(searchParams.toString(), nextStep, pathname), { scroll: false });
+      const currentSearch = searchParams.toString();
+      const nextHref = ssoWizardStepHrefFromSearch(currentSearch, nextStep, pathname);
+      const currentHref = currentSearch.length > 0 ? `${pathname}?${currentSearch}` : pathname;
+
+      // Router wrappers may change identity across renders. Replacing the
+      // current URL again can trigger a navigation/render feedback loop.
+      if (nextHref !== currentHref) {
+        router.replace(nextHref, { scroll: false });
+      }
     },
     [pathname, router, searchParams],
   );

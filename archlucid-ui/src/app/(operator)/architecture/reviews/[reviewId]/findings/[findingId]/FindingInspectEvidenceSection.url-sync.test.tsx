@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -102,6 +102,45 @@ describe("FindingInspectEvidenceSection URL sync", () => {
 
     await waitFor(() => {
       expect(details()).toHaveAttribute("open");
+    });
+  });
+
+  it("writes evidence citation disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/run-1/findings/finding-1?reviewTab=findings&q=stale-payment`,
+    );
+
+    const renderSection = () => (
+      <SearchParamsRerenderHost>
+        <FindingInspectEvidenceSection
+          runId="run-1"
+          demoFillGaps={false}
+          reviewContextHref="/architecture/reviews/run-1"
+          reviewContextLabel="Open review"
+          evidence={[
+            {
+              artifactId: "diagram-1",
+              lineRange: "12-14",
+              excerpt: "Public ingress on port 443",
+            },
+          ]}
+        />
+      </SearchParamsRerenderHost>
+    );
+
+    const { rerender } = render(renderSection());
+
+    searchParamsHarness.applyQuery("");
+    rerender(renderSection());
+
+    fireEvent.click(screen.getByText("View technical citation"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-1/findings/finding-1?${FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM}=diagram-1`,
+      );
     });
   });
 });

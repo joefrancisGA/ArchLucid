@@ -25,7 +25,7 @@ export const RISK_REGISTER_FILTER_LABELS: Record<RiskRegisterFilter, string> = {
   "accepted-risk": "Accepted risk",
   "exception-granted": "Exception granted",
   "expiring-soon": "Expiring soon",
-  "no-owner": "No owner",
+  "no-owner": "Owner was not stored",
   "overdue-review": "Overdue review",
   "high-severity": "High severity",
   "critical-error": "Critical and error",

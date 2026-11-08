@@ -57,6 +57,7 @@ import {
   governanceFindingsQueueActiveFiltersSummary,
 } from "@/lib/governance/governance-findings-queue-active-filters";
 import { resolveGovernanceAssignedToMeOldestFinding } from "@/lib/governance/resolve-governance-assigned-to-me-oldest-finding";
+import { normalizeGovernanceQueueFindingId, governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
   EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
@@ -69,6 +70,12 @@ import {
 } from "@/lib/findings/finding-job-view";
 import { matchesGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 import { matchesGovernanceFindingsArchitectureScope } from "@/lib/governance/governance-findings-architecture-scope";
+
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { parseNestedReviewDeskFromPathname } from "@/lib/architecture/review-url-state-pathname";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
@@ -126,7 +133,21 @@ export function extractGovernanceFindingIds(
 ): string[] {
   return displayedRows
     .filter((row) => row.recordKind === "finding")
-    .map((row) => row.findingId);
+    .map((row) => normalizeGovernanceQueueFindingId(row.findingId))
+    .filter((id) => id.length > 0);
+}
+
+export function resolveGovernanceFindingRunIdFromDisplayedRows(
+  displayedRows: readonly GovernanceFindingQueueRow[],
+  findingId: string,
+): string | null {
+  const match = displayedRows.find(
+    (row) =>
+      row.recordKind === "finding"
+      && governanceQueueRowFindingIdEquals(row.findingId, findingId),
+  );
+
+  return match?.runId ?? null;
 }
 
 export type FirstFindingTriageTarget = {
@@ -428,12 +449,55 @@ export function resolveScopedFindingLifecycleCompareHref(
   return comparePageHrefWithLifecycleAnchor(priorRunId, scopedRunId);
 }
 
+export type ResolveGovernanceFindingsSponsorHandoffHrefInput = {
+  readonly pathname?: string | null;
+  readonly scopedArchitectureId?: string | null;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
+};
+
 export function resolveGovernanceFindingsSponsorHandoffHref(
   scopedRunId: string | null,
+  input?: ResolveGovernanceFindingsSponsorHandoffHrefInput,
 ): string | null {
   if (scopedRunId === null || scopedRunId.length === 0) {
     return null;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`;
+  const runId = scopedRunId.trim();
+  let architectureId = input?.scopedArchitectureId?.trim() ?? "";
+  const path = input?.pathname?.trim() ?? "";
+
+  if (architectureId.length === 0 && path.length > 0) {
+    const nestedDesk = parseNestedReviewDeskFromPathname(path);
+
+    if (nestedDesk !== null && nestedDesk.reviewRunId === runId) {
+      architectureId = nestedDesk.architectureId;
+    }
+  }
+
+  if (architectureId.length === 0) {
+    const locator = resolveWorkingRunReviewLocator({
+      runId,
+      draftRegistryEntries: input?.draftRegistryEntries,
+    });
+
+    if (locator.architectureId !== null) {
+      architectureId = locator.architectureId;
+    }
+  }
+
+  if (architectureId.length === 0) {
+    const continuityArchitectureId = resolveGlobalSearchDeskArchitectureId({
+      runId,
+      pathname: path,
+    });
+
+    if (continuityArchitectureId !== null) {
+      architectureId = continuityArchitectureId;
+    }
+  }
+
+  return buildReviewDetailTabHref(runId, "review-package", {
+    architectureId: architectureId.length > 0 ? architectureId : null,
+  });
 }

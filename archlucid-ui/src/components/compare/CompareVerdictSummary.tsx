@@ -74,6 +74,15 @@ export function CompareVerdictSummary(props: CompareVerdictSummaryProps): ReactE
         </p>
       ) : null}
 
+      {verdict.totalChanges > 0 && verdict.topChangeHighlight === null ? (
+        <p
+          className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="compare-top-change-highlight-missing"
+        >
+          Top change highlight was not stored.
+        </p>
+      ) : null}
+
       {verdict.topChangeHighlight !== null ? (
         <p
           className={cn(

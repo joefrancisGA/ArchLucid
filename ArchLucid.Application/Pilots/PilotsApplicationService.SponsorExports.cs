@@ -85,7 +85,11 @@ public sealed partial class PilotsApplicationService
         if (!detail.IsCommitted)
             return new SponsorPackSentResult(SponsorPackSentOutcome.NotCommitted);
 
-        string normalizedDeliveryMethod = deliveryMethod?.Trim() ?? "email";
+        string normalizedDeliveryMethod = deliveryMethod?.Trim() ?? string.Empty;
+        bool deliveryMethodStored = normalizedDeliveryMethod.Length > 0;
+
+        if (!deliveryMethodStored)
+            normalizedDeliveryMethod = "email";
 
         if (normalizedDeliveryMethod.Length > 64)
             normalizedDeliveryMethod = normalizedDeliveryMethod[..64];
@@ -103,6 +107,7 @@ public sealed partial class PilotsApplicationService
                 runId = detail.Run.RunId,
                 recipientEmail = normalizedRecipientEmail,
                 deliveryMethod = normalizedDeliveryMethod,
+                deliveryMethodStored,
                 recordedUtc = TimeProvider.System.GetUtcNow(),
             });
 
@@ -139,7 +144,11 @@ public sealed partial class PilotsApplicationService
         if (detail is null)
             return new SponsorPreliminaryShareResult(SponsorPreliminaryShareOutcome.RunNotFound);
 
-        string normalizedReadinessStatus = readinessStatus?.Trim() ?? "unknown";
+        string normalizedReadinessStatus = readinessStatus?.Trim() ?? string.Empty;
+        bool readinessStatusStored = normalizedReadinessStatus.Length > 0;
+
+        if (!readinessStatusStored)
+            normalizedReadinessStatus = "unknown";
 
         if (normalizedReadinessStatus.Length > 64)
             normalizedReadinessStatus = normalizedReadinessStatus[..64];
@@ -150,7 +159,11 @@ public sealed partial class PilotsApplicationService
             return new SponsorPreliminaryShareResult(SponsorPreliminaryShareOutcome.OverrideRequired);
         }
 
-        string normalizedDeliveryMethod = deliveryMethod?.Trim() ?? "preliminary-draft";
+        string normalizedDeliveryMethod = deliveryMethod?.Trim() ?? string.Empty;
+        bool deliveryMethodStored = normalizedDeliveryMethod.Length > 0;
+
+        if (!deliveryMethodStored)
+            normalizedDeliveryMethod = "preliminary-draft";
 
         if (normalizedDeliveryMethod.Length > 64)
             normalizedDeliveryMethod = normalizedDeliveryMethod[..64];
@@ -167,10 +180,12 @@ public sealed partial class PilotsApplicationService
             {
                 runId = detail.Run.RunId,
                 readinessStatus = normalizedReadinessStatus,
+                readinessStatusStored,
                 knownGaps,
                 overrideAcknowledged = overrideAcknowledged == true,
                 confidentialityLabel = normalizedConfidentialityLabel,
                 deliveryMethod = normalizedDeliveryMethod,
+                deliveryMethodStored,
                 isCommitted = detail.IsCommitted,
                 recordedUtc = TimeProvider.System.GetUtcNow(),
             });

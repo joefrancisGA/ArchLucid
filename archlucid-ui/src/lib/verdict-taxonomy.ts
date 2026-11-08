@@ -67,7 +67,47 @@ export function tryVerdictTierFromRiskPosture(riskPosture: string | null | undef
     return null;
   }
 
+  if (!riskPostureMapsToKnownTier(normalized)) {
+    return null;
+  }
+
   return verdictTierFromRiskPosture(riskPosture ?? "");
+}
+
+function riskPostureMapsToKnownTier(normalized: string): boolean {
+  if (
+    normalized.includes("proceed")
+    || normalized.includes("approved")
+    || normalized.includes("low")
+    || normalized.includes("green")
+    || normalized.includes("feasible")
+  ) {
+    return true;
+  }
+
+  if (
+    normalized.includes("hold")
+    || normalized.includes("critical")
+    || normalized.includes("hard")
+    || normalized.includes("blocked")
+    || normalized.includes("red")
+  ) {
+    return true;
+  }
+
+  if (
+    normalized.includes("remediate")
+    || normalized.includes("elevated")
+    || normalized.includes("residual")
+    || normalized.includes("medium")
+    || normalized.includes("yellow")
+    || normalized.includes("amber")
+    || normalized.includes("soft")
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 /** Best-effort mapper for free-text sponsor risk posture strings. */

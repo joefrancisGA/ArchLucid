@@ -1,4 +1,5 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -140,8 +141,12 @@ public sealed class ReplayRunExecutePreparedStage(
         if (replayTasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for replay run '{preparedReplayRunId}'.");
 
-        AgentEvidencePackage evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ??
-                                        throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+        string canonicalOriginalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(originalRunId);
+        AgentEvidencePackage evidence = await AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
+                                            _agentEvidencePackageRepository,
+                                            canonicalOriginalRunId,
+                                            cancellationToken)
+                                        ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         AgentEvidencePackage replayEvidence = _cloneStage.CloneEvidenceForReplay(evidence, preparedReplayRunId);
         IAgentExecutor executor = _agentExecutorResolver.Resolve(executionMode);

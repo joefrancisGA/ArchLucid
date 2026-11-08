@@ -65,7 +65,7 @@ export function buildGovernanceResolutionMarkdown(
       const item = `${conflict.itemType} \`${conflict.itemKey}\``;
       const winnerLabel =
         winner === null
-          ? " — "
+          ? "Winning pack was not stored."
           : `${winner.policyPackName} (v${winner.version}, ${winner.scopeLevel})`;
       const losersLabel =
         losers.length === 0

@@ -195,6 +195,62 @@ describe("SignupVerifyClient", () => {
     }
   });
 
+  it("does not let an older background poll override a newer manual check", async () => {
+    vi.useFakeTimers();
+
+    try {
+      let resolvePoll!: (value: Awaited<ReturnType<typeof fetchSignupVerifyTrialStatus>>) => void;
+      let resolveManual!: (value: Awaited<ReturnType<typeof fetchSignupVerifyTrialStatus>>) => void;
+      const pollFetch = new Promise<Awaited<ReturnType<typeof fetchSignupVerifyTrialStatus>>>((resolve) => {
+        resolvePoll = resolve;
+      });
+      const manualFetch = new Promise<Awaited<ReturnType<typeof fetchSignupVerifyTrialStatus>>>((resolve) => {
+        resolveManual = resolve;
+      });
+
+      vi.mocked(fetchSignupVerifyTrialStatus)
+        .mockResolvedValueOnce({ kind: "pending", payload: { status: "None" } })
+        .mockReturnValueOnce(pollFetch)
+        .mockReturnValueOnce(manualFetch);
+
+      render(<SignupVerifyClient />);
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(25_000);
+        await Promise.resolve();
+      });
+
+      fireEvent.click(screen.getByTestId("signup-verify-continue-onboarding"));
+
+      await act(async () => {
+        resolveManual({ kind: "pending", payload: { status: "None" } });
+        await Promise.resolve();
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.stillPendingHeading })).toBeInTheDocument();
+
+      await act(async () => {
+        resolvePoll({
+          kind: "ready",
+          payload: { status: "Active", trialWelcomeRunId: "run-from-older-poll" },
+        });
+        await Promise.resolve();
+      });
+
+      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.stillPendingHeading })).toBeInTheDocument();
+      expect(replaceMock).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("handles resend pending label", async () => {
     vi.mocked(readSignupVerifyResendCooldown).mockReturnValue({ active: false, secondsRemaining: 0 });
 

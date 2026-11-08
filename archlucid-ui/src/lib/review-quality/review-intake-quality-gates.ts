@@ -2,11 +2,31 @@ export const POLICY_PACK_CLOUD_MISMATCH_MESSAGE =
   "Selected policy packs may not match the stated cloud target. Adjust packs or cloud target before starting.";
 
 /** TB-2322: Azure packs on AWS target (and similar) produce the wrong governance bar. */
+export const CLOUD_TARGET_NOT_STORED_MESSAGE = "Cloud target was not stored." as const;
+
 export function evaluatePolicyPackCloudMismatch(
   cloudProvider: string | null | undefined,
   policyReferences: readonly string[],
 ): string | null {
-  const cloud = (cloudProvider ?? "None").trim().toLowerCase();
+  if (cloudProvider === null || cloudProvider === undefined) {
+    const refs = policyReferences.map((ref) => ref.trim().toLowerCase()).filter((ref) => ref.length > 0);
+
+    if (refs.length === 0) {
+      return null;
+    }
+
+    const mentionsAzurePack = refs.some((ref) => ref.includes("azure") || ref.includes("cis-azure"));
+    const mentionsAwsPack = refs.some((ref) => ref.includes("aws"));
+    const mentionsGcpPack = refs.some((ref) => ref.includes("gcp") || ref.includes("google"));
+
+    if (mentionsAzurePack || mentionsAwsPack || mentionsGcpPack) {
+      return CLOUD_TARGET_NOT_STORED_MESSAGE;
+    }
+
+    return null;
+  }
+
+  const cloud = cloudProvider.trim().toLowerCase();
   const refs = policyReferences.map((ref) => ref.trim().toLowerCase()).filter((ref) => ref.length > 0);
 
   if (refs.length === 0) {

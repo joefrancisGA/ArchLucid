@@ -35,7 +35,7 @@ describe("PatternLibraryPageHeader", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Pattern library" })).toBeInTheDocument();
     expect(screen.getByText(PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("pattern-library-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-provenance-badge")).toHaveTextContent("Sample data");
     fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
     expect(onRefresh).toHaveBeenCalledTimes(1);

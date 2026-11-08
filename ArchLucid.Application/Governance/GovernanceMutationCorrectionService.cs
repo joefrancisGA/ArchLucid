@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -297,10 +298,10 @@ public sealed class GovernanceMutationCorrectionService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernancePromotionRecord> promotions =
-            await ListByEquivalentRunIdAsync(
+            await AnalysisRunIdCanonicalization.LoadGovernancePromotionRecordsByRunIdAsync(
+                _promotionRepo,
                 normalizedRunId,
-                (runId, ct) => _promotionRepo.GetByRunIdAsync(runId, ct),
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
         bool found = promotions.Any(p =>
             string.Equals(p.PromotionRecordId, promotionRecordId, StringComparison.OrdinalIgnoreCase));
@@ -328,10 +329,10 @@ public sealed class GovernanceMutationCorrectionService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernanceEnvironmentActivation> activations =
-            await ListByEquivalentRunIdAsync(
+            await AnalysisRunIdCanonicalization.LoadGovernanceEnvironmentActivationsByRunIdAsync(
+                _activationRepo,
                 normalizedRunId,
-                (runId, ct) => _activationRepo.GetByRunIdAsync(runId, ct),
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
         GovernanceEnvironmentActivation? activation = activations.FirstOrDefault(a =>
             string.Equals(a.ActivationId, activationId, StringComparison.OrdinalIgnoreCase));
@@ -346,32 +347,4 @@ public sealed class GovernanceMutationCorrectionService(
         }
     }
 
-    /// <summary>
-    ///     In-memory governance stores match run ids with ordinal string equality. SQL already accepts
-    ///     dashed and canonical-N forms. A second read uses the other form so a correction body can
-    ///     name the same run the workflow persisted from <c>ArchitectureRun.RunId</c>.
-    /// </summary>
-    private static async Task<IReadOnlyList<T>> ListByEquivalentRunIdAsync<T>(
-        string normalizedRunId,
-        Func<string, CancellationToken, Task<IReadOnlyList<T>>> readAsync,
-        CancellationToken cancellationToken)
-    {
-        IReadOnlyList<T> rows = await readAsync(normalizedRunId, cancellationToken);
-
-        if (rows.Count > 0 || !Guid.TryParse(normalizedRunId, out Guid runGuid))
-        {
-            return rows;
-        }
-
-        string alternateRunId = normalizedRunId.Contains('-')
-            ? runGuid.ToString("N")
-            : runGuid.ToString("D");
-
-        if (string.Equals(alternateRunId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
-        {
-            return rows;
-        }
-
-        return await readAsync(alternateRunId, cancellationToken);
-    }
 }

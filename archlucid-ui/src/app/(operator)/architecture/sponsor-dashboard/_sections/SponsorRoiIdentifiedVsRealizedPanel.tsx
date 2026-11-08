@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { Button } from "@/components/ui/button";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import {
@@ -8,8 +10,10 @@ import {
   SPONSOR_ROI_IDENTIFIED_PENDING_LABEL,
   SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION,
   SPONSOR_ROI_REALIZED_COMMITTED_LABEL,
+  SPONSOR_ROI_REALIZED_NOT_STORED_CTA,
+  SPONSOR_ROI_REALIZED_NOT_STORED_LABEL,
   type SponsorRoiIdentifiedVsRealizedBuckets,
-} from "@/lib/sponsor-roi-identified-vs-realized";
+} from "@/lib/sponsor/sponsor-roi-identified-vs-realized";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
@@ -19,10 +23,13 @@ import {
   formatRoiCostEvidenceFreshnessWarning,
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
+import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 
 type SponsorRoiIdentifiedVsRealizedPanelProps = {
   readonly summary: SponsorRoiSummary;
   readonly buckets: SponsorRoiIdentifiedVsRealizedBuckets;
+  readonly dispositionReviewHref?: string | null;
 };
 
 export function SponsorRoiIdentifiedVsRealizedPanel(
@@ -57,6 +64,16 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Do not treat identified potential as realized value until findings are remediated through approval.
         </p>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="exec-roi-headline-model-estimate-line"
+        >
+          {SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE}
+        </p>
+        <SecureNowSponsorRoiCollectionScopeHonestyLine
+          className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          testId="exec-roi-collection-scope-honesty"
+        />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -115,10 +132,19 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
             className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
             data-testid="exec-roi-realized-usd"
           >
-            {realizedSavings.display}
+            {buckets.hasBasisBreakdown ? realizedSavings.display : SPONSOR_ROI_REALIZED_NOT_STORED_LABEL}
           </div>
           {realizedSavings.footnote ? (
             <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{realizedSavings.footnote}</p>
+          ) : null}
+          {!buckets.hasBasisBreakdown && props.dispositionReviewHref !== null && props.dispositionReviewHref !== undefined ? (
+            <div className="mt-3">
+              <Button asChild type="button" size="sm" variant="outline">
+                <Link href={props.dispositionReviewHref} data-testid="exec-roi-realized-not-stored-open-review">
+                  {SPONSOR_ROI_REALIZED_NOT_STORED_CTA}
+                </Link>
+              </Button>
+            </div>
           ) : null}
           <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
             {SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION}

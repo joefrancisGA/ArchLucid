@@ -64,6 +64,6 @@ describe("digest-preview-before-subscribe (TB-2211)", () => {
     expect(specimen.toLine).toBe("sponsor@example.com (+1 more)");
     expect(specimen.metaLine).toContain("Every Monday at 8:00 AM Eastern");
     expect(specimen.sections).toEqual([...DIGEST_PREVIEW_SPONSOR_SECTIONS]);
-    expect(resolveDigestPreviewHelper("sponsor-schedule")).toMatch(/sponsor digest/i);
+    expect(resolveDigestPreviewHelper("sponsor-schedule")).toMatch(/representative sponsor email layout/i);
   });
 });

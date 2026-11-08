@@ -11,6 +11,9 @@ import type { EvaluationScoreResponse, EvolutionSimulationRunWithEvaluationRespo
 import { resolveImpactPreviewRecommendation } from "./resolve-impact-preview-recommendation";
 
 const NOT_AVAILABLE = "Not available" as const;
+const IMPACT_PREVIEW_WARNING_COUNT_NOT_STORED =
+  "Analysis warning count was not stored." as const;
+const IMPACT_PREVIEW_PLAN_SNAPSHOT_NOT_STORED = "Planning snapshot was not stored." as const;
 
 function asScoreNumber(value: string | number | null | undefined): number | null {
   if (value === null || value === undefined) {
@@ -59,7 +62,7 @@ export function resolveImpactPreviewSummaryMetrics(
   const findingsChangedLabel =
     warningCount !== null
       ? `${warningCount} analysis warning${warningCount === 1 ? "" : "s"} in estimated outcome`
-      : NOT_AVAILABLE;
+      : IMPACT_PREVIEW_WARNING_COUNT_NOT_STORED;
 
   const risksReducedLabel =
     evaluation?.improvementDelta !== null && evaluation?.improvementDelta !== undefined && evaluation.improvementDelta > 0
@@ -74,7 +77,7 @@ export function resolveImpactPreviewSummaryMetrics(
   const costImpactLabel =
     planSnapshot !== null
       ? `Priority score ${planSnapshot.priorityScore.toFixed(1)} · ${planSnapshot.actionStepCount} action step${planSnapshot.actionStepCount === 1 ? "" : "s"}`
-      : NOT_AVAILABLE;
+      : IMPACT_PREVIEW_PLAN_SNAPSHOT_NOT_STORED;
 
   const governanceStatusLabel = resolveImpactPreviewRecommendation(evaluation);
 

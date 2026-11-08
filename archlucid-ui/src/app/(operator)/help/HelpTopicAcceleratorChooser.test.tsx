@@ -25,6 +25,11 @@ vi.mock("@/hooks/use-accelerator-chooser-prerequisite-presentation", () => ({
   useAcceleratorChooserPrerequisitePresentation: () => useAcceleratorChooserPrerequisitePresentation(),
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
 import {
   HelpAcceleratorChooserGuideView,
   ACCELERATOR_CHOOSER_GUIDE_HEADINGS,

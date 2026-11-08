@@ -14,6 +14,17 @@ namespace ArchLucid.Application.Tests.Agents;
 [Trait("Category", "Unit")]
 public sealed class DefaultAgentExecutorResolverTests
 {
+    [Fact]
+    public void Resolve_known_mode_with_surrounding_whitespace_returns_injected_executor()
+    {
+        Mock<IAgentExecutor> executor = new();
+        DefaultAgentExecutorResolver sut = new(executor.Object);
+
+        IAgentExecutor resolved = sut.Resolve($"  {ExecutionModes.Current}  ");
+
+        resolved.Should().BeSameAs(executor.Object);
+    }
+
     [Theory]
     [InlineData(ExecutionModes.Current)]
     [InlineData(ExecutionModes.Deterministic)]

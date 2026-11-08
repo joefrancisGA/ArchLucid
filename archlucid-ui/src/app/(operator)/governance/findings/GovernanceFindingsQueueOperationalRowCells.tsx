@@ -31,6 +31,8 @@ import { resolveGovernanceQueueDueDate } from "@/lib/governance/governance-queue
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingInspectHref,
+  governanceFindingQueuePrimaryInspectHref,
+  governanceFindingQueueRowReviewHrefForRow,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
@@ -51,6 +53,7 @@ import {
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 import {
+  governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
@@ -162,9 +165,12 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
   const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
   const findingInspectHref = hasStoredRunId
-    ? governanceFindingInspectHref(row.runId, row.findingId)
+    ? governanceFindingQueuePrimaryInspectHref(row)
     : null;
-  const evidenceTraceHref = row.recordKind === "finding" ? findingInspectHref : null;
+  const findingEvidenceTraceHref =
+    hasStoredRunId && row.recordKind === "finding"
+      ? governanceFindingInspectHref(row.runId, row.findingId)
+      : null;
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
 
   return (
@@ -188,7 +194,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
               {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
             />
           </div>
-        ) : row.category && row.recordKind === "finding" ? (
+        ) : governanceFindingQueueRowHasDisplayCategory(row) ? (
           <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             Policy area: {row.category}
           </div>
@@ -197,7 +203,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           <div className="mt-1">
             <FindingDerivationLine
               derivation={findingDerivation}
-              evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+              evidenceHref={findingEvidenceTraceHref ?? evidenceChipHref}
               evidenceRefCount={row.evidenceRefCount}
               testId={`governance-table-derivation-${row.findingId}`}
               compact
@@ -260,7 +266,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {row.runId.trim().length > 0 ? (
-          <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+          <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHrefForRow(row)}>
             {row.runLabel}
           </Link>
         ) : (
@@ -274,7 +280,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         {governanceQueueSeverityCell(row, false, severityMeaning)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? row.ownerUserId?.trim() || "No owner recorded." : "Does not apply to decision rows"}
+        {row.recordKind === "finding" ? row.ownerUserId?.trim() || "Owner was not stored." : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {governanceQueueDispositionLabel(row)}
@@ -288,7 +294,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding"
-          ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc, "No exception expiry recorded")
+          ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc, "Exception expiry was not stored.")
           : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>

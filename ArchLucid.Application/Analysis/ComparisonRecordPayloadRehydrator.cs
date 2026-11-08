@@ -15,7 +15,23 @@ public static class ComparisonRecordPayloadRehydrator
             return null;
         try
         {
-            return JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(record.PayloadJson, JsonOptions);
+            EndToEndReplayComparisonReport? report =
+                JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(record.PayloadJson, JsonOptions);
+
+            if (report is null)
+                return null;
+
+            bool payloadHadRunIdAnchors =
+                !string.IsNullOrEmpty(report.LeftRunId) || !string.IsNullOrEmpty(report.RightRunId);
+
+            EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+            EndToEndReplayComparisonReportNormalizer.ApplyComparisonRecordRunIdAnchorsInPlace(report, record);
+
+            return EndToEndReplayComparisonReportNormalizer.IsPersistedImmaterialRehydrateShell(
+                    report,
+                    ignoreRunIdAnchors: !payloadHadRunIdAnchors)
+                ? null
+                : report;
         }
         catch (JsonException ex)
         {
@@ -32,7 +48,24 @@ public static class ComparisonRecordPayloadRehydrator
             return null;
         try
         {
-            return JsonSerializer.Deserialize<ExportRecordDiffResult>(record.PayloadJson, JsonOptions);
+            ExportRecordDiffResult? diff = JsonSerializer.Deserialize<ExportRecordDiffResult>(record.PayloadJson, JsonOptions);
+
+            if (diff is null)
+                return null;
+
+            bool payloadHadDisplayAnchors =
+                !string.IsNullOrEmpty(diff.LeftExportRecordId)
+                || !string.IsNullOrEmpty(diff.RightExportRecordId)
+                || !string.IsNullOrEmpty(diff.LeftRunId)
+                || !string.IsNullOrEmpty(diff.RightRunId);
+
+            ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
+            ExportRecordDiffResultNormalizer.ApplyComparisonRecordAnchorsInPlace(diff, record);
+
+            if (!ExportRecordDiffMateriality.HasMaterialChanges(diff) && !payloadHadDisplayAnchors)
+                return null;
+
+            return diff;
         }
         catch (JsonException ex)
         {
@@ -41,4 +74,5 @@ public static class ComparisonRecordPayloadRehydrator
                 "The stored JSON may be corrupt.", ex);
         }
     }
+
 }

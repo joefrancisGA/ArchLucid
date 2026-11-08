@@ -1,11 +1,13 @@
 "use client";
 
+import { resolveArchitectureDiagramNodeDisplayLabel } from "@/lib/architecture/architecture-diagram-provenance";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING,
+  ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER,
   ARCHITECTURE_DIAGRAM_REMOVE_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION,
   ARCHITECTURE_DIAGRAM_REMOVED_INFERRED_HEADING,
@@ -45,13 +47,18 @@ export function ArchitectureDiagramInferredPanel(props: ArchitectureDiagramInfer
           <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING}
           </p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER}
+          </p>
           <ul className="m-0 list-none space-y-2 p-0">
             {pendingNodes.map((node) => (
               <li
                 key={node.id}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed border-neutral-300 p-2 dark:border-neutral-700"
               >
-                <span className={OPERATOR_TYPOGRAPHY.body}>{node.label}</span>
+                <span className={OPERATOR_TYPOGRAPHY.body}>
+                  {resolveArchitectureDiagramNodeDisplayLabel(node.label)}
+                </span>
                 {props.canEdit ? (
                   <div className="flex gap-2">
                     <Button
@@ -95,7 +102,9 @@ export function ArchitectureDiagramInferredPanel(props: ArchitectureDiagramInfer
                 key={node.id}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
               >
-                <span className={cn(OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>{node.label}</span>
+                <span className={cn(OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
+                  {resolveArchitectureDiagramNodeDisplayLabel(node.label)}
+                </span>
                 {props.canEdit ? (
                   <Button
                     type="button"

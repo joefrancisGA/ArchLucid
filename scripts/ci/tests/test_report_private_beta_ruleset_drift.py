@@ -19,6 +19,8 @@ import report_private_beta_ruleset_drift as sut
 
 def _ruleset(*, branch: str = "refs/heads/RC35", contexts: tuple[str, ...] = ("beta",)) -> dict[str, object]:
     return {
+        "enforcement": "active",
+        "target": "branch",
         "conditions": {"ref_name": {"include": [branch]}},
         "rules": [
             {
@@ -45,7 +47,41 @@ class TestPrivateBetaRulesetDrift(unittest.TestCase):
 
         self.assertEqual(result["disposition"], "HOLD")
         self.assertIn("live ruleset is missing required context: corset", result["issues"])
-        self.assertIn("live ruleset does not include the RC35 release-cut branch", result["issues"])
+        self.assertIn("live ruleset is missing protected branch: refs/heads/RC35", result["issues"])
+
+    def test_unexpected_protected_branch_is_reported(self) -> None:
+        repo = _ruleset()
+        live = _ruleset()
+        live["conditions"]["ref_name"]["include"].append("refs/heads/unsafe")
+        result = sut.compare_rulesets(repo, live)
+        self.assertEqual(result["disposition"], "HOLD")
+        self.assertIn("live ruleset has unexpected protected branch: refs/heads/unsafe", result["issues"])
+
+    def test_empty_committed_contract_is_not_considered_healthy(self) -> None:
+        repo = _ruleset(contexts=())
+        result = sut.compare_rulesets(repo, repo)
+        self.assertEqual(result["disposition"], "HOLD")
+        self.assertTrue(any("no required status checks" in issue for issue in result["issues"]))
+
+    def test_committed_ruleset_without_rc35_is_not_considered_healthy(self) -> None:
+        repo = _ruleset(branch="refs/heads/master")
+        result = sut.compare_rulesets(repo, repo)
+        self.assertEqual(result["disposition"], "HOLD")
+
+    def test_disabled_live_ruleset_cannot_pass_drift_check(self) -> None:
+        for enforcement in ("disabled", "evaluate", None, "unknown"):
+            with self.subTest(enforcement=enforcement):
+                live = _ruleset()
+                live["enforcement"] = enforcement
+                result = sut.compare_rulesets(_ruleset(), live)
+                self.assertEqual(result["disposition"], "HOLD")
+                self.assertTrue(any("enforcement must remain active" in x for x in result["issues"]))
+
+    def test_live_ruleset_must_still_target_branches(self) -> None:
+        live = _ruleset()
+        live["target"] = "repository"
+        result = sut.compare_rulesets(_ruleset(), live)
+        self.assertEqual(result["disposition"], "HOLD")
 
     def test_warn_only_writes_hold_report_without_failing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

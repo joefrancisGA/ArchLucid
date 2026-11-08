@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class SynthesisTrace
 {
@@ -26,22 +28,28 @@ public class SynthesisTrace
         set;
     }
 
+    private List<string> generatorsUsed = [];
+
     public List<string> GeneratorsUsed
     {
-        get;
-        set;
-    } = [];
+        get => generatorsUsed;
+        set => generatorsUsed = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> sourceDecisionIds = [];
 
     public List<string> SourceDecisionIds
     {
-        get;
-        set;
-    } = [];
+        get => sourceDecisionIds;
+        set => sourceDecisionIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> notes = [];
 
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 }
 

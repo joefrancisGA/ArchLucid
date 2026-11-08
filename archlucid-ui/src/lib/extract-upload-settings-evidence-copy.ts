@@ -63,7 +63,17 @@ export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION_SECURENOW: EvidenceSour
 
 export function extractUploadAcceptedPackageNextAction(
   productLineId: ProductLineId = "architecture",
+  associateRunId?: string | null,
 ): EvidenceSourceLink {
+  const linkedReviewId = associateRunId?.trim() ?? "";
+
+  if (linkedReviewId.length > 0) {
+    return {
+      label: "Open linked review",
+      href: `/architecture/reviews/${encodeURIComponent(linkedReviewId)}`,
+    };
+  }
+
   return isSecureNowProductLine(productLineId)
     ? EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION_SECURENOW
     : EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION;

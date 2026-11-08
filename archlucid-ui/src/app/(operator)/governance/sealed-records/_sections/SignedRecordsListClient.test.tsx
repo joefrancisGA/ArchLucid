@@ -43,6 +43,16 @@ vi.mock("./signed-records-list-deferred-chunks", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({
+    mode: "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -203,7 +213,7 @@ describe("SignedRecordsListClient", () => {
         ...enrichedRow,
         runId: row.runId,
         reviewHref: row.reviewHref,
-        manifestVersion: " — ",
+        manifestVersion: "Version was not stored.",
         manifestId: null,
         signedRecordHref: null,
         sealIntegrity: null,

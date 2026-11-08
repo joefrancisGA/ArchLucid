@@ -59,6 +59,34 @@ function fileNameImpliesQuickStartClass(fileName: string): EvidenceGapClass | nu
   return null;
 }
 
+export function deriveQuickStartFilenameClassHonestyNotices(fileNames: readonly string[]): readonly string[] {
+  const notices: string[] = [];
+
+  for (const fileName of fileNames) {
+    const implied = fileNameImpliesQuickStartClass(fileName);
+
+    if (implied === null) {
+      continue;
+    }
+
+    const label = FILENAME_CLASS_HONESTY_LABELS[implied];
+
+    notices.push(
+      `${fileName.trim()} filename suggests ${label.toLowerCase()}; that class was not read from file contents.`,
+    );
+  }
+
+  return notices;
+}
+
+const FILENAME_CLASS_HONESTY_LABELS: Record<EvidenceGapClass, string> = {
+  "architecture-brief": "Architecture brief",
+  "cloud-inventory": "Cloud inventory",
+  "infrastructure-as-code": "Infrastructure as code",
+  "architecture-diagram": "Architecture diagram",
+  "operational-evidence": "Operational evidence",
+};
+
 /** TB-2296: stricter than forecast filename heuristics — generic images and ZIPs are not analyzable classes. */
 export function deriveQuickStartEvidencePresenceFromFileNames(
   fileNames: readonly string[],

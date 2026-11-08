@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -50,7 +52,6 @@ import {
   HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE,
   resolveHelpWorkingDeskPrimaryActions,
 } from "@/lib/help/help-workspace-mode-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import {
   OPERATOR_LAYOUT,
@@ -168,7 +169,7 @@ function CorePilotSummaryCard(props: {
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();

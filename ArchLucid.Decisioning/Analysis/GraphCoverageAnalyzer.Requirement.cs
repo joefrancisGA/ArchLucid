@@ -18,17 +18,21 @@ partial class GraphCoverageAnalyzer
             .Select(x => x.FromNodeId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        List<string> coveredRequirements = requirementNodes
+        List<GraphNode> coveredNodes = requirementNodes
             .Where(x => coveredIds.Contains(x.NodeId))
-            .Select(x => x.Label)
-            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .ToList();
+
+        List<GraphNode> uncoveredNodes = requirementNodes
+            .Where(x => !coveredIds.Contains(x.NodeId))
+            .ToList();
+
+        List<string> coveredRequirements = coveredNodes
+            .Select(x => GraphNodeReviewerLabel.ForFindingTitle(x.Label))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        List<string> uncoveredRequirements = requirementNodes
-            .Where(x => !coveredIds.Contains(x.NodeId))
-            .Select(x => x.Label)
-            .Where(l => !string.IsNullOrWhiteSpace(l))
+        List<string> uncoveredRequirements = uncoveredNodes
+            .Select(x => GraphNodeReviewerLabel.ForFindingTitle(x.Label))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -38,7 +42,11 @@ partial class GraphCoverageAnalyzer
             RelatedRequirementCount = coveredRequirements.Count,
             UnrelatedRequirementCount = uncoveredRequirements.Count,
             CoveredRequirements = coveredRequirements,
-            UncoveredRequirements = uncoveredRequirements
+            UncoveredRequirements = uncoveredRequirements,
+            UncoveredRequirementNodeIds = uncoveredNodes
+                .Select(static x => x.NodeId)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(),
         };
     }
 

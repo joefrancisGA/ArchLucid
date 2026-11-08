@@ -59,7 +59,7 @@ export function findingSemanticSupportBandFromTypedPayload(
     return band;
   }
 
-  return band ?? resolveDecisionGradeSemanticSupportBand(null);
+  return band ?? null;
 }
 
 export function semanticSupportBandStatusTagKind(

@@ -118,30 +118,34 @@ public interface IOperationalSecurityFindingRepository
         Guid pathId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
+    async Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
         ProjectScopeKey scope,
         Guid pathId,
-        CancellationToken cancellationToken = default) =>
-        ListFindingIdsByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        // A tenant-only lookup is insufficient: path citations must not cross workspaces/projects.
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await ListByScopeAsync(scope, null, cancellationToken);
+        return findings
+            .Where(finding => finding.PathId == pathId
+                && scope.Matches(finding.TenantId, finding.WorkspaceId, finding.ProjectId))
+            .OrderByDescending(finding => finding.LastObservedUtc)
+            .ThenBy(finding => finding.FindingId)
+            .Select(finding => finding.FindingId)
+            .ToList();
+    }
 
-    async Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
+    Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
         ProjectScopeKey scope,
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<OperationalSecurityFindingRecord> findings =
-            await ListByScopeAsync(scope, null, cancellationToken);
-
-        return findings
-            .Where(finding => finding.PathId.HasValue)
-            .GroupBy(finding => finding.PathId!.Value)
-            .ToDictionary(
-                group => group.Key,
-                group => (IReadOnlyList<Guid>)group
-                    .OrderByDescending(finding => finding.LastObservedUtc)
-                    .ThenBy(finding => finding.FindingId)
-                    .Select(finding => finding.FindingId)
-                    .ToList());
+        // Finding records do not carry the snapshot identity of the cited path.
+        // Do not mislabel all project findings as belonging to this snapshot.
+        // The SQL implementation joins the path table and overrides this fallback.
+        IReadOnlyDictionary<Guid, IReadOnlyList<Guid>> empty =
+            new Dictionary<Guid, IReadOnlyList<Guid>>();
+        return Task.FromResult(empty);
     }
 
     async Task<RemediationFactoryFindingMetricsAggregate> GetFactoryFindingMetricsAggregateInScopeAsync(

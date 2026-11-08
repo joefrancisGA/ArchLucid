@@ -78,7 +78,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
                 ? GovernanceDisposition.Accepted
                 : GovernanceDisposition.Open,
             Confidence = ClampConfidence(item.Confidence),
-            Severity = string.IsNullOrWhiteSpace(item.Severity) ? "Medium" : item.Severity.Trim(),
+            Severity = string.IsNullOrWhiteSpace(item.Severity) ? "Severity was not stored." : item.Severity.Trim(),
             Provenance = new ClaimProvenance
             {
                 Origin = ClaimOrigin.SystemProposed,
@@ -112,7 +112,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
                 ? "Validation method was not stored."
                 : item.ValidationMethod.Trim(),
             Confidence = ClampConfidence(item.Confidence),
-            RequiresHumanApproval = item.RequiresHumanApproval ?? false,
+            RequiresHumanApproval = item.RequiresHumanApproval,
             Effort = new EffortEstimate
             {
                 Band = item.EffortBand is null ? "Effort band was not stored." : item.EffortBand.Trim(),

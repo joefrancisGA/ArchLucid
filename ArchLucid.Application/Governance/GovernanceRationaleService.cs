@@ -23,18 +23,43 @@ public sealed class GovernanceRationaleService(IGovernanceLineageService lineage
         if (lineage.Run is { } run)
             bullets.Add($"Run status: {run.Status}; created {run.CreatedUtc:O} UTC");
         if (lineage.Manifest is { } manifest)
-            bullets.Add($"Authority manifest: version {manifest.ManifestVersion ?? "—"}; " +
+            bullets.Add($"Authority manifest: version {manifest.ManifestVersion ?? "Manifest version was not stored."}; " +
                         $"{manifest.DecisionCount} decision(s); {manifest.UnresolvedIssueCount} open issue(s); " +
                         $"{manifest.ComplianceGapCount} compliance gap(s).");
         if (!string.IsNullOrWhiteSpace(lineage.RiskPosture))
             bullets.Add($"Derived risk posture: {lineage.RiskPosture}");
         if (lineage.TopFindings.Count > 0)
-            bullets.Add($"Top findings (sample): {string.Join("; ", lineage.TopFindings.Take(3).Select(f => $"{f.Severity} {f.Title}"))}");
+        {
+            List<string> sampleLines = lineage.TopFindings
+                .Take(3)
+                .Select(FormatGovernanceRationaleFindingLine)
+                .ToList();
+            int omittedBeyondSample = lineage.TopFindings.Count - 3;
+            string sample = string.Join("; ", sampleLines);
+            string bullet = $"First {sampleLines.Count} finding(s): {sample}";
+
+            if (omittedBeyondSample > 0)
+                bullet += $" ({omittedBeyondSample} more finding(s) omitted from this summary.)";
+
+            bullets.Add(bullet);
+        }
         if (lineage.Promotions.Count > 0)
             bullets.Add($"Prior promotions recorded for this run: {lineage.Promotions.Count}.");
         string summary = $"Governance rationale for approval {approval.ApprovalRequestId}: " +
                          $"promotion request from {approval.SourceEnvironment} to {approval.TargetEnvironment} " +
                          $"for run {approval.RunId} at manifest {approval.ManifestVersion}.";
         return new GovernanceRationaleResult { SchemaVersion = 1, ApprovalRequestId = approval.ApprovalRequestId, Summary = summary, Bullets = bullets };
+    }
+
+    private static string FormatGovernanceRationaleFindingLine(GovernanceLineageFindingSummary finding)
+    {
+        string severity = string.IsNullOrWhiteSpace(finding.Severity)
+            ? "Severity was not stored."
+            : finding.Severity.Trim();
+        string title = string.IsNullOrWhiteSpace(finding.Title)
+            ? "Finding title was not stored."
+            : finding.Title.Trim();
+
+        return $"{severity} {title}";
     }
 }

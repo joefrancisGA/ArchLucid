@@ -37,9 +37,28 @@ public sealed class InMemoryTechnologyLedgerRepository : ITechnologyLedgerReposi
 
         lock (_gate)
         {
-            List<TechnologyLedgerEntry> list = _items
-                .Where(e => string.Equals(e.RunId, runId, StringComparison.Ordinal))
+            Dictionary<string, TechnologyLedgerEntry> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (TechnologyLedgerEntry entry in _items.Where(e =>
+                             string.Equals(e.RunId, lookupKey, StringComparison.Ordinal)))
+                {
+                    string mergeKey = string.IsNullOrWhiteSpace(entry.EntryId)
+                        ? $"{entry.Role}:{entry.TechnologyName}:{entry.RunId}"
+                        : entry.EntryId;
+
+                    if (!merged.TryGetValue(mergeKey, out TechnologyLedgerEntry? existing)
+                        || entry.CreatedUtc > existing.CreatedUtc)
+                    {
+                        merged[mergeKey] = entry;
+                    }
+                }
+            }
+
+            List<TechnologyLedgerEntry> list = merged.Values
                 .OrderBy(e => e.CreatedUtc)
+                .ThenBy(e => e.EntryId, StringComparer.OrdinalIgnoreCase)
                 .Select(Clone)
                 .ToList();
 

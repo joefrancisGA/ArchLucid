@@ -13,7 +13,7 @@ export function ReviewPresenterElicitationActions(
 ): React.JSX.Element | null {
   const { elicitation } = props;
 
-  if (elicitation.readyToFinalize) {
+  if (elicitation.readyToFinalize || !elicitation.primaryQuestionPromptStored) {
     return null;
   }
 

@@ -25,6 +25,11 @@ describe("policyPackBuyerLabel", () => {
   it("returns dash when empty", () => {
     expect(policyPackBuyerLabel("", "")).toBe("Policy pack not recorded");
     expect(policyPackBuyerLabel("custom-rules", "")).toBe("custom-rules · version not recorded");
+    expect(policyPackBuyerLabel("", "2.0")).toBe("Policy pack id was not stored.");
+  });
+
+  it("does not treat substring responsible-ai ids as sample aliases", () => {
+    expect(policyPackBuyerGovernanceDetailHref("my-responsible-ai-custom-pack")).toBeNull();
   });
 });
 

@@ -98,8 +98,11 @@ public sealed class RemediationPatternMatcherServiceTests
 
         patternRepository.Versions.Add(CreateApprovedVersionRecord(patternId, "1.0.0"));
 
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        findingRepository.Findings.Add(CreateFinding(findingId));
+
         InMemoryRemediationPatternMatchRepository matchRepository = new();
-        RemediationPatternMatcherService sut = CreateSut(new InMemoryOperationalSecurityFindingRepository(), patternRepository, matchRepository);
+        RemediationPatternMatcherService sut = CreateSut(findingRepository, patternRepository, matchRepository);
 
         RemediationPatternMatchEvaluationResult result = await sut.TryRecordProposedMatchAsync(
             CreateScope(),

@@ -10,6 +10,7 @@ describe("RunDetailSponsorReport", () => {
         workspaceStatus={{ label: "Approved", kind: "approved", statusTagKind: "approved" }}
         overallPosture="Approved with monitoring"
         highestSeverity="High"
+        hasFindingsSnapshot={true}
         criticalCount={0}
         highCount={1}
         awaitingActionCount={1}

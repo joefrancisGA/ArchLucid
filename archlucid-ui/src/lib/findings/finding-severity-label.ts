@@ -2,9 +2,9 @@
  * Maps API numeric finding severity (contract enum) to a short UI label.
  * Unknown values report that the label was not stored instead of showing a bare number.
  */
-export function findingSeverityLabel(severity: number | undefined): string {
-  if (severity === undefined) {
-    return "Severity not returned";
+export function findingSeverityLabel(severity: number | null | undefined): string {
+  if (severity === undefined || severity === null) {
+    return "Severity was not stored.";
   }
 
   switch (severity) {

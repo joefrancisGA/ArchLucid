@@ -40,9 +40,51 @@ internal static class InventoryDiagramOrphanedStateApplier
 
         foreach (DiagramNode diagramNode in ast.Nodes)
         {
-            if (string.IsNullOrWhiteSpace(diagramNode.SeedNodeId)
-                || !graphNodesById.TryGetValue(diagramNode.SeedNodeId, out GraphNode? graphNode))
+            if (string.IsNullOrWhiteSpace(diagramNode.SeedNodeId))
             {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
+                diagramNode.ConnectionStateMessage = null;
+                List<string> missingSeedDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    []);
+                const string diagramSeedNotStored = "Diagram seed was not stored.";
+                const string connectionStateNotStored = "Connection state was not stored.";
+
+                if (!missingSeedDetails.Contains(diagramSeedNotStored, StringComparer.Ordinal))
+                {
+                    missingSeedDetails.Add(diagramSeedNotStored);
+                }
+
+                if (!missingSeedDetails.Contains(connectionStateNotStored, StringComparer.Ordinal))
+                {
+                    missingSeedDetails.Add(connectionStateNotStored);
+                }
+
+                diagramNode.UnresolvedRelationshipDetails = missingSeedDetails;
+                continue;
+            }
+
+            if (!graphNodesById.TryGetValue(diagramNode.SeedNodeId, out GraphNode? graphNode))
+            {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
+                diagramNode.ConnectionStateMessage = null;
+                List<string> seedNotOnGraphDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    []);
+                const string seedNotOnGraph = "Diagram seed was not on this graph.";
+                const string connectionStateNotStored = "Connection state was not stored.";
+
+                if (!seedNotOnGraphDetails.Contains(seedNotOnGraph, StringComparer.Ordinal))
+                {
+                    seedNotOnGraphDetails.Add(seedNotOnGraph);
+                }
+
+                if (!seedNotOnGraphDetails.Contains(connectionStateNotStored, StringComparer.Ordinal))
+                {
+                    seedNotOnGraphDetails.Add(connectionStateNotStored);
+                }
+
+                diagramNode.UnresolvedRelationshipDetails = seedNotOnGraphDetails;
                 continue;
             }
 
@@ -53,20 +95,20 @@ internal static class InventoryDiagramOrphanedStateApplier
                 classificationGraph,
                 hasCitedDiagramEdges);
 
-            if (hasCitedDiagramEdges)
+            if (result.State is not null)
             {
-                diagramNode.ConnectionState = InventoryDiagramConnectionState.Connected;
-                diagramNode.ConnectionStateMessage = null;
+                diagramNode.ConnectionState = result.State;
+                diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
                 diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
                     diagramNode.UnresolvedRelationshipDetails,
                     result.UnresolvedRelationshipDetails);
                 continue;
             }
 
-            if (result.State is not null)
+            if (hasCitedDiagramEdges)
             {
-                diagramNode.ConnectionState = result.State;
-                diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Connected;
+                diagramNode.ConnectionStateMessage = null;
                 diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
                     diagramNode.UnresolvedRelationshipDetails,
                     result.UnresolvedRelationshipDetails);
@@ -160,7 +202,7 @@ internal static class InventoryDiagramOrphanedStateApplier
                     GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement,
                     StringComparison.OrdinalIgnoreCase))
             {
-                message = "hidden subnet placement";
+                message = "Placed on a subnet that is hidden on this diagram.";
                 return true;
             }
 
@@ -173,7 +215,8 @@ internal static class InventoryDiagramOrphanedStateApplier
                     GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                     StringComparison.OrdinalIgnoreCase))
             {
-                message = "effective network control";
+                message =
+                    "An effective route or network security group is stored. Observed use was not stored.";
                 return true;
             }
         }
@@ -213,7 +256,11 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             if (!string.IsNullOrWhiteSpace(resolvedArmId))
             {
-                message = $"attached to {ReadResourceName(resolvedArmId)}";
+                string resourceName = ReadResourceName(resolvedArmId);
+
+                message = string.IsNullOrWhiteSpace(resourceName)
+                    ? "Attached resource name was not stored. Observed use was not stored."
+                    : $"Attached to {resourceName}. That resource is in this inventory snapshot. Observed use was not stored.";
                 return true;
             }
         }
@@ -293,6 +340,6 @@ internal static class InventoryDiagramOrphanedStateApplier
 
         return lastSlash >= 0 && lastSlash < armResourceId.Length - 1
             ? armResourceId[(lastSlash + 1)..]
-            : "parent resource";
+            : string.Empty;
     }
 }

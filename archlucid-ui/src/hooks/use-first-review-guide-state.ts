@@ -1,18 +1,27 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { useFeaturedCompletedSampleQuery } from "@/hooks/use-featured-completed-sample-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
+import { listPolicyPackWorkspaceSelection } from "@/lib/api";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveFirstReviewGuideCareerHonestyContext } from "@/lib/first-review-guide-career-honesty";
+import {
+  resolveFirstReviewGuidePolicyPackAssigned,
+  resolveFirstReviewGuideOnePrerequisite,
+} from "@/lib/first-review-guide-blockers";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
 import {
   resolveFirstReviewGuideHeaderActions,
@@ -39,6 +48,7 @@ export type FirstReviewGuideViewState = {
   readonly steps: readonly FirstReviewGuideStepPresentation[];
   readonly headerActions: FirstReviewGuideHeaderActions;
   readonly requiredBlockers: readonly FirstReviewGuideRequiredBlocker[];
+  readonly onePrerequisite: FirstReviewGuideRequiredBlocker | null;
   readonly canExecute: boolean;
   readonly readyToFinalize: boolean;
   readonly latestRunHref: string | null;
@@ -79,7 +89,7 @@ function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
   return {
     ...loadingHeaderActions,
     secondaryLabel: "Explore sample review",
-    secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+    secondaryHref: resolveShowcaseOperatorReviewHref(SHOWCASE_STATIC_DEMO_RUN_ID),
   };
 }
 
@@ -94,6 +104,12 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
     enabled: isWorkingMode && latestRunId.length > 0 && commitQuery.isSuccess,
   });
   const healthQuery = useHealthReadySummaryQuery({ enabled: isWorkingMode });
+  const sampleQuery = useFeaturedCompletedSampleQuery({ enabled: isWorkingMode });
+  const policyPackSelectionQuery = useQuery({
+    queryKey: [...operatorQueryKeys.tenantHomepageSettings, "first-review-guide-policy-packs"],
+    queryFn: () => listPolicyPackWorkspaceSelection(),
+    enabled: isWorkingMode,
+  });
 
   const retry = useCallback(() => {
     void commitQuery.refetch();
@@ -128,6 +144,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         steps: [],
         headerActions: resolveLoadingHeaderActions(),
         requiredBlockers: [],
+        onePrerequisite: null,
         canExecute,
         readyToFinalize: false,
         latestRunHref: null,
@@ -136,6 +153,9 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
         evaluationScopeHelper: careerHonesty.evaluationScopeHelper,
       };
     }
+
+    const latestRunHasInventoryEvidence =
+      runSummaryQuery.data?.hasGraphSnapshot === true || runSummaryQuery.data?.hasContextSnapshot === true;
 
     const stateInput = {
       commitContext,
@@ -146,6 +166,22 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       architectureId: readCachedLastOpenArchitectureId(),
       suppressReadyToFinalize: careerHonesty.suppressReadyToFinalize,
       hideSampleRecovery: careerHonesty.hideSampleRecovery,
+      latestRunHasInventoryEvidence,
+    };
+
+    const samplePackageSelected =
+      sampleQuery.isPending || sampleQuery.isError
+        ? null
+        : sampleQuery.data?.isConfigured === true
+          && (sampleQuery.data.selectedRunId?.trim().length ?? 0) > 0;
+    const policyPackAssigned = resolveFirstReviewGuidePolicyPackAssigned(
+      policyPackSelectionQuery.isPending || policyPackSelectionQuery.isError
+        ? null
+        : (policyPackSelectionQuery.data ?? []),
+    );
+    const prerequisiteInput = {
+      samplePackageSelected,
+      policyPackAssigned,
     };
 
     const readyToFinalize =
@@ -159,11 +195,16 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       isError: false,
       errorMessage: null,
       retry,
-      readiness: resolveFirstReviewGuideReadiness(stateInput),
-      progress: resolveFirstReviewGuideProgress(commitContext, careerHonesty.suppressReadyToFinalize),
+      readiness: resolveFirstReviewGuideReadiness(stateInput, prerequisiteInput),
+      progress: resolveFirstReviewGuideProgress(
+        commitContext,
+        careerHonesty.suppressReadyToFinalize,
+        latestRunHasInventoryEvidence,
+      ),
       steps: resolveFirstReviewGuideSteps(stateInput),
       headerActions: resolveFirstReviewGuideHeaderActions(stateInput),
       requiredBlockers: resolveFirstReviewGuideRequiredBlockers(stateInput),
+      onePrerequisite: resolveFirstReviewGuideOnePrerequisite(prerequisiteInput),
       canExecute,
       readyToFinalize,
       latestRunHref:
@@ -186,5 +227,11 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
     finishSetup.phase,
     isWorkingMode,
     retry,
+    policyPackSelectionQuery.data,
+    policyPackSelectionQuery.isError,
+    policyPackSelectionQuery.isPending,
+    sampleQuery.data,
+    sampleQuery.isError,
+    sampleQuery.isPending,
   ]);
 }

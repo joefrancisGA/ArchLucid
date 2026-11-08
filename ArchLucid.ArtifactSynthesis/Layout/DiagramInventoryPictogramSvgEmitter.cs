@@ -23,6 +23,8 @@ public static class DiagramInventoryPictogramSvgEmitter
                 "transform",
                 string.Create(CultureInfo.InvariantCulture, $"translate({x:0.###},{y:0.###}) scale({scale:0.###})")));
 
+        group.Add(new XElement(svgNamespace + "title", PictogramAccessibilityTitle(kind)));
+
         switch (kind)
         {
             case DiagramInventoryPictogramKind.Compute:
@@ -64,6 +66,11 @@ public static class DiagramInventoryPictogramSvgEmitter
         }
 
         return group;
+    }
+
+    internal static string PictogramAccessibilityTitle(DiagramInventoryPictogramKind kind)
+    {
+        return $"{kind} category pictogram (not a Microsoft product icon).";
     }
 
     private static XElement Rect(XNamespace svgNamespace, double x, double y, double width, double height, string fill)

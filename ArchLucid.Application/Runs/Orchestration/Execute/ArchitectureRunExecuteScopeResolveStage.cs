@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
@@ -53,8 +54,14 @@ public sealed class ArchitectureRunExecuteScopeResolveStage(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentResult> results =
-            await _resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, null, null);
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _resultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (RunKernelCompleteness.IsAgentTaskLoopComplete(_runStateTransitionService, run.Status, results))
         {

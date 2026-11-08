@@ -86,6 +86,30 @@ public sealed class FindingVerificationReportDocxRendererTests
         xml.Should().Contain("Critical");
     }
 
+    [Fact]
+    public void Render_labels_blank_finding_cells_as_stored_empty_per_column()
+    {
+        FindingVerificationReportDocumentModel model = CreateModel(
+            new FindingVerificationReportFindingRow
+            {
+                FindingId = "finding-a",
+                Title = "   ",
+                Severity = "",
+                Status = "Materialized",
+                TraceText = "RV-003 matched",
+            });
+
+        byte[] docx = FindingVerificationReportDocxRenderer.Render(model);
+
+        using MemoryStream stream = new(docx);
+        using WordprocessingDocument document = WordprocessingDocument.Open(stream, false);
+        string xml = document.MainDocumentPart!.Document.OuterXml;
+
+        xml.Should().Contain("Title was stored empty.");
+        xml.Should().Contain("Severity was stored empty.");
+        xml.Should().NotContain("Value was not stored.");
+    }
+
     private static FindingVerificationReportDocumentModel CreateModel(
         FindingVerificationReportFindingRow finding,
         string sourceManifestHash = "sha256-sealed",

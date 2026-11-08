@@ -15,6 +15,8 @@ vi.mock("@/lib/quick-scan/quick-scan-telemetry", () => ({
   trackQuickScanSampleViewed: vi.fn(),
 }));
 
+import { trackQuickScanSampleViewed } from "@/lib/quick-scan/quick-scan-telemetry";
+
 vi.mock("@/lib/auth/turnstile-config", () => ({
   isTurnstileBotChallengeConfigured: vi.fn(() => false),
   readTurnstileSiteKey: vi.fn(() => null),
@@ -253,6 +255,47 @@ describe("useQuickScanClient", () => {
     expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
   });
 
+  it("records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles", async () => {
+    let resolveSample: ((value: Response) => void) | undefined;
+    const samplePromise = new Promise<Response>((resolve) => {
+      resolveSample = resolve;
+    });
+
+    vi.mocked(trackQuickScanSampleViewed).mockClear();
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        return samplePromise;
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("SampleOnly");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await act(async () => {
+      resolveSample?.({
+        ok: true,
+        json: async () => SAMPLE_ANALYSIS,
+      } as Response);
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    expect(trackQuickScanSampleViewed).toHaveBeenCalledTimes(1);
+    expect(trackQuickScanSampleViewed).toHaveBeenCalledWith("SampleOnly");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("does not let a stale sample response overwrite a completed AI analysis", async () => {
     let resolveSample: ((value: Response) => void) | undefined;
     const samplePromise = new Promise<Response>((resolve) => {
@@ -310,5 +353,295 @@ describe("useQuickScanClient", () => {
     });
 
     expect(result.current.result).toEqual(REAL_ANALYSIS);
+  });
+
+  it("applies the latest sample when showSampleResult runs again after an earlier sample fetch completes", async () => {
+    const refreshedSample = {
+      ...SAMPLE_ANALYSIS,
+      summary: "Sample refreshed after a settled load.",
+    };
+    let sampleFetchCount = 0;
+
+    vi.mocked(trackQuickScanSampleViewed).mockClear();
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        sampleFetchCount += 1;
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => (sampleFetchCount === 1 ? SAMPLE_ANALYSIS : refreshedSample),
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(refreshedSample);
+    });
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(refreshedSample);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(trackQuickScanSampleViewed).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not pass an abort signal to the quick-scan sample fetch and still ignores superseded responses", async () => {
+    let resolveSlow: ((value: Response) => void) | undefined;
+    const slowPromise = new Promise<Response>((resolve) => {
+      resolveSlow = resolve;
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        if (fetchMock.mock.calls.length === 1) {
+          return slowPromise;
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => SAMPLE_ANALYSIS,
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("Busy");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeUndefined();
+
+    await act(async () => {
+      resolveSlow?.({
+        ok: true,
+        json: async () => ({
+          systemName: "Stale",
+          primaryEnvironment: "Azure",
+          summary: "Should not replace the newer sample.",
+        }),
+      } as Response);
+    });
+
+    expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+  });
+
+  it("clears a failed sample error when an explicit retry succeeds", async () => {
+    let sampleFetchCount = 0;
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        sampleFetchCount += 1;
+
+        if (sampleFetchCount === 1) {
+          return Promise.resolve({
+            ok: false,
+            json: async () => ({}),
+          });
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => SAMPLE_ANALYSIS,
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toBe("Quick Scan sample could not be loaded.");
+    });
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    expect(result.current.error).toBeNull();
+  });
+
+  it("does not apply analysis results after cancelSubmit aborts an in-flight POST", async () => {
+    let resolvePost: ((value: Response) => void) | undefined;
+    let rejectPost: ((reason: unknown) => void) | undefined;
+    const postPromise = new Promise<Response>((resolve, reject) => {
+      resolvePost = resolve;
+      rejectPost = reject;
+    });
+
+    useQuickScanStatusQueryMock.mockReturnValue({
+      data: {
+        enabled: true,
+        capacityAvailable: true,
+        requireSignIn: false,
+        sampleResultAvailable: false,
+        capacityState: "Available",
+      },
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes("/marketing/quick-scan") && init?.method === "POST") {
+        init.signal?.addEventListener("abort", () => {
+          rejectPost?.(new DOMException("Aborted", "AbortError"));
+        });
+
+        return postPromise;
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.setFormValues({
+        systemName: "Contoso",
+        primaryEnvironment: "Azure",
+        primaryEnvironmentOther: "",
+        description: "A multi-region workflow with audit logging.",
+        architectureConcerns: [],
+      });
+      result.current.markFieldTouched("systemName");
+      result.current.markFieldTouched("primaryEnvironment");
+      result.current.markFieldTouched("description");
+    });
+
+    await act(async () => {
+      void result.current.handleFormSubmit({
+        preventDefault: vi.fn(),
+      } as unknown as FormEvent<HTMLFormElement>);
+    });
+
+    act(() => {
+      result.current.cancelSubmit();
+    });
+
+    await act(async () => {
+      resolvePost?.({
+        ok: true,
+        text: async () => JSON.stringify(REAL_ANALYSIS),
+      } as Response);
+    });
+
+    expect(result.current.result).toBeNull();
+  });
+
+  it("invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled", async () => {
+    let resolveSample: ((value: Response) => void) | undefined;
+    let rejectPost: ((reason: unknown) => void) | undefined;
+    const samplePromise = new Promise<Response>((resolve) => {
+      resolveSample = resolve;
+    });
+    const postPromise = new Promise<Response>((_resolve, reject) => {
+      rejectPost = reject;
+    });
+
+    useQuickScanStatusQueryMock.mockReturnValue({
+      data: {
+        enabled: true,
+        capacityAvailable: true,
+        requireSignIn: false,
+        sampleResultAvailable: false,
+        capacityState: "Available",
+      },
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        return samplePromise;
+      }
+
+      if (url.includes("/marketing/quick-scan") && init?.method === "POST") {
+        init.signal?.addEventListener("abort", () => {
+          rejectPost?.(new DOMException("Aborted", "AbortError"));
+        });
+
+        return postPromise;
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.setFormValues({
+        systemName: "Contoso",
+        primaryEnvironment: "Azure",
+        primaryEnvironmentOther: "",
+        description: "A multi-region workflow with audit logging.",
+        architectureConcerns: [],
+      });
+      result.current.markFieldTouched("systemName");
+      result.current.markFieldTouched("primaryEnvironment");
+      result.current.markFieldTouched("description");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await act(async () => {
+      void result.current.handleFormSubmit({
+        preventDefault: vi.fn(),
+      } as unknown as FormEvent<HTMLFormElement>);
+    });
+
+    act(() => {
+      result.current.cancelSubmit();
+    });
+
+    await act(async () => {
+      resolveSample?.({
+        ok: true,
+        json: async () => SAMPLE_ANALYSIS,
+      } as Response);
+    });
+
+    expect(result.current.result).toBeNull();
   });
 });

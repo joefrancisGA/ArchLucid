@@ -21,6 +21,17 @@ internal static class InfraEvidenceAskPromptBuilder
 
     public static string BuildSystemPrompt() => SystemPrompt;
 
+    public static string BuildSystemPrompt(string topicKind)
+    {
+        if (!string.Equals(topicKind, InfraEvidenceAskTopicKinds.RankedPath, StringComparison.Ordinal))
+            return SystemPrompt;
+
+        return SystemPrompt + " For RankedPath topics, use only the provided evidence lines. "
+            + "Choose citationIds only from allowedCitationIds. "
+            + "Do not return a new composite sort. "
+            + "Do not return a numeric likelihood or probability.";
+    }
+
     public static string BuildUserPrompt(string question, string topicKind, InfraEvidenceAskEvidenceBundle bundle)
     {
         StringBuilder builder = new();
@@ -34,24 +45,54 @@ internal static class InfraEvidenceAskPromptBuilder
         builder.AppendLine("allowedCitationIds:");
 
         foreach (InfraEvidenceAskCitation citation in bundle.Citations)
-            builder.AppendLine($"  {FormatCitationKey(citation)}");
+            builder.AppendLine($"  {FormatCitationKey(citation)} ({FormatCitationLabelForPrompt(citation)})");
 
         builder.AppendLine("evidenceRows:");
 
         foreach (string line in bundle.EvidenceLines)
             builder.AppendLine($"  {line}");
 
+        string bundleCapLine = FormatBundleCitationCapLine(bundle);
+
+        if (bundleCapLine.Length > 0)
+            builder.AppendLine(bundleCapLine);
+
+        if (string.Equals(topicKind, InfraEvidenceAskTopicKinds.RankedPath, StringComparison.Ordinal))
+        {
+            builder.AppendLine("For this RankedPath answer, use only the provided evidence lines.");
+            builder.AppendLine("Choose citationIds only from allowedCitationIds.");
+            builder.AppendLine("Do not return a new composite sort.");
+            builder.AppendLine("Do not return a numeric likelihood or probability.");
+        }
+
         return builder.ToString();
     }
+
+    internal static string FormatBundleCitationCapLine(InfraEvidenceAskEvidenceBundle bundle)
+    {
+        if (bundle.Citations.Count < AskEvidenceRowCap)
+            return string.Empty;
+
+        return $"bundleCitationCap={AskEvidenceRowCap} additional structured rows may exist beyond this ask bundle cap.";
+    }
+
+    internal const int AskEvidenceRowCap = 50;
 
     public static string BuildSimulatorAnswer(string question, InfraEvidenceAskEvidenceBundle bundle)
     {
         if (bundle.Citations.Count == 0)
             return "Insufficient structured evidence is available to answer this question.";
 
-        string cited = string.Join(", ", bundle.Citations.Take(5).Select(FormatCitationKey));
+        const int MaxCitedInSummary = 5;
+        IReadOnlyList<InfraEvidenceAskCitation> citedRows = SelectSimulatorCitations(bundle);
+        string cited = string.Join(", ", citedRows.Select(FormatCitationKey));
+        int omitted = bundle.Citations.Count - citedRows.Count;
+        string omissionNote = omitted > 0
+            ? $" This summary cites the first {MaxCitedInSummary} citation ids; {omitted} additional citation id(s) were omitted from the grounded list."
+            : string.Empty;
+
         return $"Based on {bundle.Citations.Count} structured evidence row(s), the answer to \"{question.Trim()}\" "
-            + $"is grounded on: {cited}. No ARM resources were invented beyond cited rows.";
+            + $"is grounded on: {cited}.{omissionNote} No ARM resources were invented beyond cited rows.";
     }
 
     public static IReadOnlyList<InfraEvidenceAskCitation> SelectSimulatorCitations(InfraEvidenceAskEvidenceBundle bundle)
@@ -116,7 +157,7 @@ internal static class InfraEvidenceAskPromptBuilder
         else if (ContainsAny(normalizedQuestion, "full"))
             plan.MermaidMode = "full";
         else
-            plan.MermaidMode = "executive";
+            return null;
 
         if (!DiagramViewPlanValidator.TryValidate(plan, allowedSeeds, out _))
             return null;
@@ -145,9 +186,22 @@ internal static class InfraEvidenceAskPromptBuilder
 
             answer = parsed.Answer.Trim();
             HashSet<string> allowed = bundle.Citations.Select(FormatCitationKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            bool isRankedPath = string.Equals(
+                bundle.TopicKind,
+                InfraEvidenceAskTopicKinds.RankedPath,
+                StringComparison.Ordinal);
+
+            if (isRankedPath
+                && (parsed.CitationIds is null
+                    || parsed.CitationIds.Count == 0
+                    || parsed.CitationIds.Any(citationId => !allowed.Contains(citationId))))
+            {
+                return false;
+            }
+
             List<InfraEvidenceAskCitation> selected = [];
 
-            foreach (string citationId in parsed.CitationIds)
+            foreach (string citationId in parsed.CitationIds ?? [])
             {
                 if (!allowed.Contains(citationId))
                     continue;
@@ -161,7 +215,7 @@ internal static class InfraEvidenceAskPromptBuilder
 
             citations = selected;
 
-            if (parsed.ViewPlan is not null)
+            if (parsed.ViewPlan is not null && !isRankedPath)
             {
                 viewPlan = new DiagramViewPlan
                 {
@@ -187,6 +241,23 @@ internal static class InfraEvidenceAskPromptBuilder
 
     public static string FormatCitationKey(InfraEvidenceAskCitation citation)
         => $"{citation.Kind}:{citation.Id}";
+
+    internal static string FormatCitationLabelForPrompt(InfraEvidenceAskCitation citation)
+    {
+        if (!string.IsNullOrWhiteSpace(citation.Label))
+            return citation.Label.Trim();
+
+        return citation.Kind switch
+        {
+            InfraEvidenceAskCitationKinds.FindingId => InfraEvidenceAskCitationHonestyCopy.FindingTitleNotStored,
+            InfraEvidenceAskCitationKinds.RemediationInstanceId or InfraEvidenceAskCitationKinds.PatternKey =>
+                InfraEvidenceAskCitationHonestyCopy.RemediationPatternKeyNotStored,
+            InfraEvidenceAskCitationKinds.ChangeId => InfraEvidenceAskCitationHonestyCopy.ChangeTypeNotStored,
+            InfraEvidenceAskCitationKinds.DiagramCorrespondenceId =>
+                InfraEvidenceAskCitationHonestyCopy.DiagramNodeLabelNotStored,
+            _ => InfraEvidenceAskCitationHonestyCopy.CorrespondenceIdNotStored,
+        };
+    }
 
     private static HashSet<string> ExtractOutlineLabels(InfraEvidenceAskEvidenceBundle bundle)
     {
@@ -267,7 +338,7 @@ internal static class InfraEvidenceAskPromptBuilder
             set;
         } = string.Empty;
 
-        public List<string> CitationIds
+        public List<string>? CitationIds
         {
             get;
             set;

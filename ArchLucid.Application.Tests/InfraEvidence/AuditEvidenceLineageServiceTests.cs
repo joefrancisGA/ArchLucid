@@ -935,7 +935,7 @@ public sealed class AuditEvidenceLineageServiceTests
 
         InMemoryVerifiedRemediationControlAssociationRepository associations = new();
         List<RemediationInstanceRecord> remediationInstances = [];
-        Mock<IRemediationInstanceRepository> remediationInstanceRepository = new();
+        Mock<IProjectScopedRemediationInstanceRepository> remediationInstanceRepository = new();
         remediationInstanceRepository
             .Setup(repository => repository.ListByControlIdInScopeAsync(
                 It.IsAny<ProjectScopeKey>(),
@@ -1035,9 +1035,9 @@ public sealed class AuditEvidenceLineageServiceTests
         }
     }
 
-    private static IRemediationInstanceRepository CreateEmptyRemediationInstanceRepository()
+    private static IProjectScopedRemediationInstanceRepository CreateEmptyProjectScopedRemediationInstanceRepository()
     {
-        Mock<IRemediationInstanceRepository> repository = new();
+        Mock<IProjectScopedRemediationInstanceRepository> repository = new();
         repository
             .Setup(instanceRepository => instanceRepository.ListByControlIdInScopeAsync(
                 It.IsAny<ProjectScopeKey>(),
@@ -1080,6 +1080,31 @@ public sealed class AuditEvidenceLineageServiceTests
         };
     }
 
+    [Fact]
+    public async Task TryGetControlLineageAsync_does_not_expose_internal_repository_exception()
+    {
+        const string sensitiveDetail = "SqlConnection password=secret internal-host";
+        Mock<IAuditAssessmentRepository> assessments = new();
+        assessments.Setup(repository => repository.TryGetByIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(sensitiveDetail));
+
+        AuditEvidenceLineageService service = CreateLineageService(
+            assessments.Object,
+            Mock.Of<IAuditFrameworkRepository>(),
+            Mock.Of<IAuditEvidenceRequirementRepository>(),
+            Mock.Of<IAuditEvidenceSnapshotRepository>(),
+            Mock.Of<IAuditControlEvaluationRepository>(),
+            Mock.Of<IAuditEvidenceSnapshotVerificationService>());
+
+        AuditEvidenceLineageQueryResult result = await service.TryGetControlLineageAsync(
+            CreateScopeContext(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().NotContain(sensitiveDetail);
+        result.ErrorMessage.Should().Contain("could not be retrieved");
+    }
+
     private static AuditEvidenceLineageService CreateLineageService(
         IAuditAssessmentRepository assessmentRepository,
         IAuditFrameworkRepository frameworkRepository,
@@ -1088,7 +1113,7 @@ public sealed class AuditEvidenceLineageServiceTests
         IAuditControlEvaluationRepository evaluationRepository,
         IAuditEvidenceSnapshotVerificationService verificationService,
         IVerifiedRemediationControlAssociationRepository? associationRepository = null,
-        IRemediationInstanceRepository? remediationInstanceRepository = null)
+        IProjectScopedRemediationInstanceRepository? remediationInstanceRepository = null)
     {
         Mock<IAuditManualEvidenceRepository> manualEvidenceRepository = new();
         manualEvidenceRepository
@@ -1110,7 +1135,7 @@ public sealed class AuditEvidenceLineageServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository(),
-            remediationInstanceRepository ?? CreateEmptyRemediationInstanceRepository(),
+            remediationInstanceRepository ?? CreateEmptyProjectScopedRemediationInstanceRepository(),
             NullLogger<AuditEvidenceLineageService>.Instance);
     }
 
@@ -1306,6 +1331,12 @@ public sealed class AuditEvidenceLineageServiceTests
             return Task.CompletedTask;
         }
 
+        public Task InsertSnapshotInScopeAsync(
+            ProjectScopeKey scope,
+            AuditEvidenceSnapshotPersistRequest request,
+            CancellationToken cancellationToken = default)
+            => InsertSnapshotAsync(request, cancellationToken);
+
         public Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderAsync(
             Guid tenantId,
             Guid auditEvidenceSnapshotId,
@@ -1316,6 +1347,12 @@ public sealed class AuditEvidenceLineageServiceTests
                     ? header
                     : null);
 
+        public Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+            => TryGetHeaderAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+
         public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsAsync(
             Guid tenantId,
             Guid auditEvidenceSnapshotId,
@@ -1324,6 +1361,12 @@ public sealed class AuditEvidenceLineageServiceTests
                 _items.TryGetValue(auditEvidenceSnapshotId, out List<AuditEvidenceSnapshotItemRecord>? items)
                     ? items.Where(item => item.TenantId == tenantId).ToList()
                     : []);
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+            => ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
 
         public Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListByAssessmentAsync(
             Guid tenantId,
@@ -1373,6 +1416,12 @@ public sealed class AuditEvidenceLineageServiceTests
         public Task InsertAsync(AuditControlEvaluationPersistRequest request, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
+        public Task InsertInScopeAsync(
+            ProjectScopeKey scope,
+            AuditControlEvaluationPersistRequest request,
+            CancellationToken cancellationToken = default)
+            => InsertAsync(request, cancellationToken);
+
         public Task<AuditControlEvaluationRecord?> TryGetLatestByControlAsync(
             Guid tenantId,
             Guid controlId,
@@ -1386,11 +1435,24 @@ public sealed class AuditEvidenceLineageServiceTests
                     ? Evaluation
                     : null);
 
+        public Task<AuditControlEvaluationRecord?> TryGetLatestByControlInScopeAsync(
+            ProjectScopeKey scope,
+            Guid controlId,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default)
+            => TryGetLatestByControlAsync(scope.TenantId, controlId, snapshotId, cancellationToken);
+
         public Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationAsync(
             Guid tenantId,
             Guid evaluationId,
             CancellationToken cancellationToken = default)
             => Task.FromResult<IReadOnlyList<AuditEvidenceItemRecord>>(
                 EvidenceItems.Where(item => item.TenantId == tenantId && item.EvaluationId == evaluationId).ToList());
+
+        public Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationInScopeAsync(
+            ProjectScopeKey scope,
+            Guid evaluationId,
+            CancellationToken cancellationToken = default)
+            => ListEvidenceItemsByEvaluationAsync(scope.TenantId, evaluationId, cancellationToken);
     }
 }

@@ -7,9 +7,6 @@ namespace ArchLucid.Api.Validators;
 
 public sealed class CreateGovernancePreviewRequestValidator : AbstractValidator<CreateGovernancePreviewRequest>
 {
-    private static readonly string[] ValidEnvironments =
-        [GovernanceEnvironment.Dev, GovernanceEnvironment.Test, GovernanceEnvironment.Prod];
-
     public CreateGovernancePreviewRequestValidator()
     {
         RuleFor(x => x.RunId)
@@ -22,7 +19,7 @@ public sealed class CreateGovernancePreviewRequestValidator : AbstractValidator<
 
         RuleFor(x => x.Environment)
             .NotEmpty().WithMessage("Environment is required.")
-            .Must(e => ValidEnvironments.Contains(e, StringComparer.OrdinalIgnoreCase))
+            .Must(e => GovernanceEnvironment.IsKnown(e.Trim()))
             .WithMessage("Environment must be one of: dev, test, prod.");
     }
 }

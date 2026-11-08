@@ -25,6 +25,15 @@ export const SECURENOW_BLOCKED_MARKETING_ROUTE_PREFIXES: readonly string[] = [
   "/quick-start",
 ] as const;
 
+/** Exact path for the indexed Why SecureNow page (not matched by the `/why` prefix). */
+export const SECURENOW_DRAFT_MARKETING_PATH = "/why-securenow" as const;
+
+/** Exact path for the indexed SecureNow sample page (not matched by blocked prefixes). */
+export const SECURENOW_SAMPLE_MARKETING_PATH = "/securenow-sample" as const;
+
+/** Set by `proxy.ts` on pass-through requests for marketing layout routing. */
+export const ARCHLUCID_PATHNAME_REQUEST_HEADER = "x-archlucid-pathname" as const;
+
 export function normalizeMarketingRoutePath(pathnameOrHref: string): string {
   const pathname = navHrefPathPart(pathnameOrHref);
 
@@ -45,6 +54,31 @@ export function isMarketingRoutePath(pathnameOrHref: string): boolean {
 
 export function isMarketingRouteBlockedForProductLine(productLineId: ProductLineId): boolean {
   return productLineId === "security";
+}
+
+export function isSecureNowDraftMarketingPath(pathnameOrHref: string): boolean {
+  return normalizeMarketingRoutePath(pathnameOrHref) === SECURENOW_DRAFT_MARKETING_PATH;
+}
+
+export function isSecureNowSampleMarketingPath(pathnameOrHref: string): boolean {
+  return normalizeMarketingRoutePath(pathnameOrHref) === SECURENOW_SAMPLE_MARKETING_PATH;
+}
+
+export function isSecureNowSecurityShellMarketingPath(pathnameOrHref: string): boolean {
+  return (
+    isSecureNowDraftMarketingPath(pathnameOrHref) || isSecureNowSampleMarketingPath(pathnameOrHref)
+  );
+}
+
+export function shouldRedirectMarketingLayout(args: {
+  readonly productLineId: ProductLineId;
+  readonly pathname: string;
+}): boolean {
+  if (!isMarketingRouteBlockedForProductLine(args.productLineId)) {
+    return false;
+  }
+
+  return !isSecureNowSecurityShellMarketingPath(args.pathname);
 }
 
 export function secureNowMarketingRedirectPath(): string {

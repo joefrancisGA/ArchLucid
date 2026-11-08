@@ -10,7 +10,7 @@ describe("cheap-exploration out-of-wave residuals (CE-017+)", () => {
   it("records draft-diff, chat, unseal, pay-per-session, and presence as skips", () => {
     const items = CHEAP_EXPLORATION_OUT_OF_WAVE_RESIDUAL_ROWS.map((row) => row.item);
 
-    expect(items).toContain("Draft-to-draft Compare");
+    expect(items).toContain("Compare architecture drafts");
     expect(items).toContain("Finding-comment chat");
     expect(items).toContain("Unseal to sketch");
     expect(items).toContain("Live cursors / presence");

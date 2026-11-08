@@ -29,6 +29,7 @@ import {
 export const RUN_AGENT_EXECUTION_LOG_DISCLOSURE_TEST_ID = "run-agent-execution-log-disclosure";
 import type { RunDetailAgentResult } from "@/types/authority";
 import { formatAgentExecutionConfidenceLabel } from "@/lib/reviews/agent-confidence-display";
+import { formatAgentExecutionLimitationCodeLabel } from "@/lib/reviews/agent-execution-degradation-display";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 
@@ -120,10 +121,14 @@ export function ReviewAgentExecutionLogSection({
   }
 
   const sorted = [...results].sort((a, b) => {
-    const ta = a.createdUtc ?? "";
-    const tb = b.createdUtc ?? "";
+    const ta = a.createdUtc ? Date.parse(a.createdUtc) : Number.NEGATIVE_INFINITY;
+    const tb = b.createdUtc ? Date.parse(b.createdUtc) : Number.NEGATIVE_INFINITY;
 
-    return ta.localeCompare(tb);
+    if (!Number.isFinite(ta) || !Number.isFinite(tb)) {
+      return (a.createdUtc ?? "").localeCompare(b.createdUtc ?? "");
+    }
+
+    return ta - tb;
   });
 
   return (
@@ -158,12 +163,14 @@ export function ReviewAgentExecutionLogSection({
                     <span>Findings</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                       Count when returned; Not returned means the API omitted the findings list (not zero findings).
+                      Disposition events are not included in this count.
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>
                     <span>Evidence refs</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                       Count when returned; Not returned means the API omitted evidence references (not zero refs).
+                      Not finalize proof — disposition-only trails are stored separately.
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>
@@ -176,9 +183,10 @@ export function ReviewAgentExecutionLogSection({
               </EnterpriseTableHead>
               <EnterpriseTableBody>
                 {sorted.map((result) => {
-                  const hasDegradation =
-                    typeof result.degradationReasonCode === "string" &&
-                    result.degradationReasonCode.trim().length > 0;
+                  const hasDegradation = result.degradationReasonCode !== null && result.degradationReasonCode !== undefined;
+                  const limitationLabel = hasDegradation
+                    ? formatAgentExecutionLimitationCodeLabel(result.degradationReasonCode)
+                    : null;
 
                   return (
                     <EnterpriseTableRow key={result.resultId}>
@@ -200,7 +208,7 @@ export function ReviewAgentExecutionLogSection({
                             Degraded
                             <FieldHelpTooltip
                               label="Degraded"
-                              hint={result.degradationReasonCode ?? "Agent output degraded"}
+                              hint={limitationLabel ?? "Limitation code was not stored."}
                             />
                           </span>
                         ) : (

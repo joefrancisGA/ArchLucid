@@ -38,6 +38,6 @@ public sealed class BuyerSafeAuditEvidenceSummaryBuilderTests
 
         markdown.Should().Contain("# Audit evidence summary");
         markdown.Should().Contain("Omitted from this export");
-        markdown.Should().Contain("**Disposition:** **WARN**");
+        markdown.Should().Contain("**Disposition:** **NOT_COLLECTED**");
     }
 }

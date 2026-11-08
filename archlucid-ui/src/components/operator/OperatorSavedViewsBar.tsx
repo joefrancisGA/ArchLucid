@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -41,6 +41,16 @@ export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
   const [selectedViewId, setSelectedViewIdState] = useState(
     () => parseOperatorSavedViewIdFromSearch(searchParams.get("viewId")),
   );
+  // Vitest tears down jsdom before late list/create/delete settles — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const syncSelectedViewToUrl = useCallback(
     (viewId: string) => {
@@ -69,16 +79,29 @@ export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
       return;
     }
 
-    setLoading(true);
-    setFailure(null);
+    if (mountedRef.current) {
+      setLoading(true);
+      setFailure(null);
+    }
 
     try {
       const nextViews = await listOperatorSavedViews(surface);
+
+      if (!mountedRef.current) {
+        return;
+      }
+
       setViews(nextViews);
     } catch (error) {
+      if (!mountedRef.current) {
+        return;
+      }
+
       setFailure(toApiLoadFailure(error));
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [enabled, surface]);
 
@@ -88,23 +111,35 @@ export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
 
   const saveView = useCallback(
     async (name: string, payload: OperatorSavedViewPayload, isShared: boolean) => {
-      setSaving(true);
-      setFailure(null);
+      if (mountedRef.current) {
+        setSaving(true);
+        setFailure(null);
+      }
 
       try {
         const created = await createOperatorSavedView({ surface, name, payload, isShared });
+
+        if (!mountedRef.current) {
+          return created;
+        }
+
         setViews((current) => [...current, created].sort((left, right) => left.name.localeCompare(right.name)));
         setSelectedViewId(created.id);
 
         return created;
       } catch (error) {
-        setFailure(toApiLoadFailure(error));
+        if (mountedRef.current) {
+          setFailure(toApiLoadFailure(error));
+        }
+
         throw error;
       } finally {
-        setSaving(false);
+        if (mountedRef.current) {
+          setSaving(false);
+        }
       }
     },
-    [surface],
+    [setSelectedViewId, surface],
   );
 
   const deleteSelectedView = useCallback(async () => {
@@ -112,20 +147,32 @@ export function useOperatorSavedViews(options: UseOperatorSavedViewsOptions) {
       return;
     }
 
-    setDeleting(true);
-    setFailure(null);
+    if (mountedRef.current) {
+      setDeleting(true);
+      setFailure(null);
+    }
 
     try {
       await deleteOperatorSavedView(selectedViewId);
+
+      if (!mountedRef.current) {
+        return;
+      }
+
       setViews((current) => current.filter((view) => view.id !== selectedViewId));
       setSelectedViewId("");
     } catch (error) {
-      setFailure(toApiLoadFailure(error));
+      if (mountedRef.current) {
+        setFailure(toApiLoadFailure(error));
+      }
+
       throw error;
     } finally {
-      setDeleting(false);
+      if (mountedRef.current) {
+        setDeleting(false);
+      }
     }
-  }, [selectedViewId]);
+  }, [selectedViewId, setSelectedViewId]);
 
   const selectedView = views.find((view) => view.id === selectedViewId) ?? null;
 

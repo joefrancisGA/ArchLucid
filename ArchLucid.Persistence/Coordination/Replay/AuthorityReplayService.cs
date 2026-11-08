@@ -134,10 +134,12 @@ public sealed class AuthorityReplayService(
         if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
             return result;
 
+        string canonicalRunId = TechnologyLedgerRunIdLookup.CanonicalRunIdForLookup(original.Run.RunId.ToString());
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await _technologyLedgerRepository.GetByRunIdAsync(
+            await TechnologyLedgerRunIdLookup.LoadEntriesByRunIdAsync(
+                _technologyLedgerRepository,
                 writeScope,
-                original.Run.RunId.ToString("D"),
+                canonicalRunId,
                 ct);
 
         ArtifactBundle rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(

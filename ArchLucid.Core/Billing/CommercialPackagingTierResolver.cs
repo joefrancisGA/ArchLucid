@@ -16,13 +16,13 @@ public static class CommercialPackagingTierResolver
     {
         ArgumentNullException.ThrowIfNull(tenant);
 
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
+            return null;
+
         if (tenant.Tier == TenantTier.Enterprise)
             return CommercialPackagingTierLabels.Enterprise;
 
         if ((int)tenant.Tier < (int)TenantTier.Standard)
-            return null;
-
-        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             return null;
 
         if (subscription is not null)

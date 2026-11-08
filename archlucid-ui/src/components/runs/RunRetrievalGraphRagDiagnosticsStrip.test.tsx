@@ -65,4 +65,16 @@ describe("RunRetrievalGraphRagDiagnosticsStrip", () => {
 
     expect(container.firstChild).toBeNull();
   });
+
+  it("labels omitted quality posture when other graph-rag fields are present", () => {
+    render(
+      <RunRetrievalGraphRagDiagnosticsStrip
+        summary={{
+          totalGraphRagNeighborsAdded: 1,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("graph-rag-quality-posture")).toHaveTextContent("Not returned");
+  });
 });

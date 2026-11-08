@@ -3,6 +3,7 @@ using ArchLucid.Application.Tests.Governance.FindingDisposition.Support;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FindingDispositionKind = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -213,6 +214,39 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
 
         await stale.Should().ThrowAsync<ArchLucid.Application.Governance.FindingDisposition.FindingDispositionConflictException>();
         trailRepository.EventCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task RecordBulkAsync_queries_working_desk_mode_once_per_batch()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        IFindingDispositionConcurrencyRepository concurrencyRepository =
+            new InMemoryFindingDispositionConcurrencyRepository(trailRepository);
+        FindingReviewTrailAppendService appendService = new(trailRepository, Mock.Of<IAuditService>());
+        Mock<IUserWorkspaceModeReader> workspaceModeReader = new();
+        workspaceModeReader
+            .Setup(reader => reader.IsWorkingDeskAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        FindingDispositionService sut = new(
+            concurrencyRepository,
+            trailRepository,
+            appendService,
+            workspaceModeReader.Object);
+
+        DateTimeOffset revisitDueUtc = DateTimeOffset.UtcNow.AddDays(14);
+        await sut.RecordBulkAsync(
+            [
+                CreateRequest("finding-bulk-desk-a", FindingDispositionKind.Deferred, "a", revisitDueUtc: revisitDueUtc),
+                CreateRequest("finding-bulk-desk-b", FindingDispositionKind.Deferred, "b", revisitDueUtc: revisitDueUtc),
+            ],
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        workspaceModeReader.Verify(
+            reader => reader.IsWorkingDeskAsync("alice", It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)

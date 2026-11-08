@@ -24,6 +24,20 @@ class TestPrivateBetaOffboardingDryRun(unittest.TestCase):
         self.assertEqual(len(plan["steps"]), 4)
         self.assertTrue(all(step["mutatesData"] is False for step in plan["steps"]))
 
+    def test_nil_tenant_id_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "nil UUID"):
+            sut.build_plan("00000000-0000-0000-0000-000000000000", "operator-1")
+
+    def test_operator_must_be_named_and_safe_for_evidence(self) -> None:
+        for operator in ("", " ", "\n", "alice\nforged", "alice\rforged", "alice\x00forged"):
+            with self.subTest(operator=operator):
+                with self.assertRaises(ValueError):
+                    sut.build_plan("11111111-1111-1111-1111-111111111111", operator)
+
+    def test_operator_whitespace_is_normalized(self) -> None:
+        plan = sut.build_plan("11111111-1111-1111-1111-111111111111", "  operator-1  ")
+        self.assertEqual(plan["operator"], "operator-1")
+
     def test_invalid_tenant_id_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             sut.build_plan("not-a-guid", "operator-1")

@@ -31,7 +31,7 @@ public sealed class InventoryDiagramMonitorPrivateLinkScopeRelationshipApplierTe
 
         InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Scopes monitoring for");
-        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier.Label);
+        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
     }
 }

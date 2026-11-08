@@ -55,9 +55,7 @@ internal static class ConsultingDocxCoverPageBuilder
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, engagementLabel!, "BodyText");
         }
 
-        string systemName = report.Evidence?.SystemName
-                            ?? report.Manifest?.SystemName
-                            ?? "Architecture Run";
+        string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(report);
 
         string subtitle = options.SubtitleFormat
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
@@ -87,15 +85,16 @@ internal static class ConsultingDocxCoverPageBuilder
         }
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Run ID: {report.Run.RunId}", "BodyText");
-        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Request ID: {report.Run.RequestId}", "BodyText");
+        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+            body,
+            $"Request ID: {ConsultingDocxExportHonestyCopy.ResolveRequestId(report.Run.RequestId)}",
+            "BodyText");
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Generated UTC: {TimeProvider.System.UtcNowDateTime():O}", "BodyText");
 
-        if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
-                body,
-                $"Manifest Version: {report.Run.CurrentManifestVersion}",
-                "BodyText");
+        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+            body,
+            $"Manifest Version: {ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Run.CurrentManifestVersion)}",
+            "BodyText");
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 6);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.GeneratedByLine, "Subtle");

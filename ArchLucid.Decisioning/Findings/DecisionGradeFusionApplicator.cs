@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -157,10 +158,11 @@ public static class DecisionGradeFusionApplicator
 
     private static Finding BuildFusionFinding(FusionCluster cluster)
     {
-        string sharedNodeLabel = cluster.SharedNodeIds[0];
+        string sharedNodeId = cluster.SharedNodeIds[0];
+        string sharedNodeTitleSuffix = DecisioningFindingHonestyCopy.FormatSharedGraphNodeTitleSuffix(sharedNodeId);
         string title = "Joined: "
             + string.Join(" × ", cluster.SourceEngineTypes)
-            + $" on {sharedNodeLabel}";
+            + $" on {sharedNodeTitleSuffix}";
 
         List<string> descriptionLines = cluster.Members
             .Select(static member => $"- {member.FindingId}: {member.Title}")
@@ -209,7 +211,7 @@ public static class DecisionGradeFusionApplicator
                 RulesApplied = [EngineType],
                 DecisionsTaken =
                 [
-                    $"Joined {cluster.Members.Count} Decision-grade findings from {cluster.SourceEngineTypes.Count} engines on shared node '{sharedNodeLabel}'.",
+                    $"Joined {cluster.Members.Count} Decision-grade findings from {cluster.SourceEngineTypes.Count} engines on {sharedNodeTitleSuffix}.",
                 ],
                 Notes = traceNotes,
             },

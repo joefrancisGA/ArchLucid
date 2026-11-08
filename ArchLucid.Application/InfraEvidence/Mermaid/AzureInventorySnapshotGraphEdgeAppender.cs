@@ -74,6 +74,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string? identityKey = null)
     {
         // Recovery Services historically retains self-edges; other producers reject them by default.
+
         if (!allowSelfEdges && string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
         {
             return null;
@@ -109,15 +110,21 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
             EdgeType = edgeType,
-            Label = string.IsNullOrWhiteSpace(label) ? edgeType : label,
+            Label = label switch
+            {
+                null => null,
+                _ when label.Length == 0 && edgeType.Length == 0 => string.Empty,
+                _ when string.IsNullOrWhiteSpace(label) => null,
+                _ => label.Trim(),
+            },
             Weight = 1.0d,
             InferenceSource = inferenceSource,
             // Some inventory producers historically leave provenance unset; preserve that when requested.
             ProvenanceKind = preserveNullProvenance && provenanceKind is null
                 ? null
                 : string.IsNullOrWhiteSpace(provenanceKind)
-                ? ProvenanceKind.ObservedFact.ToString()
-                : provenanceKind,
+                ? null
+                : provenanceKind.Trim(),
             DeclaredConnectionId = declaredConnectionId,
         };
 

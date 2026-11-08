@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Llm;
@@ -11,6 +12,8 @@ public sealed class ChatIntakeParserService(IAgentCompletionClient completionCli
 {
     // Matches ArchitectureRequestEvidenceSufficiency.MinDescriptionLengthForNoneOnly (Api validators).
     private const int MinDescriptionLengthForNoneOnly = 50;
+
+    private const string SystemNameNotStored = ArchitectureEvidenceRequestExport.MissingSystemNameCopy;
     private const string ChatIntakeSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
         "Given unstructured text, extract a structured architecture review request. " +
@@ -73,12 +76,9 @@ public sealed class ChatIntakeParserService(IAgentCompletionClient completionCli
         string systemName = TrimToMax(shape.SystemName, 200);
 
         if (string.IsNullOrWhiteSpace(systemName))
-            systemName = DeriveSystemName(description);
+            systemName = SystemNameNotStored;
 
         string environment = TrimToMax(shape.Environment, 50);
-
-        if (string.IsNullOrWhiteSpace(environment))
-            environment = "prod";
 
         return new ArchitectureRequest
         {
@@ -109,22 +109,6 @@ public sealed class ChatIntakeParserService(IAgentCompletionClient completionCli
         return Enum.TryParse(value.Trim(), ignoreCase: true, out CloudProvider parsed)
             ? parsed
             : CloudProvider.None;
-    }
-
-    private static string DeriveSystemName(string description)
-    {
-        string[] tokens = description
-            .Split([' ', '\n', '\r', '\t', '-', '_'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        if (tokens.Length == 0)
-            return "ImportedSystem";
-
-        string candidate = tokens[0];
-
-        if (candidate.Length < 2)
-            candidate = "ImportedSystem";
-
-        return TrimToMax(candidate, 200);
     }
 
     private static List<string> NormalizeStringList(string[]? values, int maxItems, int maxItemLength)

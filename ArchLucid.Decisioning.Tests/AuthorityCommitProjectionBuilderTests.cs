@@ -131,4 +131,32 @@ public sealed class AuthorityCommitProjectionBuilderTests
         c.DiagramSemantics.RequirementLabels.Should().Contain("Encrypt data at rest");
         c.DiagramSemantics.DecisionLabels.Should().ContainSingle(label => label.Contains("Use private endpoints", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public async Task Build_governance_does_not_infer_low_risk_or_cost_when_no_stored_signals()
+    {
+        IAuthorityCommitProjectionBuilder sut = new AuthorityCommitProjectionBuilder();
+        ManifestDocument model = new()
+        {
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            ManifestHash = "x",
+            RuleSetId = "r",
+            RuleSetVersion = "1",
+            RuleSetHash = "h",
+            Metadata = { Version = "v1", Summary = "S", Name = "N" },
+        };
+
+        Cm.GoldenManifest c = await sut.BuildAsync(
+            model,
+            new() { SystemName = "Contoso" },
+            CancellationToken.None);
+
+        c.Governance.RiskClassification.Should().BeEmpty();
+        c.Governance.CostClassification.Should().BeEmpty();
+    }
 }

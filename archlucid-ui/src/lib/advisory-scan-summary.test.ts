@@ -51,4 +51,25 @@ describe("buildAdvisoryScanSummary", () => {
     expect(summary.lastScanUtc).toBe("2026-03-01T12:00:00Z");
     expect(summary.comparedToRunId).toBe("run-b");
   });
+
+  it("does not treat high urgency alone as high impact when expected impact was not stored", () => {
+    const plan: ImprovementPlan = {
+      runId: "run-a",
+      generatedUtc: "2026-03-01T12:00:00Z",
+      summaryNotes: [],
+      recommendations: [],
+    };
+    const rows = [
+      recommendation({ urgency: "High", expectedImpact: "" }),
+      recommendation({
+        recommendationId: "rec-2",
+        urgency: "Critical",
+        expectedImpact: "Impact was not stored.",
+      }),
+    ];
+
+    const summary = buildAdvisoryScanSummary(rows, plan, "");
+
+    expect(summary.highImpactCount).toBe(0);
+  });
 });

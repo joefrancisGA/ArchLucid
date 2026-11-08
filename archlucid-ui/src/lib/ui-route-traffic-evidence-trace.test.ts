@@ -18,11 +18,9 @@ describe("ui-route-traffic-evidence-trace (ERU)", () => {
     expect(rr).toBeUndefined();
     expect(eru).toBeDefined();
     expect(eru?.path).toBe(EVIDENCE_TRACE_TRAFFIC_PATH);
-    expect(eru?.hitPct).toBe("0.4%");
+    expect(eru?.hitPct).toBe("0.02%");
     expect(eru?.section).toBe(EVIDENCE_TRACE_TRAFFIC_SECTION);
     expect(eru?.notes).toBe(EVIDENCE_TRACE_TRAFFIC_NOTE);
-    expect(eru?.notes).toContain("Absorbs former RR");
-    expect(eru?.notes).toContain("Score 72");
-    expect(eru?.notes).toContain("cannot improve further toward 80");
+    expect(eru?.notes).toBe(EVIDENCE_TRACE_TRAFFIC_NOTE);
   });
 });

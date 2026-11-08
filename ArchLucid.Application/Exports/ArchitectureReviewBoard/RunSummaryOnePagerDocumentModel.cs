@@ -15,6 +15,36 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string SystemNameDisplay
+    {
+        get;
+        init;
+    } = "";
+
+    public string RunIdDisplay
+    {
+        get;
+        init;
+    } = "";
+
+    public string SealedFindingsSection
+    {
+        get;
+        init;
+    } = "";
+
+    public bool AgentFindingsCountsStored
+    {
+        get;
+        init;
+    } = true;
+
+    public string AgentFindingsNotStoredCopy
+    {
+        get;
+        init;
+    } = "";
+
     public int CriticalCount
     {
         get;
@@ -38,6 +68,24 @@ public sealed class RunSummaryOnePagerDocumentModel
         get;
         init;
     }
+
+    public int MutedFindingCount
+    {
+        get;
+        init;
+    }
+
+    public string SeverityCountsFootnote
+    {
+        get;
+        init;
+    } = "";
+
+    public string TopFindingsEmptyCopy
+    {
+        get;
+        init;
+    } = "";
 
     public string SponsorReport
     {
@@ -112,6 +160,30 @@ public sealed class RunSummaryOnePagerDocumentModel
     }
 
     public string? ArchitectRestatementMarkdown
+    {
+        get;
+        init;
+    }
+
+    public string? TopHighCriticalRemainderLine
+    {
+        get;
+        init;
+    }
+
+    public string? TopFindingsScopeLine
+    {
+        get;
+        init;
+    }
+
+    public string? TopFindingsMessagePrefixDisclaimer
+    {
+        get;
+        init;
+    }
+
+    public string? SponsorReportGeneratedDisclaimer
     {
         get;
         init;

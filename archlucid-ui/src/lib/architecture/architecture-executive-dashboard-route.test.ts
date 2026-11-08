@@ -36,7 +36,7 @@ const SPONSOR_DASHBOARD_APP_LAYOUT = join(
 
 const PRODUCT_SPONSOR_DASHBOARD_SURFACES = [
   "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
-  "archlucid-ui/src/lib/usability/page-help-topic-rows.ts",
+  "archlucid-ui/src/lib/usability/page-help-topic-rows-operator-pilot.ts",
   "archlucid-ui/src/lib/nav-disclosure-for-path.ts",
   "archlucid-ui/src/lib/sponsor/sponsor-kpi-drill-through-hrefs.ts",
 ] as const;
@@ -59,7 +59,7 @@ describe("architecture-sponsor-dashboard-route (ARE)", () => {
   it("marks the sponsor dashboard as noindex with honest metadata", () => {
     expect(ARCHITECTURE_SPONSOR_DASHBOARD_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
     expect(ARCHITECTURE_SPONSOR_DASHBOARD_ROUTE_METADATA.title).toBe("Sponsor dashboard");
-    expect(ARCHITECTURE_SPONSOR_DASHBOARD_ROUTE_METADATA.description?.toLowerCase()).toContain("governance");
+    expect(ARCHITECTURE_SPONSOR_DASHBOARD_ROUTE_METADATA.description?.toLowerCase()).toContain("approval");
   });
 
   it("ships the sponsor ROI dashboard page with layout metadata", () => {

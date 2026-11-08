@@ -9,6 +9,8 @@ namespace ArchLucid.Decisioning.Manifest.Builders;
 /// <summary>Populates manifest policy applicability, satisfied controls, and violations.</summary>
 public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
 {
+    internal const string PolicyPackNotStoredLabel = "Policy reference was not stored.";
+
     public string SectionName => "Policy";
 
     public void Populate(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
@@ -29,9 +31,13 @@ public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
                 continue;
             }
 
+            string policyName = string.IsNullOrWhiteSpace(payload.PolicyName)
+                ? "Policy name was not stored."
+                : payload.PolicyName.Trim();
+
             if (finding.Severity == FindingSeverity.Warning)
             {
-                manifest.Warnings.Add($"{payload.PolicyName}: {finding.Title}");
+                manifest.Warnings.Add($"{policyName}: {finding.Title}");
                 manifest.UnresolvedIssues.Items.Add(new ManifestIssue
                 {
                     IssueType = "PolicyApplicabilityGap",
@@ -44,7 +50,7 @@ public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
             else if (finding.Severity == FindingSeverity.Info)
 
                 manifest.Assumptions.Add(
-                    $"Policy '{payload.PolicyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
+                    $"Policy '{policyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
         }
     }
 
@@ -60,9 +66,14 @@ public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
                 continue;
             }
 
-            string pack = string.IsNullOrWhiteSpace(payload.PolicyReference) ? "Inferred" : payload.PolicyReference!;
+            string pack = string.IsNullOrWhiteSpace(payload.PolicyReference)
+                ? PolicyPackNotStoredLabel
+                : payload.PolicyReference!.Trim();
+            string policyName = string.IsNullOrWhiteSpace(payload.PolicyName)
+                ? "Policy name was not stored."
+                : payload.PolicyName.Trim();
             string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference)
-                ? payload.PolicyName
+                ? policyName
                 : payload.PolicyReference!;
 
             if (finding.Severity == FindingSeverity.Info)
@@ -70,7 +81,7 @@ public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
                 manifest.Policy.SatisfiedControls.Add(new PolicyControlItem
                 {
                     ControlId = controlId,
-                    ControlName = payload.PolicyName,
+                    ControlName = policyName,
                     PolicyPack = pack,
                     Description =
                         $"{payload.ApplicableTopologyResourceCount} topology resource(s) in APPLIES_TO scope."
@@ -81,7 +92,7 @@ public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
                 manifest.Policy.Violations.Add(new PolicyControlItem
                 {
                     ControlId = controlId,
-                    ControlName = payload.PolicyName,
+                    ControlName = policyName,
                     PolicyPack = pack,
                     Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
                 });

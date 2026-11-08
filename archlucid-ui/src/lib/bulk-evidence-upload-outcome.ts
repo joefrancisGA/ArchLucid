@@ -3,6 +3,8 @@ import {
   BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON,
 } from "@/lib/bulk-evidence-upload-copy";
 
+export const BULK_EVIDENCE_FAILURE_REASON_NOT_STORED = "Failure reason was not stored." as const;
+
 /** Per-file row after a bulk evidence upload attempt. */
 export type BulkEvidenceFileOutcome = {
   fileName: string;
@@ -26,6 +28,12 @@ export type BulkEvidenceUploadSuccessBody = {
 };
 
 /** Parses "N of M files were uploaded" from API failure detail (partial batch exception). */
+export function resolveBulkEvidenceFailureReason(reason: string | undefined): string {
+  const trimmed = reason?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : BULK_EVIDENCE_FAILURE_REASON_NOT_STORED;
+}
+
 export function parsePartialUploadCountFromDetail(detail: string | undefined): number | null {
   if (detail === undefined || detail.trim().length === 0) {
     return null;
@@ -77,7 +85,7 @@ export function mapBulkEvidenceFileOutcomes(
     return {
       fileName,
       status: "failed",
-      reason: failedReason,
+      reason: resolveBulkEvidenceFailureReason(failedReason),
     };
   });
 }

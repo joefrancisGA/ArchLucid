@@ -27,10 +27,17 @@ describe("auditExportCareerPosture (CG-026)", () => {
     });
 
     expect(lines[0]).toContain("CG-026");
-    expect(lines.join("\n")).toContain("structuralExecutionMode=Simulator");
+    expect(lines.join("\n")).toContain(`structuralExecutionMode=${StructuralExecutionModeWire.Simulator}`);
     expect(lines.join("\n")).toContain("rehearsalIncomplete=True");
     expect(lines.join("\n")).toContain("dualChannelHonesty=durableSqlLedgerOnly");
     expect(lines.join("\n")).toContain("dualChannelNote=");
+  });
+
+  it("uses execution mode not stored label when mode is missing from input", () => {
+    const posture = resolveAuditExportCareerPosture({});
+
+    expect(posture.structuralExecutionMode).toBe("Execution mode was not stored.");
+    expect(posture.rehearsalIncomplete).toBe(false);
   });
 
   it("blocks working career simulator audit export client-side", () => {

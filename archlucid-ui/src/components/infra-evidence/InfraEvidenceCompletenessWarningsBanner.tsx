@@ -16,14 +16,31 @@ import type { InfraEvidenceMermaidCompletenessSummary } from "@/lib/infra-eviden
 const COMPLETENESS_WARNING_PREVIEW_COUNT = 3;
 
 export type InfraEvidenceCompletenessWarningsBannerProps = {
-  readonly warnings: readonly string[];
-  readonly summary?: InfraEvidenceMermaidCompletenessSummary | null;
+  /** Undefined when the API omitted warnings; an empty array means stored empty. */
+  readonly warnings?: readonly string[] | null;
+  readonly summary?: InfraEvidenceMermaidCompletenessSummary | null | undefined;
   readonly scopeLine?: string | null;
 };
 
 export function InfraEvidenceCompletenessWarningsBanner(
   props: InfraEvidenceCompletenessWarningsBannerProps,
 ): React.JSX.Element | null {
+  if (props.warnings === null || props.warnings === undefined) {
+    return (
+      <div
+        className={cn(DESIGN_TOKENS.callout.neutral, "space-y-2 p-3")}
+        data-testid="infra-evidence-completeness-warnings-banner"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness warnings were not stored.</p>
+        {props.summary ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {formatInfraEvidenceCompletenessSummaryBannerLine(props.summary)}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   const warnings = props.warnings
     .map((warning) => warning.trim())
     .filter((warning) => warning.length > 0);
@@ -33,7 +50,6 @@ export function InfraEvidenceCompletenessWarningsBanner(
   }
 
   const tier1HostsIncluded = snapshotIncludesTier1AppSettingHosts(warnings);
-  const summary = props.summary;
   const statusKind = resolveInfraEvidenceCompletenessWarningsStatusTagKind(warnings);
   const previewWarnings = warnings.slice(0, COMPLETENESS_WARNING_PREVIEW_COUNT);
   const remainingWarningCount = warnings.length - previewWarnings.length;
@@ -65,11 +81,17 @@ export function InfraEvidenceCompletenessWarningsBanner(
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         {resolveInfraEvidenceCompletenessBannerLead(warnings)}
       </p>
-      {summary ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatInfraEvidenceCompletenessSummaryBannerLine(summary)}
-        </p>
-      ) : null}
+      {props.summary !== undefined ? (
+        props.summary ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {formatInfraEvidenceCompletenessSummaryBannerLine(props.summary)}
+          </p>
+        ) : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness counts were not stored.</p>
+        )
+      ) : (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Completeness counts were not loaded on this pass.</p>
+      )}
       {tier1HostsIncluded ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           App setting hostnames are included in this package (values are never collected).

@@ -17,7 +17,10 @@ import {
 } from "@/lib/audit/audit-export-career-posture";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
-import { buildRunScopedAuditExportParams } from "@/lib/runs/run-scoped-audit-export";
+import {
+  buildRunScopedAuditExportParams,
+  RUN_SCOPED_AUDIT_EXPORT_SCOPE_HELPER,
+} from "@/lib/runs/run-scoped-audit-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
@@ -175,6 +178,12 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
           {blockedReason}
         </p>
       ) : null}
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="run-scoped-audit-export-scope-hint"
+      >
+        {RUN_SCOPED_AUDIT_EXPORT_SCOPE_HELPER}
+      </p>
       {roleHintVisible || !exportRoleOk ? (
         <p
           id="run-scoped-audit-export-role-hint"

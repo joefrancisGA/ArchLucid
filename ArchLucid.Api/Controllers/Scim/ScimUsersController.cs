@@ -83,6 +83,10 @@ public sealed class ScimUsersController(
             body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
                 cancellationToken: cancellationToken);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch
         {
             return ScimErrorResultFactory.Create(400, "invalidSyntax", "Invalid JSON body.");
@@ -120,6 +124,10 @@ public sealed class ScimUsersController(
         {
             body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
                 cancellationToken: cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch
         {
@@ -164,6 +172,10 @@ public sealed class ScimUsersController(
         {
             body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
                 cancellationToken: cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch
         {

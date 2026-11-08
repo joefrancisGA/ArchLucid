@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+from unittest.mock import patch
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MODULE = REPO_ROOT / "scripts" / "ci" / "run_pilot_readiness_live_release_gate.py"
@@ -31,6 +34,53 @@ class PilotReadinessLiveReleaseGateTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.module = _load_module(MODULE, "run_pilot_readiness_live_release_gate")
         cls.common = _load_module(COMMON, "pilot_readiness_bundle_gate_common")
+
+    def test_forty_unsafe_run_ids_are_rejected_as_path_components(self) -> None:
+        unsafe_roots = [
+            "../parent", "..\\windows", "/absolute", "C:\\Windows",
+            "tenant/run", "evil:run", "bad\nrun", "bad..name",
+        ]
+        suffixes = ["", "-1", "_two", "123", "-x"]
+        cases = 0
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for root in unsafe_roots:
+                for suffix in suffixes:
+                    value = root + suffix
+                    with self.subTest(run_id=value):
+                        self.assertFalse(self.module.safe_run_id(value))
+                        with self.assertRaises(ValueError):
+                            self.module.resolve_live_bundle_report_path(Path(temp_dir), value)
+                        cases += 1
+        self.assertEqual(cases, 40)
+
+    def test_path_traversal_is_rejected_before_cli_and_writes_failure_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            json_out = root / "gate.json"
+            md_out = root / "gate.md"
+            result = subprocess.run(
+                [
+                    sys.executable, str(MODULE),
+                    "--repo-root", str(root), "--run-id", "../../etc/passwd",
+                    "--json-out", str(json_out),
+                    "--markdown-out", str(md_out),
+                ],
+                cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(report["disposition"], "FAIL")
+            self.assertTrue(any("path component" in issue for issue in report["issues"]))
+            self.assertIn("FAIL", md_out.read_text(encoding="utf-8"))
+
+    def test_safe_run_id_preserves_ordinary_uuid_paths(self) -> None:
+        value = "11111111-1111-1111-1111-111111111111"
+        self.assertTrue(self.module.safe_run_id(value))
+        root = Path("/work/archlucid")
+        self.assertEqual(
+            self.module.resolve_live_bundle_report_path(root, value),
+            root / "artifacts" / "pilot-readiness-bundle" / value / "pilot-readiness-bundle.json",
+        )
 
     def test_validate_live_pass_fixture_has_no_issues(self) -> None:
         report = json.loads((FIXTURES / "live-pass-bundle.json").read_text(encoding="utf-8"))
@@ -84,6 +134,69 @@ class PilotReadinessLiveReleaseGateTests(unittest.TestCase):
             self.assertEqual(gate["schema"], "archlucid.pilot-readiness-live-release-gate.v1")
             self.assertEqual(gate["disposition"], "SKIPPED")
 
+    def test_strict_missing_run_id_writes_fail_not_skipped(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            json_out = root / "gate.json"
+            md_out = root / "gate.md"
+            result = subprocess.run([
+                sys.executable, str(MODULE), "--strict-rc",
+                "--json-out", str(json_out), "--markdown-out", str(md_out),
+            ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+            self.assertEqual(result.returncode, 1)
+            gate = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(gate["disposition"], "FAIL")
+            self.assertTrue(gate["issues"])
+
+    def test_malformed_live_json_emits_fail_artifacts(self) -> None:
+        cases = [
+            "{", "[", "null", "[]", "42", '"text"',
+            '{"overallVerdict": ["Pass"], "slots": [], "runId": "run-abc"}',
+            '{"overallVerdict": {"value": "Pass"}, "slots": [], "runId": "run-abc"}',
+            '{"overallVerdict": "Pass", "slots": 5, "runId": "run-abc"}',
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bundle = root / "bundle.json"
+            json_out = root / "gate.json"
+            md_out = root / "gate.md"
+            for index, payload in enumerate(cases):
+                with self.subTest(index=index):
+                    bundle.write_text(payload, encoding="utf-8")
+                    completed = subprocess.run([
+                        sys.executable, str(MODULE), "--run-id", "run-abc",
+                        "--bundle-report", str(bundle), "--skip-cli-run",
+                        "--strict-rc", "--json-out", str(json_out),
+                        "--markdown-out", str(md_out),
+                    ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                    self.assertEqual(completed.returncode, 1, completed.stderr)
+                    gate = json.loads(json_out.read_text(encoding="utf-8"))
+                    self.assertEqual(gate["disposition"], "FAIL")
+                    self.assertTrue(gate["issues"])
+                    self.assertIn("FAIL", md_out.read_text(encoding="utf-8"))
+
+    def test_cli_must_refresh_preexisting_live_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bundle = root / "bundle.json"
+            json_out = root / "gate.json"
+            md_out = root / "gate.md"
+            bundle.write_text(
+                (FIXTURES / "live-pass-bundle.json").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            with patch.object(sys, "argv", [
+                "run_pilot_readiness_live_release_gate.py",
+                "--run-id", "11111111-1111-1111-1111-111111111111",
+                "--bundle-report", str(bundle),
+                "--json-out", str(json_out), "--markdown-out", str(md_out),
+            ]), patch.object(self.module, "run_live_bundle", return_value=(0, "")):
+                status = self.module.main()
+            self.assertEqual(status, 1)
+            gate = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(gate["disposition"], "FAIL")
+            self.assertTrue(any("did not refresh" in issue for issue in gate["issues"]))
+
     def test_skip_cli_run_with_fixture_report_passes(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -114,6 +227,81 @@ class PilotReadinessLiveReleaseGateTests(unittest.TestCase):
             gate = json.loads(json_out.read_text(encoding="utf-8"))
             self.assertEqual(gate["disposition"], "PASS")
             self.assertEqual(gate["slotCount"], 8)
+
+    def test_forty_malformed_live_bundle_payloads_fail_with_structured_evidence(self) -> None:
+        malformed = [
+            "", "{", "}", "[", "]", '{"runId":', '{"slots":',
+            '{"overallVerdict":', "nullish", '{"a":1,,}', "{wrong}",
+            '["unterminated"', '{"a": "unterminated}', '{"a": NaN garbage}',
+            '{"a": 1} extra', '{"a": 1,}', '[1,,2]', '{"a": [}',
+            '{"a": true', '{"a": 1 "b": 2}',
+        ]
+        nonobjects = ["null", "false", "true", "42", '"report"']
+        cases = malformed + [value + suffix for value in nonobjects for suffix in ("", " ", "\n", "\t")]
+        self.assertEqual(len(cases), 40)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report = root / "input.json"
+            out_json = root / "out.json"
+            out_md = root / "out.md"
+            for i, content in enumerate(cases):
+                with self.subTest(case=i):
+                    report.write_text(content, encoding="utf-8")
+                    completed = subprocess.run([
+                        sys.executable, str(MODULE),
+                        "--run-id", "11111111-1111-1111-1111-111111111111",
+                        "--bundle-report", str(report),
+                        "--json-out", str(out_json), "--markdown-out", str(out_md),
+                        "--skip-cli-run",
+                    ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                    self.assertEqual(completed.returncode, 1, completed.stderr)
+                    result = json.loads(out_json.read_text(encoding="utf-8"))
+                    self.assertEqual(result["disposition"], "FAIL")
+                    self.assertTrue(result["issues"])
+
+    def test_recent_but_unchanged_live_bundle_cannot_certify_new_cli_run(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report = root / "input.json"
+            out_json = root / "out.json"
+            out_md = root / "out.md"
+            report.write_text((FIXTURES / "live-pass-bundle.json").read_text(encoding="utf-8"), encoding="utf-8")
+            with patch.object(sys, "argv", [
+                str(MODULE), "--run-id", "11111111-1111-1111-1111-111111111111",
+                "--bundle-report", str(report), "--json-out", str(out_json),
+                "--markdown-out", str(out_md),
+            ]), patch.object(self.module, "run_live_bundle", return_value=(0, "")):
+                self.assertEqual(self.module.main(), 1)
+            result = json.loads(out_json.read_text(encoding="utf-8"))
+            self.assertTrue(any("not refreshed" in issue for issue in result["issues"]))
+
+    def test_skip_cli_requires_explicit_bundle_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            out_json = Path(directory) / "out.json"
+            out_md = Path(directory) / "out.md"
+            completed = subprocess.run([
+                sys.executable, str(MODULE),
+                "--run-id", "11111111-1111-1111-1111-111111111111",
+                "--json-out", str(out_json), "--markdown-out", str(out_md),
+                "--skip-cli-run",
+            ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+            self.assertEqual(completed.returncode, 1)
+            self.assertIn("requires --bundle-report", completed.stderr)
+
+    def test_path_like_run_ids_fail_with_structured_diagnostics(self) -> None:
+        for run_id in ("..", "../foreign", "folder/run", r"folder\run"):
+            with self.subTest(run_id=run_id), tempfile.TemporaryDirectory() as directory:
+                out_json = Path(directory) / "out.json"
+                out_md = Path(directory) / "out.md"
+                completed = subprocess.run([
+                    sys.executable, str(MODULE), "--run-id", run_id,
+                    "--json-out", str(out_json), "--markdown-out", str(out_md),
+                    "--skip-cli-run",
+                ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                result = json.loads(out_json.read_text(encoding="utf-8"))
+                self.assertEqual(result["disposition"], "FAIL")
+                self.assertIn("path component", " ".join(result["issues"]).lower())
 
     def test_strict_rc_fails_on_warn_slot(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -20,7 +20,9 @@ describe("ask page starter prompts", () => {
     expect(allPrompts).toContain("What should I tell my CTO in the first 90 seconds?");
     expect(allPrompts).toContain("What blocks approval right now?");
     expect(allPrompts).toContain("Which finding should we fix first, and why?");
-    expect(allPrompts).toContain("What evidence supports the top finding in this review?");
+    expect(allPrompts).toContain("What evidence is cited on the highest stored-severity finding?");
+    expect(allPrompts).not.toContain("What is the top risk?");
+    expect(allPrompts).not.toContain("Summarize the PHI risk for this review.");
   });
 
   it("groups buyer prompts by sponsor, mitigation, and evidence intent", () => {

@@ -50,6 +50,7 @@ function buildDiagnosticsPayload(input: {
   loadFailure?: ApiLoadFailureState | null;
   handoff: ReviewGenerationHandoffRecord | null;
   lastRetryAtUtc: string | null;
+  diagnosticsOpenedAtUtc: string;
 }): OperatorRouteDiagnosticsPayload {
   const scope = readOperatorScopeFromStorage();
   const failureKind =
@@ -71,7 +72,8 @@ function buildDiagnosticsPayload(input: {
     httpStatus: input.loadFailure?.httpStatus ?? (input.notFoundReason === "missing" ? 404 : null),
     apiEndpoint: input.loadFailure !== null && input.loadFailure !== undefined ? `/v1/architecture/review/${input.runId}` : null,
     correlationId: input.loadFailure?.correlationId ?? null,
-    timestampUtc: input.lastRetryAtUtc ?? new Date().toISOString(),
+    diagnosticsOpenedAtUtc: input.diagnosticsOpenedAtUtc,
+    failureTimestampUtc: input.lastRetryAtUtc,
     failureKind,
     backendMessage: input.loadFailure?.message ?? null,
     handoff: input.handoff,
@@ -96,6 +98,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
   const [lastRetryAtUtc, setLastRetryAtUtc] = useState<string | null>(null);
   const [lastRetryMessage, setLastRetryMessage] = useState<string | null>(null);
   const [pendingStartedAt] = useState(() => Date.now());
+  const [diagnosticsOpenedAtUtc] = useState(() => new Date().toISOString());
 
   const tryLoadRun = useCallback(async (): Promise<boolean> => {
     try {
@@ -159,8 +162,9 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
         loadFailure,
         handoff,
         lastRetryAtUtc,
+        diagnosticsOpenedAtUtc,
       }),
-    [attemptedRoute, fromGeneration, handoff, lastRetryAtUtc, loadFailure, notFoundReason, runId],
+    [attemptedRoute, diagnosticsOpenedAtUtc, fromGeneration, handoff, lastRetryAtUtc, loadFailure, notFoundReason, runId],
   );
 
   const handleRetry = () => {

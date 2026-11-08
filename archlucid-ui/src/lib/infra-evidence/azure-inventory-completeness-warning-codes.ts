@@ -12,6 +12,7 @@ export const AzureInventoryRelationshipCompletenessWarningCodes = {
   FabricCapacityAssignmentsNotCollected: "fabric-capacity-assignments-not-collected",
   FabricCapacityWorkspacesOutsideInventory: "fabric-capacity-workspaces-outside-inventory",
   StaticSiteBackendsNotCollected: "static-site-backends-not-collected",
+  PolicyComplianceEmptyWithAssignments: "policy-compliance-empty-with-assignments",
 } as const;
 
 export const AzureInventoryCollectionWarningReasons = {

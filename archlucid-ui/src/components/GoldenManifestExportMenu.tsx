@@ -309,10 +309,22 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     </p>
   ) : null;
 
+  const exportBlockedReasonChrome =
+    sponsorExportBlocked ? (
+      <p
+        role="alert"
+        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="golden-manifest-export-blocked-reason"
+      >
+        {exportBlockedReason}
+      </p>
+    ) : null;
+
   if (buyerMarkdownAsPrimaryButton === true) {
     return (
       <div className="flex max-w-xs flex-col gap-1">
         {sealedReviewSponsorCopy}
+        {exportBlockedReasonChrome}
         <Button
           type="button"
           variant="outline"
@@ -348,6 +360,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   return (
     <div className="flex max-w-xs flex-col gap-1">
     {sealedReviewSponsorCopy}
+    {exportBlockedReasonChrome}
     <Select
       key={exportMenuKey}
       disabled={sponsorExportBlocked}

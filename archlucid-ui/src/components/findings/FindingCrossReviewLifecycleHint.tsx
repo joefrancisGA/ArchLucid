@@ -115,6 +115,26 @@ export function FindingCrossReviewLifecycleHint(props: FindingCrossReviewLifecyc
     return <FindingCrossReviewCompareBlockedCallout error={compareQuery.error} />;
   }
 
+  if (comparePair.enabled && compareQuery.isSuccess && statusSentence === null) {
+    return (
+      <div
+        className={cn("rounded-lg border p-4", DESIGN_TOKENS.callout.info)}
+        data-testid="finding-cross-review-lifecycle-hint"
+      >
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          Cross-review lifecycle status was not stored for this finding.
+        </p>
+        {compareHref !== null ? (
+          <p className={cn("mt-2 mb-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link href={compareHref} className={OPERATOR_LINK.inline}>
+              Open compare view
+            </Link>
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   if (statusSentence === null) {
     return null;
   }

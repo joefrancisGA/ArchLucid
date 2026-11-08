@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -14,7 +14,7 @@ vi.mock("@/hooks/use-review-pipeline-rerun-in-flight", () => ({
 
 const searchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -32,8 +32,31 @@ const searchParamsHarness = vi.hoisted(() => {
         listener();
       }
     },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
+    },
+  };
+});
+
+const committedHrefs = vi.hoisted(() => [] as string[]);
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => searchParamsHarness.readWindowLocationSearch(),
+    commitHrefIfChanged: (href: string) => {
+      committedHrefs.push(href);
+
+      return true;
     },
   };
 });
@@ -63,8 +86,9 @@ const summary = {
 describe("RunDetailLastFailureCard URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
+    committedHrefs.length = 0;
     useReviewPipelineReRunInFlightMock.mockReturnValue(false);
-    window.history.replaceState({}, "", "/architecture/reviews/r1");
+    window.history.replaceState({}, "", "/architecture/reviews/r1?staleToolbar=q-old");
   });
 
   it("follows runLastFailureTechOpen query changes without a popstate event", async () => {
@@ -92,5 +116,40 @@ describe("RunDetailLastFailureCard URL sync", () => {
     await waitFor(() => {
       expect(details()).toHaveAttribute("open");
     });
+  });
+
+  it("writes technical details disclosure from useSearchParams when window.location.search lags after soft navigation", () => {
+    searchParamsHarness.applyQuery("tab=overview");
+    searchParamsHarness.setWindowLocationSearch("tab=overview&staleToolbar=q-old");
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailLastFailureCard summary={summary} legacyRunStatus="Failed" />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("tab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailLastFailureCard summary={summary} legacyRunStatus="Failed" />
+      </SearchParamsRerenderHost>,
+    );
+
+    const summaryEl = screen.getByText("Technical details");
+    fireEvent.click(summaryEl);
+
+    if (committedHrefs.length === 0) {
+      const details = summaryEl.closest("details");
+
+      if (details !== null) {
+        fireEvent(details, new Event("toggle", { bubbles: true }));
+      }
+    }
+
+    expect(committedHrefs.length).toBeGreaterThan(0);
+    const lastHref = committedHrefs.at(-1) ?? "";
+    expect(lastHref).toContain(`${RUN_LAST_FAILURE_TECH_OPEN_PARAM}=`);
+    expect(lastHref).toContain("tab=overview");
+    expect(lastHref).not.toContain("staleToolbar");
   });
 });

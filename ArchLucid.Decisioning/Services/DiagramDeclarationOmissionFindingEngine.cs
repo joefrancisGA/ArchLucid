@@ -48,7 +48,7 @@ public sealed class DiagramDeclarationOmissionFindingEngine : IFindingEngine
             Severity = FindingSeverity.Warning,
             Title = BuildTitle(omission),
             Rationale =
-                $"Diagram participant '{omission.DiagramParticipantLabel}' cites '{omission.OmittedDeclarationLabel}' via '{omission.PropertyName}', but the explicit structured-diagram connector set does not include that declared resource.",
+                $"Diagram participant '{omission.DiagramParticipantLabel}' cites '{omission.OmittedDeclarationLabel}' via '{DeclarationFindingHonestyCopy.FormatPropertyName(omission.PropertyName)}', but the explicit structured-diagram connector set does not include that declared resource.",
             DecisionConsequence =
                 "Align the diagram connectors with cited declarations or correct the declaration reference before approval.",
             RelatedNodeIds = relatedNodeIds,

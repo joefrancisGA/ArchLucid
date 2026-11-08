@@ -10,14 +10,14 @@ using WireMock.Server;
 namespace ArchLucid.Api.Tests.Integrations;
 
 /// <summary>
-///     Validates <c>GET /v1/integrations/itsm/health</c> against WireMock upstream using production HTTP registrations.
+///     Validates <c>POST /v1/integrations/itsm/health/probe</c> against WireMock upstream using production HTTP registrations.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
 {
     [SkippableFact]
-    public async Task Get_health_returns_200_when_jira_and_servicenow_probes_succeed()
+    public async Task Probe_health_returns_200_when_jira_and_servicenow_probes_succeed()
     {
         await using ItsmOutboundIssuesWireMockApiFactory factory = new();
         WireMockServer wireMock = factory.UpstreamWireMock;
@@ -28,13 +28,15 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"accountId":"wire"}"""));
 
         wireMock
-            .Given(Request.Create().WithPath("/api/now/table/incident").UsingGet())
+            .Given(Request.Create().WithPath("/api/now/table/incident").WithParam("sysparm_limit", "1").UsingGet())
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"result":[]}"""));
 
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        using HttpResponseMessage response = await client.GetAsync(new Uri("/v1/integrations/itsm/health", UriKind.Relative));
+        using HttpResponseMessage response = await client.PostAsync(
+            new Uri("/v1/integrations/itsm/health/probe", UriKind.Relative),
+            content: null);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -46,7 +48,7 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
     }
 
     [SkippableFact]
-    public async Task Get_health_returns_503_when_jira_upstream_returns_401()
+    public async Task Probe_health_returns_503_when_jira_upstream_returns_401()
     {
         await using ItsmOutboundIssuesWireMockApiFactory factory = new();
         WireMockServer wireMock = factory.UpstreamWireMock;
@@ -57,13 +59,15 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.Unauthorized).WithBody("denied"));
 
         wireMock
-            .Given(Request.Create().WithPath("/api/now/table/incident").UsingGet())
+            .Given(Request.Create().WithPath("/api/now/table/incident").WithParam("sysparm_limit", "1").UsingGet())
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"result":[]}"""));
 
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        using HttpResponseMessage response = await client.GetAsync(new Uri("/v1/integrations/itsm/health", UriKind.Relative));
+        using HttpResponseMessage response = await client.PostAsync(
+            new Uri("/v1/integrations/itsm/health/probe", UriKind.Relative),
+            content: null);
 
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
 

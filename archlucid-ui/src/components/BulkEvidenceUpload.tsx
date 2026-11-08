@@ -19,7 +19,10 @@ import {
   BULK_EVIDENCE_UPLOAD_MAX_FILES,
   RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE,
 } from "@/lib/bulk-evidence-upload-copy";
-import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
+import {
+  resolveBulkEvidenceFailureReason,
+  type BulkEvidenceUploadSummary,
+} from "@/lib/bulk-evidence-upload-outcome";
 import {
   BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM,
   bulkEvidenceUploadErrorDiagnosticsDisclosureHrefFromSearch,
@@ -52,6 +55,7 @@ function recoveryPresentationForError(error: BulkEvidenceUploadError) {
  * @see `BulkEvidenceUpload.test.tsx`
  */
 export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }: BulkEvidenceUploadProps) {
+  const reviewIdMissing = runId.trim().length === 0;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -102,6 +106,11 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
 
   const body = (
     <div className={embedded ? "space-y-4" : "space-y-4 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"}>
+      {reviewIdMissing ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
+          Review id was not stored, so bulk evidence upload is not available.
+        </p>
+      ) : null}
       {!embedded ? (
         <>
           <h3 className={cn("m-0 text-lg font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -243,9 +252,10 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
                   .map((outcome) => (
                     <li key={outcome.fileName} className={OPERATOR_TYPOGRAPHY.helper}>
                       <span className="font-medium">{outcome.fileName}</span>
-                      {outcome.reason ? (
-                        <span className="text-amber-900 dark:text-amber-200"> — {outcome.reason}</span>
-                      ) : null}
+                      <span className="text-amber-900 dark:text-amber-200">
+                        {" "}
+                        — {resolveBulkEvidenceFailureReason(outcome.reason)}
+                      </span>
                     </li>
                   ))}
               </ul>
@@ -265,7 +275,7 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
 
       <Button
         onClick={uploadFiles}
-        disabled={files.length === 0 || uploading || isMaxFilesBlocked}
+        disabled={reviewIdMissing || files.length === 0 || uploading || isMaxFilesBlocked}
         className={CTA_WIDTH.content}
       >
         {uploadButtonLabel}

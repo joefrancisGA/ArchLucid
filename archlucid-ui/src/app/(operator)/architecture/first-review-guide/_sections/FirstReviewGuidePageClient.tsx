@@ -1,8 +1,10 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
@@ -25,8 +27,12 @@ import {
   FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LAYOUT, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   FIRST_REVIEW_GUIDE_PATH,
@@ -46,11 +52,15 @@ import {
 } from "@/lib/first-review-guide-evidence-copy";
 import {
   FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_TEST_ID,
+  FIRST_REVIEW_GUIDE_ONE_PREREQUISITE_SECTION_TITLE,
   FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
   FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL,
   FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
 } from "@/lib/first-review-guide-page-copy";
 import { formatConversationListDate } from "@/lib/locale-datetime";
+import { resolveFirstReviewGuideWalkthroughNextStep } from "@/lib/first-review-guide-walkthrough-next-step";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 
@@ -122,18 +132,22 @@ function FirstReviewGuideContextErrorCallout(props: { readonly onRetry: () => vo
   );
 }
 
-function sealedRecordFinalizedOnLabel(finalizedOnUtc: string | null): string | null {
+function sealedRecordFinalizedTimeSuffix(finalizedOnUtc: string | null): string {
   if (finalizedOnUtc === null) {
-    return null;
+    return " — Finalized time was not stored.";
   }
 
   const trimmed = finalizedOnUtc.trim();
 
-  if (trimmed.length === 0 || !Number.isFinite(Date.parse(trimmed))) {
-    return null;
+  if (trimmed.length === 0) {
+    return " — Finalized time was stored empty.";
   }
 
-  return formatConversationListDate(trimmed);
+  if (!Number.isFinite(Date.parse(trimmed))) {
+    return " — Finalized time was not readable.";
+  }
+
+  return ` — finalized ${formatConversationListDate(trimmed)}`;
 }
 
 function FirstReviewGuideSealedRecordProvenance(props: {
@@ -147,8 +161,11 @@ function FirstReviewGuideSealedRecordProvenance(props: {
   const [technicalIdentifiersOpen, setTechnicalIdentifiersOpenState] = useState(() =>
     parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch(firstReviewGuideTechnicalIdentifiersOpenParam),
   );
-  const recordTitle = sealedReviewRecord.displayName ?? "Architecture review";
-  const finalizedOn = sealedRecordFinalizedOnLabel(sealedReviewRecord.finalizedOnUtc);
+  const recordTitle =
+    sealedReviewRecord.displayName != null && sealedReviewRecord.displayName.trim().length > 0
+      ? sealedReviewRecord.displayName.trim()
+      : "Review title was not stored.";
+  const finalizedTimeLine = sealedRecordFinalizedTimeSuffix(sealedReviewRecord.finalizedOnUtc);
 
   const syncTechnicalIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
@@ -178,7 +195,7 @@ function FirstReviewGuideSealedRecordProvenance(props: {
     <div className="space-y-1" data-testid="first-review-guide-sealed-record-provenance">
       <p className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-neutral-900 dark:text-neutral-100">{recordTitle}</span>
-        {finalizedOn !== null ? ` — finalized ${finalizedOn}` : null}
+        {finalizedTimeLine}
       </p>
       <details
         className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}
@@ -189,11 +206,11 @@ function FirstReviewGuideSealedRecordProvenance(props: {
       >
         <summary className={cn("cursor-pointer", OPERATOR_TYPOGRAPHY.helper)}>Technical identifiers</summary>
         <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>Record ID: {sealedReviewRecord.runId}</p>
-        {sealedReviewRecord.finalizedByUserId !== null ? (
-          <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-            Created by: {sealedReviewRecord.finalizedByUserId}
-          </p>
-        ) : null}
+        <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+          {sealedReviewRecord.finalizedByUserId !== null
+            ? `Created by: ${sealedReviewRecord.finalizedByUserId}`
+            : "Finalized by was not stored."}
+        </p>
       </details>
     </div>
   );
@@ -201,7 +218,11 @@ function FirstReviewGuideSealedRecordProvenance(props: {
 
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
   const guide = useFirstReviewGuideState();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const walkthroughNextStep = useMemo(
+    () => (guide.onePrerequisite === null ? resolveFirstReviewGuideWalkthroughNextStep(guide.steps) : null),
+    [guide.onePrerequisite, guide.steps],
+  );
+  const buyerPolishedShell = useProductionEvalChrome();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
   const primaryDisabledReason: WhyDisabledCtaReason | null =
     guide.headerActions.primaryDisabledReason !== null &&
@@ -272,6 +293,44 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             {guide.evaluationScopeHelper ?? FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
           </p>
         ) : null}
+
+        <section
+          aria-labelledby="first-review-one-prerequisite-heading"
+          className="space-y-1"
+          data-testid="first-review-one-prerequisite"
+        >
+          <h2 id="first-review-one-prerequisite-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {guide.onePrerequisite !== null
+              ? FIRST_REVIEW_GUIDE_ONE_PREREQUISITE_SECTION_TITLE
+              : FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE}
+          </h2>
+          {guide.onePrerequisite !== null ? (
+            <>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{guide.onePrerequisite.description}</p>
+              <Link className={OPERATOR_LINK.inline} href={guide.onePrerequisite.href}>
+                {guide.onePrerequisite.actionLabel}
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-prerequisites-complete-body">
+                {FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY}
+              </p>
+              {walkthroughNextStep !== null ? (
+                <div className="space-y-1" data-testid="first-review-walkthrough-next-step">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                    Next checklist step: {walkthroughNextStep.title}
+                  </p>
+                  {walkthroughNextStep.actionHref !== null && walkthroughNextStep.actionLabel !== null ? (
+                    <Link className={OPERATOR_LINK.inline} href={walkthroughNextStep.actionHref}>
+                      {walkthroughNextStep.actionLabel}
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
+          )}
+        </section>
 
         <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
       </>

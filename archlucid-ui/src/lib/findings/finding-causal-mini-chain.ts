@@ -1,15 +1,23 @@
-import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-
-export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
-import { firstRecommendationSentence, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivation-sentence";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+export const FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED = "Evidence count was not stored." as const;
+
+export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
+
+export const FINDING_CAUSAL_RULE_NAME_STORED_EMPTY = "Rule name was stored empty.";
+
 export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
 export const FINDING_CAUSAL_EVIDENCE_MISSING = "Evidence was not stored";
+export const FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED = "Evidence label was not stored.";
+
+export const FINDING_CAUSAL_EVIDENCE_LABEL_STORED_EMPTY = "Evidence label was stored empty.";
 export const FINDING_CAUSAL_RECOMMENDATION_MISSING = "Recommendation was not stored";
+export const FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY = "Recommendation was stored empty.";
 
 export type FindingCausalMiniChainStepKey = "rule" | "evidence" | "recommendation";
 
@@ -43,10 +51,14 @@ function nonEmpty(value: string | null | undefined): string | null {
 }
 
 function resolveRuleValue(input: FindingCausalMiniChainInput): string | null {
-  const explicitName = nonEmpty(input.ruleName);
+  if (input.ruleName !== null && input.ruleName !== undefined) {
+    const trimmed = input.ruleName.trim();
 
-  if (explicitName !== null) {
-    return explicitName;
+    if (trimmed.length > 0) {
+      return trimmed;
+    }
+
+    return FINDING_CAUSAL_RULE_NAME_STORED_EMPTY;
   }
 
   const ruleId = nonEmpty(input.ruleId);
@@ -65,14 +77,27 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
       : null;
 
   const traceConfidence = nonEmpty(input.traceConfidenceLabel);
-  const explicitLabel = nonEmpty(input.evidenceLabel);
 
   const parts: string[] = [];
 
-  if (count !== null && count >= 0) {
-    parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
-  } else if (explicitLabel !== null) {
-    parts.push(explicitLabel);
+  if (input.evidenceRefCount !== undefined) {
+    if (count !== null && count >= 0) {
+      parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
+    } else if (input.evidenceRefCount === null) {
+      parts.push(FINDING_CAUSAL_EVIDENCE_COUNT_NOT_STORED);
+    }
+  }
+
+  if (input.evidenceLabel !== null && input.evidenceLabel !== undefined) {
+    const trimmedLabel = input.evidenceLabel.trim();
+
+    if (trimmedLabel.length > 0) {
+      parts.push(trimmedLabel);
+    } else {
+      parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_STORED_EMPTY);
+    }
+  } else if (count !== null && count >= 0) {
+    parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED);
   }
 
   if (traceConfidence !== null) {
@@ -87,13 +112,21 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
 }
 
 function resolveRecommendationValue(input: FindingCausalMiniChainInput): string | null {
+  if (input.recommendation === null || input.recommendation === undefined) {
+    return null;
+  }
+
+  if (input.recommendation.trim().length === 0) {
+    return FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY;
+  }
+
   const raw = nonEmpty(input.recommendation);
 
   if (raw === null) {
     return null;
   }
 
-  const sentence = firstRecommendationSentence(raw);
+  const sentence = formatRecommendationFirstSentenceWithTruncationHonesty(raw);
 
   return sentence.length > 0 ? sentence : raw;
 }
@@ -133,10 +166,10 @@ export function findingCausalMiniChainFromGovernanceQueueRow(
     return null;
   }
 
-  const policyRuleId = row.policyRuleId ?? coerceComplianceRuleKey(row.category);
+  const policyRuleId = row.policyRuleId?.trim() ?? "";
 
   return buildFindingCausalMiniChain({
-    ruleId: policyRuleId,
+    ruleId: policyRuleId.length > 0 ? policyRuleId : null,
     evidenceRefCount: row.evidenceRefCount,
     recommendation: row.recommended,
   });
@@ -145,12 +178,20 @@ export function findingCausalMiniChainFromGovernanceQueueRow(
 export function findingCausalMiniChainFromInspectPayload(
   payload: FindingInspectPayload,
 ): FindingCausalMiniChainResult {
-  const recommendation = payload.recommendedActions.find((action) => action.trim().length > 0) ?? null;
+  const nonWhitespaceAction = payload.recommendedActions.find((action) => action.trim().length > 0);
+  const recommendation =
+    nonWhitespaceAction
+    ?? (payload.recommendedActionsReturned !== false
+      && payload.recommendedActions.length > 0
+      && payload.recommendedActions.every((action) => action.trim().length === 0)
+      ? FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY
+      : null);
 
   return buildFindingCausalMiniChain({
     ruleName: payload.decisionRuleName,
     ruleId: payload.decisionRuleId,
-    evidenceRefCount: payload.evidence == null ? null : payload.evidence.length,
+    evidenceRefCount:
+      payload.evidenceListReturned === false ? undefined : payload.evidence.length,
     recommendation,
   });
 }

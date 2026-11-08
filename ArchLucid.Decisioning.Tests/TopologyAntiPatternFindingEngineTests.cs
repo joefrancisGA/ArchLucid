@@ -43,6 +43,39 @@ public sealed class TopologyAntiPatternFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_blank_datastore_label_uses_not_stored_copy_in_title()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "cmp-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = GraphTopologyCategories.Compute,
+                    Properties = new(),
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "",
+                    Category = GraphTopologyCategories.Data,
+                    Properties = new(),
+                },
+            ],
+        };
+
+        TopologyAntiPatternFindingEngine sut = new();
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("Graph node label was not stored.");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_WhenLabelIsPublicStorage_EmitsPublicExposureFinding()
     {
         GraphSnapshot graph = new()
@@ -63,7 +96,37 @@ public sealed class TopologyAntiPatternFindingEngineTests
         TopologyAntiPatternFindingEngine sut = new();
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
-        findings.Should().Contain(f => f.Title.Contains("publicly exposed", StringComparison.OrdinalIgnoreCase));
+        findings.Should().Contain(f =>
+            f.Title.Contains("name includes \"public\"", StringComparison.OrdinalIgnoreCase));
+        findings.Should().NotContain(f =>
+            f.Title.Contains("appears publicly exposed", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_WhenLabelIsPublicSqlWithoutEndpointProperty_UsesNameOnlyHonestyCopy()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "public sql",
+                    Category = GraphTopologyCategories.Data,
+                    Properties = new(),
+                },
+            ],
+        };
+
+        TopologyAntiPatternFindingEngine sut = new();
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("name includes \"public\"");
+        findings[0].Title.Should().NotContain("appears publicly exposed");
+        findings[0].Rationale.Should().Contain("public endpoint property was not stored");
     }
 
     [Fact]

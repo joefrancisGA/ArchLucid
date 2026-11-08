@@ -104,7 +104,9 @@ public sealed class SponsorOnePagerPdfBuilder(
             }
         }
 
-        string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
+        string footer = PilotExportLinkHonestyCopy.TryNormalizeReviewLinkBase(baseUrlForFooter, out string normalizedFooter)
+            ? normalizedFooter
+            : string.Empty;
         FirstValueReportBuildResult? sponsorGate = await _firstValueReportBuilder.BuildReportAsync(runId, footer, cancellationToken);
 
         if (sponsorGate is null)
@@ -134,8 +136,9 @@ public sealed class SponsorOnePagerPdfBuilder(
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
-        int denom = Math.Max(1, scorecard.RunsInPeriod);
-        double committedRatio = scorecard.RunsWithCommittedManifest / (double)denom;
+        double committedRatio = scorecard.RunsInPeriod > 0
+            ? scorecard.RunsWithCommittedManifest / (double)scorecard.RunsInPeriod
+            : 0d;
         Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
             _runRepository,
             _scopeContextProvider,
@@ -162,7 +165,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 });
                 page.Content().Column(column =>
                 {
-                    column.Item().Text($"Run: {run.RunId}").FontSize(11);
+                    column.Item().Text(PilotSponsorOnePagerPlainTextFormatter.FormatRunHeaderLine(run.RunId)).FontSize(11);
                     column.Item().Text($"Generated (UTC): {TimeProvider.System.UtcNowDateTime():O}");
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     if (coverageHonestyLines.Count > 0)
@@ -212,14 +215,16 @@ public sealed class SponsorOnePagerPdfBuilder(
                     }
 
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
-                    column.Item().Element(c => RenderComputedDeltasTable(c, deltas));
+                    column.Item().Element(c => RenderComputedDeltasTable(c, deltas, sponsorGate.ProofPackageCompleteness, run, manifest));
                     column.Item().PaddingTop(4)
-                        .Text(
-                            $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).");
+                        .Text(FormatPilotWindowLine(scorecard, committedRatio));
                     if (manifest is not null)
                     {
-                        column.Item().PaddingTop(4).Text($"Committed manifest version: {manifest.Metadata.ManifestVersion}");
-                        column.Item().Text($"System: {manifest.SystemName}");
+                        column.Item().PaddingTop(4).Text(
+                            PilotSponsorOnePagerPlainTextFormatter.FormatCommittedManifestVersionLine(
+                                manifest.Metadata.ManifestVersion));
+                        column.Item().Text(
+                            PilotSponsorOnePagerPlainTextFormatter.FormatSystemNameLine(manifest.SystemName));
                     }
                     else
                     {
@@ -254,7 +259,10 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().PaddingTop(12).Text("Canonical narrative").Bold();
                     column.Item().Text(
                         "Repository docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
-                    column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/review/{run.RunId}");
+                    column.Item().PaddingTop(10).Text(
+                        PilotExportLinkHonestyCopy.IsReviewLinkBaseStored(footer)
+                            ? $"Deep link (API): {footer}/v1/architecture/review/{run.RunId}"
+                            : $"Deep link (API): {PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored}");
                     string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
                     column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);
                     column.Item().Text($"{ui}{reviewUiPath}");
@@ -268,7 +276,12 @@ public sealed class SponsorOnePagerPdfBuilder(
     ///     Renders the four computed-delta rows (time-to-commit, findings total, LLM calls, audit rows) as a 2-column
     ///     table.
     /// </summary>
-    private static void RenderComputedDeltasTable(IContainer column, PilotRunDeltas deltas)
+    private static void RenderComputedDeltasTable(
+        IContainer column,
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse? proofCompleteness,
+        ArchitectureRun run,
+        GoldenManifest? manifest)
     {
         column.PaddingTop(4).Table(table =>
         {
@@ -277,9 +290,12 @@ public sealed class SponsorOnePagerPdfBuilder(
                 c.RelativeColumn(2);
                 c.RelativeColumn(3);
             });
-            AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
-            AddDeltaRow(table, "Findings (total)", deltas.FindingsBySeverity.Sum(static p => p.Value).ToString(CultureInfo.InvariantCulture));
-            AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
+            AddDeltaRow(
+                table,
+                "Time to committed manifest",
+                PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas, proofCompleteness, run, manifest));
+            AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
+            AddDeltaRow(table, "Findings by severity", PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));
         });
@@ -291,59 +307,51 @@ public sealed class SponsorOnePagerPdfBuilder(
         table.Cell().Padding(2).Text(value).Bold();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas)
-    {
-        return deltas.TimeToCommittedManifest is not { } wall ? "(pending — no committed manifest)" : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
-    }
+    private static string FormatAuditRows(PilotRunDeltas deltas) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatPlainText(deltas);
 
-    private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
-    {
-        return deltas.FindingsBySeverity.Count == 0 ? "(none)" : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
-    }
-
-    private static string FormatAuditRows(PilotRunDeltas deltas)
-    {
-        if (deltas.AuditRowCount == 0)
-            return "0";
-        return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ (cap reached)" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private static string FormatLlmCallCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.LlmCallCountResolved)
-            return "(not attested — execution trace query failed)";
-
-        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatPlainText(deltas);
 
     private static void RenderEvidenceChain(IContainer column, PilotRunDeltas deltas)
     {
         if (deltas.TopFindingId is null)
         {
-            column.Text("(No findings on this run; evidence-chain excerpt skipped.)").Italic();
+            column.Text(PilotTopFindingEvidenceChainHonestyCopy.FormatPdfNoFindingsSkipItalicLine()).Italic();
             return;
         }
 
         column.Column(c =>
         {
-            c.Item().Text($"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Severity was not stored."}).");
+            c.Item().Text(PilotTopFindingPresentationHonestyCopy.FormatSelectedFindingPlainLine(deltas));
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
             if (chain is null)
             {
-                c.Item().Text("(Evidence chain unavailable — finding not present in persisted FindingsSnapshot.)").Italic();
+                c.Item().Text(PilotTopFindingEvidenceChainHonestyCopy.FormatPdfUnavailableItalicLine()).Italic();
                 return;
             }
 
-            c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "Manifest version was not stored."}");
+            c.Item().Text(PilotSponsorOnePagerPlainTextFormatter.FormatManifestVersionLine(chain.ManifestVersion));
             c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} · context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
             c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} · decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");
-            c.Item().Text($"Related graph nodes: {chain.RelatedGraphNodeIds.Count} · agent execution traces: {chain.AgentExecutionTraceIds.Count}");
+            c.Item().Text(
+                $"Related graph nodes: {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} · agent execution traces: {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)}");
         });
     }
 
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
         return id is null ? missingValue : id.Value.ToString("D");
+    }
+
+    private static string FormatPilotWindowLine(PilotScorecardSummary scorecard, double committedRatio)
+    {
+        if (scorecard.RunsInPeriod == 0)
+        {
+            return "No runs were in the last 30 days, so a committed share was not computed.";
+        }
+
+        return $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).";
     }
 }

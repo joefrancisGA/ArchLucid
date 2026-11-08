@@ -14,6 +14,22 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class PilotProofPackageCompletenessMapperTests
 {
     [Fact]
+    public void Build_when_audit_row_count_unresolved_surfaces_resolved_false()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with { AuditRowCount = 0, AuditRowCountResolved = false };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c =
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.AuditRowCountResolved.Should().BeFalse();
+        c.AuditRowsPresentOrLowerBound.Should().BeFalse(
+            "unresolved audit counts must not read as confirmed absent rows");
+    }
+
+    [Fact]
     public void Build_StrongRoi_CommittedNonDemo_HasStrongTierAndPassFlags()
     {
         (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, PilotBuyerSafeEvidenceGateResult gate, ValueReportSnapshot snap) =
@@ -30,6 +46,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.FindingsBySeverityPresent.Should().BeTrue();
         c.TopFindingEvidenceChainPresentOrNotApplicable.Should().BeTrue();
         c.AuditRowsPresentOrLowerBound.Should().BeTrue();
+        c.AuditRowCountResolved.Should().BeTrue();
         c.LlmCallCountResolved.Should().BeTrue();
         c.LlmCallCount.Should().Be(2);
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.Sendable));
@@ -42,7 +59,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
     }
 
     [Fact]
-    public void Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent()
+    public void Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent_WhenAgentResultsIncluded()
     {
         (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
             StrongBaselineFixture();
@@ -52,6 +69,24 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.FindingsBySeverityPresent.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Build_UnresolvedFindingsSeverity_FlagsNotPresent_WhenAgentResultsOmittedAndNoSnapshot()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with
+        {
+            FindingsBySeverity = [],
+            AgentResultsIncludedInDetail = false,
+            FindingsCountsFromSnapshot = false,
+        };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.FindingsBySeverityPresent.Should().BeFalse();
     }
 
     [Fact]
@@ -146,6 +181,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
 
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeFalse();
         gate.SoftGaps.Should().Contain(g => g.Contains("PilotStrict agent-output signals **not attested**", StringComparison.Ordinal));
+        gate.SoftGaps.Should().Contain(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved());
     }
 
     [Fact]
@@ -223,16 +259,26 @@ public sealed class PilotProofPackageCompletenessMapperTests
             FindingsBySeverity = [new KeyValuePair<string, int>("Error", 1)],
             AuditRowCount = 4,
             AuditRowCountTruncated = false,
+            AuditRowCountResolved = true,
             LlmCallCount = 2,
             LlmCallCountResolved = true,
             TopFindingId = "f-1",
             TopFindingSeverity = "Error",
             TopFindingEvidenceChain = new(),
             IsDemoTenant = false,
+            SynthesizedArtifactDescriptorCount = 1,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
         ValueReportSnapshot snap = SnapshotWith(ReviewCycleBaselineProvenance.TenantSuppliedAtSignup);
-        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            manifest,
+            deltas,
+            snap,
+            BuyerProvidedScorecard());
 
         return (run, manifest, deltas, gate, snap);
     }
@@ -273,7 +319,17 @@ public sealed class PilotProofPackageCompletenessMapperTests
             ReviewCycleHoursDeltaPercent: 10m,
             FindingFeedbackNetScore: 0,
             FindingFeedbackVoteCount: 0,
-            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselineManualPrepHoursPerReview: 2m,
             TenantBaselinePeoplePerReview: null);
     }
+
+    private static ArchLucid.Persistence.Pilots.PilotBaselineRecord BuyerProvidedScorecard() =>
+        new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            BaselineHoursPerReview = 40m,
+            BaselineReviewsPerQuarter = 12,
+            BaselineArchitectHourlyCost = 175m,
+            UpdatedUtc = DateTimeOffset.UtcNow,
+        };
 }

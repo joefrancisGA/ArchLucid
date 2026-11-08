@@ -292,7 +292,7 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
-    public void Compile_uses_trimmed_diagram_node_id_as_label_when_record_label_is_whitespace_only()
+    public void Compile_uses_not_stored_copy_when_record_label_is_whitespace_only()
     {
         const string PaddedTerraformAddress = "  azurerm_mssql_server.pay_sql  ";
 
@@ -316,7 +316,8 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
             CreateDefaultCompileOptions());
 
         result.Snapshot.Nodes.Should().ContainSingle(node =>
-            node.Label == PaddedTerraformAddress.Trim());
+            node.Label == "Resource name was not stored."
+            && node.SourceId == PaddedTerraformAddress.Trim());
     }
 
     [Fact]

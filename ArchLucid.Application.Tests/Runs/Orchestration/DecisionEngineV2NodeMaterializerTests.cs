@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Decisions;
@@ -135,6 +136,139 @@ public sealed class DecisionEngineV2NodeMaterializerTests
                     state.ToString()!.Contains(DecisionEngineV2NodeMaterializer.UnusedAppendixWarning, StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_MaterializeIfMissingAsync_merges_inputs_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("52525252-5252-5252-5252-525252525252");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = runId.ToUpperInvariant();
+        string requestId = "REQ-legacy-v2";
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        ArchitectureRequest request = new() { RequestId = requestId, SystemName = "system" };
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = legacyUpper,
+            EvidencePackageId = Guid.NewGuid().ToString("N"),
+            CreatedUtc = DateTime.UtcNow,
+        };
+        AgentTask task = new() { RunId = legacyUpper, TaskId = "task-legacy" };
+        AgentResult result = new() { RunId = legacyUpper, TaskId = "task-legacy", AgentType = AgentType.Topology };
+        DecisionNode resolved = new() { RunId = runId, Topic = "TopologyAcceptance" };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(repository => repository.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { ArchitectureRequestId = requestId });
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(repository => repository.GetByIdAsync(requestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+
+        Mock<IAgentTaskRepository> tasks = new();
+        tasks
+            .Setup(repository => repository.GetByRunIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        tasks
+            .Setup(repository => repository.GetByRunIdAsync(scope, legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([task]);
+        tasks
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentEvidencePackageRepository> evidencePackages = new();
+        evidencePackages
+            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AgentEvidencePackage?)null);
+        evidencePackages
+            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(evidence);
+        evidencePackages
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AgentEvidencePackage?)null);
+
+        Mock<IAgentResultRepository> results = new();
+        results
+            .Setup(repository => repository.GetByRunIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        results
+            .Setup(repository => repository.GetByRunIdAsync(scope, legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([result]);
+        results
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentEvaluationService> evaluations = new();
+        evaluations
+            .Setup(service => service.EvaluateAsync(
+                runId,
+                request,
+                evidence,
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new AgentEvaluation { RunId = runId, TargetAgentTaskId = "task-legacy" }]);
+
+        Mock<IDecisionEngineV2> engineV2 = new();
+        engineV2
+            .Setup(engine => engine.ResolveAsync(
+                runId,
+                request,
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                It.IsAny<IReadOnlyList<AgentEvaluation>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([resolved]);
+
+        Mock<IDecisionNodeRepository> decisionNodes = new();
+        decisionNodes
+            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        decisionNodes
+            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        decisionNodes
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        DecisionEngineV2NodeMaterializer sut = CreateSut(
+            scopeProvider.Object,
+            runs.Object,
+            requests.Object,
+            tasks.Object,
+            evidencePackages.Object,
+            results.Object,
+            evaluations.Object,
+            engineV2.Object,
+            decisionNodes.Object);
+
+        await sut.MaterializeIfMissingAsync(runId, CancellationToken.None);
+
+        decisionNodes.Verify(
+            repository => repository.CreateManyAsync(
+                It.Is<IReadOnlyList<DecisionNodeRecord>>(records => records.Count == 1 && records[0].Topic == "TopologyAcceptance"),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

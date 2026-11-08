@@ -16,7 +16,7 @@ describe("formatCompareCostEstimateCell", () => {
   });
 
   it("returns em dash for empty values", () => {
-    expect(formatCompareCostEstimateCell(null)).toEqual({ display: "Not estimated", unitUnknown: false });
-    expect(formatCompareCostEstimateCell("")).toEqual({ display: "Not estimated", unitUnknown: false });
+    expect(formatCompareCostEstimateCell(null)).toEqual({ display: "Cost estimate was not stored.", unitUnknown: false });
+    expect(formatCompareCostEstimateCell("")).toEqual({ display: "Cost estimate was stored empty.", unitUnknown: false });
   });
 });

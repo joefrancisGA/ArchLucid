@@ -75,7 +75,7 @@ describe("run-detail-decision-delta", () => {
     );
 
     expect(view?.rows).toEqual([]);
-    expect(view?.emptyMessage).toContain("No active findings");
+    expect(view?.emptyMessage).toContain("No open finding titles are listed on this card");
   });
 
   it("returns null view when review is not committed", () => {
@@ -88,7 +88,21 @@ describe("run-detail-decision-delta", () => {
     const view = resolveRunDetailDecisionDeltaView([], true);
 
     expect(view?.rows).toEqual([]);
-    expect(view?.emptyMessage).toContain("No active findings");
+    expect(view?.emptyMessage).toContain("No open finding titles are listed on this card");
+  });
+
+  it("marks omitted evidence reference counts on rows", () => {
+    const row = buildRunDetailDecisionDeltaRow(
+      makeFinding({
+        findingId: "f-omitted-evidence",
+        title: "Missing evidence count",
+        evidenceRefCount: undefined,
+      }),
+      1,
+    );
+
+    expect(row.evidenceRefCountNotStored).toBe(true);
+    expect(row.evidenceAnchorHint).toBeNull();
   });
 
   it("builds rows with rule key and evidence anchor hint", () => {
@@ -98,24 +112,70 @@ describe("run-detail-decision-delta", () => {
         title: "Encrypt data at rest",
         severityValue: 2,
         policyRuleId: "sec-base-010",
+        trustLabel: "Deterministic rule",
         evidenceRefSnippets: ["storageAccount.bicep:42 — encryption disabled"],
         evidenceRefCount: 2,
       }),
       1,
     );
 
-    expect(row.severityLabel).toBe("High");
+    expect(row.severityLabel).toBe("Error");
     expect(row.policyRuleId).toBe("sec-base-010");
     expect(row.evidenceAnchorHint).toContain("storageAccount.bicep");
     expect(row.trustChipSet.label).toBe("Deterministic rule");
     expect(row.compareDeltaTrustLabels.origin).toBe("Deterministic rule");
   });
 
-  it("truncates long decision delta messages", () => {
+  it("withholds decision delta when findings snapshot was not stored", () => {
+    const view = resolveRunDetailDecisionDeltaView([makeFinding({ findingId: "a" })], true, false);
+
+    expect(view?.rows).toEqual([]);
+    expect(view?.emptyMessage).toContain("Findings snapshot was not stored");
+  });
+
+  it("labels blank and missing finding titles honestly", () => {
+    const emptyTitle = buildRunDetailDecisionDeltaRow(
+      makeFinding({ findingId: "empty", title: "   " }),
+      1,
+    );
+    const missingTitle = buildRunDetailDecisionDeltaRow(
+      makeFinding({ findingId: "missing", title: undefined as unknown as string }),
+      1,
+    );
+
+    expect(emptyTitle.title).toBe("Finding title was stored empty.");
+    expect(missingTitle.title).toBe("Finding title was not stored.");
+  });
+
+  it("surfaces evidence anchor honesty when ref count is omitted", () => {
+    const row = buildRunDetailDecisionDeltaRow(
+      makeFinding({ findingId: "f-1", evidenceRefCount: null }),
+      1,
+    );
+
+    expect(row.evidenceRefCountNotStored).toBe(true);
+    expect(row.evidenceAnchorHint).toBeNull();
+  });
+
+  it("truncates long decision delta messages with continuation honesty", () => {
     const long = "a".repeat(200);
     const truncated = truncateDecisionDeltaMessage(long);
 
-    expect(truncated.length).toBeLessThanOrEqual(180);
-    expect(truncated.endsWith("…")).toBe(true);
+    expect(truncated.length).toBeLessThanOrEqual(180 + 80);
+    expect(truncated).toContain("Full finding title was stored");
+  });
+
+  it("reports omitted open findings beyond the severity-sort cap", () => {
+    const findings: QuickDecisionFinding[] = [
+      makeFinding({ findingId: "a", severityValue: 3 }),
+      makeFinding({ findingId: "b", severityValue: 2 }),
+      makeFinding({ findingId: "c", severityValue: 1 }),
+      makeFinding({ findingId: "d", severityValue: 0 }),
+    ];
+
+    const view = resolveRunDetailDecisionDeltaView(findings, true);
+
+    expect(view?.rows).toHaveLength(3);
+    expect(view?.omittedOpenFindingCount).toBe(1);
   });
 });

@@ -36,7 +36,15 @@ export function ReviewDetailPolicyPackImpactCallout(
   const runId = props.runId.trim();
 
   if (ruleSetId.length === 0) {
-    return null;
+    return (
+      <aside
+        data-testid="review-detail-policy-pack-impact-callout"
+        className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/50"
+        aria-label="Policy pack evaluation context"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Governing policy pack id was not stored.</p>
+      </aside>
+    );
   }
 
   const packLabel = policyPackBuyerLabel(ruleSetId, props.ruleSetVersion ?? "");
@@ -111,7 +119,11 @@ export function ReviewDetailPolicyPackImpactCallout(
             >
               View policy basis
             </Link>
-          ) : null}
+          ) : (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-detail-policy-pack-link-not-stored">
+              Policy pack link was not stored.
+            </p>
+          )}
           <Link
             href={authorHref}
             className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}

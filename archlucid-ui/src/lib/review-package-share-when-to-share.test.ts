@@ -27,6 +27,7 @@ describe("review-package-share-when-to-share (TB-2243)", () => {
     expect(shareLink.occasion.toLowerCase()).toMatch(/url|link|showcase/);
     expect(print.label).toBe("Print / Save as PDF");
     expect(print.occasion.toLowerCase()).toMatch(/print|summary/);
+    expect(print.occasion.toLowerCase()).toContain("not a signed export");
     expect(exportRow.label).toBe("Export deliverable");
     expect(exportRow.occasion.toLowerCase()).toMatch(/export|deliverable|signed/);
   });

@@ -14,7 +14,10 @@ import {
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
-import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
+import {
+  formatAskConversationListDate,
+  formatConversationListDatePolished,
+} from "@/lib/locale-datetime";
 import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-ask-thread";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { trySeedDemoAskConversation } from "./ask-page-demo-seed";
@@ -41,7 +44,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
-  const [retrievalDegraded, setRetrievalDegraded] = useState(false);
+  const [retrievalDegraded, setRetrievalDegraded] = useState<boolean | null>(null);
   const [lastAskReferencedFindings, setLastAskReferencedFindings] = useState<readonly string[]>([]);
   const [lastAskReferencedDecisions, setLastAskReferencedDecisions] = useState<readonly string[]>([]);
   const [lastAskReferencedArtifacts, setLastAskReferencedArtifacts] = useState<readonly string[]>([]);
@@ -219,7 +222,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   const runAnchorUnset = !threadSelected && runId.trim().length === 0;
   const listDateFormatter = isBuyerPolishedOperatorShellEnv()
     ? formatConversationListDatePolished
-    : formatConversationListDate;
+    : formatAskConversationListDate;
   const askDisabled = loading || stream.askStreaming || question.trim().length === 0;
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
   const showPostAssistantFollowUps =
@@ -227,9 +230,35 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     lastMessage !== null &&
     lastMessage.role.toLowerCase() === "assistant";
 
+  const askPrimaryCitationFindingId = useMemo((): string | null => {
+    const trailing = messages.length > 0 ? messages[messages.length - 1] : null;
+    const fromMetadata =
+      trailing !== null && trailing.role.toLowerCase() === "assistant"
+        ? parseAskCitationRefsFromMessageMetadata(trailing.metadataJson)
+        : null;
+
+    const findings =
+      lastAskReferencedFindings.length > 0
+        ? lastAskReferencedFindings
+        : (fromMetadata?.referencedFindings ?? []);
+
+    for (const findingId of findings) {
+      const trimmed = findingId.trim();
+
+      if (trimmed.length > 0) {
+        return trimmed;
+      }
+    }
+
+    return null;
+  }, [lastAskReferencedFindings, messages]);
+
   const askAssistantGroundingLinks = useMemo(
-    () => (buyerPolishedShell ? buyerAskGroundingLinksForRun(runId) : null),
-    [buyerPolishedShell, runId],
+    () =>
+      buyerPolishedShell
+        ? buyerAskGroundingLinksForRun(runId, { primaryFindingId: askPrimaryCitationFindingId })
+        : null,
+    [askPrimaryCitationFindingId, buyerPolishedShell, runId],
   );
 
   const architectureBind = useWorkingInsightsArchitectureBind({
@@ -246,6 +275,11 @@ export function useAskPage(options: UseAskPageOptions = {}) {
         ? parseAskCitationRefsFromMessageMetadata(trailing.metadataJson)
         : null;
 
+    const trailingMetadataJson =
+      trailing !== null && trailing.role.toLowerCase() === "assistant"
+        ? trailing.metadataJson
+        : undefined;
+
     return buildAskCitationActionFollowUps({
       runId,
       referencedFindings:
@@ -260,7 +294,15 @@ export function useAskPage(options: UseAskPageOptions = {}) {
         lastAskReferencedArtifacts.length > 0
           ? lastAskReferencedArtifacts
           : (fromMetadata?.referencedArtifacts ?? []),
-      groundingLinks: askAssistantGroundingLinks,
+      inspectMetadataJson: trailingMetadataJson,
+      groundingLinks:
+        askAssistantGroundingLinks === null
+          ? null
+          : askAssistantGroundingLinks.flatMap((link) =>
+              typeof link.href === "string" && link.href.length > 0
+                ? [{ href: link.href, label: link.label }]
+                : [],
+            ),
       inspectHrefOptions,
     });
   }, [

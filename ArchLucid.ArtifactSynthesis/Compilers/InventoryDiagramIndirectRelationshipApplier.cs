@@ -54,9 +54,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(edgeKey, out DiagramEdge? existingEdge))
             {
-                existingEdge.Label = formattedLabel;
-                existingEdge.InferenceSource = resolved.InferenceSource;
-                existingEdge.ProvenanceKind = ResolveProvenanceKind(resolved.EvidenceCurrency);
+                AssignResolvedRelationship(existingEdge, formattedLabel, resolved.InferenceSource, resolved.EvidenceCurrency);
                 continue;
             }
 
@@ -64,9 +62,32 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(fallbackKey, out DiagramEdge? fallbackEdge))
             {
-                fallbackEdge.Label = formattedLabel;
-                fallbackEdge.InferenceSource = resolved.InferenceSource;
-                fallbackEdge.ProvenanceKind = ResolveProvenanceKind(resolved.EvidenceCurrency);
+                if (ShouldPreserveDirectPlacementEdge(fallbackEdge, ast))
+                {
+                    continue;
+                }
+
+                AssignResolvedRelationship(fallbackEdge, formattedLabel, resolved.InferenceSource, resolved.EvidenceCurrency);
+                continue;
+            }
+
+            DiagramEdge? directDiagramEdge = ast.Edges.FirstOrDefault(edge =>
+                !edge.IsLayoutOnly
+                && string.Equals(edge.FromNodeId, resolved.FromDiagramNodeId, StringComparison.Ordinal)
+                && string.Equals(edge.ToNodeId, resolved.ToDiagramNodeId, StringComparison.Ordinal));
+
+            if (directDiagramEdge is not null)
+            {
+                if (ShouldPreserveDirectPlacementEdge(directDiagramEdge, ast))
+                {
+                    continue;
+                }
+
+                AssignResolvedRelationship(
+                    directDiagramEdge,
+                    formattedLabel,
+                    resolved.InferenceSource,
+                    resolved.EvidenceCurrency);
                 continue;
             }
 
@@ -82,6 +103,39 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             ast.Edges.Add(newEdge);
             existingEdges[edgeKey] = newEdge;
         }
+    }
+
+    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge, DiagramAst ast)
+    {
+        if (!IsDirectSubnetAttachmentEndpoint(edge.FromNodeId, ast))
+        {
+            return false;
+        }
+
+        return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDirectSubnetAttachmentEndpoint(string diagramNodeId, DiagramAst ast)
+    {
+        DiagramNode? fromNode = ast.Nodes.FirstOrDefault(node =>
+            string.Equals(node.NodeId, diagramNodeId, StringComparison.Ordinal));
+
+        if (fromNode is null || string.IsNullOrWhiteSpace(fromNode.ArmResourceType))
+        {
+            return false;
+        }
+
+        string armType = fromNode.ArmResourceType;
+
+        if (armType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
+            && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatResolvedLabel(InventoryDiagramIndirectRelationshipResolvedEdge resolved)
@@ -101,7 +155,27 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             relationshipLabel);
     }
 
-    private static string ResolveProvenanceKind(InventoryDiagramEvidenceCurrency evidenceCurrency)
+    private static void AssignResolvedRelationship(
+        DiagramEdge edge,
+        string formattedLabel,
+        string inferenceSource,
+        InventoryDiagramEvidenceCurrency? evidenceCurrency)
+    {
+        edge.Label = formattedLabel;
+        edge.InferenceSource = inferenceSource;
+        string resolvedProvenance = ResolveProvenanceKind(evidenceCurrency);
+
+        // Keep an existing machine provenance kind. Stamping "Unclassified" makes
+        // DisplayLabelApplier replace the relationship verb with "Provenance was not stored."
+
+        if (string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+            || string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase))
+        {
+            edge.ProvenanceKind = resolvedProvenance;
+        }
+    }
+
+    private static string ResolveProvenanceKind(InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         // ProvenanceKind must stay a machine enum. DisplayLabelApplier treats unrecognized
         // strings as Unclassified and replaces the relationship verb with
@@ -109,11 +183,12 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         // InventoryDiagramEvidenceCurrencyLabels.Format, not this field.
         return evidenceCurrency switch
         {
+            null => "Unclassified",
             InventoryDiagramEvidenceCurrency.Derived => ProvenanceKind.DerivedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Observed => ProvenanceKind.ObservedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Configured => ProvenanceKind.DeterministicInference.ToString(),
             InventoryDiagramEvidenceCurrency.Current => ProvenanceKind.ObservedFact.ToString(),
-            _ => ProvenanceKind.ObservedFact.ToString(),
+            _ => "Unclassified",
         };
     }
 

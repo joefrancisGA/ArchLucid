@@ -51,6 +51,186 @@ public sealed class SegmentationRuleParserTests
     }
 
     [Fact]
+    public void ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards()
+    {
+        // Simple terraform stores the security_rule body as written, including the
+        // azurerm defaults source_port_range = "*" and destination_address_prefix = "*".
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                name                       = "ssh"
+                priority                   = 100
+                direction                  = "Inbound"
+                access                     = "Allow"
+                protocol                   = "Tcp"
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefix      = "10.0.0.0/8"
+                destination_address_prefix = "*"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseRiskyRules_still_detects_internet_source_when_port_and_destination_are_wildcards()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefix      = "*"
+                destination_address_prefix = "*"
+                """,
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(22);
+    }
+
+    [Fact]
+    public void ParseRiskyRules_detects_azure_internet_service_tag_with_destination_wildcard()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                source_port_range          = "*"
+                destination_port_range     = "3389"
+                source_address_prefix      = "Internet"
+                destination_address_prefix = "*"
+                """,
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(3389);
+    }
+
+    [Fact]
+    public void ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard()
+    {
+        // azurerm_network_security_rule uses source_address_prefixes for a list.
+        // Simple terraform stores that nested attribute in the security_rule body.
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                access                     = "Allow"
+                direction                  = "Inbound"
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefixes    = ["*"]
+                destination_address_prefix = "*"
+                """,
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(22);
+    }
+
+    [Fact]
+    public void ParseRiskyRules_detects_internet_service_tag_in_source_address_prefixes_list()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                destination_port_range  = "3389"
+                source_address_prefixes = ["Internet"]
+                """,
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(3389);
+    }
+
+    [Fact]
+    public void ParseRiskyRules_ignores_private_cidr_in_source_address_prefixes_list()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefixes    = ["10.0.0.0/8"]
+                destination_address_prefix = "*"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port()
+    {
+        // azurerm security_rule bodies store the destination prefix beside the port.
+        // 10.22.0.0/16 is a subnet, not destination port 22.
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                name                       = "https"
+                priority                   = 100
+                direction                  = "Inbound"
+                access                     = "Allow"
+                protocol                   = "Tcp"
+                source_port_range          = "*"
+                destination_port_range     = "443"
+                source_address_prefix      = "*"
+                destination_address_prefix = "10.22.0.0/16"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseRiskyRules_does_not_treat_priority_number_as_admin_destination_port()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                priority                   = 3389
+                direction                  = "Inbound"
+                access                     = "Allow"
+                destination_port_range     = "443"
+                source_address_prefix      = "*"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseRiskyRules_detects_admin_port_from_aws_from_port()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                "access = allow cidr_blocks = 0.0.0.0/0 from_port = 22 to_port = 22",
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(22);
+    }
+
+    [Fact]
     public void ParseRiskyRules_returns_empty_when_no_rules_blob()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

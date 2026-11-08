@@ -44,9 +44,31 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
     public Task<AgentEvidencePackage?> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        lock (_gate)
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-            return Task.FromResult(_byRunId.TryGetValue(runId, out AgentEvidencePackage? p) ? Clone(p) : null);
+        lock (_gate)
+        {
+            AgentEvidencePackage? preferred = null;
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                if (!_byRunId.TryGetValue(lookupKey, out AgentEvidencePackage? candidate))
+                    continue;
+
+                if (preferred is null
+                    || candidate.CreatedUtc > preferred.CreatedUtc
+                    || (candidate.CreatedUtc == preferred.CreatedUtc
+                        && string.Compare(
+                            candidate.EvidencePackageId,
+                            preferred.EvidencePackageId,
+                            StringComparison.OrdinalIgnoreCase) > 0))
+                {
+                    preferred = candidate;
+                }
+            }
+
+            return Task.FromResult(preferred is null ? null : Clone(preferred));
+        }
     }
 
     /// <inheritdoc />

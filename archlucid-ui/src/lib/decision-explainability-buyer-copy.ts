@@ -21,15 +21,24 @@ function decisionConfidenceEncodingNote(confidence: number): string {
 }
 
 /** Labels confidence with encoding so 1.0 is not confused with 100 points (UU-425). */
+export const DECISION_CONFIDENCE_NOT_STORED_LABEL = "Decision confidence was not stored." as const;
+
+export const DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL = "Confidence source was not stored." as const;
+
+export const DECISION_CONFIDENCE_SOURCE_UNRECOGNIZED_LABEL =
+  "Persisted confidence source was not recognized." as const;
+
+export const DECISION_CONFIDENCE_SOURCE_UNKNOWN_LABEL = "Unknown" as const;
+
 export function formatRecordedDecisionConfidence(confidence: number | null): string {
   if (confidence === null || !Number.isFinite(confidence)) {
-    return "Not recorded";
+    return DECISION_CONFIDENCE_NOT_STORED_LABEL;
   }
 
   const percent = normalizeDecisionConfidencePercent(confidence);
 
   if (percent === null) {
-    return "Not recorded";
+    return DECISION_CONFIDENCE_NOT_STORED_LABEL;
   }
 
   return `${percent}% (${decisionConfidenceEncodingNote(confidence)})`;
@@ -49,7 +58,7 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
   const normalized = pipeline.trim().toLowerCase();
 
   if (normalized.length === 0) {
-    return "Review pipeline";
+    return "Pipeline was not stored.";
   }
 
   if (normalized === "pipeline was not stored.") {
@@ -68,7 +77,35 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
     return "Review record";
   }
 
-  return "Review pipeline";
+  const original = pipeline.trim();
+
+  return `Pipeline ${original} has no reviewer label.`;
+}
+
+export function formatBuyerConfidenceSourceLabel(source: string | null | undefined): string {
+  const trimmed = source?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL;
+  }
+
+  if (trimmed === DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL) {
+    return DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL;
+  }
+
+  if (trimmed === "Evidence-backed" || trimmed === "Model-assisted" || trimmed === "Not computed") {
+    return trimmed;
+  }
+
+  if (trimmed === DECISION_CONFIDENCE_SOURCE_UNKNOWN_LABEL || trimmed === "Unknown") {
+    return DECISION_CONFIDENCE_SOURCE_UNKNOWN_LABEL;
+  }
+
+  if (trimmed === DECISION_CONFIDENCE_SOURCE_UNRECOGNIZED_LABEL) {
+    return DECISION_CONFIDENCE_SOURCE_UNRECOGNIZED_LABEL;
+  }
+
+  return DECISION_CONFIDENCE_SOURCE_UNRECOGNIZED_LABEL;
 }
 
 export function resolveRecordedDecisionConfidenceNote(input: {
@@ -80,7 +117,7 @@ export function resolveRecordedDecisionConfidenceNote(input: {
   const selected = input.selectedOption.trim().toLowerCase();
 
   if (confidencePercent === null) {
-    return null;
+    return selected.length > 0 ? "Pipeline confidence was not stored on this decision." : null;
   }
 
   if (confidencePercent >= LOW_RECORDED_DECISION_CONFIDENCE_THRESHOLD) {
@@ -94,7 +131,7 @@ export function resolveRecordedDecisionConfidenceNote(input: {
   const trimmedSource = input.buyerConfidenceSource?.trim();
 
   if (trimmedSource !== undefined && trimmedSource.length > 0) {
-    return trimmedSource;
+    return formatBuyerConfidenceSourceLabel(trimmedSource);
   }
 
   return "Recorded disposition overrides lower pipeline confidence.";

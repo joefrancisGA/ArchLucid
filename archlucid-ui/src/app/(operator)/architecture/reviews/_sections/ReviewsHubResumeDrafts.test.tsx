@@ -12,11 +12,12 @@ vi.mock("@/lib/architecture/architecture-draft-resume-telemetry", () => ({
   trackArchitectureDraftResumeClick: vi.fn(),
 }));
 
-import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
-
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/architecture/reviews",
 }));
+
+import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
   getDraftRequest: vi.fn(),
@@ -137,6 +138,55 @@ describe("ReviewsHubResumeDrafts", () => {
     expect(screen.getByTestId("reviews-hub-resume-draft-draft-004")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-resume-draft-draft-002")).toBeNull();
     expect(screen.queryByTestId("reviews-hub-resume-draft-draft-003")).toBeNull();
+  });
+
+  it("shows preview count as three of total when more drafts exist", () => {
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      {
+        draftId: "draft-001",
+        displayName: "Draft one",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+      },
+      {
+        draftId: "draft-002",
+        displayName: "Draft two",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-16T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-16T12:00:00.000Z",
+      },
+      {
+        draftId: "draft-003",
+        displayName: "Draft three",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-17T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-17T12:00:00.000Z",
+      },
+      {
+        draftId: "draft-004",
+        displayName: "Draft four",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-18T12:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-18T12:00:00.000Z",
+      },
+    ]);
+
+    render(<ReviewsHubResumeDrafts />);
+
+    expect(screen.getByRole("heading", { name: /Architectures ready for review/ })).toHaveTextContent("3 of 4");
+    expect(screen.getByTestId("reviews-hub-resume-draft-draft-001")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-resume-draft-draft-002")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-resume-draft-draft-003")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-resume-draft-draft-004")).toBeNull();
   });
 
   it("renders nothing when only archived drafts exist", () => {

@@ -120,7 +120,7 @@ public sealed partial class PostAuthWorkspaceBootstrapService
                 await _tenantRepository.GetByIdAsync(membership.TenantId, cancellationToken).ConfigureAwait(false);
 
             if (tenant is not null
-                && string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+                && TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             {
                 return true;
             }

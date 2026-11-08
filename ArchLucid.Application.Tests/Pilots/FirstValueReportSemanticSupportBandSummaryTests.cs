@@ -13,8 +13,14 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
     {
         List<ArchitectureFinding> findings =
         [
-            CreateFinding("f-1", FindingSemanticSupportBand.Supported),
-            CreateFinding("f-2", FindingSemanticSupportBand.Unchecked),
+            CreateFinding(
+                "f-1",
+                FindingSemanticSupportBand.Supported,
+                classification: FindingClassification.DecisionGradeFinding),
+            CreateFinding(
+                "f-2",
+                FindingSemanticSupportBand.Unchecked,
+                classification: FindingClassification.DecisionGradeFinding),
             CreateFinding(
                 "f-3",
                 FindingSemanticSupportBand.Unsupported,
@@ -57,11 +63,13 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
             CreateFinding(
                 "bad-1",
                 FindingSemanticSupportBand.Unsupported,
-                message: "Public database ingress"),
+                message: "Public database ingress",
+                classification: FindingClassification.DecisionGradeFinding),
             CreateFinding(
                 "ok-1",
                 FindingSemanticSupportBand.Supported,
-                message: "Supported claim"),
+                message: "Supported claim",
+                classification: FindingClassification.DecisionGradeFinding),
             CreateFinding(
                 "check-1",
                 FindingSemanticSupportBand.Unsupported,
@@ -78,6 +86,21 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
     }
 
     [Fact]
+    public void FormatStampSemanticSupportBandLine_compact_includes_not_scored_when_present()
+    {
+        FirstValueReportSemanticSupportBandSummary.SemanticSupportBandStampCounts counts = new(
+            Supported: 1,
+            Unchecked: 0,
+            Unsupported: 0,
+            NotScored: 2,
+            DecisionGradeTotal: 3);
+
+        string? line = FirstValueReportSemanticSupportBandSummary.FormatStampSemanticSupportBandLine(counts, compact: true);
+
+        line.Should().Be("Semantic support: 1 Supported · 0 Unchecked · 0 Unsupported · 2 Not scored");
+    }
+
+    [Fact]
     public void StampSemanticSupportShowsAllClear_is_false_when_unsupported_present()
     {
         FirstValueReportSemanticSupportBandSummary.SemanticSupportBandStampCounts counts = new(
@@ -86,6 +109,19 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
             Unsupported: 1,
             NotScored: 0,
             DecisionGradeTotal: 1);
+
+        FirstValueReportSemanticSupportBandSummary.StampSemanticSupportShowsAllClear(counts).Should().BeFalse();
+    }
+
+    [Fact]
+    public void StampSemanticSupportShowsAllClear_is_false_when_not_scored_present()
+    {
+        FirstValueReportSemanticSupportBandSummary.SemanticSupportBandStampCounts counts = new(
+            Supported: 1,
+            Unchecked: 0,
+            Unsupported: 0,
+            NotScored: 1,
+            DecisionGradeTotal: 2);
 
         FirstValueReportSemanticSupportBandSummary.StampSemanticSupportShowsAllClear(counts).Should().BeFalse();
     }
@@ -101,7 +137,8 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
             FindingId = findingId,
             Message = message,
             SemanticSupportBand = band,
-            Classification = classification,
+            // Decision-grade filter excludes null / non-decision-grade stamps from sponsor totals.
+            Classification = classification ?? FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Error,
         };
     }

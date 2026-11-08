@@ -7,13 +7,15 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatLastValidationOutcomeLabel,
   reviewPackageArchitectureName,
-  reviewPackageFinalizedDateLabel,
+  reviewPackageCreatedDateLabel,
+  reviewPackageFinalizedTimeLabel,
   reviewPackageOwnerLabel,
   reviewPackageStatusLabel,
 } from "@/lib/review-package-validation-picker";
 import { replayValidationModeDefinition } from "@/lib/replay-validation-workflow";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 import type { RunSummary } from "@/types/authority";
 
 export type ReplaySelectedPackageSummaryProps = {
@@ -53,14 +55,18 @@ export function ReplaySelectedPackageSummary(props: ReplaySelectedPackageSummary
         <div>
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</dt>
           <dd className="m-0">
-            <Link href={`/architecture/reviews/${selectedRun.runId}`} className={OPERATOR_LINK.nav}>
+            <Link href={resolveOperatorScopedRunReviewHref(selectedRun.runId)} className={OPERATOR_LINK.nav}>
               {buyerFacingReviewTitleFromSummary(selectedRun)}
             </Link>
           </dd>
         </div>
         <div>
+          <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Created</dt>
+          <dd className="m-0">{reviewPackageCreatedDateLabel(selectedRun)}</dd>
+        </div>
+        <div>
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Finalized</dt>
-          <dd className="m-0">{reviewPackageFinalizedDateLabel(selectedRun)}</dd>
+          <dd className="m-0">{reviewPackageFinalizedTimeLabel(selectedRun)}</dd>
         </div>
         <div>
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Owner</dt>

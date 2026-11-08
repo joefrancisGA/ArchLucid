@@ -31,10 +31,10 @@ export const BUYER_SHOWCASE_APPROVAL_UTC = "2026-01-14T22:05:00.000Z";
 
 /** Post-approval finding lead when the parent review is finalized. */
 export const BUYER_FINDING_POST_APPROVAL_LEAD =
-  "Residual sensitive-data minimization risk accepted with monitoring as part of the finalized Customer Intake review.";
+  "Sample finding. A stored acceptance was not stored.";
 
 export const BUYER_FINDING_POST_APPROVAL_VALIDATION =
-  "Recorded acceptance: ingress classification validated, adapter boundaries bounded, OCR bypass monitoring active, and weekly exception-volume review assigned to the residual-risk owner.";
+  "A stored acceptance was not stored on this finding.";
 
 function startOfUtcDay(date: Date): Date {
   const copy = new Date(date);

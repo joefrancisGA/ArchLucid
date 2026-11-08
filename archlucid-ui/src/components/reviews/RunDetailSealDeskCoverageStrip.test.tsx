@@ -31,6 +31,19 @@ describe("RunDetailSealDeskCoverageStrip", () => {
     );
   });
 
+  it("shows actor count not stored when graph snapshot is missing", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailSealDeskCoverageStrip runId="run-abc" analysisStagesComplete graphSnapshot={null} />,
+    );
+
+    expect(screen.getByTestId("run-detail-seal-desk-actor-count-not-stored-line")).toHaveTextContent(
+      "Actor node count was not stored",
+    );
+    expect(screen.queryByTestId("run-detail-seal-desk-quiet-engines-line")).not.toBeInTheDocument();
+  });
+
   it("shows skipped MUST question keys from the transparency trail", () => {
     workspaceModeMock.isWorkingMode = true;
 

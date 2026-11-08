@@ -12,6 +12,7 @@ import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -92,10 +93,9 @@ export function SponsorRoiDashboardLiveKpiCards({
     ? (loadingProp ?? false) || decisionsQuery.isPending || attestationQuery.isPending
     : summaryQuery.isPending || decisionsQuery.isPending || attestationQuery.isPending;
 
-  const staleRiskCount =
-    resolvedSummary?.staleArchitectureRiskCount ?? decisionsQuery.data?.staleRisks ?? 0;
-  const expiringWaiversCount = decisionsQuery.data?.waiversExpiringWithin14Days ?? 0;
-  const decisionsNeededCount = decisionsQuery.data?.totalDecisionItems ?? 0;
+  const staleRiskCount = resolvedSummary?.staleArchitectureRiskCount ?? decisionsQuery.data?.staleRisks;
+  const expiringWaiversCount = decisionsQuery.data?.waiversExpiringWithin14Days;
+  const decisionsNeededCount = decisionsQuery.data?.totalDecisionItems;
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -208,7 +208,7 @@ export function SponsorRoiDashboardLiveKpiCards({
             <SelfDescribingMetricCount
               variant="executive"
               presentation={sponsorNewlyDiscoveredFindingsPresentation(
-                resolvedSummary?.newlyDiscoveredFindingsCount30Days ?? 0,
+                resolvedSummary?.newlyDiscoveredFindingsCount30Days,
               )}
               testId="exec-kpi-discovered-30d-count"
             />
@@ -323,6 +323,11 @@ export function SponsorRoiDashboardLiveKpiCards({
       </Card>
 
       {!executiveDetails ? (
+      <>
+      <SecureNowSponsorRoiCollectionScopeHonestyLine
+        className="sm:col-span-2 lg:col-span-3"
+        testId="exec-kpi-live-collection-scope-honesty"
+      />
       <Card data-testid="exec-kpi-cost-evidence-freshness">
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
@@ -344,6 +349,7 @@ export function SponsorRoiDashboardLiveKpiCards({
           <KpiFootnote text={costFreshness.footnote} runbookHref={costFreshness.runbookHref} />
         </CardContent>
       </Card>
+      </>
       ) : null}
     </>
   );

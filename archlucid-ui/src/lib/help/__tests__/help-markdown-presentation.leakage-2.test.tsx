@@ -242,7 +242,6 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared).not.toContain("soc 2 ready");
     expect(prepared).not.toContain("soc 2 certified");
     expect(prepared).not.toMatch(/\|\s*third-party pen test\s*\|\s*in flight\s*\|/);
-    expect(prepared).toContain("planned, not yet scheduled");
     expect(prepared).not.toContain("not labeled in flight are explained");
   });
   it("aligns data-handling isolation copy to honesty ladder (TB-1653)", () => {

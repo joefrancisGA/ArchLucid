@@ -44,4 +44,12 @@ public sealed class DiagramSubgraphLabelFormatterTests
 
         mermaid.Should().Contain(DiagramSubgraphLabelFormatter.GroupLabelStoredEmptyCaption);
     }
+
+    [Fact]
+    public void FormatForDiagram_rollup_null_label_uses_not_stored_caption()
+    {
+        DiagramSubgraphLabelFormatter.FormatForDiagram(null)
+            .Should()
+            .Be(DiagramSubgraphLabelFormatter.GroupLabelNotStoredCaption);
+    }
 }

@@ -21,7 +21,12 @@ import {
 import { useRunStoredEvidenceCatalogQuery } from "@/hooks/use-run-stored-evidence-catalog-query";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
+import {
+  formatRunDetailEvidenceCitingFindingCount,
+  formatRunDetailEvidenceSourceNameDisplay,
+  RUN_DETAIL_EVIDENCE_ARCHITECTURE_BRIEF_SOURCE_HONESTY,
+  type RunDetailEvidenceInventoryItem,
+} from "@/lib/runs/run-detail-evidence-inventory";
 import { enrichRunDetailEvidenceInventoryWithCatalog } from "@/lib/runs/run-stored-evidence-inventory-enrich";
 
 export type RunDetailEvidenceInventorySectionProps = {
@@ -33,18 +38,18 @@ export type RunDetailEvidenceInventorySectionProps = {
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
-function formatIngestedLabel(iso: string): string {
+function formatIngestedLabel(iso: string | null): string {
+  if (iso === null) {
+    return "Ingested time was not stored.";
+  }
+
+  if (iso.trim().length === 0) {
+    return "Ingested time was stored empty.";
+  }
+
   const formatted = formatInstantForLocale(iso);
 
   return formatted.length > 0 ? formatted : iso;
-}
-
-function formatCitingFindingsCount(count: number): string {
-  if (count === 0) {
-    return "Not cited yet";
-  }
-
-  return count === 1 ? "1 finding" : `${count} findings`;
 }
 
 function resolveCatalogContentType(
@@ -65,12 +70,14 @@ function renderSourceCell(
   handlers: ReturnType<typeof useStoredEvidenceFileActions>["handlers"],
   openButtonRef: ReturnType<typeof useStoredEvidenceFileActions>["openButtonRef"],
 ): ReactElement {
+  const displaySourceName = formatRunDetailEvidenceSourceNameDisplay(item.sourceName);
+
   if (item.inventoryKind === "stored-file" && item.evidenceItemId !== null) {
     return (
       <StoredEvidenceFileCells
         runId={runId}
         evidenceItemId={item.evidenceItemId}
-        fileName={item.sourceName}
+        fileName={displaySourceName}
         contentType={catalogContentType}
         handlers={handlers}
         openButtonRef={openButtonRef}
@@ -81,7 +88,7 @@ function renderSourceCell(
   if (item.inventoryKind === "citation") {
     return (
       <div>
-        <span className="font-medium text-al-text-primary">{item.sourceName}</span>
+        <span className="font-medium text-al-text-primary">{displaySourceName}</span>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Cited — original not stored
         </p>
@@ -89,7 +96,18 @@ function renderSourceCell(
     );
   }
 
-  return <span className="font-medium text-al-text-primary">{item.sourceName}</span>;
+  if (item.inventoryKind === "architecture-brief") {
+    return (
+      <div>
+        <span className="font-medium text-al-text-primary">{displaySourceName}</span>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {RUN_DETAIL_EVIDENCE_ARCHITECTURE_BRIEF_SOURCE_HONESTY}
+        </p>
+      </div>
+    );
+  }
+
+  return <span className="font-medium text-al-text-primary">{displaySourceName}</span>;
 }
 
 export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInventorySectionProps): ReactElement {
@@ -181,7 +199,11 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
                     {formatIngestedLabel(item.ingestedUtc)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="tabular-nums text-al-text-secondary">
-                    {formatCitingFindingsCount(item.citingFindingCount)}
+                    {formatRunDetailEvidenceCitingFindingCount(
+                      item.citingFindingCount,
+                      item.citingFindingCountStored,
+                      item.inventoryKind,
+                    )}
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}

@@ -56,4 +56,10 @@ describe("AdvisoryRecommendationCard (TB-1127)", () => {
     fireEvent.click(accept);
     expect(onAction).toHaveBeenCalledWith("rec-1", "Accept");
   });
+
+  it("states when source evidence links were not stored", () => {
+    render(<AdvisoryRecommendationCard recommendation={sampleRecommendation()} onAction={vi.fn()} />);
+
+    expect(screen.getByText("Source evidence links were not stored.")).toBeInTheDocument();
+  });
 });

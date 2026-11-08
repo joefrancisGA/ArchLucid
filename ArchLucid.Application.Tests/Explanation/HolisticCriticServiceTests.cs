@@ -73,4 +73,105 @@ public sealed class HolisticCriticServiceTests
         response.CritiqueMarkdown.Should().Be(markdown);
         response.Disclaimer.Should().Be(HolisticCriticResponse.DefaultDisclaimer);
     }
+
+    [Fact]
+    public async Task GenerateAsync_surfaces_omitted_finding_and_theme_counts_on_response()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        ScopeContext scope = new();
+
+        List<Finding> findings = Enumerable.Range(0, 15)
+            .Select(index => new Finding
+            {
+                FindingId = $"f-{index}",
+                Severity = FindingSeverity.Error,
+                Title = $"Finding {index}",
+            })
+            .ToList();
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            GoldenManifest = new ManifestDocument(),
+            FindingsSnapshot = new FindingsSnapshot { Findings = findings },
+        };
+
+        List<string> themes = ["t1", "t2", "t3", "t4", "t5", "t6", "t7"];
+
+        RunExplanationSummary summary = new()
+        {
+            Explanation = new ExplanationResult { RawText = "Baseline summary" },
+            ThemeSummaries = themes,
+            OverallAssessment = "Needs work",
+            RiskPosture = "Elevated",
+        };
+
+        Mock<IAuthorityQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IRunExplanationSummaryService> explanation = new();
+        explanation.Setup(s => s.GetSummaryAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(summary);
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"critiqueMarkdown":"## Blind spots\n- ok"}""");
+
+        HolisticCriticService sut = new(query.Object, explanation.Object, client.Object);
+
+        HolisticCriticResponse response = await sut.GenerateAsync(scope, runId, null, CancellationToken.None);
+
+        response.OmittedFindingLinesCount.Should().Be(3);
+        response.OmittedThemeSummariesCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task GenerateAsync_sample_findings_use_title_and_severity_honesty_copy()
+    {
+        Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ScopeContext scope = new();
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            GoldenManifest = new ManifestDocument(),
+            FindingsSnapshot = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding { FindingId = "f-id-only", Severity = FindingSeverity.Info },
+                ],
+            },
+        };
+
+        RunExplanationSummary summary = new()
+        {
+            Explanation = new ExplanationResult { RawText = "Baseline summary" },
+            ThemeSummaries = [],
+            OverallAssessment = "Needs work",
+            RiskPosture = "Elevated",
+        };
+
+        Mock<IAuthorityQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IRunExplanationSummaryService> explanation = new();
+        explanation.Setup(s => s.GetSummaryAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(summary);
+
+        string? capturedPrompt = null;
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .Callback<string, string, int?, float?, CancellationToken>((_, prompt, _, _, _) => capturedPrompt = prompt)
+            .ReturnsAsync("""{"critiqueMarkdown":"## Blind spots\n- ok"}""");
+
+        HolisticCriticService sut = new(query.Object, explanation.Object, client.Object);
+
+        await sut.GenerateAsync(scope, runId, null, CancellationToken.None);
+
+        capturedPrompt.Should().NotBeNull();
+        capturedPrompt.Should().Contain("Finding title was not stored.");
+        capturedPrompt.Should().Contain("[Severity was not stored.] Finding title was not stored.");
+        capturedPrompt.Should().NotContain("f-id-only");
+    }
 }

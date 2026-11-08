@@ -16,6 +16,16 @@ Restrict model selection for this workspace. **Default to the slow tier** unless
 
 **Default:** when no model is specified or the choice is ambiguous, use **`composer-2.5`**.
 
+## `/al-polish` carve-out (no prompt)
+
+When the user invokes the **`/al-polish`** Cursor command (including `use composer for implementation` in the same message):
+
+- **Do not** ask for `ok` / `yes` before using **`grok-4.7-high`** (Phase 1) or **`gpt-5.6-luna-medium`** / **`composer-2.5`** (Phase 2 per command).
+- **Do not** ask the user to approve individual file edits for the batch; use the polish worktree per `.cursor/commands/al-polish.md`.
+- Follow `.cursor/commands/al-polish.md` for which slug Phase 2 uses.
+
+This carve-out applies **only** to that command invocation, not to ad-hoc “use Grok 4.7” requests outside `/al-polish`.
+
 ## When this rule applies
 
 - Selecting a `model` for **Task** subagents (`generalPurpose`, `explore`, `debug`, `computerUse`, etc.).
@@ -52,6 +62,7 @@ Even when a model family is allowlisted, **never** use the fast variant unless t
 | Situation | Action |
 |-----------|--------|
 | User asks to implement a feature | Use `composer-2.5`; no prompt needed |
+| User runs **`/al-polish`** | Use command models per carve-out; no `ok` / `yes` prompt |
 | User runs `/al-ui-rate` (Opus rating phase) | Prompt for override before Opus; if denied, use `composer-2.5` for rating or explain the workflow cannot run as written |
 | User says "use Opus for this" | Prompt: override required; wait for `ok` or `yes` |
 | User says "sure, use Opus" | **Not** authorized — ask again; only `ok` or `yes` count |

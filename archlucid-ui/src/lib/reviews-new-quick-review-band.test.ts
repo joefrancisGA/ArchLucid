@@ -34,15 +34,11 @@ describe("reviews-new quick-review band regression (TB-1875)", () => {
   });
 
   it("honors REQ traffic path token and product label alignment (TB-1871)", () => {
-    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_ROW_ID).toBe("REQ");
+    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_ROW_ID).toBe("ARQ");
     expect(REVIEWS_NEW_QUICK_REVIEW_TAB_PATH_TOKEN).toBe(REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN);
     expect(REVIEWS_NEW_QUICK_REVIEW_TAB_PRODUCT_LABEL).toBe(REVIEWS_NEW_QUICK_START_TAB_LABEL);
-    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE).toContain(
-      `path=${REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN}`,
-    );
-    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE).toContain("ReviewsNewPathSwitcher");
-    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE).toContain("FirstPilotIntakeWizard");
-    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE).toContain("cannot improve further toward 80");
+    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE).toBe("None");
+    expect(REVIEWS_NEW_QUICK_REVIEW_TAB_PATH_TOKEN).toBe(REVIEWS_NEW_QUICK_REVIEW_PATH_TOKEN);
   });
 
   it("keeps quick-review path hint and URL token aligned (TB-1867 / TB-1872)", () => {

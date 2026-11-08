@@ -60,4 +60,33 @@ public sealed class DeclarationIdentityEdgeMaterializerTests
         edges.Should().ContainSingle();
         edges[0].ToNodeId.Should().Be("obj-ingress-1");
     }
+
+    [Fact]
+    public void MaterializeFromDeclarationActors_uses_not_stored_label_when_actor_label_blank()
+    {
+        GraphNode actor = new()
+        {
+            NodeId = "declaration-actor-1",
+            NodeType = GraphNodeTypes.Actor,
+            Label = "   ",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["declarationSourceNodeId"] = "obj-ingress-1",
+            },
+        };
+
+        GraphNode topology = new()
+        {
+            NodeId = "obj-ingress-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "payments-ingress",
+        };
+
+        IReadOnlyList<GraphEdge> edges = DeclarationIdentityEdgeMaterializer.MaterializeFromDeclarationActors(
+            [actor],
+            [topology, actor]);
+
+        edges.Should().ContainSingle();
+        edges[0].Label.Should().Contain("Actor label was not stored.");
+    }
 }

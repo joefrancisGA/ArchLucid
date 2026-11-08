@@ -43,18 +43,23 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
   const [showArchived, setShowArchived] = useState(false);
   const query = useArchitectureIdentitiesListQuery(1, undefined, { includeArchived: showArchived });
   const items = query.data?.items ?? [];
-  const archivedHiddenCount = query.data?.archivedHiddenCount ?? 0;
+  const archivedHiddenCountRaw = query.data?.archivedHiddenCount;
+  const archivedHiddenCount =
+    typeof archivedHiddenCountRaw === "number" && Number.isFinite(archivedHiddenCountRaw)
+      ? Math.trunc(archivedHiddenCountRaw)
+      : null;
+  const archivedHiddenCountForHonesty = archivedHiddenCount ?? 0;
 
   const hiddenFilterHonesty = useMemo(
     () =>
       deriveInventoryHiddenFilterHonesty({
         visibleCount: query.data?.totalCount ?? items.length,
-        filteredPoolCount: (query.data?.totalCount ?? items.length) + archivedHiddenCount,
+        filteredPoolCount: (query.data?.totalCount ?? items.length) + archivedHiddenCountForHonesty,
         unitSingular: "architecture",
         unitPlural: "architectures",
         filterLabel: "archived",
       }),
-    [archivedHiddenCount, items.length, query.data?.totalCount],
+    [archivedHiddenCountForHonesty, items.length, query.data?.totalCount],
   );
 
   if (query.isLoading) {
@@ -76,7 +81,7 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
   if (items.length === 0 && !showArchived) {
     return (
       <div className="space-y-3">
-        {!showArchived && archivedHiddenCount > 0 ? (
+        {!showArchived && archivedHiddenCountForHonesty > 0 ? (
           <InventoryHiddenFilterHonestyBand
             honesty={hiddenFilterHonesty}
             onShowAll={() => setShowArchived(true)}
@@ -99,7 +104,11 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
     );
   }
 
-  const totalCount = query.data?.totalCount ?? items.length;
+  const totalCountStored = query.data?.totalCount;
+  const totalCount =
+    typeof totalCountStored === "number" && Number.isFinite(totalCountStored)
+      ? Math.trunc(totalCountStored)
+      : null;
 
   return (
     <div className="space-y-2">
@@ -107,28 +116,49 @@ export function ArchitectureIdentityListClient(): React.JSX.Element {
         <FilterChipGroup aria-label="Filter architectures" className="flex flex-wrap items-center gap-1.5">
           <FilterChip
             data-testid="architecture-identity-list-show-archived"
-            className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(showArchived, archivedHiddenCount === 0, archivedHiddenCount === 0))}
+            className={cn(
+              FILTER_CHIP_LAYOUT_CLASS,
+              buyerFilterChipClass(
+                showArchived,
+                archivedHiddenCount === 0,
+                archivedHiddenCount === 0,
+              ),
+            )}
             aria-pressed={showArchived}
-            disabled={!showArchived && archivedHiddenCount === 0}
+            disabled={!showArchived && archivedHiddenCount !== null && archivedHiddenCount === 0}
             onClick={() => setShowArchived((value) => !value)}
           >
             {ARCHITECTURE_IDENTITY_LIST_SHOW_ARCHIVED_LABEL}
           </FilterChip>
         </FilterChipGroup>
+        {archivedHiddenCount === null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Archived architecture count was not stored.
+          </p>
+        ) : null}
       </div>
-      {!showArchived && archivedHiddenCount > 0 ? (
+      {!showArchived && archivedHiddenCountForHonesty > 0 ? (
         <InventoryHiddenFilterHonestyBand
           honesty={hiddenFilterHonesty}
           onShowAll={() => setShowArchived(true)}
           testId="architecture-identity-list-hidden-archived-band"
         />
       ) : null}
-      <InventoryShowingCountBand
-        loaded={items.length}
-        total={totalCount}
-        hasMore={query.data?.hasMore}
-        testId="architecture-identity-list-showing-count"
-      />
+      {totalCount === null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-identity-list-total-missing"
+        >
+          Architecture count was not stored.
+        </p>
+      ) : (
+        <InventoryShowingCountBand
+          loaded={items.length}
+          total={totalCount}
+          hasMore={query.data?.hasMore}
+          testId="architecture-identity-list-showing-count"
+        />
+      )}
       <EnterpriseTable ariaLabel="Architecture portfolio" data-testid="architecture-identity-list-table">
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>

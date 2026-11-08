@@ -1,0 +1,115 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  filterInfraEvidenceDiagramOutlineByPathHops,
+  filterInfraEvidenceDiagramOutlineByPathHopsWithBasis,
+} from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
+import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import type { SecurityEvidencePathHop } from "@/lib/security-evidence-path-types";
+
+const outline: InfraEvidenceMermaidOutline = {
+  nodes: [
+    { id: "node-a", label: "vm-a", resourceType: null, resourceGroup: null },
+    { id: "node-b", label: "vm-b", resourceType: null, resourceGroup: null },
+    { id: "node-c", label: "vm-c", resourceType: null, resourceGroup: null },
+  ],
+  edges: [
+    { from: "node-a", to: "node-b", label: null, source: "observed", confidenceBand: "observed", provenanceKind: null, inferenceSource: null, declaredConnectionId: null },
+    { from: "node-b", to: "node-c", label: null, source: "observed", confidenceBand: "observed", provenanceKind: null, inferenceSource: null, declaredConnectionId: null },
+  ],
+};
+
+const hops: readonly SecurityEvidencePathHop[] = [
+  {
+    hopOrdinal: 1,
+    fromNodeLabel: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-a",
+    toNodeLabel: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-b",
+    edgeType: "Allows",
+    provenanceKind: "ObservedFact",
+    hopConfidenceBand: "High",
+    inferenceSource: null,
+    evidenceReference: "hop:1",
+    cloudResourceId: null,
+  },
+];
+
+describe("filterInfraEvidenceDiagramOutlineByPathHops", () => {
+  it("keeps only nodes and edges on the selected path hops", () => {
+    const filtered = filterInfraEvidenceDiagramOutlineByPathHops(outline, hops);
+
+    expect(filtered?.nodes.map((node) => node.id)).toEqual(["node-a", "node-b"]);
+    expect(filtered?.edges).toHaveLength(1);
+  });
+
+  it("returns the original outline when no hops are provided", () => {
+    expect(filterInfraEvidenceDiagramOutlineByPathHops(outline, [])).toBe(outline);
+  });
+
+  it("prefers cloudResourceId tokens before label heuristics", () => {
+    const cloudOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        { id: "node-a", label: "ambiguous-a", resourceType: null, resourceGroup: null },
+        { id: "node-b", label: "ambiguous-b", resourceType: null, resourceGroup: null },
+        { id: "node-c", label: "vm-c", resourceType: null, resourceGroup: null },
+      ],
+      edges: [
+        {
+          from: "node-a",
+          to: "node-b",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+        {
+          from: "node-b",
+          to: "node-c",
+          label: null,
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    const cloudHops: readonly SecurityEvidencePathHop[] = [
+      {
+        hopOrdinal: 1,
+        fromNodeLabel: "vm-b",
+        toNodeLabel: "vm-c",
+        edgeType: "Allows",
+        provenanceKind: "ObservedFact",
+        hopConfidenceBand: "High",
+        inferenceSource: null,
+        evidenceReference: "hop:1",
+        cloudResourceId: "ambiguous-a",
+      },
+    ];
+
+    const filtered = filterInfraEvidenceDiagramOutlineByPathHops(cloudOutline, cloudHops);
+
+    expect(filtered?.nodes.map((node) => node.id)).toEqual(["node-a"]);
+    expect(filtered?.edges).toHaveLength(0);
+  });
+
+  it("reports cloudResourceId match basis when ids match nodes", () => {
+    const result = filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(outline, [
+      {
+        ...hops[0],
+        cloudResourceId: "node-a",
+      },
+    ]);
+
+    expect(result.matchBasis).toBe("cloudResourceId");
+  });
+
+  it("reports hopLabels match basis when only labels match", () => {
+    const result = filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(outline, hops);
+
+    expect(result.matchBasis).toBe("hopLabels");
+  });
+});

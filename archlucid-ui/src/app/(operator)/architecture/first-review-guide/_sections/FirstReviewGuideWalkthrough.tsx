@@ -275,25 +275,27 @@ export function FirstReviewGuideWalkthrough({
   }
 
   return (
-    <ol
-      className="m-0 list-none space-y-3 p-0"
-      data-testid="first-review-guide-walkthrough"
-      aria-label="First review walkthrough"
-    >
-      {steps.map((step) => (
-        <FirstReviewGuideStepCard
-          key={step.title}
-          step={step}
-          totalSteps={totalSteps}
-          onFocusStep={focusGuideStep}
-        />
-      ))}
+    <>
+      <ol
+        className="m-0 list-none space-y-3 p-0"
+        data-testid="first-review-guide-walkthrough"
+        aria-label="First review walkthrough"
+      >
+        {steps.map((step) => (
+          <FirstReviewGuideStepCard
+            key={step.title}
+            step={step}
+            totalSteps={totalSteps}
+            onFocusStep={focusGuideStep}
+          />
+        ))}
+      </ol>
       {announceProgress ? (
         <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">
           {completionLabel}
         </span>
       ) : null}
-    </ol>
+    </>
   );
 }
 
@@ -335,7 +337,9 @@ export function FirstReviewGuideNextActionCard({
       <h2 id="first-review-guide-next-action-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
       </h2>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{step?.title ?? "Seal the review record"}</p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+        {(step?.title?.trim() ?? "").length > 0 ? step?.title : "Next step title was not stored."}
+      </p>
       <div className="mt-3">
         <Button asChild size="sm" variant="default">
           <Link href={action.href}>{action.label}</Link>

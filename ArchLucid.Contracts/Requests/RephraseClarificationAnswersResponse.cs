@@ -5,9 +5,11 @@ namespace ArchLucid.Contracts.Requests;
 /// </summary>
 public sealed class RephraseClarificationAnswersResponse
 {
+    private Dictionary<string, string> rephrasedAnswers = [];
+
     public IReadOnlyDictionary<string, string> RephrasedAnswers
     {
-        get;
-        set;
-    } = new Dictionary<string, string>();
+        get => rephrasedAnswers;
+        set => rephrasedAnswers = value is null ? [] : new Dictionary<string, string>(value);
+    }
 }

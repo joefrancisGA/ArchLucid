@@ -1,4 +1,6 @@
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 import { writeOperatorScopeCookieFromHeaders } from "@/lib/operator/operator-scope-cookie";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 
@@ -170,7 +172,11 @@ export function isFromGenerationSearchParam(value: string | string[] | undefined
  */
 export function reviewDetailHrefAfterGeneration(
   runId: string,
-  options?: { readonly architectureCreation?: boolean },
+  options?: {
+    readonly architectureCreation?: boolean;
+    readonly architectureId?: string | null;
+    readonly pathname?: string | null;
+  },
 ): string {
   const trimmedRunId = runId.trim();
   const qs = new URLSearchParams();
@@ -181,7 +187,15 @@ export function reviewDetailHrefAfterGeneration(
     qs.set("intent", CREATE_ARCHITECTURE_INTENT);
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
+  const architectureId =
+    options?.architectureId?.trim()
+    ?? resolveGlobalSearchDeskArchitectureId({
+      runId: trimmedRunId,
+      pathname: options?.pathname,
+    });
+  const base = resolveArchitectureReviewHref(trimmedRunId, architectureId);
+
+  return `${base}?${qs.toString()}`;
 }
 
 /** Records handoff context then returns the generation redirect href (for router.push or Link href). */

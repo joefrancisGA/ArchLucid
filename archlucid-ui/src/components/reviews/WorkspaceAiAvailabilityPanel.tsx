@@ -555,6 +555,12 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       )}
       data-testid="review-package-workspace-ai-availability-panel"
     >
+      <p
+        className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="workspace-ai-ready-path"
+      >
+        ArchLucid-managed Azure OpenAI is the ready path for this workspace. Customer-supplied credentials remain optional.
+      </p>
       {scopingLabel !== null && scopingLabel !== undefined && scopingLabel.trim().length > 0 ? (
         <p className={cn("m-0 mb-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
           {scopingLabel}

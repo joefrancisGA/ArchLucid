@@ -4,7 +4,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
@@ -26,6 +30,7 @@ import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast
 import { evidenceFilesIncludeBinaryArchitectureDocument } from "@/lib/evidence-readable-text";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { readIncrementalRereviewFromSearch } from "@/lib/review-quality/incremental-rereview-handoff";
+import { resolveScopeGateOpenTransition } from "@/lib/architecture/scope-gate-open-setter";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { evaluatePolicyPackCloudMismatch } from "@/lib/review-quality/review-intake-quality-gates";
 import {
@@ -73,6 +78,8 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { onRunCreatedNavigate } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const { isSimulator } = useAgentExecutionMode();
@@ -128,11 +135,17 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const setScopeGateOpen = useCallback(
     (next: boolean | ((open: boolean) => boolean)) => {
       setScopeGateOpenState((current) => {
-        const resolved = typeof next === "function" ? next(current) : next;
+        const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
 
-        if (scopeGateOpenRef.current !== resolved) {
+        if (shouldSyncUrl) {
           scopeGateOpenRef.current = resolved;
-          commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
+          commitHrefIfChanged(
+            scopeGateHrefFromSearch(
+              searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+              resolved,
+              pathname,
+            ),
+            {
             notify: false,
           });
         }
@@ -153,7 +166,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   useEffect(() => {
     const syncScopeGateFromUrl = (): void => {
       const next = parseScopeGateOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("scopeGate"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "scopeGate"),
       );
 
       if (scopeGateOpenRef.current === next) {
@@ -198,6 +211,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   );
   const handleSessionRestore = useCallback(
     (snapshot: { state: FirstPilotIntakeSessionState }) => {
+      exampleTemplatePrefillAppliedRef.current = true;
       setRunTitle(snapshot.state.runTitle);
       setBriefText(snapshot.state.briefText);
       setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
@@ -236,10 +250,19 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
+    if (
+      wizardSessionHasTextContent(runTitle) ||
+      wizardSessionHasTextContent(briefText)
+    ) {
+      exampleTemplatePrefillAppliedRef.current = true;
+
+      return;
+    }
+
     exampleTemplatePrefillAppliedRef.current = true;
     setRunTitle(exampleTemplate.title);
     setBriefText(exampleTemplate.briefText);
-  }, [exampleTemplate]);
+  }, [briefText, exampleTemplate, runTitle]);
 
   const priorSummaryQuery = useRunSummaryQuery(priorRunIdForTitlePrefill ?? "", {
     enabled: priorRunIdForTitlePrefill !== null,
@@ -254,7 +277,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
-    if (priorSummaryQuery.data === undefined) {
+    if (!priorSummaryQuery.isFetched || priorSummaryQuery.data === undefined) {
       return;
     }
 
@@ -287,7 +310,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       return current;
     });
-  }, [priorRunIdForTitlePrefill, priorSummaryQuery.data]);
+  }, [priorRunIdForTitlePrefill, priorSummaryQuery.data, priorSummaryQuery.isFetched]);
 
   useEffect(() => {
     if (priorRunIdForTitlePrefill === null) {
@@ -334,12 +357,13 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   );
   const evidencePresence = useMemo(() => {
     const fileNames = evidenceFiles.map((file) => file.name);
+    const base = deriveEvidencePresenceFromFileNames(fileNames);
 
     if (briefText.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS) {
-      return deriveEvidencePresenceFromFileNames([...fileNames, "architecture-brief.md"]);
+      return { ...base, hasArchitectureBrief: true };
     }
 
-    return deriveEvidencePresenceFromFileNames(fileNames);
+    return base;
   }, [briefText, evidenceFiles]);
 
   const evidenceFileNames = useMemo(() => evidenceFiles.map((file) => file.name), [evidenceFiles]);

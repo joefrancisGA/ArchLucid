@@ -37,7 +37,7 @@ internal static class AuthorityCoordinationTestFactory
             azureExtractorPackageRepository ?? new NoOpAzureExtractorPackageRepository(),
             new NoOpCloudInventoryExtractorPackageRepository(),
             ledgerRepository,
-            new TechnologyLedgerRequestSeeder(ledgerRepository, TimeProvider.System),
+            new TechnologyLedgerRequestSeeder(ledgerRepository, scopeContextProvider, TimeProvider.System),
             new TechnologyLedgerEvidenceSeeder(
                 ledgerRepository,
                 scopeContextProvider,

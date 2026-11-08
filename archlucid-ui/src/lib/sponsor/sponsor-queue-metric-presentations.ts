@@ -4,7 +4,15 @@ import {
 } from "@/lib/metric-count-presentation";
 import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor/sponsor-kpi-drill-through-hrefs";
 
-export function sponsorDecisionsNeededPresentation(count: number): MetricCountPresentation {
+export function sponsorDecisionsNeededPresentation(count: number | undefined): MetricCountPresentation {
+  if (typeof count !== "number" || !Number.isFinite(count)) {
+    return governanceRegisterMetricPresentation({
+      count: 0,
+      noun: "Not returned",
+      filter: "needs-decision",
+    });
+  }
+
   return governanceRegisterMetricPresentation({
     count,
     noun: count === 1 ? "decision needed" : "decisions needed",
@@ -12,7 +20,15 @@ export function sponsorDecisionsNeededPresentation(count: number): MetricCountPr
   });
 }
 
-export function sponsorStaleArchitectureRisksPresentation(count: number): MetricCountPresentation {
+export function sponsorStaleArchitectureRisksPresentation(count: number | undefined): MetricCountPresentation {
+  if (typeof count !== "number" || !Number.isFinite(count)) {
+    return governanceRegisterMetricPresentation({
+      count: 0,
+      noun: "Not returned",
+      filter: "stale",
+    });
+  }
+
   return governanceRegisterMetricPresentation({
     count,
     noun: count === 1 ? "stale architecture risk" : "stale architecture risks",
@@ -20,7 +36,15 @@ export function sponsorStaleArchitectureRisksPresentation(count: number): Metric
   });
 }
 
-export function sponsorNewlyDiscoveredFindingsPresentation(count: number): MetricCountPresentation {
+export function sponsorNewlyDiscoveredFindingsPresentation(count: number | undefined): MetricCountPresentation {
+  if (typeof count !== "number" || !Number.isFinite(count)) {
+    return governanceRegisterMetricPresentation({
+      count: 0,
+      noun: "Not returned",
+      filter: "open",
+    });
+  }
+
   return governanceRegisterMetricPresentation({
     count,
     noun: count === 1 ? "newly discovered finding" : "newly discovered findings",
@@ -28,7 +52,16 @@ export function sponsorNewlyDiscoveredFindingsPresentation(count: number): Metri
   });
 }
 
-export function sponsorExpiringWaiversPresentation(count: number): MetricCountPresentation {
+export function sponsorExpiringWaiversPresentation(count: number | undefined): MetricCountPresentation {
+  if (typeof count !== "number" || !Number.isFinite(count)) {
+    return {
+      count: 0,
+      noun: "Not returned",
+      dimensions: [{ kind: "workspace" }],
+      href: SPONSOR_KPI_DRILL_THROUGH.expiringWaivers,
+    };
+  }
+
   return {
     count,
     noun: count === 1 ? "expiring waiver" : "expiring waivers",

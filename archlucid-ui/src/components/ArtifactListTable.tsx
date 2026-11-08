@@ -16,6 +16,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { SealedRecordArtifactGeneratedTimestamp } from "@/app/(operator)/governance/sealed-records/[manifestId]/_sections/sealed-record-artifact-generated-timestamp";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { downloadArtifactFile } from "@/lib/api/downloads-blob-trigger-artifact-single";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -44,15 +45,6 @@ const AUDIENCE_BUCKET_ORDER: readonly SponsorArtifactAudienceBucket[] = [
   "audit",
   "other",
 ];
-
-/** Formats an ISO 8601 date string for display, falling back to the raw string on failure. */
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return iso;
-  }
-}
 
 /**
  * Deterministic artifact list for run and manifest pages (preview + download).
@@ -170,7 +162,7 @@ export function ArtifactListTable(props: {
             </EnterpriseTableCell>
           )}
           <EnterpriseTableCell className={createdCellClassName}>
-            {formatDate(artifact.createdUtc)}
+            <SealedRecordArtifactGeneratedTimestamp createdUtc={artifact.createdUtc} />
           </EnterpriseTableCell>
           <EnterpriseTableCell className={actionsCellClassName}>
             <Link href={reviewHref} className={OPERATOR_LINK.nav}>

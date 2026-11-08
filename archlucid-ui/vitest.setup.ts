@@ -46,14 +46,20 @@ vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   return {
     ...actual,
     useWorkspaceMode: () => ({
-      mode: "guided",
+      mode: "working",
       mounted: true,
       accountSyncState: "synced",
-      isWorkingMode: false,
+      isWorkingMode: true,
       setAndPersist: vi.fn(),
     }),
   };
 });
+
+/** WD-01: default unit suite pins dense Working desk chrome; buyer-polished specs override `useProductionEvalChrome`. */
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => true,
+  useProductionEvalChrome: () => false,
+}));
 
 vi.mock("next/navigation", async (importOriginal) =>
   extendNextNavigationVitestMock(importOriginal),
@@ -61,7 +67,7 @@ vi.mock("next/navigation", async (importOriginal) =>
 
 process.env.NEXT_PUBLIC_OPERATOR_NAV_SHOW_PRE_RELEASE_ROUTES = "1";
 
-/** Default UI is buyer-polished unless `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`; pin full operator for tests. */
+/** Pin Working desk chrome for the default operator suite (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`). */
 process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
 
 /** Product-line tests opt in explicitly; the default operator suite stays on Architecture. */

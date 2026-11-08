@@ -62,7 +62,7 @@ internal static partial class ArchitectureReviewDocxOpenXmlPrimitives
 
     internal static void AddEmptyPlaceholder(Body body, string itemPhrase)
     {
-        AddStyledParagraph(body, $"No {itemPhrase} recorded.", "Subtle");
+        AddStyledParagraph(body, ArchitectureReviewBoardExportHonestyCopy.SectionNotStored(itemPhrase), "Subtle");
         AddSpacer(body);
     }
 

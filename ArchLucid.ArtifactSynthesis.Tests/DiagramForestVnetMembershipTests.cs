@@ -80,7 +80,7 @@ public sealed class DiagramForestVnetMembershipTests
                 {
                     FromNodeId = "vm",
                     ToNodeId = "vnet",
-                    Label = "likely · in",
+                    Label = InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel,
                     InferenceSource = GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
                 },
             ]);

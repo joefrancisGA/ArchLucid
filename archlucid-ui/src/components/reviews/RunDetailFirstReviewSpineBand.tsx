@@ -2,12 +2,25 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useMemo } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
-import type { FirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
+import {
+  FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED,
+  FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED,
+  FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED,
+  FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE,
+  FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED,
+  resolveFirstReviewSpineOpenGateSectionId,
+  resolveFirstReviewOpenGateReviewHref,
+  resolveFirstReviewFindingsWorkspaceHref,
+  resolveFirstReviewTopFindingInspectHref,
+  type FirstReviewSpineBandSummary,
+} from "@/lib/reviews/first-review-spine-band";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +29,16 @@ export type RunDetailFirstReviewSpineBandProps = {
   readonly className?: string;
   readonly unmappedFindingCount?: number;
   readonly runId?: string | null;
+  /** When set, open-gate and findings links use the Working nested review desk (ADR 0077). */
+  readonly architectureId?: string | null;
+  readonly isSample?: boolean | null;
+  readonly manifestVersion?: string | null;
+  readonly sampleSponsorParagraph?: string | null;
+  readonly openGateNavigationInput?: {
+    readonly findings: readonly QuickDecisionFinding[];
+    readonly hasFindingsSnapshot: boolean;
+    readonly reviewHasGoldenManifest: boolean;
+  } | null;
 };
 
 function gateOutcomeStatusKind(
@@ -35,11 +58,79 @@ function gateOutcomeStatusKind(
 /** Unified first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBandProps): ReactElement {
   const { summary } = props;
+  const openGateSectionId = resolveFirstReviewSpineOpenGateSectionId(summary.openGateReviewTab);
+  const trimmedRunId = props.runId?.trim() ?? "";
+  const hasOpenGateNavigationInput =
+    props.openGateNavigationInput !== null && props.openGateNavigationInput !== undefined;
+
+  const openGateHref = useMemo((): string | null => {
+    if (summary.openGateReviewTab === null || trimmedRunId.length === 0) {
+      return null;
+    }
+
+    if (!hasOpenGateNavigationInput) {
+      return null;
+    }
+
+    return resolveFirstReviewOpenGateReviewHref({
+      runId: trimmedRunId,
+      findings: props.openGateNavigationInput.findings,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      reviewHasGoldenManifest: props.openGateNavigationInput.reviewHasGoldenManifest,
+      architectureId: props.architectureId,
+    });
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, summary.openGateReviewTab, trimmedRunId]);
+
+  const findingsWorkspaceHref = useMemo((): string | null => {
+    if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
+      return null;
+    }
+
+    return resolveFirstReviewFindingsWorkspaceHref({
+      runId: trimmedRunId,
+      findings: props.openGateNavigationInput.findings,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      architectureId: props.architectureId,
+    });
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, trimmedRunId]);
+
+  const topFindingInspectHref = useMemo((): string | null => {
+    if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
+      return null;
+    }
+
+    return resolveFirstReviewTopFindingInspectHref({
+      runId: trimmedRunId,
+      topFindingId: summary.topFindingId,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      architectureId: props.architectureId,
+    });
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, summary.topFindingId, trimmedRunId]);
+
+  const openGateLinkEnabled =
+    openGateHref !== null
+    && hasOpenGateNavigationInput
+    && props.openGateNavigationInput?.hasFindingsSnapshot !== false;
+
+  const openGateLinkAriaLabel = ((): string | undefined => {
+    if (!openGateLinkEnabled || summary.openGateReviewTab === null) {
+      return undefined;
+    }
+
+    const trimmedLabel = summary.openGateLabel?.trim() ?? "";
+
+    if (trimmedLabel.length > 0) {
+      return `Open the gate: ${trimmedLabel} (${summary.openGateReviewTab} tab)`;
+    }
+
+    return `Open the gate (${summary.openGateReviewTab} tab)`;
+  })();
 
   return (
     <section
+      id={openGateSectionId ?? undefined}
       className={cn(
-        "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
+        "scroll-mt-24 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
         props.className,
       )}
       data-testid="run-detail-first-review-spine-band"
@@ -55,7 +146,11 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         {summary.executionModeLabel !== null ? (
           <StatusTag
             kind="neutral"
-            label={`${summary.executionModeLabel} execution`}
+            label={
+              summary.executionModeLabel === "Execution mode was not stored"
+                ? summary.executionModeLabel
+                : `${summary.executionModeLabel} execution`
+            }
             data-testid="run-detail-first-review-spine-execution-mode"
           />
         ) : null}
@@ -67,13 +162,58 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         </p>
       ) : null}
 
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-open-gate">
+        {summary.openGateLabel === FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED ? (
+          FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED
+        ) : summary.openGateLabel === null ? (
+          summary.evidenceReferenceCountNotStored
+            ? FIRST_REVIEW_SPINE_NO_OPEN_GATE_EVIDENCE_REF_NOT_STORED
+            : FIRST_REVIEW_SPINE_NO_OPEN_GATE_CLEAR_LINE
+        ) : (
+          <>
+            Open gate: {summary.openGateLabel}.{" "}
+            {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
+              openGateLinkEnabled ? (
+                <Link
+                  href={openGateHref ?? "#"}
+                  className={OPERATOR_LINK.inline}
+                  aria-label={openGateLinkAriaLabel}
+                >
+                  Open the gate
+                </Link>
+              ) : hasOpenGateNavigationInput && props.openGateNavigationInput?.hasFindingsSnapshot === false ? (
+                "Findings snapshot was not stored — open gate link withheld."
+              ) : (
+                "Open gate link withheld until review context is available."
+              )
+            ) : (
+              "Review id was not stored."
+            )}
+          </>
+        )}
+      </p>
+
+      {props.isSample === true ? (
+        <div className="mt-2 space-y-1 rounded border border-border bg-muted/30 p-2" data-testid="sample-review-evidence">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Sample manifest: {props.manifestVersion?.trim() || "Committed manifest id was not stored."}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Sample sponsor paragraph: {props.sampleSponsorParagraph?.trim() || "Sample sponsor paragraph was not stored."}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Sample. Not a customer result.</p>
+        </div>
+      ) : null}
+
       <p
         className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-first-review-spine-classification"
       >
-        Decision-grade: {summary.decisionGradeCount} · Checklist: {summary.checklistCount}
-        {summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""}
-        {summary.evidenceReferenceCountNotStored ? " · Evidence reference count was not stored." : ""}
+        {summary.classificationCountsStored
+          ? `Decision-grade: ${summary.decisionGradeCount} · Checklist: ${summary.checklistCount}${
+              summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""
+            }${summary.evidenceReferenceCountNotStored ? " · Evidence reference count was not stored." : ""}`
+          : FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED}
       </p>
 
       {summary.treatmentSummaryLine !== null ? (
@@ -89,10 +229,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-first-review-spine-disposition"
       >
-        Dispositions recorded: {summary.recordedDispositionCount}
-        {summary.openDecisionGradeDispositionCount > 0
-          ? ` · Open decision-grade: ${summary.openDecisionGradeDispositionCount}`
-          : ""}
+        {summary.dispositionCountsStored
+          ? `Dispositions recorded: ${summary.recordedDispositionCount}${
+              summary.openDecisionGradeDispositionCount > 0
+                ? ` · Open decision-grade: ${summary.openDecisionGradeDispositionCount}`
+                : ""
+            }`
+          : FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED}
       </p>
 
       {summary.showDispositionNextAction ? (
@@ -101,35 +244,46 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           data-testid="run-detail-first-review-spine-disposition-next-action"
         >
           Record dispositions on open decision-grade findings before sponsor send.{" "}
-          <Link
-            href="/governance/findings"
-            className={OPERATOR_LINK.inline}
-            data-testid="run-detail-first-review-spine-disposition-queue-link"
-          >
-            Open governance queue
-          </Link>
           {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-            <>
-              {" · "}
+            findingsWorkspaceHref !== null ? (
               <Link
-                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
+                href={findingsWorkspaceHref}
                 className={OPERATOR_LINK.inline}
                 data-testid="run-detail-first-review-spine-disposition-findings-link"
               >
-                Review findings
+                Open this review&apos;s findings
               </Link>
-            </>
-          ) : null}
+            ) : (
+              "Findings snapshot was not stored."
+            )
+          ) : (
+            <>Review id was not stored.</>
+          )}
         </p>
       ) : null}
 
-      {summary.topFindingTitle !== null ? (
+      {summary.showTopFindingRow ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
           <span className="font-semibold">
-            {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
+            {summary.topFindingRankLabel ?? "Decision-grade finding:"}
           </span>{" "}
-          {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
-          {summary.topFindingTitle}
+          {summary.topFindingSeverityLabel !== null
+          && !summary.topFindingSeverityLabel.startsWith("Severity")
+            ? `[${summary.topFindingSeverityLabel}] `
+            : summary.topFindingSeverityLabel !== null
+              ? `${summary.topFindingSeverityLabel} `
+              : ""}
+          {topFindingInspectHref !== null ? (
+            <Link
+              href={topFindingInspectHref}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-top-finding-link"
+            >
+              {summary.topFindingTitle}
+            </Link>
+          ) : (
+            summary.topFindingTitle
+          )}
         </p>
       ) : null}
 
@@ -162,7 +316,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           className={OPERATOR_LINK.inline}
           data-testid="run-detail-first-review-spine-pack-delta-demo-link"
         >
-          See how a policy-pack change shifts findings
+          Policy-pack delta demo (sample runbook, not this review).
         </Link>
       </p>
     </section>

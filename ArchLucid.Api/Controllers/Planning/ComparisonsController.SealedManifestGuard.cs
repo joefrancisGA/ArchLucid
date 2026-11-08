@@ -1,6 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
@@ -61,7 +62,8 @@ public sealed partial class ComparisonsController
         IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
-        RunExportRecord? record = await exportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        string normalizedExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        RunExportRecord? record = await exportRecordRepository.GetByIdAsync(normalizedExportRecordId, cancellationToken);
 
         if (record is null || string.IsNullOrWhiteSpace(record.RunId))
             return null;

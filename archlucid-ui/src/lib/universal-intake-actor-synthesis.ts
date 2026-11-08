@@ -14,10 +14,10 @@ const ACTOR_TABLE_HEADER_LINES = new Set([
 ]);
 
 const ACTOR_ROLE_PATTERN =
-  /\b(?:operators?|architects?|sponsors?|evaluators?|api clients?|service accounts?|machine users?|partner teams?|administrators?|batch jobs?|cli\s*\/\s*ci)\b/i;
+  /\b(?:operators?|architects?|sponsors?|evaluators?|developers?|end users?|customers?|api clients?|service accounts?|machine users?|partner teams?|administrators?|batch jobs?|cli\s*\/\s*ci)\b/i;
 
 const PROSE_ACTOR_PATTERN =
-  /\b(?:API clients?|service accounts?|machine users?|partner teams?|partner integrations?|external integrations?|administrators?|operators?|batch jobs?|cli\s*\/\s*ci)\b/i;
+  /\b(?:API clients?|service accounts?|machine users?|partner teams?|partner integrations?|external integrations?|administrators?|operators?|developers?|end users?|customers?|batch jobs?|cli\s*\/\s*ci)\b/i;
 
 const TOUCHPOINT_PATTERN =
   /\b(?:browser|https|http|ui|workspace|jwt|api|front door|apim|next\.js)\b|→|—/i;
@@ -53,18 +53,10 @@ function formatActorPairSentence(role: string, touch: string): string {
   const touchLabel = touch.trim();
 
   if (touchLabel.length === 0) {
-    return roleLabel;
+    return `${roleLabel} was named in source text`;
   }
 
-  if (/\b(?:browser|ui|workspace)\b/i.test(touchLabel)) {
-    return `${roleLabel} use ${touchLabel}`;
-  }
-
-  if (/\b(?:https?|api)\b/i.test(touchLabel)) {
-    return `${roleLabel} call ${touchLabel}`;
-  }
-
-  return `${roleLabel}: ${touchLabel}`;
+  return `${roleLabel} was named in source text with touchpoint ${touchLabel}`;
 }
 
 function synthesizeFromActorTableLines(lines: readonly string[]): string | null {
@@ -101,7 +93,8 @@ function synthesizeFromActorTableLines(lines: readonly string[]): string | null 
   }
 
   const body = sentences.slice(0, 3).join(". ");
-  const answer = `Yes. ${body}.`;
+  const answer =
+    `The source names these actors. Whether other user kinds exist was not stored. ${body}.`;
 
   return truncateAtWordBoundary(answer, 480);
 }
@@ -117,7 +110,7 @@ function findProseActorSentence(corpus: string): string | null {
     }
 
     if (PROSE_ACTOR_PATTERN.test(chunk)) {
-      return truncateAtWordBoundary(chunk);
+      return `Inferred actor mention from source text (not a complete actor list): ${truncateAtWordBoundary(chunk)}`;
     }
   }
 

@@ -218,8 +218,14 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
       [
         { key: "critical" as const, count: severityCounts.critical, severityValue: 3 },
         { key: "high" as const, count: severityCounts.high, severityValue: 2 },
-        { key: "medium" as const, count: severityCounts.medium, severityValue: 1 },
-        { key: "low" as const, count: severityCounts.low, severityValue: 0 },
+        { key: "medium" as const, count: severityCounts.medium, severityValue: 1, label: "Medium" },
+        { key: "info" as const, count: severityCounts.info, severityValue: 0, label: "Info" },
+        {
+          key: "unlabeled" as const,
+          count: severityCounts.severityLabelNotStored,
+          severityValue: null,
+          label: "Severity label was not stored.",
+        },
       ] as const
     ).filter((entry) => entry.count > 0);
 
@@ -230,13 +236,20 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
       >
         <div className="flex flex-wrap items-center gap-2" data-testid="run-detail-findings-severity-rollup">
           {severityRollup.map((entry) => {
-            const label = severityBadgeLabel(entry.severityValue);
+            const label =
+              "label" in entry && entry.label !== undefined
+                ? entry.label
+                : severityBadgeLabel(entry.severityValue);
 
             return (
               <SeverityTag
                 key={entry.key}
                 severity={label}
-                kind={severityKindFromNumericValue(entry.severityValue)}
+                kind={
+                  entry.severityValue === null
+                    ? "unknown"
+                    : severityKindFromNumericValue(entry.severityValue)
+                }
                 label={`${label} ${entry.count}`}
               />
             );
@@ -391,6 +404,12 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         <span className="tabular-nums">High {severityCounts.high}</span>
         <span className="tabular-nums">Medium {severityCounts.medium}</span>
         <span className="tabular-nums">Low {severityCounts.low}</span>
+        <span className="tabular-nums">Info {severityCounts.info}</span>
+        {severityCounts.severityLabelNotStored > 0 ? (
+          <span className="tabular-nums">
+            Severity label was not stored. {severityCounts.severityLabelNotStored}
+          </span>
+        ) : null}
         <span className="mx-1 text-neutral-300 dark:text-neutral-700">|</span>
         <span className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Status:

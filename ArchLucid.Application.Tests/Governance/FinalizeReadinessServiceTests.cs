@@ -458,6 +458,63 @@ public sealed class FinalizeReadinessServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_BuildAsync_merges_traces_for_agent_output_quality_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("10101010-1010-1010-1010-101010101010");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = runId.ToUpperInvariant();
+
+        Mock<IRunRepository> runs = CreateRunRepository(runId, runGuid, includeRequest: true);
+        Mock<IPreFinalizeChecklistService> checklist = CreateChecklistMock(runId);
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTrace
+                {
+                    TraceId = "trace-legacy-finalize-readiness",
+                    RunId = legacyUpper,
+                    AgentType = AgentType.Topology,
+                    TaskId = "task-topology",
+                    RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+                },
+            ]);
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(
+                TestScope,
+                It.Is<string>(id => id != runId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentOutputQualityGateOptionsResolver> qualityResolver = new();
+        qualityResolver
+            .Setup(resolver => resolver.Resolve(It.IsAny<CancellationToken>()))
+            .Returns(new AgentOutputQualityGateOptions
+            {
+                Enabled = true,
+                Mode = AgentOutputQualityGateMode.PilotStrict,
+            });
+
+        FinalizeReadinessService sut = CreateSut(
+            runs.Object,
+            checklist.Object,
+            transparencyTrail: new TransparencyTrail(),
+            agentExecutionTraceRepository: traces.Object,
+            qualityGateOptionsResolver: qualityResolver.Object);
+
+        FinalizeReadinessResult result = await sut.BuildAsync(runId, cancellationToken: CancellationToken.None);
+
+        result.Blocks.Should().NotContain(block =>
+            block.Code == "agent_output_quality"
+            && block.Message.Contains("no agent execution traces", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task BuildAsync_blocks_when_architecture_version_pin_drift_detected()
     {
         string runId = Guid.NewGuid().ToString("D");
@@ -560,7 +617,9 @@ public sealed class FinalizeReadinessServiceTests
         IOptions<TechnologyConsistencyFindingEngineOptions>? technologyConsistencyOptions = null,
         IFindingEvidenceLinkageFindingEngine? findingEvidenceLinkageFindingEngine = null,
         IOptions<FindingEvidenceLinkageFindingEngineOptions>? findingEvidenceLinkageOptions = null,
-        IFindingsSnapshotRepository? findingsSnapshotRepository = null)
+        IFindingsSnapshotRepository? findingsSnapshotRepository = null,
+        IAgentExecutionTraceRepository? agentExecutionTraceRepository = null,
+        IAgentOutputQualityGateOptionsResolver? qualityGateOptionsResolver = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -600,9 +659,12 @@ public sealed class FinalizeReadinessServiceTests
             .ReturnsAsync([]);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces
-            .Setup(repository => repository.GetByRunIdAsync(TestScope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        if (agentExecutionTraceRepository is null)
+        {
+            traces
+                .Setup(repository => repository.GetByRunIdAsync(TestScope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+        }
 
         Mock<IRunStageOutcomesRepository> stageOutcomes = new();
         stageOutcomes
@@ -610,9 +672,18 @@ public sealed class FinalizeReadinessServiceTests
             .ReturnsAsync([]);
 
         Mock<IAgentOutputQualityGateOptionsResolver> qualityOptions = new();
-        qualityOptions
-            .Setup(resolver => resolver.Resolve(It.IsAny<CancellationToken>()))
-            .Returns(new AgentOutputQualityGateOptions());
+        if (qualityGateOptionsResolver is not null)
+        {
+            qualityOptions
+                .Setup(resolver => resolver.Resolve(It.IsAny<CancellationToken>()))
+                .Returns(qualityGateOptionsResolver.Resolve(CancellationToken.None));
+        }
+        else
+        {
+            qualityOptions
+                .Setup(resolver => resolver.Resolve(It.IsAny<CancellationToken>()))
+                .Returns(new AgentOutputQualityGateOptions());
+        }
 
         Mock<IRunAssumptionAcknowledgementService> assumptionAcks = new();
         assumptionAcks
@@ -701,7 +772,7 @@ public sealed class FinalizeReadinessServiceTests
             architectureRequestRepository ?? requests.Object,
             snapshots,
             reviewTrail.Object,
-            traces.Object,
+            agentExecutionTraceRepository ?? traces.Object,
             stageOutcomes.Object,
             qualityOptions.Object,
             assumptionAcks.Object,

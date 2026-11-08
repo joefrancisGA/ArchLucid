@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { GraphViewModel } from "@/types/graph";
 import type { ManifestSummary, ReplayResponse } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -45,8 +46,8 @@ const goldenManifestComparisonSchema = z
     topologyChanges: z.array(z.unknown()),
     costChanges: z.array(z.unknown()),
     summaryHighlights: z.array(z.unknown()),
-    baseRunId: z.string(),
-    targetRunId: z.string(),
+    baseRunId: operatorNonEmptyTrimmedString,
+    targetRunId: operatorNonEmptyTrimmedString,
   })
   .passthrough();
 
@@ -81,7 +82,10 @@ export function coerceGoldenManifestComparison(
       }
     }
 
-    if (typeof data.baseRunId !== "string" || typeof data.targetRunId !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.baseRunId).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.targetRunId).success
+    ) {
       return { ok: false, message: "Comparison response is missing baseRunId or targetRunId." };
     }
 
@@ -102,9 +106,9 @@ const replayValidationSchema = z
 
 const replayResponseSchema = z
   .object({
-    runId: z.string(),
-    mode: z.string(),
-    replayedUtc: z.string(),
+    runId: operatorNonEmptyTrimmedString,
+    mode: operatorNonEmptyTrimmedString,
+    replayedUtc: operatorNonEmptyTrimmedString,
     validation: replayValidationSchema,
   })
   .passthrough();
@@ -122,7 +126,11 @@ export function coerceReplayResponse(
       return { ok: false, message: "Replay response was not a JSON object." };
     }
 
-    if (typeof data.runId !== "string" || typeof data.mode !== "string" || typeof data.replayedUtc !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.runId).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.mode).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.replayedUtc).success
+    ) {
       return {
         ok: false,
         message: "Replay response is missing runId, mode, or replayedUtc.",
@@ -167,13 +175,13 @@ export function coerceReplayResponse(
 
 const manifestSummarySchema = z
   .object({
-    manifestId: z.string(),
-    runId: z.string(),
-    createdUtc: z.string(),
-    manifestHash: z.string(),
-    ruleSetId: z.string(),
-    ruleSetVersion: z.string(),
-    status: z.string(),
+    manifestId: operatorNonEmptyTrimmedString,
+    runId: operatorNonEmptyTrimmedString,
+    createdUtc: operatorNonEmptyTrimmedString,
+    manifestHash: operatorNonEmptyTrimmedString,
+    ruleSetId: operatorNonEmptyTrimmedString,
+    ruleSetVersion: operatorNonEmptyTrimmedString,
+    status: operatorNonEmptyTrimmedString,
     decisionCount: z.number(),
     warningCount: z.number(),
     unresolvedIssueCount: z.number(),
@@ -194,9 +202,15 @@ export function coerceManifestSummary(
       return { ok: false, message: "Review record summary was not a JSON object." };
     }
 
-    const stringKeys = [
-      "manifestId",
-      "runId",
+    const identifierKeys = ["manifestId", "runId"] as const;
+
+    for (const key of identifierKeys) {
+      if (!operatorNonEmptyTrimmedString.safeParse(data[key]).success) {
+        return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
+      }
+    }
+
+    const nonEmptyStringKeys = [
       "createdUtc",
       "manifestHash",
       "ruleSetId",
@@ -204,8 +218,8 @@ export function coerceManifestSummary(
       "status",
     ] as const;
 
-    for (const key of stringKeys) {
-      if (typeof data[key] !== "string") {
+    for (const key of nonEmptyStringKeys) {
+      if (!operatorNonEmptyTrimmedString.safeParse(data[key]).success) {
         return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
       }
     }

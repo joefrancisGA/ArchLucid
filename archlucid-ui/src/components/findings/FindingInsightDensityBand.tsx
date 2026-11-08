@@ -7,6 +7,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInsightDensityBandLabel,
+  INSIGHT_DENSITY_BAND_NOT_STORED_LINE,
   INSIGHT_DENSITY_BAND_VS_SCORE_LINE,
   INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE,
   resolveInsightDensityBand,
@@ -41,7 +42,14 @@ export function FindingInsightDensityBand(props: FindingInsightDensityBandProps)
   const label = formatInsightDensityBandLabel(props.insightDensityScore);
 
   if (band === null || label === null) {
-    return null;
+    return (
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        data-testid={`finding-insight-density-band-${props.findingId}`}
+      >
+        {INSIGHT_DENSITY_BAND_NOT_STORED_LINE}
+      </p>
+    );
   }
 
   const showHonestyLine = props.showHonestyLine === true || isWorkingMode;

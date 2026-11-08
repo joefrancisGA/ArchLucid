@@ -20,8 +20,7 @@ import {
   resolveRunSummaryPackageOrigin,
   type ArchitecturePackageOriginToken,
 } from "@/lib/architecture/architecture-package-origin";
-import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator/operator-home-example-request";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { runMatchesOperatorHomeExampleDescription } from "@/lib/operator/operator-home-example-request";
 import type { GovernanceReviewAwaitingActionItem } from "@/lib/api/governance-stickiness-api";
 import type { RunSummary } from "@/types/authority";
 
@@ -30,7 +29,13 @@ import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboa
 export function runListPrimaryTitle(run: RunSummary): string {
   const title = buyerFacingReviewTitleFromSummary(run);
 
-  return title.length > 0 ? toReviewListDisplayTitle(title) : title;
+  if (title.length === 0) {
+    return title;
+  }
+
+  const listTitle = toReviewListDisplayTitle(title);
+
+  return listTitle.length > 0 ? listTitle : title;
 }
 
 export function filterRunsAwaitingApproval(
@@ -51,12 +56,15 @@ export function filterRunsAwaitingApproval(
 }
 
 /** Minimal list row when the governance queue has a run outside the home preview snapshot. */
+export const GOVERNANCE_AWAITING_COMPLETED_TIME_OMISSION_LABEL =
+  "Completed time was not stored." as const;
+
 export function runSummaryFromGovernanceAwaitingActionItem(
   item: GovernanceReviewAwaitingActionItem,
   projectId: string,
 ): RunSummary {
   const executedUtc = item.executedUtc?.trim() ?? "";
-  const createdUtc = executedUtc.length > 0 ? executedUtc : "1970-01-01T00:00:00.000Z";
+  const createdUtc = executedUtc.length > 0 ? executedUtc : "";
 
   return {
     runId: item.runId,
@@ -64,8 +72,10 @@ export function runSummaryFromGovernanceAwaitingActionItem(
     createdUtc,
     displayName: item.name,
     description: item.name,
-    hasFindingsSnapshot: true,
+    hasFindingsSnapshot: false,
     hasGoldenManifest: false,
+    homeListCompletedTimeOmissionLabel:
+      executedUtc.length > 0 ? null : GOVERNANCE_AWAITING_COMPLETED_TIME_OMISSION_LABEL,
   };
 }
 
@@ -310,11 +320,9 @@ export function runListPrimaryRequestId(run: RunSummary): string | null {
 export function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
   const id = run.runId.trim();
 
-  if (id === SHOWCASE_STATIC_DEMO_RUN_ID) {
+  if (isShowcaseStaticDemoRunId(id)) {
     return true;
   }
 
-  return (run.description ?? "")
-    .toLowerCase()
-    .includes(OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN.toLowerCase());
+  return runMatchesOperatorHomeExampleDescription(run);
 }

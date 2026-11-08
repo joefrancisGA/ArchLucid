@@ -44,3 +44,8 @@ describe("ArchitectureIntelligenceRefineResultSummary", () => {
     expect(screen.getByTestId("architecture-draft-ai-refine-start-review")).toBeInTheDocument();
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

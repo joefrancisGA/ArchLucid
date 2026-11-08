@@ -7,6 +7,20 @@
 
 import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/findings/finding-derivation-sentence";
 
+export const SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_STORED =
+  "How reviewers derived it: Derivation sentence was not stored." as const;
+export const SPONSOR_PLAIN_ENGLISH_DERIVATION_STORED_EMPTY =
+  "How reviewers derived it: Derivation sentence was stored empty." as const;
+export const SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_AVAILABLE_LINE =
+  "How reviewers derived it: Derivation was not available on this finding." as const;
+export const SPONSOR_PLAIN_ENGLISH_SUMMARY_STORED_EMPTY =
+  "Finding summary was stored empty." as const;
+
+export const SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_NOT_STORED =
+  "Residual risk note was not stored." as const;
+export const SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_STORED_EMPTY =
+  "Residual risk note was stored empty." as const;
+
 export const SPONSOR_PLAIN_ENGLISH_CAUTION =
   "Sponsor-facing paraphrase only — not new evidence, not a formal risk acceptance, and not a substitute for the recorded finding and evidence trail.";
 
@@ -37,20 +51,24 @@ function normalizeSeverityKey(severity: string): string {
 
 /** Urgency clause for sponsors — avoids stop-ship language except for clearly critical labels. */
 export function sponsorSeverityUrgencyClause(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "This review recorded a finding that still needs a human resolve decision.";
+    return "Severity was stored empty.";
   }
 
   const key = normalizeSeverityKey(raw);
 
   if (key.includes("critical") || key.includes("blocker") || key === "blocking" || key === "error") {
-    return "Treat this as a material delivery, compliance, or security concern that needs an owner decision before rollout.";
+    return "Stored severity reads as critical. This sentence is not a stored owner and not a stored rollout decision.";
   }
 
   if (key.includes("high") || key === "warning") {
-    return "Treat this as an elevated concern that should be explained to stakeholders before it is deferred.";
+    return "Stored severity reads as high. This sentence is not a stored deferral.";
   }
 
   if (key.includes("medium") || key.includes("moderate")) {
@@ -64,32 +82,56 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
   return `This review labeled severity "${raw}"; compare it with peer findings before escalating.`;
 }
 
+function storedSeverityForSponsorCopy(severity: string | null): string | null {
+  if (severity === null || severity === "Severity label was not stored.") {
+    return null;
+  }
+
+  return severity;
+}
+
 function buildHeadline(title: string | null, severity: string | null): string {
-  if (title !== null && severity !== null) {
-    return `${severity} finding: ${title}`;
+  const storedSeverity = storedSeverityForSponsorCopy(severity);
+
+  if (title !== null && storedSeverity !== null) {
+    return `${storedSeverity} finding: ${title}`;
   }
 
   if (title !== null) {
     return title;
   }
 
-  if (severity !== null) {
-    return `${severity} architecture finding`;
+  if (storedSeverity !== null) {
+    return `Severity ${storedSeverity} — finding title was not stored.`;
   }
 
   return "Finding title was not stored.";
 }
 
-function usableDerivationSentence(derivationSentence: string | null): string | null {
-  if (derivationSentence === null) {
+function derivationHonestyLine(derivationSentence: string | null | undefined): string | null {
+  if (derivationSentence === undefined) {
     return null;
+  }
+
+  if (derivationSentence === null) {
+    return SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_STORED;
   }
 
   if (derivationSentence === FINDING_DERIVATION_NOT_AVAILABLE) {
+    return SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_AVAILABLE_LINE;
+  }
+
+  const trimmed = nonEmpty(derivationSentence);
+
+  if (trimmed === null) {
     return null;
   }
 
-  return derivationSentence;
+  if (trimmed === FINDING_DERIVATION_NOT_AVAILABLE) {
+    return SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_AVAILABLE_LINE;
+  }
+
+  return `How reviewers derived it: ${trimmed}`;
 }
 
 /**
@@ -101,26 +143,36 @@ export function buildSponsorPlainEnglishFinding(
 ): SponsorPlainEnglishFinding {
   const title = nonEmpty(input.title);
   const message = nonEmpty(input.message);
-  const severity = nonEmpty(input.severity);
-  const derivation = usableDerivationSentence(nonEmpty(input.derivationSentence));
+  const severity = storedSeverityForSponsorCopy(nonEmpty(input.severity));
+  const derivationLine = derivationHonestyLine(input.derivationSentence);
   const residualRisk = nonEmpty(input.residualRisk);
 
-  const parts: string[] = [sponsorSeverityUrgencyClause(severity)];
+  const parts: string[] = [
+    sponsorSeverityUrgencyClause(storedSeverityForSponsorCopy(input.severity?.trim() ?? null)),
+  ];
 
   if (message !== null) {
     parts.push(`In plain terms: ${message}`);
   } else if (title !== null) {
     parts.push(`The recorded finding is titled "${title}".`);
+  } else if (input.message === null || input.message === undefined) {
+    parts.push("Finding summary was not stored.");
   } else {
-    parts.push("No export-ready finding summary was supplied beyond severity and related notes.");
+    parts.push(SPONSOR_PLAIN_ENGLISH_SUMMARY_STORED_EMPTY);
   }
 
-  if (derivation !== null) {
-    parts.push(`How reviewers derived it: ${derivation}`);
+  if (derivationLine !== null) {
+    parts.push(derivationLine);
   }
 
-  if (residualRisk !== null) {
-    parts.push(`Residual risk note: ${residualRisk}`);
+  if (input.residualRisk === null) {
+    parts.push(SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_NOT_STORED);
+  } else if (input.residualRisk !== undefined) {
+    if (residualRisk !== null) {
+      parts.push(`Residual risk note: ${residualRisk}`);
+    } else {
+      parts.push(SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_STORED_EMPTY);
+    }
   }
 
   parts.push(

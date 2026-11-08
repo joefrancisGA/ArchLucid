@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { PreferenceAccountSyncStatus } from "@/components/preferences/PreferenceAccountSyncStatus";
-import { PREFERENCE_ACCOUNT_SYNCED_MESSAGE } from "@/lib/preference-account-sync-copy";
 
 describe("PreferenceAccountSyncStatus", () => {
   it("renders nothing when account sync is idle", () => {
@@ -17,8 +16,8 @@ describe("PreferenceAccountSyncStatus", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("announces saved-to-account feedback when synced", () => {
-    render(
+  it("renders nothing when account sync is synced (saved feedback lives on the control)", () => {
+    const { container } = render(
       <PreferenceAccountSyncStatus
         accountSyncState="synced"
         localOnlyMessage="Local only"
@@ -26,8 +25,7 @@ describe("PreferenceAccountSyncStatus", () => {
       />,
     );
 
-    expect(screen.getByTestId("test-preference-sync-status")).toHaveTextContent(PREFERENCE_ACCOUNT_SYNCED_MESSAGE);
-    expect(screen.getByTestId("test-preference-sync-status")).toHaveAttribute("aria-live", "polite");
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("renders local-only failure as an alert", () => {

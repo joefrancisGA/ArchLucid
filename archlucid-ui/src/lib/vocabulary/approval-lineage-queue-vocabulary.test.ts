@@ -20,8 +20,8 @@ describe("approval-lineage-queue-vocabulary (TB-2271)", () => {
     expect(model.heading.toLowerCase()).toContain("lineage");
     expect(model.heading.toLowerCase()).toContain("queue");
     expect(model.whyTwo).toBe(APPROVAL_LINEAGE_QUEUE_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("linkage");
-    expect(model.whyTwo.toLowerCase()).toContain("decision workflow");
+    expect(model.whyTwo.toLowerCase()).toContain("tied to");
+    expect(model.whyTwo.toLowerCase()).toContain("approval queue");
     expect(model.compactLine).toBe(APPROVAL_LINEAGE_QUEUE_COMPACT_LINE);
 
     expect(model.lineageLink).toEqual(APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK);

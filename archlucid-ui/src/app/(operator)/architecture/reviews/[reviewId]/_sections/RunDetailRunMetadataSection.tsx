@@ -37,12 +37,18 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Creation trace:</span>{" "}
               <RunTraceViewerLink traceId={run.otelTraceId} />
             </div>
-          ) : null}
+          ) : (
+            <p className="m-0" data-testid="run-detail-creation-trace-not-stored">
+              Creation trace was not stored.
+            </p>
+          )}
           <p className="m-0">
             <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
             {run.description === null || run.description === undefined
               ? "Description was not stored."
-              : run.description}
+              : run.description.trim().length === 0
+                ? "Description was stored empty."
+                : run.description}
           </p>
           {retryCount === null ? (
             <p className="m-0" data-testid="run-detail-retry-count-not-stored">
@@ -53,7 +59,12 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Retry count:</span>{" "}
               {retryCount} — this review was re-attempted after earlier failures; check review alerts for the last failure reason.
             </p>
-          ) : null}
+          ) : (
+            <p className="m-0" data-testid="run-detail-retry-count-stored-zero">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Retry count:</span>{" "}
+              0. No re-attempt was stored.
+            </p>
+          )}
         </CardContent>
       </Card>
     </section>

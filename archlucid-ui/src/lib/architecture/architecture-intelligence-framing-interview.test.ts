@@ -4,6 +4,7 @@ import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-
 import {
   ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE,
   ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON,
+  ARCHITECTURE_INTELLIGENCE_PUBLISH_BLOCK_REASON_NOT_STORED,
   buildFramingAnswersPayload,
   collectOpenFramingInterviewQuestions,
   framingInterviewAnswersComplete,
@@ -36,6 +37,15 @@ describe("architecture-intelligence-framing-interview", () => {
   it("detects the framing publish block reason", () => {
     expect(isFramingIncompletePublishBlock(sampleResult())).toBe(true);
     expect(isFramingIncompletePublishBlock({ publishBlockReasons: ["Other gate"] })).toBe(false);
+  });
+
+  it("uses not-stored copy when publish is blocked without reasons", () => {
+    expect(
+      resolvePublishBlockedAlertMessage({
+        publishBlocked: true,
+        publishBlockReasons: [],
+      }),
+    ).toBe(`Publish blocked: ${ARCHITECTURE_INTELLIGENCE_PUBLISH_BLOCK_REASON_NOT_STORED}`);
   });
 
   it("uses operator guidance when framing questions remain open", () => {

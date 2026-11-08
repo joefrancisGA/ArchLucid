@@ -15,6 +15,12 @@ import {
   isShowcaseSpineStaticPayloadActiveForRun,
 } from "./eligibility";
 
+const STATIC_DEMO_CONTEXT_SNAPSHOT_ID_NOT_STORED = "Context snapshot id was not stored." as const;
+const STATIC_DEMO_GRAPH_SNAPSHOT_ID_NOT_STORED = "Graph snapshot id was not stored." as const;
+const STATIC_DEMO_FINDINGS_SNAPSHOT_ID_NOT_STORED = "Findings snapshot id was not stored." as const;
+const STATIC_DEMO_ARTIFACT_BUNDLE_ID_NOT_STORED = "Artifact bundle id was not stored." as const;
+const STATIC_DEMO_GOVERNANCE_AUDIT_ID_NOT_STORED = "Governance audit id was not stored." as const;
+
 /** Curated linkage graph aligned with primary static showcase payloads (demo static operator mode only). */
 export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): ArchitectureRunProvenanceGraph {
 
@@ -35,10 +41,10 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
   const chain = d.authorityChain;
 
-  const ctxReferenceId = chain.contextSnapshotId ?? "ctx-demo";
-  const graphReferenceId = chain.graphSnapshotId ?? "graph-demo";
-  const findingsReferenceId = chain.findingsSnapshotId ?? "find-demo";
-  const bundleReferenceId = chain.artifactBundleId ?? "bundle-demo";
+  const ctxReferenceId = chain.contextSnapshotId ?? STATIC_DEMO_CONTEXT_SNAPSHOT_ID_NOT_STORED;
+  const graphReferenceId = chain.graphSnapshotId ?? STATIC_DEMO_GRAPH_SNAPSHOT_ID_NOT_STORED;
+  const findingsReferenceId = chain.findingsSnapshotId ?? STATIC_DEMO_FINDINGS_SNAPSHOT_ID_NOT_STORED;
+  const bundleReferenceId = chain.artifactBundleId ?? STATIC_DEMO_ARTIFACT_BUNDLE_ID_NOT_STORED;
   const manifestReferenceId = manifest.manifestId;
 
   const timelineReferenceIdForEvent = (eventType: string): string | null => {
@@ -59,7 +65,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
         return manifestReferenceId;
 
       case "com.archlucid.governance.approval.recorded":
-        return "audit-claims-intake-001";
+        return STATIC_DEMO_GOVERNANCE_AUDIT_ID_NOT_STORED;
 
       case "artifact.bundle.created":
         return bundleReferenceId;
@@ -90,7 +96,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         type: "ContextSnapshot",
 
-        referenceId: chain.contextSnapshotId ?? "ctx-demo",
+        referenceId: chain.contextSnapshotId ?? STATIC_DEMO_CONTEXT_SNAPSHOT_ID_NOT_STORED,
 
         name: "Source context reviewed",
 
@@ -126,7 +132,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         type: "GraphSnapshot",
 
-        referenceId: chain.graphSnapshotId ?? "graph-demo",
+        referenceId: chain.graphSnapshotId ?? STATIC_DEMO_GRAPH_SNAPSHOT_ID_NOT_STORED,
 
         name: "Evidence trail created",
 
@@ -150,7 +156,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         type: "FindingsSnapshot",
 
-        referenceId: chain.findingsSnapshotId ?? "find-demo",
+        referenceId: chain.findingsSnapshotId ?? STATIC_DEMO_FINDINGS_SNAPSHOT_ID_NOT_STORED,
 
         name: "Findings identified",
 
@@ -217,7 +223,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         type: "AuditEvent",
 
-        referenceId: "audit-claims-intake-001",
+        referenceId: STATIC_DEMO_GOVERNANCE_AUDIT_ID_NOT_STORED,
 
         name: "Approval recorded",
 
@@ -229,7 +235,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         type: "ArtifactBundle",
 
-        referenceId: chain.artifactBundleId ?? "bundle-demo",
+        referenceId: chain.artifactBundleId ?? STATIC_DEMO_ARTIFACT_BUNDLE_ID_NOT_STORED,
 
         name: "Evidence bundle assembled",
 

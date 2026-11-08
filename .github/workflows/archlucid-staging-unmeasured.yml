@@ -1,0 +1,56 @@
+name: ArchLucid staging deployment absence evidence
+
+# TEMPORARY CI STABILIZATION HOLD (2026-11-02): no automatic workflow_run.
+# Optional manual absence evidence for an existing CD run; never a deploy.
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_conclusion:
+        description: "Verified conclusion of an existing CD staging run"
+        required: true
+        type: choice
+        options: [skipped, failure, cancelled]
+      deploy_head_sha:
+        description: "Exact commit SHA from that run"
+        required: true
+        type: string
+      deploy_run_id:
+        description: "Existing CD staging workflow run ID"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  record-unmeasured-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: master
+      - name: Record absence without inventing cold-start numbers
+        env:
+          DEPLOY_CONCLUSION: ${{ inputs.deploy_conclusion }}
+          DEPLOY_HEAD_SHA: ${{ inputs.deploy_head_sha }}
+          DEPLOY_RUN_ID: ${{ inputs.deploy_run_id }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          REASON="STAGING_DEPLOY_WORKFLOW_${DEPLOY_CONCLUSION:-unknown}_RUN_${DEPLOY_RUN_ID}"
+          if [ "${DEPLOY_CONCLUSION:-}" != "skipped" ]; then
+            ARGS+=(--deployment-attempted)
+          fi
+          python3 scripts/ci/capture_archlucid_staging_cold_start.py \
+            --skip-reason "$REASON" \
+            --expected-sha "${DEPLOY_HEAD_SHA:-}" \
+            "${ARGS[@]}" \
+            --output "staging-cold-start-unmeasured.json"
+          echo "Staging cold-start evidence: $REASON (no measured performance is asserted)." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: staging-cold-start-unmeasured-${{ github.run_id }}
+          path: staging-cold-start-unmeasured.json
+          if-no-files-found: warn

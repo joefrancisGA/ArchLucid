@@ -36,17 +36,19 @@ public sealed class ArchitectureControllerTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    private static async Task RunWithIsolatedFactory(Func<HttpClient, Task> act)
+    private static async Task RunWithIsolatedFactory(Func<HttpClient, ArchLucidApiFactory, Task> act)
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        await act(client);
+        HttpClient client = await factory.CreateBoundedClientAsync();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await IntegrationTestWorkspaceModeSupport.PinGuidedWorkspaceModeForDevUserAsync(factory);
+        await act(client, factory);
     }
 
     [SkippableFact]
     public async Task CreateRun_ReturnsRun()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             object request = TestRequestFactory.CreateArchitectureRequest("REQ-API-001");
 
@@ -72,7 +74,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GetRun_ReturnsTasks()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
@@ -100,7 +102,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task ExecuteRun_SeedsResults()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
@@ -143,19 +145,22 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CommitRun_CreatesManifest()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
+            const string requestId = "REQ-API-004";
+            string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-004")));
+                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
 
-            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+            await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+            HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
 
             commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -164,7 +169,7 @@ public sealed class ArchitectureControllerTests
             commitPayload.Should().NotBeNull();
             commitPayload.Manifest.Should().NotBeNull();
             commitPayload.Manifest.RunId.Should().Be(runId);
-            commitPayload.Manifest.SystemName.Should().Be("EnterpriseRag");
+            commitPayload.Manifest.SystemName.Should().Be(systemName);
             commitPayload.Manifest.Services.Should().NotBeEmpty();
             commitPayload.Manifest.Datastores.Should().NotBeEmpty();
             commitPayload.Manifest.Governance.RequiredControls.Should().Contain(c =>
@@ -176,7 +181,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task ExecuteRun_ExecutesTasksAndReturnsResults()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
@@ -212,11 +217,14 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GoldenPath_EndToEnd_WithExecute()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
+            const string requestId = "REQ-API-006";
+            string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-006")));
+                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -226,8 +234,8 @@ public sealed class ArchitectureControllerTests
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
-            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+            await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+            HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
             await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
@@ -244,7 +252,7 @@ public sealed class ArchitectureControllerTests
             await manifestResponse.EnsureSuccessForTestAsync();
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
             manifestPayload.Should().NotBeNull();
-            manifestPayload.SystemName.Should().Be("EnterpriseRag");
+            manifestPayload.SystemName.Should().Be(systemName);
             manifestPayload.Services.Should().NotBeEmpty();
             manifestPayload.Datastores.Should().NotBeEmpty();
             manifestPayload.Governance.RequiredControls.Should().NotBeEmpty();
@@ -255,11 +263,14 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GoldenPath_EndToEnd()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
+            const string requestId = "REQ-API-005";
+            string systemName = TestRequestFactory.SystemNameForRequest(requestId);
+
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/architecture/request",
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-005")));
+                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -275,8 +286,8 @@ public sealed class ArchitectureControllerTests
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             getRunPayload!.Tasks.Should().HaveCount(4);
 
-            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+            await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+            HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
             await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
@@ -293,7 +304,7 @@ public sealed class ArchitectureControllerTests
             await manifestResponse.EnsureSuccessForTestAsync();
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
             manifestPayload.Should().NotBeNull();
-            manifestPayload.SystemName.Should().Be("EnterpriseRag");
+            manifestPayload.SystemName.Should().Be(systemName);
             manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-api");
             manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-search");
             manifestPayload.Datastores.Should().Contain(d => d.DatastoreName == "rag-metadata");
@@ -306,7 +317,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-001");
@@ -341,7 +352,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CreateRun_SameIdempotencyKeyDifferentBody_Returns409()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object firstBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002A");
@@ -364,7 +375,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CreateRun_ParallelSameIdempotencyKeyAndBody_AllSucceedWithSingleRunId()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             string idempotencyKey = $"idem-parallel-{Guid.NewGuid():N}";
             object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-PAR");
@@ -407,7 +418,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GetArchitectureRequestTemplates_ReturnsCatalogSummariesWithExpectedIds()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage response = await client.GetAsync("/v1/architecture/templates");
 
@@ -436,7 +447,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task Post_each_catalog_template_creates_valid_run()
     {
-        await RunWithIsolatedFactory(async client =>
+        await RunWithIsolatedFactory(async (client, factory) =>
         {
             ArchitectureRequest[] templates =
             [

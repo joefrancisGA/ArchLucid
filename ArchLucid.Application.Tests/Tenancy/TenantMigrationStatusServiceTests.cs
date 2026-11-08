@@ -57,6 +57,89 @@ public sealed class TenantMigrationStatusServiceTests
     }
 
     [Fact]
+    public async Task GetForTenantAsync_treats_whitespace_only_last_verification_error_as_null()
+    {
+        Guid migrationId = Guid.Parse("44444444-5555-6666-7777-888888888888");
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-blank-error",
+                Stage = TenantCatalogMigrationStage.Verification,
+                StartedUtc = DateTimeOffset.UtcNow,
+                LastVerificationError = "   ",
+            },
+            CancellationToken.None);
+
+        TenantMigrationStatusService sut = new(migrations, CreateDefaultTenantRepository().Object);
+
+        TenantMigrationStatusSnapshot snapshot = await sut.GetForTenantAsync(TenantId, CancellationToken.None);
+
+        Assert.True(snapshot.InMigration);
+        Assert.Null(snapshot.LastVerificationError);
+    }
+
+    [Fact]
+    public async Task GetForTenantAsync_treats_whitespace_only_maintenance_message_as_null()
+    {
+        Guid migrationId = Guid.Parse("55555555-6666-7777-8888-999999999999");
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-blank-message",
+                Stage = TenantCatalogMigrationStage.ProjectionRefresh,
+                StartedUtc = DateTimeOffset.UtcNow,
+                MaintenanceMessage = "   ",
+            },
+            CancellationToken.None);
+
+        TenantMigrationStatusService sut = new(migrations, CreateDefaultTenantRepository().Object);
+
+        TenantMigrationStatusSnapshot snapshot = await sut.GetForTenantAsync(TenantId, CancellationToken.None);
+
+        Assert.True(snapshot.InMigration);
+        Assert.Null(snapshot.Message);
+    }
+
+    [Fact]
+    public async Task GetForTenantAsync_clears_last_verification_error_after_successful_verification_mark()
+    {
+        Guid migrationId = Guid.Parse("33333333-4444-5555-6666-777777777777");
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-retry-clear",
+                Stage = TenantCatalogMigrationStage.Verification,
+                StartedUtc = DateTimeOffset.UtcNow,
+                LastVerificationError = "first attempt failed",
+            },
+            CancellationToken.None);
+
+        await migrations.MarkVerificationResultAsync(
+            migrationId,
+            passed: true,
+            errorMessage: null,
+            DateTimeOffset.UtcNow,
+            CancellationToken.None);
+
+        TenantMigrationStatusService sut = new(migrations, CreateDefaultTenantRepository().Object);
+
+        TenantMigrationStatusSnapshot snapshot = await sut.GetForTenantAsync(TenantId, CancellationToken.None);
+
+        Assert.True(snapshot.InMigration);
+        Assert.Null(snapshot.LastVerificationError);
+        Assert.NotNull(snapshot.MigrationId);
+    }
+
+    [Fact]
     public async Task GetForTenantAsync_returns_inactive_when_active_migration_exists_but_tenant_is_in_erasure_quarantine()
     {
         Guid migrationId = Guid.Parse("22222222-3333-4444-5555-666666666666");

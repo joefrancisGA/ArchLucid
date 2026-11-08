@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const usePathnameMock = vi.hoisted(() => vi.fn(() => "/"));
+const usePathnameMock = vi.hoisted(() => vi.fn(() => "/administration/api-keys"));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
@@ -19,6 +19,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/components/ApiKeysUsersVocabularyRail", () => ({
   ApiKeysUsersVocabularyRail: () => <div data-testid="api-keys-users-vocabulary-rail" />,
@@ -43,12 +48,11 @@ import {
   API_KEYS_PAGE_SUBTITLE,
   API_KEYS_ENTERPRISE_ONLY_NOTICE,
 } from "@/lib/api-keys-settings-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   API_KEYS_SETTINGS_FOLLOW_UPS_TITLE,
   API_KEYS_SETTINGS_SOURCES,
 } from "@/lib/api-keys-settings-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER,
@@ -68,7 +72,7 @@ vi.mock("@/lib/internal-operator-env", () => ({
 describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
-    usePathnameMock.mockReturnValue("/");
+    usePathnameMock.mockReturnValue("/administration/api-keys");
   });
 
   it("renders skip link, first-viewport band, orientation above summary, buyer subtitle, and hides vocabulary rails", async () => {
@@ -109,17 +113,30 @@ describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
     const firstViewport = screen.getByTestId(API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID);
     const orientationTop = screen.getByTestId("api-keys-settings-orientation-top");
     const summaryRow = screen.getByTestId("api-keys-summary-row");
-    const sourcesSection = screen.getByTestId("api-keys-settings-sources");
-
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(orientationTop);
     expect(firstViewport).toContainElement(summaryRow);
-    expect(orientationTop).toContainElement(sourcesSection);
+    const sourcesSection = within(orientationTop).getByTestId("api-keys-settings-sources");
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), API_KEYS_SETTINGS_SOURCES, "/administration/api-keys");
     expect(orientationTop.compareDocumentPosition(summaryRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    for (const source of filterWhereToGoNextFollowUpLinks(API_KEYS_SETTINGS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

@@ -24,15 +24,15 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   }
 
   const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
-  const warnings = clampNonNegativeInt(input.warningCountDisplay);
-  const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
-
-  if (postureRaw === "approved with monitoring" && warnings === 1 && (unresolved === null || unresolved === 0)) {
-    return "Approved for implementation planning. No blocking issues. One PHI minimization risk accepted with weekly monitoring.";
-  }
 
   if (postureRaw === "approved with monitoring") {
-    return "Approved with monitoring — proceed under the controls documented in this finalized review.";
+    return "Approved with monitoring — open the finalized review record for monitored risks and governance follow-up.";
+  }
+
+  const gate = (input.governanceGateLabel ?? "").trim();
+
+  if (gate.length > 0) {
+    return `Finalized review — governance gate: ${gate}.`;
   }
 
   return null;
@@ -49,7 +49,17 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
   const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
 
   if (postureRaw === "approved with monitoring") {
-    return "The review is finalized; one non-blocking risk remains under explicit monitored oversight.";
+    const warnings = clampNonNegativeInt(input.warningCountDisplay);
+
+    if (warnings === null) {
+      return "The review is finalized; monitored risk count was not stored.";
+    }
+
+    if (warnings === 1) {
+      return "The review is finalized; 1 non-blocking monitored risk remains on the record.";
+    }
+
+    return `The review is finalized; ${warnings} non-blocking monitored risks remain on the record.`;
   }
 
   return null;
@@ -81,21 +91,24 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
         ? `${findings} finding${findings === 1 ? "" : "s"} recorded with ${unresolved} unresolved issue${unresolved === 1 ? "" : "s"} still tracked on the manifest.`
         : includesMonitoredRiskInFindingPhrase && findings !== null
           ? `${findings} finding${findings === 1 ? "" : "s"}, including ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"}.`
-          : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this review.`;
+          : unresolved === null
+            ? `${findings} finding${findings === 1 ? "" : "s"} recorded; unresolved issue count was not stored.`
+            : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this review.`;
 
   const warningPhrase =
     warnings !== null && warnings > 0 && unresolved !== null && unresolved > 0
       ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the finalized review record.`
       : "";
 
-  const lead =
-    posture !== null && posture.toLowerCase() === "approved with monitoring"
-      ? warnings === null
-        ? "Approved for implementation planning — monitored risk count was not stored."
-        : `Approved for implementation planning with ${warnings} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
-      : posture !== null
-        ? `Finalized package — ${posture}.`
-        : "Finalized package — approval complete.";
+  const gate = (input.governanceGateLabel ?? "").trim();
 
-  return `${lead} ${findingPhrase}${warningPhrase}`;
+  const lead =
+    posture !== null
+      ? `Finalized package — ${posture}.`
+      : "Finalized package — risk posture was not stored.";
+
+  const gateClause =
+    gate.length > 0 ? ` Governance gate on record: ${gate}.` : "";
+
+  return `${lead}${gateClause} ${findingPhrase}${warningPhrase}`;
 }

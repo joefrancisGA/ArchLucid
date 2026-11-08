@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -47,6 +48,15 @@ BUILD_IDENTITY_META_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+def _safe_markdown_cell(value: object) -> str:
+    return (
+        str(value).replace("\\", "\\\\")
+        .replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+        .replace("\t", " ").replace("<", "&lt;").replace(">", "&gt;")
+        .replace("`", "&#96;")
+    )
+
+
 HttpGet = Callable[[str, dict[str, str], float], tuple[int, str]]
 
 
@@ -71,11 +81,10 @@ class SmokeReport:
 
     @property
     def ok(self) -> bool:
+        if not self.checks:
+            return False
         for check in self.checks:
-            if check.skipped:
-                continue
-
-            if check.required and not check.passed:
+            if check.required and (check.skipped or not check.passed):
                 return False
 
         return True
@@ -84,11 +93,11 @@ class SmokeReport:
         lines = [
             "## CD product-path smoke",
             "",
-            f"- Environment: `{self.environment}`",
-            f"- Expected BUILD_ID: `{self.expected_build_id or '(unset)'}`",
-            f"- Observed API commitSha: `{self.observed_api_build_id or '(n/a)'}`",
-            f"- Observed UI commitSha: `{self.observed_ui_build_id or '(n/a)'}`",
-            f"- Observed UI public-page commitSha: `{self.observed_ui_public_page_build_id or '(n/a)'}`",
+            f"- Environment: `{_safe_markdown_cell(self.environment)}`",
+            f"- Expected BUILD_ID: `{_safe_markdown_cell(self.expected_build_id or '(unset)')}`",
+            f"- Observed API commitSha: `{_safe_markdown_cell(self.observed_api_build_id or '(n/a)')}`",
+            f"- Observed UI commitSha: `{_safe_markdown_cell(self.observed_ui_build_id or '(n/a)')}`",
+            f"- Observed UI public-page commitSha: `{_safe_markdown_cell(self.observed_ui_public_page_build_id or '(n/a)')}`",
             f"- Overall: **{'PASS' if self.ok else 'FAIL'}**",
             "",
             "| Check | Required | Result | Duration (ms) | Detail |",
@@ -104,9 +113,9 @@ class SmokeReport:
                 result = "FAIL"
 
             required = "yes" if check.required else "optional"
-            detail = check.detail.replace("|", "\\|").replace("\n", " ")
+            detail = _safe_markdown_cell(check.detail)
             lines.append(
-                f"| `{check.name}` | {required} | {result} | {check.duration_ms} | {detail} |"
+                f"| `{_safe_markdown_cell(check.name)}` | {required} | {result} | {check.duration_ms} | {detail} |"
             )
 
         lines.extend(
@@ -134,6 +143,19 @@ def normalize(value: str | None) -> str:
         return ""
 
     return str(value).strip()
+
+
+def is_safe_deployment_base_url(url: str, *, strict: bool) -> bool:
+    parsed = urlparse(url)
+    if not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        return False
+    if parsed.scheme not in ({"https"} if strict else {"https", "http"}):
+        return False
+    try:
+        _ = parsed.port
+    except ValueError:
+        return False
+    return True
 
 
 def is_strict_environment(environment: str) -> bool:
@@ -216,12 +238,16 @@ def run_with_retries(
     started = time.perf_counter()
 
     for attempt in range(1, max_attempts + 1):
-        ok, detail = operation()
+        try:
+            ok, detail = operation()
+        except Exception as exc:  # noqa: BLE001 - preserve release diagnostics
+            ok, detail = False, f"probe failed: {type(exc).__name__}"
         last_detail = detail
 
         if ok:
             duration_ms = int((time.perf_counter() - started) * 1000)
-            return SmokeCheckResult(name, required, True, duration_ms, detail)
+            recovery_detail = detail if attempt == 1 else f"{detail} (recovered on attempt {attempt}/{max_attempts})"
+            return SmokeCheckResult(name, required, True, duration_ms, recovery_detail)
 
         if attempt < max_attempts:
             time.sleep(max(0.0, wait_seconds))
@@ -259,8 +285,23 @@ def run_product_smoke(
     bearer = normalize(bearer_token)
     ui_base = normalize(ui_base_url)
     strict = is_strict_environment(environment)
-    attempts = max(1, int(max_attempts))
-    wait = max(0.0, float(retry_wait_seconds))
+    # Invalid retry controls must produce a failed smoke record, not hang
+    # the release runner or silently become a more permissive configuration.
+    if (
+        isinstance(max_attempts, bool) or not isinstance(max_attempts, int)
+        or max_attempts < 1 or max_attempts > 100
+        or not math.isfinite(float(retry_wait_seconds))
+        or float(retry_wait_seconds) < 0
+        or not math.isfinite(float(timeout_sec))
+        or float(timeout_sec) <= 0
+    ):
+        report.checks.append(SmokeCheckResult(
+            "config_retry_controls", required=True, passed=False,
+            duration_ms=0, detail="invalid attempts, retry wait, or HTTP timeout",
+        ))
+        return report
+    attempts = max_attempts
+    wait = float(retry_wait_seconds)
 
     if not api_base:
         detail = "SMOKE_TEST_BASE_URL / --api-base-url is required for staging/production"
@@ -279,6 +320,14 @@ def run_product_smoke(
             return report
 
         return report
+
+    for label, configured_url in (("api", api_base), ("ui", ui_base)):
+        if configured_url and not is_safe_deployment_base_url(configured_url, strict=strict):
+            report.checks.append(SmokeCheckResult(
+                f"config_{label}_base_url", required=True, passed=False,
+                duration_ms=0, detail="deployment base URL must be an absolute approved origin",
+            ))
+            return report
 
     if not key and not bearer:
         report.checks.append(
@@ -331,8 +380,9 @@ def run_product_smoke(
             return False, redact_secrets(f"HTTP {code}", key, bearer)
 
         try:
-            status = json.loads(body).get("status")
-        except json.JSONDecodeError:
+            payload = json.loads(body)
+            status = payload.get("status") if isinstance(payload, dict) else None
+        except (json.JSONDecodeError, TypeError):
             return False, "HTTP 200 but body is not JSON"
 
         return status == "Healthy", f"HTTP 200 status={status!r}"
@@ -354,8 +404,9 @@ def run_product_smoke(
             return False, f"HTTP {code}"
 
         try:
-            commit = str(json.loads(body).get("commitSha") or "").strip()
-        except json.JSONDecodeError:
+            payload = json.loads(body)
+            commit = str(payload.get("commitSha") or "").strip() if isinstance(payload, dict) else ""
+        except (json.JSONDecodeError, TypeError):
             return False, "HTTP 200 but body is not JSON"
 
         report.observed_api_build_id = commit
@@ -379,8 +430,8 @@ def run_product_smoke(
     )
 
     def check_openapi() -> tuple[bool, str]:
-        if not key:
-            return False, "API key missing"
+        if not (key or bearer):
+            return False, "API key or bearer token missing"
 
         code, body = get(join_url(api_base, "/openapi/v1.json"), auth_headers)
 
@@ -388,8 +439,10 @@ def run_product_smoke(
             return False, f"HTTP {code}"
 
         try:
-            title = str(json.loads(body).get("info", {}).get("title") or "").strip()
-        except json.JSONDecodeError:
+            payload = json.loads(body)
+            info = payload.get("info") if isinstance(payload, dict) else None
+            title = str(info.get("title") or "").strip() if isinstance(info, dict) else ""
+        except (json.JSONDecodeError, TypeError):
             return False, "HTTP 200 but body is not JSON"
 
         if not title:
@@ -400,7 +453,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_openapi_authenticated",
-            required=bool(key) or strict,
+            required=bool(key or bearer) or strict,
             attempts=attempts,
             wait_seconds=wait,
             operation=check_openapi,
@@ -409,8 +462,8 @@ def run_product_smoke(
 
     # Authenticated SQL-backed tenant workspace list (non-mutating).
     def check_workspaces() -> tuple[bool, str]:
-        if not key:
-            return False, "API key missing"
+        if not (key or bearer):
+            return False, "API key or bearer token missing"
 
         code, body = get(join_url(api_base, "/v1/tenant/workspaces"), auth_headers)
 
@@ -422,7 +475,7 @@ def run_product_smoke(
         except json.JSONDecodeError:
             return False, "HTTP 200 but body is not JSON"
 
-        workspaces = payload.get("workspaces")
+        workspaces = payload.get("workspaces") if isinstance(payload, dict) else None
 
         if not isinstance(workspaces, list):
             return False, "JSON missing workspaces array"
@@ -432,7 +485,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_tenant_workspaces_read",
-            required=bool(key) or strict,
+            required=bool(key or bearer) or strict,
             attempts=attempts,
             wait_seconds=wait,
             operation=check_workspaces,
@@ -441,8 +494,8 @@ def run_product_smoke(
 
     # Why-ArchLucid snapshot: auth + audit-scope SQL read + demo run id constant.
     def check_why_snapshot() -> tuple[bool, str]:
-        if not key:
-            return False, "API key missing"
+        if not (key or bearer):
+            return False, "API key or bearer token missing"
 
         code, body = get(join_url(api_base, "/v1/pilots/why-archlucid-snapshot"), auth_headers)
 
@@ -454,7 +507,7 @@ def run_product_smoke(
         except json.JSONDecodeError:
             return False, "HTTP 200 but body is not JSON"
 
-        demo_run_id = str(payload.get("demoRunId") or "").strip()
+        demo_run_id = str(payload.get("demoRunId") or "").strip() if isinstance(payload, dict) else ""
 
         if not demo_run_id:
             return False, "missing demoRunId"
@@ -464,7 +517,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_why_archlucid_snapshot_read",
-            required=bool(key) or strict,
+            required=bool(key or bearer) or strict,
             attempts=attempts,
             wait_seconds=wait,
             operation=check_why_snapshot,
@@ -529,12 +582,14 @@ def run_product_smoke(
         except json.JSONDecodeError:
             return False, "HTTP 200 but body is not JSON"
 
-        status = str(payload.get("status") or "").strip()
-        commit = str(payload.get("commitSha") or "").strip()
+        status = str(payload.get("status") or "").strip() if isinstance(payload, dict) else ""
+        commit = str(payload.get("commitSha") or "").strip() if isinstance(payload, dict) else ""
         report.observed_ui_build_id = commit
 
         if status != "Healthy":
             return False, f"status={status!r}"
+        if report.expected_build_id and commit != report.expected_build_id:
+            return False, "UI process commitSha does not match expected BUILD_ID"
 
         return True, f"Healthy commitSha={commit or 'unknown'}"
 
@@ -555,15 +610,15 @@ def run_product_smoke(
             return False, redact_secrets(f"HTTP {code} {body[:160]}", key, bearer)
 
         try:
-            status = json.loads(body).get("status")
+            payload = json.loads(body)
+            status = payload.get("status") if isinstance(payload, dict) else None
         except json.JSONDecodeError:
-            # Some proxy paths may wrap; accept HTTP 200 as BFF reachability.
-            return True, "HTTP 200 (non-JSON body accepted for BFF reachability)"
+            return False, "HTTP 200 but BFF readiness body is not JSON"
 
-        if status is not None and status != "Healthy":
-            return False, f"upstream status={status!r}"
+        if status != "Healthy":
+            return False, f"upstream status={status!r}; expected Healthy"
 
-        return True, f"BFF→API ready status={status!r}"
+        return True, "BFF→API ready status='Healthy'"
 
     report.checks.append(
         run_with_retries(
@@ -620,7 +675,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="ui_homepage",
-            required=False,
+            required=ui_required,
             attempts=min(2, attempts),
             wait_seconds=wait,
             operation=check_homepage,
@@ -649,7 +704,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="ui_static_asset",
-            required=False,
+            required=ui_required,
             attempts=1,
             wait_seconds=0,
             operation=check_static_asset,

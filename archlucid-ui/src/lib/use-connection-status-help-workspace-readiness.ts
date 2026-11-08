@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
 import { pickOptionalAsOfUtc } from "@/lib/ai-usage-fetch-utils";
@@ -78,12 +78,28 @@ export function resolveConnectionStatusHelpReadinessTileHref(tileId: string): st
 
 export function useConnectionStatusHelpWorkspaceReadiness(): ConnectionStatusHelpWorkspaceReadinessSnapshot {
   const [snapshot, setSnapshot] = useState(INITIAL_SNAPSHOT);
+  // Vitest tears down jsdom before late integrations-ops fetches settle — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const reload = useCallback(() => {
-    setSnapshot((current) => ({ ...current, loading: true, loadFailed: false, loadForbidden: false }));
+    if (mountedRef.current) {
+      setSnapshot((current) => ({ ...current, loading: true, loadFailed: false, loadForbidden: false }));
+    }
 
     void fetchTenantIntegrationsOperations()
       .then((data) => {
+        if (!mountedRef.current) {
+          return;
+        }
+
         const tiles = buildIntegrationReadinessSummaryTiles(data);
         const workspaceScopeLabel = readActiveWorkspaceScopeLabel();
 
@@ -103,6 +119,10 @@ export function useConnectionStatusHelpWorkspaceReadiness(): ConnectionStatusHel
         });
       })
       .catch((error: unknown) => {
+        if (!mountedRef.current) {
+          return;
+        }
+
         if (isApiRequestError(error) && error.httpStatus === 403) {
           setSnapshot({
             loading: false,

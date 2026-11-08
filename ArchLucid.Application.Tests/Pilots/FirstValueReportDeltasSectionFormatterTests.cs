@@ -32,6 +32,29 @@ public sealed class FirstValueReportDeltasSectionFormatterTests
     }
 
     [Fact]
+    public void AppendComputedDeltasSection_when_audit_rows_unresolved_does_not_emit_zero_in_table()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+            FindingsBySeverity = [new KeyValuePair<string, int>("Warning", 1)],
+            AuditRowCount = 0,
+            AuditRowCountResolved = false,
+            LlmCallCountResolved = true,
+            LlmCallCount = 0,
+        };
+
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas);
+
+        string markdown = sb.ToString();
+        markdown.Should().NotContain("| Audit rows for this run | 0 |");
+        markdown.Should().Contain("Audit row count was not attested.");
+    }
+
+    [Fact]
     public void AppendComputedDeltasSection_when_audit_rows_truncated_discloses_cap_in_audit_metric_row()
     {
         PilotRunDeltas deltas = new()
@@ -52,6 +75,29 @@ public sealed class FirstValueReportDeltasSectionFormatterTests
         string markdown = sb.ToString();
         markdown.Should().Contain("query cap reached");
         markdown.Should().NotContain("RunDetailsTruncated");
+    }
+
+    [Fact]
+    public void AppendComputedDeltasSection_when_findings_not_attested_does_not_emit_zero_total()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+            FindingsBySeverity = [],
+            LlmCallCountResolved = true,
+            LlmCallCount = 0,
+            AuditRowCountResolved = true,
+            AuditRowCount = 0,
+        };
+
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas);
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel);
+        markdown.Should().NotContain("| Findings (total) | 0 |");
     }
 
     [Fact]

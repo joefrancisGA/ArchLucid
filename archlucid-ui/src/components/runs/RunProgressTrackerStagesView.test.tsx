@@ -79,6 +79,30 @@ describe("RunProgressTrackerStagesView (WA-22)", () => {
     expect(screen.queryByTestId("run-progress-stage-count")).toBeNull();
   });
 
+  it("labels incomplete stages without implying stored pending status", () => {
+    render(
+      <RunProgressTrackerStagesView
+        buyerAssessmentCopy={true}
+        pipelineJobLabel={{
+          heading: "Assessment progress",
+          progressAriaLabel: "Assessment progress",
+          stageSummaryNoun: "assessment",
+        }}
+        completedStages={0}
+        totalProgressStages={3}
+        ctx={false}
+        graph={false}
+        findings={false}
+        manifest={false}
+        stageTimeline={[]}
+        activeSummary={null}
+      />,
+    );
+
+    expect(screen.getAllByText("This stage has not completed.").length).toBeGreaterThanOrEqual(3);
+    expect(screen.queryByText("Pending")).not.toBeInTheDocument();
+  });
+
   it("uses rehearsal step labels and pending copy when career honesty applies (CG-032)", () => {
     render(
       <RunProgressTrackerStagesView

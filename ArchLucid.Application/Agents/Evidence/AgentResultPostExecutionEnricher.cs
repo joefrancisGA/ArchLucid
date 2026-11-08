@@ -27,6 +27,9 @@ public sealed class AgentResultPostExecutionEnricher(IAgentCuratedEvidencePropos
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             string? proposedJson = await _evidenceProposer
                 .TryProposeEvidenceJsonAsync(runId, request, evidence, result, cancellationToken)
                 .ConfigureAwait(false);

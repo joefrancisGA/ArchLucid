@@ -28,7 +28,7 @@ describe("ExportTerraformAdvisoryButton", () => {
     fireEvent.click(screen.getByTestId("export-terraform-advisory-button"));
     const dialog = await screen.findByRole("alertdialog");
 
-    expect(within(dialog).getByText(/downloads a zip of advisory terraform/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/downloads a zip of comment-only advisory terraform/i)).toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByRole("button", { name: /download zip/i }));
 

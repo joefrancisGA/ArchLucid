@@ -24,5 +24,34 @@ public sealed class RunAgentLlmCostEstimateDtoDeserializationTests
 
         estimate.Should().NotBeNull();
         estimate!.TokenCounts.Should().NotBeNull();
+        estimate.TokenCounts.Prompt.Should().Be(0);
+        estimate.TokenCounts.Completion.Should().Be(0);
+    }
+
+    [Fact]
+    public void Explicit_null_assignment_coalesces_to_empty_token_counts()
+    {
+        RunAgentLlmCostEstimateDto estimate = new()
+        {
+            TokenCounts = null!,
+        };
+
+        estimate.TokenCounts.Should().NotBeNull();
+        estimate.TokenCounts.Prompt.Should().Be(0);
+        estimate.TokenCounts.Completion.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData("{}", 0L, 0L)]
+    [InlineData("{\"tokenCounts\":{\"prompt\":123,\"completion\":45}}", 123L, 45L)]
+    public void Deserialize_token_counts_handles_absent_or_valid_totals(string json, long prompt, long completion)
+    {
+        RunAgentLlmCostEstimateDto? estimate =
+            JsonSerializer.Deserialize<RunAgentLlmCostEstimateDto>(json, ContractJson.CamelCaseCompact);
+
+        estimate.Should().NotBeNull();
+        estimate!.TokenCounts.Should().NotBeNull();
+        estimate.TokenCounts.Prompt.Should().Be(prompt);
+        estimate.TokenCounts.Completion.Should().Be(completion);
     }
 }

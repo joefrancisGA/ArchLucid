@@ -4,7 +4,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNewRunWizardCommittedProbeQuery } from "@/hooks/use-new-run-wizard-committed-probe-query";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { resolveFirstRunWizardMode } from "@/lib/core-pilot-step-presentation";
 import {
   newRunWizardModeHrefFromSearch,
@@ -48,10 +52,13 @@ function writeStoredWizardMode(mode: NewRunWizardMode): void {
 export function useNewRunWizardMode(baselineFirst: boolean) {
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlMode = parseNewRunWizardModeFromSearch(searchParams.get("mode"));
   const [wizardMode, setWizardMode] = useState<NewRunWizardMode>(
     () => urlMode ?? readStoredWizardMode() ?? "quick",
   );
+  const [committedManifestProbeFailed, setCommittedManifestProbeFailed] = useState(false);
   const wizardModeRef = useRef(wizardMode);
   wizardModeRef.current = wizardMode;
   // A deep link (accelerator, preset) or a click has already decided the mode, so the first-run probe
@@ -68,9 +75,14 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
       wizardModeRef.current = mode;
       setWizardMode(mode);
       writeStoredWizardMode(mode);
-      commitHrefIfChanged(newRunWizardModeHrefFromSearch(readWindowLocationSearch(), mode, pathname), {
-        notify: false,
-      });
+      commitHrefIfChanged(
+        newRunWizardModeHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          mode,
+          pathname,
+        ),
+        { notify: false },
+      );
     },
     [pathname],
   );
@@ -92,7 +104,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   useEffect(() => {
     const syncModeFromUrl = (): void => {
       const nextMode = parseNewRunWizardModeFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("mode"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "mode"),
       );
 
       if (nextMode !== null) {
@@ -128,6 +140,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     }
 
     if (committedProbeQuery.isSuccess && committedProbeQuery.data !== undefined) {
+      setCommittedManifestProbeFailed(false);
       setWizardMode(
         resolveFirstRunWizardMode({
           hasCommittedManifest: committedProbeQuery.data.hasCommittedManifest,
@@ -139,6 +152,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     }
 
     if (committedProbeQuery.isError && !modeChosenRef.current) {
+      setCommittedManifestProbeFailed(true);
       setWizardMode("quick");
     }
   }, [
@@ -149,5 +163,5 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     storedMode,
   ]);
 
-  return { wizardMode, persistWizardMode };
+  return { wizardMode, persistWizardMode, committedManifestProbeFailed };
 }

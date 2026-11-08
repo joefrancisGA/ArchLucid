@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
@@ -31,10 +32,10 @@ public sealed partial class PilotRunDeltaComputer
     {
         try
         {
-            ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
-            int count = await _agentExecutionTraceRepository.CountByRunIdAsync(traceScope, runId, cancellationToken);
+            IReadOnlyList<AgentExecutionTrace> merged = await LoadMergedExecutionTracesAsync(runId, cancellationToken)
+                .ConfigureAwait(false);
 
-            return ([], count, true);
+            return ([], merged.Count, true);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -51,9 +52,8 @@ public sealed partial class PilotRunDeltaComputer
     {
         try
         {
-            ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<AgentExecutionTrace> list =
-                await _agentExecutionTraceRepository.GetByRunIdAsync(traceScope, runId, cancellationToken);
+            IReadOnlyList<AgentExecutionTrace> list = await LoadMergedExecutionTracesAsync(runId, cancellationToken)
+                .ConfigureAwait(false);
 
             return (list, list.Count, true);
         }
@@ -82,5 +82,19 @@ public sealed partial class PilotRunDeltaComputer
             _logger.LogWarning(ex, "Pilot delta: artifact descriptor count unavailable for manifest {ManifestId}; omitting count.", goldenManifestId);
             return (null, false);
         }
+    }
+
+    private async Task<IReadOnlyList<AgentExecutionTrace>> LoadMergedExecutionTracesAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        return await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+            _agentExecutionTraceRepository,
+            traceScope,
+            lookupRunId,
+            cancellationToken).ConfigureAwait(false);
     }
 }

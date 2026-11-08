@@ -1,18 +1,24 @@
 const ACTOR_NODE_TYPE = "actor";
 
+export const ACTOR_NODE_COUNT_NOT_STORED_LABEL = "Actor node count was not stored." as const;
+
 /**
  * Counts graph snapshot nodes whose `nodeType` is Actor (case-insensitive).
- * Used for honest UX when actor-dependent engines stay silent on IaC-only reviews.
+ * Returns null when the snapshot or its `nodes` array was not stored.
  */
-export function countActorNodesInGraphSnapshot(graphSnapshot: unknown): number {
-  if (graphSnapshot === null || typeof graphSnapshot !== "object") {
-    return 0;
+export function countActorNodesInGraphSnapshot(graphSnapshot: unknown): number | null {
+  if (graphSnapshot === null || graphSnapshot === undefined) {
+    return null;
+  }
+
+  if (typeof graphSnapshot !== "object") {
+    return null;
   }
 
   const nodes = (graphSnapshot as { nodes?: unknown }).nodes;
 
   if (!Array.isArray(nodes)) {
-    return 0;
+    return null;
   }
 
   let count = 0;

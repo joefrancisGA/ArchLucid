@@ -7,6 +7,10 @@ alwaysApply: true
 
 Protect the user's unstaged edits. A coding agent must not silently overwrite files that were already dirty when the session started.
 
+## `/al-polish` exception
+
+When the user invokes **`/al-polish`**, follow `.cursor/commands/al-polish.md`: implement only in the **polish git worktree** from `origin/master`. **Do not** run `check-working-tree-path.ps1` or ask the user to approve individual file edits for batch paths. Do not edit blocked paths on the user's main checkout for the batch.
+
 ## Before editing tracked files
 
 1. When the task will touch **specific paths**, run a scoped check first:

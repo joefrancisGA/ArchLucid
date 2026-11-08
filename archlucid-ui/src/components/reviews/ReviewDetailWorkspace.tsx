@@ -62,6 +62,14 @@ export type ReviewDetailWorkspaceProps = {
   readonly presenterFindingActions?: ReactNode | null;
   /** IR-012: Working architecture-linked reviews redirect presenter to inhabited findings. */
   readonly suppressPresenterSurface?: boolean;
+  /** When the URL omits reviewTab, open the first-review spine gate tab when present. */
+  readonly visitDefaultReviewTabWhenUrlSilent?: ReviewDetailTabId | null;
+  /** When the URL omits findingId, focus the first uncited finding for the open gate. */
+  readonly visitDefaultFindingIdWhenUrlSilent?: string | null;
+  /** When the URL omits hash, scroll to the first-review spine open-gate section when present. */
+  readonly visitDefaultReviewHashWhenUrlSilent?: string | null;
+  /** Working desk identity — upgrades flat peer URLs when syncing tabs (ADR 0077). */
+  readonly parentArchitectureId?: string | null;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {
@@ -112,10 +120,20 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     </ReviewDetailWorkspaceTabContext.Provider>
   );
 
+  const presenterTitle = (() => {
+    if (props.presenterFindingTitle === undefined || props.presenterFindingTitle === null) {
+      return "Finding title was not stored.";
+    }
+
+    const trimmed = props.presenterFindingTitle.trim();
+
+    return trimmed.length > 0 ? trimmed : "Finding title was not stored.";
+  })();
+
   if (tabs.presenterMode && isWorkingMode && props.suppressPresenterSurface !== true) {
     return (
       <ReviewPresenterSurface
-        title={props.presenterFindingTitle ?? "Review in progress"}
+        title={props.presenterFindingTitle ?? "Review title was not stored."}
         body={presenterBody}
         actions={props.presenterFindingActions}
         onExit={presenter.exitPresenter}

@@ -1,9 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    usePathname: () => "/help/audit-trail",
+  });
+});
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { AuditTrailHelpEvidenceOrientationStrip } from "@/components/help/AuditTrailHelpEvidenceOrientationStrip";
 import {
+  AUDIT_TRAIL_HELP_CANONICAL_PATH,
   AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE,
   AUDIT_TRAIL_HELP_SOURCES,
 } from "@/lib/audit-trail-help-evidence-copy";
@@ -19,8 +28,6 @@ describe("AuditTrailHelpEvidenceOrientationStrip", () => {
       "where-to-go-next",
     );
 
-    for (const source of AUDIT_TRAIL_HELP_SOURCES) {
-      expectFollowUpLink(screen, source);
-    }
+    expectWhereToGoNextFollowUpLinks(screen, AUDIT_TRAIL_HELP_SOURCES, AUDIT_TRAIL_HELP_CANONICAL_PATH);
   });
 });

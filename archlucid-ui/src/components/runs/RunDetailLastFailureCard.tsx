@@ -16,7 +16,7 @@ import {
   resolveRunDetailLastFailureSummary,
   type RunDetailLastFailureSummary,
 } from "@/components/resolve-run-detail-last-failure-summary";
-import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { AGENT_TYPE_NOT_STORED_LABEL, buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import {
   plainLanguageFailureCauseSentence,
   resolveLastFailureCardCopy,
@@ -45,9 +45,7 @@ function resolveAgentLabel(summary: RunDetailLastFailureSummary): string | null 
     return null;
   }
 
-  const label = buyerLabelForAgentType(rawAgentType);
-
-  return label === "Unknown agent" ? null : label;
+  return buyerLabelForAgentType(rawAgentType);
 }
 
 /** Surfaces parsed last agent execution failure on operator run detail (assessment #5 / TB-965). */
@@ -73,11 +71,11 @@ export function RunDetailLastFailureCard(props: {
   const syncTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runLastFailureTechDetailsHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runLastFailureTechDetailsHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setTechnicalDetailsOpen = useCallback(
@@ -96,7 +94,7 @@ export function RunDetailLastFailureCard(props: {
   useEffect(() => {
     const syncTechnicalDetailsOpenFromUrl = (): void => {
       const next = parseRunLastFailureTechOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runLastFailureTechOpen"),
+        new URLSearchParams(readWindowLocationSearch()).get(RUN_LAST_FAILURE_TECH_OPEN_PARAM),
       );
 
       if (technicalDetailsOpenRef.current === next) {
@@ -194,11 +192,11 @@ export function RunDetailLastFailureCard(props: {
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-2 pt-0", bodyClass, OPERATOR_TYPOGRAPHY.body)}>
-        {failureRecordedAtLabel !== null ? (
-          <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-last-failure-recorded-at">
-            Failed {failureRecordedAtLabel}
-          </p>
-        ) : null}
+        <p className={cn("m-0", helperClass, OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-last-failure-recorded-at">
+          {failureRecordedAtLabel !== null
+            ? `Failed ${failureRecordedAtLabel}`
+            : "Failure recorded time was not stored."}
+        </p>
         <p className="m-0" data-testid="run-detail-last-failure-cause">
           <span className="font-medium">What failed:</span> {whatFailedLine}
         </p>
@@ -215,11 +213,10 @@ export function RunDetailLastFailureCard(props: {
               Technical details
             </summary>
             <div className={cn("mt-2 space-y-2", helperClass, OPERATOR_TYPOGRAPHY.helper)}>
-              {agentLabel !== null ? (
-                <p className="m-0">
-                  <span className="font-medium">Agent:</span> {agentLabel}
-                </p>
-              ) : null}
+              <p className="m-0" data-testid="run-detail-last-failure-agent">
+                <span className="font-medium">Agent:</span>{" "}
+                {agentLabel !== null ? agentLabel : AGENT_TYPE_NOT_STORED_LABEL}
+              </p>
               <p className="m-0">
                 <span className="font-medium">Failure class:</span> {copy.failureClassLabel}
               </p>

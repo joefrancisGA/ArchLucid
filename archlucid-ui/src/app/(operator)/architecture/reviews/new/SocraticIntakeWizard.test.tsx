@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, type RenderResult } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const evalChromeFixtureOn = vi.hoisted(() => ({ enabled: true }));
 import { WIZARD_STICKY_PROGRESS_TEST_ID } from "@/lib/wizard-sticky-progress";
 const admitDraftRequest = vi.fn();
 const answerDraftQuestion = vi.fn();
@@ -140,6 +142,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => evalChromeFixtureOn.enabled,
+}));
+
 vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({
   useInferredUniversalIntakeAnswers: () => ({
     inferredQuestionKeys: new Set<string>(),
@@ -149,6 +156,7 @@ vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({
     canSuggestFromEvidence: true,
     suggestAnswersFromEvidence,
     markQuestionEdited: vi.fn(),
+    droppedClarificationExtractSummary: null,
     evidenceExtractionProgress: {
       begin: vi.fn(),
       reportStage: vi.fn(),
@@ -299,7 +307,7 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-  GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+  GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
 import { showError } from "@/lib/toast";
@@ -529,11 +537,12 @@ describe("SocraticIntakeWizard", () => {
 
     renderSocraticWizard();
 
-    await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
-    });
-
-    expect(screen.getByTestId("guided-intake-access-blocked-redirect")).toBeInTheDocument();
+    expect(await screen.findByTestId("guided-intake-already-submitted-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-open-linked-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0/reviews/run-vertex-2",
+    );
+    expect(routerPush).not.toHaveBeenCalled();
     expect(screen.queryByTestId("guided-intake-primary-panel")).toBeNull();
     expect(submitDraftRequest).not.toHaveBeenCalled();
   });
@@ -619,9 +628,12 @@ describe("SocraticIntakeWizard", () => {
 
     renderSocraticWizard();
 
-    await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
-    });
+    expect(await screen.findByTestId("guided-intake-already-submitted-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-open-linked-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0/reviews/run-vertex-2",
+    );
+    expect(routerPush).not.toHaveBeenCalled();
   });
 
   it("keeps step 0 on one primary intake panel without colored banner cards (TB-1879)", () => {
@@ -1251,10 +1263,10 @@ describe("SocraticIntakeWizard", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-clarifications-answered-counter")).toHaveTextContent(
-        "2 of 2 answered",
+        "2 answered of 2 required",
       );
       expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(
-        GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+        GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
       );
       expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
     });

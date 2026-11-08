@@ -97,11 +97,11 @@ public sealed class CapabilityToFlowEngineTests
             .ContainSingle(storedFinding => storedFinding.PathId == path.PathId)
             .Subject;
 
-        finding.BusinessCriticality.Should().Be("Unknown");
+        finding.BusinessCriticality.Should().Be(FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel);
         CapabilityToFlowCopyGuard.IsHonestCopy(finding.Title).Should().BeTrue();
         CapabilityToFlowCopyGuard.IsHonestCopy(finding.Description).Should().BeTrue();
         finding.Title.Should().StartWith("Capability-to-flow:");
-        finding.Title.Should().Contain("may access");
+        finding.Title.Should().Contain("has possible access");
         finding.Description.Should().Contain("Possible movement");
         finding.Description.Should().NotContain("PHI");
     }

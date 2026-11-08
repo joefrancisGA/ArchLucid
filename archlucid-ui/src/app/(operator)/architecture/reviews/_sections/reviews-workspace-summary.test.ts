@@ -21,6 +21,8 @@ describe("deriveReviewsWorkspaceSummary", () => {
       findings: 0,
       openRisks: 0,
       readyForGovernance: 0,
+      findingsTotalOmitted: false,
+      openRisksTotalOmitted: false,
     });
   });
 
@@ -40,7 +42,7 @@ describe("deriveReviewsWorkspaceSummary", () => {
   it("excludes showcase sample rows from live tenant totals", () => {
     const summary = deriveReviewsWorkspaceSummary([
       run({ runId: SHOWCASE_STATIC_DEMO_RUN_ID, hasGoldenManifest: true, hasFindingsSnapshot: true }),
-      run({ runId: "live-in-flight", findingCount: 2 }),
+      run({ runId: "live-in-flight", hasFindingsSnapshot: true, findingCount: 2 }),
     ]);
 
     expect(summary.inProgress).toBe(1);

@@ -20,8 +20,8 @@ export type CreateArchitectureRunRequestPayload = {
   requestId: string;
   description: string;
   systemName: string;
-  environment: string;
-  cloudProvider: "None" | "Azure" | "Aws" | "Gcp";
+  environment?: string;
+  cloudProvider?: "None" | "Azure" | "Aws" | "Gcp";
   constraints: string[];
   requiredCapabilities: string[];
   assumptions: string[];

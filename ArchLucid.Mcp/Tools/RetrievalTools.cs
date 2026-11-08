@@ -36,6 +36,9 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
         if (request.TenantId == Guid.Empty)
             throw new ArgumentException("TenantId is required.", nameof(request));
 
+        if (string.IsNullOrWhiteSpace(request.QueryText))
+            throw new ArgumentException("QueryText is required.", nameof(RetrievalMcpToolRequest.QueryText));
+
         int requestedTopK = Math.Clamp(request.TopK, 1, 25);
         int searchTopK = request.CorpusKindFilter.HasValue ? 25 : requestedTopK;
 
@@ -63,15 +66,20 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
 
         return filtered
             .Take(requestedTopK)
-            .Select(static h => new RetrievalMcpToolHit
+            .Select(static h =>
             {
-                DocumentId = h.DocumentId,
-                CorpusKind = h.CorpusKind,
-                SourceType = h.SourceType,
-                SourceId = h.SourceId,
-                Title = h.Title,
-                Snippet = h.Text.Length > 400 ? h.Text[..400] : h.Text,
-                Score = h.Score
+                string text = h.Text ?? string.Empty;
+
+                return new RetrievalMcpToolHit
+                {
+                    DocumentId = h.DocumentId ?? string.Empty,
+                    CorpusKind = h.CorpusKind ?? string.Empty,
+                    SourceType = h.SourceType ?? string.Empty,
+                    SourceId = h.SourceId ?? string.Empty,
+                    Title = h.Title ?? string.Empty,
+                    Snippet = text.Length > 400 ? text[..400] : text,
+                    Score = h.Score
+                };
             })
             .ToList();
     }

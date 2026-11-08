@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
@@ -35,7 +36,9 @@ public sealed class GovernanceLineageService(
         GovernanceApprovalRequest? approval = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
         if (approval is null)
             return null;
-        ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery.GetRunDetailAsync(approval.RunId, cancellationToken);
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(approval.RunId);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(normalizedRunId);
+        ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery.GetRunDetailAsync(lookupRunId, cancellationToken);
         GovernanceLineageRunSummary? runSummary = coordinatorDetail is null
             ? null
             : new GovernanceLineageRunSummary
@@ -46,11 +49,16 @@ public sealed class GovernanceLineageService(
                 CompletedUtc = coordinatorDetail.Run.CompletedUtc,
                 CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion
             };
-        IReadOnlyList<GovernancePromotionRecord> promotions = await _promotionRepo.GetByRunIdAsync(approval.RunId, cancellationToken);
+        string promotionLookupRunId = lookupRunId;
+        IReadOnlyList<GovernancePromotionRecord> promotions =
+            await AnalysisRunIdCanonicalization.LoadGovernancePromotionRecordsByRunIdAsync(
+                _promotionRepo,
+                promotionLookupRunId,
+                cancellationToken).ConfigureAwait(false);
         GovernanceLineageManifestSummary? manifestSummary = null;
         List<GovernanceLineageFindingSummary> topFindings = [];
         string? riskPosture = null;
-        if (!Guid.TryParseExact(approval.RunId, "N", out Guid authorityRunId))
+        if (!Guid.TryParse(normalizedRunId, out Guid authorityRunId))
             return new GovernanceLineageResult
             {
                 ApprovalRequest = approval,

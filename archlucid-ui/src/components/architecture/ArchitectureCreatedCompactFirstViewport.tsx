@@ -5,6 +5,8 @@ import { ArchitectureDiagramPanel } from "@/components/architecture/Architecture
 import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
+  ARCHITECTURE_CREATED_CONTEXT_BAR_PURPOSE_TRUNCATED_SUFFIX,
+  ARCHITECTURE_DEFINITION_STATUS_HELPER,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
 } from "@/lib/architecture/architecture-created-home-copy";
@@ -75,11 +77,13 @@ export function ArchitectureCreatedCompactFirstViewport(
   const mode = props.mode ?? "full";
   const primaryAction = model.primaryActions.find((action) => action.primary) ?? model.primaryActions[0];
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
-  const summaryFields = model.summaryFields.slice(0, 3);
+  const summaryFields = model.summaryFields;
   const compactPrimaryVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (mode === "context-bar") {
-    const summaryPreview = summaryFields[0]?.value ?? ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
+    const businessPurposeField = summaryFields.find((field) => field.label === "Business purpose");
+    const purposeValue = businessPurposeField?.value ?? ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
+    const purposeTruncated = purposeValue.endsWith("… (Full business purpose was stored.)");
 
     return (
       <section
@@ -87,12 +91,23 @@ export function ArchitectureCreatedCompactFirstViewport(
         data-testid="architecture-created-compact-context-bar"
         aria-label="Architecture context"
       >
-        <p className={cn("m-0 truncate text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <span className="font-medium text-neutral-900 dark:text-neutral-100">{model.architectureName}</span>
           <span className="text-neutral-500 dark:text-neutral-400"> · </span>
-          {summaryPreview}
+          <span className={purposeTruncated ? "truncate inline-block max-w-[14rem] align-bottom" : undefined}>
+            {purposeValue}
+          </span>
+          {purposeTruncated ? (
+            <span className="text-neutral-500 dark:text-neutral-400">
+              {" "}
+              {ARCHITECTURE_CREATED_CONTEXT_BAR_PURPOSE_TRUNCATED_SUFFIX}
+            </span>
+          ) : null}
           <span className="text-neutral-500 dark:text-neutral-400"> · </span>
           {model.definitionStatusLabel}
+        </p>
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+          {ARCHITECTURE_DEFINITION_STATUS_HELPER}
         </p>
       </section>
     );
@@ -154,7 +169,7 @@ export function ArchitectureCreatedCompactFirstViewport(
               {model.definitionStatusLabel}
             </p>
             <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Based on the brief and people or systems you provided so far.
+              {ARCHITECTURE_DEFINITION_STATUS_HELPER}
             </p>
           </div>
 

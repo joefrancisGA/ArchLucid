@@ -164,7 +164,9 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
             TraceId = p.TraceId,
             CreatedUtc = ToUtcOffset(p.CreatedUtc),
             Kind = KindRunEvent,
-            Description = string.IsNullOrWhiteSpace(p.EventDescription) ? p.EventType : p.EventDescription,
+            Description = string.IsNullOrWhiteSpace(p.EventDescription)
+                ? RunRationaleHonestyCopy.EventDescriptionNotStored
+                : p.EventDescription,
             Details = details
         };
     }
@@ -209,7 +211,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
         if (!string.IsNullOrWhiteSpace(fromManifest))
             return fromManifest.Trim();
         string? desc = detail.Run.Description;
-        return !string.IsNullOrWhiteSpace(desc) ? desc.Trim() : $"Architecture run with {findingCount} finding(s).";
+        return !string.IsNullOrWhiteSpace(desc) ? desc.Trim() : RunRationaleHonestyCopy.SummaryNotStored;
     }
 
     private static string BuildCoordinatorSummary(RunDetailDto authorityDetail, ArchitectureRunDetail coordinator, int findingCount)
@@ -219,12 +221,11 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
             return authorityManifestSummary.Trim();
         if (coordinator.Manifest is { } manifest)
         {
-            return !string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription)
-                ? manifest.Metadata.ChangeDescription.Trim()
-                : $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
+            if (!string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription))
+                return manifest.Metadata.ChangeDescription.Trim();
         }
 
-        return $"Coordinator run ({coordinator.Run.Status}) with {findingCount} agent finding(s).";
+        return RunRationaleHonestyCopy.SummaryNotStored;
     }
 
     private static DateTimeOffset ToUtcOffset(DateTime utc)

@@ -187,7 +187,7 @@ public sealed class AuditEvidenceSnapshotCollectionService(
                 }
 
                 string rawPointer = $"package:{inventoryHeader.PackageId}";
-                string collectorVersion = inventoryHeader.CollectorVersion ?? inventoryHeader.CaptureVersion ?? "unknown";
+                string collectorVersion = inventoryHeader.CollectorVersion ?? inventoryHeader.CaptureVersion ?? string.Empty;
 
                 foreach (AuditEvidenceRequirementSelectionRecord requirementSelection in selection.Selections)
                 {

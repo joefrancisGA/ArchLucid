@@ -7,6 +7,8 @@ namespace ArchLucid.Integrations.AzureDevOps;
 /// <summary>Fallback PR Markdown when compare is unavailable (404, missing config, or no prior run).</summary>
 public static class AzureDevOpsRunSummaryMarkdown
 {
+    internal const string SeverityNotStoredBucketLabel = "Severity was not stored";
+
     public static string Format(Guid runId, Guid manifestId, IReadOnlyList<AuthorityRunCompletedFindingLink> findings, string? operatorRunDeepLink)
     {
         StringBuilder sb = new();
@@ -18,11 +20,11 @@ public static class AzureDevOpsRunSummaryMarkdown
 
         if (findings.Count > 0)
         {
-            sb.AppendLine("### Findings by severity");
+            sb.AppendLine("### Findings by severity (blank severity labeled below)");
             sb.AppendLine();
 
             IOrderedEnumerable<IGrouping<string, AuthorityRunCompletedFindingLink>> grouped = findings
-                .GroupBy(f => string.IsNullOrWhiteSpace(f.Severity) ? "Unknown" : f.Severity.Trim())
+                .GroupBy(f => string.IsNullOrWhiteSpace(f.Severity) ? SeverityNotStoredBucketLabel : f.Severity.Trim())
                 .OrderByDescending(g => g.Count());
 
             foreach (IGrouping<string, AuthorityRunCompletedFindingLink> g in grouped)

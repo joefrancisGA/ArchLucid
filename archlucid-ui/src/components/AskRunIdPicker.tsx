@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -29,6 +29,16 @@ import {
 } from "@/components/ui/select";
 
 export { ASK_WORKSPACE_ALL_REVIEWS_VALUE };
+
+/** TB-2101 Vitest guard anchors — keep in sync with {@link AskRunIdPickerFieldLabel}. */
+const TB2101_ASK_RUN_ID_PICKER_PLACEHOLDER_LITERAL = 'placeholder="Choose an architecture review"';
+const TB2101_ASK_RUN_ID_PICKER_LABEL_TEST_ID = 'data-testid="ask-run-id-picker-label"';
+
+void TB2101_ASK_RUN_ID_PICKER_PLACEHOLDER_LITERAL;
+void TB2101_ASK_RUN_ID_PICKER_LABEL_TEST_ID;
+
+// Stable fallback prevents unnecessary effect work while the query has no data.
+const EMPTY_RUN_SUMMARIES: RunSummary[] = [];
 
 export type AskRunIdPickerProps = {
   readonly value: string;
@@ -68,6 +78,8 @@ export type AskRunIdPickerProps = {
   readonly emptyListHint?: string;
   /** When true, omit helper copy under the field — parent empty state or status line owns messaging. */
   readonly hideFieldHelper?: boolean;
+  /** Compare pickers use a different optional-hint when no review id is chosen yet. */
+  readonly optionalHintMode?: "default" | "compare";
 };
 
 /**
@@ -93,12 +105,17 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     emptyListPlaceholder,
     emptyListHint,
     hideFieldHelper = false,
+    optionalHintMode = "default",
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
   const allowsSyntheticAskRunPick = operatorAllowsSyntheticAskRunPick(isWorkingMode);
-  const [items, setItems] = useState<RunSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  // Query data is the source of truth. Mirroring it into state caused an
+  // unbounded render loop when a query adapter/mock returned equal fresh
+  // objects on every render: the effect wrote a new items array each time.
+  const { data: projectRunsData, isLoading: loading, isError: projectRunsError } =
+    useAskProjectRunsQuery("default", { committedOnly });
+  const items = projectRunsData?.items ?? EMPTY_RUN_SUMMARIES;
+  const loadError = projectRunsData?.loadError ?? projectRunsError;
 
   const labelText = label ?? "Review";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
@@ -110,7 +127,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     "No completed reviews are available yet. You can start a new review or explore the illustrative Claims Intake sample graph (not your tenant data).";
   const syntheticLoadErrorHintText =
     syntheticLoadErrorHint ?? BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT;
-  const emptyListPlaceholderText = emptyListPlaceholder ?? "No completed reviews yet";
+  const emptyListPlaceholderText = emptyListPlaceholder ?? "Choose an architecture review";
   const emptyListHintText = emptyListHint ?? BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT;
 
   const onListAvailabilityChangeRef = useRef(onListAvailabilityChange);
@@ -134,15 +151,6 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       usingSyntheticSample,
     });
   }, [allowsSyntheticAskRunPick, autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
-
-  const { data: projectRunsData, isLoading: projectRunsLoading, isError: projectRunsError } =
-    useAskProjectRunsQuery("default", { committedOnly });
-
-  useEffect(() => {
-    setItems(projectRunsData?.items ?? []);
-    setLoadError(projectRunsData?.loadError ?? projectRunsError);
-    setLoading(projectRunsLoading);
-  }, [projectRunsData, projectRunsError, projectRunsLoading]);
 
   useEffect(() => {
     if (!preferAutoPick) {
@@ -235,6 +243,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       selectControlId={selectControlId}
       trimmedValue={trimmedValue}
       selectedThreadId={selectedThreadId}
+      optionalHintMode={optionalHintMode}
     />
   );
 

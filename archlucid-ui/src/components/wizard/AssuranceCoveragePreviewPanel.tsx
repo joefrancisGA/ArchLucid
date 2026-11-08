@@ -7,9 +7,11 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   buildCoveragePreviewRequest,
   COVERAGE_PREVIEW_GROUP_LABELS,
+  formatCoveragePreviewPolicyPackVersion,
   formatCoveragePreviewScopeNote,
   groupCoveragePreviewAssignments,
   mapNormalizedCloudProvider,
+  resolveCoveragePreviewCloudHonesty,
   type CoveragePreviewGroupKey,
 } from "@/lib/coverage-preview";
 import {
@@ -61,16 +63,21 @@ function renderAssignmentRow(
       data-testid={`coverage-preview-row-${assignment.policyPackDisplayName}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="min-w-0 font-medium text-neutral-900 dark:text-neutral-100">
-          {assignment.policyPackDisplayName}
-        </span>
+        <div className="min-w-0">
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">
+            {assignment.policyPackDisplayName}
+          </span>
+          <p className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+            Pack version: {formatCoveragePreviewPolicyPackVersion(assignment.policyPackVersion)}
+          </p>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind={included ? "ready" : "neutral"} label={included ? "Evaluates this run" : "Not in this run"} />
-          {assignment.recommendationRationale ? (
-            <span className={cn("max-w-md", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-              {assignment.recommendationRationale}
-            </span>
-          ) : null}
+          <span className={cn("max-w-md", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+            {assignment.recommendationRationale?.trim().length
+              ? assignment.recommendationRationale
+              : "Recommendation rationale was not stored."}
+          </span>
         </div>
       </div>
 
@@ -120,27 +127,36 @@ function renderAssignmentRow(
 
 /** Explainable assurance coverage preview from POST /v1/governance/coverage/preview. */
 export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPanelProps): React.JSX.Element {
-  const requestBody = useMemo(
-    () =>
-      buildCoveragePreviewRequest({
-        cloudProvider: mapNormalizedCloudProvider(props.cloudProvider ?? "None"),
-        focusedPilotModeEnabled: props.focusedPilotModeEnabled,
-        securityIntakeAnswer: props.securityIntakeAnswer,
-        descriptionText: props.descriptionText,
-        userOverrides: props.packOverrides,
-      }),
-    [
-      props.cloudProvider,
-      props.focusedPilotModeEnabled,
-      props.securityIntakeAnswer,
-      props.descriptionText,
-      props.packOverrides,
-    ],
-  );
+  const cloudHonesty = resolveCoveragePreviewCloudHonesty(props.cloudProvider);
+  const cloudMissing = cloudHonesty !== null;
+
+  const requestBody = useMemo(() => {
+    if (cloudMissing) {
+      return null;
+    }
+
+    const trimmedCloud = props.cloudProvider?.trim() ?? "";
+
+    return buildCoveragePreviewRequest({
+      cloudProvider: mapNormalizedCloudProvider(trimmedCloud),
+      focusedPilotModeEnabled: props.focusedPilotModeEnabled,
+      securityIntakeAnswer: props.securityIntakeAnswer,
+      descriptionText: props.descriptionText,
+      userOverrides: props.packOverrides,
+    });
+  }, [
+    cloudMissing,
+    props.cloudProvider,
+    props.focusedPilotModeEnabled,
+    props.securityIntakeAnswer,
+    props.descriptionText,
+    props.packOverrides,
+  ]);
 
   const previewQuery = useQuery({
     queryKey: ["coverage-preview", requestBody],
-    queryFn: () => postCoveragePreview(requestBody),
+    queryFn: () => postCoveragePreview(requestBody!),
+    enabled: requestBody !== null,
     staleTime: 30_000,
   });
 
@@ -166,7 +182,12 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
               ? "Coverage preview is unavailable right now. You can still start the review."
               : response?.summaryLine ?? "Select review scope to preview which standards evaluate this run."}
         </p>
-        {response ? (
+        {cloudHonesty !== null ? (
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+            {cloudHonesty}
+          </p>
+        ) : null}
+        {response && !cloudMissing ? (
           <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
             {formatCoveragePreviewScopeNote(response)}
           </p>
@@ -181,7 +202,7 @@ export function AssuranceCoveragePreviewPanel(props: AssuranceCoveragePreviewPan
         ) : null}
       </div>
 
-      {response ? (
+      {response && !cloudMissing ? (
         <div className={OPERATOR_LAYOUT.sectionStack}>
           {GROUP_ORDER.map((groupKey) => {
             const rows = groups[groupKey];

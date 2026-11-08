@@ -10,8 +10,8 @@ import {
 describe("governanceGateLabelFromManifestStatus", () => {
   it("distinguishes missing status from stored empty status", () => {
     expect(governanceGateLabelFromManifestStatus(null)).toBe("Manifest status was not stored.");
-    expect(governanceGateLabelFromManifestStatus("")).toBe("Status not recognized");
-    expect(governanceGateLabelFromManifestStatus("   ")).toBe("Status not recognized");
+    expect(governanceGateLabelFromManifestStatus("")).toBe("Manifest status was stored empty.");
+    expect(governanceGateLabelFromManifestStatus("   ")).toBe("Manifest status was stored empty.");
   });
 
   it("maps finalized API values to Passed", () => {
@@ -61,9 +61,9 @@ describe("buyerGovernanceApprovalDisplayLabel", () => {
     expect(buyerGovernanceApprovalDisplayLabel("Failed")).toBe("Failed");
   });
 
-  it("returns Not configured for empty strings", () => {
-    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("Not configured");
-    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("Not configured");
-    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("Not configured");
+  it("returns not-stored copy for empty strings", () => {
+    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("Approval check was not stored.");
+    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("Approval check was not stored.");
+    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("Approval check was not stored.");
   });
 });

@@ -38,14 +38,16 @@ describe("resolveGovernanceFindingResourceGroup", () => {
     expect(group.label).toBe("Microsoft.KeyVault/vaults/claims-kv-1");
   });
 
-  it("extracts Azure resource ids from finding titles", () => {
+  it("does not parse ARM ids from finding titles when resourceId is empty", () => {
     const group = resolveGovernanceFindingResourceGroup(
       sampleRow({
         title: "Public endpoint on /subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st1",
+        runLabel: "",
+        category: "",
       }),
     );
 
-    expect(group.label).toBe("Microsoft.Storage/storageAccounts/st1");
+    expect(group.label).toBe("Resource id was not stored.");
   });
 
   it("falls back to systemName when no resource id is available", () => {

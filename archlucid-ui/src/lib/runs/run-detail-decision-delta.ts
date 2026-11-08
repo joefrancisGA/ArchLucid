@@ -9,20 +9,29 @@ import {
   sortQuickDecisionFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 /** Assessment Tier 2 #8 — top material findings surfaced on committed review detail. */
 export const RUN_DETAIL_DECISION_DELTA_TOP_N = 3;
 
 export const RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE = 180;
 
+export const RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE =
+  "No open finding titles are listed on this card — the sealed decision count is not repeated here.";
+
 export type RunDetailDecisionDeltaRow = {
   readonly rank: number;
   readonly findingId: string;
   readonly title: string;
+  readonly fullStoredTitle: string | null;
   readonly severityLabel: string;
   readonly policyRuleId: string | null;
   readonly evidenceRefCount: number | null;
   readonly evidenceAnchorHint: string | null;
+  readonly evidenceRefCountNotStored: boolean;
   readonly trustChipSet: FindingTrustChipSet;
   readonly compareDeltaTrustLabels: { readonly origin: string; readonly grounding: string };
 };
@@ -31,6 +40,8 @@ export type RunDetailDecisionDeltaView = {
   readonly isCommitted: boolean;
   readonly rows: readonly RunDetailDecisionDeltaRow[];
   readonly emptyMessage: string | null;
+  /** Open findings not shown because the card lists only the top N by severity sort. */
+  readonly omittedOpenFindingCount: number | null;
 };
 
 export function truncateDecisionDeltaMessage(message: string, maxLength = RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE): string {
@@ -40,7 +51,11 @@ export function truncateDecisionDeltaMessage(message: string, maxLength = RUN_DE
     return trimmed;
   }
 
-  return `${trimmed.slice(0, maxLength - 1).trimEnd()}…`;
+  return formatStoredTextPreview(
+    trimmed,
+    maxLength,
+    STORED_TEXT_PREVIEW_CONTINUATION.decisionDeltaTitle,
+  );
 }
 
 export function selectMaterialDecisionDeltaFindings(
@@ -61,17 +76,49 @@ function resolveEvidenceAnchorHint(finding: QuickDecisionFinding): string | null
     const first = snippets[0]?.trim();
 
     if (first !== undefined && first.length > 0) {
-      return truncateDecisionDeltaMessage(first, 120);
+      return formatStoredTextPreview(first, 120, STORED_TEXT_PREVIEW_CONTINUATION.decisionDeltaEvidenceHint);
     }
   }
 
   const count = finding.evidenceRefCount;
 
+  if (count === null || count === undefined) {
+    return null;
+  }
+
   if (typeof count === "number" && Number.isFinite(count) && count > 0) {
     return `${count} evidence reference${count === 1 ? "" : "s"} on finding record`;
   }
 
-  return null;
+  if (count === 0) {
+    return "Evidence references were stored as zero.";
+  }
+
+  return "Evidence anchor was not stored.";
+}
+
+const DECISION_DELTA_TITLE_NOT_STORED = "Finding title was not stored." as const;
+const DECISION_DELTA_TITLE_STORED_EMPTY = "Finding title was stored empty." as const;
+
+function resolveDecisionDeltaTitle(finding: QuickDecisionFinding): { readonly title: string; readonly fullStoredTitle: string | null } {
+  const title = finding.title;
+
+  if (title === null || title === undefined) {
+    return { title: DECISION_DELTA_TITLE_NOT_STORED, fullStoredTitle: null };
+  }
+
+  const trimmed = title.trim();
+
+  if (trimmed.length === 0) {
+    return { title: DECISION_DELTA_TITLE_STORED_EMPTY, fullStoredTitle: null };
+  }
+
+  const preview = truncateDecisionDeltaMessage(trimmed);
+
+  return {
+    title: preview,
+    fullStoredTitle: preview.length < trimmed.length ? trimmed : null,
+  };
 }
 
 export function buildRunDetailDecisionDeltaRow(
@@ -88,46 +135,75 @@ export function buildRunDetailDecisionDeltaRow(
     confidenceLevel: finding.confidenceLevel,
   });
 
+  const evidenceAnchorHint = resolveEvidenceAnchorHint(finding);
+
+  const resolvedTitle = resolveDecisionDeltaTitle(finding);
+
   return {
     rank,
     findingId: finding.findingId,
-    title: truncateDecisionDeltaMessage(finding.title),
+    title: resolvedTitle.title,
+    fullStoredTitle: resolvedTitle.fullStoredTitle,
     severityLabel: severityBadgeLabel(finding.severityValue),
     policyRuleId,
     evidenceRefCount:
       typeof finding.evidenceRefCount === "number" && Number.isFinite(finding.evidenceRefCount)
         ? Math.trunc(finding.evidenceRefCount)
         : null,
-    evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
+    evidenceAnchorHint,
+    evidenceRefCountNotStored:
+      finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
     trustChipSet: trustPresentation.chipSet,
     compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };
 }
 
+export const RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED =
+  "Findings snapshot was not stored — decision delta is withheld until findings are captured." as const;
+
+export function countActiveDecisionDeltaFindings(findings: readonly QuickDecisionFinding[]): number {
+  return findings.filter(
+    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+  ).length;
+}
+
 export function resolveRunDetailDecisionDeltaView(
   findings: readonly QuickDecisionFinding[],
   isCommitted: boolean,
+  hasFindingsSnapshot: boolean | undefined = true,
 ): RunDetailDecisionDeltaView | null {
   if (!isCommitted) {
     return null;
   }
 
+  if (hasFindingsSnapshot !== true) {
+    return {
+      isCommitted: true,
+      rows: [],
+      emptyMessage: RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED,
+      omittedOpenFindingCount: null,
+    };
+  }
+
+  const activeCount = countActiveDecisionDeltaFindings(findings);
   const material = selectMaterialDecisionDeltaFindings(findings);
 
   if (material.length === 0) {
     return {
       isCommitted: true,
       rows: [],
-      emptyMessage:
-        "No active findings recorded — ArchLucid did not surface a material recommended change in this review.",
+      emptyMessage: RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE,
+      omittedOpenFindingCount: null,
     };
   }
 
   const rows = material.map((finding, index) => buildRunDetailDecisionDeltaRow(finding, index + 1));
+  const omittedOpenFindingCount = Math.max(0, activeCount - rows.length);
 
   return {
     isCommitted: true,
     rows,
     emptyMessage: null,
+    omittedOpenFindingCount: omittedOpenFindingCount > 0 ? omittedOpenFindingCount : null,
   };
 }

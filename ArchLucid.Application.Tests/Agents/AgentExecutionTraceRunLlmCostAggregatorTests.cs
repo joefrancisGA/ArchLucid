@@ -53,6 +53,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CompletionTokens.Should().Be(0);
         summary.EstimatedCostUsd.Should().BeNull();
         summary.ModelLabel.Should().Be(AgentExecutionTraceModelMetadata.SimulatorDeploymentName);
+        summary.TokenCountsReturned.Should().BeFalse();
 
         estimator.Verify(
             e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()),
@@ -417,5 +418,32 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CompletionTokens.Should().Be(40);
         summary.EstimatedCostUsd.Should().Be(1.0m);
         summary.ModelLabel.Should().Be("dep-a");
+    }
+
+    [Fact]
+    public void Compute_skips_null_slice_entries()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(50, 10, 0, "dep-a"))
+            .Returns(0.5m);
+
+        List<AgentExecutionTraceLlmCostSlice> slices =
+        [
+            null!,
+            new()
+            {
+                ModelDeploymentName = "dep-a",
+                InputTokenCount = 50,
+                OutputTokenCount = 10,
+            },
+        ];
+
+        Func<AgentExecutionTraceRunLlmCostSummary> act = () =>
+            AgentExecutionTraceRunLlmCostAggregator.Compute(slices, estimator.Object);
+
+        act.Should().NotThrow();
+        act().PromptTokens.Should().Be(50);
+        act().CompletionTokens.Should().Be(10);
     }
 }

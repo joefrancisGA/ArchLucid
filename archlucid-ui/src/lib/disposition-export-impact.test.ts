@@ -45,10 +45,11 @@ describe("disposition-export-impact (TB-2184)", () => {
   });
 
   it("stays aligned with SponsorReviewPacketComposer ROI basis section heading", () => {
-    const composerSource = readFileSync(
-      join(process.cwd(), "..", "ArchLucid.Application/Exports/SponsorReviewPacketComposer.cs"),
-      "utf8",
-    );
+    const composerRoot = join(process.cwd(), "..", "ArchLucid.Application/Exports");
+    const composerSource = [
+      readFileSync(join(composerRoot, "SponsorReviewPacketComposer.cs"), "utf8"),
+      readFileSync(join(composerRoot, "SponsorReviewPacketComposer.RoiBasis.cs"), "utf8"),
+    ].join("\n");
 
     expect(composerSource).toContain(`## ${DISPOSITION_EXPORT_IMPACT_SPONSOR_ROI_SECTION_HEADING}`);
     expect(composerSource).toContain("**Accepted risk:**");

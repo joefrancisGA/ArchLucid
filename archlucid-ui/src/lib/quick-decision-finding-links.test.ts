@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   QUICK_DECISION_RECOMMENDATION_FALLBACK,
+  QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED,
+  QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO,
   buildQuickDecisionFindingEvidenceLinks,
+  formatQuickDecisionFindingEvidenceLinkLabel,
+  quickDecisionEvidenceGraphLinkAccessibleLabel,
   quickDecisionRecommendationSnippet,
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
@@ -28,12 +32,21 @@ function finding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisionFi
 }
 
 describe("quickDecisionRecommendationSnippet", () => {
+  it("truncates long recommendations with honesty (P-07)", () => {
+    const snippet = quickDecisionRecommendationSnippet(
+      finding({ recommendation: "Restrict the storage account. Then re-run the review." }),
+    );
+
+    expect(snippet).toContain("Restrict the storage account.");
+    expect(snippet).toContain("Full recommendation was stored");
+  });
+
   it("returns the first recommendation sentence when present", () => {
     const snippet = quickDecisionRecommendationSnippet(
       finding({ recommendation: "Restrict the storage account. Then re-run the review." }),
     );
 
-    expect(snippet).toBe("Restrict the storage account.");
+    expect(snippet).toBe("Restrict the storage account. (Full recommendation was stored; only the first sentence is shown.)");
   });
 
   it("falls back to shared copy when the finding has no recommendation", () => {
@@ -47,18 +60,38 @@ describe("quickDecisionRecommendationSnippet", () => {
       "Recommended action was stored empty.",
     );
   });
+  it("shows stored count when evidence link target is missing (P-05)", () => {
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(2)).toBe(
+      "2 evidence references were stored — Evidence link was not stored.",
+    );
+  });
+
+  it("adds graph navigation disclaimer to accessible labels (P-03)", () => {
+    expect(quickDecisionEvidenceGraphLinkAccessibleLabel("Evidence: 2 linked")).toContain(
+      "Graph link opens layout adjacency",
+    );
+  });
+});
+
+describe("formatQuickDecisionFindingEvidenceLinkLabel (P-20)", () => {
+  it("distinguishes missing count from zero stored references", () => {
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(null)).toBe(
+      QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED,
+    );
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(0)).toBe(QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO);
+  });
 });
 
 describe("quickDecisionWorkItemSeverityLabel", () => {
   it("labels missing severity explicitly", () => {
-    expect(quickDecisionWorkItemSeverityLabel(null)).toBe("Severity was not stored");
+    expect(quickDecisionWorkItemSeverityLabel(null)).toBe("Severity label was not stored.");
   });
 
   it("maps the numeric severity scale to the same labels as finding cards", () => {
-    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("4");
+    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("Severity 4 has no reviewer label.");
     expect(quickDecisionWorkItemSeverityLabel(3)).toBe("Critical");
-    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("High");
-    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Medium");
+    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("Error");
+    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Warning");
     expect(quickDecisionWorkItemSeverityLabel(0)).toBe("Info");
   });
 });
@@ -73,6 +106,14 @@ describe("buildQuickDecisionFindingEvidenceLinks", () => {
     expect(links.viewEvidenceHref).toBeNull();
   });
 
+  it("preserves stored zero evidence ref count separately from omitted count", () => {
+    const links = buildQuickDecisionFindingEvidenceLinks("run-42", finding({ evidenceRefCount: 0 }));
+
+    expect(links.evidenceRefCount).toBe(0);
+    expect(links.graphHref).toBeNull();
+    expect(links.viewEvidenceHref).toBeNull();
+  });
+
   it("prefers the graph evidence trail when the finding cites evidence refs", () => {
     const links = buildQuickDecisionFindingEvidenceLinks("run-42", finding({ evidenceRefCount: 2 }));
 
@@ -82,13 +123,14 @@ describe("buildQuickDecisionFindingEvidenceLinks", () => {
     expect(links.viewEvidenceHref).toBe(links.graphHref);
   });
 
-  it("prefers the signed-record manifest section for the showcase finding", () => {
+  it("does not invent a manifest id for the showcase finding without stored manifest context", () => {
     const links = buildQuickDecisionFindingEvidenceLinks(
       SHOWCASE_STATIC_DEMO_RUN_ID,
       finding({ findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, evidenceRefCount: 3 }),
     );
 
-    expect(links.manifestHref).not.toBeNull();
-    expect(links.viewEvidenceHref).toBe(links.manifestHref);
+    expect(links.manifestHref).toBeNull();
+    expect(links.graphHref).not.toBeNull();
+    expect(links.viewEvidenceHref).toBe(links.graphHref);
   });
 });

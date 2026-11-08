@@ -57,6 +57,7 @@ import {
   INHABIT_THE_ARCHITECTURE_HELP_SOURCES_ACTIONS,
   INHABIT_THE_ARCHITECTURE_HELP_TECHNICAL_MAPPING_INTRO,
   INHABIT_THE_ARCHITECTURE_HELP_TWO_CONTROLS_BODY,
+  INHABIT_THE_ARCHITECTURE_HELP_TRIAL_AND_TEACHING_MODES,
 } from "@/lib/inhabit/inhabit-help-guide-content";
 import {
   INHABIT_THE_ARCHITECTURE_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -253,6 +254,12 @@ export function HelpInhabitTheArchitectureGuideView(
               </p>
               <p className={cn(readingBodyClass, "text-al-text-secondary")} data-testid="help-inhabit-the-architecture-seat-demo">
                 {INHABIT_THE_ARCHITECTURE_HELP_APPLICABILITY_DEMO}
+              </p>
+              <p
+                className={cn(readingBodyClass, "text-al-text-secondary")}
+                data-testid="help-inhabit-the-architecture-trial-teaching-modes"
+              >
+                {INHABIT_THE_ARCHITECTURE_HELP_TRIAL_AND_TEACHING_MODES}
               </p>
             </section>
 

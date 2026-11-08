@@ -47,24 +47,11 @@ public sealed partial class PolicyPackWorkflowFacade
         if (!IsPackVisibleInScope(pack, scope))
             return null;
 
+        string currentVersionKey = PolicyPackSemVerVersion.NormalizeLookupKey(pack!.CurrentVersion);
         PolicyPackVersion? versionRow = await _versionRepository.GetByPackAndVersionAsync(
             policyPackId,
-            pack!.CurrentVersion.Trim(),
+            currentVersionKey,
             ct);
-
-        if (versionRow is null)
-        {
-            IReadOnlyList<PolicyPackVersion> versions = await _versionRepository.ListByPackAsync(policyPackId, ct);
-            PolicyPackVersion? latestMeta = versions.FirstOrDefault();
-
-            if (latestMeta is not null)
-            {
-                versionRow = await _versionRepository.GetByPackAndVersionAsync(
-                    policyPackId,
-                    latestMeta.Version,
-                    ct);
-            }
-        }
 
         if (versionRow is null || string.IsNullOrWhiteSpace(versionRow.ContentJson))
             return null;
@@ -75,10 +62,7 @@ public sealed partial class PolicyPackWorkflowFacade
         int evaluated = 0;
         int requestedRunCount = 0;
 
-        foreach (string runId in runIds
-            .Where(static runIdRaw => !string.IsNullOrWhiteSpace(runIdRaw))
-            .Select(static runIdRaw => runIdRaw.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string runId in EnumerateDistinctBulkSimulateRunIds(runIds))
         {
             requestedRunCount++;
             PolicyPackGovernanceDryRunResult? dryRun = await _policyPackGovernanceDryRunService.EvaluateAsync(
@@ -131,4 +115,22 @@ public sealed partial class PolicyPackWorkflowFacade
         PolicyPackContentDocument document,
         CancellationToken ct) =>
         _policyPackContentAuthoringValidationService.ValidateAsync(document, ct);
+
+    private static IEnumerable<string> EnumerateDistinctBulkSimulateRunIds(IReadOnlyList<string> runIds)
+    {
+        List<string> distinctRunIds = [];
+
+        foreach (string runId in runIds
+                     .Where(static runIdRaw => !string.IsNullOrWhiteSpace(runIdRaw))
+                     .Select(static runIdRaw => runIdRaw.Trim()))
+        {
+            if (distinctRunIds.Exists(existing =>
+                    GovernanceRunIdNormalizer.AreEquivalent(existing, runId)
+                    || string.Equals(existing, runId, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            distinctRunIds.Add(runId);
+            yield return runId;
+        }
+    }
 }

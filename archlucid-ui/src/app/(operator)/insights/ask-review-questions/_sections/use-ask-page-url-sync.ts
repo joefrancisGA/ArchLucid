@@ -27,7 +27,7 @@ export type UseAskPageUrlSyncOptions = {
   readonly setCompareOpen: (open: boolean) => void;
   readonly setSelectedThreadId: (threadId: string) => void;
   readonly setMessages: React.Dispatch<React.SetStateAction<ConversationMessage[]>>;
-  readonly setRetrievalDegraded: (value: boolean) => void;
+  readonly setRetrievalDegraded: (value: boolean | null) => void;
   readonly setLastAskReferencedFindings: (value: readonly string[]) => void;
   readonly setLastAskReferencedDecisions: (value: readonly string[]) => void;
   readonly setLastAskReferencedArtifacts: (value: readonly string[]) => void;
@@ -271,7 +271,7 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
   const onNewConversation = useCallback(() => {
     setSelectedThreadId("");
     setMessages([]);
-    setRetrievalDegraded(false);
+    setRetrievalDegraded(null);
     setLastAskReferencedFindings([]);
     setLastAskReferencedDecisions([]);
     setLastAskReferencedArtifacts([]);

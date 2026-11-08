@@ -43,6 +43,22 @@ public sealed class PolicyPackSimulateRequestValidatorTests
     }
 
     [Fact]
+    public void Empty_proposed_policy_pack_id_fails()
+    {
+        PolicyPackSimulateRequest request = new()
+        {
+            RunId = Guid.NewGuid().ToString("D"),
+            Content = new PolicyPackContentDocument(),
+            ProposedPolicyPackId = Guid.Empty,
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(PolicyPackSimulateRequest.ProposedPolicyPackId));
+    }
+
+    [Fact]
     public void Severity_out_of_range_fails()
     {
         PolicyPackSimulateRequest request = new()

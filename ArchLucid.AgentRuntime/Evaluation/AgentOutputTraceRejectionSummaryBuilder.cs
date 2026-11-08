@@ -19,7 +19,8 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
         string? parsedResultJson,
         AgentOutputEvaluationScore structural,
         AgentOutputSemanticScore semantic,
-        AgentOutputQualityGateOutcome outcome)
+        AgentOutputQualityGateOutcome outcome,
+        double? calibratedConfidence = null)
     {
         if (outcome != AgentOutputQualityGateOutcome.Rejected)
             return null;
@@ -29,7 +30,7 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
 
         List<string> parts = new();
 
-        if (qualityGate.Evaluate(structural, semantic) == AgentOutputQualityGateOutcome.Rejected)
+        if (qualityGate.Evaluate(structural, semantic, calibratedConfidence) == AgentOutputQualityGateOutcome.Rejected)
             parts.Add("quality_gate_threshold_reject");
 
         if (pilotStrict)
@@ -50,12 +51,16 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
 
             if (options.PilotStrictMinAgentResultFaithfulnessSupportRatio is { } faithFloor &&
                 semantic.AgentResultFaithfulnessSupportRatio is { } faithRatio &&
-                faithRatio < faithFloor)
+                (double.IsNaN(faithRatio)
+                 || double.IsInfinity(faithRatio)
+                 || faithRatio < faithFloor))
                 parts.Add("agent_result_faithfulness_below_floor");
 
             if (options.PilotStrictMinCitationCoverageRatio is { } citationFloor &&
                 semantic.FindingCitationCoverageRatio is { } citationRatio &&
-                citationRatio < citationFloor)
+                (double.IsNaN(citationRatio)
+                 || double.IsInfinity(citationRatio)
+                 || citationRatio < citationFloor))
                 parts.Add("finding_citation_coverage_below_floor");
         }
 

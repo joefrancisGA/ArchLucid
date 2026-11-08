@@ -22,14 +22,7 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
       ? " Hidden attachment hop count was not stored."
       : summary.hiddenHopsUsedCount > 0
         ? ` (${summary.hiddenHopsUsedCount} from hidden attachment hops)`
-        : "";
-  const collocation =
-    summary.likelyInCollocationEdgeCount === null
-      ? " Likely-in collocation count was not stored."
-      : summary.likelyInCollocationEdgeCount > 0
-        ? ` ${summary.likelyInCollocationEdgeCount} likely-in collocation edges.`
-        : "";
-
+        : " (0 hidden attachment hops recorded on this diagram)";
   if (
     summary.visibleNodeCount === null
     || summary.connectedComponentCount === null
@@ -39,9 +32,18 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
   }
 
   const missing =
-    summary.missingClasses && summary.missingClasses.length > 0
-      ? ` Missing: ${summary.missingClasses.join("; ")}.`
-      : "";
+    summary.missingClasses === null || summary.missingClasses === undefined
+      ? " Missing resource classes were not stored."
+      : summary.missingClasses.length > 0
+        ? ` Missing: ${summary.missingClasses.join("; ")}.`
+        : "";
 
-  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}${missing}`;
+  const collocationPart =
+    summary.likelyInCollocationEdgeCount === null
+      ? ", including likely-in collocation count was not stored."
+      : summary.likelyInCollocationEdgeCount > 0
+        ? `, including ${summary.likelyInCollocationEdgeCount} same-resource-group guesses that are not stored connections.`
+        : ", including 0 same-resource-group guesses recorded on this diagram.";
+
+  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components on this diagram. ${visibleEdgeCount} lines on the diagram${hiddenHops}${collocationPart}${missing}`;
 }

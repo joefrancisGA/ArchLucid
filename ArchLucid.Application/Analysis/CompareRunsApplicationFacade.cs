@@ -5,6 +5,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -22,6 +23,7 @@ public sealed partial class CompareRunsApplicationFacade(
     IAuthorityCommitProjectionBuilder projectionBuilder,
     IComparisonService comparison,
     IAgentResultDiffService agentResultDiffService,
+    IAgentResultRepository agentResultRepository,
     IScopeContextProvider scopeProvider,
     IManifestHashService manifestHashService) : ICompareRunsApplicationFacade
 {
@@ -45,6 +47,9 @@ public sealed partial class CompareRunsApplicationFacade(
 
     private readonly IAgentResultDiffService _agentResultDiffService =
         agentResultDiffService ?? throw new ArgumentNullException(nameof(agentResultDiffService));
+
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));

@@ -1,6 +1,11 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ReplayResponse } from "@/types/authority";
 
+export const REPLAY_VALIDATION_MODE_NOT_STORED_LABEL = "Replay mode was not stored." as const;
+
+export const REPLAY_VALIDATION_RESULT_NOT_STORED_LABEL = "Validation result was not stored." as const;
+
+/** Stored replay-mode discriminator; keep in sync with `isReplayValidationModeId`. */
 export type ReplayValidationModeId = "ReconstructOnly" | "RebuildManifest" | "RebuildArtifacts";
 
 export type ReplayAiUsageLevel = "none" | "limited" | "full";
@@ -94,13 +99,40 @@ export function isReplayValidationModeId(value: string): value is ReplayValidati
 }
 
 export function replayValidationModeDefinition(mode: string): ReplayValidationModeDefinition {
-  const match = REPLAY_VALIDATION_MODES.find((row) => row.mode === mode);
+  const trimmed = mode.trim();
+  const match = REPLAY_VALIDATION_MODES.find((row) => row.mode === trimmed);
 
   if (match !== undefined) {
     return match;
   }
 
-  return REPLAY_VALIDATION_MODES[0];
+  if (trimmed.length === 0) {
+    return {
+      ...REPLAY_VALIDATION_MODES[0],
+      mode: "ReconstructOnly",
+      title: REPLAY_VALIDATION_MODE_NOT_STORED_LABEL,
+    };
+  }
+
+  return {
+    ...REPLAY_VALIDATION_MODES[0],
+    mode: "ReconstructOnly",
+    title: REPLAY_VALIDATION_MODE_NOT_STORED_LABEL,
+  };
+}
+
+export function formatReplayValidationModeTitle(mode: string): string {
+  const trimmed = mode.trim();
+
+  if (trimmed.length === 0) {
+    return REPLAY_VALIDATION_MODE_NOT_STORED_LABEL;
+  }
+
+  if (!isReplayValidationModeId(trimmed)) {
+    return REPLAY_VALIDATION_MODE_NOT_STORED_LABEL;
+  }
+
+  return replayValidationModeDefinition(trimmed).title;
 }
 
 export function replayValidationActionLabel(mode: string, loading: boolean): string {
@@ -183,6 +215,7 @@ export type ReplayValidationHistoryEntry = {
   readonly occurredUtc: string;
   readonly durationMs: number | null;
   readonly outcome: ReplayValidationOutcome;
+  readonly outcomeLabel?: string;
   readonly aiUsageLabel: string;
   readonly initiatedBy: string;
   readonly source: "session" | "audit";

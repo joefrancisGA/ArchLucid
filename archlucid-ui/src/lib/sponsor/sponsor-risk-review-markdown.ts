@@ -16,6 +16,20 @@ function trimLine(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
+function formatSponsorFindingSeverityCell(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined || severity.length === 0) {
+    return "Severity was not stored.";
+  }
+
+  const trimmed = severity.trim();
+
+  if (trimmed.length === 0) {
+    return "Severity was stored empty.";
+  }
+
+  return trimmed;
+}
+
 function pickRecommendedSponsorAction(_summary: RunExplanationSummary): string {
   return "This export has no separate sponsor-action field. Recommended actions are on the finding rows when they were stored.";
 }
@@ -48,7 +62,19 @@ function faithfulnessSupportRatioLine(value: unknown): string | null {
   }
 
   if (typeof value === "string") {
-    return `Faithfulness support ratio: ${value}.`;
+    const trimmed = value.trim();
+
+    if (trimmed.length === 0) {
+      return "Faithfulness support ratio was stored empty.";
+    }
+
+    const parsed = Number(trimmed);
+
+    if (Number.isFinite(parsed)) {
+      return `Faithfulness support ratio: ${ratioPercentLabel(parsed, "Ratio not returned")}.`;
+    }
+
+    return "Faithfulness support ratio was not stored.";
   }
 
   return null;
@@ -83,7 +109,9 @@ export function buildSponsorRiskReviewMarkdown(
   const faithfulnessWarning =
     summary.faithfulnessWarning === null || summary.faithfulnessWarning === undefined
       ? "Faithfulness warning was not stored."
-      : summary.faithfulnessWarning;
+      : summary.faithfulnessWarning.trim().length === 0
+        ? "Faithfulness warning was stored empty."
+        : summary.faithfulnessWarning;
   const deterministicFallbackMissing =
     summary.deterministicFallbackUsed === null || summary.deterministicFallbackUsed === undefined;
 
@@ -117,12 +145,12 @@ export function buildSponsorRiskReviewMarkdown(
       : summary.unresolvedIssueCount === null || summary.unresolvedIssueCount === undefined
         ? "Unresolved issue count was not stored."
       : null,
-    typeof summary.complianceGapCount === "number" &&
-    Number.isFinite(summary.complianceGapCount) &&
-    Math.trunc(summary.complianceGapCount) > 0
-      ? `${Math.trunc(summary.complianceGapCount)} compliance gap${
-          Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
-        } in the aggregate assessment.`
+    typeof summary.complianceGapCount === "number" && Number.isFinite(summary.complianceGapCount)
+      ? Math.trunc(summary.complianceGapCount) === 0
+        ? "0 compliance gaps were stored."
+        : `${Math.trunc(summary.complianceGapCount)} compliance gap${
+            Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
+          } in the aggregate assessment.`
       : summary.complianceGapCount === null || summary.complianceGapCount === undefined
         ? "Compliance gap count was not stored."
       : null,
@@ -130,13 +158,13 @@ export function buildSponsorRiskReviewMarkdown(
 
   const findingLines =
     prioritizedFindings.length === 0
-      ? "_No finding rows were included in this export._\n"
+      ? "_Findings were not included in this export._\n"
       : [
           "| Severity | Finding | Recommended action |",
           "| --- | --- | --- |",
           ...prioritizedFindings.map(
             (r) =>
-              `| ${mdTableCell(trimLine(r.severity) || "Severity was not stored")} | ${mdTableCell(
+              `| ${mdTableCell(formatSponsorFindingSeverityCell(r.severity))} | ${mdTableCell(
                 trimLine(r.title) || "Finding title was not stored",
               )} | ${mdTableCell(formatSponsorFindingRecommendedAction(r.recommended))} |`,
           ),
@@ -146,7 +174,9 @@ export function buildSponsorRiskReviewMarkdown(
   return [
     `# Sponsor report — ${headline}`,
     "",
-    `- **Review ID:** \`${runId.trim()}\``,
+    `- **Review ID:** ${
+      runId.trim().length > 0 ? `\`${runId.trim()}\`` : "Review id was not stored."
+    }`,
     "",
     "## Risk posture",
     "",

@@ -10,6 +10,7 @@ import {
 } from "@/lib/marketing-custom-policy-pack-authoring";
 
 const MAX_MESSAGE_CHARS = 2000;
+const QUOTE_REQUEST_ERROR_MESSAGE = "We couldn't submit your request. Please try again.";
 
 function buildQuoteMessageBody(
   userMessage: string,
@@ -93,6 +94,21 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
     setBusy(true);
     setError(null);
 
+    const normalizedWorkEmail = workEmail.trim();
+    const normalizedCompanyName = companyName.trim();
+
+    if (normalizedWorkEmail.length === 0 || normalizedCompanyName.length === 0) {
+      setError("Work email and company are required.");
+      setBusy(false);
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedWorkEmail)) {
+      setError("Enter a valid work email.");
+      setBusy(false);
+      return;
+    }
+
     const composed = buildQuoteMessageBody(
       message,
       industry,
@@ -123,8 +139,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText);
+        throw new Error(QUOTE_REQUEST_ERROR_MESSAGE);
       }
 
       setDone(true);

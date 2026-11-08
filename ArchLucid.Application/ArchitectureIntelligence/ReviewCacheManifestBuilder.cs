@@ -102,6 +102,7 @@ public static class ReviewCacheManifestBuilder
         }
 
         foreach (ClosedLoopReasoningSourceText source in request.SourceTexts
+                     .Where(static item => item is not null)
                      .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                      .GroupBy(item => (item.FileName, item.ContentType, item.Content))
                      .Select(group => group.First())

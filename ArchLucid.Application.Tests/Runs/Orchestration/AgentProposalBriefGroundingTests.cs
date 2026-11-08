@@ -235,4 +235,144 @@ public sealed class AgentProposalBriefGroundingTests
         result.ProposedChanges!.AddedDatastores.Should().ContainSingle();
         dropLog.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyBriefGrounding_preserves_republic_service_name_when_private_networking_required()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Private networking brief",
+            SystemName = "brief-grounding-republic",
+            Constraints = ["All data paths must use private endpoints"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "republic-ledger-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("republic-ledger-api");
+        dropLog.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyBriefGrounding_preserves_chromhttp_service_name_when_https_required()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "HTTPS-only brief",
+            SystemName = "brief-grounding-chromhttp",
+            Constraints = ["HTTPS only for all public endpoints"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "chromhttp-bridge",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("chromhttp-bridge");
+        dropLog.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyBriefGrounding_preserves_nonplaintext_datastore_when_encryption_at_rest_required()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Encryption brief",
+            SystemName = "brief-grounding-nonplaintext",
+            RequiredCapabilities = ["encryption-at-rest"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "nonplaintext-archive",
+                        DatastoreType = DatastoreType.Object,
+                        RuntimePlatform = RuntimePlatform.BlobStorage,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedDatastores.Should().ContainSingle()
+            .Which.DatastoreName.Should().Be("nonplaintext-archive");
+        dropLog.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyBriefGrounding_preserves_preunencrypted_datastore_when_encryption_at_rest_required()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Encryption brief",
+            SystemName = "brief-grounding-preunencrypted",
+            RequiredCapabilities = ["encryption-at-rest"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "preunencrypted-vault",
+                        DatastoreType = DatastoreType.Object,
+                        RuntimePlatform = RuntimePlatform.BlobStorage,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedDatastores.Should().ContainSingle()
+            .Which.DatastoreName.Should().Be("preunencrypted-vault");
+        dropLog.Should().BeEmpty();
+    }
 }

@@ -10,6 +10,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { IMPROVEMENT_PLANNING_THEME_ID_LABEL } from "@/lib/planning-page-copy";
 import type { LearningPlanListItemResponse } from "@/types/learning";
@@ -37,3 +42,22 @@ describe("PlanningPlansTable buyer-polished shell", () => {
     expect(screen.queryByText("theme-missing-title")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
+

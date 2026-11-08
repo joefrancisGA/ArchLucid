@@ -13,6 +13,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
     public byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeOptional(comparisonRecordId);
         using OpenXmlDocxDocumentBuilder builder = new();
         builder.AddHeading("ArchLucid Comparison Drift Report", 1);
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))

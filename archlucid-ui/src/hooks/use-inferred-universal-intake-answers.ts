@@ -15,8 +15,13 @@ import {
 } from "@/lib/evidence-readable-text";
 import { filterQualityGatedInferredAnswers, isReadableInferredClarificationAnswer } from "@/lib/inferred-clarification-answer-quality";
 import {
+  formatDroppedClarificationExtractsSummary,
+  listDroppedClarificationExtracts,
+} from "@/lib/dropped-clarification-extracts";
+import {
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
   canSuggestUniversalIntakeAnswersFromEvidence,
+  inferUniversalIntakeAnswerCandidatesFromCorpus,
   inferUniversalIntakeAnswersFromCorpus,
   mergeInferredUniversalIntakeAnswers,
 } from "@/lib/universal-intake-answer-inference";
@@ -41,6 +46,7 @@ type UseInferredUniversalIntakeAnswersResult = {
   readonly suggestAnswersFromEvidence: () => void;
   readonly markQuestionEdited: (questionKey: string) => void;
   readonly evidenceExtractionProgress: EvidenceExtractionProgress;
+  readonly droppedClarificationExtractSummary: string | null;
 };
 
 /** Prefills empty L0 clarification answers from brief/evidence text without overwriting operator edits. */
@@ -51,12 +57,23 @@ export function useInferredUniversalIntakeAnswers(
   const [rephrasedQuestionKeys, setRephrasedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [isExtractingEvidenceText, setIsExtractingEvidenceText] = useState(false);
   const [clarificationSuggestionsUnavailable, setClarificationSuggestionsUnavailable] = useState(false);
+  const [droppedClarificationExtractSummary, setDroppedClarificationExtractSummary] = useState<string | null>(null);
   const lockedQuestionKeysRef = useRef(new Set<string>());
   const onAnswersChangeRef = useRef(input.onAnswersChange);
   const answersRef = useRef(input.answers);
   const inputRef = useRef(input);
   const evidenceExtractionProgress = useEvidenceExtractionProgress();
   const evidenceExtractionProgressRef = useRef(evidenceExtractionProgress);
+  // Vitest tears down jsdom before late evidence extraction settles — skip setState then.
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   onAnswersChangeRef.current = input.onAnswersChange;
   answersRef.current = input.answers;
@@ -79,7 +96,9 @@ export function useInferredUniversalIntakeAnswers(
     const hasBinaryDocuments = evidenceFilesIncludeBinaryArchitectureDocument(currentInput.evidenceFiles);
     const canDraftClarificationAnswers = currentInput.blocksLlmRephrase !== true;
 
-    setIsExtractingEvidenceText(true);
+    if (mountedRef.current) {
+      setIsExtractingEvidenceText(true);
+    }
 
     if (needsDocumentExtraction) {
       progress.begin({
@@ -111,12 +130,24 @@ export function useInferredUniversalIntakeAnswers(
         },
       );
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       const hasInferenceSource =
         currentInput.evidenceFiles.length > 0
         || currentInput.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
 
       if (needsDocumentExtraction) {
         progress.reportStage("identifying-architecture-content");
+      }
+
+      const inferenceCandidates = inferUniversalIntakeAnswerCandidatesFromCorpus(corpus);
+
+      if (mountedRef.current) {
+        setDroppedClarificationExtractSummary(
+          formatDroppedClarificationExtractsSummary(listDroppedClarificationExtracts(inferenceCandidates)),
+        );
       }
 
       const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
@@ -145,6 +176,11 @@ export function useInferredUniversalIntakeAnswers(
         if (rephraseItems.length > 0) {
           try {
             const rephrased = await rephraseClarificationAnswersFromExtractedText({ items: rephraseItems });
+
+            if (!mountedRef.current) {
+              return;
+            }
+
             const merged = mergeRephrasedClarificationAnswers({
               currentAnswers: answersRef.current,
               inferredAnswers,
@@ -183,6 +219,10 @@ export function useInferredUniversalIntakeAnswers(
         answersToApply = filterQualityGatedInferredAnswers(inferredAnswers);
       }
 
+      if (!mountedRef.current) {
+        return;
+      }
+
       const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
         currentAnswers: answersRef.current,
         inferredAnswers: answersToApply,
@@ -190,6 +230,10 @@ export function useInferredUniversalIntakeAnswers(
       });
 
       suggestedAnswerCount = newlyInferredQuestionKeys.length;
+
+      if (!mountedRef.current) {
+        return;
+      }
 
       setClarificationSuggestionsUnavailable(
         hasInferenceSource
@@ -218,13 +262,18 @@ export function useInferredUniversalIntakeAnswers(
         progress.complete({ suggestedAnswerCount });
       }
 
-      setIsExtractingEvidenceText(false);
+      if (mountedRef.current) {
+        setIsExtractingEvidenceText(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     if (!canSuggestFromEvidence) {
-      setClarificationSuggestionsUnavailable(false);
+      if (mountedRef.current) {
+        setClarificationSuggestionsUnavailable(false);
+        setDroppedClarificationExtractSummary(null);
+      }
 
       return;
     }
@@ -273,5 +322,6 @@ export function useInferredUniversalIntakeAnswers(
     suggestAnswersFromEvidence,
     markQuestionEdited,
     evidenceExtractionProgress,
+    droppedClarificationExtractSummary,
   };
 }

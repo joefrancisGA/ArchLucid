@@ -1,5 +1,6 @@
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { describe, expect, it, vi, afterEach } from "vitest";
@@ -82,7 +83,7 @@ describe("PilotNavGroupBuilder", () => {
       "Home",
       "Architectures",
       "Packages",
-      "Finalized review records",
+      OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
       "Sponsor dashboard",
       "First review guide",
       "Digests",
@@ -111,7 +112,7 @@ describe("PilotNavGroupBuilder", () => {
     const group = new PilotNavGroupBuilder().build();
     const sealedLink = group.links.find((link) => link.href === SIGNED_RECORDS_LIST_PATH);
 
-    expect(sealedLink?.label).toBe("Finalized review records");
+    expect(sealedLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.sealedReviewRecords);
     expect(sealedLink?.requiredAuthority).toBe("ReadAuthority");
   });
 

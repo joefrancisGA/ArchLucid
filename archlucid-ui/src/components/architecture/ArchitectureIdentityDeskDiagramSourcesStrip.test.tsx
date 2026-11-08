@@ -25,7 +25,7 @@ describe("ArchitectureIdentityDeskDiagramSourcesStrip (AS-044)", () => {
     useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: [],
+      data: { snapshotStored: true, rows: [] },
       refetch: vi.fn(),
       blockedReason: null,
     });
@@ -42,7 +42,7 @@ describe("ArchitectureIdentityDeskDiagramSourcesStrip (AS-044)", () => {
     useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: [],
+      data: { snapshotStored: true, rows: [] },
       refetch: vi.fn(),
       blockedReason: null,
     });
@@ -55,11 +55,43 @@ describe("ArchitectureIdentityDeskDiagramSourcesStrip (AS-044)", () => {
     expect(useArchitectureDeskDiagramSourcesQueryMock).toHaveBeenCalledWith("", { enabled: false });
   });
 
+  it("shows snapshot-not-stored copy when snapshotStored was omitted from the payload", () => {
+    useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { rows: [] },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    render(<ArchitectureIdentityDeskDiagramSourcesStrip latestReviewId="review-2" />);
+
+    expect(screen.getByTestId("architecture-identity-desk-diagram-sources-snapshot-not-stored")).toHaveTextContent(
+      "Diagram source snapshot was not stored.",
+    );
+  });
+
+  it("shows snapshot-not-stored copy when context snapshot was omitted (P-03)", () => {
+    useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { snapshotStored: false, rows: [] },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    render(<ArchitectureIdentityDeskDiagramSourcesStrip latestReviewId="review-2" />);
+
+    expect(screen.getByTestId("architecture-identity-desk-diagram-sources-snapshot-not-stored")).toHaveTextContent(
+      "Diagram source snapshot was not stored.",
+    );
+  });
+
   it("shows an honest empty state when the latest review has no diagram sources", () => {
     useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: [],
+      data: { snapshotStored: true, rows: [] },
       refetch: vi.fn(),
       blockedReason: null,
     });
@@ -75,20 +107,23 @@ describe("ArchitectureIdentityDeskDiagramSourcesStrip (AS-044)", () => {
     useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: [
-        {
-          sourceKey: "structured:topology.mmd",
-          label: "topology.mmd",
-          status: "analyzed",
-          nodeCount: 2,
-        },
-        {
-          sourceKey: "pixel:legacy.png",
-          label: "legacy.png",
-          status: "not-extracted",
-          nodeCount: null,
-        },
-      ],
+      data: {
+        snapshotStored: true,
+        rows: [
+          {
+            sourceKey: "structured:topology.mmd",
+            label: "topology.mmd",
+            status: "analyzed",
+            nodeCount: 2,
+          },
+          {
+            sourceKey: "pixel:legacy.png",
+            label: "legacy.png",
+            status: "not-extracted",
+            nodeCount: null,
+          },
+        ],
+      },
       refetch: vi.fn(),
       blockedReason: null,
     });

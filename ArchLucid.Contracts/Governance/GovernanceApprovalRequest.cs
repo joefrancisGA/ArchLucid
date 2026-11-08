@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -28,53 +30,69 @@ public sealed class GovernanceApprovalRequest
     }
 
     /// <summary>Unique identifier for this approval request.</summary>
+    private string approvalRequestId = Guid.NewGuid().ToString("N");
+
     public string ApprovalRequestId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => approvalRequestId;
+        set => approvalRequestId = string.IsNullOrEmpty(value)
+            ? Guid.NewGuid().ToString("N")
+            : value;
+    }
 
     /// <summary>The architecture run targeted for promotion.</summary>
+    private string runId = string.Empty;
+
     public string RunId
     {
-        get;
-        set;
-    } = string.Empty;
+        get => runId;
+        set => runId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>The manifest version label being promoted.</summary>
+    private string manifestVersion = string.Empty;
+
     public string ManifestVersion
     {
-        get;
-        set;
-    } = string.Empty;
+        get => manifestVersion;
+        set => manifestVersion = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>The environment the run is currently active in.</summary>
+    private string sourceEnvironment = GovernanceEnvironment.Dev;
+
     public string SourceEnvironment
     {
-        get;
-        set;
-    } = GovernanceEnvironment.Dev;
+        get => sourceEnvironment;
+        set => sourceEnvironment = ContractCollectionDefaults.CoalesceStringDefault(value, GovernanceEnvironment.Dev);
+    }
 
     /// <summary>The environment the run is being promoted to.</summary>
+    private string targetEnvironment = GovernanceEnvironment.Test;
+
     public string TargetEnvironment
     {
-        get;
-        set;
-    } = GovernanceEnvironment.Test;
+        get => targetEnvironment;
+        set => targetEnvironment = ContractCollectionDefaults.CoalesceStringDefault(value, GovernanceEnvironment.Test);
+    }
 
     /// <summary>Current lifecycle status of the request; see <see cref="GovernanceApprovalStatus" />.</summary>
+    private string status = GovernanceApprovalStatus.Draft;
+
     public string Status
     {
-        get;
-        set;
-    } = GovernanceApprovalStatus.Draft;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceStringDefault(value, GovernanceApprovalStatus.Draft);
+    }
 
     /// <summary>Identity of the user who submitted the promotion request.</summary>
+    private string requestedBy = string.Empty;
+
     public string RequestedBy
     {
-        get;
-        set;
-    } = string.Empty;
+        get => requestedBy;
+        set => requestedBy = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>
     ///     Canonical segregation-of-duties key for the submitter when available (typically

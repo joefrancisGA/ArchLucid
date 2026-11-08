@@ -76,6 +76,8 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
                 ["Demo:Enabled"] = "false",
                 ["Demo:SeedOnStartup"] = "false",
+                // TestServer binds http://127.0.0.1:0; Development appsettings enable loopback warm-up that can hit the wrong port.
+                ["ArchLucid:ControllerReadPathWarmup:Enabled"] = "false",
                 // Registration integration tests assert POST /v1/register; InviteOnly returns 404.
                 ["Auth:PublicSignup:Mode"] = "PublicSelfService",
                 // Integration hosts boot many times per shard; disable OTLP/console export and API purge loops that can
@@ -87,6 +89,10 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 [DraftIntakeReaperOptions.SectionName + ":Enabled"] = "false",
                 [TenantErasurePurgeOptions.SectionName + ":Enabled"] = "false",
                 [TrialArchitecturePreseedOptions.SectionName + ":Enabled"] = "false",
+                ["ArchLucid:QuickScan:Enabled"] = "true",
+                ["ArchLucid:QuickScan:MaxConcurrentScans"] = "64",
+                [QuickScanSafetyOptions.SectionPath + ":EmergencyDisabled"] = "false",
+                [QuickScanSafetyOptions.SectionPath + ":Concurrency:MaxConcurrentAnonymousScans"] = "64",
             };
 
             AddCustomSettings(settings);

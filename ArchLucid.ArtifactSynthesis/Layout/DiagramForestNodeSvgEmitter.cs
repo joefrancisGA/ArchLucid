@@ -22,9 +22,15 @@ public static class DiagramForestNodeSvgEmitter
         ArgumentNullException.ThrowIfNull(metrics);
         ArgumentNullException.ThrowIfNull(options);
 
-        string accessibilityTitle = metrics.HasPrivateEndpointAccess
-            ? $"{metrics.Caption.AccessibilityTitle} — Private endpoint access"
-            : metrics.Caption.AccessibilityTitle;
+        string accessibilityTitle = metrics.Caption.AccessibilityTitle;
+
+        if (metrics.HasPrivateEndpointAccess)
+        {
+            string privateEndpointTitle = string.IsNullOrWhiteSpace(node?.PrivateEndpointAccessName)
+                ? "Private endpoint name was not stored."
+                : $"Private endpoint {node.PrivateEndpointAccessName.Trim()}";
+            accessibilityTitle = $"{accessibilityTitle} — {privateEndpointTitle}";
+        }
 
         XElement group = new(
             svgNamespace + "g",
@@ -41,6 +47,14 @@ public static class DiagramForestNodeSvgEmitter
                 new XAttribute(
                     "data-member-names",
                     string.Join("|", node.DataFlowRollupMemberNames)));
+        }
+        else if (node?.IsCollapsedResourceGroupTail == true)
+        {
+            group.Add(new XAttribute("cursor", "pointer"));
+            group.Add(
+                new XAttribute(
+                    "data-member-names",
+                    string.Join("|", node.CollapsedResourceGroupTailMemberNames)));
         }
         string? questionableTitle = metrics.IsQuestionable
             ? $"{accessibilityTitle} — Questionable; select the resource for the reason and recommended action"
@@ -94,7 +108,8 @@ public static class DiagramForestNodeSvgEmitter
                     svgNamespace,
                     options.NodePaddingX,
                     contentTop,
-                    contentHeight));
+                    contentHeight,
+                    node?.PrivateEndpointAccessName));
         }
 
         if (metrics.AzureIcon is not null)

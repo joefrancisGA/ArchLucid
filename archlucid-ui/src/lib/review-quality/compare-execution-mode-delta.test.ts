@@ -18,6 +18,16 @@ describe("buildCompareExecutionModeDeltaView", () => {
     expect(buildCompareExecutionModeDeltaView(null)).toBeNull();
   });
 
+  it("uses execution mode not-stored copy when mode is omitted", () => {
+    const honesty = resolveCompareExecutionModeHonesty(
+      summary("Simulator"),
+      { ...summary("Real"), structuralExecutionMode: undefined },
+    );
+    const view = buildCompareExecutionModeDeltaView(honesty);
+
+    expect(view?.target.modeLabel).toBe("Execution mode was not stored.");
+  });
+
   it("labels Simulator vs Real and marks changed", () => {
     const honesty = resolveCompareExecutionModeHonesty(summary("Simulator"), summary("Real"));
     const view = buildCompareExecutionModeDeltaView(honesty);

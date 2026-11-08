@@ -37,7 +37,12 @@ public static class PilotRunDeltasResponseMapper
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(valueWindowSnapshot);
         PilotBuyerSafeEvidenceGateResult gate =
-            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+                run,
+                manifest,
+                deltas,
+                valueWindowSnapshot,
+                scorecardBaselines);
         ProofPackageCompletenessResponse completeness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot, scorecardBaselines);
 
@@ -82,6 +87,7 @@ public static class PilotRunDeltasResponseMapper
             FindingsBySeverity = deltas.FindingsBySeverity.Select(p => new PilotRunDeltaSeverityCountResponse { Severity = p.Key, Count = p.Value }).ToList(),
             AuditRowCount = deltas.AuditRowCount,
             AuditRowCountTruncated = deltas.AuditRowCountTruncated,
+            AuditRowCountResolved = deltas.AuditRowCountResolved,
             LlmCallCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null,
             LlmCallCountResolved = deltas.LlmCallCountResolved,
             TopFindingSeverity = deltas.TopFindingSeverity,
@@ -92,7 +98,7 @@ public static class PilotRunDeltasResponseMapper
             EstimatedUsdSavings = deltas.EstimatedUsdSavings,
             ProofPackageCompleteness = proofPackage,
             RoiMetricSources = roiMetricSources ?? [],
-            RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? "PASS",
+            RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? string.Empty,
             GovernedFindingCoverage = deltas.GovernedFindingCoverage,
             StructuralExecutionMode = structuralExecutionMode,
             WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,

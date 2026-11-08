@@ -94,6 +94,14 @@ function defaultExpirationIso(): string {
 
 const DECLARED_CONNECTION_EXPIRATION_UNREADABLE = "Expiration could not be read." as const;
 
+function formatDeclaredConnectionField(value: string | null | undefined, notStoredLabel: string): string {
+  if (value == null || value.trim().length === 0) {
+    return notStoredLabel;
+  }
+
+  return value;
+}
+
 function formatRelativeExpiry(expirationUtc: string): string | null {
   const expiryMs = Date.parse(expirationUtc);
   const deltaMs = expiryMs - Date.now();
@@ -640,9 +648,24 @@ export function DeclaredConnectionsWorkbenchClient() {
                         data-testid={`infra-declared-connection-row-${row.connectionId}`}
                         className={highlightRowId === row.connectionId ? "bg-teal-50/40 dark:bg-teal-950/20" : undefined}
                       >
-                        <EnterpriseTableCell className="font-mono text-xs">{row.fromCloudResourceId}</EnterpriseTableCell>
-                        <EnterpriseTableCell className="font-mono text-xs">{row.toCloudResourceId}</EnterpriseTableCell>
-                        <EnterpriseTableCell>{row.relationshipType}</EnterpriseTableCell>
+                        <EnterpriseTableCell className="font-mono text-xs">
+                          {formatDeclaredConnectionField(
+                            row.fromCloudResourceId,
+                            "Source resource id was not stored.",
+                          )}
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell className="font-mono text-xs">
+                          {formatDeclaredConnectionField(
+                            row.toCloudResourceId,
+                            "Destination resource id was not stored.",
+                          )}
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          {formatDeclaredConnectionField(
+                            row.relationshipType,
+                            "Relationship type was not stored.",
+                          )}
+                        </EnterpriseTableCell>
                         <EnterpriseTableCell>
                           <StatusTag label={displayStatus === "NearExpiry" ? "Near expiry" : row.status} kind={statusTagKind(displayStatus)} />
                         </EnterpriseTableCell>
@@ -679,7 +702,7 @@ export function DeclaredConnectionsWorkbenchClient() {
                               Revoke
                             </Button>
                           ) : (
-                            "—"
+                            <span className="text-al-text-secondary">Revoke applies to active declarations only.</span>
                           )}
                         </EnterpriseTableCell>
                       </EnterpriseTableRow>
@@ -689,7 +712,11 @@ export function DeclaredConnectionsWorkbenchClient() {
                             <dl className="m-0 grid gap-2 md:grid-cols-2">
                               <div>
                                 <dt className="font-medium">Rationale</dt>
-                                <dd className="m-0 text-al-text-secondary">{row.rationale}</dd>
+                                <dd className="m-0 text-al-text-secondary">
+                                  {row.rationale?.trim().length
+                                    ? row.rationale
+                                    : "Connection rationale was not stored."}
+                                </dd>
                               </div>
                               <div>
                                 <dt className="font-medium">Evidence reference</dt>

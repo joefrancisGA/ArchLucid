@@ -8,6 +8,38 @@ import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-bro
 import { getSponsorRoiCsvExportUrl } from "@/lib/api/downloads-blob-urls";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
+export const SPONSOR_ROI_CSV_HEADER =
+  "Finding,Review,System,Environment,Category,Severity,Title,Affected resource,Estimated USD savings" as const;
+
+function formatSponsorRoiCsvCell(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return storedEmptyLabel;
+  }
+
+  return trimmed;
+}
+
+function formatSponsorRoiCsvOptionalNumber(
+  value: number | null | undefined,
+  notStoredLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  return String(value);
+}
+
 type SponsorRoiExportRow = {
   findingId: string;
   runId: string;
@@ -28,6 +60,22 @@ type SponsorRoiExportPayload = {
   costEvidenceFreshnessStatus?: string;
 };
 
+export function formatSponsorRoiCsvCostEvidenceFreshnessLine(
+  status: string | null | undefined,
+): string {
+  if (status === null || status === undefined) {
+    return "Cost evidence freshness was not stored.";
+  }
+
+  const trimmed = status.trim();
+
+  if (trimmed.length === 0) {
+    return "Cost evidence freshness was stored empty.";
+  }
+
+  return `Cost evidence freshness: ${trimmed}`;
+}
+
 export function formatSponsorRoiCsvPreamble(json: SponsorRoiExportPayload): string {
   const pricingBasis = json.savingsPricingBasis?.trim() || "Pricing basis was not stored.";
   const eaMultiplierLabel =
@@ -38,7 +86,7 @@ export function formatSponsorRoiCsvPreamble(json: SponsorRoiExportPayload): stri
   return [
     `# Savings pricing basis: ${pricingBasis} (${eaMultiplierLabel})`,
     json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
-    json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
+    `# ${formatSponsorRoiCsvCostEvidenceFreshnessLine(json.costEvidenceFreshnessStatus)}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -63,23 +111,25 @@ export async function downloadSponsorRoiCsvExport(): Promise<void> {
 
   const json = (await response.json()) as SponsorRoiExportPayload;
   const preamble = formatSponsorRoiCsvPreamble(json);
-  const header =
-    "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
   const lines = (json.rows ?? []).map((row) =>
     [
-      row.findingId,
-      row.runId,
-      row.systemName,
-      row.environment,
-      row.category,
-      row.severity,
-      `"${row.title.replaceAll('"', '""')}"`,
-      row.affectedResource ?? "",
-      row.estimatedUsdSavings ?? "",
+      formatSponsorRoiCsvCell(row.findingId, "Finding id was not stored.", "Finding id was stored empty."),
+      formatSponsorRoiCsvCell(row.runId, "Review id was not stored.", "Review id was stored empty."),
+      formatSponsorRoiCsvCell(row.systemName, "System name was not stored.", "System name was stored empty."),
+      formatSponsorRoiCsvCell(row.environment, "Environment was not stored.", "Environment was stored empty."),
+      formatSponsorRoiCsvCell(row.category, "Category was not stored.", "Category was stored empty."),
+      formatSponsorRoiCsvCell(row.severity, "Severity was not stored.", "Severity was stored empty."),
+      `"${formatSponsorRoiCsvCell(row.title, "Finding title was not stored.", "Finding title was stored empty.").replaceAll('"', '""')}"`,
+      formatSponsorRoiCsvCell(
+        row.affectedResource,
+        "Affected resource was not stored.",
+        "Affected resource was stored empty.",
+      ),
+      formatSponsorRoiCsvOptionalNumber(row.estimatedUsdSavings, "Estimated USD savings was not stored."),
     ].join(","),
   );
 
-  const blob = new Blob([[preamble, header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob([[preamble, SPONSOR_ROI_CSV_HEADER, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
   await triggerBrowserBlobDownload(blob, "sponsor-roi-findings.csv");
 }
 

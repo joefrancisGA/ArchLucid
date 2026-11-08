@@ -24,6 +24,7 @@ import {
 import { BUYER_FIRST_REVIEW_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
 import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator/operator-co-architect-copy";
 import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -173,7 +174,7 @@ export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflo
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Link
               className={cn("inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
-              href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+              href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID)}
             >
               Open sample review
             </Link>
@@ -198,7 +199,7 @@ export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflo
             {panel.commitCtx.firstCommittedRunId !== null ? (
               <Link
                 className={cn("inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
-                href={`/architecture/reviews/${encodeURIComponent(panel.commitCtx.firstCommittedRunId)}`}
+                href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(panel.commitCtx.firstCommittedRunId)}
               >
                 Open finalized review
               </Link>
@@ -225,7 +226,7 @@ export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflo
                 ·{" "}
                 <Link
                   className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                  href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                  href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID)}
                 >
                   Open review detail
                 </Link>{" "}

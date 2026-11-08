@@ -62,4 +62,26 @@ public sealed class ArchitectureDiagramModelValidatorTests
         result.Warnings.Should().ContainSingle()
             .Which.Should().Contain("invalid");
     }
+
+    [Fact]
+    public void TryValidate_accepts_kind_not_stored_honesty_copy()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.KindNotStored,
+                },
+            ],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeTrue();
+        failureReason.Should().BeNull();
+    }
 }

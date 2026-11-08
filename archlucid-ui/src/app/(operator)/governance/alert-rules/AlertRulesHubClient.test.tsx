@@ -23,6 +23,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: (): boolean => true,
+  useProductionEvalChrome: (): boolean => false,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: ({ triggerText }: { triggerText?: string }) => (
@@ -41,7 +46,7 @@ vi.mock(
 );
 
 const loadedHubQuery = {
-  items: [] as const,
+  items: [] as Array<{ ruleId: string; name: string }>,
   loading: false,
   failure: null,
   refresh: vi.fn(async () => undefined),
@@ -62,6 +67,7 @@ import { AlertRulesHubClient } from "./AlertRulesHubClient";
 describe("AlertRulesHubClient", () => {
   beforeEach(() => {
     tabValue.current = null;
+    loadedHubQuery.items = [];
     window.history.replaceState({}, "", "/governance/alert-rules");
   });
 
@@ -104,6 +110,7 @@ describe("AlertRulesHubClient", () => {
 
   it("shows test alerts when ?tab=test-alerts", () => {
     tabValue.current = "test-alerts";
+    loadedHubQuery.items = [{ ruleId: "rule-1", name: "Test rule" }];
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-simulation")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Test alerts/i })).toHaveAttribute("aria-selected", "true");

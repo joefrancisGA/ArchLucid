@@ -26,7 +26,8 @@ export type InfraEvidenceDiffSummary = {
   snapshotAId: string;
   snapshotBId: string;
   subscriptionId: string | null;
-  totalChanges: number;
+  /** Omitted on the wire when the API does not return a total change count. */
+  totalChanges?: number;
   resourceAddedCount: number;
   resourceRemovedCount: number;
   resourceModifiedCount: number;

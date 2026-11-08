@@ -1,11 +1,11 @@
 [
   {
-    "findingId": "524eff23-c38b-9e4c-179f-1f9025067f5b",
+    "findingId": "b580adab-ae7a-8c76-141a-1f7831ee6619",
     "findingType": "IdentityBlastRadiusFinding",
     "category": "Security",
     "severity": "Error",
-    "title": "Machine actor \u0027checkout-func\u0027 has Contributor access to regulated datastore \u0027kv-pay-prod\u0027",
-    "rationale": "A machine identity can reach datastore \u0027kv-pay-prod\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
+    "title": "Machine actor \u0027checkout-func\u0027 has Contributor access to regulated datastore \u0027Graph node label was not stored.\u0027",
+    "rationale": "A machine identity can reach datastore \u0027Graph node label was not stored.\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
     "relatedNodeIds": [
       "actor-checkout",
       "kv-pay-prod",
@@ -21,12 +21,12 @@
     ]
   },
   {
-    "findingId": "cb414f9a-492a-940e-16c6-d54fb452c4f8",
+    "findingId": "72df5d29-a2b9-9484-e7da-1eb6278b0ec9",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "kv-pay-prod",
       "role-contrib-kv"
@@ -40,12 +40,12 @@
     ]
   },
   {
-    "findingId": "9df8d97e-247a-cc35-bc77-30a3bcc3b752",
+    "findingId": "ab3a7b0e-f63d-69fd-b01b-be78c8a216ac",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "kv-pay-prod",
       "role-contrib-kv"
@@ -59,12 +59,12 @@
     ]
   },
   {
-    "findingId": "dc10d006-c07a-79ab-b75f-85523f83505c",
+    "findingId": "856f290f-ae53-b1ce-7bb9-23ccef4c2474",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "kv-pay-prod",
       "role-contrib-kv"
@@ -78,15 +78,15 @@
     ]
   },
   {
-    "findingId": "bc0e2ddc-7e82-3a82-3b35-f2378d1eec42",
+    "findingId": "b3885fcb-4055-38a3-fdd8-260b94bc2848",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-contributor-kv",
-      "kv-pay-prod"
+      "kv-pay-prod",
+      "role-contrib-kv"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
@@ -97,12 +97,12 @@
     ]
   },
   {
-    "findingId": "d2017288-b6ab-a435-02be-a6aa0aeab8b9",
+    "findingId": "847bfaf6-efd1-e949-47f2-9ea4093856c2",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "kv-pay-prod",
       "role-contrib-kv"
@@ -112,7 +112,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

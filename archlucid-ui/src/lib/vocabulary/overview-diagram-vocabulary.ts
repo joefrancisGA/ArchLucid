@@ -2,9 +2,9 @@
  * TB-2309 — Create-home Overview ≠ Diagram vocabulary rail.
  *
  * Why two tabs stay separate on the architecture package:
- * - Overview (`?archTab=overview`) is the structured brief summary for this
+ * - Overview (architecture workspace overview tab) is the structured brief summary for this
  *   architecture package.
- * - Diagram (`?archTab=diagram`) is an illustrative Mermaid sketch of the
+ * - Diagram (architecture workspace diagram tab) is an illustrative Mermaid sketch of the
  *   architecture — not the authoritative structured brief.
  *
  * They share create-home chrome but are not the same representation. Distinct

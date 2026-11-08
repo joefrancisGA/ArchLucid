@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 
 namespace ArchLucid.Application.Determinism;
@@ -46,8 +47,10 @@ public sealed class DeterminismCheckService(
                     iteration.ManifestDriftWarnings.Add("Manifest differs from baseline replay.");
             }
             else if (baseline.Manifest is null && replay.Manifest is null)
-                // Neither run produced a manifest; treat as matching.
-                iteration.MatchesBaselineManifest = true;
+            {
+                iteration.MatchesBaselineManifest = false;
+                iteration.ManifestDriftWarnings.Add(DeterminismExportHonestyCopy.NeitherReplayStoredManifestCopy);
+            }
             else
             {
                 // One run produced a manifest and the other did not — this is drift.

@@ -317,6 +317,59 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_document_when_content_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("1b1b1b1b-1b1b-1b1b-1b1b-1b1b1b1b1b1b");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diagram", "contentType": "text/plain", "content": "source\u00A0text" },
+                  { "name": "keep", "contentType": "text/plain", "content": "clean source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_document_when_content_contains_newlines()
+    {
+        Guid runId = Guid.Parse("1c1c1c1c-1c1c-1c1c-1c1c-1c1c1c1c1c1c");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "notes", "contentType": "text/plain", "content": "line one\nline two" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Content.Should().Be("line one\nline two");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_constraints_when_entry_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -359,6 +412,29 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
 
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.Assumptions.Should().Equal("single-region");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_filters_constraints_when_entry_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("1a1a1a1a-1a1a-1a1a-1a1a-1a1a1a1a1a1a");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "constraints": ["https\u00A0only", "https-only"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Constraints.Should().Equal("https-only");
         back.IsValidForProcessing().Should().BeTrue();
     }
 
@@ -517,6 +593,58 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_infrastructure_declaration_when_name_contains_internal_spaces()
+    {
+        Guid runId = Guid.Parse("19191919-1919-1919-1919-191919191919");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "core network", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("core network");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_infrastructure_declaration_when_name_contains_newline()
+    {
+        Guid runId = Guid.Parse("20202020-2020-2020-2020-202020202020");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "core\nnetwork", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("core\nnetwork");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -567,6 +695,32 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.Documents.Should().ContainSingle()
             .Which.ContentType.Should().Be("text/plain");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_document_when_content_type_has_charset_parameter()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "keep", "contentType": "text/plain; charset=utf-8", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.ContentType.Should().Be("text/plain; charset=utf-8");
         back.IsValidForProcessing().Should().BeTrue();
     }
 
@@ -681,6 +835,56 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_inline_requirements_when_entry_contains_newlines()
+    {
+        Guid runId = Guid.Parse("1d1d1d1d-1d1d-1d1d-1d1d-1d1d1d1d1d1d");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["REQ: line one\nline two"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("REQ: line one\nline two");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces()
+    {
+        Guid runId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "topologyHints": [
+                  "Prefer outbox or transactional inbox for consistency",
+                  "hint\u00A0with-nbsp"
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.TopologyHints.Should().Equal(
+            "Prefer outbox or transactional inbox for consistency");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp()
     {
         Guid runId = Guid.Parse("16161616-1616-1616-1616-161616161616");
@@ -700,6 +904,29 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
 
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.PolicyReferences.Should().Equal("keep-policy");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_policy_reference_when_entry_contains_newlines()
+    {
+        Guid runId = Guid.Parse("1e1e1e1e-1e1e-1e1e-1e1e-1e1e1e1e1e1e");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "policyReferences": ["Organizational standard\nsection 3.2"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.PolicyReferences.Should().Equal("Organizational standard\nsection 3.2");
         back.IsValidForProcessing().Should().BeTrue();
     }
 
@@ -727,6 +954,58 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.Documents.Should().ContainSingle()
             .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_document_when_name_contains_internal_spaces()
+    {
+        Guid runId = Guid.Parse("18181818-1818-1818-1818-181818181818");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "network diagram", "contentType": "text/plain", "content": "body" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("network diagram");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_document_when_name_contains_newline()
+    {
+        Guid runId = Guid.Parse("1f1f1f1f-1f1f-1f1f-1f1f-1f1f1f1f1f1f");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "network\ndiagram", "contentType": "text/plain", "content": "body" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("network\ndiagram");
         back.IsValidForProcessing().Should().BeTrue();
     }
 

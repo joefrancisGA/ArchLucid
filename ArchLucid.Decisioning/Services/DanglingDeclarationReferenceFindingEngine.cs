@@ -52,7 +52,7 @@ public sealed class DanglingDeclarationReferenceFindingEngine : IFindingEngine
             Severity = FindingSeverity.Warning,
             Title = BuildTitle(reference),
             Rationale =
-                $"Property '{reference.PropertyName}' on '{reference.SourceNodeLabel}' references '{reference.ReferencedToken}', which is not present in this review package graph.",
+                $"Property '{DeclarationFindingHonestyCopy.FormatPropertyName(reference.PropertyName)}' on '{reference.SourceNodeLabel}' references '{reference.ReferencedToken}', which is not present in this review package graph.",
             DecisionConsequence =
                 "Add the missing resource declaration to the package or correct the reference before approval.",
             RelatedNodeIds = relatedNodeIds,

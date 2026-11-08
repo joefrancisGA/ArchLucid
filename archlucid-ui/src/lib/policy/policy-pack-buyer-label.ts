@@ -23,6 +23,10 @@ export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string):
     return ver.length === 0 ? `${id} · version not recorded` : id;
   }
 
+  if (ver.length > 0) {
+    return "Policy pack id was not stored.";
+  }
+
   return "Policy pack not recorded";
 }
 
@@ -46,9 +50,15 @@ export function policyPackBuyerGovernanceDetailHref(ruleSetId: string): string |
 }
 
 export function policyPackBuyerDisplayNameFromId(policyPackId: string): string | null {
+  const scenario = resolveSampleScenarioByPolicyPackId(policyPackId);
+
+  if (scenario !== null) {
+    return scenario.policyPackDisplayLabel;
+  }
+
   const id = policyPackId.trim();
 
-  if (id === "1" || id.includes("responsible-ai") || id.includes("ai-governance")) {
+  if (id === "1" || id === "ai-governance-responsible-ai-v1") {
     return RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL;
   }
 

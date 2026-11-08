@@ -65,12 +65,21 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         compilationStartAnalysisContext.RegisterSemanticModelAction(AnalyzeSemanticModel);
         compilationStartAnalysisContext.RegisterSymbolAction(
-            symbolContext => AnalyzeReferencedBaseActions(
-                symbolContext,
-                controllerBaseType,
-                nonActionAttributeType,
-                exclusionAttribute,
-                allowFqEntries),
+            symbolContext =>
+            {
+                AnalyzeReferencedBaseActions(
+                    symbolContext,
+                    controllerBaseType,
+                    nonActionAttributeType,
+                    exclusionAttribute,
+                    allowFqEntries);
+                AnalyzeDefaultInterfaceMutatingActions(
+                    symbolContext,
+                    controllerBaseType,
+                    nonActionAttributeType,
+                    exclusionAttribute,
+                    allowFqEntries);
+            },
             SymbolKind.NamedType);
         return;
 
@@ -131,6 +140,90 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 semanticModelAnalysisContext.ReportDiagnostic(
                     Al0003MutatingControllerAuditDescriptor.Create(identifierLocationScoped,
                         fqAllowlistKeyScoped));
+            }
+        }
+    }
+
+    private static void AnalyzeDefaultInterfaceMutatingActions(
+        SymbolAnalysisContext context,
+        INamedTypeSymbol controllerBaseType,
+        INamedTypeSymbol? nonActionAttributeType,
+        INamedTypeSymbol? exclusionAttribute,
+        ImmutableHashSet<string> allowFqEntries)
+    {
+        if (context.Symbol is not INamedTypeSymbol controllerType ||
+            controllerType.TypeKind != TypeKind.Class ||
+            controllerType.IsAbstract ||
+            !InheritsControllerBase(controllerType, controllerBaseType))
+        {
+            return;
+        }
+
+        CancellationToken cancellationToken = context.CancellationToken;
+
+        foreach (INamedTypeSymbol iface in controllerType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod ||
+                    interfaceMethod.MethodKind != MethodKind.Ordinary ||
+                    interfaceMethod.IsAbstract ||
+                    interfaceMethod.IsStatic)
+                {
+                    continue;
+                }
+
+                IMethodSymbol? implementation =
+                    controllerType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null ||
+                    !SymbolEqualityComparer.Default.Equals(implementation, interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (nonActionAttributeType is not null &&
+                    MethodHasAttribute(interfaceMethod, nonActionAttributeType))
+                {
+                    continue;
+                }
+
+                if (!MethodSpecifiesTrackedVerb(interfaceMethod))
+                {
+                    continue;
+                }
+
+                string fqAllowlistKey = FormatDefaultInterfaceAllowlistKey(controllerType, interfaceMethod);
+
+                if (allowFqEntries.Contains(fqAllowlistKey))
+                {
+                    continue;
+                }
+
+                if (MutatingAuditExcludeApplies(exclusionAttribute, interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (ControllerTypeHasMutatingAuditExclude(exclusionAttribute, controllerType))
+                {
+                    continue;
+                }
+
+                if (SyntaxBodiesReferenceLogAsync(interfaceMethod, cancellationToken))
+                {
+                    continue;
+                }
+
+                Location? location = controllerType.Locations.FirstOrDefault();
+
+                if (location is null)
+                {
+                    continue;
+                }
+
+                context.ReportDiagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Create(location, fqAllowlistKey));
             }
         }
     }
@@ -345,6 +438,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     internal static string FormatAllowlistKey(IMethodSymbol methodDeclaredSymbolScoped) =>
         $"{FormatAllowlistFqType(methodDeclaredSymbolScoped.ContainingType)}.{methodDeclaredSymbolScoped.Name}";
 
+    internal static string FormatDefaultInterfaceAllowlistKey(
+        INamedTypeSymbol controllerTypeSymbolScoped,
+        IMethodSymbol interfaceMethodSymbolScoped) =>
+        $"{FormatAllowlistFqType(controllerTypeSymbolScoped)}.{FormatAllowlistFqType(interfaceMethodSymbolScoped.ContainingType)}.{interfaceMethodSymbolScoped.Name}";
+
     internal static string FormatAllowlistFqType(INamedTypeSymbol namedTypeSymbolScoped)
     {
         string raw = namedTypeSymbolScoped.ToDisplayString(AllowlistFqTypeFormat).Trim();
@@ -371,40 +469,111 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         yield return arrowClauseScoped.Expression;
     }
 
-    // LogAsync inside a local function is audit proof only when that local can run from the action entry.
-    // An uncalled nested local does not execute on the request, so it must not silence AL0003.
-    private static bool AuditInvocationCountsAsExecutedProof(
-        InvocationExpressionSyntax invocationExpressionSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax,
-        SemanticModel semanticModel,
-        CancellationToken cancellationToken)
-    {
-        LocalFunctionStatementSyntax? enclosingLocalFunction =
-            invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
-
-        if (enclosingLocalFunction is not null &&
-            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
-        {
-            return false;
-        }
-
-        if (!AnonymousFunctionsAroundInvocationAreInvoked(
-                invocationExpressionSyntax,
-                containingMethodDeclarationSyntax))
-        {
-            return false;
-        }
-
-        return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
-    }
-
-    // A lambda stored and never called does not run on the request. Passing the lambda as an
-    // argument, or invoking the local it was assigned to, still counts as audit proof.
-    private static bool AnonymousFunctionsAroundInvocationAreInvoked(
-        InvocationExpressionSyntax invocationExpressionSyntax,
+    private static bool LocalFunctionIsInvokedFromContainingMethod(
+        LocalFunctionStatementSyntax localFunctionStatementSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax)
     {
-        foreach (SyntaxNode ancestor in invocationExpressionSyntax.Ancestors())
+        return IsLocalFunctionReachableFromMethodEntry(localFunctionStatementSyntax, containingMethodDeclarationSyntax);
+    }
+
+    private static bool IsLocalFunctionReachableFromMethodEntry(
+        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        ImmutableArray<LocalFunctionStatementSyntax> localFunctionsInMethod =
+            containingMethodDeclarationSyntax.DescendantNodes().OfType<LocalFunctionStatementSyntax>().ToImmutableArray();
+
+        if (localFunctionsInMethod.IsDefaultOrEmpty)
+            return false;
+
+        var reachableLocalFunctions = new HashSet<LocalFunctionStatementSyntax>();
+
+        bool addedReachableLocalFunction;
+        do
+        {
+            addedReachableLocalFunction = false;
+
+            foreach (LocalFunctionStatementSyntax localFunctionStatementSyntax in localFunctionsInMethod)
+            {
+                if (reachableLocalFunctions.Contains(localFunctionStatementSyntax))
+                    continue;
+
+                if (!IsLocalFunctionInvokedFromReachableScope(
+                        localFunctionStatementSyntax,
+                        containingMethodDeclarationSyntax,
+                        reachableLocalFunctions))
+                {
+                    continue;
+                }
+
+                reachableLocalFunctions.Add(localFunctionStatementSyntax);
+                addedReachableLocalFunction = true;
+            }
+        }
+        while (addedReachableLocalFunction);
+
+        return reachableLocalFunctions.Contains(targetLocalFunctionStatementSyntax);
+    }
+
+    private static bool IsLocalFunctionInvokedFromReachableScope(
+        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions)
+    {
+        string localFunctionName = targetLocalFunctionStatementSyntax.Identifier.Text;
+
+        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
+                     .DescendantNodes()
+                     .OfType<InvocationExpressionSyntax>())
+        {
+            if (ReferenceEquals(
+                    invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>(),
+                    targetLocalFunctionStatementSyntax))
+            {
+                continue;
+            }
+
+            if (!InvocationTargetsLocalFunctionName(invocationSyntax, localFunctionName))
+                continue;
+
+            LocalFunctionStatementSyntax? callerLocalFunctionStatementSyntax =
+                invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+            if (callerLocalFunctionStatementSyntax is null)
+            {
+                if (invocationSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+                    continue;
+
+                return true;
+            }
+
+            if (reachableLocalFunctions.Contains(callerLocalFunctionStatementSyntax))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool InvocationTargetsLocalFunctionName(
+        InvocationExpressionSyntax invocationSyntax,
+        string localFunctionName)
+    {
+        if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+            identifierNameSyntax.Identifier.Text == localFunctionName)
+        {
+            return true;
+        }
+
+        return invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+               memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
+    }
+
+    // Stored lambdas that are never invoked do not run on the request; count LogAsync only when the lambda is used.
+    private static bool AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(
+        SyntaxNode logAsyncSyntaxNode,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        foreach (SyntaxNode ancestor in logAsyncSyntaxNode.Ancestors())
         {
             if (ReferenceEquals(ancestor, containingMethodDeclarationSyntax))
                 break;
@@ -496,103 +665,65 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    private static bool LocalFunctionIsInvokedFromContainingMethod(
-        LocalFunctionStatementSyntax localFunctionStatementSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    private static bool LogAsyncMemberAccessCountsForAuditProof(
+        MemberAccessExpressionSyntax memberAccessExpressionSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
-        return IsLocalFunctionReachableFromMethodEntry(localFunctionStatementSyntax, containingMethodDeclarationSyntax);
-    }
-
-    private static bool IsLocalFunctionReachableFromMethodEntry(
-        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
-    {
-        ImmutableArray<LocalFunctionStatementSyntax> localFunctionsInMethod =
-            containingMethodDeclarationSyntax.DescendantNodes().OfType<LocalFunctionStatementSyntax>().ToImmutableArray();
-
-        if (localFunctionsInMethod.IsDefaultOrEmpty)
+        if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "LogAsync", StringComparison.Ordinal))
             return false;
 
-        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions = new HashSet<LocalFunctionStatementSyntax>();
-        bool addedReachableLocalFunction;
+        LocalFunctionStatementSyntax? enclosingLocalFunction =
+            memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
-        do
+        if (enclosingLocalFunction is not null &&
+            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
         {
-            addedReachableLocalFunction = false;
-
-            foreach (LocalFunctionStatementSyntax localFunctionStatementSyntax in localFunctionsInMethod)
-            {
-                if (reachableLocalFunctions.Contains(localFunctionStatementSyntax))
-                    continue;
-
-                if (!IsLocalFunctionInvokedFromReachableScope(
-                        localFunctionStatementSyntax,
-                        containingMethodDeclarationSyntax,
-                        reachableLocalFunctions))
-                {
-                    continue;
-                }
-
-                reachableLocalFunctions.Add(localFunctionStatementSyntax);
-                addedReachableLocalFunction = true;
-            }
+            return false;
         }
-        while (addedReachableLocalFunction);
 
-        return reachableLocalFunctions.Contains(targetLocalFunctionStatementSyntax);
+        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(memberAccessExpressionSyntax, containingMethodDeclarationSyntax))
+            return false;
+
+        return LogAsyncSyntaxIsOnExecutedPath(memberAccessExpressionSyntax, semanticModel, cancellationToken);
     }
 
-    private static bool IsLocalFunctionInvokedFromReachableScope(
-        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+    private static bool AuditLogAsyncInvocationCountsForAuditProof(
+        InvocationExpressionSyntax invocationExpressionSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax,
-        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions)
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
-        string localFunctionName = targetLocalFunctionStatementSyntax.Identifier.Text;
+        LocalFunctionStatementSyntax? enclosingLocalFunction =
+            invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
-        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
-                     .DescendantNodes()
-                     .OfType<InvocationExpressionSyntax>())
+        if (enclosingLocalFunction is not null &&
+            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
         {
-            if (ReferenceEquals(
-                    invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>(),
-                    targetLocalFunctionStatementSyntax))
-            {
-                continue;
-            }
-
-            if (!InvocationTargetsLocalFunctionName(invocationSyntax, localFunctionName))
-                continue;
-
-            LocalFunctionStatementSyntax? callerLocalFunctionStatementSyntax =
-                invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
-
-            if (callerLocalFunctionStatementSyntax is null)
-                return true;
-
-            if (reachableLocalFunctions.Contains(callerLocalFunctionStatementSyntax))
-                return true;
+            return false;
         }
 
-        return false;
+        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(invocationExpressionSyntax, containingMethodDeclarationSyntax))
+            return false;
+
+        return LogAsyncSyntaxIsOnExecutedPath(invocationExpressionSyntax, semanticModel, cancellationToken);
     }
 
-    private static bool InvocationTargetsLocalFunctionName(
-        InvocationExpressionSyntax invocationSyntax,
-        string localFunctionName)
+    // Catch filters and constant-unselected switch arms do not run, including when they sit inside a reachable local.
+    private static bool LogAsyncSyntaxIsOnExecutedPath(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
-        if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
-            identifierNameSyntax.Identifier.Text == localFunctionName)
-        {
-            return true;
-        }
+        if (logAsyncSyntaxNode.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+            return false;
 
-        return invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
-               memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
+        return IsLogAsyncSyntaxProofReachable(semanticModel, logAsyncSyntaxNode, cancellationToken);
     }
 
-    // A constant switch runs only the matching arm. LogAsync in another arm, including default, does not execute.
     private static bool IsLogAsyncSyntaxProofReachable(
-        SemanticModel semanticModel,
+        SemanticModel? semanticModel,
         SyntaxNode logAsyncSyntaxNode,
         CancellationToken cancellationToken)
     {
@@ -604,11 +735,76 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (switchSectionSyntax.Parent is not SwitchStatementSyntax switchStatementSyntax)
             return true;
 
-        return IsSwitchSectionReachableForConstantDiscriminant(
-            switchStatementSyntax,
-            switchSectionSyntax,
-            semanticModel,
-            cancellationToken);
+        if (semanticModel is not null)
+        {
+            return IsSwitchSectionReachableForConstantDiscriminant(
+                switchStatementSyntax,
+                switchSectionSyntax,
+                semanticModel,
+                cancellationToken);
+        }
+
+        return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
+    }
+
+    private static bool IsSwitchSectionReachableForSyntaxLiteralDiscriminant(
+        SwitchStatementSyntax switchStatementSyntax,
+        SwitchSectionSyntax switchSectionSyntax)
+    {
+        if (switchStatementSyntax.Expression is not LiteralExpressionSyntax discriminantLiteralSyntax)
+            return true;
+
+        if (!TryGetSwitchLiteralValue(discriminantLiteralSyntax, out string? discriminantText))
+            return true;
+
+        bool sectionHasDefaultLabel = switchSectionSyntax.Labels.Any(
+            label => label.Keyword.IsKind(SyntaxKind.DefaultKeyword));
+
+        foreach (SwitchLabelSyntax labelSyntax in switchSectionSyntax.Labels)
+        {
+            if (labelSyntax is not CaseSwitchLabelSyntax caseSwitchLabelSyntax)
+                continue;
+
+            if (caseSwitchLabelSyntax.Value is LiteralExpressionSyntax caseLiteralSyntax &&
+                TryGetSwitchLiteralValue(caseLiteralSyntax, out string? caseText) &&
+                string.Equals(discriminantText, caseText, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        if (!sectionHasDefaultLabel)
+            return false;
+
+        foreach (SwitchSectionSyntax otherSectionSyntax in switchStatementSyntax.Sections)
+        {
+            foreach (SwitchLabelSyntax otherLabelSyntax in otherSectionSyntax.Labels)
+            {
+                if (otherLabelSyntax is not CaseSwitchLabelSyntax otherCaseLabelSyntax)
+                    continue;
+
+                if (otherCaseLabelSyntax.Value is LiteralExpressionSyntax otherCaseLiteralSyntax &&
+                    TryGetSwitchLiteralValue(otherCaseLiteralSyntax, out string? otherCaseText) &&
+                    string.Equals(discriminantText, otherCaseText, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryGetSwitchLiteralValue(LiteralExpressionSyntax literalExpressionSyntax, out string? normalizedText)
+    {
+        normalizedText = literalExpressionSyntax.Token.ValueText;
+
+        if (string.IsNullOrEmpty(normalizedText))
+        {
+            normalizedText = literalExpressionSyntax.Token.Text;
+        }
+
+        return !string.IsNullOrEmpty(normalizedText);
     }
 
     private static bool IsSwitchSectionReachableForConstantDiscriminant(
@@ -673,6 +869,12 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         if (left.Equals(right))
             return true;
+
+        if (left is int leftInt && right is int rightInt)
+            return leftInt == rightInt;
+
+        if (left is long leftLong && right is long rightLong)
+            return leftLong == rightLong;
 
         return string.Equals(left.ToString(), right.ToString(), StringComparison.Ordinal);
     }
@@ -920,6 +1122,83 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
+    private static bool ControllerTypeHasMutatingAuditExclude(
+        INamedTypeSymbol? exclusionAttributeSymbolScoped,
+        INamedTypeSymbol controllerTypeSymbolScoped)
+    {
+        if (exclusionAttributeSymbolScoped is null)
+            return false;
+
+        for (INamedTypeSymbol? typeWalker = controllerTypeSymbolScoped;
+             typeWalker is not null;
+             typeWalker = typeWalker.BaseType)
+        {
+            foreach (AttributeData attributeDataExcluded in typeWalker.GetAttributes())
+            {
+                if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
+                        exclusionAttributeSymbolScoped))
+                {
+                    return true;
+                }
+            }
+        }
+
+        for (INamedTypeSymbol? containingTypeWalker = controllerTypeSymbolScoped.ContainingType;
+             containingTypeWalker is not null;
+             containingTypeWalker = containingTypeWalker.ContainingType)
+        {
+            for (INamedTypeSymbol? inheritWalker = containingTypeWalker;
+                 inheritWalker is not null;
+                 inheritWalker = inheritWalker.BaseType)
+            {
+                foreach (AttributeData owningTypeExcluded in inheritWalker.GetAttributes())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(owningTypeExcluded.AttributeClass,
+                            exclusionAttributeSymbolScoped))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool SyntaxBodiesReferenceLogAsync(
+        IMethodSymbol methodDeclaredSymbolScoped,
+        CancellationToken cancellationTokenScoped)
+    {
+        foreach (SyntaxReference declaringReferenceScoped in methodDeclaredSymbolScoped.DeclaringSyntaxReferences)
+        {
+            if (declaringReferenceScoped.GetSyntax(cancellationTokenScoped)
+                    .FirstAncestorOrSelf<MethodDeclarationSyntax>() is not { } methodAnchorSyntax)
+            {
+                continue;
+            }
+
+            foreach (SyntaxNode bodySubtreeScoped in EnumerateMethodBodies(methodAnchorSyntax))
+            {
+                foreach (InvocationExpressionSyntax invocationSyntaxScoped in bodySubtreeScoped
+                             .DescendantNodesAndSelf()
+                             .OfType<InvocationExpressionSyntax>())
+                {
+                    if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                        LogAsyncMemberAccessCountsForAuditProof(
+                            memberAccessExpressionSyntax,
+                            methodAnchorSyntax,
+                            semanticModel: null,
+                            cancellationTokenScoped))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     internal static bool SemanticBodiesInvokeAuditLogAsync(
         SemanticModel semanticModelScoped,
         INamedTypeSymbol auditInterfaceDeclaredTypeSymbolScoped,
@@ -941,7 +1220,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
                     .DescendantNodesAndSelf()
                     .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped =>
-                    AuditInvocationCountsAsExecutedProof(
+                    AuditLogAsyncInvocationCountsForAuditProof(
                         invocationSyntaxScoped,
                         methodAnchorSyntax,
                         semanticModelScoped,

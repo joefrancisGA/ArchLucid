@@ -3,12 +3,22 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
+import {
+  formatRunDetailAwaitingActionCountDisplay,
+  formatRunDetailCriticalFindingCountDisplay,
+  formatRunDetailHighFindingCountDisplay,
+} from "@/lib/reviews/run-detail-sponsor-finding-count-display";
+import {
+  RUN_DETAIL_PIPELINE_COMPLETED_LABEL,
+  RUN_DETAIL_PIPELINE_COMPLETED_NOT_STORED,
+} from "@/lib/reviews/run-detail-pipeline-completed-copy";
 import { cn } from "@/lib/utils";
 
 export type RunDetailSponsorReportProps = {
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly overallPosture: string;
   readonly highestSeverity: string | null;
+  readonly hasFindingsSnapshot?: boolean;
   readonly criticalCount: number;
   readonly highCount: number;
   readonly awaitingActionCount: number;
@@ -19,7 +29,7 @@ export type RunDetailSponsorReportProps = {
 
 function severityTagKind(
   severity: string,
-): "critical" | "high" | "medium" | "low" {
+): "critical" | "high" | "medium" | "low" | null {
   if (severity === "Critical") {
     return "critical";
   }
@@ -32,7 +42,11 @@ function severityTagKind(
     return "medium";
   }
 
-  return "low";
+  if (severity === "Low") {
+    return "low";
+  }
+
+  return null;
 }
 
 /** Single board-ready sponsor report — authoritative metrics for the overview. */
@@ -41,6 +55,8 @@ export function RunDetailSponsorReport(
 ): React.JSX.Element {
   const lastEvaluatedLabel =
     props.lastEvaluatedUtc !== null ? formatInstantForLocale(props.lastEvaluatedUtc) : null;
+  const severityKind =
+    props.highestSeverity !== null ? severityTagKind(props.highestSeverity) : null;
 
   return (
     <section
@@ -65,34 +81,47 @@ export function RunDetailSponsorReport(
             {props.overallPosture}
           </dd>
         </div>
-        {props.highestSeverity !== null ? (
+        {props.highestSeverity !== null && severityKind !== null ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Highest finding severity</dt>
             <dd className="m-0 mt-0.5">
               <SeverityTag
                 severity={props.highestSeverity}
-                kind={severityTagKind(props.highestSeverity)}
+                kind={severityKind}
                 label={props.highestSeverity}
               />
             </dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Highest finding severity</dt>
+            <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
+              Highest finding severity was not stored.
+            </dd>
+          </div>
+        )}
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Critical findings</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.criticalCount === 0 ? "None" : props.criticalCount}
+            {formatRunDetailCriticalFindingCountDisplay(
+              props.hasFindingsSnapshot,
+              props.criticalCount,
+            )}
           </dd>
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">High findings</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.highCount === 0 ? "None" : props.highCount}
+            {formatRunDetailHighFindingCountDisplay(props.hasFindingsSnapshot, props.highCount)}
           </dd>
         </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Findings requiring action</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.awaitingActionCount}
+            {formatRunDetailAwaitingActionCountDisplay(
+              props.hasFindingsSnapshot,
+              props.awaitingActionCount,
+            )}
           </dd>
         </div>
         <div>
@@ -108,13 +137,27 @@ export function RunDetailSponsorReport(
               {props.evidenceCoverageLabel}
             </dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Evidence coverage</dt>
+            <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
+              Evidence coverage was not stored.
+            </dd>
+          </div>
+        )}
         {lastEvaluatedLabel !== null ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Last evaluated</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">{RUN_DETAIL_PIPELINE_COMPLETED_LABEL}</dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{lastEvaluatedLabel}</dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">{RUN_DETAIL_PIPELINE_COMPLETED_LABEL}</dt>
+            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+              {RUN_DETAIL_PIPELINE_COMPLETED_NOT_STORED}
+            </dd>
+          </div>
+        )}
       </dl>
     </section>
   );

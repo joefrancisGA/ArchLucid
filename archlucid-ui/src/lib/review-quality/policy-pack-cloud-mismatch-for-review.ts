@@ -3,8 +3,12 @@ import type { CompareEffectivePackAssignmentAtCommitRow } from "@/lib/compare-ef
 import { evaluatePolicyPackCloudMismatch } from "./review-intake-quality-gates";
 
 /** Maps authority `CloudProvider` enum values to intake mismatch tokens (`aws`, `gcp`, `none`). */
-export function normalizeCloudProviderForMismatchCheck(cloudProvider: string | null | undefined): string {
-  const raw = (cloudProvider ?? "None").trim();
+export function normalizeCloudProviderForMismatchCheck(cloudProvider: string | null | undefined): string | null {
+  if (cloudProvider === null || cloudProvider === undefined) {
+    return null;
+  }
+
+  const raw = cloudProvider.trim();
 
   if (raw.length === 0) {
     return "none";
@@ -78,8 +82,7 @@ export function evaluatePolicyPackCloudMismatchForReview(
     packAssignments,
   );
 
-  return evaluatePolicyPackCloudMismatch(
-    normalizeCloudProviderForMismatchCheck(cloudProvider),
-    policyReferences,
-  );
+  const normalized = normalizeCloudProviderForMismatchCheck(cloudProvider);
+
+  return evaluatePolicyPackCloudMismatch(normalized, policyReferences);
 }

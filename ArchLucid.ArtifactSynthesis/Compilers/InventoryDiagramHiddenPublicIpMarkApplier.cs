@@ -60,8 +60,26 @@ internal static class InventoryDiagramHiddenPublicIpMarkApplier
                 }
 
                 ownerDiagramNode.HasPublicInternetExposure = true;
+                ownerDiagramNode.HiddenPublicIpAddress = ReadPublicIpAddress(graphNode);
             }
         }
+    }
+
+    private static string? ReadPublicIpAddress(GraphNode publicIpNode)
+    {
+        if (publicIpNode.Properties.TryGetValue("ipAddress", out string? ipAddress)
+            && !string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return ipAddress.Trim();
+        }
+
+        if (publicIpNode.Properties.TryGetValue("properties.ipAddress", out string? nestedIpAddress)
+            && !string.IsNullOrWhiteSpace(nestedIpAddress))
+        {
+            return nestedIpAddress.Trim();
+        }
+
+        return null;
     }
 
     private static bool ShouldSkipPublicMark(DiagramAst ast, DiagramNode ownerDiagramNode)

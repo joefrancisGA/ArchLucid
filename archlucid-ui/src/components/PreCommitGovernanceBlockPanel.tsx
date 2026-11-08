@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { resolveDeskContinuityFindingInspectHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
@@ -16,13 +18,11 @@ export type PreCommitGovernanceBlockPanelProps = {
   readonly block: PreCommitGovernanceBlockView;
 };
 
-function findingInspectHref(runId: string, findingId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
-}
-
 /** Structured pre-commit governance block surfaced after finalize returns HTTP 409. */
 export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPanelProps): React.JSX.Element {
   const { runId, block } = props;
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
 
   const troubleshootingHref = inAppHelpHref("troubleshooting", "governance-pre-commit-blocked");
 
@@ -73,7 +73,10 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
             {block.blockingFindingIds.map((findingId) => (
               <li key={findingId}>
                 <Link
-                  href={findingInspectHref(runId, findingId)}
+                  href={resolveDeskContinuityFindingInspectHref(runId, findingId, {
+                    pathname,
+                    search: searchParams.toString(),
+                  })}
                   className={cn("font-mono font-medium", OPERATOR_LINK.nav)}
                 >
                   {findingId}

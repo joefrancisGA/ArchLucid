@@ -59,6 +59,28 @@ public sealed class ExportReplayServiceReplayAsyncTests
     }
 
     [SkippableFact]
+    public async Task ReplayAsync_trims_surrounding_whitespace_on_export_record_id_before_lookup()
+    {
+        ExportReplayService sut = CreateSut(out Mock<IRunExportRecordRepository> repo, out Mock<IArchitectureAnalysisService> analysis, out Mock<IArchitectureAnalysisDocxExportService> standardDocx, out _, out _);
+        RunExportRecord record = BaseRecord("analysis-report-docx");
+        record.AnalysisRequestJson = System.Text.Json.JsonSerializer.Serialize(MinimalPersistedRequest());
+        repo.Setup(r => r.GetByIdAsync(record.ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        repo.Setup(r => r.GetByIdAsync(It.Is<string>(id => id != record.ExportRecordId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunExportRecord?)null);
+        analysis.Setup(a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureAnalysisReport());
+        standardDocx.Setup(s => s.GenerateDocxAsync(It.IsAny<ArchitectureAnalysisReport>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([0x50, 0x4b]);
+
+        ReplayExportResult result = await sut.ReplayAsync(
+            new ReplayExportRequest { ExportRecordId = $"  {record.ExportRecordId}  " });
+
+        result.ExportRecordId.Should().Be(record.ExportRecordId);
+        repo.Verify(r => r.GetByIdAsync(record.ExportRecordId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [SkippableFact]
     public async Task ReplayAsync_RecordNotFound_ThrowsInvalidOperationException()
     {
         ExportReplayService sut = CreateSut(out Mock<IRunExportRecordRepository> repo, out _, out _, out _, out _);
@@ -102,7 +124,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
 
         Exception ex = (await act.Should().ThrowAsync<InvalidOperationException>()).Which;
         ex.Message.Should().Contain("could not be deserialized");
-        ex.InnerException.Should().BeOfType<JsonException>();
+        ex.InnerException.Should().BeAssignableTo<JsonException>();
     }
 
     [SkippableFact]
@@ -223,18 +245,18 @@ public sealed class ExportReplayServiceReplayAsyncTests
         };
 
         audit.Setup(a => a.RecordAsync(
-                record.RunId,
-                record.ExportType,
-                record.Format,
                 It.IsAny<string>(),
-                record.TemplateProfile,
-                record.TemplateProfileDisplayName,
-                record.WasAutoSelected,
-                record.ResolutionReason,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<PersistedAnalysisExportRequest?>(),
                 It.IsAny<string?>(),
-                false,
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(persistedRow);
 
@@ -256,7 +278,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
                 It.IsAny<string?>(),
                 It.IsAny<PersistedAnalysisExportRequest?>(),
                 It.IsAny<string?>(),
-                false,
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         consultingDocx.Verify(

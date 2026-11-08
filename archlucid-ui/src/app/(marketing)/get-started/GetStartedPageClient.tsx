@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
+import { ArchLucidBetaSkuContentsSection } from "@/components/product-line/ArchLucidBetaSkuContentsSection";
 import { Button } from "@/components/ui/button";
 import { GetStartedPageChrome } from "@/components/marketing/get-started/GetStartedPageChrome";
 import { GetStartedScopeDisclosure } from "@/components/marketing/get-started/GetStartedScopeDisclosure";
@@ -308,6 +309,8 @@ export function GetStartedPageClient(): ReactElement {
             </p>
           </section>
 
+          <ArchLucidBetaSkuContentsSection showQuoteLink={false} />
+
           <section
             aria-labelledby="next-heading"
             className={cn(MARKETING_SURFACES.highlightPanel, "p-6")}
@@ -344,6 +347,7 @@ export function GetStartedPageClient(): ReactElement {
                 className={MARKETING_SURFACES.inlineLink}
                 href="#choose-sample"
                 data-analytics-event="get-started-open-another-sample"
+                onClick={selectSamplePath}
               >
                 Open another illustrative sample
               </Link>

@@ -36,13 +36,16 @@ public sealed class RepoFaithfulnessHarnessSummaryReader(IHostEnvironment hostEn
         }
 
         return new FaithfulnessHarnessSummary(
-            dto.FormatVersion ?? "1.0",
+            ResolveFormatVersion(dto.FormatVersion),
             dto.CasesEvaluated,
             dto.PositiveReadinessSupportRatio,
             dto.NegativeControlSupportRatio,
             dto.CombinedDiagnosticSupportRatio,
             dto.FloorMinSupportRatio);
     }
+
+    private static string ResolveFormatVersion(string? formatVersion) =>
+        string.IsNullOrWhiteSpace(formatVersion) ? "1.0" : formatVersion.Trim();
 
     private sealed class FaithfulnessHarnessSummaryDto
     {

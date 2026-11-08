@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   auditEvaluationOutcomeStatusKind,
+  auditEvaluationOutcomeLabel,
   collectBrokenEvidenceLinkKinds,
   countAuditEvidenceLineageSummary,
   countEvidenceHashVerification,
@@ -18,10 +19,12 @@ describe("audit-evidence-lineage-presentation", () => {
     expect(auditEvaluationOutcomeStatusKind("TechnicallySupported")).toBe("ready");
     expect(auditEvaluationOutcomeStatusKind("TechnicallyNotSupported")).toBe("blocked");
     expect(auditEvaluationOutcomeStatusKind("InsufficientEvidence")).toBe("needs-attention");
+    expect(auditEvaluationOutcomeLabel(undefined)).toBe("Evaluation outcome was not stored.");
   });
 
   it("humanizes missing link enum labels", () => {
     expect(humanizeAuditEvidenceLinkKind("RawApiBlob")).toBe("Raw API blob");
+    expect(humanizeAuditEvidenceLinkKind("")).toBe("Link kind was not stored.");
   });
 
   it("counts requirements and evidence rows for collapsed summaries", () => {

@@ -26,15 +26,18 @@ export function ProvenanceReferenceLink(props: {
   readonly runId: string;
   readonly referenceId: string | null | undefined;
   readonly nodes: readonly ArchitectureLinkageNode[];
+  /** When provided (client), deep links respect peer vs nested review desk shape. */
+  readonly pathname?: string | null;
+  readonly requestId?: string | null;
 }) {
-  const { runId, referenceId, nodes } = props;
+  const { runId, referenceId, nodes, pathname, requestId } = props;
   const raw = referenceId?.trim() ?? "";
 
   if (raw.length === 0) {
-    return <>—</>;
+    return <>Reference was not stored.</>;
   }
 
-  const href = provenanceReferenceHref(runId, raw, nodes);
+  const href = provenanceReferenceHref(runId, raw, nodes, { pathname, requestId });
   const label = resolveReferenceLabel(raw, nodes);
 
   if (href === null) {

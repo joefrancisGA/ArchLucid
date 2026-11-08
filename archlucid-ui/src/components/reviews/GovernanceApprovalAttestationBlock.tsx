@@ -92,21 +92,25 @@ export function GovernanceApprovalAttestationBlock({
         </div>
         <div>
           <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
-            Approval hash
+            Review id prefix
           </dt>
           <dd className={cn("mt-0.5 flex items-center gap-1.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
             <span>{approvalHash}</span>
-            <CopyIdButton value={runId} aria-label="Copy full review ID used as approval hash source" />
+            <CopyIdButton value={runId} aria-label="Copy full review id" />
           </dd>
         </div>
-        {rationale ? (
-          <div className="sm:col-span-2">
-            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
-              Rationale
-            </dt>
-            <dd className="mt-0.5 leading-relaxed text-neutral-700 dark:text-neutral-300">{rationale}</dd>
-          </div>
-        ) : null}
+        <div className="sm:col-span-2">
+          <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
+            Rationale
+          </dt>
+          <dd className="mt-0.5 leading-relaxed text-neutral-700 dark:text-neutral-300">
+            {rationale !== null && rationale !== undefined && rationale.trim().length > 0
+              ? rationale
+              : rationale !== null && rationale !== undefined && rationale.trim().length === 0
+                ? "Rationale was stored empty."
+                : "Rationale was not stored."}
+          </dd>
+        </div>
       </dl>
     </div>
   );

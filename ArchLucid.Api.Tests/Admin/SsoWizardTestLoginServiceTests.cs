@@ -463,4 +463,40 @@ public sealed class SsoWizardTestLoginServiceTests
         response.Success.Should().BeFalse();
         response.DiagnosticSummary.Should().Contain("No ArchLucid roles");
     }
+
+    [Fact]
+    public void Execute_returns_failure_when_sample_claim_values_contain_only_invisible_unicode()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = ["\u200B"]
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("No ArchLucid roles");
+    }
 }

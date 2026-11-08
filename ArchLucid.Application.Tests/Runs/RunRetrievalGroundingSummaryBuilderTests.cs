@@ -108,6 +108,32 @@ public sealed class RunRetrievalGroundingSummaryBuilderTests
     }
 
     [Fact]
+    public void Build_WhenGraphRagMetricsOmittedOnTrace_ReturnsNullTotalsAndNoPilotPass()
+    {
+        List<RetrievalGroundingTraceRecord> traces =
+        [
+            new RetrievalGroundingTraceRecord
+            {
+                AgentName = "Topology",
+                RetrievedChunkIds = ["chunk-1"],
+                CitationCoverage = 0.9,
+                GraphRagNeighborsAdded = null,
+                GraphRagSeedHits = null,
+                TokensIn = null,
+            },
+        ];
+
+        RunRetrievalGroundingSummaryDto summary =
+            RunRetrievalGroundingSummaryBuilder.Build(traces, null);
+
+        summary.TotalGraphRagNeighborsAdded.Should().BeNull();
+        summary.TotalGraphRagSeedHits.Should().BeNull();
+        summary.TotalRetrievalTokensIn.Should().BeNull();
+        summary.GraphRagNeighborHitRate.Should().BeNull();
+        summary.GraphRagPilotFloorDisposition.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Build_WhenTopologyReferenceArchitectureTracePresent_PropagatesExemplarSummary()
     {
         List<RetrievalGroundingTraceRecord> traces =

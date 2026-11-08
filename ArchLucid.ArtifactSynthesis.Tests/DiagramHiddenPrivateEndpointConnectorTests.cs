@@ -21,10 +21,12 @@ public sealed class DiagramHiddenPrivateEndpointConnectorTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Nodes.Should().NotContain(node => node.Label == "pe-kv");
-        ast.Edges.Should().ContainSingle(edge =>
-            edge.Label == InventoryDiagramRelationshipLabelTexts.PrivateAccess
-            && ast.Nodes.Any(node => node.NodeId == edge.FromNodeId && node.Label == "kv-app")
-            && ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "vnet-app"));
+        ast.Edges.Should().Contain(edge =>
+            string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                StringComparison.OrdinalIgnoreCase)
+            && edge.Label.Contains("Private endpoint", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -57,7 +59,7 @@ public sealed class DiagramHiddenPrivateEndpointConnectorTests
             Nodes =
             [
                 CreateNode("kv", kvArmId, "Microsoft.KeyVault/vaults", "kv-app"),
-                CreateNode("pe", peArmId, "Microsoft.Network/privateEndpoints", "pe-kv"),
+                CreatePrivateEndpointNode("pe", peArmId, "pe-kv", "Approved"),
                 CreateNode("subnet", subnetArmId, "Microsoft.Network/virtualNetworks/subnets", "data"),
                 CreateNode("vnet", vnetArmId, "Microsoft.Network/virtualNetworks", "vnet-app"),
             ],
@@ -85,6 +87,22 @@ public sealed class DiagramHiddenPrivateEndpointConnectorTests
                 ["arm.resourceGroup"] = "rg",
             },
         };
+    }
+
+    private static GraphNode CreatePrivateEndpointNode(
+        string nodeId,
+        string armId,
+        string label,
+        string? connectionStatus)
+    {
+        GraphNode node = CreateNode(nodeId, armId, "Microsoft.Network/privateEndpoints", label);
+
+        if (!string.IsNullOrWhiteSpace(connectionStatus))
+        {
+            node.Properties["privateLinkServiceConnectionState.status"] = connectionStatus;
+        }
+
+        return node;
     }
 
     private static GraphEdge CreateEdge(

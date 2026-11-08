@@ -7,6 +7,7 @@ export {
   stripScopeUnderstandingSection,
   SCOPE_ACTORS_SOURCE_DEFAULT_LABEL,
   SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
+  SCOPE_CONTEXT_PREVIEW_TRUNCATION_NOTE,
   SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_MAX_LENGTH,
@@ -46,12 +47,15 @@ export type {
 export {
   actorScopeDisplayLabel,
   deriveScopeUnderstandingBullets,
+  INFERRED_SCOPE_BULLET_PREFIX,
   reconcileScopeUnderstandingBullets,
+  scopeBriefLineDisplay,
   scopeBulletText,
 } from "./architecture-scope-understanding-derive";
 export {
   canConfirmScopeUnderstanding,
   scopeBriefLines,
+  scopeConfirmBriefLines,
   validateScopeUnderstandingItem,
 } from "./architecture-scope-understanding-validate";
 export {

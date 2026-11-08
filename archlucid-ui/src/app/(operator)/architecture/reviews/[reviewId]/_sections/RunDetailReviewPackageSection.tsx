@@ -11,8 +11,9 @@ export type RunDetailReviewPackageSectionProps = {
   readonly manifestId: string | null | undefined;
   readonly manifestVersion?: string | null;
   readonly runId: string;
-  readonly artifactCount: number;
+  readonly artifactCount: number | null;
   readonly findingCount: number | null;
+  readonly storedDecisionCount?: number | null;
   readonly showExportActions: boolean;
 };
 
@@ -57,8 +58,14 @@ export function RunDetailReviewPackageSection(
                 : props.findingCount}{" "}
               findings)
             </li>
-            <li>Evidence bundle ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})</li>
-            <li>Decisions</li>
+            {props.artifactCount === null || props.artifactCount === undefined ? null : (
+              <li>
+                Evidence bundle ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})
+              </li>
+            )}
+            {typeof props.storedDecisionCount === "number" && props.storedDecisionCount > 0 ? (
+              <li>Decisions ({props.storedDecisionCount})</li>
+            ) : null}
           </ul>
           <div className="flex flex-wrap gap-2 pt-1 print:hidden">
             <PackagePrintOpenButton runId={props.runId} manifestVersion={manifestVersionForGuard} />

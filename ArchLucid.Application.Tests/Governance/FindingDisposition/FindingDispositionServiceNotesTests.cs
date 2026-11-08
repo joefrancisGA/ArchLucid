@@ -1,6 +1,7 @@
 using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Tests.Governance.FindingDisposition.Support;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -145,6 +146,76 @@ public sealed class FindingDispositionServiceNotesTests
             await sut.ListHistoryAsync(Scope, "shared-finding-id", CancellationToken.None);
 
         history.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ListHistoryAsync_excludes_disposition_events_from_other_workspace()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        ScopeContext otherWorkspaceScope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            ProjectId = ProjectId,
+        };
+
+        await sut.RecordAsync(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "shared-finding-id",
+                Disposition = Disposition.Remediated,
+                Rationale = "Remediated in the other workspace.",
+            },
+            otherWorkspaceScope,
+            "bob",
+            CancellationToken.None);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListHistoryAsync(Scope, "shared-finding-id", CancellationToken.None);
+
+        history.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ListHistoryAsync_excludes_review_trail_events_without_disposition()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        await trailRepository.AppendAsync(
+            new FindingReviewEventRecord
+            {
+                EventId = Guid.NewGuid(),
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                FindingId = "finding-mixed-trail",
+                ReviewerUserId = "alice",
+                Action = FindingReviewAction.Approve,
+                Notes = "Prior approve action without disposition column.",
+                OccurredAtUtc = DateTime.UtcNow.AddMinutes(-5),
+                Disposition = null,
+            },
+            CancellationToken.None);
+
+        await sut.RecordAsync(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "finding-mixed-trail",
+                Disposition = Disposition.Remediated,
+                Rationale = "Remediation shipped in release 2.4.",
+            },
+            Scope,
+            "bob",
+            CancellationToken.None);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListHistoryAsync(Scope, "finding-mixed-trail", CancellationToken.None);
+
+        history.Should().ContainSingle();
+        history[0].Disposition.Should().Be(Disposition.Remediated);
     }
 
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)

@@ -2,25 +2,50 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  formatFindingEvidenceRefSnippetsHeading,
+  formatFindingEvidenceRefSnippetsWireHonesty,
+} from "@/lib/findings/finding-evidence-ref-snippet";
+import type { FindingEvidenceRefSnippetsWireState } from "@/lib/findings/finding-source-evidence-excerpt-copy";
 
 export type FindingEvidenceRefSnippetsProps = {
   readonly snippets: readonly string[];
+  readonly totalStoredSnippetCount?: number | null;
+  readonly wireState?: FindingEvidenceRefSnippetsWireState | null;
   readonly className?: string;
 };
 
 /** Inline evidence ref excerpts for retained findings (TB-385). */
 export function FindingEvidenceRefSnippets(props: FindingEvidenceRefSnippetsProps): ReactElement | null {
   if (props.snippets.length === 0) {
-    return null;
+    if (props.wireState === null || props.wireState === undefined) {
+      return null;
+    }
+
+    const honesty = formatFindingEvidenceRefSnippetsWireHonesty(props.wireState);
+
+    return (
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="finding-evidence-ref-snippets-honesty"
+      >
+        {honesty}
+      </p>
+    );
   }
+
+  const heading = formatFindingEvidenceRefSnippetsHeading(
+    props.snippets,
+    props.totalStoredSnippetCount ?? null,
+  );
 
   return (
     <div
       className={cn("mt-2 space-y-1", props.className)}
       data-testid="finding-evidence-ref-snippets"
-      aria-label="Source evidence excerpts"
+      aria-label={heading}
     >
-      <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Source evidence</p>
+      <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{heading}</p>
       <ul className="m-0 list-none space-y-1 p-0">
         {props.snippets.map((snippet, index) => (
           <li

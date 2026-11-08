@@ -113,6 +113,21 @@ public sealed class AgentOutputQualityGateTests
             .Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
+    [SkippableTheory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public void Evaluate_rejects_when_published_semantic_score_is_non_finite_even_with_finite_calibrated_confidence(
+        double nonFinitePublishedSemantic)
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(
+                Structural(AgentType.Topology, 0.95),
+                Semantic(AgentType.Topology, nonFinitePublishedSemantic),
+                calibratedConfidence: 0.9)
+            .Should().Be(AgentOutputQualityGateOutcome.Rejected);
+    }
+
     [SkippableFact]
     public void Evaluate_warns_when_above_reject_but_below_warn_on_either_score()
     {
@@ -328,6 +343,20 @@ public sealed class AgentOutputQualityGateTests
     }
 
     [SkippableFact]
+    public void ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = true }));
+
+        string category = sut.ResolveRejectReasonCategory(
+            AgentOutputQualityGateOutcome.Rejected,
+            Structural(AgentType.Topology, 1.0),
+            Semantic(AgentType.Topology, 1.0),
+            "finding_citation_coverage_below_floor");
+
+        category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonSemantic);
+    }
+
+    [SkippableFact]
     public void PilotStrict_CitationCoverageBelow_Floor_Rejects()
     {
         AgentOutputQualityGateOptions options = new()
@@ -427,5 +456,34 @@ public sealed class AgentOutputQualityGateTests
         outcome.Should().NotBe(
             AgentOutputQualityGateOutcome.Rejected,
             because: "coverage check is skipped when the ratio was not evaluated");
+    }
+
+    [SkippableTheory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void PilotStrict_NonFiniteCitationCoverageRatio_Rejects(double citationCoverageRatio)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0.0,
+            SemanticRejectBelow = 0.0,
+            StructuralWarnBelow = 0.0,
+            SemanticWarnBelow = 0.0,
+            PilotStrictMinCitationCoverageRatio = 0.5
+        };
+
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        AgentOutputSemanticScore semantic = Semantic(AgentType.Topology, 1.0);
+        semantic.FindingCitationCoverageRatio = citationCoverageRatio;
+
+        AgentOutputQualityGateOutcome outcome = sut.Evaluate(Structural(AgentType.Topology, 1.0), semantic);
+
+        outcome.Should().Be(
+            AgentOutputQualityGateOutcome.Rejected,
+            because: "non-finite citation coverage must not bypass PilotStrict citation floor");
     }
 }

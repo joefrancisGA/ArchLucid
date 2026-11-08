@@ -38,3 +38,8 @@ describe("ArchitectureIntelligenceRunSummary", () => {
     );
   });
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));

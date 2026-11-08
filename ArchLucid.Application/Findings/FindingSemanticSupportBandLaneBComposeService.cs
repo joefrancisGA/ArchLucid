@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
@@ -35,8 +36,9 @@ public sealed class FindingSemanticSupportBandLaneBComposeService(
         if (results.Count == 0 || string.IsNullOrWhiteSpace(runId))
             return;
 
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await _traceRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization
+            .LoadExecutionTracesByRunIdAsync(_traceRepository, scope, runId.Trim(), cancellationToken)
+            .ConfigureAwait(false);
 
         if (traces.Count == 0)
         {
@@ -51,8 +53,9 @@ public sealed class FindingSemanticSupportBandLaneBComposeService(
         IReadOnlyList<AgentExecutionTrace> latestTraces =
             AgentExecutionTraceLatestPerTaskSelector.Select(traces);
 
-        AgentEvidencePackage? evidence =
-            await _evidencePackageRepository.GetByRunIdAsync(runId.Trim(), cancellationToken).ConfigureAwait(false);
+        AgentEvidencePackage? evidence = await AnalysisRunIdCanonicalization
+            .LoadEvidencePackageByRunIdAsync(_evidencePackageRepository, runId.Trim(), cancellationToken)
+            .ConfigureAwait(false);
 
         Dictionary<string, AgentOutputSemanticScore> semanticScoresByTraceId =
             FindingSemanticSupportBandLaneBSemanticScoreIndex.BuildFromTraces(
@@ -68,4 +71,5 @@ public sealed class FindingSemanticSupportBandLaneBComposeService(
             semanticScoresByTraceId,
             traceIdByTaskId);
     }
+
 }

@@ -11,27 +11,27 @@ internal static class CapabilityToFlowSeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "Medium",
-                BusinessCriticality = "Unknown",
-                BlastRadius = "PossibleMovement",
+                Severity = string.Empty,
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
             };
         }
 
         if (candidate.Hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.CanWrite))
         {
-            return new PrivilegePathSeverityResult
-            {
-                Severity = "High",
-                BusinessCriticality = "Unknown",
-                BlastRadius = "PossibleMovement",
-            };
-        }
-
         return new PrivilegePathSeverityResult
         {
-            Severity = "Medium",
-            BusinessCriticality = "Unknown",
-            BlastRadius = "PossibleMovement",
+            Severity = "High",
+            BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+            BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
+    }
+
+    return new PrivilegePathSeverityResult
+    {
+        Severity = string.Empty,
+        BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+        BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
+    };
     }
 }

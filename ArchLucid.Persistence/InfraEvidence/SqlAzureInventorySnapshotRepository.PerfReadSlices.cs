@@ -43,6 +43,26 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                    FROM dbo.AzureInventoryResources
                                    WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId
                                      AND CloudResourceId IS NOT NULL;
+
+                                   SELECT SubscriptionId, AlertId, DisplayName, Severity, Status, Intent, AlertType,
+                                          StartTimeUtc, ResourceId, SourceEvidenceReference
+                                   FROM dbo.AzureInventoryDefenderAlerts
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                   SELECT SubscriptionId, AttackPathId, DisplayName, RiskLevel, EntryResourceIds,
+                                          TargetResourceIds, SourceEvidenceReference
+                                   FROM dbo.AzureInventoryDefenderAttackPaths
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                   SELECT SubscriptionId, ResourceId, CriticalCount, HighCount, MediumCount, LowCount,
+                                          SourceEvidenceReference
+                                   FROM dbo.AzureInventoryDefenderVulnerabilityCounts
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                   SELECT SubscriptionId, AssessmentKey, ResourceId, Owner, RemediationDueUtc,
+                                          IsGracePeriod, AssignmentStatus, SourceEvidenceReference
+                                   FROM dbo.AzureInventoryDefenderGovernanceAssignments
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
                                    """;
 
         using System.Data.IDbConnection conn =
@@ -62,6 +82,14 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             (await reader.ReadAsync<AzureInventoryDefenderScoreControlReadModel>()).ToList();
         List<AzureInventoryDefenderResourceRefReadModel> resources =
             (await reader.ReadAsync<AzureInventoryDefenderResourceRefReadModel>()).ToList();
+        List<AzureInventoryDefenderAlertReadModel> alerts =
+            (await reader.ReadAsync<AzureInventoryDefenderAlertReadModel>()).ToList();
+        List<AzureInventoryDefenderAttackPathReadModel> attackPaths =
+            (await reader.ReadAsync<AzureInventoryDefenderAttackPathReadModel>()).ToList();
+        List<AzureInventoryDefenderVulnerabilityCountReadModel> vulnerabilityCounts =
+            (await reader.ReadAsync<AzureInventoryDefenderVulnerabilityCountReadModel>()).ToList();
+        List<AzureInventoryDefenderGovernanceAssignmentReadModel> governanceAssignments =
+            (await reader.ReadAsync<AzureInventoryDefenderGovernanceAssignmentReadModel>()).ToList();
 
         return new AzureInventoryDefenderBandContextReadModel
         {
@@ -70,6 +98,10 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             DefenderAssessments = assessments,
             DefenderScoreControls = scoreControls,
             Resources = resources,
+            DefenderAlerts = alerts,
+            DefenderAttackPaths = attackPaths,
+            DefenderVulnerabilityCounts = vulnerabilityCounts,
+            DefenderGovernanceAssignments = governanceAssignments,
         };
     }
 

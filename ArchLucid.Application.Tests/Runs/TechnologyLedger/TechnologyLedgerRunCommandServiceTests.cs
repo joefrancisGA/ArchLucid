@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -38,6 +39,72 @@ public sealed class TechnologyLedgerRunCommandServiceTests
             .ReturnsAsync(new RunRecord { RunId = RunGuid });
 
         _sut = new TechnologyLedgerRunCommandService(_ledgerRepository, _runRepository.Object, TimeProvider.System);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_rows_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString()).ToUpperInvariant();
+
+        _runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runGuid });
+
+        TechnologyLedgerEntry legacyEntry = new()
+        {
+            EntryId = "legacy-ledger-entry",
+            RunId = legacyUpper,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Amazon Web Services",
+            ProviderFamily = CloudProvider.Aws,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
+        await _ledgerRepository.AddAsync(legacyEntry);
+
+        IReadOnlyList<TechnologyLedgerEntry> entries =
+            await _sut.GetByRunIdAsync(Scope, runGuid, CancellationToken.None);
+
+        entries.Should().ContainSingle(entry => entry.EntryId == "legacy-ledger-entry");
+    }
+
+    [Fact]
+    public async Task CompareQuality_PatchEntryAsync_finds_entry_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString()).ToUpperInvariant();
+
+        _runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runGuid });
+
+        TechnologyLedgerEntry legacyEntry = new()
+        {
+            EntryId = "legacy-patch-entry",
+            RunId = legacyUpper,
+            Role = TechnologyLedgerRole.Region,
+            TechnologyName = "East US",
+            ProviderFamily = CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
+        await _ledgerRepository.AddAsync(legacyEntry);
+
+        TechnologyLedgerEntry updated = await _sut.PatchEntryAsync(
+            Scope,
+            runGuid,
+            legacyEntry.EntryId,
+            new PatchTechnologyLedgerEntryCommand { Rationale = "Operator note on legacy-keyed row." },
+            CancellationToken.None);
+
+        updated.Rationale.Should().Be("Operator note on legacy-keyed row.");
     }
 
     [Fact]

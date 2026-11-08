@@ -46,11 +46,17 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc27Tests
     [InlineData(" ")]
     [InlineData("\t\t")]
     [InlineData("\t\r\n")]
-    public void FileNameSanitizer_returns_artifact_txt_for_whitespace_only(string input)
+    public void FileNameSanitizer_returns_honest_entry_for_whitespace_only(string input)
     {
         string sanitized = FileNameSanitizer.Sanitize(input);
 
-        sanitized.Should().Be("artifact.txt");
+        sanitized.Should().Be(FileNameSanitizer.EmptyFileNameEntry);
+    }
+
+    [Fact]
+    public void FileNameSanitizer_returns_not_stored_entry_for_empty_string()
+    {
+        FileNameSanitizer.Sanitize(string.Empty).Should().Be(FileNameSanitizer.MissingFileNameEntry);
     }
 
     [Fact]

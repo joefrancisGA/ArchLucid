@@ -98,14 +98,14 @@ public sealed class OrphanedAwsResourceFindingEngine(
                     Category = orphan.Category,
                     EngineType = "orphaned-aws-resource",
                     Severity = FindingSeverity.Warning,
-                    Title = $"Orphaned AWS resource: {orphan.ResourceType}",
+                    Title = $"Orphaned AWS resource: {orphan.ResourceType}. Resource name was not stored.",
                     Rationale = orphan.Message,
                     RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
                     EvidenceRefs = evidenceRefs,
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {
-                        RequirementName = orphan.ResourceId,
+                        RequirementName = "Requirement name was not stored.",
                         RequirementText = orphan.Message,
                         IsMandatory = false,
                     },

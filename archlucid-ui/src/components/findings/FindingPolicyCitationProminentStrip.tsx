@@ -29,7 +29,10 @@ export function FindingPolicyCitationProminentStrip(
     return null;
   }
 
-  const violationLabel = pack !== null ? `Policy violation: ${pack.packName}` : "Policy violation";
+  const violationLabel =
+    pack !== null && pack.packName.trim().length > 0
+      ? `Policy violation: ${pack.packName}`
+      : "Policy pack name was not stored.";
 
   return (
     <div

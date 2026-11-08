@@ -3,6 +3,15 @@ import { NextResponse } from "next/server";
 
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
 import { decideHostGateRedirect } from "@/lib/host-gate";
+import { ARCHLUCID_PATHNAME_REQUEST_HEADER } from "@/lib/product-line/securenow-marketing-route-policy";
+
+function proxyNext(request: NextRequest, init?: ResponseInit): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+
+  requestHeaders.set(ARCHLUCID_PATHNAME_REQUEST_HEADER, request.nextUrl.pathname);
+
+  return NextResponse.next({ ...init, request: { headers: requestHeaders } });
+}
 
 /**
  * Next.js proxy (formerly "middleware"): host gating (TB-2019) and demo run id aliases.
@@ -29,10 +38,10 @@ export function proxy(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname === "/403") {
-    return NextResponse.next({ status: 403 });
+    return proxyNext(request, { status: 403 });
   }
 
-  return NextResponse.next();
+  return proxyNext(request);
 }
 
 /** Routes that pass through this proxy (host gate + authority, artifact, and comparison flows). */

@@ -36,7 +36,7 @@ public sealed class AuditEvaluationFindingHandoffService(
 
         string sourceFindingId = BuildSourceFindingId(request);
         string title = string.IsNullOrWhiteSpace(request.Summary)
-            ? "Audit evaluation requires attention"
+            ? "Finding title was not stored."
             : request.Summary.Trim();
 
         OperationalSecurityFindingBatchIngestResult result = await ingestService.IngestBatchAsync(
@@ -50,7 +50,7 @@ public sealed class AuditEvaluationFindingHandoffService(
                     ControlId = request.ControlId?.ToString("D"),
                     Title = title,
                     Description = request.Summary,
-                    Severity = "Medium",
+                    Severity = string.Empty,
                     Status = OperationalSecurityFindingStatus.Open,
                     AssessmentId = request.AssessmentId,
                     InventoryDiffId = request.InventoryDiffId,

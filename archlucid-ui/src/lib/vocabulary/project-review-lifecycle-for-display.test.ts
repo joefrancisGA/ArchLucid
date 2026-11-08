@@ -19,6 +19,12 @@ describe("projectReviewLifecycleForDisplay (TB-2372)", () => {
     expect(projectReviewLifecycleForDisplay({}).manifestStatusLabel).toBe("Not finalized");
   });
 
+  it("labels stored-empty manifest status separately from omitted status", () => {
+    expect(projectReviewLifecycleForDisplay({ manifestStatus: "" }).manifestStatusLabel).toBe(
+      "Status was stored empty.",
+    );
+  });
+
   it("formats committed run counts without API verbs", () => {
     const projection = projectReviewLifecycleForDisplay({
       committedRunsInScope: 2,

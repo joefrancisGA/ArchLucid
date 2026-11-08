@@ -112,4 +112,22 @@ describe("useMarketingEarlyAccessSubmit", () => {
     expect(clarity.mock.calls.some((call) => call[0] === "event" && call[1] === "cta_early_access_submit")).toBe(false);
     expect(result.current.done).toBe(false);
   });
+
+  it("does not expose upstream failure details in the early-access error", async () => {
+    const fetchMock = vi.mocked(globalThis.fetch);
+    fetchMock.mockResolvedValueOnce(new Response("System.InvalidOperationException: database unavailable", { status: 500 }));
+
+    const { result } = renderHook(() => useMarketingEarlyAccessSubmit({ source: "hero" }));
+
+    act(() => {
+      result.current.setEmail("buyer@example.com");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() } as React.FormEvent);
+    });
+
+    expect(result.current.error).toBe("We couldn't submit your request. Please try again.");
+    expect(result.current.error).not.toContain("System.InvalidOperationException");
+  });
 });

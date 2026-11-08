@@ -32,4 +32,19 @@ describe("ManifestTopDecisionsCard", () => {
     expect(screen.getByText("Gateway: Azure Application Gateway")).toBeInTheDocument();
     expect(screen.getByText("Data: SQL")).toBeInTheDocument();
   });
+
+  it("labels omitted and empty decision previews and keeps zero decision count visible", () => {
+    const { rerender } = render(
+      <ManifestTopDecisionsCard summary={buildSummary({ decisionCount: 0, topDecisionSynopses: undefined })} />,
+    );
+
+    expect(screen.getByText(/decision previews were not stored/i)).toBeInTheDocument();
+
+    rerender(
+      <ManifestTopDecisionsCard summary={buildSummary({ decisionCount: 0, topDecisionSynopses: [] })} />,
+    );
+
+    expect(screen.getByText(/decision previews were stored empty/i)).toBeInTheDocument();
+    expect(screen.getByText(/records/)).toHaveTextContent("0");
+  });
 });

@@ -51,13 +51,19 @@ function formatConnectionStatus(status: OperatorInferredConnectionRow["status"])
   return status;
 }
 
-function formatConnectionSource(source: OperatorInferredConnectionRow["source"]): string {
+function formatConnectionSource(row: OperatorInferredConnectionRow): string {
+  const source = row.source;
+
   if (source === null || source === undefined) {
     return OPERATOR_INFERRED_CONNECTION_SOURCE_NOT_STORED_COPY;
   }
 
   if (source.trim().length === 0) {
     return "Question source was stored empty.";
+  }
+
+  if (source === "upload") {
+    return formatStoredValue(row.sourceFileFormat, "Source file format was not stored.");
   }
 
   return source;
@@ -83,11 +89,32 @@ function formatFromResource(row: OperatorInferredConnectionRow): string {
 }
 
 function formatEndpoint(row: OperatorInferredConnectionRow): string {
-  if (row.toCatalog != null && row.toCatalog.length > 0) {
-    return `${formatStoredValue(row.toHost, "Host name was not stored")} / ${row.toCatalog}`;
+  const catalog = row.toCatalog?.trim() ?? "";
+
+  if (row.toCatalog !== null && row.toCatalog !== undefined) {
+    if (catalog.length === 0) {
+      const host = row.toHost?.trim() ?? "";
+
+      return host.length > 0
+        ? `${host} · Destination catalog was stored empty.`
+        : "Destination catalog was stored empty.";
+    }
+
+    return `${formatStoredValue(row.toHost, "Host name was not stored")} / ${catalog}`;
   }
 
-  return formatStoredValue(row.toHost ?? row.toArmId, "Destination was not stored");
+  const host = row.toHost?.trim() ?? "";
+  const armId = row.toArmId?.trim() ?? "";
+
+  if (host.length > 0) {
+    return host;
+  }
+
+  if (armId.length > 0) {
+    return `Host name was not stored. Resource id: ${armId}`;
+  }
+
+  return "Destination was not stored";
 }
 
 export function OperatorInferredConnectionsPanel(
@@ -302,7 +329,7 @@ export function OperatorInferredConnectionsPanel(
                   <EnterpriseTableCell>
                     {formatStoredValue(row.settingName, "Setting name was not stored")}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{formatConnectionSource(row.source)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatConnectionSource(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell>{formatConnectionStatus(row.status)}</EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}

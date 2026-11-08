@@ -47,6 +47,9 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
 
+        leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(leftRunId);
+        rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(rightRunId);
+
         (ArchitectureRunDetail leftDetail, ArchitectureRunDetail rightDetail) =
             await LoadScopedRunPairOrThrowAsync(leftRunId, rightRunId, cancellationToken);
         ArchitectureRun leftRun = leftDetail.Run;
@@ -64,9 +67,17 @@ public sealed class EndToEndReplayComparisonService(
         };
 
         IReadOnlyList<RunExportRecord> leftExports =
-            await _runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                _runExportRecordRepository,
+                leftRunId,
+                cancellationToken).ConfigureAwait(false);
         IReadOnlyList<RunExportRecord> rightExports =
-            await _runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                _runExportRecordRepository,
+                rightRunId,
+                cancellationToken).ConfigureAwait(false);
+        NormalizeExportsForReplayPairing(leftExports);
+        NormalizeExportsForReplayPairing(rightExports);
 
         ReplayComparisonBuildContext context = new()
         {
@@ -169,9 +180,21 @@ public sealed class EndToEndReplayComparisonService(
         return result;
     }
 
+    private static void AddIfChanged(List<string> target, string fieldName, string? left, string? right)
+    {
+        if (!string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
+            target.Add(fieldName);
+    }
+
     private static void AddIfChanged<T>(List<string> target, string fieldName, T left, T right)
     {
         if (!EqualityComparer<T>.Default.Equals(left, right))
             target.Add(fieldName);
+    }
+
+    private static void NormalizeExportsForReplayPairing(IReadOnlyList<RunExportRecord> exports)
+    {
+        foreach (RunExportRecord export in exports)
+            RunExportRecordScopedReadNormalizer.NormalizeInPlace(export);
     }
 }

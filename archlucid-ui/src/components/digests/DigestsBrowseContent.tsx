@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIGESTS_HUB_GET_STARTED_TAB_ID } from "@/lib/digests-hub-tab";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
+import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
@@ -149,7 +150,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           {" · "}
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveOperatorScopedRunReviewHref(scopedRunId)}
           >
             Open review
           </Link>

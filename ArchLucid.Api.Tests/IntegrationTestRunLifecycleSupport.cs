@@ -1,4 +1,8 @@
 using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+
+using ArchLucid.Api.Tests.TestDtos;
 
 namespace ArchLucid.Api.Tests;
 
@@ -25,15 +29,75 @@ public static class IntegrationTestRunLifecycleSupport
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using HttpResponseMessage response = await client.PostAsync(
-            $"/v1/architecture/review/{runId}/execute",
-            null,
+        using HttpResponseMessage response = await client.PostExecuteForTestAsync(runId, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Execute when the authority pipeline is not already complete, then refresh κ pins after any
+    ///     knowledge-model or graph mutations so finalize does not fail integrity drift checks.
+    /// </summary>
+    public static async Task PostExecuteAndEnsureArchitectureVersionPinForTestAsync(
+        this HttpClient client,
+        ArchLucidApiFactory factory,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        await client.PostExecuteForTestAsync(runId, cancellationToken);
+
+        await IntegrationTestArchitectureVersionPinSupport
+            .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Finalize after refreshing create-time architecture version κ pins (harness parity with production pin-sync).
+    /// </summary>
+    public static async Task<HttpResponseMessage> PostFinalizeForTestAsync(
+        this HttpClient client,
+        ArchLucidApiFactory factory,
+        string runId,
+        HttpContent? body = null,
+        CancellationToken cancellationToken = default)
+    {
+        await IntegrationTestArchitectureVersionPinSupport
+            .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return await client.PostAsync(
+            $"/v1/architecture/review/{runId}/finalize",
+            body,
+            cancellationToken);
+    }
+
+    /// <summary>
+    ///     Create-run → execute (when needed) → pin refresh → finalize; returns run id and committed manifest version.
+    /// </summary>
+    public static async Task<(string RunId, string ManifestVersion)> CreateRunExecuteAndFinalizeForTestAsync(
+        HttpClient client,
+        ArchLucidApiFactory factory,
+        JsonSerializerOptions jsonOptions,
+        string requestId,
+        CancellationToken cancellationToken = default)
+    {
+        HttpResponseMessage createResponse = await client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent.Create(TestRequestFactory.CreateArchitectureRequest(requestId)),
             cancellationToken);
 
-        if (await response.IsAuthorityPipelineCompleteExecuteConflictAsync(cancellationToken))
-            return;
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions, cancellationToken);
+        string runId = created!.Run.RunId;
 
-        await response.EnsureSuccessForTestAsync();
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId, cancellationToken);
+        HttpResponseMessage commitResponse =
+            await client.PostFinalizeForTestAsync(factory, runId, cancellationToken: cancellationToken);
+
+        await commitResponse.EnsureSuccessForTestAsync();
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(jsonOptions, cancellationToken);
+
+        return (runId, commitPayload!.Manifest.Metadata.ManifestVersion);
     }
 
     public static async Task<HttpResponseMessage> PostExecuteForTestAsync(

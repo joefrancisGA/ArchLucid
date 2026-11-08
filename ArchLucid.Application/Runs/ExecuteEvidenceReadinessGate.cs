@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -43,8 +44,12 @@ public sealed class ExecuteEvidenceReadinessGate(
         if (request is null)
             throw new InvalidOperationException($"Request '{run.ArchitectureRequestId}' not found for run '{runId}'.");
 
-        IReadOnlyList<AgentTask> tasks =
-            await taskRepository.GetByRunIdAsync(scope, runGuid.ToString("N"), cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            taskRepository,
+            scope,
+            lookupRunId,
+            cancellationToken);
 
         EvidenceBundle? bundle = null;
         string? bundleRef = tasks.FirstOrDefault()?.EvidenceBundleRef;

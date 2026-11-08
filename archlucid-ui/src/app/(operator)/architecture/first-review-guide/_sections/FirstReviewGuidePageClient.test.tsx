@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -11,6 +11,10 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import {
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+  FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
+} from "@/lib/first-review-guide-page-copy";
 import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -94,6 +98,7 @@ const loadedGuideState = {
     secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
   },
   requiredBlockers: [],
+  onePrerequisite: null,
   canExecute: true,
   readyToFinalize: false,
   latestRunHref: null,
@@ -129,6 +134,20 @@ describe("FirstReviewGuidePageClient", () => {
     expect(layoutGrid).toContainElement(header);
     expect(layoutGrid).toContainElement(supportPanel);
     expect(supportPanel).toHaveClass("lg:sticky", "lg:top-4");
+  });
+
+  it("uses Next steps copy when sample and policy prerequisites are complete", () => {
+    mockUseFirstReviewGuideState.mockReturnValue(loadedGuideState);
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const prerequisiteSection = screen.getByTestId("first-review-one-prerequisite");
+
+    expect(within(prerequisiteSection).getByRole("heading", { level: 2 })).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_SECTION_TITLE,
+    );
+    expect(screen.getByTestId("first-review-prerequisites-complete-body")).toHaveTextContent(
+      FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY,
+    );
   });
 
   it("shows readiness, walkthrough, evaluation scope, and bounded start-review CTAs when loaded", () => {
@@ -275,6 +294,65 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-guide-walkthrough-completed-summary")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-walkthrough")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
+  });
+
+  it("shows the selected prerequisite sentence when sample and policy pack are ready", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      onePrerequisite: null,
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    expect(screen.getByTestId("first-review-one-prerequisite")).toHaveTextContent(
+      "Sample package and policy pack are selected.",
+    );
+    expect(screen.getByTestId("first-review-walkthrough-next-step")).toHaveTextContent(
+      "Next checklist step: Define the architecture",
+    );
+    const prerequisite = screen.getByTestId("first-review-one-prerequisite");
+    expect(within(prerequisite).getByRole("link", { name: "Start review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
+  });
+
+  it("shows the sample package prerequisite before the policy pack", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      onePrerequisite: {
+        id: "sample-package",
+        title: "Sample package",
+        description: "Select a completed sample package for this workspace.",
+        href: "/",
+        actionLabel: "Choose sample review",
+      },
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    expect(screen.getByTestId("first-review-one-prerequisite")).toHaveTextContent(
+      "Select a completed sample package for this workspace.",
+    );
+    expect(screen.getByRole("link", { name: "Choose sample review" })).toHaveAttribute("href", "/");
+  });
+
+  it("shows the policy pack prerequisite when the sample is selected", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      onePrerequisite: {
+        id: "policy-pack",
+        title: "Policy pack",
+        description: "Assign a policy pack so findings and the pre-commit gate use your standards.",
+        href: "/governance/policy-packs",
+        actionLabel: "Review policy pack assignments",
+      },
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const prerequisite = screen.getByTestId("first-review-one-prerequisite");
+    expect(within(prerequisite).getByRole("link", { name: "Review policy pack assignments" })).toHaveAttribute(
+      "href",
+      "/governance/policy-packs",
+    );
   });
 
   it("scrolls the walkthrough progress section when the onboarding checklist hash is active", () => {

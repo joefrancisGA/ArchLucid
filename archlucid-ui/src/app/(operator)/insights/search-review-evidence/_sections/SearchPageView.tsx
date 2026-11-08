@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -54,6 +55,7 @@ import {
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChrome";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
+import { resolveSearchReviewEvidencePrimaryFindingId } from "@/lib/insights/search-review-evidence-cite-grounding";
 import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
 import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
 import { WorkingNestedSearchUnboundEmptyState } from "@/components/insights/WorkingNestedSearchUnboundEmptyState";
@@ -140,6 +142,11 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     queryConfigured: query.trim().length > 0,
     searchComplete: hasSearched && results.length > 0,
   });
+  const searchCitePrimaryFindingId = resolveSearchReviewEvidencePrimaryFindingId(results);
+  const scopedOpenReviewHref = resolveScopedInsightOpenReviewHref(scopedRunId, {
+    primaryFindingId: searchCitePrimaryFindingId,
+    architectureId: pinnedArchitectureId,
+  });
 
   if (isDemo) {
     return (
@@ -191,7 +198,12 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       ) : (
         <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       )}
-      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
+      {scopedRunId.length > 0 ? (
+        <SearchReviewEvidenceCiteStrip
+          runId={scopedRunId}
+          primaryFindingId={searchCitePrimaryFindingId}
+        />
+      ) : null}
 
       {showNestedSearchUnboundEmpty ? (
         <WorkingNestedSearchUnboundEmptyState
@@ -215,7 +227,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={scopedOpenReviewHref}
             >
               Open review
             </Link>
@@ -337,7 +349,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           actions={searchEmptyStateActions(scopedRunId)}
           description={
             confidence !== null && totalResultCount > 0
-              ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another confidence tier or broaden your query.`
+              ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another relevance band or broaden your query.`
               : SEARCH_EMPTY_COMPACT.description
           }
         />
@@ -345,9 +357,9 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
       {hasSearched && failure === null && totalResultCount > 0 ? (
         <FilterChipGroup
-          aria-label="Filter search results by confidence"
+          aria-label="Filter search results by relevance band"
           className="flex flex-wrap gap-2"
-          data-testid="search-review-evidence-confidence-chips"
+          data-testid="search-review-evidence-relevance-band-chips"
         >
           <FilterChip
             href={searchReviewEvidenceConfidenceHrefFromSearch(currentSearch, null, pathname)}
@@ -356,7 +368,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             aria-current={confidence === null ? "page" : undefined}
             disabled={loading}
           >
-            All confidence
+            All relevance bands
           </FilterChip>
           {SEARCH_REVIEW_EVIDENCE_CONFIDENCE_OPTIONS.map((tier) => (
             <FilterChip
@@ -379,6 +391,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             key={hit.chunkId}
             hit={hit}
             scopedRunId={scopedRunId.length > 0 ? scopedRunId : undefined}
+            architectureId={pinnedArchitectureId}
           />
         ))}
       </div>

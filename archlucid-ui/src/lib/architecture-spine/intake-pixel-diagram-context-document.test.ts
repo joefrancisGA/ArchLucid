@@ -4,6 +4,7 @@ import {
   buildIntakePixelDiagramContextDocument,
   buildIntakePendingStoredFileMarker,
   INTAKE_PIXEL_DIAGRAM_EXTRACTION_METHOD_NONE,
+  INTAKE_PIXEL_DIAGRAM_SOURCE_MIME_NOT_STORED,
   INTAKE_PIXEL_DIAGRAM_VERIFICATION_STATUS_NOT_VERIFIABLE,
   isPixelDiagramIntakeFileName,
   parseIntakePixelDiagramContextStub,
@@ -43,6 +44,14 @@ describe("intake pixel diagram context document (AS-004)", () => {
 
     expect(stub?.intakeStub.evidenceItemId).toBe("evidence-item-42");
     expect(stub?.intakeStub.pendingStoredFileMarker).toBeNull();
+  });
+
+  it("labels unknown file extensions without inventing image/png", () => {
+    const file = new File(["bytes"], "diagram.bmp", { type: "" });
+    const document = buildIntakePixelDiagramContextDocument("diagram.bmp", file);
+    const stub = parseIntakePixelDiagramContextStub(document.content);
+
+    expect(stub?.intakeStub.sourceMimeType).toBe(INTAKE_PIXEL_DIAGRAM_SOURCE_MIME_NOT_STORED);
   });
 });
 

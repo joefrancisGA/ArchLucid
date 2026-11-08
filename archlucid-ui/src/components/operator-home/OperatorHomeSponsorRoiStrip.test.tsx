@@ -57,6 +57,7 @@ describe("OperatorHomeSponsorRoiStrip", () => {
 
     expect(await screen.findByTestId("operator-home-roi-strip")).toBeInTheDocument();
     expect(screen.getByText(/125,000/)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-roi-strip-model-estimate")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Help: Sponsor ROI" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-roi-strip-open-scorecard")).toHaveAttribute("href", "/insights/architecture-scorecard");
     expect(screen.getByTestId("operator-home-disposition-next-action")).toBeInTheDocument();

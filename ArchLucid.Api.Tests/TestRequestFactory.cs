@@ -2,6 +2,9 @@ namespace ArchLucid.Api.Tests;
 
 public static class TestRequestFactory
 {
+    /// <summary>Unique per <paramref name="requestId" /> so parallel integration shards do not collide on review name.</summary>
+    public static string SystemNameForRequest(string requestId) => DeriveUniqueSystemName(requestId);
+
     public static object CreateArchitectureRequest(string requestId = "REQ-TEST-001")
     {
         return new
@@ -9,7 +12,7 @@ public static class TestRequestFactory
             requestId,
             description =
                 "Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.",
-            systemName = "EnterpriseRag",
+            systemName = DeriveUniqueSystemName(requestId),
             environment = "prod",
             cloudProvider = 1,
             constraints = new[] { "Private endpoints required", "Use managed identity" },
@@ -19,5 +22,17 @@ public static class TestRequestFactory
             assumptions = Array.Empty<string>(),
             priorManifestVersion = (string?)null
         };
+    }
+
+    private static string DeriveUniqueSystemName(string requestId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
+        string slug = requestId.Trim().Replace("-", string.Empty, StringComparison.Ordinal);
+
+        if (slug.Length > 48)
+            slug = slug[..48];
+
+        return $"EntRag-{slug}";
     }
 }

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Metadata;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -20,5 +22,13 @@ public interface IComparisonReplayService
     /// <summary>Loads the comparison record, rehydrates the stored payload, regenerates it, and returns drift analysis.</summary>
     Task<DriftAnalysisResult> AnalyzeDriftAsync(
         string comparisonRecordId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Enforces lifecycle completeness and career posture gates before returning stored comparison artifacts
+    ///     (summary markdown or artifact replay).
+    /// </summary>
+    Task EnsureArtifactReplayAccessAllowedAsync(
+        ComparisonRecord record,
         CancellationToken cancellationToken = default);
 }

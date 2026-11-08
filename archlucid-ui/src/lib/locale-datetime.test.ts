@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ASK_THREAD_DATE_NOT_READABLE,
+  ASK_THREAD_DATE_NOT_STORED,
+  ASK_THREAD_DATE_STORED_EMPTY,
+  formatAskConversationListDate,
   formatBrowserTimeZoneAbbreviation,
   formatIanaTimeZoneAbbreviation,
   formatInstantCompactMilitary,
@@ -92,6 +96,19 @@ describe("formatBrowserTimeZoneAbbreviation", () => {
 
     expect(label.length).toBeGreaterThan(0);
     expect(label).not.toContain("/");
+  });
+});
+
+describe("formatAskConversationListDate", () => {
+  it("uses ask-thread omission copy for missing and blank instants", () => {
+    expect(formatAskConversationListDate(null)).toBe(ASK_THREAD_DATE_NOT_STORED);
+    expect(formatAskConversationListDate(undefined)).toBe(ASK_THREAD_DATE_NOT_STORED);
+    expect(formatAskConversationListDate("   ")).toBe(ASK_THREAD_DATE_STORED_EMPTY);
+    expect(formatAskConversationListDate("not-a-date")).toBe(ASK_THREAD_DATE_NOT_READABLE);
+  });
+
+  it("formats valid instants for thread rows", () => {
+    expect(formatAskConversationListDate("2026-01-15T14:30:00.000Z")).toBe("Jan 15, 2026");
   });
 });
 

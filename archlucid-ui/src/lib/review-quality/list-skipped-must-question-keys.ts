@@ -1,6 +1,8 @@
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
-/** Returns skipped MUST question keys in trail order. */
+export const SKIPPED_MUST_QUESTION_KEY_NOT_STORED_LABEL = "Question key was not stored." as const;
+
+/** Returns skipped MUST question keys in trail order (includes rows with blank keys). */
 export function listSkippedMustQuestionKeys(
   trail: TransparencyTrail | null | undefined,
 ): readonly string[] {
@@ -10,6 +12,9 @@ export function listSkippedMustQuestionKeys(
 
   return trail.skipped
     .filter((entry) => entry.tier === "Must")
-    .map((entry) => entry.questionKey.trim())
-    .filter((questionKey) => questionKey.length > 0);
+    .map((entry) => {
+      const questionKey = entry.questionKey.trim();
+
+      return questionKey.length > 0 ? questionKey : SKIPPED_MUST_QUESTION_KEY_NOT_STORED_LABEL;
+    });
 }

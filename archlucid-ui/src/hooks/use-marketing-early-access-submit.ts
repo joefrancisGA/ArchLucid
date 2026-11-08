@@ -8,6 +8,8 @@ import { extractEmailDomainForAnalytics } from "@/lib/marketing/extract-email-do
 import { isSubmittableWorkEmail } from "@/lib/marketing/is-submittable-work-email";
 import { recordMarketingCtaEarlyAccessSubmit } from "@/lib/marketing/marketing-clarity-custom-event";
 
+const MARKETING_REQUEST_ERROR_MESSAGE = "We couldn't submit your request. Please try again.";
+
 export type UseMarketingEarlyAccessSubmitOptions = {
   /** Clarity dimension {@code cta_source}. */
   readonly source: string;
@@ -82,8 +84,7 @@ export function useMarketingEarlyAccessSubmit(
         });
 
         if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || res.statusText);
+          throw new Error(MARKETING_REQUEST_ERROR_MESSAGE);
         }
 
         recordMarketingCtaEarlyAccessSubmit({

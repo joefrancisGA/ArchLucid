@@ -1,6 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+export {
+  OPERATOR_DATE_RANGE_END_LABEL,
+  OPERATOR_DATE_RANGE_START_LABEL,
+} from "@/lib/operator-date-range-copy";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -13,6 +17,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY }
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import {
   parseValueReportHowItWorksOpenFromSearch,
@@ -135,9 +140,9 @@ export function PilotValueReportPageView(props: Props) {
     [m.data, m.fromUtc, m.includesSampleData, m.toUtc],
   );
   const executiveNarrative = m.data !== null && hasFinalizedReviews ? buildPilotOutcomesSponsorNarrative(m.data) : null;
-  const criticalFindings = m.data?.findingsBySeverity.critical ?? 0;
-  const highFindings = m.data?.findingsBySeverity.high ?? 0;
-  const materialFindings = criticalFindings + highFindings;
+  const severityCounts = m.data?.findingsBySeverity;
+  const criticalFindings = severityCounts?.critical;
+  const highFindings = severityCounts?.high;
 
   const scrollToPeriodControls = () => {
     periodControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -228,7 +233,7 @@ export function PilotValueReportPageView(props: Props) {
             {" · "}
             <Link
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
             >
               Open review
           </Link>
@@ -334,7 +339,6 @@ export function PilotValueReportPageView(props: Props) {
               scopedRunId={scopedRunId}
               criticalFindings={criticalFindings}
               highFindings={highFindings}
-              materialFindings={materialFindings}
               roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
             />
             <PilotValueReportFindingsSection

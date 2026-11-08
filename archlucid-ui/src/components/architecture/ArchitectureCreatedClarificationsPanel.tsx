@@ -14,6 +14,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clarification-gap-present";
+import type { ArchitectureMissingItem } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
@@ -31,6 +32,10 @@ import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
 } from "@/lib/review-clarification-questions-types";
+import {
+  describeClarificationQuestionsLoadState,
+  formatClarificationDerivedQuestionPreviewCapLine,
+} from "@/lib/reviews/review-clarification-questions-honesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -44,11 +49,33 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
   readonly clarificationQuestions?: readonly ReviewClarificationQuestion[];
+  readonly clarificationQuestionsLoading?: boolean;
+  readonly clarificationQuestionsTotalDerivedCount?: number | null;
   readonly clarificationRoundAvailable?: boolean;
   readonly clarificationDelta?: ReviewClarificationDelta | null;
   readonly clarificationQuestionsBlockedReason?: string | null;
   readonly priorRunId?: string;
 };
+
+const FINDINGS_DERIVED_GAP_SOURCE_LABEL = "From assessment findings";
+
+function partitionClarificationGapsBySource(items: readonly ArchitectureMissingItem[]): {
+  readonly fromBrief: readonly ArchitectureMissingItem[];
+  readonly fromFindings: readonly ArchitectureMissingItem[];
+} {
+  const fromBrief: ArchitectureMissingItem[] = [];
+  const fromFindings: ArchitectureMissingItem[] = [];
+
+  for (const item of items) {
+    if (item.source.label === FINDINGS_DERIVED_GAP_SOURCE_LABEL) {
+      fromFindings.push(item);
+    } else {
+      fromBrief.push(item);
+    }
+  }
+
+  return { fromBrief, fromFindings };
+}
 
 function hasOpenQuestionEntities(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
@@ -104,17 +131,45 @@ export function ArchitectureCreatedClarificationsPanel(
   const visibleClarificationGaps = props.model.clarificationGaps.filter(
     (item) => !props.dismissedClarificationGapIds.has(item.id),
   );
+  const partitionedClarificationGaps = partitionClarificationGapsBySource(visibleClarificationGaps);
   const hasVisibleWorkQueue =
     visibleClarificationGaps.length > 0 ||
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const preferModelInterviewQuestions = (props.clarificationQuestions ?? []).length > 0;
+  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions, {
+    loading: props.clarificationQuestionsLoading === true,
+  });
+  const clarificationDerivedPreviewCapLine = formatClarificationDerivedQuestionPreviewCapLine({
+    listedCount: props.clarificationQuestions?.length ?? 0,
+    totalDerivedCount:
+      props.clarificationQuestionsLoading === true
+        ? undefined
+        : props.clarificationQuestionsTotalDerivedCount,
+  });
+  const preferModelInterviewQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
+  const clarificationBlockedReason = props.clarificationQuestionsBlockedReason?.trim() ?? "";
+  const hasClarificationBlockedReason = clarificationBlockedReason.length > 0;
+  const openQuestionsEntitiesOmitted =
+    openQuestions !== undefined && openQuestions.entities == null;
+  const clarificationQuestionsStoredEmpty =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length === 0;
+  const hasStoredClarificationQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const isZeroGapSuccess =
-    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
+    props.clarificationQuestions !== undefined
+    && !clarificationQuestionsStoredEmpty
+    && !hasClarificationBlockedReason
+    && !parseResult.hasPartialParseFailure
+    && !hasVisibleWorkQueue
+    && !showIntakeOpenQuestions
+    && !openQuestionsEntitiesOmitted;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
+  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta, {
+    priorRunId: props.priorRunId ?? null,
+  });
   const clarificationQuestions = props.clarificationQuestions ?? [];
   const pathname = usePathname() ?? "/";
   const readAnsweredBriefOpenFromUrl = (): boolean =>
@@ -172,6 +227,26 @@ export function ArchitectureCreatedClarificationsPanel(
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
 
+      {clarificationQuestionsLoadState !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-questions-load-state"
+          role="status"
+        >
+          {clarificationQuestionsLoadState}
+        </p>
+      ) : null}
+
+      {clarificationDerivedPreviewCapLine !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-derived-preview-cap"
+          role="status"
+        >
+          {clarificationDerivedPreviewCapLine}
+        </p>
+      ) : null}
+
       {props.clarificationQuestionsBlockedReason !== null
       && props.clarificationQuestionsBlockedReason !== undefined
       && props.clarificationQuestionsBlockedReason.trim().length > 0 ? (
@@ -190,22 +265,39 @@ export function ArchitectureCreatedClarificationsPanel(
           data-testid="architecture-clarifications-delta-strip"
         >
           {deltaPresentation.summary}
+          {deltaPresentation.cappedListDisclaimer !== null ? (
+            <>
+              {" "}
+              {deltaPresentation.cappedListDisclaimer}
+            </>
+          ) : null}
         </p>
       ) : null}
 
       {props.clarificationRoundAvailable === true ? (
         <ClarificationAnswerCapturePanel
           runId={props.model.runId}
-          priorRunId={props.priorRunId ?? props.model.runId}
+          priorRunId={props.priorRunId?.trim() ?? ""}
           questions={clarificationQuestions}
+          totalDerivedCount={props.clarificationQuestionsTotalDerivedCount ?? null}
           freeTextIntent={props.sourceText}
         />
+      ) : clarificationQuestions.length > 0 ? (
+        <p
+          className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-round-unavailable"
+          role="status"
+        >
+          Clarification questions were stored on this review, but the answer round is not available yet. Saved answers
+          from a prior round may still appear in your brief.
+        </p>
       ) : null}
 
-      {!isZeroGapSuccess ? (
+      {!isZeroGapSuccess
+      && (hasVisibleWorkQueue || hasStoredClarificationQuestions || showIntakeOpenQuestions) ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
-          with sponsors or creating work items.
+          These clarifications are still open. Answer them or add evidence before sharing with sponsors or creating
+          work items.
         </p>
       ) : null}
 
@@ -216,6 +308,16 @@ export function ArchitectureCreatedClarificationsPanel(
             setParseAttempt((current) => current + 1);
           }}
         />
+      ) : null}
+
+      {clarificationQuestionsStoredEmpty ? (
+        <p
+          className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-stored-empty"
+          role="status"
+        >
+          Clarification questions were derived empty. This panel cannot say the brief covers required context.
+        </p>
       ) : null}
 
       {isZeroGapSuccess ? (
@@ -244,16 +346,40 @@ export function ArchitectureCreatedClarificationsPanel(
         </div>
       ) : hasVisibleWorkQueue ? (
         <div className="space-y-4">
-          {visibleClarificationGaps.length > 0 ? (
-            <section className="space-y-2" aria-labelledby="architecture-open-clarifications-heading">
+          {partitionedClarificationGaps.fromBrief.length > 0 ? (
+            <section className="space-y-2" aria-labelledby="architecture-open-clarifications-brief-heading">
               <h3
-                id="architecture-open-clarifications-heading"
+                id="architecture-open-clarifications-brief-heading"
                 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
               >
-                Open clarifications
+                Open clarifications from your brief
               </h3>
               <ul className="m-0 list-none space-y-2 p-0">
-                {visibleClarificationGaps.map((item) => (
+                {partitionedClarificationGaps.fromBrief.map((item) => (
+                  <li key={item.id}>
+                    <ClarificationGapRow
+                      item={item}
+                      impact={clarificationGapImpactCopy(item)}
+                      answerHref={continueClarifyingHref}
+                      onNavigateTab={props.onNavigateTab}
+                      onDismiss={props.onDismissClarificationGap}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {partitionedClarificationGaps.fromFindings.length > 0 ? (
+            <section className="space-y-2" aria-labelledby="architecture-open-clarifications-findings-heading">
+              <h3
+                id="architecture-open-clarifications-findings-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              >
+                Open clarifications from assessment findings
+              </h3>
+              <ul className="m-0 list-none space-y-2 p-0">
+                {partitionedClarificationGaps.fromFindings.map((item) => (
                   <li key={item.id}>
                     <ClarificationGapRow
                       item={item}
@@ -363,11 +489,11 @@ export function ArchitectureCreatedClarificationsPanel(
       {!isZeroGapSuccess ? (
         <div className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
           <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Confidence impact
+            Missing brief or evidence fields
           </h3>
           <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Each missing business outcome, system boundary, or evidence artifact lowers how confidently ArchLucid can
-            assess risks and recommend remediation. Clarify gaps before running a final assessment or sponsor share.
+            These rows list brief or evidence fields that were not stored. This panel does not store a confidence score.
+            Clarify gaps before running a final assessment or sponsor share.
           </p>
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
             <Link href={continueClarifyingHref} className={OPERATOR_LINK.inline}>

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { ArtifactDescriptor, RunComparison } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -9,18 +10,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const artifactDescriptorSchema = z
   .object({
-    artifactId: z.string(),
-    artifactType: z.string(),
-    name: z.string(),
-    format: z.string(),
-    createdUtc: z.string(),
-    contentHash: z.string(),
+    artifactId: operatorNonEmptyTrimmedString,
+    artifactType: operatorNonEmptyTrimmedString,
+    name: operatorNonEmptyTrimmedString,
+    format: operatorNonEmptyTrimmedString,
+    createdUtc: operatorNonEmptyTrimmedString,
+    contentHash: operatorNonEmptyTrimmedString,
     manifestId: z.string().optional(),
     runId: z.string().optional(),
   })
   .passthrough();
 
-const artifactListRowSchema = z.object({ artifactId: z.string(), name: z.string() }).passthrough();
+const artifactListRowSchema = z
+  .object({ artifactId: operatorNonEmptyTrimmedString, name: z.string() })
+  .passthrough();
 
 /**
  * Ensures artifact list is an array of descriptors with stable ids.
@@ -57,8 +60,11 @@ export function coerceArtifactDescriptor(
       return { ok: false, message: "Artifact descriptor was not a JSON object." };
     }
 
-    const stringKeys = [
-      "artifactId",
+    if (!operatorNonEmptyTrimmedString.safeParse(data.artifactId).success) {
+      return { ok: false, message: 'Artifact descriptor is missing or invalid "artifactId".' };
+    }
+
+    const trimmedStringKeys = [
       "artifactType",
       "name",
       "format",
@@ -66,8 +72,12 @@ export function coerceArtifactDescriptor(
       "contentHash",
     ] as const;
 
-    for (const key of stringKeys) {
+    for (const key of trimmedStringKeys) {
       if (typeof data[key] !== "string") {
+        return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
+      }
+
+      if (!operatorNonEmptyTrimmedString.safeParse(data[key]).success) {
         return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
       }
     }
@@ -88,8 +98,8 @@ export function coerceArtifactDescriptor(
 
 const runComparisonSchema = z
   .object({
-    leftRunId: z.string(),
-    rightRunId: z.string(),
+    leftRunId: operatorNonEmptyTrimmedString,
+    rightRunId: operatorNonEmptyTrimmedString,
     runLevelDiffs: z.array(z.unknown()),
     manifestComparison: z
       .object({
@@ -114,7 +124,10 @@ export function coerceRunComparison(
       return { ok: false, message: "Run comparison response was not a JSON object." };
     }
 
-    if (typeof data.leftRunId !== "string" || typeof data.rightRunId !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.leftRunId).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.rightRunId).success
+    ) {
       return { ok: false, message: "Run comparison is missing leftRunId or rightRunId." };
     }
 
@@ -140,8 +153,8 @@ export function coerceRunComparison(
 
 const comparisonExplanationSchema = z
   .object({
-    highLevelSummary: z.string(),
-    narrative: z.string(),
+    highLevelSummary: operatorNonEmptyTrimmedString,
+    narrative: operatorNonEmptyTrimmedString,
     majorChanges: z.array(z.unknown()),
     keyTradeoffs: z.array(z.unknown()),
   })
@@ -161,6 +174,20 @@ export function coerceComparisonExplanation(
     }
 
     if (typeof data.highLevelSummary !== "string" || typeof data.narrative !== "string") {
+      return {
+        ok: false,
+        message: "AI explanation is missing highLevelSummary or narrative strings.",
+      };
+    }
+
+    if (!operatorNonEmptyTrimmedString.safeParse(data.highLevelSummary).success) {
+      return {
+        ok: false,
+        message: "AI explanation is missing highLevelSummary or narrative strings.",
+      };
+    }
+
+    if (!operatorNonEmptyTrimmedString.safeParse(data.narrative).success) {
       return {
         ok: false,
         message: "AI explanation is missing highLevelSummary or narrative strings.",

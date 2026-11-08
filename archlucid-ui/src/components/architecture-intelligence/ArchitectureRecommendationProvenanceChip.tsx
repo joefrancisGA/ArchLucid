@@ -17,10 +17,6 @@ export function ArchitectureRecommendationProvenanceChip(
 ): ReactElement | null {
   const line = formatArchitectureRecommendationProvenanceLine(props.provenance);
 
-  if (line === null) {
-    return null;
-  }
-
   const evidenceBacked = isArchitectureRecommendationEvidenceBacked(props.provenance);
   const chipClass = evidenceBacked
     ? enterpriseStatusTagClass("ready")

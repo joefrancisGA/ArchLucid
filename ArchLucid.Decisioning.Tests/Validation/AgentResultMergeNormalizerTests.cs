@@ -42,7 +42,7 @@ public sealed class AgentResultMergeNormalizerTests
     }
 
     [Fact]
-    public void Normalize_coercesUndefinedRelationshipTypeToDefaultCalls()
+    public void Normalize_dropsRelationshipsWithUndefinedRelationshipType()
     {
         // Simulates live LLM returning integer 0, which is not a defined RelationshipType value.
         var undefinedType = (RelationshipType)0;
@@ -55,9 +55,8 @@ public sealed class AgentResultMergeNormalizerTests
 
         AgentResult normalized = AgentResultMergeNormalizer.Normalize(result);
 
-        normalized.ProposedChanges!.AddedRelationships.Should().HaveCount(2);
-        normalized.ProposedChanges.AddedRelationships[0].RelationshipType.Should().Be(RelationshipType.Calls);
-        normalized.ProposedChanges.AddedRelationships[1].RelationshipType.Should().Be(RelationshipType.ReadsFrom);
+        normalized.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        normalized.ProposedChanges.AddedRelationships[0].RelationshipType.Should().Be(RelationshipType.ReadsFrom);
     }
 
     [Fact]
@@ -91,9 +90,8 @@ public sealed class AgentResultMergeNormalizerTests
     }
 
     [Fact]
-    public void Normalize_assignsServiceNameFromServiceIdWhenNameEmpty()
+    public void Normalize_dropsServiceWhenNameEmptyEvenIfServiceIdPresent()
     {
-        // Simulates live LLM returning serviceName="" but a valid serviceId — normalizer repairs rather than drops.
         AgentResult result = BuildTopologyResultWith(addedServices:
         [
             new ManifestService { ServiceId = "my-api-id", ServiceName = "", ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService }
@@ -101,8 +99,7 @@ public sealed class AgentResultMergeNormalizerTests
 
         AgentResult normalized = AgentResultMergeNormalizer.Normalize(result);
 
-        normalized.ProposedChanges!.AddedServices.Should().HaveCount(1);
-        normalized.ProposedChanges.AddedServices[0].ServiceName.Should().Be("my-api-id");
+        normalized.ProposedChanges!.AddedServices.Should().BeEmpty();
     }
 
     [Fact]
@@ -120,9 +117,8 @@ public sealed class AgentResultMergeNormalizerTests
     }
 
     [Fact]
-    public void Normalize_assignsDatastoreNameFromDatastoreIdWhenNameEmpty()
+    public void Normalize_dropsDatastoreWhenNameEmptyEvenIfDatastoreIdPresent()
     {
-        // Simulates live LLM returning datastoreName="" but a valid datastoreId.
         AgentResult result = BuildTopologyResultWith(addedDatastores:
         [
             new ManifestDatastore { DatastoreId = "my-db-id", DatastoreName = "", DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer }
@@ -130,8 +126,7 @@ public sealed class AgentResultMergeNormalizerTests
 
         AgentResult normalized = AgentResultMergeNormalizer.Normalize(result);
 
-        normalized.ProposedChanges!.AddedDatastores.Should().HaveCount(1);
-        normalized.ProposedChanges.AddedDatastores[0].DatastoreName.Should().Be("my-db-id");
+        normalized.ProposedChanges!.AddedDatastores.Should().BeEmpty();
     }
 
     [Fact]

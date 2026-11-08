@@ -88,6 +88,48 @@ public sealed class AzureInventorySnapshotDetailReadModel
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderGovernanceAssignmentReadModel> DefenderGovernanceAssignments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderComplianceStandardReadModel> DefenderComplianceStandards
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderComplianceControlReadModel> DefenderComplianceControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAlertReadModel> DefenderAlerts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAttackPathReadModel> DefenderAttackPaths
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderVulnerabilityCountReadModel> DefenderVulnerabilityCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderVulnerabilityFindingReadModel> DefenderVulnerabilityFindings
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyReadModel

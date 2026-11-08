@@ -299,7 +299,24 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
   return true;
 }
 
+/**
+ * Returns a control-stripped safe relative path, or null when the value is not safe.
+ * Use when persisting or returning post-sign-in paths so smuggled control characters
+ * cannot leak past `isSafeReturnPath` checks.
+ */
+export function canonicalSafeReturnPath(candidate: string | null | undefined): string | null {
+  if (!candidate) {
+    return null;
+  }
+
+  const stripped = stripControlChars(candidate);
+
+  return isSafeReturnPath(stripped) ? stripped : null;
+}
+
 /** Returns `candidate` when it is a safe relative path, otherwise `fallback` (default `"/"`). */
 export function resolveSafeReturnPath(candidate: string | null | undefined, fallback = "/"): string {
-  return isSafeReturnPath(candidate) ? candidate : fallback;
+  const canonical = canonicalSafeReturnPath(candidate);
+
+  return canonical ?? fallback;
 }

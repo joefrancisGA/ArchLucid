@@ -119,13 +119,19 @@ export function formatFindingsVisibilitySummaryLine(
   }
 
   if (hiddenByConfidenceCount > 0) {
-    return `Showing ${shownCount} of ${toolbarFilteredCount} — ${hiddenByConfidenceCount} hidden by confidence filter`;
+    return `Showing ${shownCount} of ${toolbarFilteredCount} — ${hiddenByConfidenceCount} hidden by confidence filter (still stored)`;
   }
 
   return `Showing ${shownCount} of ${toolbarFilteredCount}`;
 }
 
-export function formatHiddenLowConfidenceHint(hiddenCount: number): string | null {
+export const HIDDEN_FINDING_COUNT_NOT_STORED = "Hidden finding count was not stored." as const;
+
+export function formatHiddenLowConfidenceHint(hiddenCount: number | null | undefined): string | null {
+  if (hiddenCount === null || hiddenCount === undefined) {
+    return HIDDEN_FINDING_COUNT_NOT_STORED;
+  }
+
   if (hiddenCount <= 0) {
     return null;
   }
@@ -140,5 +146,5 @@ export function evaluationScoreDisplay(score: number | null | undefined): string
 
   const normalized = normalizedEvaluationScore(score);
 
-  return `${Math.round(normalized)}`;
+  return `${Math.trunc(normalized)}`;
 }

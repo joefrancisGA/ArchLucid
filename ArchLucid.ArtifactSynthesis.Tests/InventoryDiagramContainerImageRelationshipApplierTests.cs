@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -31,7 +32,7 @@ public sealed class InventoryDiagramContainerImageRelationshipApplierTests
 
         InventoryDiagramContainerImageRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Pulls image from");
-        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramRelationshipLabelTexts.ImageReferenceStoredImagePullNotObserved);
+        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
     }
 }

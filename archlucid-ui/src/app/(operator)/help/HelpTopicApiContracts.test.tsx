@@ -1,6 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
+
 import { HelpApiContractsGuideView } from "@/app/(operator)/help/_sections/HelpApiContractsGuideView";
 import { HelpTopicAuthorityGate } from "@/app/(operator)/help/_sections/HelpTopicAuthorityGate";
 import {
@@ -8,8 +10,9 @@ import {
   API_CONTRACTS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/api-contracts-help-guide-content";
 import {
+  API_CONTRACTS_HELP_CANONICAL_PATH,
   API_CONTRACTS_HELP_CLAIM_DISCIPLINE,
-  API_CONTRACTS_HELP_SOURCES,
+  API_CONTRACTS_HELP_ORIENTATION_SOURCES,
 } from "@/lib/api-contracts-help-evidence-copy";
 import {
   API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -36,6 +39,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
@@ -195,19 +203,9 @@ describe("HelpApiContractsGuideView (HG)", () => {
     expect(within(actionPanel).queryByRole("link", { name: "CLI usage" })).not.toBeInTheDocument();
     expect(within(actionPanel).queryByRole("link", { name: "Approval (buyer)" })).not.toBeInTheDocument();
 
-    for (const source of API_CONTRACTS_HELP_SOURCES) {
-      expect(
-        within(screen.getByTestId("help-api-contracts-sources")).getByRole("link", {
-          name: `Read ${source.label}`,
-        }),
-      ).toHaveAttribute("href", source.href);
-    }
+    const sourcesSection = screen.getByTestId("help-api-contracts-sources");
 
-    const visibleLinkLabels = screen.getAllByRole("link").map((link) => link.textContent?.trim() ?? "");
-
-    for (const source of API_CONTRACTS_HELP_SOURCES) {
-      expect(visibleLinkLabels.filter((label) => label === `Read ${source.label}`)).toHaveLength(1);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), API_CONTRACTS_HELP_ORIENTATION_SOURCES, API_CONTRACTS_HELP_CANONICAL_PATH);
 
     const visible = document.body.textContent ?? "";
 

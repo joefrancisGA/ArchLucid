@@ -22,6 +22,8 @@ internal static class DiagramDataFlowEffectiveStageResolver
         Dictionary<string, GraphNode> nodesById = nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal);
         Dictionary<string, string> overrides = new(StringComparer.Ordinal);
 
+        Dictionary<string, List<string>> adfWriteTargetsByFactoryId = new(StringComparer.Ordinal);
+
         foreach (GraphEdge edge in edges)
         {
             if (!nodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode))
@@ -34,19 +36,42 @@ internal static class DiagramDataFlowEffectiveStageResolver
                 continue;
             }
 
-            if (!IsDataFactoryNode(fromNode))
+            if (IsAdfReadsFrom(edge))
+            {
+                overrides[edge.ToNodeId] = AzureInventoryDataFlowStageNames.Source;
+
+                if (IsDataFactoryNode(fromNode))
+                {
+                    overrides[edge.FromNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+                }
+            }
+
+            if (IsAdfWritesTo(edge) && IsDataFactoryNode(fromNode))
+            {
+                overrides[edge.FromNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+
+                if (!adfWriteTargetsByFactoryId.TryGetValue(edge.FromNodeId, out List<string>? targets))
+                {
+                    targets = [];
+                    adfWriteTargetsByFactoryId[edge.FromNodeId] = targets;
+                }
+
+                targets.Add(edge.ToNodeId);
+            }
+        }
+
+        const int minimumHubSpokeWriteTargets = 4;
+        foreach ((string factoryNodeId, List<string> writeTargetNodeIds) in adfWriteTargetsByFactoryId)
+        {
+            if (writeTargetNodeIds.Distinct(StringComparer.Ordinal).Count() < minimumHubSpokeWriteTargets)
             {
                 continue;
             }
 
-            if (IsAdfReadsFrom(edge))
+            overrides[factoryNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+            foreach (string targetNodeId in writeTargetNodeIds.Distinct(StringComparer.Ordinal))
             {
-                overrides[edge.ToNodeId] = AzureInventoryDataFlowStageNames.Source;
-            }
-
-            if (IsAdfWritesTo(edge))
-            {
-                overrides[edge.ToNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+                overrides[targetNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
             }
         }
 

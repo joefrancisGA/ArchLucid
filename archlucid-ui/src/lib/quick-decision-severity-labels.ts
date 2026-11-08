@@ -9,31 +9,74 @@ export function firstRecommendationSentence(text: string): string {
     return "";
   }
 
-  const match = /^[\s\S]*?[.!?](?=\s|$)/.exec(t);
+  for (let index = 0; index < t.length; index += 1) {
+    const ch = t[index];
 
-  if (match !== null) {
-    return match[0].trim();
+    if (ch !== "." && ch !== "!" && ch !== "?") {
+      continue;
+    }
+
+    const sliceStart = Math.max(0, index - 3);
+    const window = t.slice(sliceStart, index + 1).toLowerCase();
+
+    if (window.endsWith("e.g.") || window.endsWith("i.e.")) {
+      continue;
+    }
+
+    if (index + 1 >= t.length || /\s/u.test(t[index + 1] ?? "")) {
+      return t.slice(0, index + 1).trim();
+    }
   }
 
   return t;
 }
 
-export function severityBadgeLabel(severityValue: number | null | undefined): string {
-  if (severityValue == null) {
-    return "Severity was not stored";
+export const QUICK_DECISION_RECOMMENDATION_TRUNCATED_SUFFIX =
+  "Full recommendation was stored; only the first sentence is shown." as const;
+
+/** First sentence for display, with explicit honesty when the stored recommendation continues after that sentence. */
+export function formatRecommendationFirstSentenceWithTruncationHonesty(text: string): string {
+  const trimmed = text.trim();
+  const sentence = firstRecommendationSentence(trimmed);
+
+  if (sentence.length === 0) {
+    return "";
+  }
+
+  if (sentence.length < trimmed.length) {
+    return `${sentence} (${QUICK_DECISION_RECOMMENDATION_TRUNCATED_SUFFIX})`;
+  }
+
+  return sentence;
+}
+
+export function severityBadgeLabel(
+  severityValue: number | null | undefined,
+  storedSeverityLabel?: string | null,
+): string {
+  const stored = storedSeverityLabel?.trim() ?? "";
+
+  if (/^(high|medium)$/i.test(stored)) {
+    return stored.charAt(0).toUpperCase() + stored.slice(1).toLowerCase();
+  }
+
+  if (severityValue == null || !Number.isFinite(severityValue)) {
+    return "Severity label was not stored.";
   }
 
   switch (severityValue) {
     case 3:
       return "Critical";
     case 2:
-      return "High";
+      return "Error";
     case 1:
-      return "Medium";
+      return "Warning";
     case 0:
       return "Info";
+    case -1:
+      return "Stored severity Low has no reviewer label.";
     default:
-      return Number.isFinite(severityValue) ? String(severityValue) : "Severity unknown";
+      return `Severity ${severityValue} has no reviewer label.`;
   }
 }
 
@@ -48,10 +91,10 @@ export function severityKindFromNumericValue(severityValue: number | null | unde
       return "critical";
 
     case 2:
-      return "high";
+      return "error";
 
     case 1:
-      return "medium";
+      return "warning";
 
     case 0:
       return "info";
@@ -126,7 +169,12 @@ export function normalizeFindingHumanReviewStatus(value: unknown): number | null
  */
 export function humanReviewStatusDisplay(
   value: number | null | undefined,
+  options?: { readonly stored?: boolean },
 ): FindingHumanReviewStatusDisplay {
+  if (options?.stored === false) {
+    return { label: "Human review status was not stored", statusKind: "neutral" };
+  }
+
   switch (value) {
     case 0:
       return { label: "No human review required", statusKind: "neutral" };
@@ -142,8 +190,42 @@ export function humanReviewStatusDisplay(
     case undefined:
       return { label: "Human review status was not stored", statusKind: "neutral" };
     default:
-      return { label: "Human review status unknown", statusKind: "neutral" };
+      return {
+        label: "Human review status was not a recognized stored value.",
+        statusKind: "neutral",
+      };
   }
+}
+
+/** Helper copy under Decision state on the findings workspace primary card. */
+export function quickDecisionDecisionStateHelper(
+  reviewStatus: FindingHumanReviewStatusDisplay | null,
+  options?: { readonly stored?: boolean },
+): string {
+  if (options?.stored === false) {
+    return "No human review decision is stored on this finding.";
+  }
+
+  if (reviewStatus === null) {
+    return "No human review decision is stored on this finding.";
+  }
+
+  switch (reviewStatus.label) {
+    case "Pending review":
+      return "Human review is still open. Opening this card does not record a new decision.";
+    case "Approved":
+    case "Rejected":
+    case "Overridden":
+      return "The decision recorded for this finding. Opening this card does not change it.";
+    case "No human review required":
+      return "This finding did not require human review when stored.";
+    default:
+      return "The decision recorded for this finding. Opening this card does not record a new decision.";
+  }
+}
+
+export function formatQuickDecisionFindingOwnerStoredEmptyHelper(): string {
+  return "An owner field was stored empty on this finding.";
 }
 
 function normalizedSeverity(severityValue: number): number | null {
@@ -193,8 +275,10 @@ export function coerceArchitectureFindingSeverity(raw: unknown): number | null {
 
       case "info":
       case "informational":
-      case "low":
         return 0;
+
+      case "low":
+        return -1;
 
       default:
         return null;

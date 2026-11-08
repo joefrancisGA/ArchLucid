@@ -4,6 +4,7 @@ import {
   resolveOperatorBillingCommercialTier,
   resolveOperatorBillingHasSubscriptionForInvoice,
   resolveOperatorBillingIsTrialUsage,
+  resolveOperatorBillingSeatRow,
   resolveOperatorBillingSubscriptionLoadState,
   resolveOperatorBillingSubscriptionStatusDisplay,
 } from "./operator-billing-subscription-resolution";
@@ -65,5 +66,15 @@ describe("operator-billing-subscription-resolution", () => {
     expect(
       resolveOperatorBillingIsTrialUsage({ isTrial: true }, { hasSubscription: false, isPaymentPastDue: false }),
     ).toBe(true);
+  });
+
+  it("normalizes non-finite seatsUsed for the billing seat row", () => {
+    const row = resolveOperatorBillingSeatRow(true, false, "resolved", Number.NaN, 5);
+
+    expect(row).toEqual({ label: "Seats", value: "0 of 5 in use" });
+  });
+
+  it("omits the billing seat row when seatsLimit is non-finite", () => {
+    expect(resolveOperatorBillingSeatRow(true, false, "resolved", 2, Number.NaN)).toBeNull();
   });
 });

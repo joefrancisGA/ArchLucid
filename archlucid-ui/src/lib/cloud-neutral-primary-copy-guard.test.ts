@@ -36,10 +36,13 @@ describe("cloud-neutral-primary-copy guard", () => {
 
   it("wires primary surfaces to cloud-neutral copy constants", () => {
     expect(REVIEWS_NEW_PAGE_LEAD).toBe(CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead);
+    expect(CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead.toLowerCase()).toMatch(/inventory zip/);
+    expect(CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet.toLowerCase()).toMatch(/before seal/);
+    expect(CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet.toLowerCase()).not.toMatch(/after commit/);
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS[2]).toBe(
       CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet,
     );
-    expect(CORE_PILOT_STEPS[3]?.detail).toBe(CLOUD_NEUTRAL_PRIMARY_COPY.corePilotInventoryStepDetail);
+    expect(CORE_PILOT_STEPS[4]?.detail).toBe(CLOUD_NEUTRAL_PRIMARY_COPY.corePilotInventoryStepDetail);
 
     const homeGuidance = FIRST_WEEK_ROUTE_GUIDANCE.home.bridgeCopy.toLowerCase();
     expect(homeGuidance).not.toContain("azure extractor");

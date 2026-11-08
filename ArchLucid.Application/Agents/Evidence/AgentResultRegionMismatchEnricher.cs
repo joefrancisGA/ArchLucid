@@ -27,6 +27,9 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             AgentTopologyProposal? proposal = result.ProposedChanges;
 
             if (proposal is null)
@@ -34,20 +37,26 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
             foreach (ManifestService service in proposal.AddedServices ?? [])
             {
+                if (service is null)
+                    continue;
+
                 AppendRegionWarnings(
                     proposal,
                     service.AzureArmRegion,
                     requestRegions,
-                    ResolveRegionValidationPlatformHint(service.RuntimePlatform));
+                    ResolveRegionValidationPlatformHint(service.RuntimePlatform, service.ServiceName));
             }
 
             foreach (ManifestDatastore datastore in proposal.AddedDatastores ?? [])
             {
+                if (datastore is null)
+                    continue;
+
                 AppendRegionWarnings(
                     proposal,
                     datastore.AzureArmRegion,
                     requestRegions,
-                    ResolveRegionValidationPlatformHint(datastore.RuntimePlatform));
+                    ResolveRegionValidationPlatformHint(datastore.RuntimePlatform, datastore.DatastoreName));
             }
         }
 
@@ -60,10 +69,15 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
 
         foreach (string constraint in request.Constraints ?? [])
         {
-            if (!constraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(constraint))
                 continue;
 
-            string[] parts = constraint.Split(':', 2, StringSplitOptions.TrimEntries);
+            string trimmedConstraint = constraint.Trim();
+
+            if (!trimmedConstraint.StartsWith("region:", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string[] parts = trimmedConstraint.Split(':', 2, StringSplitOptions.TrimEntries);
 
             if (parts.Length == 2 && !string.IsNullOrWhiteSpace(parts[1]))
                 regions.Add(parts[1]);
@@ -107,11 +121,33 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
         proposal.Warnings.Add(warning);
     }
 
-    private static string ResolveRegionValidationPlatformHint(RuntimePlatform platform)
+    private static string ResolveRegionValidationPlatformHint(RuntimePlatform platform, string? resourceName)
     {
         if (platform == RuntimePlatform.AzureOpenAi)
             return "Microsoft.CognitiveServices/accounts";
 
+        if (platform == RuntimePlatform.Unknown && !string.IsNullOrWhiteSpace(resourceName))
+        {
+            string? armHint = TryResolveRestrictedServiceHintFromResourceName(resourceName);
+
+            if (armHint is not null)
+                return armHint;
+        }
+
         return platform.ToString();
+    }
+
+    private static string? TryResolveRestrictedServiceHintFromResourceName(string resourceName)
+    {
+        if (resourceName.Contains("openai", StringComparison.OrdinalIgnoreCase))
+            return "Microsoft.CognitiveServices/accounts";
+
+        if (resourceName.Contains("machine learning", StringComparison.OrdinalIgnoreCase)
+            || resourceName.Contains("machinelearning", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Microsoft.MachineLearningServices/workspaces";
+        }
+
+        return null;
     }
 }

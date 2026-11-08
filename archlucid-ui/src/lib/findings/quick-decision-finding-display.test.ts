@@ -1,0 +1,55 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  formatQuickDecisionConfidenceWorkspaceLabel,
+  formatQuickDecisionFindingCategoryLine,
+  formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
+} from "@/lib/findings/quick-decision-finding-display";
+
+describe("quick-decision-finding-display", () => {
+  it("labels whitespace-only owners as stored empty (P-14)", () => {
+    expect(formatQuickDecisionFindingOwnerDisplay("   ")).toBe("Owner was stored empty.");
+    expect(formatQuickDecisionFindingOwnerDisplay(null)).toBe("Owner was not stored.");
+  });
+
+  it("maps uuid-shaped owners to display-name honesty (P-13)", () => {
+    expect(formatQuickDecisionFindingOwnerDisplay("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).toBe(
+      "Owner display name was not stored.",
+    );
+    expect(formatQuickDecisionFindingOwnerDisplay("jane.architect")).toBe("jane.architect");
+  });
+
+  it("does not treat a stored finding id as the title (P-04)", () => {
+    expect(formatQuickDecisionFindingTitleDisplay("finding-1", "finding-1")).toBe(
+      "Finding title matches the finding id. A separate title was not stored.",
+    );
+    expect(formatQuickDecisionFindingTitleDisplay("finding-1", "FINDING-1")).toBe(
+      "Finding title matches the finding id. A separate title was not stored.",
+    );
+    expect(formatQuickDecisionFindingTitleDisplay("finding-1", "Subnet exposure")).toBe("Subnet exposure");
+  });
+
+  it("labels confidence null, blank, and unexpected values (P-12)", () => {
+    expect(formatQuickDecisionConfidenceWorkspaceLabel(null)).toBe("Confidence level was not stored.");
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("   ")).toBe("Confidence was stored empty.");
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("High")).toBe(
+      "Stored confidence is High. Not a probability and not an approval.",
+    );
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("Medium")).toBe(
+      "Stored confidence is Medium. Not a probability and not an approval.",
+    );
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("Low")).toBe(
+      "Stored confidence is Low. Not a probability and not an approval.",
+    );
+    expect(formatQuickDecisionConfidenceWorkspaceLabel("Uncertain")).toBe(
+      "Confidence Uncertain has no reviewer label.",
+    );
+  });
+
+  it("labels finding category null, blank, and stored values (P-20)", () => {
+    expect(formatQuickDecisionFindingCategoryLine(null)).toBe("Finding category was not stored.");
+    expect(formatQuickDecisionFindingCategoryLine("")).toBe("Finding category was stored empty.");
+    expect(formatQuickDecisionFindingCategoryLine("  cost  ")).toBe("cost");
+  });
+});

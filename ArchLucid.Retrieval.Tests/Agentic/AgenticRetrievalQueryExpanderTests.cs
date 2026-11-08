@@ -54,6 +54,114 @@ public sealed class AgenticRetrievalQueryExpanderTests
         plan.UsedHyde.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task ExpandAsync_when_hyde_client_throws_still_embeds_heuristic_hyde_from_rewritten_query()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("rewrite: subnet isolation policy");
+        completionClient
+            .Setup(c => c.GenerateHydeDocumentAsync("rewrite: subnet isolation policy", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("provider fault"));
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = true,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync("subnet isolation", CancellationToken.None);
+
+        plan.RerankQueryText.Should().Be("rewrite: subnet isolation policy");
+        plan.EmbedText.Should().Be(AgenticRetrievalHeuristics.GenerateHydeDocument("rewrite: subnet isolation policy"));
+        plan.UsedQueryRewrite.Should().BeTrue();
+        plan.UsedHyde.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExpandAsync_when_rewrite_returns_whitespace_only_keeps_trimmed_original_embed_text()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("   ");
+        completionClient
+            .Setup(c => c.GenerateHydeDocumentAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("HyDE document");
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = true,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync("subnet isolation", CancellationToken.None);
+
+        plan.UsedQueryRewrite.Should().BeFalse();
+        plan.RerankQueryText.Should().Be("subnet isolation");
+        plan.EmbedText.Should().Be("HyDE document");
+    }
+
+    [Fact]
+    public async Task ExpandAsync_when_hyde_enabled_embed_text_is_hyde_document_not_rewrite_concatenation()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("rewrite: subnet isolation policy");
+        completionClient
+            .Setup(c => c.GenerateHydeDocumentAsync("rewrite: subnet isolation policy", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("HyDE-only embed body");
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = true,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync("subnet isolation", CancellationToken.None);
+
+        plan.RerankQueryText.Should().Be("rewrite: subnet isolation policy");
+        plan.EmbedText.Should().Be("HyDE-only embed body");
+        plan.EmbedText.Should().NotContain("rewrite: subnet isolation policy");
+    }
+
+    [Fact]
+    public async Task ExpandAsync_when_rewrite_client_throws_preserves_unicode_in_heuristic_rewrite()
+    {
+        const string unicodeQuery = "café 日本語 segmentation";
+
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync(unicodeQuery, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("rewrite fault"));
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = false,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync(unicodeQuery, CancellationToken.None);
+
+        plan.RerankQueryText.Should().Contain("café");
+        plan.RerankQueryText.Should().Contain("日本語");
+        plan.EmbedText.Should().Be(plan.RerankQueryText);
+    }
+
     private static AgenticRetrievalQueryExpander CreateSut(
         AdvancedRetrievalOptions options,
         IAgenticRetrievalCompletionClient? completionClient = null)

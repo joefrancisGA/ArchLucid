@@ -26,7 +26,12 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         using JsonDocument document = JsonDocument.ParseValue(ref reader);
         JsonElement root = document.RootElement;
 
-        ArchitectureFinding finding = new();
+        ArchitectureFinding finding = new()
+        {
+            SeverityStored = false,
+            SourceAgentStored = false,
+            EnforcementTierStored = false,
+        };
 
         if (TryGetPropertyIgnoreCase(root, "findingId", out JsonElement findingId) && findingId.ValueKind == JsonValueKind.String)
             finding.FindingId = findingId.GetString() ?? finding.FindingId;
@@ -35,10 +40,14 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             TryReadSourceAgent(sourceAgent, out AgentType agentType))
         {
             finding.SourceAgent = agentType;
+            finding.SourceAgentStored = true;
         }
 
         if (TryGetPropertyIgnoreCase(root, "severity", out JsonElement severityElement))
-            finding.Severity = ReadSeverity(severityElement);
+        {
+            finding.Severity = ReadSeverity(severityElement, out bool severityStored);
+            finding.SeverityStored = severityStored;
+        }
 
         if (TryGetPropertyIgnoreCase(root, "category", out JsonElement category) && category.ValueKind == JsonValueKind.String)
             finding.Category = category.GetString() ?? string.Empty;
@@ -49,22 +58,17 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.PolicyRuleId = policyRuleId.GetString();
         }
 
-        // Enum default is PolicyViolation (0). Agent golden JSON often omits the
-        // field; treat absence as Advisory so live-LLM payloads stay non-blocking.
         if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier))
         {
             if (TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
             {
                 finding.EnforcementTier = tier;
+                finding.EnforcementTierStored = true;
             }
             else
             {
                 throw new JsonException("enforcementTier is required.");
             }
-        }
-        else
-        {
-            finding.EnforcementTier = FindingEnforcementTier.Advisory;
         }
 
         finding.Message = ReadMessage(root);
@@ -82,6 +86,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         }
 
         ReadInsightDensityFields(root, finding);
+        ApplyStoredFlagsFromJson(root, finding);
 
         return finding;
     }
@@ -99,8 +104,11 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         writer.WriteString("findingId", value.FindingId);
         writer.WriteString("sourceAgent", value.SourceAgent.ToString());
         writer.WriteString("severity", value.Severity.ToString());
+        writer.WriteBoolean("severityStored", value.SeverityStored);
         writer.WriteString("category", value.Category);
         writer.WriteString("enforcementTier", value.EnforcementTier.ToString());
+        writer.WriteBoolean("enforcementTierStored", value.EnforcementTierStored);
+        writer.WriteBoolean("sourceAgentStored", value.SourceAgentStored);
 
         if (!string.IsNullOrWhiteSpace(value.PolicyRuleId))
             writer.WriteString("policyRuleId", value.PolicyRuleId);
@@ -404,13 +412,34 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         return string.Empty;
     }
 
-    private static FindingSeverity ReadSeverity(JsonElement severityElement)
+    private static void ApplyStoredFlagsFromJson(JsonElement root, ArchitectureFinding finding)
     {
+        if (TryGetPropertyIgnoreCase(root, "severityStored", out JsonElement severityStored))
+        {
+            finding.SeverityStored = severityStored.ValueKind == JsonValueKind.True;
+        }
+
+        if (TryGetPropertyIgnoreCase(root, "sourceAgentStored", out JsonElement sourceAgentStored))
+        {
+            finding.SourceAgentStored = sourceAgentStored.ValueKind == JsonValueKind.True;
+        }
+
+        if (TryGetPropertyIgnoreCase(root, "enforcementTierStored", out JsonElement enforcementTierStored))
+        {
+            finding.EnforcementTierStored = enforcementTierStored.ValueKind == JsonValueKind.True;
+        }
+    }
+
+    private static FindingSeverity ReadSeverity(JsonElement severityElement, out bool severityStored)
+    {
+        severityStored = false;
+
         if (DefinedEnumStringReader.TryReadDefinedOrdinal(
                 severityElement,
                 out FindingSeverity numericSeverity,
                 numeric => new JsonException($"Unknown finding severity value '{numeric}'.")))
         {
+            severityStored = true;
             return numericSeverity;
         }
 
@@ -424,11 +453,16 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
         if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed)
             && Enum.IsDefined(parsed))
+        {
+            severityStored = true;
             return parsed;
+        }
+
+        severityStored = true;
 
         return raw.Trim().ToLowerInvariant() switch
         {
-            "low" => FindingSeverity.Info,
+            "low" => FindingSeverity.Warning,
             "medium" => FindingSeverity.Warning,
             "high" => FindingSeverity.Error,
             _ => throw new JsonException($"Unknown finding severity value '{raw}'."),

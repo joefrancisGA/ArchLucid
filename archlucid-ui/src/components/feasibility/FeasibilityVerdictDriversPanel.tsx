@@ -7,6 +7,7 @@ import type {
   FeasibilityVerdictDriver,
   FeasibilityVerdictDriverKind,
 } from "@/lib/feasibility-verdict-transparency-trail";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 import { cn } from "@/lib/utils";
 
 function driverKindLabel(kind: FeasibilityVerdictDriverKind): string {
@@ -60,6 +61,8 @@ function FeasibilityVerdictDriverRow(props: {
 
 export type FeasibilityVerdictDriversPanelProps = {
   readonly drivers: readonly FeasibilityVerdictDriver[];
+  /** When null/undefined, drivers cannot be parsed from a transparency trail. */
+  readonly transparencyTrail?: TransparencyTrail | null;
   /** When absent (draft admission), blocking-finding drivers render as plain text. */
   readonly reviewId?: string | null;
   readonly className?: string;
@@ -68,8 +71,34 @@ export type FeasibilityVerdictDriversPanelProps = {
 
 /** TB-2229 — shared “what drove this verdict” panel for run detail and draft admission receipts. */
 export function FeasibilityVerdictDriversPanel(props: FeasibilityVerdictDriversPanelProps): ReactElement | null {
+  const trail = props.transparencyTrail;
+
+  if (trail === null || trail === undefined) {
+    return (
+      <div
+        className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body, props.className)}
+        data-testid={props.testId ?? "feasibility-verdict-drivers"}
+      >
+        <p className="m-0 font-medium">What drove this verdict</p>
+        <p className="m-0 text-al-text-secondary">
+          Verdict drivers were not stored because the transparency trail was not returned.
+        </p>
+      </div>
+    );
+  }
+
   if (props.drivers.length === 0) {
-    return null;
+    return (
+      <div
+        className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body, props.className)}
+        data-testid={props.testId ?? "feasibility-verdict-drivers"}
+      >
+        <p className="m-0 font-medium">What drove this verdict</p>
+        <p className="m-0 text-al-text-secondary">
+          Structured verdict drivers were stored empty on this transparency trail.
+        </p>
+      </div>
+    );
   }
 
   return (

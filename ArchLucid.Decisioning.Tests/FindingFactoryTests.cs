@@ -143,15 +143,26 @@ public sealed class FindingFactoryTests
 
         mapped.Title.Should().HaveLength(500);
 
-        mapped.Category.Should().Be(AgentType.Compliance.ToString());
+        mapped.Category.Should().Be("Category was not stored.");
         mapped.ConfidenceScore.Should().BeApproximately(0.71, 0.0001);
         mapped.EvaluationConfidenceScore.Should().Be(88);
-        mapped.AgentExecutionTraceId.Should().Be(finding.FindingId);
+        mapped.AgentExecutionTraceId.Should().BeNull();
         mapped.Trace!.Notes.Should().Contain("evidence:e1").And.Contain("evidence:e2");
         mapped.Trace.RulesApplied.Should().Contain("agent-Compliance");
         mapped.Trace.DecisionsTaken.Should().ContainSingle()
             .Which.Should().Contain("Compliance");
         mapped.Trace.Citations.Should().Equal("e1", "e2");
+    }
+
+    [Fact]
+    public void CreateFromAgentArchitectureFinding_uses_not_stored_title_when_message_blank()
+    {
+        ArchitectureFinding finding = new() { Message = "   ", Category = "sec" };
+        AgentResult agent = new() { AgentType = AgentType.Compliance };
+
+        Finding mapped = FindingFactory.CreateFromAgentArchitectureFinding(finding, agent);
+
+        mapped.Title.Should().Be("Finding message title was not stored.");
     }
 
     [Fact]

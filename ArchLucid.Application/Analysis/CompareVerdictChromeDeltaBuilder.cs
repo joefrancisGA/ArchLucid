@@ -21,7 +21,7 @@ namespace ArchLucid.Application.Analysis;
 internal static class CompareVerdictChromeDeltaBuilder
 {
     private const string NoPackAssignmentRecorded = "No pack assignment recorded";
-    private const string GatePendingLabel = "Gate pending";
+    private const string GateOutcomeNotStoredLabel = SendableExportCoverComposer.GateOutcomeNotStoredLine;
 
     internal static async Task<CompareVerdictChromeDelta> BuildAsync(
         ArchitectureRunDetail leftDetail,
@@ -60,6 +60,8 @@ internal static class CompareVerdictChromeDeltaBuilder
         delta.PackAssignment = BuildPackAssignment(left, right);
         delta.ExecutionMode = BuildExecutionMode(leftDetail.Run, rightDetail.Run);
         delta.RoiHeadline = BuildRoiHeadline(left, right);
+
+        CompareVerdictChromeDeltaNormalizer.NormalizeInPlace(delta);
 
         return delta;
     }
@@ -179,13 +181,14 @@ internal static class CompareVerdictChromeDeltaBuilder
 
     private static string FormatGateLabel(FeasibilityVerdict? verdict)
     {
-        if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
+        if (verdict is null || !SendableExportCoverComposer.IsSendableCoverGateOutcomeStored(verdict.Kind))
         {
-            return GatePendingLabel;
+            return GateOutcomeNotStoredLabel;
         }
 
         return verdict.Kind switch
         {
+            FeasibilityVerdictKind.Feasible => "Feasible",
             FeasibilityVerdictKind.SoftInfeasible => "Soft infeasible",
             FeasibilityVerdictKind.HardInfeasible => "Hard infeasible",
             _ => verdict.Kind.ToString(),

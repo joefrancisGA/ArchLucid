@@ -29,6 +29,9 @@ public static class TopologyProposalRelationshipEdgeMapper
         Dictionary<string, string> uniqueIndexedTerraformEndpointNodeIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> ambiguousIndexedTerraformEndpointIdentities = [];
         Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds = new(StringComparer.OrdinalIgnoreCase);
+        // Two child modules often declare the same resource label. The shared leaf must fan out
+        // the way an unindexed count root does, instead of sticking to the first module indexed.
+        Dictionary<string, List<string>> ambiguousSharedTerraformLeafNodeIds = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, string> endpointKeyToNodeId = BuildEndpointResolutionIndex(
             topologyNodes,
             endpointAliases,
@@ -36,7 +39,8 @@ public static class TopologyProposalRelationshipEdgeMapper
             indexedTerraformEndpointIdentities,
             uniqueIndexedTerraformEndpointNodeIds,
             ambiguousIndexedTerraformEndpointIdentities,
-            ambiguousIndexedTerraformEndpointNodeIds);
+            ambiguousIndexedTerraformEndpointNodeIds,
+            ambiguousSharedTerraformLeafNodeIds);
 
         List<GraphEdge> edges = [];
 
@@ -49,7 +53,8 @@ public static class TopologyProposalRelationshipEdgeMapper
                 unindexedTerraformEndpointIdentities,
                 indexedTerraformEndpointIdentities,
                 ambiguousIndexedTerraformEndpointIdentities,
-                ambiguousIndexedTerraformEndpointNodeIds);
+                ambiguousIndexedTerraformEndpointNodeIds,
+                ambiguousSharedTerraformLeafNodeIds);
 
             if (fromNodeIds.Count == 0)
                 continue;
@@ -61,7 +66,8 @@ public static class TopologyProposalRelationshipEdgeMapper
                 unindexedTerraformEndpointIdentities,
                 indexedTerraformEndpointIdentities,
                 ambiguousIndexedTerraformEndpointIdentities,
-                ambiguousIndexedTerraformEndpointNodeIds);
+                ambiguousIndexedTerraformEndpointNodeIds,
+                ambiguousSharedTerraformLeafNodeIds);
 
             if (toNodeIds.Count == 0)
                 continue;
@@ -96,9 +102,11 @@ public static class TopologyProposalRelationshipEdgeMapper
         HashSet<string> indexedTerraformEndpointIdentities,
         Dictionary<string, string> uniqueIndexedTerraformEndpointNodeIds,
         HashSet<string> ambiguousIndexedTerraformEndpointIdentities,
-        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds)
+        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds,
+        Dictionary<string, List<string>> ambiguousSharedTerraformLeafNodeIds)
     {
         Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<string>> sharedLeafNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in topologyNodes)
         {
@@ -116,6 +124,35 @@ public static class TopologyProposalRelationshipEdgeMapper
 
             if (terraformEndpointIdentity is null)
                 continue;
+
+            bool dataSourceAddress = IsTerraformDataSourceAddress(canonicalSourceId);
+
+            if (dataSourceAddress
+                && !string.IsNullOrWhiteSpace(node.NodeId)
+                && endpointKeyToNodeId.TryGetValue(terraformEndpointIdentity, out string? leafOwner)
+                && string.Equals(leafOwner, node.NodeId, StringComparison.Ordinal)
+                && !string.Equals(canonicalSourceId, terraformEndpointIdentity, StringComparison.OrdinalIgnoreCase))
+            {
+                // A data source leaf is azurerm_<type>.<name> after the data mode segment is dropped.
+                // That key is the managed resource address and must stay available for the managed node.
+                endpointKeyToNodeId.Remove(terraformEndpointIdentity);
+            }
+
+            string sharedLeafKey = dataSourceAddress
+                ? "data." + terraformEndpointIdentity
+                : terraformEndpointIdentity;
+
+            if (!string.IsNullOrWhiteSpace(node.NodeId))
+            {
+                if (!sharedLeafNodeIds.TryGetValue(sharedLeafKey, out List<string>? leafNodes))
+                {
+                    leafNodes = [];
+                    sharedLeafNodeIds[sharedLeafKey] = leafNodes;
+                }
+
+                if (!leafNodes.Contains(node.NodeId))
+                    leafNodes.Add(node.NodeId);
+            }
 
             string? withoutInstanceKey =
                 TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(terraformEndpointIdentity);
@@ -140,6 +177,14 @@ public static class TopologyProposalRelationshipEdgeMapper
                     ambiguousIndexedTerraformEndpointNodeIds[withoutInstanceKey] = [firstNodeId, node.NodeId];
                 }
             }
+        }
+
+        foreach (KeyValuePair<string, List<string>> sharedLeaf in sharedLeafNodeIds)
+        {
+            if (sharedLeaf.Value.Count < 2)
+                continue;
+
+            ambiguousSharedTerraformLeafNodeIds[sharedLeaf.Key] = sharedLeaf.Value;
         }
 
         foreach (KeyValuePair<string, string> uniqueIndexedEndpoint in uniqueIndexedTerraformEndpointNodeIds)
@@ -176,43 +221,54 @@ public static class TopologyProposalRelationshipEdgeMapper
                 node.NodeId);
         }
 
-        if (endpointAliases is null)
-            return endpointKeyToNodeId;
-
-        foreach (KeyValuePair<string, string> alias in endpointAliases)
+        if (endpointAliases is not null)
         {
-            if (string.IsNullOrWhiteSpace(alias.Key) || string.IsNullOrWhiteSpace(alias.Value))
-                continue;
-
-            string trimmedKey = alias.Key.Trim();
-            string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
-
-            if (TryResolveNodeId(
-                    resolvedNodeId,
-                    endpointKeyToNodeId,
-                    unindexedTerraformEndpointIdentities,
-                    indexedTerraformEndpointIdentities,
-                    out string canonicalNodeId))
-                resolvedNodeId = canonicalNodeId;
-
-            if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedKey))
+            foreach (KeyValuePair<string, string> alias in endpointAliases)
             {
-                TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
-                    endpointKeyToNodeId,
-                    trimmedKey,
-                    resolvedNodeId);
-            }
-            else
-            {
-                endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
-            }
+                if (string.IsNullOrWhiteSpace(alias.Key) || string.IsNullOrWhiteSpace(alias.Value))
+                    continue;
 
-            string? normalizedSyntheticKey =
-                TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
+                string trimmedKey = alias.Key.Trim();
+                string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
 
-            if (normalizedSyntheticKey is not null)
-                endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, resolvedNodeId);
+                if (TryResolveNodeId(
+                        resolvedNodeId,
+                        endpointKeyToNodeId,
+                        unindexedTerraformEndpointIdentities,
+                        indexedTerraformEndpointIdentities,
+                        out string canonicalNodeId))
+                    resolvedNodeId = canonicalNodeId;
+
+                if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedKey))
+                {
+                    TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+                        endpointKeyToNodeId,
+                        trimmedKey,
+                        resolvedNodeId);
+                }
+                else
+                {
+                    endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+
+                    string canonicalTerraformKey =
+                        TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(trimmedKey);
+
+                    if (!string.Equals(canonicalTerraformKey, trimmedKey, StringComparison.OrdinalIgnoreCase))
+                        endpointKeyToNodeId.TryAdd(canonicalTerraformKey, resolvedNodeId);
+                }
+
+                string? normalizedSyntheticKey =
+                    TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
+
+                if (normalizedSyntheticKey is not null)
+                    endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, resolvedNodeId);
+            }
         }
+
+        // The shared leaf stays in the ambiguous fan-out map. Leaving it as a unique key
+        // made a different module prefix resolve to whichever module was indexed first.
+        foreach (string sharedLeaf in ambiguousSharedTerraformLeafNodeIds.Keys)
+            endpointKeyToNodeId.Remove(sharedLeaf);
 
         return endpointKeyToNodeId;
     }
@@ -383,8 +439,18 @@ public static class TopologyProposalRelationshipEdgeMapper
         HashSet<string> unindexedTerraformEndpointIdentities,
         HashSet<string> indexedTerraformEndpointIdentities,
         HashSet<string> ambiguousIndexedTerraformEndpointIdentities,
-        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds)
+        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds,
+        Dictionary<string, List<string>> ambiguousSharedTerraformLeafNodeIds)
     {
+        if (!string.IsNullOrWhiteSpace(candidate))
+        {
+            string canonicalCandidate =
+                TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(candidate.Trim());
+
+            if (ambiguousSharedTerraformLeafNodeIds.TryGetValue(canonicalCandidate, out List<string>? sharedLeafNodes))
+                return sharedLeafNodes;
+        }
+
         if (TryResolveNodeId(
                 candidate,
                 endpointKeyToNodeId,
@@ -456,5 +522,56 @@ public static class TopologyProposalRelationshipEdgeMapper
         return ambiguousIndexedTerraformEndpointIdentities.Contains(withoutInstanceKey)
             ? withoutInstanceKey
             : null;
+    }
+
+    /// <summary>
+    ///     Terraform data sources are <c>data.&lt;type&gt;.&lt;name&gt;</c>, including inside a module
+    ///     (<c>module.network.data.azurerm_app_service.main</c>). A module whose name is <c>data</c>
+    ///     (<c>module.data.azurerm_app_service.main</c>) is a managed resource.
+    /// </summary>
+    private static bool IsTerraformDataSourceAddress(string terraformAddress)
+    {
+        string? leaf =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(terraformAddress);
+
+        if (leaf is null
+            || !terraformAddress.EndsWith(leaf, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        int typeIndex = terraformAddress.Length - leaf.Length;
+        const string dataPrefix = "data.";
+
+        if (typeIndex < dataPrefix.Length)
+            return false;
+
+        if (!terraformAddress.AsSpan(typeIndex - dataPrefix.Length, dataPrefix.Length)
+                .Equals(dataPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        int dataSegmentStart = typeIndex - dataPrefix.Length;
+
+        if (dataSegmentStart == 0)
+            return true;
+
+        if (terraformAddress[dataSegmentStart - 1] != '.')
+            return false;
+
+        int previousEnd = dataSegmentStart - 1;
+        int dotBeforePrevious = previousEnd == 0
+            ? -1
+            : terraformAddress.LastIndexOf('.', previousEnd - 1);
+        int previousStart = dotBeforePrevious + 1;
+        int previousLength = previousEnd - previousStart;
+
+        if (previousLength <= 0)
+            return true;
+
+        ReadOnlySpan<char> previous = terraformAddress.AsSpan(previousStart, previousLength);
+
+        return !previous.Equals("module", StringComparison.OrdinalIgnoreCase);
     }
 }

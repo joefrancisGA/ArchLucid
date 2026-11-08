@@ -2,7 +2,7 @@
  * TB-2304 — Package Governance ≠ Approval queue vocabulary rail.
  *
  * Why two surfaces exist:
- * - Package Governance (`?archTab=governance` / review Policies tab) is
+ * - Package Governance (review Policies tab) is
  *   pre-finalize readiness on one architecture package — policy alignment and
  *   approval checks before commit.
  * - Approval queue (`/governance/approval-queue`) is the live approve / reject

@@ -6,6 +6,7 @@ export type OperatorInferredConnectionPanelErrorKind = "load" | "mutation";
 export type OperatorInferredConnectionPanelError = {
   readonly message: string;
   readonly kind: OperatorInferredConnectionPanelErrorKind;
+  readonly recoveryScenario?: ErrorRecoveryContractScenario;
 };
 
 /**

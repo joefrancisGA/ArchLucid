@@ -8,11 +8,13 @@ export type GuidedIntakeClarificationProgressInput = {
   readonly allQuestions: readonly DraftElicitationQuestion[];
   /** Pending clarifications still shown in the UI (excludes locally saved rows). */
   readonly activePendingCount: number;
+  readonly skippedRequiredCount?: number;
 };
 
 export type GuidedIntakeClarificationProgress = {
   readonly totalRequired: number;
   readonly handledCount: number;
+  readonly skippedCount: number;
 };
 
 /**
@@ -31,8 +33,9 @@ export function resolveGuidedIntakeClarificationProgress(
       : Math.max(input.pendingSelectionRequiredKeys.length, mustTierCount, input.activePendingCount);
 
   const handledCount = Math.max(0, Math.min(totalRequired, totalRequired - input.activePendingCount));
+  const skippedCount = Math.max(0, input.skippedRequiredCount ?? 0);
 
-  return { totalRequired, handledCount };
+  return { totalRequired, handledCount, skippedCount };
 }
 
 /** Keeps the longest non-empty admitted MUST key list (admission baseline must not shrink on refresh). */

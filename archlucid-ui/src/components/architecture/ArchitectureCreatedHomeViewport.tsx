@@ -8,11 +8,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  ARCHITECTURE_CREATED_CONFIRMATION,
+  resolveArchitectureCreatedConfirmation,
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
   ARCHITECTURE_CREATED_MISSING_HEADING,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_OVERFLOW_LABEL,
+  ARCHITECTURE_DEFINITION_STATUS_HELPER,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
 } from "@/lib/architecture/architecture-created-home-copy";
 import {
@@ -23,6 +24,7 @@ import {
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatArchitectureCreatedHomeOwnerDisplay } from "@/lib/run-detail-workspace-derive/review-metadata";
 
 export type ArchitectureCreatedHomeViewportProps = {
   readonly model: ArchitectureCreatedHomeModel;
@@ -98,7 +100,7 @@ export function ArchitectureCreatedHomeViewport(
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-2">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {ARCHITECTURE_CREATED_CONFIRMATION}
+            {resolveArchitectureCreatedConfirmation(model.submittedBriefStored)}
           </p>
           <h1
             id="architecture-created-home-title"
@@ -111,10 +113,10 @@ export function ArchitectureCreatedHomeViewport(
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind={model.lifecycleStatusTagKind} label={model.lifecycleLabel} />
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {model.ownerLabel !== null ? `Owner: ${model.ownerLabel}` : "Owner was not stored."}
+              {formatArchitectureCreatedHomeOwnerDisplay(model.ownerLabel)}
             </span>
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Updated {model.lastUpdatedLabel}
+              {model.homeTimestampPrefix} {model.lastUpdatedLabel}
             </span>
           </div>
         </div>
@@ -195,6 +197,11 @@ export function ArchitectureCreatedHomeViewport(
                   </li>
                 ))}
               </ul>
+              {model.missingItemsOmittedCount > 0 ? (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {model.missingItemsOmittedLine}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -211,7 +218,7 @@ export function ArchitectureCreatedHomeViewport(
               {model.definitionStatusLabel}
             </p>
             <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Based on the brief and people or systems you provided so far.
+              {ARCHITECTURE_DEFINITION_STATUS_HELPER}
             </p>
           </div>
 

@@ -28,11 +28,15 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
 
             matrix.Rows.Add(new ComplianceMatrixRow
             {
-                ControlId = control.ControlId,
-                ControlName = control.ControlName,
-                AppliesToCategory = control.AppliesToCategory,
-                Status = control.Status,
-                Notes = notes.Count == 0 ? string.Empty : string.Join(" | ", notes)
+                ControlId = ArtifactJsonFieldPresentation.FormatRequiredField(control.ControlId, "Control id"),
+                ControlName = ArtifactJsonFieldPresentation.FormatRequiredField(control.ControlName, "Control name"),
+                AppliesToCategory = ArtifactJsonFieldPresentation.FormatRequiredField(
+                    control.AppliesToCategory,
+                    "Applies-to category"),
+                Status = ArtifactJsonFieldPresentation.FormatRequiredField(control.Status, "Control status"),
+                Notes = notes.Count == 0
+                    ? "Compliance gap notes were not stored."
+                    : string.Join(" | ", notes),
             });
         }
 

@@ -31,6 +31,22 @@ describe("sponsor-review-coverage-honesty (WA-08)", () => {
     expect(applies).toBe(true);
   });
 
+  it("applies when actor node count was not stored on a complete analysis", () => {
+    const applies = sponsorReviewCoverageHonestyApplies({
+      runId: "run-abc",
+      progressSummary: {
+        hasContextSnapshot: true,
+        hasGraphSnapshot: true,
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+      },
+      manifestSummary: null,
+      graphSnapshot: null,
+    });
+
+    expect(applies).toBe(true);
+  });
+
   it("includes architecture package honesty in exported markdown", () => {
     const markdown = formatSponsorReviewCoverageHonestyMarkdown({
       runId: "run-abc",
@@ -56,5 +72,21 @@ describe("sponsor-review-coverage-honesty (WA-08)", () => {
     expect(markdown).toContain("Architecture package honesty");
     expect(markdown).toContain("not** an all-clear");
     expect(markdown).toContain("data-residency");
+  });
+
+  it("documents missing actor snapshot in sponsor markdown", () => {
+    const markdown = formatSponsorReviewCoverageHonestyMarkdown({
+      runId: "run-abc",
+      progressSummary: {
+        hasContextSnapshot: true,
+        hasGraphSnapshot: true,
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+      },
+      manifestSummary: null,
+      graphSnapshot: null,
+    });
+
+    expect(markdown).toContain("Actor node count was not stored");
   });
 });

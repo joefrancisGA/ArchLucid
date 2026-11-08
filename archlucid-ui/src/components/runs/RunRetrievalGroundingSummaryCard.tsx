@@ -11,7 +11,8 @@ import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface
 import { showError } from "@/lib/toast";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 import {
-  formatRetrievalGroundingCount,
+  formatRetrievalRetrievedChunkCount,
+  formatRetrievalTraceRowCount,
   formatRetrievalGroundingRatioPercent,
   resolveRetrievalGroundingDispositionPresentation,
 } from "@/lib/runs/run-retrieval-grounding-summary-display";
@@ -62,10 +63,10 @@ export function RunRetrievalGroundingSummaryCard(props: {
       <CardContent className={cn("space-y-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
         <dl className="m-0 grid gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4">
           <dt>Trace rows</dt>
-          <dd className="m-0 tabular-nums sm:justify-self-end">{formatRetrievalGroundingCount(summary.traceCount)}</dd>
+          <dd className="m-0 tabular-nums sm:justify-self-end">{formatRetrievalTraceRowCount(summary.traceCount)}</dd>
           <dt>Retrieved chunks</dt>
           <dd className="m-0 tabular-nums sm:justify-self-end">
-            {formatRetrievalGroundingCount(summary.totalRetrievedChunks)}
+            {formatRetrievalRetrievedChunkCount(summary.totalRetrievedChunks)}
           </dd>
           <dt>Avg citation coverage</dt>
           <dd className="m-0 tabular-nums sm:justify-self-end">
@@ -73,13 +74,19 @@ export function RunRetrievalGroundingSummaryCard(props: {
           </dd>
         </dl>
 
-        {agentsWithTraces.length > 0 ? (
+        {summary.agentsWithTraces === null || summary.agentsWithTraces === undefined ? (
+          <p className="m-0">Agents with traces were not stored.</p>
+        ) : agentsWithTraces.length > 0 ? (
           <p className="m-0">
             <span className="font-medium">Agents with traces:</span> {agentsWithTraces.join(", ")}
           </p>
-        ) : null}
+        ) : (
+          <p className="m-0">Agents with traces were stored empty.</p>
+        )}
 
-        {missingAgents.length > 0 ? (
+        {summary.expectedAgentsMissingTraces === null || summary.expectedAgentsMissingTraces === undefined ? (
+          <p className="m-0">Missing-trace agent list was not stored.</p>
+        ) : missingAgents.length > 0 ? (
           <p className="m-0 font-medium">
             Missing traces: {missingAgents.join(", ")}
           </p>

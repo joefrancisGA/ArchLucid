@@ -21,7 +21,16 @@ export function RunDetailReviewPackageDecisionReceiptStrip(
   const verdict = props.feasibilityVerdict;
 
   if (verdict === null || verdict === undefined) {
-    return null;
+    return (
+      <div
+        className="mb-3 rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+        data-testid="run-detail-stamp-decision-receipt-strip"
+      >
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Feasibility verdict was not stored. Decision receipt export stays unavailable until finalize stores a verdict.
+        </p>
+      </div>
+    );
   }
 
   return (

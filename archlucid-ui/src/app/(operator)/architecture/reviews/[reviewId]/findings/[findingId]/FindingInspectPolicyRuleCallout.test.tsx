@@ -64,7 +64,7 @@ describe("FindingInspectPolicyRuleCallout", () => {
     );
 
     expect(screen.getByTestId("finding-inspect-policy-violation-tag")).toHaveTextContent(
-      "Policy violation: Security Architecture Baseline",
+      "Policy pack: Security Architecture Baseline",
     );
 
     await waitFor(() => {
@@ -72,6 +72,27 @@ describe("FindingInspectPolicyRuleCallout", () => {
       expect(screen.getByTestId("finding-inspect-policy-rule-text")).toHaveTextContent(
         "Internet-facing ingress must use private endpoints or approved WAF patterns.",
       );
+    });
+  });
+
+  it("labels missing pack name and curated rule text on fallback preview (P-02, P-03)", async () => {
+    render(
+      <FindingInspectPolicyRuleCallout
+        pack={null}
+        policy={{
+          ruleId: "sec-base-001",
+          ruleLabel: "Deny public ingress",
+          href: "/governance/policy-packs?ruleId=sec-base-001",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-inspect-policy-violation-tag")).toHaveTextContent(
+      "Policy pack name was not stored.",
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Curated rule text was not stored on the effective policy pack for this finding/)).toBeInTheDocument();
     });
   });
 });

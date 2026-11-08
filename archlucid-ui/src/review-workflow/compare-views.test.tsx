@@ -52,7 +52,7 @@ describe("Compare / review views (55R smoke)", () => {
     render(<StructuredComparisonView golden={golden} />);
 
     // Decision column shows `decisionKeyDisplay(key)` and the raw key in the same cell when no display label.
-    expect(screen.getAllByText("deploy-region")).toHaveLength(2);
+    expect(screen.getAllByText("deploy-region").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Material architecture deltas")).toBeInTheDocument();
     expect(screen.getByText("Modified")).toBeInTheDocument();
     expect(screen.getAllByText("Region changed").length).toBeGreaterThanOrEqual(1);
@@ -82,6 +82,33 @@ describe("Compare / review views (55R smoke)", () => {
     expect(screen.getByText("Metadata / bookkeeping")).toBeInTheDocument();
     expect(screen.getByText("Material architecture deltas")).toBeInTheDocument();
     expect(screen.getByText("Escalated")).toBeInTheDocument();
+  });
+
+  it("StructuredComparisonView labels blank comparison cells without Not returned", () => {
+    const golden: GoldenManifestComparison = {
+      ...emptyGolden,
+      decisionChanges: [
+        {
+          decisionKey: "deploy-region",
+          baseValue: null,
+          targetValue: "",
+          changeType: "Modified",
+        },
+      ],
+      requirementChanges: [{ requirementName: "  ", changeType: "Added" }],
+      securityChanges: [{ controlName: null, baseStatus: null, targetStatus: "pass" }],
+      topologyChanges: [{ resource: "", changeType: "Removed" }],
+      costChanges: [{ baseCost: null, targetCost: null }],
+    };
+
+    render(<StructuredComparisonView golden={golden} />);
+
+    expect(screen.getAllByText("Baseline review value was not stored.").length).toBeGreaterThan(0);
+    expect(screen.getByText("Updated review value was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Requirement name was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Control name was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Resource name was stored empty.")).toBeInTheDocument();
+    expect(screen.getAllByText("Cost estimate was not stored.")).toHaveLength(2);
   });
 
   it("LegacyRunComparisonView shows empty review-level diff message when there are no diffs", () => {

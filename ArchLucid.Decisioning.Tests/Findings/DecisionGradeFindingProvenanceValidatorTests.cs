@@ -30,6 +30,21 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
     }
 
     [Fact]
+    public void GetViolation_exempts_merge_conflict_triage_rows()
+    {
+        Finding finding = new()
+        {
+            FindingId = "conflict-1",
+            FindingType = FindingMergeConflictPresenter.FindingType,
+            Category = "Security",
+            RelatedNodeIds = [],
+            Trace = new ExplainabilityTrace { RulesApplied = [FindingMergeConflictPresenter.PolicyRuleId] },
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolation(finding).Should().BeNull();
+    }
+
+    [Fact]
     public void GetViolations_requires_agent_citations()
     {
         FindingsSnapshot snapshot = new()

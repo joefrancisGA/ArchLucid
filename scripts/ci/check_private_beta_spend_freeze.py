@@ -39,19 +39,20 @@ def validate_snapshot(payload: dict[str, Any]) -> list[str]:
     response_mode = _nested_value(payload, "controlledResponse", "mode")
     correlation_id = _nested_value(payload, "controlledResponse", "correlationId")
 
-    if str(api_mode).lower() != "simulator":
+    if not isinstance(api_mode, str) or api_mode.strip().casefold() != "simulator":
         issues.append("api.executionMode must be Simulator")
 
-    if str(worker_mode).lower() != "simulator":
+    if not isinstance(worker_mode, str) or worker_mode.strip().casefold() != "simulator":
         issues.append("worker.executionMode must be Simulator")
 
     if anonymous_execution is not False:
         issues.append("anonymousExecutionEnabled must be false")
 
-    if str(response_mode).lower() != "simulator":
+    if not isinstance(response_mode, str) or response_mode.strip().casefold() != "simulator":
         issues.append("controlledResponse.mode must be Simulator")
 
-    if not isinstance(correlation_id, str) or not correlation_id.strip():
+    if (not isinstance(correlation_id, str) or not correlation_id.strip()
+            or any(ord(char) < 32 or ord(char) == 127 for char in correlation_id)) :
         issues.append("controlledResponse.correlationId must be non-empty")
 
     return issues

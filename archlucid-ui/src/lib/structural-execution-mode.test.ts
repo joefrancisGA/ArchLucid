@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   EXECUTION_MODE_NOT_STORED_LABEL,
   formatStructuralExecutionModeBadgeLabel,
+  formatStructuralExecutionModeBuyerLabel,
   formatStructuralExecutionModeLabel,
   StructuralExecutionModeWire,
   structuralExecutionModeBadgeTitle,
@@ -23,6 +24,7 @@ describe("structural-execution-mode", () => {
   it("labels missing execution mode without inventing unknown", () => {
     expect(formatStructuralExecutionModeLabel(null)).toBe(EXECUTION_MODE_NOT_STORED_LABEL);
     expect(formatStructuralExecutionModeBadgeLabel(null)).toBe(EXECUTION_MODE_NOT_STORED_LABEL);
+    expect(formatStructuralExecutionModeBuyerLabel(null)).toBe(EXECUTION_MODE_NOT_STORED_LABEL);
     expect(formatStructuralExecutionModeBadgeLabel(StructuralExecutionModeWire.Real)).toBe("Real execution");
   });
 });

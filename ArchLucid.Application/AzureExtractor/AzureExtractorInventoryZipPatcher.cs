@@ -80,13 +80,8 @@ internal static class AzureExtractorInventoryZipPatcher
         return JsonSerializer.Serialize(rows, JsonOptions);
     }
 
-    private static string BuildArmName(EnrichedAzureExtractorInventoryLine line)
-    {
-        if (!string.IsNullOrWhiteSpace(line.ResourceGroup))
-            return $"/subscriptions/unknown/resourceGroups/{line.ResourceGroup}/providers/{line.ResourceType}/{line.Name}";
-
-        return line.Name;
-    }
+    private static string BuildArmName(EnrichedAzureExtractorInventoryLine line) =>
+        line.Name;
 
     private static void CopyEntry(ZipArchive source, ZipArchive target, ZipArchiveEntry entry)
     {

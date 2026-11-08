@@ -25,6 +25,18 @@ public sealed class AdvisoryTerraformRepresentationBuilderTests
     }
 
     [Fact]
+    public void Build_advisory_terraform_files_omit_version_pins()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot();
+
+        AdvisoryTerraformBuildResult result =
+            AdvisoryTerraformRepresentationBuilder.Build(snapshot, aztfexportAvailable: false);
+
+        result.Files["providers.tf"].Should().NotContain("version =");
+        result.Files["versions.tf"].Should().NotContain("required_version");
+    }
+
+    [Fact]
     public void Build_when_aztfexport_available_uses_hybrid_generation_method()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot();

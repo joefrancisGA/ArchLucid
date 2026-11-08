@@ -20,14 +20,16 @@ public static class RunEngineProvenanceApplicator
         if (string.IsNullOrWhiteSpace(effectiveModelAliasId))
             return;
 
-        if (!aliasRegistry.TryGet(effectiveModelAliasId, out AgentModelAliasRegistryEntry? aliasEntry)
+        string normalizedAliasId = effectiveModelAliasId.Trim();
+
+        if (!aliasRegistry.TryGet(normalizedAliasId, out AgentModelAliasRegistryEntry? aliasEntry)
             || aliasEntry is null)
         {
             return;
         }
 
         ReviewRunEngineProvenance selectionProvenance = ReviewRunEngineSelectionProvenanceBuilder.Build(
-            effectiveModelAliasId,
+            normalizedAliasId,
             aliasEntry,
             run.CreatedUtc);
 

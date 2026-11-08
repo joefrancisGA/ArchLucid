@@ -58,7 +58,10 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
         <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {REVIEWS_HUB_RESUME_DRAFTS_TITLE}
           <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            — {eligibleEntries.length}
+            —{" "}
+            {eligibleEntries.length > REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT
+              ? `${REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT} of ${eligibleEntries.length}`
+              : eligibleEntries.length}
           </span>
         </h2>
       </div>

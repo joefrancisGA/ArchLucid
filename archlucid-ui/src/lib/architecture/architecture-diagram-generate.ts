@@ -5,6 +5,7 @@ import {
   architectureDiagramModelToMermaid,
   architectureDiagramModelToTextAlternative,
 } from "@/lib/architecture/architecture-diagram-mermaid";
+import { ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE } from "@/lib/architecture/architecture-diagram-copy";
 import { assessArchitectureDiagramReadiness } from "@/lib/architecture/architecture-diagram-readiness";
 import type { ArchitectureDiagramGenerationResult } from "@/lib/architecture/architecture-diagram-types";
 
@@ -35,7 +36,7 @@ export function generateArchitectureDiagram(
       readiness,
       model: null,
       mermaidSource: null,
-      textAlternative: "",
+      textAlternative: ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE,
       contentFingerprint,
     };
   }

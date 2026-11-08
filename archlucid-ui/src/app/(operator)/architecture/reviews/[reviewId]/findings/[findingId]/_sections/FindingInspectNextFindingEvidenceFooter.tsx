@@ -25,7 +25,13 @@ export function FindingInspectNextFindingEvidenceFooter(
       <div className="min-w-0">
         <p className="m-0 font-medium text-al-text-primary">Next finding evidence</p>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Continue with <span className="font-medium text-al-text-primary">{props.target.title}</span>.
+          Continue with{" "}
+          <span className="font-medium text-al-text-primary">
+            {props.target.title.trim().length > 0
+              ? props.target.title
+              : "Next finding title was not stored."}
+          </span>
+          .
         </p>
       </div>
       <Button

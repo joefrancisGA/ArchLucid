@@ -8,15 +8,41 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 internal static class DiagramAstGraphNodeClassifier
 {
+    public static bool TryReadStoredArmId(GraphNode node, out string armId)
+    {
+        if (node.Properties.TryGetValue("arm.id", out string? storedArmId) && !string.IsNullOrWhiteSpace(storedArmId))
+        {
+            armId = storedArmId;
+            return true;
+        }
+
+        armId = string.Empty;
+        return false;
+    }
+
+    public static bool TryReadStoredArmType(GraphNode node, out string armType)
+    {
+        if (node.Properties.TryGetValue("arm.type", out string? storedArmType) && !string.IsNullOrWhiteSpace(storedArmType))
+        {
+            armType = storedArmType;
+            return true;
+        }
+
+        armType = string.Empty;
+        return false;
+    }
+
     public static string ResolveCategory(GraphNode node)
     {
-        string armType = ReadArmType(node);
-        string categoryFromArmType = AzureInventoryTopologyCategory.Resolve(armType);
+        string categoryFromArmType = TryReadStoredArmType(node, out string armType)
+            ? AzureInventoryTopologyCategory.Resolve(armType)
+            : string.Empty;
 
         if (!string.IsNullOrWhiteSpace(node.Category))
         {
-            // Older snapshots stamped Microsoft.Network/* as compute before IE-ND-01; trust ARM type for network provider resources.
-            if (AzureInventoryTopologyCategory.IsMicrosoftNetworkProviderType(armType)
+            // Older snapshots stamped Microsoft.Network/* as compute before IE-ND-01; trust stored ARM type for network provider resources.
+            if (TryReadStoredArmType(node, out string storedArmType)
+                && AzureInventoryTopologyCategory.IsMicrosoftNetworkProviderType(storedArmType)
                 && !string.Equals(node.Category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
             {
                 return GraphTopologyCategories.Network;
@@ -25,7 +51,9 @@ internal static class DiagramAstGraphNodeClassifier
             return node.Category;
         }
 
-        return categoryFromArmType;
+        return string.IsNullOrWhiteSpace(categoryFromArmType)
+            ? (node.Category ?? string.Empty)
+            : categoryFromArmType;
     }
 
     public static string ReadArmId(GraphNode node)

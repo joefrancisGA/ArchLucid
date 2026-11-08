@@ -20,10 +20,10 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
         {
             Items = manifest.UnresolvedIssues.Items.Select(x => new UnresolvedIssueArtifactItem
             {
-                IssueType = x.IssueType,
-                Title = x.Title,
-                Description = x.Description,
-                Severity = x.Severity,
+                IssueType = ArtifactJsonFieldPresentation.FormatRequiredField(x.IssueType, "Issue type"),
+                Title = ArtifactJsonFieldPresentation.FormatRequiredField(x.Title, "Issue title"),
+                Description = ArtifactJsonFieldPresentation.FormatRequiredField(x.Description, "Issue description"),
+                Severity = ArtifactJsonFieldPresentation.FormatRequiredField(x.Severity, "Issue severity"),
                 SupportingFindingIds = x.SupportingFindingIds.ToList(),
             }).ToList()
         };

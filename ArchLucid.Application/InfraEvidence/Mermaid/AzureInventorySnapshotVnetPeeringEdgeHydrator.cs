@@ -202,6 +202,7 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
         AzureInventorySnapshotGraphEdgeAppender.TryAdd(
             edges, edgeKeys, fromNodeId, toNodeId,
             GraphEdgeTypes.PeersWith, GraphEdgeInferenceSources.InventoryVnetPeering,
+            label: GraphEdgeTypes.PeersWith,
             promoteStrongerProvenance: false, preserveNullProvenance: true);
     }
 

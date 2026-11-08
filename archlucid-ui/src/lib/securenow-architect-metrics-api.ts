@@ -3,9 +3,10 @@ import type { SecureNowArchitectOutcomeMetrics } from "@/lib/securenow-architect
 
 const ARCHITECT_METRICS_PATH = "/api/proxy/v1/operational-security/architect-metrics";
 
-function finiteNumberOrZero(value: unknown): number {
+function finiteNumberOrNull(value: unknown): number | null {
+  if (value == null) return null;
   const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 export async function fetchSecureNowArchitectOutcomeMetrics(
@@ -31,18 +32,18 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
     fromSnapshotId: fromId,
     toSnapshotId: toId,
     ruleVersion: String(raw.ruleVersion ?? ""),
-    criticalOrHighConfidencePathsRemoved: finiteNumberOrZero(raw.criticalOrHighConfidencePathsRemoved),
-    privilegedIdentityNodesOnPathsReduced: finiteNumberOrZero(raw.privilegedIdentityNodesOnPathsReduced),
-    unrestrictedEgressCapabilityPathsReduced: finiteNumberOrZero(raw.unrestrictedEgressCapabilityPathsReduced),
-    assertedCrownJewelExposurePathsRemoved: finiteNumberOrZero(raw.assertedCrownJewelExposurePathsRemoved),
-    sharedControlBlastRadiusPathsRemoved: finiteNumberOrZero(raw.sharedControlBlastRadiusPathsRemoved),
-    exceptionsExpired: finiteNumberOrZero(raw.exceptionsExpired),
-    remediationRecurrenceCount: finiteNumberOrZero(raw.remediationRecurrenceCount),
+    criticalOrHighConfidencePathsRemoved: finiteNumberOrNull(raw.criticalOrHighConfidencePathsRemoved),
+    privilegedIdentityNodesOnPathsReduced: finiteNumberOrNull(raw.privilegedIdentityNodesOnPathsReduced),
+    unrestrictedEgressCapabilityPathsReduced: finiteNumberOrNull(raw.unrestrictedEgressCapabilityPathsReduced),
+    assertedCrownJewelExposurePathsRemoved: finiteNumberOrNull(raw.assertedCrownJewelExposurePathsRemoved),
+    sharedControlBlastRadiusPathsRemoved: finiteNumberOrNull(raw.sharedControlBlastRadiusPathsRemoved),
+    exceptionsExpired: finiteNumberOrNull(raw.exceptionsExpired),
+    remediationRecurrenceCount: finiteNumberOrNull(raw.remediationRecurrenceCount),
     supportingOperationalMetrics:
       supportingRaw == null
         ? null
         : {
-            openFindings: finiteNumberOrZero(supportingRaw.openFindings),
+            openFindings: finiteNumberOrNull(supportingRaw.openFindings),
           },
   };
 }

@@ -46,6 +46,7 @@ import {
   parseReviewGenerateAdrOpenFromSearch,
   reviewGenerateAdrPanelsHrefFromSearch,
 } from "@/lib/reviews/review-generate-adr-panels-url";
+import { resolveReviewUrlStatePathname } from "@/lib/architecture/review-url-state-pathname";
 
 import type { RunSummary } from "@/types/authority";
 
@@ -83,7 +84,7 @@ export function GenerateAdrFromRunModal({
   const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
   const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
   const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
-  const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
+  const pathname = resolveReviewUrlStatePathname(usePathname(), input.runId);
   const [open, setOpenState] = useState(() =>
     parseReviewGenerateAdrOpenFromSearch(null),
   );

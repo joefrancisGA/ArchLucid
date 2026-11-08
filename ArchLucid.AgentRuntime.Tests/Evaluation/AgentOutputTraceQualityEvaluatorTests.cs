@@ -19,6 +19,98 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     private static readonly HeuristicOnlyAgentOutputSemanticEvaluator SemanticShim =
         new(new HeuristicAgentOutputSemanticEvaluator());
 
+    [Theory]
+    [InlineData(false, AgentOutputQualityGateOutcome.Rejected)]
+    [InlineData(true, AgentOutputQualityGateOutcome.Accepted)]
+    public async Task TryEvaluateTrace_azure_cost_governance_starter_pack_requires_an_evidence_anchor(
+        bool hasEvidenceAnchor,
+        AgentOutputQualityGateOutcome expectedOutcome)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            PilotStrictMinEvidenceRefCount = 1,
+        };
+        string evidenceRef = "starter-pack:azure-cost-governance";
+        string evidenceRefs = hasEvidenceAnchor ? $"[\"{evidenceRef}\"]" : "[]";
+        string citation = hasEvidenceAnchor
+            ? $"{{\"source\":\"{evidenceRef}\"}}"
+            : "{\"source\":\"\"}";
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "starter-pack-trace",
+            RunId = "starter-pack-run",
+            TaskId = "azure-cost-governance",
+            AgentType = AgentType.Cost,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                $$"""
+                {"resultId":"starter-pack-result","taskId":"azure-cost-governance","runId":"starter-pack-run","agentType":2,"claims":[{"text":"Cost governance finding","evidence":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"evidenceRefs":{{evidenceRefs}},"confidence":0.8,"findings":[{"severity":"Low","description":"Starter-pack cost governance finding with an explicit evidence boundary.","recommendation":"Review the stored cost evidence.","evidenceRef":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{{citation}}]}
+                """,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(expectedOutcome);
+    }
+
+    [Theory]
+    [InlineData(false, AgentOutputQualityGateOutcome.Rejected)]
+    [InlineData(true, AgentOutputQualityGateOutcome.Accepted)]
+    public async Task TryEvaluateTrace_task_topology_requires_an_evidence_anchor(
+        bool hasEvidenceAnchor,
+        AgentOutputQualityGateOutcome expectedOutcome)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            PilotStrictMinEvidenceRefCount = 1,
+        };
+        string evidenceRef = "evidence:topology-hop-1";
+        string evidenceRefs = hasEvidenceAnchor ? $"[\"{evidenceRef}\"]" : "[]";
+        string citation = hasEvidenceAnchor
+            ? $"{{\"source\":\"{evidenceRef}\"}}"
+            : "{\"source\":\"\"}";
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "topology-trace",
+            RunId = "topology-run",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                $$"""
+                {"resultId":"topology-result","taskId":"task-topology","runId":"topology-run","agentType":1,"claims":[{"text":"Topology finding","evidence":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"evidenceRefs":{{evidenceRefs}},"confidence":0.8,"findings":[{"severity":"High","description":"Topology finding with an explicit evidence boundary for Real review.","recommendation":"Review the stored topology evidence.","evidenceRef":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{{citation}}]}
+                """,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(expectedOutcome);
+    }
+
     [Fact]
     public async Task TryEvaluateTrace_warn_only_missing_citations_warns_when_scores_accept()
     {
@@ -501,6 +593,71 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         r.Semantic.AgentResultFaithfulnessSupportRatio.Should().Be(0.1);
     }
 
+    [SkippableTheory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public async Task TryEvaluateTrace_pilot_strict_non_finite_faithfulness_support_ratio_rejects(double supportRatio)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            PilotStrictMinAgentResultFaithfulnessSupportRatio = 0.75,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinEvidenceRefCount = 0
+        };
+
+        Mock<IAgentOutputQualityGate> gate = new();
+        gate.Setup(g => g.Evaluate(It.IsAny<AgentOutputEvaluationScore>(), It.IsAny<AgentOutputSemanticScore>()))
+            .Returns(AgentOutputQualityGateOutcome.Accepted);
+
+        Mock<IAgentResultEvidenceFaithfulnessChecker> faith = new();
+        faith.Setup(c => c.Evaluate(It.IsAny<string>(), It.IsAny<AgentEvidencePackage>()))
+            .Returns(new AgentResultEvidenceFaithfulnessReport(1, 1, 0, 0, supportRatio, []));
+
+        DelegatingStructuralEvaluator structural = new((_, _, _) => new AgentOutputEvaluationScore
+        {
+            TraceId = "t1",
+            AgentType = AgentType.Topology,
+            StructuralCompletenessRatio = 1.0,
+            IsJsonParseFailure = false,
+            MissingKeys = []
+        });
+
+        DelegatingSemanticEvaluator semantic = new((_, _, _) => new AgentOutputSemanticScore { OverallSemanticScore = 1.0 });
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """
+                {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
+                """
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                structural,
+                semantic,
+                gate.Object,
+                CancellationToken.None,
+                new AgentEvidencePackage(),
+                faith.Object);
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.EvaluationReason.Should().Contain("agent_result_faithfulness_below_floor");
+    }
+
     [Fact]
     public async Task TryEvaluateTrace_pilot_strict_malformed_json_when_evidence_ref_floor_enabled_rejects()
     {
@@ -724,6 +881,49 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateTrace_rejects_when_calibrated_confidence_below_floor_and_trace_task_id_has_outer_whitespace()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0.5,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = " task-1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson(),
+        };
+
+        Dictionary<string, double?> calibratedByTaskId = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["task-1"] = 0.2,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                calibratedConfidenceByTaskId: calibratedByTaskId);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        result.EvaluationReason.Should().Contain("quality_gate_threshold_reject");
+    }
+
+    [Fact]
     public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor()
     {
         AgentOutputQualityGateOptions options = new()
@@ -763,6 +963,9 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
 
         recorderResult.Should().NotBeNull();
         recorderResult!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        recorderResult.EvaluationReason.Should().Contain(
+            "quality_gate_threshold_reject",
+            because: "public rejection summary must reflect calibrated-confidence threshold reject");
 
         bool accepted =
             await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(

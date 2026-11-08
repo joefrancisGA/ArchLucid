@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -7,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed workload-to-container-registry image relationships.</summary>
 internal static class InventoryDiagramContainerImageRelationshipApplier
 {
-    public const string Label = "Pulls image from";
+    public const string Label = InventoryDiagramRelationshipLabelTexts.ImageReferenceStoredImagePullNotObserved;
 
     public static void Apply(DiagramAst ast)
     {
@@ -24,7 +25,7 @@ internal static class InventoryDiagramContainerImageRelationshipApplier
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
         }
     }
 }

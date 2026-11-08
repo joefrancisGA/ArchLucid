@@ -17,8 +17,22 @@ public static class ReviewRunEngineProvenanceMerger
         }
 
         execution.ModelAliasId = selection.ModelAliasId;
-        execution.TaskEvaluationSnapshotsAtSelection = selection.TaskEvaluationSnapshotsAtSelection;
+        execution.TaskEvaluationSnapshotsAtSelection = SanitizeTaskEvaluationSnapshots(
+            selection.TaskEvaluationSnapshotsAtSelection);
 
         return execution;
+    }
+
+    private static IReadOnlyList<ReviewRunEngineTaskEvaluationSnapshot>? SanitizeTaskEvaluationSnapshots(
+        IReadOnlyList<ReviewRunEngineTaskEvaluationSnapshot>? snapshots)
+    {
+        if (snapshots is null)
+            return null;
+
+        List<ReviewRunEngineTaskEvaluationSnapshot> sanitized = snapshots
+            .Where(static snapshot => snapshot is not null)
+            .ToList();
+
+        return sanitized;
     }
 }

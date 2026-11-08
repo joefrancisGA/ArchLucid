@@ -1838,6 +1838,20 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void ManifestEndpointReferencesEqual_returns_false_when_either_reference_is_null()
+    {
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, "svc-api")
+            .Should()
+            .BeFalse();
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual("svc-api", null)
+            .Should()
+            .BeFalse();
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, null)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_quotes_for_each_key_and_graph_source_id_does_not()
     {
         const string rootAddress = "azurerm_storage_account.main";
@@ -4901,5 +4915,50 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
 
         endpointKeyToNodeId[canonicalArmId].Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void RelationshipReferencesExclusiveRejectedEndpoint_returns_true_for_rejected_terraform_service_id()
+    {
+        const string acceptedId = "azurerm_linux_virtual_machine.app[\"primary\"]";
+        const string rejectedId = "azurerm_linux_virtual_machine.app[\"secondary\"]";
+
+        HashSet<string> rejectedEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        TopologyProposalRelationshipEndpointIndex.RegisterRejectedManifestServiceEndpointKeys(
+            rejectedEndpointKeys,
+            new ManifestService
+            {
+                ServiceName = "app",
+                ServiceId = rejectedId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            });
+
+        List<ManifestService> acceptedServices =
+        [
+            new ManifestService
+            {
+                ServiceName = "app",
+                ServiceId = acceptedId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = rejectedId,
+            TargetId = "external",
+            RelationshipType = RelationshipType.Calls,
+        };
+
+        TopologyProposalRelationshipEndpointIndex.RelationshipReferencesExclusiveRejectedEndpoint(
+                relationship,
+                rejectedEndpointKeys,
+                acceptedServices,
+                [])
+            .Should()
+            .BeTrue();
     }
 }

@@ -7,9 +7,9 @@ export const SECURITY_EVIDENCE_PATH_RANK_NO_LEADING_REASON =
   "This path does not name a leading reason." as const;
 
 export type SecurityEvidencePathRankReaderInput = {
-  readonly technicalExposureScore: number;
-  readonly privilegeDepthScore: number;
-  readonly blastRadiusScore: number;
+  readonly technicalExposureScore: number | null;
+  readonly privilegeDepthScore: number | null;
+  readonly blastRadiusScore: number | null;
   readonly businessConsequenceScore: number | null;
 };
 
@@ -39,9 +39,22 @@ type RankedDimension = {
   readonly tieOrder: number;
 };
 
+function dimensionScoreIsStored(score: number | null): score is number {
+  return score !== null && Number.isFinite(score);
+}
+
 export function formatSecurityEvidencePathRankReaderSentence(
   input: SecurityEvidencePathRankReaderInput,
 ): string {
+  if (
+    input.technicalExposureScore === null
+    && input.privilegeDepthScore === null
+    && input.blastRadiusScore === null
+    && input.businessConsequenceScore === null
+  ) {
+    return "Path rank scores were not stored.";
+  }
+
   const leading = PATH_RANK_DIMENSION_TIE_ORDER
     .filter((key) => isEligibleDimension(input, key))
     .map((key, tieOrder) => toRankedDimension(input, key, tieOrder))
@@ -53,11 +66,13 @@ export function formatSecurityEvidencePathRankReaderSentence(
 }
 
 function isEligibleDimension(input: SecurityEvidencePathRankReaderInput, key: PathRankDimensionKey): boolean {
-  if (key === "businessConsequence" && input.businessConsequenceScore === null) {
+  const score = readDimensionScore(input, key);
+
+  if (!dimensionScoreIsStored(score)) {
     return false;
   }
 
-  return readDimensionScore(input, key) > 0;
+  return score > 0;
 }
 
 function toRankedDimension(
@@ -65,14 +80,19 @@ function toRankedDimension(
   key: PathRankDimensionKey,
   tieOrder: number,
 ): RankedDimension {
+  const score = readDimensionScore(input, key);
+
   return {
     key,
-    score: readDimensionScore(input, key),
+    score: score ?? Number.NEGATIVE_INFINITY,
     tieOrder,
   };
 }
 
-function readDimensionScore(input: SecurityEvidencePathRankReaderInput, key: PathRankDimensionKey): number {
+function readDimensionScore(
+  input: SecurityEvidencePathRankReaderInput,
+  key: PathRankDimensionKey,
+): number | null {
   if (key === "technicalExposure") {
     return input.technicalExposureScore;
   }
@@ -83,10 +103,6 @@ function readDimensionScore(input: SecurityEvidencePathRankReaderInput, key: Pat
 
   if (key === "blastRadius") {
     return input.blastRadiusScore;
-  }
-
-  if (input.businessConsequenceScore === null) {
-    return 0;
   }
 
   return input.businessConsequenceScore;

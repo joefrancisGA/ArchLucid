@@ -19,4 +19,31 @@ public sealed class ItsmInboundServiceNowStatusMapperTests
         mapped.Should().BeTrue();
         humanReview.Should().Be(nameof(FindingHumanReviewStatus.Approved));
     }
+
+    [Fact]
+    public void MapToHumanReview_treats_whole_number_float_string_states_like_integer_choice_list()
+    {
+        (string humanReview, bool mapped) = new ItsmInboundServiceNowStatusMapper()
+            .MapToHumanReview("6.0", new IntegrationsItsmInboundOptions());
+
+        mapped.Should().BeTrue();
+        humanReview.Should().Be(nameof(FindingHumanReviewStatus.Approved));
+    }
+
+    [Fact]
+    public void TryMapToDisposition_maps_whole_number_float_string_via_configured_state_key()
+    {
+        IntegrationsItsmInboundOptions options = new()
+        {
+            ServiceNowStateDispositionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["6"] = nameof(FindingDisposition.Remediated),
+            },
+        };
+
+        FindingDisposition? disposition = new ItsmInboundServiceNowStatusMapper()
+            .TryMapToDisposition("6.0", options);
+
+        disposition.Should().Be(FindingDisposition.Remediated);
+    }
 }

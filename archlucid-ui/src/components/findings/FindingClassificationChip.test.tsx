@@ -32,7 +32,9 @@ describe("FindingClassificationChip (SD-12)", () => {
     rerender(
       <FindingClassificationChip classification="ChecklistCoverage" treatment={7} findingId="f-other" />,
     );
-    expect(screen.getByTestId("finding-classification-chip-f-other")).toHaveTextContent("7");
+    expect(screen.getByTestId("finding-classification-chip-f-other")).toHaveTextContent(
+      "Treatment was not recognized.",
+    );
   });
 
   it("renders checklist-demoted when treatment demotes a finding", () => {
@@ -57,6 +59,6 @@ describe("FindingClassificationChip (SD-12)", () => {
     render(<FindingClassificationChip classification="DecisionGradeFinding" findingId="f-4" showReason />);
 
     expect(screen.getByTestId("finding-classification-chip-wrap-f-4")).toBeInTheDocument();
-    expect(screen.getByText(/Policy-mapped or insight-density-promoted/i)).toBeInTheDocument();
+    expect(screen.getByText(/Stored as decision-grade on the finding record/i)).toBeInTheDocument();
   });
 });

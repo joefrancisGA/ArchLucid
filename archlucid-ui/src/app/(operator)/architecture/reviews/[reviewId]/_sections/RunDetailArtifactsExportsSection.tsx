@@ -43,7 +43,11 @@ import type { ArtifactDescriptor, ManifestSummary, RunSummary, RunTrustEvidenceC
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
-import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT, RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT,
+  RUN_DELIVERABLES_SEALED_EMPTY_COMPACT,
+  resolveRunDetailDecisionReceiptEmptyCompact,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
@@ -53,7 +57,7 @@ import {
   parseRunDeliverablesOpenFromSearch,
   runDetailDeliverablesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
@@ -153,15 +157,16 @@ export function RunDetailArtifactsExportsSection(
   });
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
+  const packageSealedForDeliverables = sealedManifestVersion !== null;
 
   const syncDeliverablesOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailDeliverablesDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailDeliverablesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setDeliverablesOpen = useCallback(
@@ -213,6 +218,15 @@ export function RunDetailArtifactsExportsSection(
   const [reviewExportBusy, setReviewExportBusy] = useState(false);
   const [docxExportBusy, setDocxExportBusy] = useState(false);
   const [requestJsonBusy, setRequestJsonBusy] = useState(false);
+  const activeRunIdRef = useRef(runId);
+  activeRunIdRef.current = runId;
+
+  useEffect(() => {
+    setBundleBusy(false);
+    setReviewExportBusy(false);
+    setDocxExportBusy(false);
+    setRequestJsonBusy(false);
+  }, [runId]);
 
   const onDownloadEvidenceBundle = useCallback(() => {
     if (collateralExportBlockedReason !== null) {
@@ -223,15 +237,21 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = artifactBundleMutationBlockedReason(failure);
 
         showError("Evidence bundle", blocked ?? failure.message);
       })
       .finally(() => {
-        setBundleBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setBundleBusy(false);
+        }
       });
-  }, [collateralExportBlockedReason, manifestId]);
+  }, [collateralExportBlockedReason, manifestId, runId]);
 
   const onDownloadReviewExportZip = useCallback(() => {
     if (collateralExportBlockedReason !== null) {
@@ -242,13 +262,19 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunExportZip(runId)
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = runExportZipMutationBlockedReason(failure);
 
         showError("Review export", blocked ?? failure.message);
       })
       .finally(() => {
-        setReviewExportBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setReviewExportBusy(false);
+        }
       });
   }, [collateralExportBlockedReason, runId]);
 
@@ -261,13 +287,19 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunPackageExport(runId, "docx")
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = runPackageExportMutationBlockedReason(failure);
 
         showError("Architecture review report", blocked ?? failure.message);
       })
       .finally(() => {
-        setDocxExportBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setDocxExportBusy(false);
+        }
       });
   }, [collateralExportBlockedReason, runId]);
 
@@ -280,17 +312,23 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = artifactBundleMutationBlockedReason(failure);
 
         showError("Artifact bundle", blocked ?? failure.message);
       })
       .finally(() => {
-        setBundleBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setBundleBusy(false);
+        }
       });
-  }, [collateralExportBlockedReason, manifestId]);
+  }, [collateralExportBlockedReason, manifestId, runId]);
 
-  const exportUrlParams = new URLSearchParams(readWindowLocationSearch());
+  const exportUrlParams = new URLSearchParams(searchParams.toString());
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
@@ -377,7 +415,14 @@ export function RunDetailArtifactsExportsSection(
               >
                 {requestJsonBusy ? "Downloading…" : "Download Request JSON"}
               </Button>
-            ) : null}
+            ) : (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="run-detail-architecture-request-json-not-stored"
+              >
+                Architecture request JSON was not stored for this review.
+              </p>
+            )}
           </div>
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
@@ -405,8 +450,8 @@ export function RunDetailArtifactsExportsSection(
                   </>
                 ) : (
                   <>
-                    The artifacts request failed (network, 404, or server error — istinct from an empty list or malformed
-                    JSON.
+                    The artifacts request failed (network, 404, or server error — distinct from an empty list or malformed
+                    JSON).
                   </>
                 )}
               </p>
@@ -445,9 +490,11 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
-            showDecisionReceipt ? (
+            showDecisionReceipt && feasibilityVerdict !== null ? (
               <EnterpriseCompactEmptyState
-                {...RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT}
+                {...resolveRunDetailDecisionReceiptEmptyCompact(
+                  feasibilityVerdict.kind === "SoftInfeasible" ? "SoftInfeasible" : "HardInfeasible",
+                )}
                 footer={
                   <DecisionReceiptExportButton
                     context={{
@@ -458,6 +505,11 @@ export function RunDetailArtifactsExportsSection(
                     manifestVersion={sealedManifestVersion}
                   />
                 }
+              />
+            ) : packageSealedForDeliverables ? (
+              <EnterpriseCompactEmptyState
+                {...RUN_DELIVERABLES_SEALED_EMPTY_COMPACT}
+                footer={<OperatorSectionRetryButton label="Reload" />}
               />
             ) : (
               <EnterpriseCompactEmptyState

@@ -21,6 +21,7 @@ export type ArchitectureRiskRegisterEntry = {
   isStale: boolean;
   evidenceHref: string;
   humanReviewStatus?: number | null;
+  humanReviewStatusStored?: boolean;
   itsmLinkedTicketsSummary?: string | null;
   systemName?: string | null;
   resourceId?: string | null;

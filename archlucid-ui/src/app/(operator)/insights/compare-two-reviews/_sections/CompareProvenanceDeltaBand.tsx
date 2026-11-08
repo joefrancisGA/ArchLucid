@@ -9,14 +9,16 @@ import { useCompareProvenanceTrailsQuery } from "@/hooks/use-compare-provenance-
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
 import {
+  formatCompareFeasibilityVerdictKindLabel,
+  formatCompareTransparencyTrailMetric,
   listCompareAssumptionDiffItems,
   summarizeCompareProvenanceDelta,
 } from "@/lib/compare/compare-provenance-delta-summary";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
-import { feasibilityVerdictKindLabel } from "@/lib/feasibility-verdict-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveScopedInsightOpenReviewHref } from "@/lib/insights/scoped-insight-open-review-href";
+import type { ComparePairGroundingForRunsOptions } from "@/lib/compare-pair-grounding-links";
 import { summarizeCompareHardCitationDelta } from "@/lib/livelihood-grade-no-compare-hard-citation-delta";
-import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { DiffItem, RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +28,7 @@ export type CompareProvenanceDeltaBandProps = {
   readonly baselinePickedSummary: RunSummary | null;
   readonly targetPickedSummary: RunSummary | null;
   readonly manifestDiffs?: readonly DiffItem[];
+  readonly groundingOptions?: ComparePairGroundingForRunsOptions;
 };
 
 /** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). Guided keeps a compact summary. */
@@ -73,8 +76,36 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
     assumptionDiffs,
   );
 
-  const baselineSkippedMust = listSkippedMustQuestionKeys(summary.baseline.trail).length;
-  const targetSkippedMust = listSkippedMustQuestionKeys(summary.target.trail).length;
+  const baselineAsserted = formatCompareTransparencyTrailMetric(
+    summary.baseline.trail,
+    summary.baseline.missingTrailDefect,
+    "asserted",
+  );
+  const targetAsserted = formatCompareTransparencyTrailMetric(
+    summary.target.trail,
+    summary.target.missingTrailDefect,
+    "asserted",
+  );
+  const baselineSkippedMust = formatCompareTransparencyTrailMetric(
+    summary.baseline.trail,
+    summary.baseline.missingTrailDefect,
+    "skippedMust",
+  );
+  const targetSkippedMust = formatCompareTransparencyTrailMetric(
+    summary.target.trail,
+    summary.target.missingTrailDefect,
+    "skippedMust",
+  );
+  const baselineInferred = formatCompareTransparencyTrailMetric(
+    summary.baseline.trail,
+    summary.baseline.missingTrailDefect,
+    "inferred",
+  );
+  const targetInferred = formatCompareTransparencyTrailMetric(
+    summary.target.trail,
+    summary.target.missingTrailDefect,
+    "inferred",
+  );
   const hardCitationDelta = summarizeCompareHardCitationDelta(
     {
       runLabel: summary.baseline.label,
@@ -103,8 +134,8 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
           Assumption and provenance delta
         </h2>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Baseline asserted {summary.baseline.trail?.asserted.length ?? 0}, skipped MUST {baselineSkippedMust} ·
-          Updated asserted {summary.target.trail?.asserted.length ?? 0}, skipped MUST {targetSkippedMust}.
+          Baseline asserted {baselineAsserted}, skipped MUST {baselineSkippedMust} · Updated asserted {targetAsserted},
+          skipped MUST {targetSkippedMust}.
           {summary.assumptionDiffCount > 0
             ? ` Manifest assumptions changed in ${summary.assumptionDiffCount} row${summary.assumptionDiffCount === 1 ? "" : "s"}.`
             : ""}{" "}
@@ -133,15 +164,13 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
         <div>
           <dt className="font-medium text-al-text-primary">Baseline — {summary.baseline.label}</dt>
           <dd className="m-0 mt-1 text-al-text-secondary">
-            Asserted {summary.baseline.trail?.asserted.length ?? 0} · Inferred{" "}
-            {summary.baseline.trail?.inferred.length ?? 0} · Skipped MUST {baselineSkippedMust}
+            Asserted {baselineAsserted} · Inferred {baselineInferred} · Skipped MUST {baselineSkippedMust}
           </dd>
         </div>
         <div>
           <dt className="font-medium text-al-text-primary">Updated — {summary.target.label}</dt>
           <dd className="m-0 mt-1 text-al-text-secondary">
-            Asserted {summary.target.trail?.asserted.length ?? 0} · Inferred{" "}
-            {summary.target.trail?.inferred.length ?? 0} · Skipped MUST {targetSkippedMust}
+            Asserted {targetAsserted} · Inferred {targetInferred} · Skipped MUST {targetSkippedMust}
           </dd>
         </div>
       </dl>
@@ -149,13 +178,8 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
       {summary.feasibilityVerdictChanged ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-feasibility-verdict-delta">
           Feasibility verdict changed — baseline{" "}
-          {summary.baseline.feasibilityVerdictKind !== null
-            ? feasibilityVerdictKindLabel(summary.baseline.feasibilityVerdictKind)
-            : "unknown"}{" "}
-          · updated{" "}
-          {summary.target.feasibilityVerdictKind !== null
-            ? feasibilityVerdictKindLabel(summary.target.feasibilityVerdictKind)
-            : "unknown"}
+          {formatCompareFeasibilityVerdictKindLabel(summary.baseline.feasibilityVerdictKind)} · updated{" "}
+          {formatCompareFeasibilityVerdictKindLabel(summary.target.feasibilityVerdictKind)}
           .
         </p>
       ) : null}
@@ -190,14 +214,20 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
         Open packages:{" "}
         <Link
           className={OPERATOR_LINK.inline}
-          href={`/architecture/reviews/${encodeURIComponent(summary.baseline.runId)}`}
+          href={resolveScopedInsightOpenReviewHref(summary.baseline.runId, {
+            primaryFindingId: props.groundingOptions?.baselinePrimaryFindingId,
+            architectureId: props.groundingOptions?.architectureId,
+          })}
         >
           Baseline review
         </Link>
         {" · "}
         <Link
           className={OPERATOR_LINK.inline}
-          href={`/architecture/reviews/${encodeURIComponent(summary.target.runId)}`}
+          href={resolveScopedInsightOpenReviewHref(summary.target.runId, {
+            primaryFindingId: props.groundingOptions?.updatedPrimaryFindingId,
+            architectureId: props.groundingOptions?.architectureId,
+          })}
         >
           Updated review
         </Link>

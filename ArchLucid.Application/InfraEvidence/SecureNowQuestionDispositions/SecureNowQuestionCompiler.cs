@@ -77,7 +77,7 @@ public sealed class SecureNowQuestionCompiler
                     ScopeKind = packCandidate.ScopeKind,
                     QuestionText = packCandidate.QuestionText,
                     ReasonText = packCandidate.ReasonText,
-                    SourceLine = "Policy pack",
+                    SourceLine = string.Empty,
                     AnswerCodes = packCandidate.AnswerCodes,
                     EvidenceFingerprint = fingerprint,
                     Status = SecureNowQuestionDispositionStatus.Open,
@@ -118,8 +118,8 @@ public sealed class SecureNowQuestionCompiler
                     QuestionKey = questionKey,
                     Source = SecureNowQuestionSource.InferredConnection,
                     ScopeKind = SecureNowQuestionScopeKind.Resource,
-                    QuestionText = inferred.QuestionText ?? "Should SecureNow record this inferred connection?",
-                    SourceLine = "Inferred connection",
+                    QuestionText = inferred.QuestionText ?? "Question text was not stored.",
+                    SourceLine = string.Empty,
                     AnswerCodes = ["Yes", "No", "NotSure"],
                     EvidenceFingerprint = fingerprint,
                     Status = SecureNowQuestionDispositionStatus.Open,
@@ -160,7 +160,7 @@ public sealed class SecureNowQuestionCompiler
                     QuestionText = candidate.IsOrphanIntent
                         ? "Is this still needed?"
                         : "Should this resource connect to a peer, or stand alone?",
-                    SourceLine = "Inventory evidence",
+                    SourceLine = string.Empty,
                     AnswerCodes = candidate.IsOrphanIntent
                         ? ["Retire", "Keep", "NotSure"]
                         : ["NamePeer", "StandsAlone", "NotSure"],

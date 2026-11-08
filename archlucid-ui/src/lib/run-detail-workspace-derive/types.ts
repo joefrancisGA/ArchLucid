@@ -30,7 +30,7 @@ export type ReviewHeaderPresentation = {
   readonly reviewIdentifierLabel: string;
 }
 export type EvidenceCoverageSummary = {
-  readonly linkedCount: number;
+  readonly linkedCount: number | null;
   readonly totalCount: number;
   readonly summaryLine: string;
 }
@@ -54,6 +54,7 @@ export type FindingSeverityCounts = {
   readonly high: number;
   readonly medium: number;
   readonly low: number;
+  readonly info: number;
 }
 export type RunDetailWorkspaceRecommendedAction = {
   readonly id: string;

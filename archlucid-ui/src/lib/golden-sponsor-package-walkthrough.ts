@@ -1,3 +1,4 @@
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
 export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_QUERY = "walkthrough" as const;
@@ -61,7 +62,12 @@ export function buildGoldenSponsorPackageWalkthroughHref(
 
   params.set(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_QUERY, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_VALUE);
 
-  return `/architecture/reviews/${encodeURIComponent(runId)}?${params.toString()}#${GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_HASH}`;
+  const base = resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId.trim());
+  const url = new URL(base, "https://archlucid.local");
+
+  url.searchParams.set(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_QUERY, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_VALUE);
+
+  return `${url.pathname}?${url.searchParams.toString()}#${GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_HASH}`;
 }
 
 /** Adds walkthrough query + sponsor-handoff hash when `reviewHref` is a run detail path. */
@@ -69,7 +75,7 @@ export function buildGoldenSponsorPackageWalkthroughHrefFromReviewPath(
   reviewHref: string,
 ): string | null {
   const trimmed = reviewHref.trim();
-  const match = trimmed.match(/^\/architecture\/reviews\/([^/?#]+)/);
+  const match = trimmed.match(/^\/architecture\/(?:architectures\/[^/]+\/reviews|reviews)\/([^/?#]+)/);
 
   if (match === null) {
     return null;

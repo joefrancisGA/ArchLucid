@@ -53,6 +53,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             return null;
 
         node.Properties.TryGetValue("budgetName", out string? budgetName);
+        string resolvedBudgetName = ResolveBudgetDisplayName(node, budgetName);
         node.Properties.TryGetValue("projectedImpactUsdLowerBound", out string? lowerBoundRaw);
         node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundRaw);
 
@@ -60,6 +61,14 @@ public sealed class CostBreachFindingEngine : IFindingEngine
         decimal? upperBound = TryParseDecimal(upperBoundRaw);
         decimal breachAmount = spend - maxMonthlyCost;
         FindingSeverity severity = severityOverride ?? FindingSeverity.Error;
+        string rationale = BuildBreachRationale(node);
+        List<string> traceNotes =
+        [
+            $"Budget cap: {CostGraphDecimalParser.FormatUsdPerMonth(maxMonthlyCost)}",
+            $"Projected spend: {CostGraphDecimalParser.FormatUsdPerMonth(spend)}",
+            $"Breach amount: {CostGraphDecimalParser.FormatUsdPerMonth(breachAmount)}",
+        ];
+        traceNotes.AddRange(BuildSupplementalTraceNotes(node));
 
         return new Finding
         {
@@ -68,15 +77,14 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             Category = "Cost",
             EngineType = "cost-breach",
             Severity = severity,
-            Title = $"Monthly cost breach: {node.Label}",
-            Rationale =
-                "Projected monthly spend exceeds the declared budget cap from the cost constraint node.",
+            Title = $"Monthly cost breach: {resolvedBudgetName}",
+            Rationale = rationale,
             RelatedNodeIds = [node.NodeId],
             ProjectedImpactUsd = spend,
             PayloadType = nameof(CostBreachFindingPayload),
             Payload = new CostBreachFindingPayload
             {
-                BudgetName = budgetName ?? node.Label,
+                BudgetName = resolvedBudgetName,
                 MaxMonthlyCost = maxMonthlyCost,
                 ProjectedMonthlySpendUsd = spend,
                 BreachAmountUsd = breachAmount,
@@ -101,15 +109,56 @@ public sealed class CostBreachFindingEngine : IFindingEngine
                     "Use reserved capacity or commitment discounts to lower effective monthly spend.",
                     "Defer non-critical workloads until the next budget review window."
                 ],
-                Notes =
-                [
-                    $"Budget cap: {maxMonthlyCost:C0}/mo",
-                    $"Projected spend: {spend:C0}/mo",
-                    $"Breach amount: {breachAmount:C0}/mo"
-                ]
+                Notes = traceNotes
             }
         };
     }
+
+    private static string BuildBreachRationale(GraphNode node)
+    {
+        const string baseRationale =
+            "Projected monthly spend exceeds the declared budget cap from the cost constraint node.";
+
+        if (!node.Properties.TryGetValue("confidenceReasoning", out string? confidenceReasoning)
+            || string.IsNullOrWhiteSpace(confidenceReasoning))
+        {
+            return UsesIllustrativeTopologyProjection(node)
+                ? $"{baseRationale} {CostConstraintFindingHonesty.ProjectedSpendIllustrativeRationaleSuffix}"
+                : baseRationale;
+        }
+
+        if (confidenceReasoning.Contains("illustrative", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{baseRationale} {CostConstraintFindingHonesty.ProjectedSpendIllustrativeRationaleSuffix}";
+        }
+
+        return baseRationale;
+    }
+
+    private static IEnumerable<string> BuildSupplementalTraceNotes(GraphNode node)
+    {
+        if (TopologyInstanceCountWasAssumed(node))
+        {
+            yield return CostConstraintFindingHonesty.TopologyInstanceCountAssumedNote;
+        }
+
+        if (UnknownPlatformIllustrativePlaceholderWasUsed(node))
+        {
+            yield return CostConstraintFindingHonesty.UnknownPlatformIllustrativePlaceholderNote;
+        }
+    }
+
+    private static bool UsesIllustrativeTopologyProjection(GraphNode node) =>
+        node.Properties.TryGetValue("projectedSpendIllustrative", out string? illustrativeRaw)
+        && string.Equals(illustrativeRaw?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+
+    private static bool TopologyInstanceCountWasAssumed(GraphNode node) =>
+        node.Properties.TryGetValue("topologyInstanceCountAssumed", out string? assumedRaw)
+        && string.Equals(assumedRaw?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+
+    private static bool UnknownPlatformIllustrativePlaceholderWasUsed(GraphNode node) =>
+        node.Properties.TryGetValue("unknownPlatformIllustrativePlaceholder", out string? unknownRaw)
+        && string.Equals(unknownRaw?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
 
     private static decimal? ResolveProjectedMonthlySpend(GraphNode node)
     {
@@ -136,4 +185,15 @@ public sealed class CostBreachFindingEngine : IFindingEngine
 
     private static decimal? TryParseDecimal(string? raw) =>
         CostGraphDecimalParser.TryParse(raw, out decimal value) ? value : null;
+
+    private static string ResolveBudgetDisplayName(GraphNode node, string? budgetName)
+    {
+        if (!string.IsNullOrWhiteSpace(budgetName))
+            return budgetName.Trim();
+
+        if (!string.IsNullOrWhiteSpace(node.Label))
+            return node.Label.Trim();
+
+        return CostConstraintFindingHonesty.BudgetNameNotStored;
+    }
 }

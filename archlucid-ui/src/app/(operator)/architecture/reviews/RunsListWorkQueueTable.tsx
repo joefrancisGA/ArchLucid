@@ -120,7 +120,7 @@ export function RunsListWorkQueueTable(props: RunsListWorkQueueTableProps): Reac
               </EnterpriseTableHead>
               <EnterpriseTableBody>
                 {section.runs.map((run) => {
-                  const createdLabel = new Date(run.createdUtc).toLocaleString();
+                  const createdLabel = displayRelativeCreated(run);
                   const isSelected = props.selectedRun?.runId === run.runId;
                   const title = runListPrimaryTitle(run);
                   const countsLine = runRowExplicitCountsLine(run, props.buyerPolished);
@@ -184,7 +184,10 @@ export function RunsListWorkQueueTable(props: RunsListWorkQueueTableProps): Reac
                             if (meta === null) return null;
 
                             return (
-                              <div className="mt-1.5 space-y-0.5">
+                              <div className="mt-1.5 space-y-0.5" data-testid={`runs-row-demo-meta-${run.runId}`}>
+                                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.micro, "text-neutral-600 dark:text-neutral-400")}>
+                                  Demo portfolio row — metadata is illustrative for walkthroughs, not live tenant data.
+                                </p>
                                 <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
                                   {meta.decisionSummary}
                                 </p>

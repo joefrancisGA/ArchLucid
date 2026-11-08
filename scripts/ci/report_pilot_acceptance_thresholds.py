@@ -11,10 +11,9 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 _MATRIX = _REPO / "scripts" / "ci" / "data" / "pilot_acceptance_thresholds.v1.json"
-_COMMITTED_RUN = re.compile(
-    r"(runId|run\s*id|committed\s*(at|utc|timestamp))",
-    re.IGNORECASE,
-)
+_RUN_ID = re.compile(r"(?im)^\s*(?:[|* -]*)(?:runId|run\s*id)\s*[:|=]\s*[`* ]*([A-Za-z0-9_-]+)\b")
+_COMMITTED_UTC = re.compile(r"(?im)^\s*(?:[|* -]*)(?:committedUtc|committed\s*(?:at|timestamp))\s*[:|=]\s*[`* ]*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\b")
+_STATUS = re.compile(r"(?im)^\s*(?:[|* -]*)(?:runStatus|status)\s*[:|=]\s*[`* ]*([A-Za-z][A-Za-z0-9_-]*)\b")
 
 
 def load_json(path: Path) -> dict[str, object]:
@@ -30,16 +29,58 @@ def load_matrix() -> dict[str, object]:
     return load_json(_MATRIX)
 
 
-def first_value_has_committed_run(path: Path | None) -> bool:
-    if path is None or not path.is_file():
+def first_value_has_committed_run(path: Path | None, expected_run_id: str | None = None) -> bool:
+    if path is None or not path.is_file() or not expected_run_id or not expected_run_id.strip():
         return False
 
     text = path.read_text(encoding="utf-8", errors="replace")
+    # The persisted producer renders the run's actual ArchitectureRunStatus.
+    # The sole successful terminal state is Committed (not Completed).
+    # Only identity-section table rows count, not similarly named rows in
+    # unrelated sections of the report.
+    table_ids: list[str] = []
+    table_commits: list[str] = []
+    table_statuses: list[str] = []
+    in_identity = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            in_identity = line.strip() == "## Architecture review identity"
+        if not in_identity:
+            continue
+        cells = [cell.strip().strip("`* ") for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 2:
+            continue
+        field, value = cells
+        if field.casefold() == "support run id":
+            table_ids.append(value)
+        elif field.casefold() == "commit snapshot (utc)":
+            table_commits.append(value)
+        elif field.casefold() == "status":
+            table_statuses.append(value)
 
-    if not text.strip():
+    if table_ids or table_commits or table_statuses:
+        # Do not combine isolated markers from two different report layouts.
+        run_ids, commits, statuses = table_ids, table_commits, table_statuses
+    else:
+        # Compact key/value evidence is retained for offline harness fixtures.
+        run_ids = _RUN_ID.findall(text)
+        commits = _COMMITTED_UTC.findall(text)
+        statuses = _STATUS.findall(text)
+
+    if len(run_ids) != 1 or len(commits) != 1 or len(statuses) != 1:
         return False
-
-    return bool(_COMMITTED_RUN.search(text))
+    reported_id, commit_text = run_ids[0], commits[0]
+    if statuses[0] != "Committed":
+        return False
+    if reported_id.casefold() in {"none", "null", "unknown", "placeholder", "pending"}:
+        return False
+    if reported_id != expected_run_id:
+        return False
+    try:
+        instant = datetime.fromisoformat(commit_text.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return instant.tzinfo is not None and instant.utcoffset() is not None and instant <= datetime.now(timezone.utc)
 
 
 def resolve_quote_disposition(
@@ -97,7 +138,7 @@ def evaluate_gates(
     if quote_disposition == "HOLD":
         hold_reasons.append("quote-to-proof disposition is HOLD")
 
-    first_value_ok = first_value_has_committed_run(first_value_report)
+    first_value_ok = first_value_has_committed_run(first_value_report, str(summary.get('runId') or ''))
     gates.append(
         {
             "id": "first-value-report",

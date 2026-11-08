@@ -2,7 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
@@ -36,6 +39,55 @@ function stageDone(flag: boolean | undefined): boolean {
   return flag === true;
 }
 
+type WizardTrackStageStatus = "complete" | "pending" | "not-stored" | "not-on-review";
+
+function resolveWizardTrackStageStatus(flag: boolean | undefined): WizardTrackStageStatus {
+  if (flag === true) {
+    return "complete";
+  }
+
+  if (flag === false) {
+    return "not-on-review";
+  }
+
+  return "not-stored";
+}
+
+function wizardTrackStageStatusTag(status: WizardTrackStageStatus): {
+  readonly kind: "ready" | "in-progress" | "neutral";
+  readonly label: string;
+} {
+  if (status === "complete") {
+    return { kind: "ready", label: "Complete" };
+  }
+
+  if (status === "not-stored") {
+    return { kind: "neutral", label: "Stage status was not stored." };
+  }
+
+  if (status === "not-on-review") {
+    return { kind: "neutral", label: "Snapshot is not on this review" };
+  }
+
+  return { kind: "in-progress", label: "Pending" };
+}
+
+function wizardTrackProgressCountLabel(
+  ctxStatus: WizardTrackStageStatus,
+  graphStatus: WizardTrackStageStatus,
+  findingsStatus: WizardTrackStageStatus,
+  manifestStatus: WizardTrackStageStatus,
+  completedStages: number,
+): string {
+  const statuses = [ctxStatus, graphStatus, findingsStatus, manifestStatus];
+
+  if (statuses.every((status) => status === "not-stored")) {
+    return "Stage count was not stored when flags omitted";
+  }
+
+  return `${completedStages} / 4 stages`;
+}
+
 function allStagesReady(summary: RunSummary | null | undefined): boolean {
   if (summary === null || summary === undefined) {
     return false;
@@ -53,11 +105,20 @@ function allStagesReady(summary: RunSummary | null | undefined): boolean {
  * Step 7: poll review summary and visualize review-package stages.
  */
 export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardStepTrackProps) {
+  const pathname = usePathname() ?? "";
+  const provenanceHref = useMemo(
+    () => resolveDeskContinuityProvenanceHref(runId, { pathname }),
+    [pathname, runId],
+  );
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
-  const ctx = stageDone(pollSummary?.hasContextSnapshot);
-  const graph = stageDone(pollSummary?.hasGraphSnapshot);
-  const findings = stageDone(pollSummary?.hasFindingsSnapshot);
-  const manifest = stageDone(pollSummary?.hasGoldenManifest);
+  const ctxStatus = resolveWizardTrackStageStatus(pollSummary?.hasContextSnapshot);
+  const graphStatus = resolveWizardTrackStageStatus(pollSummary?.hasGraphSnapshot);
+  const findingsStatus = resolveWizardTrackStageStatus(pollSummary?.hasFindingsSnapshot);
+  const manifestStatus = resolveWizardTrackStageStatus(pollSummary?.hasGoldenManifest);
+  const ctx = ctxStatus === "complete";
+  const graph = graphStatus === "complete";
+  const findings = findingsStatus === "complete";
+  const manifest = manifestStatus === "complete";
   const pollEnabled = !manifest;
 
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
@@ -94,7 +155,15 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
   }, [clientPhase, durationLoading, pollEnabled, pollMaxMs, pollSession]);
 
   const completedStages = [ctx, graph, findings, manifest].filter(Boolean).length;
-  const progressValue = (completedStages / 4) * 100;
+  const progressCountLabel = wizardTrackProgressCountLabel(
+    ctxStatus,
+    graphStatus,
+    findingsStatus,
+    manifestStatus,
+    completedStages,
+  );
+  const progressFlagsOmitted = progressCountLabel === "Stage count was not stored when flags omitted";
+  const progressValue = progressFlagsOmitted ? 0 : (completedStages / 4) * 100;
 
   const waitingMessage = useMemo(() => {
     if (clientPhase === "timeout") {
@@ -126,10 +195,12 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
       <div className="mt-4 space-y-2">
         <InlineMetadataLine
           label="Review progress"
-          value={`${completedStages} / 4 stages`}
+          value={progressCountLabel}
           testId="wizard-track-progress-count"
         />
-        <Progress value={progressValue} className="h-2" aria-label={`Review progress: ${completedStages} / 4 stages`} />
+        {progressFlagsOmitted ? null : (
+          <Progress value={progressValue} className="h-2" aria-label={`Review progress: ${progressCountLabel}`} />
+        )}
       </div>
 
       <Separator className="my-6" />
@@ -137,27 +208,27 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            <GlossaryTooltip termKey="context_snapshot">Source context captured</GlossaryTooltip>
+            <GlossaryTooltip termKey="context_snapshot">Context snapshot</GlossaryTooltip>
           </span>
-          <StatusTag kind={ctx ? "ready" : "in-progress"} label={ctx ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(ctxStatus)} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            <GlossaryTooltip termKey="knowledge_graph">Evidence graph ready</GlossaryTooltip>
+            <GlossaryTooltip termKey="knowledge_graph">Evidence graph</GlossaryTooltip>
           </span>
-          <StatusTag kind={graph ? "ready" : "in-progress"} label={graph ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(graphStatus)} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            <GlossaryTooltip termKey="findings">Findings complete</GlossaryTooltip>
+            <GlossaryTooltip termKey="findings">Findings snapshot</GlossaryTooltip>
           </span>
-          <StatusTag kind={findings ? "ready" : "in-progress"} label={findings ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(findingsStatus)} />
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
-            <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL} ready</GlossaryTooltip>
+            <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL}</GlossaryTooltip>
           </span>
-          <StatusTag kind={manifest ? "ready" : "in-progress"} label={manifest ? "Complete" : "Pending"} />
+          <StatusTag {...wizardTrackStageStatusTag(manifestStatus)} />
         </li>
       </ul>
 
@@ -171,7 +242,7 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
           <nav className={cn("mt-3 flex flex-wrap gap-x-3 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}
-              href={reviewDetailHrefAfterGeneration(runId)}
+              href={reviewDetailHrefAfterGeneration(runId, { pathname })}
               onClick={() => {
                 recordReviewGenerationHandoff(runId, "wizard-track");
               }}
@@ -184,7 +255,7 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
             >
               Compare two reviews
             </Link>
-            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${runId}/provenance`}>
+            <Link className={OPERATOR_LINK.nav} href={provenanceHref}>
               View provenance
             </Link>
           </nav>

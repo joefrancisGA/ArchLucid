@@ -54,12 +54,81 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     );
 
     expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(/16 of \d+/);
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
+      /16 catalog engines were recorded/,
+    );
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
     expect(screen.getByText(/inferred \(1\)/i)).toBeVisible();
     expect(screen.getByText(/skipped must questions \(1\)/i)).toBeVisible();
+  });
+
+  it("keeps the findings next-action link on the sealed stamp", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        hasFindingsSnapshot
+        runId="run-1"
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted
+        quickDecisionFindings={[
+          {
+            findingId: "finding-1",
+            title: "Open decision-grade finding",
+            recommendation: "Review and record a disposition.",
+            severityValue: 3,
+            findingOrder: 0,
+            aiReasoning: {},
+            isMuted: false,
+            muteReason: null,
+            enforcementTier: "blocking",
+            classification: "DecisionGradeFinding",
+          },
+        ] as never}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-first-review-spine-disposition-findings-link")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("routes disposition findings links through the nested desk when parentArchitectureId is set", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        runId="run-1"
+        parentArchitectureId="architecture-identity-001"
+        hasFindingsSnapshot
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted
+        quickDecisionFindings={[
+          {
+            findingId: "finding-1",
+            title: "Open decision-grade finding",
+            recommendation: "Review and record a disposition.",
+            severityValue: 3,
+            findingOrder: 0,
+            aiReasoning: {},
+            isMuted: false,
+            muteReason: null,
+            enforcementTier: "blocking",
+            classification: "DecisionGradeFinding",
+          },
+        ] as never}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-first-review-spine-disposition-findings-link")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+    );
   });
 
   it("shows skipped actor engines on the measurement strip for IaC-only graphs", () => {

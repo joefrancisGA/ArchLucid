@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE,
   ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE,
   formatArchitectureInventoryEstateGapCareerExportMarkdown,
   formatArchitectureInventoryUnboundEstateGapLine,
@@ -22,6 +23,8 @@ describe("architecture-inventory-estate-gap-copy (AS-051)", () => {
     expect(formatArchitectureInventoryUnboundEstateGapLine({ isBound: true })).toBeNull();
     expect(formatArchitectureInventoryUnboundEstateGapLine(null)).toBeNull();
     expect(formatArchitectureInventoryUnboundEstateGapLine(undefined)).toBeNull();
+    expect(resolveArchitectureInventoryEstateGapState({ architectureId: "a", isBound: undefined })).toBe("unknown");
+    expect(formatArchitectureInventoryUnboundEstateGapLine({ architectureId: "a", isBound: undefined })).toBeNull();
   });
 
   it("includes the estate gap in career export markdown when inventory is unbound", () => {
@@ -31,9 +34,16 @@ describe("architecture-inventory-estate-gap-copy (AS-051)", () => {
     expect(markdown).toContain("## Inventory estate");
   });
 
-  it("omits career export estate gap markdown when bound or not applicable", () => {
+  it("omits career export estate gap markdown when bound", () => {
     expect(formatArchitectureInventoryEstateGapCareerExportMarkdown(true)).toBe("");
-    expect(formatArchitectureInventoryEstateGapCareerExportMarkdown(null)).toBe("");
-    expect(formatArchitectureInventoryEstateGapCareerExportMarkdown(undefined)).toBe("");
+  });
+
+  it("includes not-stored estate section when binding is unknown", () => {
+    const markdown = formatArchitectureInventoryEstateGapCareerExportMarkdown(null);
+
+    expect(markdown).toContain(ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE);
+    expect(formatArchitectureInventoryEstateGapCareerExportMarkdown(undefined)).toContain(
+      ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE,
+    );
   });
 });

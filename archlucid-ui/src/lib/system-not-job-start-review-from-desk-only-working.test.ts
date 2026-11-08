@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  ARCHITECTURES_NEW_PATH,
+  REVIEWS_NEW_PATH,
   startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
 import {
@@ -41,20 +41,20 @@ describe("SN-019 Working create starts under open architecture", () => {
     const result = resolveWorkingCreateStartHref({});
 
     expect(result).toEqual({
-      href: ARCHITECTURES_NEW_PATH,
+      href: REVIEWS_NEW_PATH,
       reason: "portfolio-new",
     });
   });
 
-  it("never returns a floating peer reviews/new mint", () => {
+  it("returns nested start-review when architecture context exists", () => {
     const cases = [
       resolveWorkingCreateStartHref({ lastOpenArchitectureId: "architecture-identity-001" }),
       resolveWorkingCreateStartHref({ inFlightParentArchitectureId: "architecture-in-flight" }),
-      resolveWorkingCreateStartHref({}),
     ];
 
     for (const result of cases) {
-      expect(result.href).not.toBe("/architecture/reviews/new");
+      expect(result.reason).toBe("nested-under-open-architecture");
+      expect(result.href).not.toBe(REVIEWS_NEW_PATH);
       expect(result.href).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
     }
   });

@@ -21,4 +21,19 @@ public sealed class ClosedLoopFramingAnswersNormalizerTests
         normalized.Should().ContainKey("scope");
         normalized["scope"].Should().Be("security");
     }
+
+    [Fact]
+    public void Normalize_prefers_substantive_value_when_duplicate_keys_differ_only_by_casing()
+    {
+        Dictionary<string, string> framingAnswers = new(StringComparer.Ordinal)
+        {
+            ["Scope"] = "   ",
+            ["scope"] = "security",
+        };
+
+        Dictionary<string, string> normalized = ClosedLoopFramingAnswersNormalizer.Normalize(framingAnswers);
+
+        normalized.Should().ContainKey("scope");
+        normalized["scope"].Should().Be("security");
+    }
 }

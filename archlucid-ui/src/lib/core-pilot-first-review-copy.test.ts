@@ -23,13 +23,13 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT).toContain("checklist");
   });
 
-  it("summarizes the 90-minute playbook flow with buyer concepts", () => {
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/new architecture review/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/analyze/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/upload zip/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/roi/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/audit/i);
+  it("summarizes the first-review path from evidence through sponsor export", () => {
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toBe(
+      "Attach evidence → Open the inventory diagram → Read findings → Ask one question → Export the sponsor briefing",
+    );
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE.toLowerCase()).toMatch(/sponsor briefing/);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS[2]?.toLowerCase()).toMatch(/before seal/);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS[2]?.toLowerCase()).not.toMatch(/after commit/);
   });
 
   it("labels the minimized first-review control consistently", () => {

@@ -27,6 +27,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ import { ArchitectureIntelligenceRunModelGuardCallout } from "@/app/(operator)/a
 import { ArchitectureIntelligenceNextReviewFooterClient } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
+  hasActionableArchitectureIntelligenceResult,
   resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
   resolveArchitectureIntelligenceAnalysisSteps,
 } from "@/lib/architecture-intelligence-analysis-checklist";
@@ -82,7 +84,7 @@ export function ArchitectureIntelligencePageClient() {
 
   const reviewPicked = (activeRunId?.trim() ?? "").length > 0;
   const descriptionWritten = architectureDescription.trim().length > 0;
-  const analysisComplete = showReasoningWorkspace && runState?.kind === "reasoning";
+  const analysisComplete = showReasoningWorkspace && hasActionableArchitectureIntelligenceResult(runState);
   const analysisChecklistInput = {
     reviewPicked,
     descriptionWritten,
@@ -134,7 +136,7 @@ export function ArchitectureIntelligencePageClient() {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(activeRunId)}
           >
             Open review
           </Link>
@@ -246,7 +248,7 @@ export function ArchitectureIntelligencePageClient() {
               disabled={
                 isBusy ||
                 activeRunId === null ||
-                runState?.kind !== "reasoning" ||
+                !analysisComplete ||
                 productContextLoadFailed ||
                 blocksLlmExecution
               }

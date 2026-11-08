@@ -6,8 +6,13 @@ import {
   buildRetrievalHitActionLink,
   buildRetrievalHitEvidenceTrailHref,
   resolveRetrievalHitRunId,
+  resolveRetrievalHitText,
+  retrievalHitRelevanceLabel,
   retrievalHitRelevanceTier,
   retrievalHitSourceTypeLabel,
+  retrievalHitStoredReviewId,
+  resolveRetrievalHitTitle,
+  RETRIEVAL_HIT_SOURCE_TYPE_NOT_STORED,
 } from "./retrieval-hit-display";
 import type { RetrievalHit } from "./retrieval-hit";
 
@@ -27,6 +32,13 @@ function hit(partial: Partial<RetrievalHit>): RetrievalHit {
   };
 }
 
+describe("resolveRetrievalHitTitle", () => {
+  it("labels blank titles as not stored", () => {
+    expect(resolveRetrievalHitTitle("")).toBe("Hit title was not stored.");
+    expect(resolveRetrievalHitTitle("  ")).toBe("Hit title was not stored.");
+  });
+});
+
 describe("retrievalHitSourceTypeLabel", () => {
   it("maps manifest finding to Finding", () => {
     expect(retrievalHitSourceTypeLabel("ManifestFinding")).toBe("Finding");
@@ -35,11 +47,47 @@ describe("retrievalHitSourceTypeLabel", () => {
   it("maps provenance graph hits to Evidence graph (PC-12)", () => {
     expect(retrievalHitSourceTypeLabel("ProvenanceGraph")).toBe("Evidence graph");
   });
+
+  it("labels missing source types as not stored", () => {
+    expect(retrievalHitSourceTypeLabel("")).toBe(RETRIEVAL_HIT_SOURCE_TYPE_NOT_STORED);
+    expect(retrievalHitSourceTypeLabel(undefined)).toBe(RETRIEVAL_HIT_SOURCE_TYPE_NOT_STORED);
+  });
+});
+
+describe("resolveRetrievalHitText", () => {
+  it("labels blank hit text as not stored", () => {
+    expect(resolveRetrievalHitText("")).toBe("Hit text was not stored.");
+    expect(resolveRetrievalHitText("   ")).toBe("Hit text was not stored.");
+  });
+});
+
+describe("retrievalHitRelevanceLabel", () => {
+  it("uses similarity band wording", () => {
+    expect(retrievalHitRelevanceLabel("high")).toBe("High similarity band");
+    expect(retrievalHitRelevanceLabel("medium")).toBe("Medium similarity band");
+    expect(retrievalHitRelevanceLabel("low")).toBe("Lower similarity band");
+  });
 });
 
 describe("retrievalHitRelevanceTier", () => {
   it("classifies high scores", () => {
     expect(retrievalHitRelevanceTier(0.85)).toBe("high");
+  });
+});
+
+describe("retrievalHitStoredReviewId", () => {
+  it("parses run id from manifest finding document id", () => {
+    expect(
+      retrievalHitStoredReviewId(
+        hit({
+          documentId: `manifest-${SAMPLE_RUN_ID}-finding-sensitive-data-minimization-risk`,
+        }),
+      ),
+    ).toBe(SAMPLE_RUN_ID);
+  });
+
+  it("does not use the page scope filter", () => {
+    expect(retrievalHitStoredReviewId(hit({ documentId: "" }))).toBeNull();
   });
 });
 
@@ -60,7 +108,7 @@ describe("resolveRetrievalHitRunId", () => {
 });
 
 describe("buildRetrievalHitActionLink", () => {
-  it("links findings to inspect route", () => {
+  it("links findings to the review findings workspace", () => {
     const link = buildRetrievalHitActionLink(
       hit({
         findingId: "sensitive-data-minimization-risk",
@@ -69,7 +117,7 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/architecture/reviews/${SAMPLE_RUN_ID}/findings/sensitive-data-minimization-risk/evidence-trace`,
+      href: `/architecture/reviews/${SAMPLE_RUN_ID}?reviewTab=findings&findingId=sensitive-data-minimization-risk#run-detail-first-review-spine-findings`,
       label: "Open finding",
     });
   });
@@ -103,6 +151,24 @@ describe("buildRetrievalHitActionLink", () => {
     expect(link).toEqual({
       href: reviewSignedRecordPath(SAMPLE_RUN_ID),
       label: "Open decision in review",
+    });
+  });
+
+  it("nests run-level Open review when architecture id is supplied", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        sourceType: "ManifestTopology",
+        sourceId: SAMPLE_RUN_ID,
+        documentId: `topology-${SAMPLE_RUN_ID}`,
+        findingId: undefined,
+      }),
+      undefined,
+      { architectureId: "architecture-identity-001" },
+    );
+
+    expect(link).toEqual({
+      href: "/architecture/architectures/architecture-identity-001/reviews/" + SAMPLE_RUN_ID,
+      label: "Open review",
     });
   });
 

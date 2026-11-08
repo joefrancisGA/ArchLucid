@@ -78,6 +78,14 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
             .Select(node => node?.GetValue<string>())
             .Should()
             .Contain("SustainabilityAndResourceEfficiency");
+
+        JsonObject? structuralExecutionMode = schemas["StructuralExecutionMode"]?.AsObject();
+        structuralExecutionMode.Should().NotBeNull();
+        structuralExecutionMode!["type"]?.GetValue<string>().Should().Be("string");
+        structuralExecutionMode["enum"]?.AsArray()
+            .Select(node => node?.GetValue<string>())
+            .Should()
+            .Contain("Real");
     }
 
     [SkippableFact]

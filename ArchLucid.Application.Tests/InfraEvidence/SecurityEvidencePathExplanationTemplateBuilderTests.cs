@@ -47,6 +47,54 @@ public sealed class SecurityEvidencePathExplanationTemplateBuilderTests
     }
 
     [Fact]
+    public void Build_uses_weakest_hop_not_stored_sentence_when_reason_missing()
+    {
+        SecurityEvidencePathRecord path = CreatePath(PathKind.Privilege, "");
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+        [
+            CreateHop(
+                1,
+                "Internet",
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                GraphEdgeTypes.CanRead),
+        ];
+
+        SecurityEvidencePathExplanationTemplateResponse template =
+            SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops, []);
+
+        template.WeakControl.Should().Contain("Weakest-hop reason was not stored.");
+        template.WeakControl.Should().Contain(GraphEdgeTypes.CanRead);
+    }
+
+    [Fact]
+    public void BuildArchitectSentence_includes_not_stored_slots_for_missing_labels()
+    {
+        string sentence = SecurityEvidencePathExplanationTemplateBuilder.BuildArchitectSentence(
+            PathKind.Privilege,
+            actor: null,
+            identity: null,
+            network: null,
+            asset: null,
+            weakControl: "Stored NSG allow rule.",
+            proposedChange: null,
+            verify: null);
+
+        sentence.Should().Contain("Actor was not stored.");
+        sentence.Should().Contain("Identity was not stored.");
+        sentence.Should().Contain("Network path was not stored.");
+        sentence.Should().Contain("Asset was not stored.");
+    }
+
+    [Fact]
+    public void ShortNodeLabel_uses_principal_display_name_not_stored_for_principal_nodes()
+    {
+        SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(
+                "azure-ad://principal/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+            .Should()
+            .Be("Principal display name was not stored.");
+    }
+
+    [Fact]
     public void Build_fills_proposed_change_and_verify_from_primary_cut_point()
     {
         SecurityEvidencePathRecord path = CreatePath(PathKind.Privilege, "Derived CAN_READ hop uses Probable confidence.");
@@ -87,7 +135,8 @@ public sealed class SecurityEvidencePathExplanationTemplateBuilderTests
 
         template.ProposedChange.Should().Be("network restrict public");
         template.Verify.Should().Be("snapshot:verify-public-closure");
-        template.ArchitectSentence.Should().Contain("Change network restrict public will break the path");
+        template.ArchitectSentence.Should().Contain("Proposed change: network restrict public");
+        template.ArchitectSentence.Should().Contain("Effect on the path was not stored");
         template.ArchitectSentence.Should().Contain("Verify using snapshot:verify-public-closure.");
     }
 

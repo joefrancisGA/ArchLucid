@@ -1,5 +1,7 @@
 using System.Text;
 
+using ArchLucid.Application.Analysis;
+
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
@@ -29,9 +31,9 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
             sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
             sb.AppendLine(
-                $"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+                $"- Left Confidence: {AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")}");
             sb.AppendLine(
-                $"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+                $"- Right Confidence: {AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")}");
             sb.AppendLine();
 
             AppendSection(sb, "Added Claims", delta.AddedClaims);

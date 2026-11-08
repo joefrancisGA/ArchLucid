@@ -26,11 +26,6 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
             return;
         }
 
-        Dictionary<string, string> diagramToGraphNodeId = ast.Nodes
-            .Where(node => !string.IsNullOrWhiteSpace(node.SeedNodeId))
-            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First().SeedNodeId!, StringComparer.Ordinal);
-
         Dictionary<string, DiagramNode> diagramNodesById = ast.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
@@ -47,11 +42,22 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
                 continue;
             }
 
-            if (!diagramToGraphNodeId.TryGetValue(edge.FromNodeId, out string? sourceGraphNodeId)
-                || !diagramToGraphNodeId.TryGetValue(edge.ToNodeId, out string? targetGraphNodeId))
+            if (!diagramNodesById.TryGetValue(edge.FromNodeId, out DiagramNode? fromDiagramNode)
+                || !diagramNodesById.TryGetValue(edge.ToNodeId, out DiagramNode? toDiagramNode))
             {
+                ApplyUnlinkedEndpointNsgHonesty(edge, null, null);
                 continue;
             }
+
+            if (string.IsNullOrWhiteSpace(fromDiagramNode.SeedNodeId)
+                || string.IsNullOrWhiteSpace(toDiagramNode.SeedNodeId))
+            {
+                ApplyUnlinkedEndpointNsgHonesty(edge, fromDiagramNode, toDiagramNode);
+                continue;
+            }
+
+            string sourceGraphNodeId = fromDiagramNode.SeedNodeId!;
+            string targetGraphNodeId = toDiagramNode.SeedNodeId!;
 
             InventoryDiagramDataFlowNsgConnectorAnnotation? annotation =
                 InventoryDiagramDataFlowNsgEffectiveRuleReducer.Reduce(graph, sourceGraphNodeId, targetGraphNodeId);
@@ -163,4 +169,57 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
             edge.Label = $"{edge.Label} · {annotationText}";
         }
     }
+
+    private static void ApplyUnlinkedEndpointNsgHonesty(
+        DiagramEdge edge,
+        DiagramNode? fromDiagramNode,
+        DiagramNode? toDiagramNode)
+    {
+        string suffix = ResolveUnlinkedEndpointNsgHonestySuffix(fromDiagramNode, toDiagramNode);
+        if (string.IsNullOrWhiteSpace(edge.Label))
+        {
+            edge.Label = suffix;
+            return;
+        }
+
+        if (!edge.Label.Contains(suffix, StringComparison.Ordinal))
+        {
+            edge.Label = $"{edge.Label} · {suffix}";
+        }
+    }
+
+    private static string ResolveUnlinkedEndpointNsgHonestySuffix(
+        DiagramNode? fromDiagramNode,
+        DiagramNode? toDiagramNode)
+    {
+        List<string> reasons = [];
+
+        if (fromDiagramNode is not null && IsSeedNodeIdStoredEmpty(fromDiagramNode.SeedNodeId))
+        {
+            reasons.Add("From endpoint seed id was stored empty");
+        }
+        else if (fromDiagramNode is not null && string.IsNullOrWhiteSpace(fromDiagramNode.SeedNodeId))
+        {
+            reasons.Add("From endpoint seed id was not stored");
+        }
+
+        if (toDiagramNode is not null && IsSeedNodeIdStoredEmpty(toDiagramNode.SeedNodeId))
+        {
+            reasons.Add("To endpoint seed id was stored empty");
+        }
+        else if (toDiagramNode is not null && string.IsNullOrWhiteSpace(toDiagramNode.SeedNodeId))
+        {
+            reasons.Add("To endpoint seed id was not stored");
+        }
+
+        if (reasons.Count == 0)
+        {
+            return "NSG annotation skipped — connector endpoint is not on this diagram.";
+        }
+
+        return $"NSG annotation skipped — {string.Join("; ", reasons)}.";
+    }
+
+    private static bool IsSeedNodeIdStoredEmpty(string? seedNodeId) =>
+        seedNodeId is not null && seedNodeId.Length == 0;
 }

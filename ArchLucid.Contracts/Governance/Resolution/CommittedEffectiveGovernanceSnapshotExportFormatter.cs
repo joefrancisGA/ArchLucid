@@ -15,7 +15,7 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
             return null;
 
         if (!snapshot.HasEffectivePolicy)
-            return "no effective policy assignments or compliance rule keys";
+            return "No effective policy assignments were stored at commit.";
 
         return string.Create(
             CultureInfo.InvariantCulture,
@@ -91,11 +91,19 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
             rows.Add(
                 ("Compliance rule keys at commit", snapshot.ComplianceRuleKeyCount.ToString(CultureInfo.InvariantCulture)));
         }
+        else
+        {
+            rows.Add(("Compliance rule keys at commit", "0"));
+        }
 
         if (snapshot.ConflictCount > 0)
         {
             rows.Add(
                 ("Merge conflicts at commit", snapshot.ConflictCount.ToString(CultureInfo.InvariantCulture)));
+        }
+        else
+        {
+            rows.Add(("Merge conflicts at commit", "0"));
         }
 
         return rows;

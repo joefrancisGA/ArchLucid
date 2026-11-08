@@ -9,12 +9,13 @@ import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-cop
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
-const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
+const showcaseReviewHref = resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 /**
  * Golden-path jumps for buyer-polished Ctrl+K — uses showcase URLs even when sidebar omits compare/governance/audit.
@@ -27,7 +28,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: "Review",
-    href: `/architecture/reviews/${showcaseRunEnc}`,
+    href: showcaseReviewHref,
     searchValue: "review claims intake modernization",
   },
   {

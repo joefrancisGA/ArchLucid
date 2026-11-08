@@ -34,7 +34,8 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsNotFound_WhenRunMissing()
     {
-        var body = new { runId = "nonexistent-run-id-xxxxxxxx", manifestVersion = "v1", environment = "dev" };
+        string missingRunId = Guid.NewGuid().ToString("D");
+        var body = new { runId = missingRunId, manifestVersion = "v1", environment = "dev" };
 
         HttpResponseMessage response = await Client.PostAsync("/v1/governance-preview/preview", JsonContent(body));
 
@@ -71,46 +72,4 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
         preview.PreviewManifestVersion.Should().Be(manifestVersion);
         preview.Environment.Should().Be("dev");
     }
-}
-
-public sealed class GovernanceEnvironmentComparisonResultDto
-{
-    public string SourceEnvironment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string TargetEnvironment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public List<string> Notes
-    {
-        get;
-        set;
-    } = [];
-}
-
-public sealed class GovernancePreviewResultDto
-{
-    public string Environment
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string PreviewRunId
-    {
-        get;
-        set;
-    } = string.Empty;
-
-    public string PreviewManifestVersion
-    {
-        get;
-        set;
-    } = string.Empty;
 }

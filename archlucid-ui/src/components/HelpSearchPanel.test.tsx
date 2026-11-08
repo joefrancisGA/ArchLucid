@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { setHelpPageSituation } from "@/components/help/help-page-situation-store";
@@ -39,6 +39,23 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => authorityMock,
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+  const guidedWorkspace = {
+    mode: "guided" as const,
+    mounted: true,
+    accountSyncState: "synced" as const,
+    isWorkingMode: false,
+    setAndPersist: vi.fn(),
+  };
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => guidedWorkspace,
+    useWorkspaceModeOrDefault: () => guidedWorkspace,
+  };
+});
+
 vi.mock("@/components/usability/ProductConceptsGlossaryDialog", () => ({
   ProductConceptsGlossaryDialog: () => null,
 }));
@@ -49,9 +66,16 @@ vi.mock("@/lib/help/help-index", () => ({
 
 afterEach(() => {
   setHelpPageSituation(null);
+  window.location.hash = "";
+  push.mockClear();
 });
 
 describe("HelpSearchPanel", () => {
+  beforeEach(() => {
+    pathnameMock.value = "/";
+    authorityMock.callerAuthorityRank = 1;
+    window.history.replaceState(null, "", "/");
+  });
   it("renders title, subtitle, search input, and grouped topics", () => {
     pathnameMock.value = "/architecture/reviews/new";
     render(<HelpSearchPanel open onOpenChange={() => {}} onOpenGuidesPanel={() => {}} />);

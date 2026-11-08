@@ -3,11 +3,14 @@ import { describe, expect, it } from "vitest";
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 
 import {
+  getFindingDetailHref,
   getFindingEvidenceInspectHref,
   getFindingEvidenceTraceHref,
   getFindingGovernanceDispositionHref,
   resolveFindingsQueueNavHref,
   resolveQuickDecisionFindingInspectHref,
+  resolveQuickDecisionFindingDispositionHref,
+  resolveQuickDecisionFindingWorkspaceHref,
 } from "@/lib/findings/finding-evidence-navigation";
 
 describe("finding-evidence-navigation", () => {
@@ -17,9 +20,9 @@ describe("finding-evidence-navigation", () => {
     );
   });
 
-  it("builds the approval disposition deep link for evidence trace", () => {
+  it("builds the findings workspace disposition deep link", () => {
     expect(getFindingGovernanceDispositionHref("run-1", "finding-9")).toBe(
-      "/architecture/reviews/run-1/findings/finding-9/evidence-trace#governance-disposition-heading",
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
     );
   });
 
@@ -48,6 +51,18 @@ describe("finding-evidence-navigation", () => {
     ).toBe(`${architectureNestedFindingsPath("arch-001")}?runId=run-1&focusedFinding=finding-9`);
   });
 
+  it("routes disposition CTAs to the findings workspace when not in nested working findings", () => {
+    expect(resolveQuickDecisionFindingDispositionHref("run-1", "finding-9")).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
+  });
+
+  it("routes workspace finding links to the review findings tab with spine hash", () => {
+    expect(resolveQuickDecisionFindingWorkspaceHref("run-1", "finding-9")).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
+  });
+
   it("SG-027: keeps governance queue when Working parent is unknown", () => {
     expect(
       resolveFindingsQueueNavHref({
@@ -55,5 +70,21 @@ describe("finding-evidence-navigation", () => {
         isWorkingMode: true,
       }),
     ).toBe("/governance/findings?runId=run-abc");
+  });
+
+  it("SG-028: nested finding detail and evidence trace when architecture id is known", () => {
+    expect(
+      getFindingDetailHref("run-1", "finding-9", { architectureId: "arch-desk" }),
+    ).toBe("/architecture/architectures/arch-desk/reviews/run-1/findings/finding-9");
+
+    expect(
+      getFindingEvidenceTraceHref("run-1", "finding-9", { architectureId: "arch-desk" }),
+    ).toBe("/architecture/architectures/arch-desk/reviews/run-1/findings/finding-9/evidence-trace");
+  });
+
+  it("uses nested review findings tab when architecture id is passed to disposition href", () => {
+    expect(getFindingGovernanceDispositionHref("run-1", "finding-9", "arch-desk")).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
   });
 });

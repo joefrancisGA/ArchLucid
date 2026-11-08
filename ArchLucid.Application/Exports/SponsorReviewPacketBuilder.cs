@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
@@ -112,6 +113,16 @@ public sealed class SponsorReviewPacketBuilder(
                 cancellationToken);
         }
 
+        int? findingsSnapshotFindingCount = null;
+        if (Guid.TryParse(runId.Trim(), out Guid runGuidForSnapshot))
+        {
+            RunDetailDto? exportDetail = await _authorityQueryService
+                .GetRunDetailForExportAsync(scope, runGuidForSnapshot, cancellationToken)
+                .ConfigureAwait(false);
+
+            findingsSnapshotFindingCount = exportDetail?.FindingsSnapshot?.Findings?.Count;
+        }
+
         SponsorRoiSummaryResponse roiSummary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
 
@@ -119,14 +130,15 @@ public sealed class SponsorReviewPacketBuilder(
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);
 
         List<string> topTitles = topFindings
-            .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
+            .Select(SponsorReviewPacketExportHonestyCopy.FormatTopFindingTitle)
             .ToList();
 
         string SponsorReport = BuildDeterministicSponsorReport(detail, topFindings);
-        IReadOnlyList<SponsorReviewPacketDecisionRow> topDecisions = await BuildTopDecisionsAsync(runId.Trim(), cancellationToken)
+        TopDecisionsExportSlice topDecisions = await BuildTopDecisionsAsync(runId.Trim(), cancellationToken)
             .ConfigureAwait(false);
         SponsorReviewPacketPortfolioSignals portfolioSignals =
             SponsorReviewPacketPortfolioSignalsFactory.Create(roiSummary);
+        int omittedPortfolioNextActions = Math.Max(0, portfolioSignals.NextActions.Count - 5);
 
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
@@ -158,53 +170,81 @@ public sealed class SponsorReviewPacketBuilder(
             topTitles,
             roiSummary,
             TimeProvider.System.UtcNowDateTime(),
-            topDecisions,
+            topDecisions.Rows,
             portfolioSignals,
             activeTrialExportNotice,
             careerExportHonesty,
-            architectRestatements);
+            architectRestatements,
+            topDecisions.OmittedCount,
+            omittedPortfolioNextActions,
+            findingsSnapshotFindingCount,
+            topDecisions.ReviewIdNotGuid);
     }
+
+    private sealed record TopDecisionsExportSlice(
+        IReadOnlyList<SponsorReviewPacketDecisionRow> Rows,
+        int OmittedCount,
+        bool ReviewIdNotGuid = false);
 
     private static string BuildDeterministicSponsorReport(
         ArchitectureRunDetail detail,
         IReadOnlyList<ArchitectureFinding> topFindings)
     {
         int critical = topFindings.Count(static f => f.Severity == FindingSeverity.Critical);
-        int high = topFindings.Count(static f => f.Severity == FindingSeverity.Error);
+        int errorSeverity = topFindings.Count(static f => f.Severity == FindingSeverity.Error);
 
-        string systemName = detail.Manifest?.SystemName ?? detail.Run.RunId;
+        string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(
+            detail.Manifest?.SystemName);
+
+        string committedStatusClause = detail.Manifest is not null
+            ? "has a stored manifest"
+            : "does not have a stored manifest on this export";
 
         return
-            $"Architecture review for {systemName} is committed with {critical} critical and {high} high findings in the top set. "
+            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the first-five preview "
+            + "(Critical and Error only within that five-item preview; Warning, Info, and findings whose severity was not stored are outside those counts). "
             + "Use the ROI basis by disposition section to separate estimated potential from realized remediated value before sponsor sign-off.";
     }
 
-    private async Task<IReadOnlyList<SponsorReviewPacketDecisionRow>> BuildTopDecisionsAsync(
+    private async Task<TopDecisionsExportSlice> BuildTopDecisionsAsync(
         string runId,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
-            return [];
+            return new TopDecisionsExportSlice([], 0, ReviewIdNotGuid: true);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchitectureDecisionRegisterResponse register = await _decisionRegisterService
             .GetRegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, maxRows: 25, filters: null, cancellationToken)
             .ConfigureAwait(false);
 
+        List<ArchitectureDecisionRegisterEntry> runDecisions = register.Decisions
+            .Where(entry => entry.RunId == runGuid)
+            .ToList();
+
         List<SponsorReviewPacketDecisionRow> rows = [];
 
-        foreach (ArchitectureDecisionRegisterEntry entry in register.Decisions.Where(entry => entry.RunId == runGuid).Take(5))
+        foreach (ArchitectureDecisionRegisterEntry entry in runDecisions.Take(5))
         {
             rows.Add(new SponsorReviewPacketDecisionRow
             {
                 Title = entry.Title,
+                Category = entry.Category,
                 SelectedOption = entry.SelectedOption,
-                ConfidenceLabel = entry.BuyerConfidenceSource ?? entry.ConfidenceSource,
-                EvidenceHref = "/governance/decision-register",
+                ConfidenceLabel = SponsorReviewPacketExportHonestyCopy.FormatDecisionConfidenceLabel(
+                    entry.BuyerConfidenceSource,
+                    entry.ConfidenceSource,
+                    entry.Confidence),
+                EvidenceHref = string.Empty,
+                SupportingFindingIdsSummary =
+                    SponsorReviewPacketExportHonestyCopy.FormatSupportingFindingIdsSummary(entry.SupportingFindingIds),
+                Rationale = entry.Rationale,
             });
         }
 
-        return rows;
+        int omitted = Math.Max(0, runDecisions.Count - rows.Count);
+
+        return new TopDecisionsExportSlice(rows, omitted);
     }
 
 }

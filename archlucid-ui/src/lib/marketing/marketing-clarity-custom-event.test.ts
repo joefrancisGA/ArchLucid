@@ -87,4 +87,25 @@ describe("marketing-clarity-custom-event", () => {
 
     expect(clarity).not.toHaveBeenCalled();
   });
+
+  it("is a no-op when browser storage access is unavailable", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("Storage access denied");
+    });
+
+    expect(() => {
+      recordMarketingCtaWalkthroughClick({ source: "hero" });
+    }).not.toThrow();
+    expect(clarity).not.toHaveBeenCalled();
+  });
+
+  it("does not let a failing Clarity implementation interrupt the CTA", () => {
+    clarity.mockImplementation(() => {
+      throw new Error("Clarity unavailable");
+    });
+
+    expect(() => {
+      recordMarketingCtaWalkthroughClick({ source: "hero" });
+    }).not.toThrow();
+  });
 });

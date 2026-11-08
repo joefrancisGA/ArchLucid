@@ -59,6 +59,7 @@ export function AskCompareReviewsCollapsible(props: AskCompareReviewsCollapsible
             preferAutoPick={false}
             label="Baseline review"
             fieldId="ask-compare-base"
+            optionalHintMode="compare"
           />
           <AskRunIdPicker
             value={targetRunId}
@@ -67,6 +68,7 @@ export function AskCompareReviewsCollapsible(props: AskCompareReviewsCollapsible
             preferAutoPick={false}
             label="Updated review"
             fieldId="ask-compare-target"
+            optionalHintMode="compare"
           />
         </CollapsibleContent>
       </div>

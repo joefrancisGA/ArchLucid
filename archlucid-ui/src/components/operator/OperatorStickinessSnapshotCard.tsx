@@ -3,7 +3,11 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactElement } from "react";
+import { useMemo } from "react";
+
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
@@ -22,12 +26,22 @@ import { REVIEW_LIFECYCLE_FINALIZED_STATE_LABEL } from "@/lib/vocabulary/review-
  * Customer-success stickiness cockpit: funnel + habit metrics with links to next actions.
  */
 export function OperatorStickinessSnapshotCard(): ReactElement | null {
+  const pathname = usePathname() ?? "";
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { data, isPending, isError, error } = useOperatorStickinessSnapshotQuery();
   const assignedToMeCountQuery = useAssignedToMeFindingsCountQuery({
     enabled: !isPending && !isError,
   });
   const assignedToMeCount = assignedToMeCountQuery.data ?? 0;
+  const latestRunOpenHref = useMemo(() => {
+    const latestRunId = data?.latestRunId?.trim() ?? "";
+
+    if (latestRunId.length === 0) {
+      return null;
+    }
+
+    return resolveDeskContinuityReviewOpenHref(latestRunId, { pathname });
+  }, [data?.latestRunId, pathname]);
 
   if (isPending && !data) {
     return (
@@ -92,7 +106,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             {data.latestRunId ? (
               <p className="m-0">
                 Latest:{" "}
-                <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${data.latestRunId}`}>
+                <Link className={OPERATOR_LINK.nav} href={latestRunOpenHref ?? "#"}>
                   open review
                 </Link>
               </p>

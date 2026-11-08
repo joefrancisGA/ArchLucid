@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>Per-variant semantic and quality-gate aggregates for prompt A/B analysis.</summary>
@@ -9,10 +11,12 @@ public sealed class PromptVariantStatsResponse
         init;
     }
 
+    private IReadOnlyList<PromptVariantStatsItem> variants = [];
+
     public required IReadOnlyList<PromptVariantStatsItem> Variants
     {
-        get;
-        init;
+        get => variants;
+        init => variants = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 }
 

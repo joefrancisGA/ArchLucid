@@ -8,6 +8,10 @@ import { useCallback, useEffect, useState } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import {
+  formatAssertedTrailLine,
+  formatSkippedTrailQuestionKey,
+} from "@/lib/feasibility/format-transparency-trail-entry-display";
 import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
 import {
   parseTransparencyTrailOpenFromSearch,
@@ -119,29 +123,27 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
           <ul className="mt-1 list-disc pl-5">
             {trail.asserted.map((entry) => (
               <li key={entry.key}>
-                {entry.key === null || entry.key === undefined
-                  ? `Assertion key was not stored. Value: ${entry.value}`
-                  : `${entry.key}: ${entry.value}`}
+                {formatAssertedTrailLine(entry)}
                 {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
                   ? ` — ${entry.responderLabel}`
                   : entry.responderLabel === null || entry.responderLabel === undefined
                     ? " — Responder was not stored."
-                    : ""}
+                    : " — Responder was stored empty."}
                 {typeof entry.questionId === "string" && entry.questionId.length > 0
                   ? ` — Question id: ${entry.questionId}`
                   : entry.questionId === null || entry.questionId === undefined
                     ? " — Question id was not stored."
-                    : ""}
+                    : " — Question id was stored empty."}
                 {typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
                   ? ` — Answer recorded time: ${entry.recordedUtc}`
                   : entry.recordedUtc === null || entry.recordedUtc === undefined
                     ? " — Answer recorded time was not stored."
-                    : ""}
+                    : " — Answer recorded time was stored empty."}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Asserted entries were stored empty.</p>
         )}
       </div>
       <div>
@@ -155,7 +157,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             ))}
           </ul>
         ) : (
-          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Inferred entries were stored empty.</p>
         )}
       </div>
       {mustSkipped.length > 0 ? (
@@ -164,27 +166,36 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             Skipped MUST questions ({mustSkipped.length})
           </p>
           <ul className="mt-1 list-disc pl-5">
-            {mustSkipped.map((entry) => (
-              <li key={entry.questionKey}>{entry.questionKey}</li>
+            {mustSkipped.map((entry, index) => (
+              <li key={`${entry.questionKey ?? "missing"}-${index}`}>
+                {formatSkippedTrailQuestionKey(entry.questionKey)}
+              </li>
             ))}
           </ul>
         </div>
       ) : (
         <div data-testid="transparency-trail-skipped-must">
           <p className="m-0 font-medium">Skipped MUST questions (0)</p>
-          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Skipped MUST questions were stored empty.</p>
         </div>
       )}
       {shouldSkipped.length > 0 ? (
         <div>
           <p className="m-0 font-medium">Skipped SHOULD questions ({shouldSkipped.length})</p>
           <ul className="mt-1 list-disc pl-5">
-            {shouldSkipped.map((entry) => (
-              <li key={entry.questionKey}>{entry.questionKey}</li>
+            {shouldSkipped.map((entry, index) => (
+              <li key={`${entry.questionKey ?? "missing"}-${index}`}>
+                {formatSkippedTrailQuestionKey(entry.questionKey)}
+              </li>
             ))}
           </ul>
         </div>
-      ) : null}
+      ) : (
+        <div data-testid="transparency-trail-skipped-should">
+          <p className="m-0 font-medium">Skipped SHOULD questions (0)</p>
+          <p className="m-0 mt-1 text-al-text-secondary">Skipped SHOULD questions were stored empty.</p>
+        </div>
+      )}
       {MissingTierSkippedEntries(trail).map((entry) => (
         <p key={entry.questionKey} className="m-0">
           Question tier was not stored.

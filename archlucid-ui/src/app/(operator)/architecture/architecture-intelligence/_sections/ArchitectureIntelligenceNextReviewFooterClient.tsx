@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -9,6 +9,7 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-sc
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import type { RunSummary } from "@/types/authority";
 
 import {
@@ -25,30 +26,47 @@ export function ArchitectureIntelligenceNextReviewFooterClient(
   props: ArchitectureIntelligenceNextReviewFooterClientProps,
 ): React.JSX.Element | null {
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
+  const scopeRecord = useOperatorScopeRecord();
+  const scopeKey = [
+    scopeRecord?.tenantId ?? "",
+    scopeRecord?.workspaceId ?? "",
+    scopeRecord?.projectId ?? "",
+  ].join(":");
 
-  const loadRuns = useCallback(async () => {
+  useEffect(() => {
+    let active = true;
     const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
     const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
 
-    try {
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
-      const coerced = coerceRunSummaryPaged(raw, { page: 1 });
+    setRuns([]);
 
-      if (!coerced.ok) {
-        setRuns([]);
+    void (async () => {
+      try {
+        const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
+        const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
-        return;
+        if (!active) {
+          return;
+        }
+
+        if (!coerced.ok) {
+          setRuns([]);
+
+          return;
+        }
+
+        setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
+      } catch {
+        if (active) {
+          setRuns([]);
+        }
       }
+    })();
 
-      setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
-    } catch {
-      setRuns([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadRuns();
-  }, [loadRuns]);
+    return () => {
+      active = false;
+    };
+  }, [scopeKey]);
 
   const nextReview = useMemo(() => {
     const target = resolveNextRunsListRow(runs, props.runId);

@@ -13,6 +13,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { components } from "@/lib/openapi-schemas";
 import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
+import { resolvePolicyPackScopedOpenReviewHref } from "@/lib/policy-pack-scoped-open-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
@@ -152,7 +153,7 @@ export function PolicyRuleAuthoringWizardTestPanel(
                 {" · "}
                 <Link
                   className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                  href={`/architecture/reviews/${encodeURIComponent(scopedReviewIdTrimmed)}`}
+                  href={resolvePolicyPackScopedOpenReviewHref(scopedReviewIdTrimmed)}
                 >
                   Open review
                 </Link>

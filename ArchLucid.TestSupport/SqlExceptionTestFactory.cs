@@ -9,7 +9,7 @@ namespace ArchLucid.TestSupport;
 public static class SqlExceptionTestFactory
 {
     /// <summary>Creates a <see cref="SqlException" /> with the given SQL Server error <paramref name="number" />.</summary>
-    public static SqlException Create(int number)
+    public static SqlException Create(int number, string message = "Test SQL exception")
     {
         SqlErrorCollection errors = CreateErrorCollection();
         SqlError error = CreateSqlError(number);
@@ -28,7 +28,7 @@ public static class SqlExceptionTestFactory
             BindingFlags.NonPublic | BindingFlags.Instance,
             null,
             [
-                "Test SQL exception",
+                message,
                 errors,
                 null,
                 Guid.Empty

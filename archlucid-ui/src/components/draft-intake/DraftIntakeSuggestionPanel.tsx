@@ -20,6 +20,7 @@ import {
   GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT,
+  GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER,
   GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -268,6 +269,12 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
         >
           <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
             {GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING}
+          </p>
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}
+            data-testid="draft-intake-actor-suggestions-disclaimer"
+          >
+            {GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER}
           </p>
           {pendingSuggestions.length === 0 ? (
             <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>

@@ -2,12 +2,13 @@ import { z } from "zod";
 
 import type { PagedResponse } from "@/types/pagination";
 import type { RunDetail, RunSummary } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-const runSummaryRowSchema = z.object({ runId: z.string() }).passthrough();
+const runSummaryRowSchema = z.object({ runId: z.string().trim().min(1) }).passthrough();
 
 /**
  * Ensures the runs list endpoint returned an array of objects with runId (malformed vs empty list).
@@ -116,6 +117,10 @@ export function coerceRunSummaryPaged(
   const items = normalizedItems.items;
 
   if (isLegacyOffsetPagedRunEnvelope(data)) {
+    if (data.page < 1 || data.pageSize < 1) {
+      return { ok: false, message: "Paged runs response has invalid page or pageSize." };
+    }
+
     return {
       ok: true,
       value: {
@@ -129,6 +134,10 @@ export function coerceRunSummaryPaged(
   }
 
   if (isCursorPagedRunEnvelope(data)) {
+    if (data.requestedTake < 1) {
+      return { ok: false, message: "Paged runs response has invalid requestedTake." };
+    }
+
     if (data.nextCursor !== undefined && data.nextCursor !== null && typeof data.nextCursor !== "string") {
       return { ok: false, message: "Paged runs response has invalid nextCursor." };
     }
@@ -162,13 +171,15 @@ export function coerceRunSummaryPaged(
   };
 }
 
+const nonEmptyTrimmedString = operatorNonEmptyTrimmedString;
+
 const runDetailSchema = z
   .object({
     run: z
       .object({
-        runId: z.string(),
-        projectId: z.string(),
-        createdUtc: z.string(),
+        runId: nonEmptyTrimmedString,
+        projectId: nonEmptyTrimmedString,
+        createdUtc: nonEmptyTrimmedString,
       })
       .passthrough(),
   })
@@ -193,11 +204,14 @@ export function coerceRunDetail(
 
     const run = data.run;
 
-    if (typeof run.runId !== "string" || typeof run.projectId !== "string") {
+    if (
+      !nonEmptyTrimmedString.safeParse(run.runId).success ||
+      !nonEmptyTrimmedString.safeParse(run.projectId).success
+    ) {
       return { ok: false, message: "Review detail is missing string runId or projectId." };
     }
 
-    if (typeof run.createdUtc !== "string") {
+    if (!nonEmptyTrimmedString.safeParse(run.createdUtc).success) {
       return { ok: false, message: "Review detail is missing string createdUtc." };
     }
 

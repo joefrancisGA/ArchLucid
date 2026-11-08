@@ -54,7 +54,7 @@ describe("cold-shared-link-unpack (TB-2181)", () => {
       principal: readerPrincipal,
     });
 
-    expect(presentation?.whyYouAreHere).toContain("read-only link");
+    expect(presentation?.whyYouAreHere).toBe("This link is marked read-only. Who shared it was not stored.");
     expect(presentation?.primaryCtaLabel).toBe("Review findings");
     expect(presentation?.primaryCtaHref).toContain("reviewTab=findings");
   });

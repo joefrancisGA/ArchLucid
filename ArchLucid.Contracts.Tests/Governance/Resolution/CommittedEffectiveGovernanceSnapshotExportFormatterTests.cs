@@ -59,6 +59,15 @@ public sealed class CommittedEffectiveGovernanceSnapshotExportFormatterTests
     }
 
     [Fact]
+    public void FormatReadmeHeadline_states_no_policy_when_snapshot_has_no_effective_policy()
+    {
+        CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeHeadline(
+                new CommittedEffectiveGovernanceSnapshotDescriptor { HasEffectivePolicy = false })
+            .Should()
+            .Be("No effective policy assignments were stored at commit.");
+    }
+
+    [Fact]
     public void FormatProvenanceAppendixRows_includes_pack_and_coverage_sections()
     {
         Guid packId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -95,5 +104,25 @@ public sealed class CommittedEffectiveGovernanceSnapshotExportFormatterTests
         rows.Should().Contain(row => row.Label == "Pack assignments at commit" && row.Value.Contains(packId.ToString("D")));
         rows.Should().Contain(row => row.Label == "Coverage assignments at commit" && row.Value.Contains("Cost"));
         rows.Should().Contain(row => row.Label == "Compliance rule keys at commit" && row.Value == "3");
+        rows.Should().Contain(row => row.Label == "Merge conflicts at commit" && row.Value == "0");
+    }
+
+    [Fact]
+    public void FormatProvenanceAppendixRows_emits_zero_counts_when_stored()
+    {
+        CommittedEffectiveGovernanceSnapshotDescriptor snapshot = new()
+        {
+            HasEffectivePolicy = true,
+            ComplianceRuleKeyCount = 0,
+            ConflictCount = 0,
+            PackAssignments = [],
+            CoverageAssignments = [],
+        };
+
+        IReadOnlyList<(string Label, string Value)> rows =
+            CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows(snapshot);
+
+        rows.Should().Contain(row => row.Label == "Compliance rule keys at commit" && row.Value == "0");
+        rows.Should().Contain(row => row.Label == "Merge conflicts at commit" && row.Value == "0");
     }
 }

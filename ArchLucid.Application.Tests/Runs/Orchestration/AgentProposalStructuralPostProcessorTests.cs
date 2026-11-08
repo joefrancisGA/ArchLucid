@@ -456,4 +456,150 @@ public sealed class AgentProposalStructuralPostProcessorTests
 
         valid.ProposedChanges!.AddedServices.Should().ContainSingle();
     }
+
+    [Fact]
+    public void ApplyToProposal_skips_null_added_relationship_entry_for_relationship_only_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedRelationships": [
+                null,
+                {
+                  "sourceId": "svc-api",
+                  "targetId": "ds-sql",
+                  "relationshipType": 1
+                }
+              ]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].SourceId.Should().Be("svc-api");
+    }
+
+    [Fact]
+    public void ApplyToProposal_skips_null_added_datastore_entry_from_deserialized_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedDatastores": [null]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedDatastores.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToProposal_drops_edge_referencing_duplicate_service_id_rejected_during_dedupe()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-2",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-2",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedServices.Should().ContainSingle()
+            .Which.ServiceId.Should().Be("svc-1");
+        proposal.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToProposal_drops_edge_referencing_duplicate_datastore_id_rejected_during_dedupe()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-1",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-2",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "ds-2",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedDatastores.Should().ContainSingle()
+            .Which.DatastoreId.Should().Be("ds-1");
+        proposal.AddedRelationships.Should().BeEmpty();
+    }
 }

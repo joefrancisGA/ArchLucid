@@ -7,6 +7,7 @@ import {
   isSafeCorrelationId,
 } from "@/lib/correlation";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
 /**
@@ -95,7 +96,10 @@ function buildSuccessResponse(upstreamBody: unknown, correlationId: string): Nex
     if (runDetailUrl !== null) {
       redirectTo = runDetailUrl;
     } else if (runId !== null) {
-      redirectTo = `/architecture/reviews/${encodeURIComponent(runId)}`;
+      redirectTo = resolveGovernanceScopedReviewOpenHref({
+        runId,
+        architectureId: readStringField(upstreamBody, "architectureId"),
+      });
     }
   }
 

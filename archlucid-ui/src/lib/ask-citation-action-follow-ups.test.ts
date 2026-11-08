@@ -7,8 +7,6 @@ import {
   collectAskCitationFindingIds,
   parseAskCitationRefsFromMessageMetadata,
 } from "@/lib/ask-citation-action-follow-ups";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-
 describe("buildAskCitationActionFollowUps", () => {
   it("returns honest empty when run id is missing", () => {
     const chips = buildAskCitationActionFollowUps({
@@ -37,15 +35,13 @@ describe("buildAskCitationActionFollowUps", () => {
       referencedFindings: ["finding-123"],
     });
 
-    expect(chips.map((c) => c.kind)).toEqual(["finding", "evidence", "disposition"]);
+    expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition"]);
     expect(chips[0]?.href).toBe("/architecture/reviews/run-a/findings/finding-123");
-    expect(chips[1]?.href).toBe("/architecture/reviews/run-a/findings/finding-123/evidence-trace");
-    expect(chips[2]?.href).toBe(
-      "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
+    expect(chips[1]?.href).toBe(
+      "/architecture/reviews/run-a?reviewTab=findings&findingId=finding-123#run-detail-first-review-spine-findings",
     );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
-    expect(chips[1]?.label.toLowerCase()).toContain("evidence");
-    expect(chips[2]?.label.toLowerCase()).toContain("disposition");
+    expect(chips[1]?.label.toLowerCase()).toContain("disposition");
   });
 
   it("WA-002: Open finding and disposition stay on nested focusedFinding when architecture is known", () => {
@@ -58,8 +54,7 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips[0]?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
     );
-    expect(chips[1]?.href).toBe("/architecture/reviews/run-a/findings/finding-123/evidence-trace");
-    expect(chips[2]?.href).toBe(
+    expect(chips[1]?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
     );
   });
@@ -79,10 +74,14 @@ describe("buildAskCitationActionFollowUps", () => {
       citations,
     });
 
-    expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(
-      true,
-    );
-    expect(chips.some((c) => c.kind === "evidence" && c.href.endsWith("/evidence-trace"))).toBe(true);
+    expect(
+      chips.some(
+        (c) =>
+          c.kind === "finding" &&
+          c.href.includes("/architecture/reviews/run-demo/findings/sensitive-data-minimization-risk"),
+      ),
+    ).toBe(true);
+    expect(chips.some((c) => c.kind === "evidence")).toBe(false);
     expect(chips.some((c) => c.kind === "disposition")).toBe(true);
   });
 
@@ -128,8 +127,9 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.every((c) => c.kind === "disposition")).toBe(true);
-    expect(chips.every((c) => c.href === GOVERNANCE_DECISION_REGISTER_PATH)).toBe(true);
-    expect(chips.length).toBe(1);
+    expect(chips.some((c) => c.label.includes("decision-9"))).toBe(true);
+    expect(chips.every((c) => c.label.includes("link was not stored"))).toBe(true);
+    expect(chips.every((c) => c.href === null)).toBe(true);
   });
 
   it("opens evidence graph from EvidenceBundle refs when no finding ids", () => {
@@ -147,8 +147,80 @@ describe("buildAskCitationActionFollowUps", () => {
 
     expect(chips).toHaveLength(1);
     expect(chips[0]?.kind).toBe("evidence");
-    expect(chips[0]?.href).toContain("/insights/evidence-graph?");
-    expect(chips[0]?.href).toContain("runId=run-a");
+    expect(chips[0]?.label).toContain("bundle-1");
+    expect(chips[0]?.label).toContain("link was not stored");
+    expect(chips[0]?.href).toBeNull();
+  });
+
+  it("returns honest chips when finding id is blank", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["   "],
+    });
+
+    expect(chips.map((c) => c.label)).toEqual([
+      "Finding id was not stored.",
+      "Evidence link was not stored.",
+      "Disposition link was not stored.",
+    ]);
+    expect(chips.every((c) => c.href === null)).toBe(true);
+  });
+
+  it("shows artifact honesty chips alongside finding actions when a bundle is cited", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-1"],
+      citations: [
+        {
+          kind: "EvidenceBundle",
+          id: "unrelated-bundle",
+          label: "Bundle",
+          runId: "run-a",
+        },
+      ],
+    });
+
+    expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
+    expect(chips.some((c) => c.label === "Open evidence trace")).toBe(false);
+    expect(chips.some((c) => c.label.includes("unrelated-bundle"))).toBe(true);
+  });
+
+  it("shows decision chips when a finding id is also present", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-1"],
+      referencedDecisions: ["decision-9"],
+    });
+
+    expect(chips.some((c) => c.kind === "finding")).toBe(true);
+    expect(chips.some((c) => c.label.includes("decision-9"))).toBe(true);
+  });
+
+  it("shows decision and artifact chips alongside finding citations (P-20)", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-1"],
+      referencedDecisions: ["decision-9"],
+      referencedArtifacts: ["bundle-1"],
+    });
+
+    expect(chips.some((c) => c.kind === "finding")).toBe(true);
+    expect(chips.some((c) => c.kind === "disposition" && c.label.includes("decision-9"))).toBe(true);
+    expect(chips.some((c) => c.kind === "evidence" && c.label.includes("bundle-1"))).toBe(true);
+  });
+
+  it("surfaces omitted Ask citation lists from metadata", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      inspectMetadataJson: JSON.stringify({
+        referencedFindings: null,
+        referencedDecisions: [],
+        referencedArtifacts: null,
+      }),
+    });
+
+    expect(chips.some((chip) => chip.label.includes("Referenced findings list was not stored"))).toBe(true);
+    expect(chips.some((chip) => chip.label.includes("Referenced artifacts list was not stored"))).toBe(true);
   });
 
   it("dedupes finding ids across citation sources", () => {
@@ -167,7 +239,10 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.filter((c) => c.kind === "finding")).toHaveLength(1);
+    expect(chips.filter((c) => c.kind === "disposition")).toHaveLength(1);
     expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
+    expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition", "evidence"]);
+    expect(chips[2]?.label).toBe("Open evidence trace");
   });
 });
 
@@ -190,5 +265,36 @@ describe("parseAskCitationRefsFromMessageMetadata", () => {
     expect(parsed?.referencedFindings).toEqual(["f-1"]);
     expect(parsed?.referencedDecisions).toEqual(["d-1"]);
     expect(parsed?.referencedArtifacts).toEqual(["a-1"]);
+  });
+
+  it("preserves null citation lists separately from stored empty arrays", () => {
+    const parsed = parseAskCitationRefsFromMessageMetadata(
+      JSON.stringify({
+        referencedFindings: null,
+        referencedDecisions: [],
+        referencedArtifacts: null,
+      }),
+    );
+
+    expect(parsed).toEqual({
+      referencedFindings: null,
+      referencedDecisions: [],
+      referencedArtifacts: null,
+    });
+  });
+
+  it("returns empty lists when citation keys are present but arrays are empty", () => {
+    const parsed = parseAskCitationRefsFromMessageMetadata(
+      JSON.stringify({
+        referencedFindings: [],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      }),
+    );
+
+    expect(parsed).not.toBeNull();
+    expect(parsed?.referencedFindings).toEqual([]);
+    expect(parsed?.referencedDecisions).toEqual([]);
+    expect(parsed?.referencedArtifacts).toEqual([]);
   });
 });

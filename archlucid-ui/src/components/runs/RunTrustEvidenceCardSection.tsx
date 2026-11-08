@@ -27,6 +27,11 @@ import {
   runTrustEvidenceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-trust-evidence-disclosure-url";
 import type { RunTrustEvidenceCard } from "@/types/authority";
+import {
+  APPROVAL_BLOCKER_SEVERITY_FIRST_INTRO,
+  APPROVAL_BLOCKER_STORED_LABEL_PREFIX,
+  resolveApprovalBlockerPresentation,
+} from "@/lib/runs/run-detail-approval-blocker-presentation";
 
 import { RunTrustEvidenceFieldRow } from "./RunTrustEvidenceFieldRows";
 import { RunTrustEvidenceProofChain } from "./RunTrustEvidenceProofChain";
@@ -37,7 +42,7 @@ import {
 
 export { deriveRunTrustEvidenceReadinessFromCard };
 
-/** Committed-run evidence summary: manifest/audit/traces/export posture (no CPA / pen-test / legal claims). */
+/** Finalized-run evidence summary: manifest/audit/traces/export posture (no CPA / pen-test / legal claims). */
 export function RunTrustEvidenceCardSection(props: {
   readonly card: RunTrustEvidenceCard;
   readonly evidenceAskRunId?: string | null;
@@ -46,8 +51,17 @@ export function RunTrustEvidenceCardSection(props: {
   readonly blockingFindingId?: string | null;
   readonly blockingFindingTitle?: string | null;
   readonly approvalBlocked?: boolean;
+  readonly approvalBlockerUsesStoredFinding?: boolean;
 }): ReactElement {
-  const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle, approvalBlocked } = props;
+  const {
+    card,
+    evidenceAskRunId,
+    runId,
+    blockingFindingId,
+    blockingFindingTitle,
+    approvalBlocked,
+    approvalBlockerUsesStoredFinding,
+  } = props;
   const pathname = usePathname() ?? "/";
   const [fieldsOpen, setFieldsOpenState] = useState(() =>
     parseTrustEvidenceFieldsOpenFromSearch(null),
@@ -142,17 +156,18 @@ export function RunTrustEvidenceCardSection(props: {
   const readiness = deriveTrustEvidenceReadiness(fields);
   const technicalRows = fields.filter((field) => field.technical !== null);
   const topFindingPointers = splitTrustEvidenceDetail(card.topFinding?.evidencePointersSummary);
-  const trimmedBlockingFindingId =
-    typeof blockingFindingId === "string" ? blockingFindingId.trim() : "";
-  const trimmedBlockingFindingTitle =
-    typeof blockingFindingTitle === "string" ? blockingFindingTitle.trim() : "";
-  const showApprovalBlockerLink =
-    approvalBlocked === true
-    && trimmedBlockingFindingId.length > 0
-    && trimmedBlockingFindingTitle.length > 0;
-  const findingsTabHref = buildReviewDetailTabHref(runId, "findings", {
-    hash: `finding-workspace-card-${trimmedBlockingFindingId}`,
+  const approvalBlocker = resolveApprovalBlockerPresentation({
+    approvalBlocked: approvalBlocked === true,
+    blockingFindingId,
+    blockingFindingTitle,
+    usesStoredApprovalBlocker: approvalBlockerUsesStoredFinding,
   });
+  const findingsTabHref =
+    approvalBlocker !== null
+      ? buildReviewDetailTabHref(runId, "findings", {
+          hash: `finding-workspace-card-${approvalBlocker.findingId}`,
+        })
+      : "";
 
   return (
     <section id="trust-evidence" className="scroll-mt-24">
@@ -162,19 +177,31 @@ export function RunTrustEvidenceCardSection(props: {
             Evidence basis
           </h3>
 
-          {showApprovalBlockerLink ? (
+          {approvalBlocker !== null ? (
             <p
               className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
               data-testid="trust-evidence-approval-blocker-link"
             >
-              Approval is blocked by{" "}
-              <Link className={OPERATOR_LINK.nav} href={findingsTabHref}>
-                {trimmedBlockingFindingTitle}
-              </Link>
-              .{" "}
+              {approvalBlocker.usesStoredApprovalBlocker ? (
+                <>
+                  {APPROVAL_BLOCKER_STORED_LABEL_PREFIX}{" "}
+                  <Link className={OPERATOR_LINK.nav} href={findingsTabHref}>
+                    {approvalBlocker.findingTitle}
+                  </Link>
+                  .
+                </>
+              ) : (
+                <>
+                  {APPROVAL_BLOCKER_SEVERITY_FIRST_INTRO}{" "}
+                  <Link className={OPERATOR_LINK.nav} href={findingsTabHref}>
+                    {approvalBlocker.findingTitle}
+                  </Link>
+                  .
+                </>
+              )}{" "}
               <FindingEvidenceTrailLink
                 runId={runId}
-                findingId={trimmedBlockingFindingId}
+                findingId={approvalBlocker.findingId}
                 label="Open finding evidence trail"
               />
             </p>

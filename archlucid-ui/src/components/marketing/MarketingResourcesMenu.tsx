@@ -18,6 +18,7 @@ type MarketingResourcesMenuProps = {
 export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) {
@@ -50,6 +51,7 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
       }
 
       setOpen(false);
+      menuButtonRef.current?.focus();
     }
 
     document.addEventListener("pointerdown", closeWhenClickingOutside);
@@ -74,6 +76,7 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
   return (
     <div ref={menuRef} className="relative shrink-0">
       <button
+        ref={menuButtonRef}
         type="button"
         aria-expanded={open}
         aria-controls={resourcesMenuId}
@@ -157,6 +160,28 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
             onClick={closeMenu}
           >
             Why ArchLucid
+          </Link>
+          <Link
+            href="/why-securenow"
+            role="menuitem"
+            className={cn(
+              "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            onClick={closeMenu}
+          >
+            Why SecureNow
+          </Link>
+          <Link
+            href="/securenow-sample"
+            role="menuitem"
+            className={cn(
+              "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            onClick={closeMenu}
+          >
+            SecureNow sample
           </Link>
           {seeItLinked ? (
             <Link

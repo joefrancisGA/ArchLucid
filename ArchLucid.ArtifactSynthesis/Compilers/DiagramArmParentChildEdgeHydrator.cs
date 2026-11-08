@@ -100,7 +100,7 @@ internal static class DiagramArmParentChildEdgeHydrator
                 FromNodeId = parentDiagramId,
                 ToNodeId = childDiagramNode.NodeId,
                 Label = label,
-                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                 InferenceSource = GraphEdgeInferenceSources.InventoryExplicitParentChild,
             });
         }

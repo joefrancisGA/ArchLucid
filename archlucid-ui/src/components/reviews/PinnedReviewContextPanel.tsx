@@ -29,6 +29,33 @@ export function formatPinnedReviewFindingsCount(findingsCount: number | null): s
   return `${findingsCount} assessment finding${findingsCount === 1 ? "" : "s"}`;
 }
 
+export function formatPinnedReviewPanelTitle(summary: UsePinnedReviewContextResult["summary"]): string {
+  if (summary === null) {
+    return "Pinned review title was not returned.";
+  }
+
+  return buyerFacingReviewTitleFromSummary(summary);
+}
+
+export function formatPinnedReviewFindingListTitle(
+  title: string | null | undefined,
+  findingId: string,
+): string {
+  const trimmed = title?.trim() ?? "";
+
+  if (trimmed.length > 0) {
+    return trimmed;
+  }
+
+  if (title !== null && title !== undefined && trimmed.length === 0) {
+    return "Finding title was stored empty.";
+  }
+
+  const id = findingId.trim();
+
+  return id.length > 0 ? `Finding title was not stored. Finding id: ${id}.` : "Finding title was not stored.";
+}
+
 function PinnedReviewFindingInspect({
   runId,
   findingId,
@@ -101,7 +128,7 @@ function PinnedReviewFindingInspect({
         <>
           <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{findingTitle}</h3>
           <p className={cn("m-0 whitespace-pre-wrap text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {body !== null && body.length > 0 ? body : "No inspect summary on this finding."}
+            {body !== null && body.length > 0 ? body : "Inspect summary was not stored."}
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Read-only pin context. Open this review as primary to edit dispositions.
@@ -114,11 +141,24 @@ function PinnedReviewFindingInspect({
 
 function PinnedReviewFindingsList({
   findings,
+  findingTraceRowsOmitted,
   onInspect,
 }: {
   readonly findings: readonly GovernanceFindingQueueRow[];
+  readonly findingTraceRowsOmitted: boolean;
   readonly onInspect: (findingId: string) => void;
 }): React.JSX.Element {
+  if (findingTraceRowsOmitted) {
+    return (
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="pinned-review-findings-traces-omitted"
+      >
+        Finding rows were not returned for this pinned review.
+      </p>
+    );
+  }
+
   if (findings.length === 0) {
     return (
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="pinned-review-findings-empty">
@@ -142,7 +182,9 @@ function PinnedReviewFindingsList({
               onInspect(finding.findingId);
             }}
           >
-            <span className="font-medium text-al-text-primary">{finding.title}</span>
+            <span className="font-medium text-al-text-primary">
+              {formatPinnedReviewFindingListTitle(finding.title, finding.findingId)}
+            </span>
             <span className={cn("mt-1 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Open in this pane
             </span>
@@ -159,8 +201,7 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
   const pathname = usePathname() ?? "";
   const [inspectFindingId, setInspectFindingId] = useState<string | null>(null);
   const pinRunId = context.pinRunId ?? "";
-  const headline =
-    context.summary !== null ? buyerFacingReviewTitleFromSummary(context.summary) : "Pinned review";
+  const headline = formatPinnedReviewPanelTitle(context.summary);
 
   const architectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const makePrimaryHref = resolveArchitectureReviewHref(pinRunId, architectureId);
@@ -198,9 +239,10 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
           <PinnedReviewFindingInspect
             runId={pinRunId}
             findingId={inspectFindingId}
-            findingTitle={
-              context.findings.find((row) => row.findingId === inspectFindingId)?.title ?? inspectFindingId
-            }
+            findingTitle={formatPinnedReviewFindingListTitle(
+              context.findings.find((row) => row.findingId === inspectFindingId)?.title,
+              inspectFindingId,
+            )}
             onBack={() => {
               setInspectFindingId(null);
             }}
@@ -208,6 +250,7 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
         ) : (
           <PinnedReviewFindingsList
             findings={context.findings}
+            findingTraceRowsOmitted={context.findingTraceRowsOmitted}
             onInspect={(findingId) => {
               setInspectFindingId(findingId);
             }}

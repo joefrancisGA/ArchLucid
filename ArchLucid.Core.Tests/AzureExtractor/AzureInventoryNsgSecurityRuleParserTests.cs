@@ -42,6 +42,36 @@ public sealed class AzureInventoryNsgSecurityRuleParserTests
     }
 
     [Fact]
+    public void Parse_reads_destination_port_ranges_when_single_range_is_empty()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["securityRules"] =
+                """
+                [
+                  {
+                    "name": "allow-web",
+                    "properties": {
+                      "protocol": "TCP",
+                      "destinationPortRange": "",
+                      "destinationPortRanges": ["443", "80"],
+                      "direction": "Inbound",
+                      "access": "Allow",
+                      "priority": 100,
+                      "sourceAddressPrefix": "*"
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryNsgSecurityRule> rules = AzureInventoryNsgSecurityRuleParser.Parse(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPortRanges.Should().Equal("443", "80");
+    }
+
+    [Fact]
     public void Parse_reads_explicit_flattened_rule_properties_when_suffix_casing_differs()
     {
         string rulePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgRulePrefix}0";

@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-copy";
+import { guidedIntakeClarificationsAnsweredCounter, GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT, GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED } from "@/lib/guided-intake-copy";
 import {
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
   UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER,
@@ -240,7 +240,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
       }
 
       if (savedLocallyQuestionKeys.has(questionKey)) {
-        return { kind: "ready", label: "Answered" };
+        return { kind: "ready", label: GUIDED_INTAKE_CLARIFICATION_SAVED_ON_PAGE_NOT_SUBMITTED };
       }
 
       return undefined;
@@ -338,7 +338,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   return (
     <CollapsibleSection
       title="Required clarifications"
-      summaryLine={`${handledClarificationCount} of ${total} answered or marked unknown`}
+      summaryLine={`${handledClarificationCount} of ${total} answered or skipped`}
       open={panelOpen}
       onToggle={setPanelOpen}
       sectionTestId="first-pilot-l0-must-panel"
@@ -346,6 +346,9 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
       <div className="space-y-4">
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Quick start collects the same baseline facts Guided questions requires before analysis begins.
+        </p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {GUIDED_INTAKE_CLARIFICATION_ANSWER_NOT_STORED_UNTIL_SUBMIT}
         </p>
 
         {props.isSuggestingFromEvidence === true ? <EvidenceExtractionAwaitingSkeleton /> : null}
@@ -419,7 +422,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="first-pilot-l0-must-complete"
             >
-              All required clarifications are answered or marked unknown.
+              All required clarifications are answered or skipped.
             </p>
           )}
 
@@ -463,7 +466,11 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
           className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="first-pilot-l0-must-progress"
         >
-          {guidedIntakeClarificationsAnsweredCounter(handledClarificationCount, total)}
+          {guidedIntakeClarificationsAnsweredCounter(
+            Math.max(0, handledClarificationCount - props.skippedQuestionKeys.size),
+            props.skippedQuestionKeys.size,
+            total,
+          )}
         </p>
       </div>
     </CollapsibleSection>

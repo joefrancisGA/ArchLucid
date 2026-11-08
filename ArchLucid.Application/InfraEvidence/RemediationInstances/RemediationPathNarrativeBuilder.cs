@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
@@ -56,9 +57,7 @@ public sealed class RemediationPathNarrativeBuilder(
             preferredCutPoint,
             patternContent);
 
-        IReadOnlyList<string> rolloutSteps = publicAccessPath
-            ? BuildPublicAccessRolloutSteps()
-            : BuildGenericRolloutSteps();
+        IReadOnlyList<string> rolloutSteps = BuildSafeRolloutSteps(patternContent, publicAccessPath);
 
         IReadOnlyList<string> verificationQueries = BuildVerificationQueries(
             path,
@@ -124,8 +123,12 @@ public sealed class RemediationPathNarrativeBuilder(
             return (patternContent.ControlObjective.Trim(), RemediationPathNarrativeRecommendedChangeSources.Pattern);
         }
 
+        string weakestHopReason = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
+
         return (
-            $"Address weakest hop on path {path.PathId:D}: {path.WeakestHopReason}",
+            $"Address weakest hop on path {path.PathId:D}: {weakestHopReason}",
             RemediationPathNarrativeRecommendedChangeSources.WeakestHop);
     }
 
@@ -133,18 +136,24 @@ public sealed class RemediationPathNarrativeBuilder(
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops)
     {
-        string terminal = ShortNodeLabel(hops.LastOrDefault()?.ToNodeId ?? "unknown-target");
+        string? terminalNodeId = hops.LastOrDefault()?.ToNodeId;
+        string terminal = string.IsNullOrWhiteSpace(terminalNodeId)
+            ? "Endpoint was not stored."
+            : ShortNodeLabel(terminalNodeId);
+        string weakestLink = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
 
         return path.PathKind switch
         {
             PathKind.Privilege =>
-                $"Transitive privilege path {path.PathId:D} grants access ending at {terminal}. Weakest link: {path.WeakestHopReason}.",
+                $"Transitive privilege path {path.PathId:D} grants access ending at {terminal}. Weakest link: {weakestLink}.",
             PathKind.IntendedReachability =>
-                $"Intended reachability path {path.PathId:D} exposes a control-plane route from public exposure to {terminal}.",
+                BuildIntendedReachabilityProblemStatement(path.PathId, terminal, weakestLink, hops),
             PathKind.ToxicCombination =>
-                $"Toxic combination path {path.PathId:D} composes public exposure, privileged identity, and/or unrestricted egress.",
+                BuildToxicCombinationProblemStatement(path.PathId, weakestLink, hops),
             PathKind.FourRealityDrift =>
-                $"Four-reality drift path {path.PathId:D} shows observed Azure access wider than Terraform, diagram, or historical posture.",
+                BuildFourRealityDriftProblemStatement(path.PathId, weakestLink, hops),
             PathKind.SharedControlBlastRadius =>
                 $"Shared-control blast-radius path {path.PathId:D} fans out through a shared identity or policy.",
             PathKind.CapabilityToFlow =>
@@ -153,6 +162,103 @@ public sealed class RemediationPathNarrativeBuilder(
                 $"Security evidence path {path.PathId:D} ({path.PathKind}) requires architect remediation.",
         };
     }
+
+    private static string BuildIntendedReachabilityProblemStatement(
+        Guid pathId,
+        string terminal,
+        string weakestLink,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+    {
+        string exposureClause = HasPublicExposureHop(hops)
+            ? "from public exposure"
+            : "with public exposure hop was not stored on this path";
+
+        return
+            $"Intended reachability path {pathId:D} exposes a control-plane route {exposureClause} to {terminal}. Weakest link: {weakestLink}.";
+    }
+
+    private static string BuildToxicCombinationProblemStatement(
+        Guid pathId,
+        string weakestLink,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+    {
+        List<string> ingredients = [];
+
+        if (HasPublicExposureHop(hops))
+        {
+            ingredients.Add("public exposure");
+        }
+
+        if (HasPrivilegedIdentityHop(hops))
+        {
+            ingredients.Add("privileged identity");
+        }
+
+        if (HasUnrestrictedEgressHop(hops))
+        {
+            ingredients.Add("unrestricted egress");
+        }
+
+        string ingredientClause = ingredients.Count > 0
+            ? string.Join(", ", ingredients)
+            : "composed path ingredients were not stored on this path";
+
+        return
+            $"Toxic combination path {pathId:D} composes {ingredientClause}. Weakest link: {weakestLink}.";
+    }
+
+    private static string BuildFourRealityDriftProblemStatement(
+        Guid pathId,
+        string weakestLink,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+    {
+        List<string> comparisonSides = [];
+
+        if (hops.Any(hop => hop.ProvenanceKind == ProvenanceKind.ObservedFact))
+        {
+            comparisonSides.Add("observed Azure");
+        }
+
+        if (hops.Any(hop => hop.ProvenanceKind == ProvenanceKind.DerivedFact))
+        {
+            comparisonSides.Add("Terraform");
+        }
+
+        if (hops.Any(hop =>
+                hop.ProvenanceKind is ProvenanceKind.DeterministicInference or ProvenanceKind.HumanAssertion))
+        {
+            comparisonSides.Add("diagram");
+        }
+
+        if (hops.Any(hop => hop.EdgeType.Contains("temporal", StringComparison.OrdinalIgnoreCase)
+                            || hop.EdgeType.Contains("historical", StringComparison.OrdinalIgnoreCase)))
+        {
+            comparisonSides.Add("historical posture");
+        }
+
+        string comparisonClause = comparisonSides.Count > 0
+            ? string.Join(", ", comparisonSides)
+            : "comparison sides were not stored on this path";
+
+        return
+            $"Four-reality drift path {pathId:D} shows {comparisonClause} disagreeing on access posture. Weakest link: {weakestLink}.";
+    }
+
+    private static bool HasPublicExposureHop(IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
+        hops.Any(hop =>
+            hop.FromNodeId.Equals(SecureNowArchitectConstants.InternetPublicExposureNodeId, StringComparison.Ordinal)
+            || hop.EdgeType.Equals(SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType, StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(GraphEdgeTypes.Exposes, StringComparison.OrdinalIgnoreCase));
+
+    private static bool HasPrivilegedIdentityHop(IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
+        hops.Any(hop =>
+            hop.EdgeType.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase));
+
+    private static bool HasUnrestrictedEgressHop(IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
+        hops.Any(hop =>
+            hop.ToNodeId.Equals(SecureNowArchitectConstants.InternetEgressNodeId, StringComparison.Ordinal)
+            || hop.EdgeType.Equals(SecureNowArchitectConstants.UnrestrictedEgressHopEdgeType, StringComparison.OrdinalIgnoreCase));
 
     private static string BuildWhyItMatters(SecurityEvidencePathRecord path) =>
         path.PathConfidenceBand switch
@@ -167,8 +273,25 @@ public sealed class RemediationPathNarrativeBuilder(
                 "Path confidence is insufficient — gather evidence before production change, then verify on the next snapshot.",
         };
 
-    private static string BuildExposureSummary(SecurityEvidencePathRecord path) =>
-        $"{path.PathKind} path with {path.PathConfidenceBand} confidence. Weakest hop: {path.WeakestHopReason}.";
+    private static string BuildExposureSummary(SecurityEvidencePathRecord path)
+    {
+        string weakestHopReason = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
+
+        return $"{path.PathKind} path with {DescribePathConfidenceBand(path.PathConfidenceBand)} confidence. Weakest hop: {weakestHopReason}.";
+    }
+
+    private static string DescribePathConfidenceBand(PathConfidenceBand band) =>
+        band switch
+        {
+            PathConfidenceBand.HighlyLikely => "highly likely",
+            PathConfidenceBand.Probable => "probable",
+            PathConfidenceBand.Possible => "possible",
+            PathConfidenceBand.Confirmed => "confirmed",
+            PathConfidenceBand.InsufficientEvidence => "insufficient evidence",
+            _ => "insufficient evidence",
+        };
 
     private static IReadOnlyList<string> BuildPreconditions(
         RemediationPatternVersionRecord patternVersion,
@@ -204,6 +327,33 @@ public sealed class RemediationPathNarrativeBuilder(
         string idList = string.Join(", ", dependencyIds.Select(id => id.ToString("D")));
 
         return $"Operational blast radius — changing this path may affect CloudResourceIds: {idList}.";
+    }
+
+    private static IReadOnlyList<string> BuildSafeRolloutSteps(
+        RemediationPatternVersionContent? patternContent,
+        bool publicAccessPath)
+    {
+        List<string> storedSteps = (patternContent?.SafeRolloutSteps ?? [])
+            .Select(step => step.Trim())
+            .Where(step => step.Length > 0)
+            .ToList();
+
+        if (storedSteps.Count > 0)
+        {
+            return storedSteps;
+        }
+
+        IReadOnlyList<string> templateSteps = publicAccessPath
+            ? BuildPublicAccessRolloutSteps()
+            : BuildGenericRolloutSteps();
+
+        List<string> labeledTemplate = templateSteps
+            .Select(step => $"Generic template (not recorded for this path): {step}")
+            .ToList();
+
+        labeledTemplate.Insert(0, "Rollout steps were not stored on this pattern.");
+
+        return labeledTemplate;
     }
 
     private static IReadOnlyList<string> BuildPublicAccessRolloutSteps() =>

@@ -41,7 +41,7 @@ export function RunDetailQualityGateModeStrip(
     return null;
   }
 
-  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? "WarnOnly";
+  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
   const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
   const recordedPerspective = authoritativeAgentEvaluationPerspective(evaluationQuery.data ?? null);
   const recordedMode = recordedPerspective?.gateDefinition?.mode ?? null;

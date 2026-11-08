@@ -39,7 +39,12 @@ export function tryParseDiagramEvidenceCitation(ref: string | null | undefined):
 }
 
 export function diagramEvidenceCitationLabel(citation: DiagramEvidenceCitation): string {
-  const shapeLabel = citation.shapeOrEdgeId.replace(/-/g, " ");
+  const shapeId = citation.shapeOrEdgeId.trim();
+  const evidenceItemId = citation.evidenceItemId.trim();
 
-  return `Open diagram shape ${shapeLabel}`;
+  if (evidenceItemId.length === 0) {
+    return "Diagram citation evidence item id was not stored.";
+  }
+
+  return `Cited shape id ${shapeId}. A display name was not stored.`;
 }

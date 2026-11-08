@@ -36,7 +36,8 @@ describe("resolveReviewPackageAttentionLine", () => {
       hasGoldenManifest: true,
     });
 
-    expect(line).toBe("2 high-severity findings need review");
+    expect(line).toBe("2 findings still block finalization.");
+    expect(line).not.toContain("high-severity");
   });
 
   it("signals export readiness when proof packet is available", () => {

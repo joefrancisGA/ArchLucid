@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCompareSemanticSupportBandDeltaView } from "@/lib/review-quality/compare-semantic-support-band-delta";
+import {
+  buildCompareSemanticSupportBandDeltaView,
+  formatCompareSemanticSupportBandSideSummary,
+} from "@/lib/review-quality/compare-semantic-support-band-delta";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">): QuickDecisionFinding {
@@ -50,5 +53,23 @@ describe("buildCompareSemanticSupportBandDeltaView", () => {
     expect(view).not.toBeNull();
     expect(view?.baseline.counts.supported).toBe(1);
     expect(view?.target.counts.unchecked).toBe(1);
+  });
+
+  it("does not imply zero semantic support when summary line is missing (P-08)", () => {
+    const view = buildCompareSemanticSupportBandDeltaView({
+      baselineFindings: [
+        finding({ findingId: "a", title: "A", semanticSupportBand: "Supported" }),
+      ],
+      targetFindings: [],
+    });
+
+    expect(view).not.toBeNull();
+    expect(
+      formatCompareSemanticSupportBandSideSummary({
+        label: "Baseline review",
+        counts: view!.baseline.counts,
+        summaryLine: null,
+      }),
+    ).toBe("Semantic support band summary was not stored.");
   });
 });

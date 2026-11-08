@@ -36,14 +36,16 @@ public static class DeclarationIdentityEdgeMaterializer
                 ? sourceNode.NodeId
                 : trimmedSourceId;
 
-            string label = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+            string label = string.IsNullOrWhiteSpace(node.Label)
+                ? "Actor label was not stored."
+                : node.Label.Trim();
 
             edges.Add(
                 GraphEdgeInferenceHelpers.CreateEdge(
                     node.NodeId,
                     toNodeId,
                     GraphEdgeTypes.RelatesTo,
-                    $"Actor linked to {label}",
+                    $"Declaration actor linked to topology node labeled {label} (materialized from declaration metadata, not observed traffic).",
                     1.0,
                     GraphEdgeInferenceSources.DeclarationIdentityActorLink));
         }

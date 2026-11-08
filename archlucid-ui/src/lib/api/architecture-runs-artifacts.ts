@@ -91,7 +91,9 @@ export async function fetchArtifactContentUtf8(
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+  const rawContentType = response.headers.get("content-type")?.trim() ?? "";
+  const contentType =
+    rawContentType.length > 0 ? rawContentType : "Content type was not stored on this artifact response.";
   const buffer = await response.arrayBuffer();
   const byteLength = buffer.byteLength;
   let truncated = false;

@@ -82,7 +82,7 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         md.Should().Contain("Golden manifest id was not stored.");
         md.Should().Contain("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         md.Should().Contain("**Not** a legal attestation");
-        md.Should().Contain("No PilotStrict failures");
+        md.Should().Contain(PilotAgentOutputPilotStrictHonestyCopy.SatisfiedPlain);
         md.Should().Contain("Sponsor-proof readiness");
         md.Should().Contain("Sendable");
         md.Should().Contain("Evidence-basis label (top finding)");
@@ -127,11 +127,12 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        sb.ToString().Should().Contain("**Missing**");
+        sb.ToString().Should().Contain("**Insufficient**");
+        sb.ToString().Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse);
     }
 
     [Fact]
-    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_PreservesPersistedValue()
+    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_UsesSharedUnresolvedCopy()
     {
         StringBuilder sb = new();
         PilotRunDeltas deltas = new()
@@ -149,10 +150,27 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        string md = sb.ToString();
-        md.Should().Contain("**Unrecognized**");
-        md.Should().Contain("`not-a-classification`");
-        md.Should().NotContain("Sponsor-proof readiness was not stored.");
+        sb.ToString().Should().Contain(PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain);
+        sb.ToString().Should().NotContain("**Unrecognized**");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_MissingProofSendabilityPublishingTier_UsesOmissionCopy()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new() { TopFindingId = "f-6", TopFindingSeverity = "Warning" };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = "  ",
+            PublishingTier = "",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
+
+        sb.ToString().Should().Contain("`Partial`");
+        sb.ToString().Should().NotContain("Proof sendability and publishing tier were not stored.");
     }
 
     [Fact]
@@ -174,7 +192,28 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        sb.ToString().Should().Contain("Sponsor-proof readiness was not stored.");
+        sb.ToString().Should().Contain(PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain);
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_GuidEmpty_UsesOmissionLabel()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-empty-guid",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain =
+                new FindingEvidenceChainResponse
+                {
+                    FindingsSnapshotId = Guid.Empty,
+                },
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, MinimalProof());
+
+        sb.ToString().Should().Contain("Findings snapshot id was not stored.");
+        sb.ToString().Should().NotContain("00000000-0000-0000-0000-000000000000");
     }
 
     private static ProofPackageCompletenessResponse MinimalProof() =>

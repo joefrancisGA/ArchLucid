@@ -48,6 +48,14 @@ internal static class AskUserPromptComposer
         body.AppendLine(CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(contextJson));
         body.AppendLine();
 
+        string? scopeMetadataNote = AskWorkloadScopeMetadataHonesty.BuildPromptNote(contextJson);
+
+        if (!string.IsNullOrWhiteSpace(scopeMetadataNote))
+        {
+            body.AppendLine(scopeMetadataNote);
+            body.AppendLine();
+        }
+
         string semanticSupportConstraint =
             AskCitedFindingsSemanticSupportBandHonesty.BuildPromptConstraintSection(findingBandIndex ?? []);
 
@@ -57,10 +65,7 @@ internal static class AskUserPromptComposer
         }
 
         body.AppendLine("Retrieved Evidence:");
-        body.AppendLine(
-            string.IsNullOrWhiteSpace(retrievalContext)
-                ? "(none)"
-                : CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(retrievalContext));
+        body.AppendLine(FormatRetrievedEvidenceSection(retrievalContext));
 
         if (retrievalDegraded)
         {
@@ -72,12 +77,43 @@ internal static class AskUserPromptComposer
 
         body.AppendLine();
         body.AppendLine("Conversation History:");
-        body.AppendLine(
-            string.IsNullOrWhiteSpace(historyText)
-                ? "(none)"
-                : CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(historyText));
+        body.AppendLine(FormatConversationHistorySection(historyText));
         body.AppendLine();
         body.AppendLine("User Question:");
         body.AppendLine(CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(question ?? string.Empty));
+    }
+
+    private static string FormatRetrievedEvidenceSection(string? retrievalContext)
+    {
+        if (retrievalContext is null)
+        {
+            return "Retrieved evidence was not stored.";
+        }
+
+        if (retrievalContext.Length == 0)
+        {
+            return "Retrieved evidence was not stored.";
+        }
+
+        return string.IsNullOrWhiteSpace(retrievalContext)
+            ? "Retrieved evidence was stored empty."
+            : CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(retrievalContext);
+    }
+
+    private static string FormatConversationHistorySection(string? historyText)
+    {
+        if (historyText is null)
+        {
+            return "Conversation history was not stored.";
+        }
+
+        if (historyText.Length == 0)
+        {
+            return "Conversation history was not stored.";
+        }
+
+        return string.IsNullOrWhiteSpace(historyText)
+            ? "Conversation history was stored empty."
+            : CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(historyText);
     }
 }

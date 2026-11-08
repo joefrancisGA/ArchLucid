@@ -8,6 +8,19 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 /** Pre-disposition ROI line in SponsorReviewPacketComposer. */
 export const DISPOSITION_EXPORT_BEFORE_OPEN_ROI_BUCKET = "Open (estimated potential)";
 
+export const DISPOSITION_EXPORT_SIGNED_RECORD_BEFORE_FINALIZE_LINE =
+  `${SIGNED_MANIFEST_LABEL}: open review — findings are not sealed until you finalize the architecture package` as const;
+
+export const DISPOSITION_EXPORT_SIGNED_RECORD_AFTER_UNCHANGED_LINE =
+  `${SIGNED_MANIFEST_LABEL}: unchanged — committed snapshot is not rewritten` as const;
+
+export const DISPOSITION_EXPORT_DOES_NOT_FINALIZE_LINE =
+  "Recording a disposition does not finalize the architecture package." as const;
+
+export const DISPOSITION_EXPORT_FINDING_TITLE_NOT_STORED = "Finding title was not stored." as const;
+
+export const DISPOSITION_EXPORT_DISPOSITION_NOT_STORED = "Disposition was not stored." as const;
+
 export type DispositionExportBeforeAfterInput = {
   readonly disposition: FindingDispositionKind;
   /** Optional finding title for packet-snippet realism. */
@@ -45,10 +58,10 @@ export function findingDispositionKindLabel(disposition: FindingDispositionKind)
   }
 }
 
-function nonEmptyTitle(findingTitle: string | null | undefined): string {
+function dispositionExportFindingTitle(findingTitle: string | null | undefined): string {
   const trimmed = findingTitle?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : "Selected finding";
+  return trimmed.length > 0 ? trimmed : DISPOSITION_EXPORT_FINDING_TITLE_NOT_STORED;
 }
 
 function beforeRoiBucketLabel(currentDisposition: FindingDispositionKind | null | undefined): string {
@@ -64,7 +77,7 @@ function beforeFindingStatusLine(
   currentDisposition: FindingDispositionKind | null | undefined,
 ): string {
   if (currentDisposition == null) {
-    return `Finding: ${title} — Open (awaiting disposition)`;
+    return `Finding: ${title} — ${DISPOSITION_EXPORT_DISPOSITION_NOT_STORED}`;
   }
 
   return `Finding: ${title} — ${findingDispositionKindLabel(currentDisposition)}`;
@@ -95,28 +108,26 @@ export function buildDispositionExportBeforeAfter(
   input: DispositionExportBeforeAfterInput,
 ): DispositionExportBeforeAfter {
   const dispositionLabel = findingDispositionKindLabel(input.disposition);
-  const title = nonEmptyTitle(input.findingTitle);
+  const title = dispositionExportFindingTitle(input.findingTitle);
   const afterBucket = dispositionExportSponsorRoiBucketLabel(input.disposition);
   const beforeBucket = beforeRoiBucketLabel(input.currentDisposition);
 
   const beforeLines = buildPacketSnippetLines({
-    signedRecordLine:
-      `${SIGNED_MANIFEST_LABEL}: committed snapshot (findings as recorded at finalize)`,
+    signedRecordLine: DISPOSITION_EXPORT_SIGNED_RECORD_BEFORE_FINALIZE_LINE,
     findingStatusLine: beforeFindingStatusLine(title, input.currentDisposition),
-    roiBucketLine: `- ${beforeBucket}: includes this finding's projected impact`,
+    roiBucketLine: `- ${beforeBucket}: projected impact stays in this ROI bucket until you confirm`,
     topFindingsLine:
       "Top findings: may list this finding by severity (disposition alone does not remove the row)",
-    auditTrailLine: "Audit trail: no new disposition event from this action yet",
+    auditTrailLine: `Audit trail: no new disposition event from this action yet — ${DISPOSITION_EXPORT_DOES_NOT_FINALIZE_LINE}`,
   });
 
   const afterLines = buildPacketSnippetLines({
-    signedRecordLine:
-      `${SIGNED_MANIFEST_LABEL}: unchanged — committed snapshot is not rewritten`,
+    signedRecordLine: DISPOSITION_EXPORT_SIGNED_RECORD_AFTER_UNCHANGED_LINE,
     findingStatusLine: `Finding: ${title} — ${dispositionLabel}`,
-    roiBucketLine: `- ${afterBucket}: includes this finding's projected impact`,
+    roiBucketLine: `- ${afterBucket}: projected impact moves to this ROI bucket after confirm`,
     topFindingsLine:
       "Top findings: may still list this finding by severity (disposition alone does not remove the row)",
-    auditTrailLine: `Audit trail: appends disposition event (${dispositionLabel})`,
+    auditTrailLine: `Audit trail: appends disposition event (${dispositionLabel}) — ${DISPOSITION_EXPORT_DOES_NOT_FINALIZE_LINE}`,
   });
 
   return {

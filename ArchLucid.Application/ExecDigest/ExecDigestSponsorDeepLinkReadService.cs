@@ -3,6 +3,7 @@ using System.Text;
 
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Notifications;
@@ -90,12 +91,12 @@ public sealed class ExecDigestSponsorDeepLinkReadService(
 
         (DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive) = ExecDigestIsoWeekRange.Parse(claims.IsoWeekKey);
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
-            ? "http://localhost:3000"
-            : emailOptions.OperatorBaseUrl.Trim();
-        string? signInAuthority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBase)
-            ?? "http://localhost:3000";
-        string signInUrl = $"{signInAuthority}/auth/sign-in";
+        string operatorBase = emailOptions.OperatorBaseUrl ?? string.Empty;
+        string signInUrl = PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(
+                operatorBase,
+                out string signInAuthority)
+            ? $"{signInAuthority}/auth/sign-in"
+            : PilotExportLinkHonestyCopy.OperatorLinkBaseNotStored;
 
         using (AmbientScopeContext.Push(scope))
         {

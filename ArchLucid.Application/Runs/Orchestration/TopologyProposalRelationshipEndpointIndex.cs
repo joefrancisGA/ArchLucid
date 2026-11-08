@@ -55,6 +55,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     public static void AddGraphNodeResolutionKeys(Dictionary<string, string> endpointKeyToNodeId, GraphNode node)
     {
         AddResolutionAlias(endpointKeyToNodeId, node.NodeId, node.NodeId);
+        AddCanonicalTerraformInstanceKeyResolutionAlias(endpointKeyToNodeId, node.NodeId, node.NodeId);
         AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
 
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))

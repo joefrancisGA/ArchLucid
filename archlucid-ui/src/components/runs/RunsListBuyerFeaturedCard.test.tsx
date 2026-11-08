@@ -13,6 +13,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => false,
+  useProductionEvalChrome: () => true,
+}));
+
 const sampleRun: RunSummary = {
   runId: SHOWCASE_STATIC_DEMO_RUN_ID,
   projectId: "default",
@@ -62,8 +67,10 @@ describe("RunsListBuyerFeaturedCard", () => {
       />,
     );
 
-    expect(screen.getAllByText("Taylor Morgan").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Not recorded").length).toBeGreaterThan(0);
+    expect(screen.getByText("Package owner was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Decision date was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Risk owner was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Approval authority was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Review pipeline started")).toBeInTheDocument();
   });
 });

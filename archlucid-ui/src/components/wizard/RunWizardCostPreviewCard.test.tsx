@@ -25,7 +25,7 @@ describe("RunWizardCostPreviewCard", () => {
     vi.clearAllMocks();
   });
 
-  it("renders nothing when host mode is Simulator", async () => {
+  it("renders non-Real mode honesty instead of a Real cost card", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -34,13 +34,15 @@ describe("RunWizardCostPreviewCard", () => {
       })),
     );
 
-    const { container } = render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
 
     await waitFor(() => {
-      expect(screen.queryByTestId("run-cost-preview-loading")).not.toBeInTheDocument();
+      expect(screen.getByTestId("run-cost-preview-non-real-mode")).toHaveTextContent(
+        "Cost preview applies only when execution mode is Real.",
+      );
     });
 
-    expect(container.querySelector('[data-testid="run-cost-preview-card"]')).toBeNull();
+    expect(screen.queryByTestId("run-cost-preview-card")).toBeNull();
   });
 
   it("labels omitted execution mode", async () => {
@@ -94,6 +96,105 @@ describe("RunWizardCostPreviewCard", () => {
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("=1024");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("gpt-test");
     expect(screen.getByText(/Illustrative USD rates are still set from defaults/i)).toBeInTheDocument();
+  });
+
+  it("labels missing estimated cost without an em dash placeholder", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          mode: "Real",
+          maxCompletionTokens: 1024,
+          estimatedCostUsd: null,
+          estimatedCostUsdLow: null,
+          estimatedCostUsdHigh: null,
+          estimatedCostBasis: "",
+          pricingUsesIllustrativeUsdRates: false,
+          deploymentName: "gpt-test",
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("Estimated cost was not stored.");
+    });
+
+    expect(screen.getByTestId("run-cost-preview-headline").textContent).not.toMatch(/band:/i);
+  });
+
+  it("shows load failure copy when preview request fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 500,
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-error")).toHaveTextContent("Cost preview was not loaded.");
+    });
+  });
+
+  it("omits Azure OpenAI from headline when deployment name was not stored (P-20)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          mode: "Real",
+          maxCompletionTokens: 1024,
+          estimatedCostUsd: 0.1,
+          estimatedCostUsdLow: 0.05,
+          estimatedCostUsdHigh: 0.1,
+          estimatedCostBasis: "Starter run = 4 parallel agents.",
+          pricingUsesIllustrativeUsdRates: false,
+          deploymentName: null,
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent(
+        "Estimated agent execution cost for this review:",
+      );
+    });
+
+    expect(screen.getByTestId("run-cost-preview-headline").textContent).not.toContain("Azure OpenAI");
+  });
+
+  it("labels stored-empty deployment name", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          mode: "Real",
+          maxCompletionTokens: 1024,
+          estimatedCostUsd: 0.1,
+          estimatedCostUsdLow: 0.05,
+          estimatedCostUsdHigh: 0.1,
+          estimatedCostBasis: "Starter run = 4 parallel agents.",
+          pricingUsesIllustrativeUsdRates: false,
+          deploymentName: "",
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-deployment-stored-empty")).toHaveTextContent(
+        "Deployment name was stored empty.",
+      );
+    });
     expect(screen.getByRole("link", { name: /PER_TENANT_COST_MODEL/i })).toHaveAttribute(
       "href",
       expect.stringMatching(/\/help\/|PER_TENANT_COST_MODEL/),

@@ -187,5 +187,6 @@ public sealed class DigestDeliveryDispatcherTests
             Title = "t",
             Summary = "s",
             ContentMarkdown = "m",
+            MetadataJson = """{"manifestHash":"unit-test-manifest-hash"}""",
         };
 }

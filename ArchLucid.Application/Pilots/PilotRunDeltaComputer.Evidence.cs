@@ -40,10 +40,10 @@ public sealed partial class PilotRunDeltaComputer
         }
     }
 
-    private async Task<(int Count, bool Truncated)> TryCountAuditRowsAsync(string runId, CancellationToken cancellationToken)
+    private async Task<(int Count, bool Truncated, bool Resolved)> TryCountAuditRowsAsync(string runId, CancellationToken cancellationToken)
     {
         if (!TryParseRunGuid(runId, out Guid runGuid))
-            return (0, false);
+            return (0, false, false);
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -53,12 +53,12 @@ public sealed partial class PilotRunDeltaComputer
                 Take = 1,
             };
             int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
-            return (count, false);
+            return (count, false, true);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarningWithSanitizedUserArg(ex, "Pilot delta: audit row count unavailable for run {RunId}; reporting 0.", runId);
-            return (0, false);
+            return (0, false, false);
         }
     }
 

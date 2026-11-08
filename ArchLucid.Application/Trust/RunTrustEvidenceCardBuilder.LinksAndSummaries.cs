@@ -1,3 +1,4 @@
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -67,10 +68,7 @@ public sealed partial class RunTrustEvidenceCardBuilder
 
     private static string? TruncateTitle(string? message)
     {
-        if (string.IsNullOrWhiteSpace(message))
-            return null;
-        string t = message.Trim();
-        return t.Length <= 160 ? t : string.Concat(t.AsSpan(0, 157), "...");
+        return PilotExportPreviewHonestyCopy.FormatShortenedPreview(message, "Finding title was not stored.");
     }
 
     /// <summary>Matches sponsor copy in <c>ArchLucid.Api.Support.RunExecutionFlavorSummary</c> without referencing the API layer.</summary>

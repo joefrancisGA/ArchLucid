@@ -5,6 +5,7 @@ export type AttentionPartition = OperatorAttentionKindId;
 
 export type AttentionPartitionSurfaceId =
   | "unfinished-work-rail"
+  | "run-work-queue-snapshot-flags-not-stored"
   | "run-work-queue-needs-attention"
   | "run-work-queue-in-progress"
   | "run-work-queue-committed"
@@ -14,6 +15,7 @@ export type AttentionPartitionSurfaceId =
 
 export const ATTENTION_PARTITION_SURFACE_MAP: Record<AttentionPartitionSurfaceId, AttentionPartition> = {
   "unfinished-work-rail": "unfinished-work",
+  "run-work-queue-snapshot-flags-not-stored": "unfinished-work",
   "run-work-queue-needs-attention": "unfinished-work",
   "run-work-queue-in-progress": "unfinished-work",
   "run-work-queue-committed": "awaiting-approval",
@@ -25,6 +27,9 @@ export const ATTENTION_PARTITION_SURFACE_MAP: Record<AttentionPartitionSurfaceId
 /** Maps run work-queue buckets to attention partitions (TB-2369). */
 export function runWorkQueueAttentionPartition(groupId: RunWorkQueueGroupId): AttentionPartition {
   switch (groupId) {
+    case "snapshot-flags-not-stored":
+      return "unfinished-work";
+
     case "needs-attention":
       return "unfinished-work";
 

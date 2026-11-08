@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using static ArchLucid.Application.Exports.ArchitectureReviewBoard.ArchitectureReviewBoardExportHonestyCopy;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -328,6 +329,76 @@ public sealed class ArchitectureReviewExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateReportAsync_docx_throws_career_blocked_for_sample_workspace_before_analysis_build()
+    {
+        const string runId = "dddddddddddddddddddddddddddddddd";
+        Guid runGuid = Guid.Parse(runId);
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(authority, runGuid, goldenManifest);
+
+        ArchitectureReviewExportService sut = CreateSut(
+            runDetailQuery.Object,
+            analysis.Object,
+            runId,
+            authorityQueryService: authority.Object);
+
+        Func<Task> act = async () =>
+            await sut.GenerateReportAsync(runId, ExportFormat.Docx, null, null, null, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<CareerArtifactExportBlockedException>()).Which.BlockReasonCode
+            .Should()
+            .Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+        analysis.Verify(
+            x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GenerateReportAsync_html_throws_career_blocked_for_sample_workspace_before_analysis_build()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        Guid runGuid = Guid.Parse(runId);
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(authority, runGuid, goldenManifest);
+
+        ArchitectureReviewExportService sut = CreateSut(
+            runDetailQuery.Object,
+            analysis.Object,
+            runId,
+            authorityQueryService: authority.Object);
+
+        Func<Task> act = async () =>
+            await sut.GenerateReportAsync(runId, ExportFormat.Html, null, null, null, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<CareerArtifactExportBlockedException>()).Which.BlockReasonCode
+            .Should()
+            .Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+        analysis.Verify(
+            x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GenerateReportAsync_throws_when_run_missing()
     {
         Mock<IRunDetailQueryService> runDetailQuery = new();
@@ -426,6 +497,44 @@ public sealed class ArchitectureReviewExportServiceTests
 
         html.Should().Contain("Demo notice");
         html.Should().Contain(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice);
+
+        await result.Content.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task GenerateReportAsync_html_uses_not_stored_copy_for_missing_sponsor_and_manifest_version()
+    {
+        const string runId = "abababababababababababababababab";
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+        detail.Manifest!.SystemName = "   ";
+        detail.Manifest.Metadata.ManifestVersion = "  ";
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = detail.Manifest,
+            Summary = string.Empty,
+        };
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, analysis.Object, runId);
+
+        ExportResult result =
+            await sut.GenerateReportAsync(runId, ExportFormat.Html, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
+                CancellationToken.None);
+
+        using MemoryStream ms = new();
+        await result.Content.CopyToAsync(ms);
+        string html = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+        html.Should().Contain(SystemNameNotStored);
+        html.Should().Contain(SponsorReportNotStored);
+        html.Should().Contain(ManifestVersionNotStored);
 
         await result.Content.DisposeAsync();
     }

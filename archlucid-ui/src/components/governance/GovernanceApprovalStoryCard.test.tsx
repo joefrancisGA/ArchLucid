@@ -30,7 +30,9 @@ describe("GovernanceApprovalStoryCard", () => {
     expect(screen.getByText(/Recorded Jan 14, 2026.*ET/)).toBeInTheDocument();
     expect(screen.getByText("Approved finalized review record")).toBeInTheDocument();
     expect(
-      screen.getByText(/Ready for implementation planning, subject to enterprise change control\./),
+      screen.getByText(
+        /Governance approval recorded — finalize the architecture package separately to produce the sealed review record\./,
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/review version/i)).toBeInTheDocument();
     const recordedPackageParagraph = screen.getByText(/Recorded package:/i).closest("p");

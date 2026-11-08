@@ -1,10 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { IntegrationEventsDlqEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { INTEGRATION_EVENTS_DLQ_CANONICAL_PATH } from "@/lib/integration-events-dlq-evidence-copy";
 import {
   INTEGRATION_EVENTS_DLQ_FOLLOW_UPS_TITLE,
@@ -21,13 +19,6 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
-function visibleDlqFollowUpLinks(): readonly (typeof INTEGRATION_EVENTS_DLQ_SOURCES)[number][] {
-  return filterOrientationSourcesForJobContext(
-    filterWhereToGoNextFollowUpLinks(INTEGRATION_EVENTS_DLQ_SOURCES),
-    INTEGRATION_EVENTS_DLQ_CANONICAL_PATH,
-  );
-}
-
 describe("integration-events-dlq-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
     expect(INTEGRATION_EVENTS_DLQ_CANONICAL_PATH).toBe("/internal/failed-integration-messages");
@@ -38,14 +29,12 @@ describe("integration-events-dlq-evidence-copy", () => {
 
     expect(screen.queryByTestId("integration-events-dlq-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(INTEGRATION_EVENTS_DLQ_SOURCES_INTRO)).toBeInTheDocument();
-    expect(INTEGRATION_EVENTS_DLQ_SOURCES_INTRO.toLowerCase()).toContain("not sealed career proof");
-    expect(INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE.toLowerCase()).toContain("not sealed career proof");
+    expect(INTEGRATION_EVENTS_DLQ_SOURCES_INTRO.toLowerCase()).toContain("sealed-record proof");
+    expect(INTEGRATION_EVENTS_DLQ_CAREER_HONESTY_TITLE.toLowerCase()).toContain("sealed record proof");
 
     const sources = screen.getByTestId("integration-events-dlq-sources");
 
-    for (const link of visibleDlqFollowUpLinks()) {
-      expectFollowUpLink(within(sources), link);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sources), INTEGRATION_EVENTS_DLQ_SOURCES, INTEGRATION_EVENTS_DLQ_CANONICAL_PATH);
 
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${INTEGRATION_EVENTS_DLQ_CANONICAL_PATH}$`, "i") }),

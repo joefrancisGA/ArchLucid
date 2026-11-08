@@ -1,3 +1,4 @@
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { proxyJsonGet, proxyJsonPut } from "@/lib/proxy-json-client";
 import type {
   FeaturedCompletedSampleCandidate,
@@ -44,9 +45,9 @@ function coerceCandidate(payload: ApiFeaturedCompletedSampleCandidate): Featured
 
   return {
     runId,
-    reviewTitle: payload.reviewTitle?.trim() || "Completed review",
-    architectureName: payload.architectureName?.trim() || "Architecture review",
-    completedUtc: payload.completedUtc ?? "",
+    reviewTitle: payload.reviewTitle?.trim() || "Review title was not stored.",
+    architectureName: payload.architectureName?.trim() || "Architecture name was not stored.",
+    completedUtc: payload.completedUtc?.trim() || "Completed time was not stored.",
     isSampleApproved: payload.isSampleApproved === true,
   };
 }
@@ -82,5 +83,5 @@ export async function putTenantHomepageSettingsClient(
 }
 
 export function featuredCompletedSampleReviewHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+  return resolveScopedInsightOpenReviewHrefWithDeskContinuity(runId.trim());
 }

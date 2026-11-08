@@ -188,6 +188,40 @@ public sealed class ApplicationPackageCoverageBatch10Tests
     }
 
     [Fact]
+    public async Task ModelExecutionProfileOverrideAuditWriter_logs_override_with_null_run_id_when_run_id_does_not_parse_as_guid()
+    {
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(s => s.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        ModelExecutionProfileResolution resolution = new(
+            AgentModelExecutionProfile.HighAssurance,
+            AgentModelExecutionProfile.Balanced,
+            RequestedOverrideRaw: "high-assurance",
+            OverrideRejected: false);
+
+        await ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync(
+            auditService.Object,
+            scope.Object,
+            "not-a-guid-run-id",
+            resolution,
+            CancellationToken.None);
+
+        AuditEvent captured = auditService.Invocations
+            .Single(invocation => invocation.Method.Name == nameof(IAuditService.LogAsync))
+            .Arguments[0]
+            .Should()
+            .BeOfType<AuditEvent>()
+            .Subject;
+
+        captured.RunId.Should().BeNull();
+    }
+
+    [Fact]
     public void QuickScanTelemetry_records_attempt_success_rejection_failure_and_sample_view()
     {
         QuickScanTelemetry sut = new(NullLogger<QuickScanTelemetry>.Instance);

@@ -1,7 +1,9 @@
+using ArchLucid.ArtifactSynthesis;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -20,7 +22,34 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        RequireVmToFirewallEdge(ast).Label.Should().Be("Routed through fw-app");
+        DiagramEdge edge = RequireVmToFirewallEdge(ast);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
+        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryEffectiveRoutes);
+        edge.Label.Should().Be("probable · Default route next hop is fw-app. This is not observed traffic.");
+    }
+
+    [Fact]
+    public void Provenance_display_label_applier_prefixes_effective_default_route_edges()
+    {
+        DiagramAst ast = new()
+        {
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vm",
+                    ToNodeId = "fw",
+                    Label = "Default route next hop is fw-app. This is not observed traffic.",
+                    ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
+                    InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                },
+            ],
+        };
+
+        DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
+
+        ast.Edges[0].Label.Should()
+            .Be("probable · Default route next hop is fw-app. This is not observed traffic.");
     }
 
     [Fact]
@@ -32,7 +61,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         AssertNoVmToFirewallEdge(ast);
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("Traffic to 10.20.0.0/16 goes through fw-app");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Route to 10.20.0.0/16 names fw-app as the next hop. This is not observed traffic.");
     }
 
     [Fact]
@@ -43,7 +72,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("Outbound internet is sent directly");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Route to 0.0.0.0/0 uses next hop type Internet. This is not observed traffic.");
     }
 
     [Fact]
@@ -54,7 +83,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("Traffic to 10.30.0.0/16 is dropped");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Route to 10.30.0.0/16 uses next hop type None. This is not observed traffic.");
     }
 
     [Fact]
@@ -65,7 +94,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("route next hop does not resolve");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Next hop name was not stored for VirtualAppliance on 10.250.0.0/16.");
     }
 
     [Fact]

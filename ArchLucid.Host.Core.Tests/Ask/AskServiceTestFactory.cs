@@ -114,6 +114,15 @@ internal static class AskServiceTestFactory
             NullLogger<AskService>.Instance);
     }
 
+    public static AskResponseComposer CreateResponseComposer()
+    {
+        return new AskResponseComposer(
+            Mock.Of<IConversationService>(),
+            Mock.Of<IRetrievalDocumentBuilder>(),
+            Mock.Of<IRetrievalIndexingService>(),
+            NullLogger<AskResponseComposer>.Instance);
+    }
+
     private static IActorContext CreateDefaultActorContext()
     {
         Mock<IActorContext> actor = new();

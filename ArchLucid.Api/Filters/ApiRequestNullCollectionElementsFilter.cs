@@ -1,8 +1,11 @@
+using System.Reflection;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validation;
 using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -33,7 +36,11 @@ public sealed class ApiRequestNullCollectionElementsFilter : IAsyncActionFilter
             if (!context.ActionArguments.TryGetValue(parameter.Name, out object? body) || body is null)
                 continue;
 
-            if (ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(body))
+            ParameterInfo? bodyParameter = parameter is ControllerParameterDescriptor controllerParameter
+                ? controllerParameter.ParameterInfo
+                : null;
+
+            if (ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(body, bodyParameter))
             {
                 context.Result = ApplicationProblemMapper.CreateProblemResult(
                     StatusCodes.Status400BadRequest,

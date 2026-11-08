@@ -68,16 +68,81 @@ public sealed class SendableExportCoverComposerTests
             $"Semantic support: {SendableExportCoverComposer.SemanticSupportBandLaneBAsyncHonestyLine}");
     }
 
+    [Fact]
+    public void RenderPlainTextLines_splits_missing_policy_pack_id_and_version()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(ruleSetId: "azure-waf", ruleSetVersion: "  ");
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line =>
+            line.StartsWith("Policy pack: azure-waf @", StringComparison.Ordinal)
+            && line.Contains(SendableExportCoverComposer.PolicyPackVersionNotStoredLine, StringComparison.Ordinal));
+        lines.Should().NotContain($"Policy pack: {SendableExportCoverComposer.PolicyPackNotStoredLine}");
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_shows_stored_policy_pack_id_when_version_missing()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(ruleSetId: "azure-waf", ruleSetVersion: null);
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line => line.StartsWith("Policy pack: azure-waf @", StringComparison.Ordinal));
+        lines.Should().ContainSingle(line => line.Contains(SendableExportCoverComposer.PolicyPackVersionNotStoredLine, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_includes_sponsor_roi_amount_honesty_line()
+    {
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(CreateInput());
+
+        lines.Should().Contain($"Sponsor ROI amount: {SendableExportCoverComposer.SponsorRoiAmountNotStoredOnCoverLine}");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_includes_review_record_status_line()
+    {
+        StringBuilder sb = new();
+        CareerExportCoverageHonestyInput input = CreateInput(reviewRecordStatus: "Committed");
+
+        SendableExportCoverComposer.AppendMarkdownSection(sb, input);
+
+        sb.ToString().Should().Contain("**Review record status:** `Committed`");
+    }
+
+    [Fact]
+    public void RenderPlainTextLines_shows_stored_feasible_gate_outcome()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            verdict: new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.Feasible,
+                Summary = "Proceed with constraints.",
+            });
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().ContainSingle(line =>
+            line.StartsWith("Gate outcome: Feasible", StringComparison.Ordinal)
+            && !line.Contains(SendableExportCoverComposer.GateOutcomeNotStoredLine, StringComparison.Ordinal));
+    }
+
     private static CareerExportCoverageHonestyInput CreateInput(
-        FindingsSnapshot? findingsSnapshot = null) =>
+        FindingsSnapshot? findingsSnapshot = null,
+        string? ruleSetId = "azure-waf",
+        string? ruleSetVersion = "2024.1",
+        string? reviewRecordStatus = null,
+        FeasibilityVerdict? verdict = null) =>
         new(
             new SponsorReviewCoverageHonestyContext(
                 RunId: "run-1",
-                Verdict: new FeasibilityVerdict
-                {
-                    Kind = FeasibilityVerdictKind.SoftInfeasible,
-                    Summary = "Sample gate summary",
-                },
+                Verdict: verdict
+                       ?? new FeasibilityVerdict
+                       {
+                           Kind = FeasibilityVerdictKind.SoftInfeasible,
+                           Summary = "Sample gate summary",
+                       },
                 AnalysisStagesComplete: true,
                 ActorNodeCount: 1),
             EnginesSucceeded: 4,
@@ -87,7 +152,8 @@ public sealed class SendableExportCoverComposerTests
             PreCommitGateEnabled: true,
             StructuralExecutionMode: StructuralExecutionMode.Simulator,
             IsSampleRun: false,
-            RuleSetId: "azure-waf",
-            RuleSetVersion: "2024.1",
-            FindingsSnapshot: findingsSnapshot);
+            RuleSetId: ruleSetId,
+            RuleSetVersion: ruleSetVersion,
+            FindingsSnapshot: findingsSnapshot,
+            ReviewRecordStatus: reviewRecordStatus);
 }

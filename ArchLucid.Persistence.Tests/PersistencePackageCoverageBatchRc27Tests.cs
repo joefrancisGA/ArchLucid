@@ -314,14 +314,14 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
         Guid right = Guid.Parse("11111111-2222-3333-4444-555555555555");
         ComparisonRecord row = new()
         {
-            ComparisonRecordId = "cmp-1",
+            ComparisonRecordId = "  cmp-1  ",
             ComparisonType = "manifest",
             LeftRunId = left.ToString("D").ToUpperInvariant(),
             RightRunId = right.ToString("D"),
             LeftManifestVersion = "v1",
             RightManifestVersion = "v2",
-            LeftExportRecordId = "lex",
-            RightExportRecordId = "rex",
+            LeftExportRecordId = "  lex  ",
+            RightExportRecordId = "  rex  ",
             Format = "json",
             SummaryMarkdown = "summary",
             PayloadJson = """{"heavy":true}""",
@@ -437,14 +437,14 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             label: "release",
             tags: ["tag-a", "  ", "tag-b"]);
 
-        conditions.Should().Contain("ComparisonType = @ComparisonType");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
         conditions.Should().Contain("LeftRunId = @LeftRunId");
         conditions.Should().Contain("RightRunId = @RightRunId");
         conditions.Should().Contain("CreatedUtc >= @CreatedFromUtc");
         conditions.Should().Contain("CreatedUtc <= @CreatedToUtc");
-        conditions.Should().Contain("LeftExportRecordId = @LeftExportRecordId");
-        conditions.Should().Contain("RightExportRecordId = @RightExportRecordId");
-        conditions.Should().Contain("Label = @Label");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@LeftExportRecordId)");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@RightExportRecordId)");
+        conditions.Should().Contain("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
         conditions.Should().Contain(c => c.Contains("@Tag0", StringComparison.Ordinal));
         conditions.Should().Contain(c => c.Contains("@Tag2", StringComparison.Ordinal));
         conditions.Should().NotContain(c => c.Contains("@Tag1", StringComparison.Ordinal));

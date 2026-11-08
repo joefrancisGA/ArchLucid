@@ -95,10 +95,22 @@ describe("ask-cited-findings-semantic-support-band", () => {
     });
   });
 
+  it("uses not-in-index copy when cited finding is missing from the loaded index", () => {
+    const footnote = formatAskCitedFindingsSemanticSupportBandFootnote({
+      weakestBand: null,
+      hasMissingStoredBand: false,
+      hasFindingNotInLoadedIndex: true,
+    });
+
+    expect(footnote).toContain("not in the loaded decision-grade findings");
+    expect(footnote).not.toContain("Semantic support band was not stored");
+  });
+
   it("uses omission copy when cited band was not stored", () => {
     const footnote = formatAskCitedFindingsSemanticSupportBandFootnote({
       weakestBand: null,
       hasMissingStoredBand: true,
+      hasFindingNotInLoadedIndex: false,
     });
 
     expect(footnote).toContain("Semantic support band was not stored");

@@ -45,10 +45,10 @@ public sealed partial class ArchitectureReviewExportService
         ArgumentNullException.ThrowIfNull(documentModel);
 
         string title = string.IsNullOrWhiteSpace(documentModel.SystemName)
-            ? "Architecture review"
+            ? ArchitectureReviewBoardExportHonestyCopy.SystemNameNotStored
             : documentModel.SystemName.Trim();
         string summary = string.IsNullOrWhiteSpace(documentModel.SponsorReport)
-            ? "No Sponsor report is available for this review."
+            ? ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored
             : documentModel.SponsorReport.Trim();
 
         StringBuilder html = new();
@@ -97,12 +97,12 @@ public sealed partial class ArchitectureReviewExportService
                 $"<p><em>{HtmlEncode(documentModel.ExplanationConfidenceCallout)}</em></p>");
         }
 
-        if (!string.IsNullOrWhiteSpace(documentModel.ManifestVersion))
-        {
-            html.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"<p><strong>Manifest version:</strong> {HtmlEncode(documentModel.ManifestVersion)}</p>");
-        }
+        string manifestVersion = string.IsNullOrWhiteSpace(documentModel.ManifestVersion)
+            ? ArchitectureReviewBoardExportHonestyCopy.ManifestVersionNotStored
+            : documentModel.ManifestVersion.Trim();
+        html.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"<p><strong>Manifest version:</strong> {HtmlEncode(manifestVersion)}</p>");
 
         ArchitectureReviewBoardSendableExportCoverRenderer.AppendHtml(html, documentModel);
 

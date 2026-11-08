@@ -43,21 +43,21 @@ const EVIDENCE_FAMILY_VALUES = new Set([
 export const INFRA_DIAGRAMS_DEFAULT_MODE = "executive";
 
 export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; readonly label: string }[] = [
-  { value: "executive", label: "Executive — the sponsor view" },
-  { value: "full", label: "Full subscription — backbone resources; some components may be hidden" },
-  { value: "architecture", label: "Architecture — how parts fit" },
+  { value: "executive", label: "Executive — summary nodes and always-show tiers" },
+  { value: "full", label: "Full subscription — resources in this snapshot, with NICs and some network detail omitted" },
+  { value: "architecture", label: "Architecture — compute, network, and storage in this snapshot" },
   // Storage and data-plane inventory boxes. Distinct from data-flow movement and the data-architecture catalog.
   { value: "data", label: "Data — accounts and stores" },
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
   { value: "network", label: "Network — what can reach what" },
-  { value: "security", label: "Security — where controls sit" },
+  { value: "security", label: "Security — network resources in this snapshot, including NSGs, firewalls, front doors, and application gateways" },
   { value: "identity", label: "Identity — who can act" },
-  { value: "avd", label: "AVD Farm" },
+  { value: "avd", label: "AVD — host pools and session hosts in this snapshot" },
   { value: "businessContinuity", label: "Business continuity — what can be restored" },
   { value: "resourceGroup", label: "One resource group" },
   { value: "selectedResources", label: "Resources you picked" },
-  { value: "dependencyNeighborhood", label: "What depends on one resource" },
+  { value: "dependencyNeighborhood", label: "Neighbors of one resource" },
 ];
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));

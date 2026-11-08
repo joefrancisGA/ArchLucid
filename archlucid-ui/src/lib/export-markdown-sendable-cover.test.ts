@@ -24,8 +24,18 @@ describe("formatSendableExportCoverMarkdown", () => {
 
     expect(markdown).toContain("Policy influence");
     expect(markdown).toContain(POLICY_PACK_INFLUENCE_HONESTY_LINE);
-    expect(markdown).toContain("Sponsor ROI");
-    expect(markdown).toContain("do not sum to the headline");
+    expect(markdown).not.toContain("headline savings");
+  });
+
+  it("distinguishes omitted sponsor ROI from a stored zero row count", () => {
+    const omitted = formatSendableExportCoverMarkdown({ runId: "run-1" });
+    const storedZero = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 0 });
+    const withRows = formatSendableExportCoverMarkdown({ runId: "run-1", sponsorRoiRowCount: 2 });
+
+    expect(omitted).toContain("Sponsor savings were not stored on this export cover.");
+    expect(storedZero).toContain("No sponsor savings rows were stored.");
+    expect(storedZero).not.toContain("Sponsor savings were not stored on this export cover.");
+    expect(withRows).toContain("do not sum to the headline");
   });
 
   it("includes Lane B disclaimer when decision-grade findings include Unchecked bands", () => {
@@ -66,8 +76,8 @@ describe("formatSendableExportCoverMarkdown", () => {
     });
 
     expect(missing).toContain("Verdict summary was not stored.");
+    expect(storedEmpty).toContain("Verdict summary was stored empty.");
     expect(storedEmpty).not.toContain("Verdict summary was not stored.");
-    expect(storedEmpty).not.toContain("Gate summary:");
   });
 
   it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
@@ -99,7 +109,18 @@ describe("resolveSendableExportCoverFindings", () => {
       findings: [{ classification: "DecisionGradeFinding", semanticSupportBand: "Unchecked" }],
     });
 
-    expect(findings[0]?.semanticSupportBand).toBe("Unchecked");
+    expect(findings).not.toBeNull();
+    expect(findings?.[0]?.semanticSupportBand).toBe("Unchecked");
+  });
+
+  it("returns null when findings snapshot omits the findings key", () => {
+    expect(coerceSendableExportCoverFindingsFromSnapshot({})).toBeNull();
+    expect(
+      resolveSendableExportCoverFindings({
+        exportFindings: null,
+        findingsSnapshot: {},
+      }),
+    ).toBeNull();
   });
 
   it("preserves a missing findings snapshot as an omission", () => {

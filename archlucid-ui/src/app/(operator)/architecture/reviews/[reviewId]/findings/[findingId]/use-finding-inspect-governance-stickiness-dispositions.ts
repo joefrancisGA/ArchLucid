@@ -75,12 +75,30 @@ export type UseFindingInspectGovernanceStickinessDispositionsInput = {
   readonly latestDispositionRowVersionBase64?: string | null;
 };
 
-function latestDispositionLabel(history: readonly FindingDispositionEvent[]): string {
+function latestDispositionLabel(
+  history: readonly FindingDispositionEvent[],
+  dispositionHistoryAsOfUtc: string | null,
+  dispositionHistoryFailure: ApiLoadFailureState | null,
+): string {
+  if (dispositionHistoryFailure !== null) {
+    return "Disposition history was not loaded.";
+  }
+
+  if (dispositionHistoryAsOfUtc === null) {
+    return "Disposition history has not loaded.";
+  }
+
   if (history.length === 0) {
     return "No disposition recorded";
   }
 
-  return history[0]?.disposition ?? "No disposition recorded";
+  const latestDisposition = history[0]?.disposition?.trim() ?? "";
+
+  if (latestDisposition.length === 0) {
+    return "Disposition was not stored on the latest event.";
+  }
+
+  return latestDisposition;
 }
 
 export function useFindingInspectGovernanceStickinessDispositions({
@@ -124,6 +142,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
   );
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
+  const [dispositionHistoryLoading, setDispositionHistoryLoading] = useState(false);
   const [dispositionHistoryFailure, setDispositionHistoryFailure] = useState<ApiLoadFailureState | null>(null);
   const [dispositionHistoryBlockedReason, setDispositionHistoryBlockedReason] = useState<string | null>(null);
   const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
@@ -145,6 +164,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     setDispositionHistoryFailure(null);
     setDispositionHistoryBlockedReason(null);
+    setDispositionHistoryLoading(true);
 
     try {
       const [dispositions, waivers] = await Promise.all([
@@ -165,6 +185,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
       setDispositionHistoryBlockedReason(findingDispositionsBlockedReason(failure));
 
       throw error;
+    } finally {
+      setDispositionHistoryLoading(false);
     }
   }, [findingId, setActiveWaiver]);
 
@@ -197,7 +219,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const refreshed = await reload();
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
-      setDispositionLastSavedUtc(new Date().toISOString());
+      const savedAt = saved.occurredAtUtc?.trim() ?? "";
+      setDispositionLastSavedUtc(savedAt.length > 0 ? savedAt : "");
       setDispositionBaseline(captureDispositionBaseline());
       setStatusMessage(concurrentNotice ?? successMessage);
     },
@@ -416,7 +439,11 @@ export function useFindingInspectGovernanceStickinessDispositions({
     }
   }
 
-  const currentDisposition = latestDispositionLabel(history);
+  const currentDisposition = latestDispositionLabel(
+    history,
+    dispositionHistoryAsOfUtc,
+    dispositionHistoryFailure,
+  );
   const pendingDispositionKind: FindingDispositionKind =
     pendingDispositionConfirm === "mark-remediated" ? "Remediated" : disposition;
   const sponsorSynopsisCounts = useMemo(
@@ -427,7 +454,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
     [history],
   );
   const sponsorSynopsisPackageTitle =
-    packageTitle !== null && packageTitle.trim().length > 0 ? packageTitle.trim() : runId;
+    packageTitle !== null && packageTitle.trim().length > 0
+      ? packageTitle.trim()
+      : "Review title was not stored.";
   const recentDispositionActors = useMemo(
     () => collabRecentActorsFromDispositionHistory(history, { take: 3 }),
     [history],
@@ -510,6 +539,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     dispositionInlineSaveError,
     dispositionBaseline,
     dispositionHistoryAsOfUtc,
+    dispositionHistoryLoading,
     dispositionHistoryFailure,
     dispositionHistoryBlockedReason,
     refreshDispositionHistory: reload,

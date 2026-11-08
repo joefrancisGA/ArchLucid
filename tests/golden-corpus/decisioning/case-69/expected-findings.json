@@ -18,12 +18,12 @@
     ]
   },
   {
-    "findingId": "6d9e0d0c-4344-896d-a89f-a2fe1b8dbd36",
+    "findingId": "620e38ae-4f26-f05d-fa83-a4ffe3243366",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "obj-350decae2f9c9041b824975c6dd1c88b",
       "obj-6deef8614600f56c8b7c64be621bcc14",
@@ -39,12 +39,12 @@
     ]
   },
   {
-    "findingId": "cbe6210c-ccc0-d0ac-6431-9a3535d33620",
+    "findingId": "feefd4f6-3b23-04f6-8eb2-a40abc060eb0",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "obj-350decae2f9c9041b824975c6dd1c88b",
       "obj-6deef8614600f56c8b7c64be621bcc14",
@@ -60,12 +60,12 @@
     ]
   },
   {
-    "findingId": "ec8d12f0-0d8f-e288-ad1f-e2814b218ba5",
+    "findingId": "277d2bb3-3186-2d99-c56b-7e7acf94d9d1",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "obj-350decae2f9c9041b824975c6dd1c88b",
       "obj-6deef8614600f56c8b7c64be621bcc14",
@@ -117,15 +117,15 @@
     ]
   },
   {
-    "findingId": "10cc1ac7-5b86-5b63-bece-70b59b494645",
+    "findingId": "87ce688f-cab1-b5f8-f601-e298c22dea49",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "app",
-      "pay_sql"
+      "obj-d7bbd5ebf745629313801bad7815b25c",
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
@@ -192,12 +192,12 @@
     ]
   },
   {
-    "findingId": "4ed9f1fe-9ed2-0553-b27d-0768501a45cd",
+    "findingId": "be1ff7ca-d9a8-7cf9-f8e0-7cf24bbcdefc",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "obj-d7bbd5ebf745629313801bad7815b25c",
       "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
@@ -207,7 +207,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

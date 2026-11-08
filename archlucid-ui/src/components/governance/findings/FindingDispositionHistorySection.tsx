@@ -11,25 +11,24 @@ import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispo
 import {
   INHABIT_DISPOSITION_HISTORY_BLOCKED_FALLBACK,
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
+  INHABIT_DISPOSITION_HISTORY_FINDING_ID_NOT_STORED,
   INHABIT_DISPOSITION_HISTORY_LOADING,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
+  INHABIT_DISPOSITION_HISTORY_STORED_EMPTY_BODY,
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
+import {
+  formatDispositionHistoryActor,
+  formatDispositionHistoryDisposition,
+  formatDispositionHistoryRationale,
+  formatDispositionHistoryRecordedTime,
+  formatDispositionHistoryRevisitDue,
+} from "@/lib/findings/finding-disposition-history-display";
 import { cn } from "@/lib/utils";
 
 export type FindingDispositionHistorySectionProps = {
   readonly findingId: string;
   readonly testId?: string;
 };
-
-function formatDispositionHistoryActor(reviewerUserId: string | null | undefined): string {
-  const trimmed = reviewerUserId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return "Unknown reviewer";
-  }
-
-  return trimmed;
-}
 
 /** IH-034 — durable disposition trail on Working inspect/panel (not toast-dependent). */
 export function FindingDispositionHistorySection(
@@ -52,7 +51,7 @@ export function FindingDispositionHistorySection(
           {INHABIT_DISPOSITION_HISTORY_SECTION_TITLE}
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {INHABIT_DISPOSITION_HISTORY_EMPTY_BODY}
+          {INHABIT_DISPOSITION_HISTORY_FINDING_ID_NOT_STORED}
         </p>
       </section>
     );
@@ -88,7 +87,23 @@ export function FindingDispositionHistorySection(
     );
   }
 
-  const history = query.data ?? [];
+  const history = query.data;
+
+  if (history === null || history === undefined) {
+    return (
+      <section className="space-y-2" data-testid={testId}>
+        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {INHABIT_DISPOSITION_HISTORY_SECTION_TITLE}
+        </h3>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`${testId}-not-stored`}
+        >
+          Disposition history was not stored on this finding.
+        </p>
+      </section>
+    );
+  }
 
   if (history.length === 0) {
     return (
@@ -100,7 +115,7 @@ export function FindingDispositionHistorySection(
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid={`${testId}-empty`}
         >
-          {INHABIT_DISPOSITION_HISTORY_EMPTY_BODY}
+          {INHABIT_DISPOSITION_HISTORY_STORED_EMPTY_BODY}
         </p>
       </section>
     );
@@ -118,14 +133,21 @@ export function FindingDispositionHistorySection(
             className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`${testId}-event-${event.eventId}`}
           >
-            <span className="font-medium text-al-text-primary">{event.disposition}</span>
+            <span className="font-medium text-al-text-primary">
+              {formatDispositionHistoryDisposition(event.disposition)}
+            </span>
             {" · "}
             {formatDispositionHistoryActor(event.reviewerUserId)}
             {" · "}
-            {event.occurredAtUtc}
-            {event.rationale !== null && event.rationale !== undefined && event.rationale.trim().length > 0
-              ? ` — ${event.rationale.trim()}`
-              : ""}
+            {formatDispositionHistoryRecordedTime(event.occurredAtUtc)}
+            {" — "}
+            {formatDispositionHistoryRationale(event.rationale)}
+            {event.disposition === "Deferred" ? (
+              <>
+                {" · "}
+                {formatDispositionHistoryRevisitDue(event.revisitDueUtc)}
+              </>
+            ) : null}
           </li>
         ))}
       </ul>

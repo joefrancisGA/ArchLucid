@@ -51,7 +51,7 @@ public sealed class CuratedComplianceRuleMapperTests
         rule.AppliesToCategory.Should().Be(CuratedComplianceRuleMapper.TenantCuratedCategory);
         rule.RequiredNodeType.Should().BeEmpty();
         rule.RequiredEdgeType.Should().BeEmpty();
-        rule.Severity.Should().Be("Medium");
+        rule.Severity.Should().Be("Severity was not stored.");
         rule.Priority.Should().Be(PolicyPackRulePriority.Default);
         rule.Description.Should().BeEmpty();
     }

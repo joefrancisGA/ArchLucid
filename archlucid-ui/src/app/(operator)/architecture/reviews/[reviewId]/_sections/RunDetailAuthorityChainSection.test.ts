@@ -19,7 +19,7 @@ describe("RunDetailAuthorityChainSection manifest label", () => {
   it("distinguishes missing and stored artifact bundle ids", () => {
     expect(resolveArtifactBundleIdLabel(null)).toBe("Artifact bundle id was not stored.");
     expect(resolveArtifactBundleIdLabel(undefined)).toBe("Artifact bundle id was not stored.");
-    expect(resolveArtifactBundleIdLabel("")).toBe("");
+    expect(resolveArtifactBundleIdLabel("")).toBe("Artifact bundle id was stored empty.");
     expect(resolveArtifactBundleIdLabel("bundle-1")).toBe("bundle-1");
   });
 
@@ -29,6 +29,6 @@ describe("RunDetailAuthorityChainSection manifest label", () => {
     expect(resolveFindingsSnapshotIdLabel(null)).toBe("Findings snapshot id was not stored.");
     expect(resolveDecisionTraceIdLabel(undefined)).toBe("Decision trace id was not stored.");
     expect(resolveContextSnapshotIdLabel("ctx-1")).toBe("ctx-1");
-    expect(resolveGraphSnapshotIdLabel("")).toBe("");
+    expect(resolveGraphSnapshotIdLabel("")).toBe("Graph snapshot id was stored empty.");
   });
 });

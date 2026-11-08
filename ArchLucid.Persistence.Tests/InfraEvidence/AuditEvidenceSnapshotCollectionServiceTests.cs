@@ -192,6 +192,12 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             return Task.CompletedTask;
         }
 
+        public Task UpdateStatusInScopeAsync(
+            ProjectScopeKey scope,
+            AuditAssessmentStatusMutation mutation,
+            CancellationToken cancellationToken = default) =>
+            UpdateStatusAsync(scope.TenantId, mutation.AssessmentId, mutation.Status, cancellationToken);
+
         public Task<IReadOnlyList<AuditAssessmentRecord>> ListActiveByTenantAsync(
             Guid tenantId,
             CancellationToken cancellationToken = default)

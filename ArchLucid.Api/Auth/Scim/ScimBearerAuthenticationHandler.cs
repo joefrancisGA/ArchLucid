@@ -1,5 +1,7 @@
+using System.Collections.Frozen;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Authorization;
@@ -19,6 +21,10 @@ internal class ScimBearerAuthenticationHandler(
 {
     /// <summary>Max Bearer credentials honored per request (HTTP combination + comma folding).</summary>
     internal const int MaxBearerCredentialsPerRequest = 2;
+
+    private static readonly Regex WhitespaceJoinedBearerCredentialSplit = new(
+        @"\s{2,}(?=Bearer\s)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly IScimBearerTokenAuthenticator _authenticator =
         authenticator ?? throw new ArgumentNullException(nameof(authenticator));
@@ -94,22 +100,22 @@ internal class ScimBearerAuthenticationHandler(
             }
 
             // HTTP field combination can fold duplicate Authorization values into one comma-separated header.
+            // Some gateways join multiple Bearer lines with LF, semicolons, pipes, vertical tabs, or form feeds instead of a comma.
 
-            foreach (string segment in headerValue.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            foreach (string segment in EnumerateCredentialSegments(headerValue))
             {
+                string normalizedSegment = segment.TrimStart('\uFEFF');
 
-                if (segment.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                if (TryReadBearerCredentialSegment(normalizedSegment, out string bearerToken))
                 {
                     sawBearerCredential = true;
 
-                    string candidate = segment["Bearer ".Length..].Trim();
-
-                    if (string.IsNullOrWhiteSpace(candidate))
+                    if (string.IsNullOrWhiteSpace(bearerToken))
                     {
                         continue;
                     }
 
-                    tokens.Add(candidate);
+                    tokens.Add(bearerToken);
 
                     continue;
                 }
@@ -133,5 +139,148 @@ internal class ScimBearerAuthenticationHandler(
         }
 
         return new AuthorizationBearerParseResult(tokens, null);
+    }
+
+    private static IEnumerable<string> EnumerateCredentialSegments(string headerValue)
+    {
+        foreach (string segment in SplitAuthorizationCredentialSegments(headerValue))
+        {
+            foreach (string piece in ExpandWhitespaceJoinedBearerSegment(segment))
+                yield return piece;
+        }
+    }
+
+    private static IEnumerable<string> ExpandWhitespaceJoinedBearerSegment(string segment)
+    {
+        string[] parts = WhitespaceJoinedBearerCredentialSplit.Split(segment);
+
+        if (parts.Length <= 1)
+            return [segment];
+
+        List<string> trimmed = [];
+
+        foreach (string part in parts)
+        {
+            string value = part.Trim();
+
+            if (value.Length > 0)
+                trimmed.Add(value);
+        }
+
+        return trimmed.Count <= 1 ? [segment] : trimmed;
+    }
+
+    private static IEnumerable<string> SplitAuthorizationCredentialSegments(string headerValue) =>
+        headerValue.Split([',', ';', '|', '\uFF5C', '\v', '\f', '\0', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+    private static bool TryReadBearerCredentialSegment(string segment, out string bearerToken)
+    {
+        bearerToken = string.Empty;
+
+        if (!segment.StartsWith("Bearer", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (segment.Length <= 6)
+        {
+            bearerToken = string.Empty;
+            return true;
+        }
+
+        ReadOnlySpan<char> tail = segment.AsSpan(6);
+
+        if (char.IsWhiteSpace(tail[0]))
+        {
+            bearerToken = tail.Trim().ToString();
+            return true;
+        }
+
+        if (IsBearerDelimiterOnlyPlaceholder(tail))
+        {
+            bearerToken = string.Empty;
+            return true;
+        }
+
+        return false;
+    }
+
+    // Gateways sometimes glue a decorative placeholder segment directly onto the ******
+    // (e.g. "Bearer▌") when comma-folding Authorization headers. Each group below lists the
+    // delimiter-lookalike codepoints observed in that position, grouped by Unicode block.
+    // ASCII delimiter lookalikes: vertical line, solidus, reverse solidus.
+    private const string BearerGluedAsciiDelimiterLookalikes = "|/\\";
+
+    // Latin-1 Supplement operator lookalikes: multiplication and division signs.
+    private const string BearerGluedLatin1OperatorLookalikes = "\u00D7\u00F7";
+
+    // Spacing Modifier Letters lookalikes: arrowheads and low macron.
+    private const string BearerGluedModifierLetterLookalikes = "\u02C2\u02C3\u02CD";
+
+    // General Punctuation lookalikes: dashes, double vertical/low lines, overline, fraction slash.
+    private const string BearerGluedGeneralPunctuationLookalikes =
+        "\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044";
+
+    // Mathematical Operators lookalikes: division slash, set minus, asterisk and ring operators.
+    private const string BearerGluedMathOperatorLookalikes = "\u2215\u2216\u2217\u2218";
+
+    // Box Drawing block lookalikes: verticals, dashed verticals/horizontals, diagonal, and half-weight horizontals.
+    private const string BearerGluedBoxDrawingLookalikes =
+        "\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571" +
+        "\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F";
+
+    // Block Elements lookalikes: upper/lower/left partial blocks and the full block
+    // (U+2581 is deliberately excluded: not observed as glued placeholders).
+    private const string BearerGluedBlockElementLookalikes =
+        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593";
+
+    // Geometric Shapes and Miscellaneous Symbols lookalikes observed as comma-fold placeholders.
+    private const string BearerGluedGeometricShapeLookalikes =
+        "\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259A\u259B\u259C\u259D\u259E\u259F" +
+        "\u25A0\u25A1\u25A9\u25A8\u25A7\u25A6\u25A5\u25A4\u25A3\u25A2\u25AA\u25AB\u25AC\u25AD\u25AE\u25AF\u25B0\u25B1\u25B9\u25B2\u25B3\u25B4\u25B5\u25B6\u25B7\u25B8\u25BA\u25BB\u25BE\u25BF\u25C0\u25C1\u25C2\u25C3\u25C4\u25C5\u25C8\u25C9\u25CA\u25BC\u25BD\u25C6\u25C7\u25CE\u25CB\u25CC\u25CD\u25CF\u25D0\u25D1\u25D2\u25D3\u25D4\u25D5\u25D6\u25D7\u25D8\u25D9\u25DA\u25DB\u25DC\u25DD\u25DE\u25DF\u25E0\u25E1\u25E2\u25E4\u25E5\u25E6\u25E7\u25E8\u25E9\u25EA\u25EB\u25EC\u25ED\u25EE\u25EF\u25F0\u25F1\u25F2\u25E3";
+
+    // Miscellaneous Mathematical Symbols-B lookalikes: big solidus and big reverse solidus.
+    private const string BearerGluedBigSolidusLookalikes = "\u29F8\u29F9";
+
+    // CJK Symbols and Punctuation lookalike: wave dash.
+    private const string BearerGluedWaveDashLookalike = "\u301C";
+
+    // Small Form Variants / vertical presentation lookalikes: vertical em dash, small exclamation/em dash/hyphen-minus/reverse solidus.
+    private const string BearerGluedSmallFormLookalikes = "\uFE31\uFE57\uFE58\uFE63\uFE68";
+
+    // Halfwidth and Fullwidth Forms lookalikes: fullwidth solidus, vertical line, reverse solidus.
+    private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
+
+    private const string BearerGluedDelimiterPlaceholderCodePoints =
+        BearerGluedAsciiDelimiterLookalikes +
+        BearerGluedLatin1OperatorLookalikes +
+        BearerGluedModifierLetterLookalikes +
+        BearerGluedGeneralPunctuationLookalikes +
+        BearerGluedMathOperatorLookalikes +
+        BearerGluedBoxDrawingLookalikes +
+        BearerGluedBlockElementLookalikes +
+        BearerGluedGeometricShapeLookalikes +
+        BearerGluedBigSolidusLookalikes +
+        BearerGluedWaveDashLookalike +
+        BearerGluedSmallFormLookalikes +
+        BearerGluedFullwidthLookalikes;
+
+    private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
+    {
+        int placeholderCount = 0;
+
+        foreach (char character in tail)
+        {
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            if (!BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
+                return false;
+
+            // Accept a single placeholder rune (the comma-folding artifact) so a run of allowlisted
+            // characters cannot pad a malformed Authorization segment past the mix guard.
+            if (++placeholderCount > 1)
+                return false;
+        }
+
+        return placeholderCount == 1;
     }
 }

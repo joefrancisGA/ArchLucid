@@ -1,4 +1,7 @@
-import { ARCHITECTURE_DEFINITION_STATUS_LABELS } from "@/lib/architecture/architecture-created-home-copy";
+import {
+  ARCHITECTURE_DEFINITION_STATUS_LABELS,
+  formatArchitectureCreatedMissingItemsOmittedLine,
+} from "@/lib/architecture/architecture-created-home-copy";
 import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture/architecture-creation-handoff";
 
@@ -10,6 +13,7 @@ import {
 } from "./architecture-created-home-actions";
 import {
   buildMissingItems,
+  buildMissingItemsWithOmitted,
   partitionMissingItems,
   type ArchitectureMissingItem,
   type ClarificationGapCategory,
@@ -44,22 +48,28 @@ export type ArchitectureCreatedHomeModel = {
   readonly lifecycleStatusTagKind: BuildArchitectureCreatedHomeModelInput["workspaceStatus"]["statusTagKind"];
   readonly ownerLabel: string | null;
   readonly lastUpdatedLabel: string;
+  readonly homeTimestampPrefix: string;
   readonly definitionStatus: ArchitectureDefinitionStatusKind;
   readonly definitionStatusLabel: string;
   readonly summaryFields: readonly ArchitectureSummaryField[];
   readonly missingItems: readonly ArchitectureMissingItem[];
+  readonly missingItemsOmittedCount: number;
+  readonly missingItemsOmittedLine: string;
   readonly clarificationGaps: readonly ArchitectureMissingItem[];
   readonly evidenceGaps: readonly ArchitectureMissingItem[];
   readonly assessmentItems: readonly ArchitectureMissingItem[];
   readonly primaryActions: readonly ArchitectureCreatedPrimaryAction[];
   readonly overflowActions: readonly { readonly label: string; readonly href: string }[];
+  readonly submittedBriefStored: boolean;
 };
 
 export function buildArchitectureCreatedHomeModel(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedHomeModel {
   const definitionStatus = deriveDefinitionStatus(input);
-  const missingItems = buildMissingItems(input);
+  const missingItemsResult = buildMissingItemsWithOmitted(input);
+  const missingItems = missingItemsResult.items;
+  const usesFindingsDerivedClarificationGaps = (input.findingsDerivedQuestions?.length ?? 0) > 0;
   const partitioned = partitionMissingItems(missingItems);
 
   return {
@@ -70,15 +80,22 @@ export function buildArchitectureCreatedHomeModel(
     lifecycleStatusTagKind: input.workspaceStatus.statusTagKind,
     ownerLabel: input.ownerLabel,
     lastUpdatedLabel: input.lastUpdatedLabel,
+    homeTimestampPrefix: input.homeTimestampPrefix ?? "Updated",
     definitionStatus,
     definitionStatusLabel: ARCHITECTURE_DEFINITION_STATUS_LABELS[definitionStatus],
     summaryFields: buildSummaryFields(input),
     missingItems,
+    missingItemsOmittedCount: missingItemsResult.omittedCount,
+    missingItemsOmittedLine: formatArchitectureCreatedMissingItemsOmittedLine(
+      missingItemsResult.omittedCount,
+      usesFindingsDerivedClarificationGaps,
+    ),
     clarificationGaps: partitioned.clarificationGaps,
     evidenceGaps: partitioned.evidenceGaps,
     assessmentItems: partitioned.assessmentItems,
     primaryActions: buildPrimaryActions(input),
     overflowActions: buildOverflowActions(input.runId),
+    submittedBriefStored: input.submittedBriefStored === true,
   };
 }
 
@@ -100,10 +117,7 @@ export function mergeArchitectureCreatedHomeInput(
       snapshot.businessOutcome.length > 0 ? snapshot.businessOutcome : baseline.businessOutcome,
     peopleAndSystems:
       snapshot.peopleAndSystems.length > 0 ? snapshot.peopleAndSystems : baseline.peopleAndSystems,
-    gapAssertion: {
-      businessOutcome: true,
-      peopleAndSystems: true,
-    },
+    gapAssertion: baseline.gapAssertion,
     gapSourceCapturedAtUtc: snapshot.recordedAtUtc,
   };
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
@@ -176,7 +177,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> scheduledTasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentTask> scheduledTasks = await LoadScheduledTasksForExecuteAsync(scope, runId, cancellationToken);
 
         if (scheduledTasks.Count == 0)
             throw new NoScheduledAgentTasksException(runId);
@@ -240,7 +241,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentTask> liveScheduledTasks =
-            await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            await LoadScheduledTasksForExecuteAsync(scope, runId, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<AgentTask> liveForcedTasks = ResolveLiveForcedTasksOrThrow(runId, liveScheduledTasks, request);
 
         foreach (AgentTask task in liveForcedTasks)
@@ -261,9 +262,23 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<AgentTask> liveScheduledTasks =
-            await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            await LoadScheduledTasksForExecuteAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         ResolveLiveForcedTasksOrThrow(runId, liveScheduledTasks, request);
+    }
+
+    private async Task<IReadOnlyList<AgentTask>> LoadScheduledTasksForExecuteAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        return await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            _taskRepository,
+            scope,
+            canonicalRunId,
+            cancellationToken).ConfigureAwait(false);
     }
 
     private static IReadOnlyList<AgentTask> ResolveLiveForcedTasksOrThrow(

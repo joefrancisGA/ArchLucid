@@ -1,6 +1,6 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-export type RunExportLineageVerificationStatus = "Match" | "Mismatch" | "NotAttested";
+export type RunExportLineageVerificationStatus = "Match" | "Mismatch" | "NotAttested" | "StatusNotStored";
 
 export type RunExportLineageVerificationResult = {
   readonly status: RunExportLineageVerificationStatus;
@@ -38,10 +38,20 @@ export async function verifyRunExportLineage(runId: string): Promise<RunExportLi
     detail?: string | null;
   };
 
-  const status = body.status?.trim() ?? "NotAttested";
+  const rawStatus = body.status?.trim() ?? "";
+
+  if (rawStatus.length === 0) {
+    return {
+      status: "StatusNotStored",
+      runId: body.runId?.trim() ?? trimmed,
+      detail: body.detail ?? null,
+    };
+  }
+
+  const status = rawStatus as RunExportLineageVerificationStatus;
 
   return {
-    status: status as RunExportLineageVerificationStatus,
+    status,
     runId: body.runId?.trim() ?? trimmed,
     detail: body.detail ?? null,
   };
@@ -49,6 +59,8 @@ export async function verifyRunExportLineage(runId: string): Promise<RunExportLi
 
 export const RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL = "Integrity check passed";
 export const RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL = "Integrity check failed";
+export const RUN_EXPORT_LINEAGE_NOT_ATTESTED_LABEL = "Export lineage was not attested.";
+export const RUN_EXPORT_LINEAGE_STATUS_NOT_STORED_LABEL = "Export lineage status was not stored.";
 export const RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER =
   "Hash verification only — not a new attestation or re-approval.";
 
@@ -59,10 +71,20 @@ export function isRunExportLineageAttested(result: RunExportLineageVerificationR
 
 export function formatRunExportLineageStatusLabel(
   result: RunExportLineageVerificationResult,
-): typeof RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL | typeof RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL {
-  return isRunExportLineageAttested(result)
-    ? RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL
-    : RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL;
+): string {
+  if (isRunExportLineageAttested(result)) {
+    return RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL;
+  }
+
+  if (result.status === "StatusNotStored") {
+    return RUN_EXPORT_LINEAGE_STATUS_NOT_STORED_LABEL;
+  }
+
+  if (result.status === "NotAttested") {
+    return RUN_EXPORT_LINEAGE_NOT_ATTESTED_LABEL;
+  }
+
+  return RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL;
 }
 
 /** Returns the first non-attested verify result, or null when every run attests. */

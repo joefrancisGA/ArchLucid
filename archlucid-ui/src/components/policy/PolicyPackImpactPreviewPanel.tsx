@@ -2,7 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { PolicyPackComplianceRuleKeyDiffView } from "@/components/policy/PolicyPackComplianceRuleKeyDiffView";
@@ -79,9 +82,21 @@ function resolveRunPreviewBlockedReason(input: {
 
 export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanelProps): ReactElement {
   const { productLine } = useProductLine();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const hideDemoWalkthroughLink = isSecureNowDemoChromeExcluded(productLine);
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
+  const scopedReviewOpenHref = useMemo(
+    () =>
+      scopedReviewId.length === 0
+        ? ""
+        : resolveDeskContinuityReviewOpenHref(scopedReviewId, {
+            pathname,
+            search: searchParams.toString(),
+          }),
+    [pathname, scopedReviewId, searchParams],
+  );
   const requiresReviewPick = props.onPickReview !== undefined;
   const previewClearScopeHref = buildPolicyPacksHrefWithReviewId("");
   const initialPackComparison = useMemo(
@@ -359,7 +374,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
               {" · "}
               <Link
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={`/architecture/reviews/${encodeURIComponent(scopedReviewId)}`}
+                href={scopedReviewOpenHref}
               >
                 Open review
               </Link>

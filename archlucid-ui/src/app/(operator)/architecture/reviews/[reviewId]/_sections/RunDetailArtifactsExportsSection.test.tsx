@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -13,6 +13,40 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
+
+const exportHarness = vi.hoisted(() => {
+  const harness: {
+    download: ReturnType<typeof vi.fn>;
+    reject: ((reason?: unknown) => void) | undefined;
+    reset: () => void;
+  } = {
+    download: vi.fn(),
+    reject: undefined,
+    reset: () => {
+      harness.download.mockClear();
+      harness.reject = undefined;
+    },
+  };
+
+  harness.download.mockImplementation(
+    () =>
+      new Promise<void>((_resolve, reject) => {
+        harness.reject = reject;
+      }),
+  );
+
+  return harness;
+});
+
+const showErrorMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/api/downloads-blob-trigger-run-export", () => ({
+  downloadRunExportZip: exportHarness.download,
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showError: showErrorMock,
+}));
 
 vi.mock("@/components/ExportTrackedAnchor", () => ({
   ExportTrackedAnchor: ({
@@ -159,8 +193,8 @@ describe("RunDetailArtifactsExportsSection", () => {
     );
 
     expect(screen.queryByTestId("decision-receipt-export")).not.toBeInTheDocument();
-    expect(screen.getByTestId("run-deliverables-pending-finalize-empty-state")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute("href", "#finalize-review");
+    expect(screen.getByTestId("run-deliverables-sealed-empty-state")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
     expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
   });
@@ -188,12 +222,14 @@ describe("RunDetailArtifactsExportsSection", () => {
     );
 
     expect(screen.getByText(/decision delivered — design not feasible/i)).toBeInTheDocument();
+    expect(screen.getByText(/soft infeasible is a bounded envelope decision/i)).toBeInTheDocument();
     expect(screen.queryByTestId("run-deliverables-pending-finalize-empty-state")).not.toBeInTheDocument();
   });
 
   it("demotes pending-finalize deliverables CTA when Do this next owns the page primary", () => {
     const feasibleSummary: ManifestSummary = {
       ...manifestSummary,
+      status: "Draft",
       feasibilityVerdict: {
         kind: "Feasible",
         summary: "All required controls satisfied.",
@@ -263,6 +299,26 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
   });
 
+  it("labels missing architecture request JSON without a download button", () => {
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-architecture-request-json-not-stored")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Download Request JSON/i })).not.toBeInTheDocument();
+  });
+
   it("disables architecture review report download for curated sample reviews", () => {
     render(
       <RunDetailArtifactsExportsSection
@@ -287,5 +343,49 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(
       screen.getByText(/Downloads aren't available for this sample review/i),
     ).toBeInTheDocument();
+  });
+
+  it("does not surface a prior review export failure after navigation", async () => {
+    exportHarness.reset();
+    showErrorMock.mockClear();
+
+    const { rerender } = render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Download review export (ZIP)" }));
+    expect(screen.getByRole("button", { name: "Downloading…" })).toBeDisabled();
+
+    rerender(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-2"
+        runId="run-2"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+      />,
+    );
+
+    exportHarness.reject?.(new Error("prior review export failed"));
+
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(showErrorMock).not.toHaveBeenCalled();
   });
 });

@@ -71,6 +71,21 @@ internal static class SealedExportReceiptTestSupport
             .Build();
     }
 
+    internal static IConfiguration CreateSponsorReviewPacketBuilderConfiguration()
+    {
+        Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "true",
+            [$"{AgentOutputQualityGateOptions.SectionPath}:{nameof(AgentOutputQualityGateOptions.Mode)}"] =
+                AgentOutputQualityGateMode.PilotStrict.ToString(),
+            ["AgentExecution:Mode"] = "Real",
+        };
+
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(values)
+            .Build();
+    }
+
     internal static IAuthorityQueryService CreateAuthorityQueryService(Guid runId, IManifestHashService manifestHashService)
     {
         Mock<IAuthorityQueryService> authority = new();

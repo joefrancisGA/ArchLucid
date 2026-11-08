@@ -39,32 +39,37 @@ export function buildArchitectureSponsorDraftWatermark(
 }
 
 function formatDateLabel(iso: string): string {
-  const parsed = new Date(iso);
+  const trimmed = iso.trim();
 
-  // Unparseable input keeps the raw value: the watermark must show what was recorded, not an em dash.
-  if (Number.isNaN(parsed.getTime())) {
-    return iso;
+  if (trimmed.length === 0) {
+    return "Date generated was not stored.";
   }
 
-  return formatConversationListDate(iso);
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Date generated was not stored.";
+  }
+
+  return formatConversationListDate(trimmed);
 }
 
 /** Sponsor-facing markdown with required preliminary draft watermark fields. */
 export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSponsorDraftInput): string {
   const watermark = buildArchitectureSponsorDraftWatermark(input);
   const reviewUrl = `${input.siteOrigin.replace(/\/$/, "")}/architecture/reviews/${encodeURIComponent(input.runId)}`;
-  const gapLines =
+  const readinessCheckLines =
     watermark.knownGaps.length > 0
       ? watermark.knownGaps.map((gap) => `- ${gap}`)
-      : ["- No explicit gaps recorded"];
+      : ["- Readiness check listed no gaps."];
 
   return [
     "> **Preliminary draft**",
     `> **Date generated:** ${formatDateLabel(watermark.dateGenerated)}`,
-    "> **Not approved**",
+    "> **Governance approval:** Governance approval was not stored — this preliminary draft is not approved for external circulation.",
     `> **Confidentiality:** ${watermark.confidentialityLabel}`,
-    "> **Known gaps:**",
-    ...gapLines.map((line) => `> ${line.replace(/^- /, "")}`),
+    "> **Readiness check:**",
+    ...readinessCheckLines.map((line) => `> ${line.replace(/^- /, "")}`),
     "",
     `# ${input.architectureName.trim().length > 0 ? input.architectureName.trim() : UNTITLED_ARCHITECTURE_LABEL}`,
     "",

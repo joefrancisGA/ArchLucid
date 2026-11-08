@@ -72,8 +72,13 @@ export function OperatorEvidenceLimitsFooter({
   const modelName = trimmedOrEmpty(inspectMetadata?.modelDeploymentName);
   const modelAlias = trimmedOrEmpty(inspectMetadata?.modelAlias);
   const promptVersion = trimmedOrEmpty(inspectMetadata?.promptTemplateVersion);
-  const showInspectMetaLine =
-    !buyerPolishedShell && (modelName.length > 0 || promptVersion.length > 0);
+  const inspectMetadataProvided =
+    inspectMetadata !== null
+    && inspectMetadata !== undefined
+    && (inspectMetadata.modelDeploymentName !== undefined
+      || inspectMetadata.promptTemplateVersion !== undefined);
+
+  const showInspectMetaLine = !buyerPolishedShell && inspectMetadataProvided;
 
   /** Buyer walkthrough shell: disclaimers cite internal APIs; static demo context is surfaced elsewhere (e.g. banner). */
   const showTechnicalExecutionDisclosures = !buyerPolishedShell;
@@ -180,13 +185,17 @@ export function OperatorEvidenceLimitsFooter({
             <>
               model deployment name <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{modelName}</span>
             </>
-          ) : null}
-          {modelName.length > 0 && promptVersion.length > 0 ? " and " : null}
+          ) : (
+            <>model deployment name was not stored</>
+          )}
+          {" and "}
           {promptVersion.length > 0 ? (
             <>
               prompt template version <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{promptVersion}</span>
             </>
-          ) : null}
+          ) : (
+            <>prompt template version was not stored</>
+          )}
           .
         </p>
       ) : null}

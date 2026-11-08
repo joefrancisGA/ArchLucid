@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCompareRoiHeadlineDeltaView } from "@/lib/review-quality/compare-roi-headline-delta";
+import {
+  buildCompareRoiHeadlineDeltaView,
+  COMPARE_ROI_SAVINGS_NOT_RETURNED_LABEL,
+} from "@/lib/review-quality/compare-roi-headline-delta";
 
 describe("buildCompareRoiHeadlineDeltaView", () => {
   it("returns null when both runs lack savings", () => {
@@ -10,6 +13,20 @@ describe("buildCompareRoiHeadlineDeltaView", () => {
         targetSavings: null,
       }),
     ).toBeNull();
+  });
+
+  it("labels omitted savings payloads as not returned", () => {
+    const view = buildCompareRoiHeadlineDeltaView({
+      baselineSavings: null,
+      targetSavings: {
+        annualizedUsd: 2400,
+        basisFootnotes: [],
+        sourceKind: "server-findings",
+      },
+    });
+
+    expect(view?.baseline.savingsLabel).toBe(COMPARE_ROI_SAVINGS_NOT_RETURNED_LABEL);
+    expect(view?.target.savingsLabel).toBe("$2,400");
   });
 
   it("formats baseline and target savings with non-summing honesty", () => {

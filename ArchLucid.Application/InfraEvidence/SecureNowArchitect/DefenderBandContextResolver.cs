@@ -86,6 +86,93 @@ public static class DefenderBandContextResolver
 
         mediumCloudResourceIds.ExceptWith(highCloudResourceIds);
 
+        HashSet<Guid> highAlertCloudResourceIds = [];
+
+        foreach (AzureInventoryDefenderAlertReadModel alert in context.DefenderAlerts)
+        {
+            if (alert.Status is not ("Active" or "InProgress")
+                || !string.Equals(alert.Severity, "High", StringComparison.OrdinalIgnoreCase)
+                || !cloudResourceIdByArmId.TryGetValue(ArmResourceIdNormalizer.Normalize(alert.ResourceId), out Guid cloudResourceId))
+            {
+                continue;
+            }
+
+            highAlertCloudResourceIds.Add(cloudResourceId);
+        }
+
+        Dictionary<Guid, string> attackPathCitations = [];
+
+        foreach (AzureInventoryDefenderAttackPathReadModel attackPath in context.DefenderAttackPaths)
+        {
+            string citation = string.Join(
+                ' ',
+                new[] { attackPath.AttackPathId, attackPath.RiskLevel }.Where(static part => !string.IsNullOrWhiteSpace(part)));
+
+            if (citation.Length == 0)
+            {
+                continue;
+            }
+
+            foreach (string resourceId in SplitResourceIds(attackPath.EntryResourceIds).Concat(SplitResourceIds(attackPath.TargetResourceIds)))
+            {
+                if (!cloudResourceIdByArmId.TryGetValue(resourceId, out Guid cloudResourceId))
+                {
+                    continue;
+                }
+
+                if (attackPathCitations.TryGetValue(cloudResourceId, out string? existing)
+                    && existing.Contains(citation, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                attackPathCitations[cloudResourceId] = existing is null ? citation : existing + "; " + citation;
+            }
+        }
+
+        Dictionary<Guid, int> vulnerabilityCounts = [];
+
+        foreach (AzureInventoryDefenderVulnerabilityCountReadModel count in context.DefenderVulnerabilityCounts)
+        {
+            int criticalOrHigh = count.CriticalCount + count.HighCount;
+
+            if (criticalOrHigh <= 0
+                || !cloudResourceIdByArmId.TryGetValue(ArmResourceIdNormalizer.Normalize(count.ResourceId), out Guid cloudResourceId))
+            {
+                continue;
+            }
+
+            vulnerabilityCounts[cloudResourceId] = vulnerabilityCounts.GetValueOrDefault(cloudResourceId) + criticalOrHigh;
+        }
+
+        Dictionary<Guid, string> governanceDue = [];
+        DateTime dueCutoffUtc = TimeProvider.System.UtcNowDateTime().AddDays(30);
+        HashSet<string> unhealthyAssessmentKeys = context.DefenderAssessments
+            .Where(static assessment => string.Equals(assessment.Status, "Unhealthy", StringComparison.OrdinalIgnoreCase))
+            .Select(static assessment => ArmResourceIdNormalizer.Normalize(assessment.ResourceId) + "|" + assessment.AssessmentKey.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryDefenderGovernanceAssignmentReadModel assignment in context.DefenderGovernanceAssignments)
+        {
+            if (assignment.RemediationDueUtc is not DateTime dueUtc || dueUtc > dueCutoffUtc)
+            {
+                continue;
+            }
+
+            string resourceId = ArmResourceIdNormalizer.Normalize(assignment.ResourceId);
+
+            if (!unhealthyAssessmentKeys.Contains(resourceId + "|" + assignment.AssessmentKey.Trim())
+                || !cloudResourceIdByArmId.TryGetValue(resourceId, out Guid cloudResourceId))
+            {
+                continue;
+            }
+
+            string note = assignment.AssessmentKey.Trim() + " " + DateTime.SpecifyKind(dueUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            governanceDue[cloudResourceId] = governanceDue.TryGetValue(cloudResourceId, out string? existing)
+                ? existing + "; " + note
+                : note;
+        }
+
         IReadOnlyList<string> weakControlNames = [];
 
         if (subscriptionBand is DefenderSecureScoreOrdinalBand.Low or DefenderSecureScoreOrdinalBand.Medium)
@@ -103,7 +190,17 @@ public static class DefenderBandContextResolver
         {
             HighAssessmentCloudResourceIds = highCloudResourceIds,
             MediumAssessmentCloudResourceIds = mediumCloudResourceIds,
+            HighAlertCloudResourceIds = highAlertCloudResourceIds,
             WeakControlNames = weakControlNames,
+            AttackPathCitationByCloudResourceId = attackPathCitations,
+            CriticalOrHighVulnerabilityCountByCloudResourceId = vulnerabilityCounts,
+            GovernanceDueByCloudResourceId = governanceDue,
         };
     }
+
+    private static IEnumerable<string> SplitResourceIds(string? resourceIds) =>
+        (resourceIds ?? string.Empty)
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(ArmResourceIdNormalizer.Normalize)
+            .Where(static resourceId => resourceId.Length > 0);
 }

@@ -76,4 +76,10 @@ describe("resolveGovernanceAssignedToMePathInspectFindingId", () => {
     expect(set.has("finding-1")).toBe(true);
     expect(set.has("decision-1")).toBe(false);
   });
+
+  it("trims padded finding ids in register rows", () => {
+    const set = governanceAssignedToMePathInspectFindingIdSet([findingRow("  finding-a  ")]);
+
+    expect(set.has("finding-a")).toBe(true);
+  });
 });

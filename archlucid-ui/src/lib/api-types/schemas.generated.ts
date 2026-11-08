@@ -1026,7 +1026,7 @@ export interface components {
             determinism?: null | components["schemas"]["DeterminismCheckResult"];
             diagram?: null | string;
             evidence?: null | components["schemas"]["AgentEvidencePackage"];
-            executionTraces?: components["schemas"]["AgentExecutionTrace"][];
+            executionTraces?: null | components["schemas"]["AgentExecutionTrace"][];
             manifest?: null | components["schemas"]["GoldenManifest"];
             manifestDiff?: null | components["schemas"]["ManifestDiffResult"];
             run?: components["schemas"]["ArchitectureRun"];
@@ -1434,7 +1434,7 @@ export interface components {
             proposedChange?: string;
             provenance?: components["schemas"]["ClaimProvenance"];
             recommendationId?: string;
-            requiresHumanApproval?: boolean;
+            requiresHumanApproval?: null | boolean;
             riskReduction?: components["schemas"]["RiskReductionEstimate"];
             tradeOffs?: components["schemas"]["TradeOffObject"][];
             validationMethod?: string;
@@ -1516,6 +1516,7 @@ export interface components {
             evidenceHref?: string;
             findingId?: string;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            humanReviewStatusStored?: boolean;
             isStale?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             /** Format: date-time */
@@ -1575,6 +1576,7 @@ export interface components {
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            agentResultsIncludedInDetail?: boolean;
             agentTaskLoopComplete?: boolean;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             authorityPipelineComplete?: boolean;
@@ -1762,6 +1764,7 @@ export interface components {
         AskResponse: {
             answer?: string;
             comparisonNarrative?: null | string;
+            indexedSearchNotLimitedToReviewId?: boolean;
             referencedArtifacts?: string[];
             referencedDecisions?: string[];
             referencedFindings?: string[];
@@ -3140,6 +3143,7 @@ export interface components {
         };
         CostSection: {
             costRisks?: string[];
+            currencyCode?: null | string;
             /** Format: double */
             maxMonthlyCost?: null | number | string;
             notes?: string[];
@@ -4702,6 +4706,7 @@ export interface components {
             findingId?: string;
             hasActiveWaiver?: boolean;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            humanReviewStatusStored?: boolean;
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
@@ -4731,6 +4736,7 @@ export interface components {
             runId?: string;
             semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
+            severityStored?: boolean;
             trackedExternally?: boolean;
             treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;
@@ -5363,6 +5369,10 @@ export interface components {
         HolisticCriticResponse: {
             critiqueMarkdown?: string;
             disclaimer?: string;
+            /** Format: int32 */
+            omittedFindingLinesCount?: number;
+            /** Format: int32 */
+            omittedThemeSummariesCount?: number;
         };
         HostLeaderLeaseSnapshot: {
             holderInstanceId?: string;
@@ -5575,6 +5585,8 @@ export interface components {
             question?: string;
             /** Format: uuid */
             runId?: null | string;
+            /** Format: uuid */
+            securityEvidencePathId?: null | string;
             /** Format: date-time */
             sinceUtc?: null | string;
             /** Format: uuid */
@@ -5632,11 +5644,11 @@ export interface components {
         };
         InfraEvidenceMermaidFallbackArtifactSummary: {
             /** Format: int32 */
-            edgeCount?: number;
+            edgeCount?: null | number;
             key?: string;
             label?: string;
             /** Format: int32 */
-            nodeCount?: number;
+            nodeCount?: null | number;
             status?: string;
         };
         InfraEvidenceMermaidIdentityDiagramHints: {
@@ -5718,7 +5730,7 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
-            heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
+            heldCheckLedgerEntries?: components["schemas"]["HeldCheckLedgerRollupEntry"][];
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
             judgeConfiguredCap?: null | number;
@@ -5726,8 +5738,8 @@ export interface components {
             judgeEffectiveCap?: null | number;
             /** Format: int32 */
             judgeSkippedByCap?: number;
-            proseAssumptionHeldCheckAsks?: null | components["schemas"]["ProseAssumptionHeldCheckAsk"][];
-            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
+            proseAssumptionHeldCheckAsks?: components["schemas"]["ProseAssumptionHeldCheckAsk"][];
+            proseAssumptionRegisterEntries?: components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -7205,6 +7217,7 @@ export interface components {
         PilotRunDeltasResponse: {
             /** Format: int32 */
             auditRowCount?: number;
+            auditRowCountResolved?: boolean;
             auditRowCountTruncated?: boolean;
             /** Format: double */
             estimatedUsdSavings?: null | number | string;
@@ -8019,6 +8032,7 @@ export interface components {
             /** Format: int32 */
             artifactDescriptorCount?: null | number;
             artifactDescriptorCountResolved?: boolean;
+            auditRowCountResolved?: boolean;
             auditRowsPresentOrLowerBound?: boolean;
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
@@ -8819,6 +8833,7 @@ export interface components {
             recurrenceControl?: null | components["schemas"]["RemediationPatternRecurrenceControlDefinition"];
             requiredApprovals?: string[];
             rollback?: null | components["schemas"]["RemediationPatternRollbackDefinition"];
+            safeRolloutSteps?: string[];
         };
         RemediationPatternVersionRecord: {
             approvedByActorKey?: null | string;
@@ -9881,7 +9896,7 @@ export interface components {
             disposition?: string;
             expectedAgentsMissingTraces?: string[];
             /** Format: double */
-            graphRagNeighborHitRate?: number | string;
+            graphRagNeighborHitRate?: null | number | string;
             graphRagPilotFloorDisposition?: string;
             graphRagQualityPosture?: null | string;
             operatorDetail?: null | string;
@@ -9890,11 +9905,11 @@ export interface components {
             topologyReferenceArchitectureExemplarDocumentIds?: string[];
             topologyReferenceArchitectureExemplarMissing?: boolean;
             /** Format: int32 */
-            totalGraphRagNeighborsAdded?: number;
+            totalGraphRagNeighborsAdded?: null | number;
             /** Format: int32 */
-            totalGraphRagSeedHits?: number;
+            totalGraphRagSeedHits?: null | number;
             /** Format: int32 */
-            totalRetrievalTokensIn?: number;
+            totalRetrievalTokensIn?: null | number;
             /** Format: int32 */
             totalRetrievedChunks?: number;
             /** Format: int32 */
@@ -10052,6 +10067,44 @@ export interface components {
             separationDimension?: null | string;
             sharedDependencyNodeId?: null | string;
             status?: string;
+        };
+        SecureNowInvestigationEffortInputsResponse: {
+            afterHours?: string;
+            annualCost?: string;
+            annualInvestigations?: string;
+            baselineHours?: string;
+            hourlyRate?: string;
+            /** Format: date-time */
+            recordedUtc?: string;
+        };
+        SecureNowInvestigationEffortInputsSaveResult: {
+            errorMessage?: null | string;
+            inputs?: null | components["schemas"]["SecureNowInvestigationEffortInputsResponse"];
+            succeeded?: boolean;
+        };
+        SecureNowInvestigationEffortInputsWriteRequest: {
+            afterHours?: string;
+            annualCost?: string;
+            annualInvestigations?: string;
+            baselineHours?: string;
+            hourlyRate?: string;
+        };
+        SecureNowPilotPathDispositionResponse: {
+            outcome?: string;
+            /** Format: uuid */
+            pathId?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedUtc?: string;
+        };
+        SecureNowPilotPathDispositionSaveResult: {
+            disposition?: null | components["schemas"]["SecureNowPilotPathDispositionResponse"];
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        SecureNowPilotPathDispositionWriteRequest: {
+            outcome?: string;
+            rationale?: string;
         };
         SecureNowQuestionDispositionAuditResponse: {
             action?: string;
@@ -10292,6 +10345,7 @@ export interface components {
             executiveSummary?: string;
             /** Format: uuid */
             explanationId?: string;
+            modelOutputRejection?: null | string;
             /** Format: uuid */
             pathId?: string;
             proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];
@@ -10347,6 +10401,7 @@ export interface components {
             confidenceBandScore?: number | string;
             dimensionProse?: components["schemas"]["SecurityEvidencePathRankDimensionProseResponse"];
             explanationSummary?: string;
+            nextStoredPathRankContext?: string;
             pathConfidenceBand?: string;
             /** Format: uuid */
             pathId?: string;
@@ -10801,7 +10856,7 @@ export interface components {
             /** Format: date-time */
             snapshotUtc?: string;
             /** Format: double */
-            totalEstimatedUsdSavings?: number | string;
+            totalEstimatedUsdSavings?: null | number | string;
         };
         SponsorRoiHistoryResponse: {
             points?: components["schemas"]["SponsorRoiHistoryPoint"][];
@@ -10886,6 +10941,7 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
+        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";

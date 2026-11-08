@@ -245,7 +245,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
                         payloadHashes,
                         utcNow,
                         ruleName: CatalogTemplateRuleName,
-                        questionText: $"Does {fromLabel ?? "this app"} connect to database {ReadResourceName(database.AzureResourceId)} on {normalizedHost}?",
+                        questionText: FormatCatalogTemplateQuestionText(fromLabel, database, normalizedHost),
                         fromArmId: row.SiteResourceId,
                         fromLabel: fromLabel,
                         toHost: normalizedHost,
@@ -298,7 +298,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
                 payloadHashes,
                 utcNow,
                 ruleName: SqlCatalogMissingRuleName,
-                questionText: $"Which database does {fromLabel ?? "this app"} use on {normalizedHost}?",
+                questionText: $"Which database does {FormatSourceResourceLabel(fromLabel)} use on {normalizedHost}?",
                 fromArmId: row.SiteResourceId,
                 fromLabel: fromLabel,
                 toHost: normalizedHost,
@@ -435,6 +435,29 @@ public sealed class InferenceQuestionnaireItemGenerator(
                     toCloudResourceId: apiApp.CloudResourceId);
             }
         }
+    }
+
+    private static string FormatCatalogTemplateQuestionText(
+        string? fromLabel,
+        AzureInventoryResourceRecord database,
+        string normalizedHost)
+    {
+        string databaseName = ReadResourceName(database.AzureResourceId);
+
+        if (databaseName.Length == 0)
+        {
+            return
+                $"Does {FormatSourceResourceLabel(fromLabel)} connect to a database whose name was not stored on {normalizedHost}?";
+        }
+
+        if (string.IsNullOrWhiteSpace(databaseName))
+        {
+            return
+                $"Does {FormatSourceResourceLabel(fromLabel)} connect to a database whose name was stored empty on {normalizedHost}?";
+        }
+
+        return
+            $"Does {FormatSourceResourceLabel(fromLabel)} connect to database {databaseName} on {normalizedHost}?";
     }
 
     private static bool TryAddItem(
@@ -583,6 +606,9 @@ public sealed class InferenceQuestionnaireItemGenerator(
             pair => pair.Key,
             pair => (IReadOnlyDictionary<string, string>)pair.Value);
     }
+
+    private static string FormatSourceResourceLabel(string? fromLabel) =>
+        string.IsNullOrWhiteSpace(fromLabel) ? "Resource name was not stored" : fromLabel.Trim();
 
     private static string ReadResourceName(string azureResourceId)
     {

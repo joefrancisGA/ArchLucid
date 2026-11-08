@@ -1,5 +1,7 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -139,18 +141,15 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.Is<IReadOnlyList<string>>(ids => ids.Contains(runId)),
+                runId,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>
-            {
-                [runId] =
-                [
-                    new AgentExecutionTraceLlmCostSlice { InputTokenCount = 120, OutputTokenCount = 45 },
-                    new AgentExecutionTraceLlmCostSlice { InputTokenCount = 80, OutputTokenCount = 55 },
-                ],
-            });
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 120, OutputTokenCount = 45 },
+                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 80, OutputTokenCount = 55 },
+            ]);
 
         IGovernanceDashboardService sut = new GovernanceDashboardService(
             approvals.Object,
@@ -165,6 +164,67 @@ public sealed class GovernanceDashboardServiceTests
 
         summary.TotalPromptTokens.Should().Be(200);
         summary.TotalCompletionTokens.Should().Be(100);
+    }
+
+    [SkippableFact]
+    public async Task CompareQuality_GetDashboardAsync_includes_llm_cost_when_traces_use_legacy_run_id_key()
+    {
+        Guid tenantId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        Guid runGuid = Guid.Parse("bcbcbcbc-bcbc-bcbc-bcbc-bcbcbcbcbcbc");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals.Setup(a => a.GetPendingAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        approvals.Setup(a => a.GetRecentDecisionsAsync(20, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IPolicyPackChangeLogRepository> changes = new();
+        changes
+            .Setup(c => c.GetByScopeAsync(tenantId, Guid.Empty, Guid.Empty, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(q => q.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+                new List<RunSummary>
+                {
+                    new()
+                    {
+                        RunId = canonicalRunId,
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                        CreatedUtc = createdUtc,
+                    },
+                },
+                false,
+                (string?)null));
+
+        InMemoryAgentExecutionTraceRepository traces = new();
+        await traces.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-dashboard-legacy",
+                RunId = legacyUpper,
+                ModelDeploymentName = "gpt-4o",
+                InputTokenCount = 300,
+                OutputTokenCount = 60,
+            },
+            CancellationToken.None);
+
+        IGovernanceDashboardService sut = new GovernanceDashboardService(
+            approvals.Object,
+            changes.Object,
+            runQuery.Object,
+            traces,
+            CreateScopeProvider(),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(new ScopeContext { TenantId = tenantId }),
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
+
+        summary.TotalPromptTokens.Should().Be(300);
+        summary.TotalCompletionTokens.Should().Be(60);
     }
 
     [SkippableFact]
@@ -209,17 +269,14 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.Is<IReadOnlyList<string>>(ids => ids.SequenceEqual(new[] { committedRunId })),
+                committedRunId,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>
-            {
-                [committedRunId] =
-                [
-                    new AgentExecutionTraceLlmCostSlice { InputTokenCount = 50, OutputTokenCount = 25 },
-                ],
-            });
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 50, OutputTokenCount = 25 },
+            ]);
 
         IGovernanceDashboardService sut = new GovernanceDashboardService(
             approvals.Object,

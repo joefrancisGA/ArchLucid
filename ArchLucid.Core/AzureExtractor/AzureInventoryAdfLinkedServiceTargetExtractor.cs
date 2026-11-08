@@ -8,6 +8,7 @@ namespace ArchLucid.Core.AzureExtractor;
 public static class AzureInventoryAdfLinkedServiceTargetExtractor
 {
     private const int MaxHostLength = 253;
+    private const int MaxUrlPercentDecodePasses = 8;
 
     public static (string? TargetResourceId, string? TargetHost) Extract(
         JsonElement typePropertiesElement,
@@ -62,9 +63,18 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
     {
         if (linkedServiceType.Equals("AzureBlobStorage", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(
-                TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceEndpoint"))
-                ?? TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "accountUri")));
+            string? serviceEndpoint =
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceEndpoint");
+            string? accountUri =
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "accountUri");
+            string? host = TryReadHostFromUrl(serviceEndpoint);
+
+            if (host is null || !host.Contains('.', StringComparison.Ordinal))
+            {
+                host = TryReadHostFromUrl(accountUri);
+            }
+
+            return NormalizeHost(host);
         }
 
         if (linkedServiceType.Equals("AzureBlobFS", StringComparison.OrdinalIgnoreCase))
@@ -85,8 +95,7 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
                 return NormalizeHost(server);
             }
 
-            if (linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase)
-                && typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+            if (typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
                 && connectionString.ValueKind is JsonValueKind.String)
             {
                 return TryExtractConnectionStringHost(connectionString.GetString());
@@ -97,14 +106,44 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
 
         if (linkedServiceType.Equals("AzureSqlMI", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName"));
+            string? host = NormalizeHost(
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName")
+                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server")
+                ?? TryReadHostFromUrl(
+                    AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "endpoint")));
+
+            if (!string.IsNullOrWhiteSpace(host))
+            {
+                return host;
+            }
+
+            if (typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+                && connectionString.ValueKind is JsonValueKind.String)
+            {
+                return TryExtractConnectionStringHost(connectionString.GetString());
+            }
+
+            return null;
         }
 
         if (linkedServiceType.Equals("AzureSynapseAnalytics", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(
+            string? host = NormalizeHost(
                 TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "endpoint"))
                 ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server"));
+
+            if (!string.IsNullOrWhiteSpace(host))
+            {
+                return host;
+            }
+
+            if (typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+                && connectionString.ValueKind is JsonValueKind.String)
+            {
+                return TryExtractConnectionStringHost(connectionString.GetString());
+            }
+
+            return null;
         }
 
         if (linkedServiceType.Equals("AzureDataLakeStore", StringComparison.OrdinalIgnoreCase))
@@ -260,9 +299,23 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             return null;
         }
 
-        if (!Uri.TryCreate(value.Trim(), UriKind.Absolute, out Uri? uri))
+        string trimmed = value.Trim();
+
+        for (int pass = 0; pass < MaxUrlPercentDecodePasses && trimmed.Contains('%', StringComparison.Ordinal); pass++)
         {
-            return NormalizeHost(value);
+            string decoded = Uri.UnescapeDataString(trimmed);
+
+            if (string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            trimmed = decoded;
+        }
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+        {
+            return NormalizeHost(trimmed);
         }
 
         return NormalizeHost(uri.Host);
@@ -276,6 +329,18 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         }
 
         string trimmed = host.Trim().TrimEnd('.');
+
+        for (int pass = 0; pass < MaxUrlPercentDecodePasses && trimmed.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(trimmed);
+
+            if (string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            trimmed = decoded.Trim().TrimEnd('.');
+        }
 
         if (trimmed.StartsWith("tcp:", StringComparison.OrdinalIgnoreCase))
         {
@@ -293,6 +358,8 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         {
             trimmed = trimmed[..MaxHostLength];
         }
+
+        trimmed = trimmed.Trim().TrimEnd('.');
 
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed.ToLowerInvariant();
     }
@@ -313,7 +380,8 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             }
 
             string key = segment[..separator].Trim();
-            if (!key.Equals("server", StringComparison.OrdinalIgnoreCase))
+            if (!key.Equals("server", StringComparison.OrdinalIgnoreCase)
+                && !key.Equals("host", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }

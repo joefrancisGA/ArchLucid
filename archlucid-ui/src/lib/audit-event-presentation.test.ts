@@ -7,6 +7,11 @@ import {
 } from "@/lib/audit-event-presentation";
 
 describe("auditEventFriendlyTitle", () => {
+  it("labels missing event type codes honestly", () => {
+    expect(auditEventFriendlyTitle("")).toBe("Event type was not stored.");
+    expect(auditEventFriendlyTitle("   ")).toBe("Event type was not stored.");
+  });
+
   it("matches Contracts buyer titles for known audit spine codes", () => {
     expect(auditEventFriendlyTitle("RunStarted")).toBe("Review started");
     expect(auditEventFriendlyTitle("ManifestFinalized")).toBe("Review finalized");
@@ -18,6 +23,9 @@ describe("auditEventFriendlyTitle", () => {
       "Review model execution profile override applied",
     );
     expect(auditEventFriendlyTitle("ManifestViewed")).toBe("Review viewed");
+    expect(auditEventFriendlyTitle("com.example.seat-released")).toBe(
+      "Event type has no reviewer label: com.example.seat-released",
+    );
   });
 });
 

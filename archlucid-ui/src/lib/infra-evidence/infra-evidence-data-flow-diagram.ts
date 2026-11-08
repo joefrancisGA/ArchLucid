@@ -1,6 +1,9 @@
 export const INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX =
   "Declared pipeline wiring, not observed traffic.";
 
+export const INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED =
+  "Buyer-facing data-flow caption was not stored.";
+
 const INFRA_EVIDENCE_MERMAID_METADATA_COMMENT_PATTERN =
   /(?:^|\s)al-(?:type|rg|seed|provenance|inference|declared-id|state|outline-only)=/u;
 
@@ -13,6 +16,8 @@ export type InfraDiagramsDataFlowCaptionPresentation = {
   readonly honestyCaptions: readonly string[];
   readonly metadataComments: readonly string[];
 };
+
+export const INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION = "Data-flow diagram was not stored.";
 
 function parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource: string): readonly string[] {
   if (mermaidSource.trim().length === 0) {
@@ -36,13 +41,20 @@ export function parseInfraDiagramsDataFlowCaptionsFromMermaid(mermaidSource: str
 export function parseInfraDiagramsDataFlowCaptionPresentation(
   mermaidSource: string,
 ): InfraDiagramsDataFlowCaptionPresentation {
+  if (mermaidSource.trim().length === 0) {
+    return {
+      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_NOT_STORED_CAPTION],
+      metadataComments: [],
+    };
+  }
+
   const captions = parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource);
   const honestyCaptions = captions.filter((caption) => !isInfraEvidenceMermaidMetadataComment(caption));
   const metadataComments = captions.filter((caption) => isInfraEvidenceMermaidMetadataComment(caption));
 
   if (honestyCaptions.length === 0 && mermaidSource.trim().length > 0) {
     return {
-      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX],
+      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX, INFRA_DIAGRAMS_BUYER_CAPTION_NOT_STORED],
       metadataComments,
     };
   }

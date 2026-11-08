@@ -30,6 +30,18 @@ from cd_rollback import (  # noqa: E402
 from release_evidence_common import repo_root  # noqa: E402
 
 
+def _lkg_component_revision(lkg: dict, role: str) -> str:
+    """Treat malformed LKG component data as unavailable, never as a crash."""
+    components = lkg.get("components")
+    if not isinstance(components, dict):
+        return ""
+    component = components.get(role)
+    if not isinstance(component, dict):
+        return ""
+    revision = component.get("revision")
+    return revision.strip() if isinstance(revision, str) else ""
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("auto", "manual"), required=True)
@@ -202,15 +214,9 @@ def main(argv: list[str] | None = None) -> int:
         "mode": "auto",
         "reason": decision.reason,
         "targetBuildId": lkg_build_id,
-        "targetApiRevision": (lkg.get("components") or {}).get("api", {}).get("revision", "")
-        if isinstance(lkg.get("components"), dict)
-        else "",
-        "targetUiRevision": (lkg.get("components") or {}).get("ui", {}).get("revision", "")
-        if isinstance(lkg.get("components"), dict)
-        else "",
-        "targetWorkerRevision": (lkg.get("components") or {}).get("worker", {}).get("revision", "")
-        if isinstance(lkg.get("components"), dict)
-        else "",
+        "targetApiRevision": _lkg_component_revision(lkg, "api"),
+        "targetUiRevision": _lkg_component_revision(lkg, "ui"),
+        "targetWorkerRevision": _lkg_component_revision(lkg, "worker"),
         "destructiveMigrations": list(schema.destructive_migrations),
     }
     report = build_rollback_report(

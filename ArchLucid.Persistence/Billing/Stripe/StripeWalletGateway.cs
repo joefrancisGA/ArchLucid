@@ -58,6 +58,12 @@ public sealed class StripeWalletGateway(IOptionsMonitor<BillingOptions> billingO
             if (string.Equals(intent.Status, "succeeded", StringComparison.OrdinalIgnoreCase))
                 return StripeWalletChargeResult.Ok(intent.Id);
 
+            if (string.Equals(intent.Status, "processing", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(intent.Status, "requires_capture", StringComparison.OrdinalIgnoreCase))
+            {
+                return StripeWalletChargeResult.AwaitingCompletion(intent.Id, intent.Status);
+            }
+
             return StripeWalletChargeResult.Failed(intent.LastPaymentError?.DeclineCode, intent.LastPaymentError?.Message ?? intent.Status);
         }
         catch (StripeException ex)

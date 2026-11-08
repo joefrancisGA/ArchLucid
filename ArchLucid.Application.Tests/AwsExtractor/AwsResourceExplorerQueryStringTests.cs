@@ -18,6 +18,14 @@ public sealed class AwsResourceExplorerQueryStringTests
     }
 
     [Fact]
+    public void ResolveForRegion_throws_when_region_is_whitespace_only()
+    {
+        Action act = () => AwsResourceExplorerQueryString.ResolveForRegion("   ");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void ResolveForRegion_trims_bounding_whitespace_before_partition_resolution()
     {
         AwsResourceExplorerQueryString.ResolveForRegion("  cn-north-1  ")

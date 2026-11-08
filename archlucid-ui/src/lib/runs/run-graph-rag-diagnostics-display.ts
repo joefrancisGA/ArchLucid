@@ -52,14 +52,21 @@ export function formatGraphRagPilotFloorDisposition(value: string | null | undef
   return trimmed.toUpperCase();
 }
 
+/** True when the API returned an explicit graph-RAG metric (including stored zero). */
+export function graphRagMetricWasReturned(value: unknown): boolean {
+  return finiteMetric(value) !== null;
+}
+
 /** True when the summary includes any graph-RAG field (including explicit zeros). */
 export function runGraphRagDiagnosticsStripHasSignal(summary: RunRetrievalGroundingSummary): boolean {
+  const pilotFloor = summary.graphRagPilotFloorDisposition?.trim() ?? "";
+
   return (
-    summary.totalGraphRagNeighborsAdded !== undefined ||
-    summary.totalGraphRagSeedHits !== undefined ||
-    summary.totalRetrievalTokensIn !== undefined ||
-    summary.graphRagNeighborHitRate !== undefined ||
-    summary.graphRagPilotFloorDisposition !== undefined ||
-    summary.graphRagQualityPosture !== undefined
+    graphRagMetricWasReturned(summary.totalGraphRagNeighborsAdded) ||
+    graphRagMetricWasReturned(summary.totalGraphRagSeedHits) ||
+    graphRagMetricWasReturned(summary.totalRetrievalTokensIn) ||
+    graphRagMetricWasReturned(summary.graphRagNeighborHitRate) ||
+    pilotFloor.length > 0 ||
+    (summary.graphRagQualityPosture?.trim().length ?? 0) > 0
   );
 }

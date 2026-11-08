@@ -111,23 +111,44 @@ export function resolveExplanationEvidenceBasisBadges(
     }
   }
 
+  if (
+    (input.faithfulnessSupportRatio === null || input.faithfulnessSupportRatio === undefined)
+    && input.citationCount !== null
+    && input.citationCount !== undefined
+    && input.citationCount > 0
+  ) {
+    badges.push(
+      badge(
+        "manual-review-required",
+        "Faithfulness support ratio was not stored.",
+        "Faithfulness support ratio was not stored for this explanation.",
+        true,
+      ),
+    );
+  }
+
   if (badges.length === 0) {
     if (input.citationCount === null || input.citationCount === undefined) {
       badges.push(
         badge(
           "manual-review-required",
-          "Citations not returned",
-          "The server did not return persisted citation rows for this explanation.",
+          "Citations were not stored.",
+          "Persisted citation rows were not stored for this explanation.",
           true,
         ),
       );
     } else {
+      const ratio = normalizeFiniteRatio(input.faithfulnessSupportRatio);
+      const zeroCitationDetail =
+        ratio !== null
+          ? "Faithfulness support was stored. No persisted citations were stored for this explanation."
+          : "No persisted citations were stored for this explanation.";
       badges.push(
         badge(
           "manual-review-required",
           "Manual review required",
           input.citationCount === 0
-            ? "No persisted citations were stored for this explanation."
+            ? zeroCitationDetail
             : "No persisted citation or support ratio is available for this explanation.",
           true,
         ),

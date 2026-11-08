@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -14,7 +16,7 @@ import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectio
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -25,6 +27,7 @@ import {
   GOVERNANCE_SIGNED_RECORDS_LIST_SKIP_LINK_LABEL,
 } from "@/lib/governance-signed-records-list-page-copy";
 import { SIGNED_RECORDS_LIST_CLAIM_DISCIPLINE } from "@/lib/signed-records-list-evidence-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +52,7 @@ import { SignedRecordsListEmptyStates } from "./SignedRecordsListEmptyStates";
 import { useSignedRecordsListClient } from "./use-signed-records-list-client";
 
 export default function SignedRecordsListClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const {
     scopedRunId,
     scopedRunFilterActive,
@@ -160,7 +163,7 @@ export default function SignedRecordsListClient() {
           {" · "}
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+            href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
           >
             Open review
           </Link>

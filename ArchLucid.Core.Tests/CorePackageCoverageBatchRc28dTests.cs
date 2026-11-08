@@ -384,7 +384,7 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Theory]
-    [InlineData(null, "PASS")]
+    [InlineData(null, "HOLD")]
     [InlineData(0.4, "HOLD")]
     [InlineData(0.6, "WARN")]
     [InlineData(0.9, "PASS")]
@@ -444,7 +444,9 @@ public sealed class CorePackageCoverageBatchRc28dTests
         RunExplanationConfidenceSignals fromSummary = RunExplanationConfidenceCalloutBuilder.FromSummary(summary);
         fromSummary.CitationCount.Should().Be(0);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(fromSummary).Should().Be("WARN");
-        RunExplanationConfidenceCalloutBuilder.BuildLimitationsLine(null).Should().BeNull();
+        RunExplanationConfidenceCalloutBuilder.BuildLimitationsLine(null)
+            .Should()
+            .Be("**Explanation confidence:** aggregate narrative was not collected — verify review detail before sponsor send.");
     }
 
     [Fact]

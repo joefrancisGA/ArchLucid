@@ -1,5 +1,7 @@
 "use client";
 
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +29,6 @@ import {
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 import { HealthcareClaimsPolicyPackTechnicalDetailsDisclosure } from "./HealthcareClaimsPolicyPackTechnicalDetailsDisclosure";
@@ -76,7 +77,7 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null): string {
  */
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
   const findingsHref = props.findingsHref ?? "/governance/findings";
 

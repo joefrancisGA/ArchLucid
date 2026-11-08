@@ -27,4 +27,13 @@ Reduce manual triage time for claims analysts.
       peopleAndSystems: true,
     });
   });
+
+  it("keeps integration narrative as one label instead of splitting on commas (P-07)", () => {
+    const derived = deriveArchitectureGapBaselineFromSubmittedText(`## External integrations
+Payment gateway, CRM sync, and legacy batch feed`);
+
+    expect(derived.keyIntegrations).toEqual([
+      "Payment gateway, CRM sync, and legacy batch feed",
+    ]);
+  });
 });

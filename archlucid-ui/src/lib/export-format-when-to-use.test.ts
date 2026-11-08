@@ -45,6 +45,7 @@ describe("export-format-when-to-use (TB-2202)", () => {
     }
 
     expect(EXPORT_FORMAT_MARKDOWN.label.toLowerCase()).toContain("email");
+    expect(EXPORT_FORMAT_MARKDOWN.whenToUse).toContain("stored on export");
     expect(EXPORT_FORMAT_PDF.label.toLowerCase()).toContain("print");
     expect(EXPORT_FORMAT_DOCX.label.toLowerCase()).toContain("edit");
     expect(EXPORT_FORMAT_ZIP.label.toLowerCase()).toContain("archive");

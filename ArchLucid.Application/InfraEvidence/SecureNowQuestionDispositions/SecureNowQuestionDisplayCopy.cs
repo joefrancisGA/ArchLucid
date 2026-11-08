@@ -36,25 +36,38 @@ internal static class SecureNowQuestionDisplayCopy
 
         if (string.Equals(question.QuestionKey, "orphan-still-needed@v1", StringComparison.OrdinalIgnoreCase))
         {
+            string idTail = ReadResourceIdTailSegment(resourceArmId);
+            string questionText = idTail.Length > 0
+                ? $"Resource id ends with {idTail}. A separate display name was not stored. Is this resource still needed?"
+                : "Resource name was not stored. Is this resource still needed?";
             return question with
             {
                 ResourceType = resourceType,
                 ResourceName = resourceName,
-                QuestionText = $"Is {resourceName} still needed?",
-                ReasonText = $"SecureNow could not find the parent {resourceName} requires.",
+                QuestionText = questionText,
+                ReasonText = idTail.Length > 0
+                    ? $"A parent for {idTail} was not stored."
+                    : "Resource name was not stored. A parent was not stored.",
             };
         }
 
         if (string.Equals(question.QuestionKey, "unknown-evidence@v1", StringComparison.OrdinalIgnoreCase))
         {
-            string friendlyType = DiagramArmTypeFriendlyName.TryFormat(resourceType) ?? "This type";
+            string reasonSuffix = resourceType.Length > 0
+                ? $"{DiagramArmTypeFriendlyName.TryFormat(resourceType) ?? resourceType} is not treated as a shared service that can stand alone."
+                : "This resource is not treated as a shared service that can stand alone.";
+            string reasonPrefix = resourceType.Length > 0
+                ? "Connection evidence was not stored."
+                : "Resource type was not stored. Connection evidence was not stored.";
+            string questionText = resourceName.Length > 0
+                ? $"Should {resourceName} connect to a peer, or stand alone?"
+                : "Resource name was not stored. Should this resource connect to a peer, or stand alone?";
             return question with
             {
                 ResourceType = resourceType,
                 ResourceName = resourceName,
-                QuestionText = $"Should {resourceName} connect to a peer, or stand alone?",
-                ReasonText =
-                    $"SecureNow found no connection to or from {resourceName}. {friendlyType} is not treated as a shared service that can stand alone.",
+                QuestionText = questionText,
+                ReasonText = $"{reasonPrefix} {reasonSuffix}",
             };
         }
 
@@ -89,7 +102,7 @@ internal static class SecureNowQuestionDisplayCopy
         }
 
         if (resourceName.Length == 0)
-            return trimmed.Length > 0 ? trimmed : InferredConnectionFallbackQuestion;
+            return "Should SecureNow record this inferred connection without a stored resource name?";
 
         return $"Should SecureNow record an inferred connection for {resourceName}?";
     }
@@ -104,6 +117,18 @@ internal static class SecureNowQuestionDisplayCopy
         string[] segments = trimmed.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         string lastSegment = segments.Length > 0 ? segments[^1] : trimmed;
 
-        return lastSegment.ToLowerInvariant();
+        return lastSegment;
+    }
+
+    private static string ReadResourceIdTailSegment(string armResourceId)
+    {
+        string trimmed = armResourceId.Trim();
+
+        if (trimmed.Length == 0)
+            return string.Empty;
+
+        string[] segments = trimmed.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        return segments.Length > 0 ? segments[^1] : trimmed;
     }
 }

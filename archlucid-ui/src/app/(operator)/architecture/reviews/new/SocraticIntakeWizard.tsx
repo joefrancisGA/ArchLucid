@@ -15,8 +15,8 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudge
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
@@ -42,7 +42,7 @@ export type SocraticIntakeWizardProps = {
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { isWorkingMode } = useWorkspaceMode();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const { isSimulator } = useAgentExecutionMode();
@@ -80,7 +80,9 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     confirmedScopeLines,
     scopeUnderstandingInput,
     guidedIntakeEvidencePresence,
+    evidenceFiles,
     priorAttachedFileNames,
+    priorRunPrefillCopiedFromLine,
     setEvidenceFiles,
     // Draft workflow
     busy,
@@ -132,6 +134,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     canSuggestFromEvidence,
     suggestAnswersFromEvidence,
     markQuestionEdited,
+    droppedClarificationExtractSummary,
   } = clarificationInference;
   const suggestedDraftCount = inferredQuestionKeys.size;
 
@@ -288,7 +291,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
         />
       ) : null}
 
-      {step === 0 ? (
+      {step === 0 && !isSubmitBlocked ? (
         <SocraticIntakeWizardStepScope
           isCreateArchitectureFlow={isCreateArchitectureFlow}
           requiresSystemName={requiresSystemName}
@@ -316,6 +319,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           submitError={submitError}
           systemNameAvailability={systemNameAvailability}
           priorAttachedFileNames={priorAttachedFileNames}
+          priorRunPrefillCopiedFromLine={priorRunPrefillCopiedFromLine}
           onEvidenceFilesChange={setEvidenceFiles}
           onCreateArchitectureContinuation={runCreateArchitectureContinuation}
           onAdmission={runAdmission}
@@ -350,6 +354,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           isSubmitBlocked={isSubmitBlocked}
           suggestAnswersFromEvidence={suggestAnswersFromEvidence}
           markQuestionEdited={markQuestionEdited}
+          droppedClarificationExtractSummary={droppedClarificationExtractSummary}
           saveAndContinue={saveAndContinue}
           skipQuestion={skipQuestion}
           reviewAnswers={reviewAnswers}
@@ -363,6 +368,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           businessOutcome={businessOutcome}
           systemName={systemName}
           guidedIntakeEvidencePresence={guidedIntakeEvidencePresence}
+          guidedIntakeAttachmentFileNames={evidenceFiles.map((file) => file.name)}
           confirmedScopeLines={confirmedScopeLines}
           submitError={submitError}
           policyPackCloudMismatch={policyPackCloudMismatch}

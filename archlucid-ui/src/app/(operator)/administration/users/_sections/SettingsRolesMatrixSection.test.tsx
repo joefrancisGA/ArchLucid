@@ -65,12 +65,12 @@ describe("SettingsRolesMatrixSection", () => {
   it("renders create form, legend, and accessible permission values", async () => {
     stubRolesResponse(sampleRoles);
 
-    render(<SettingsRolesMatrixSection assignmentCountsByRole={new Map([["Reader", 2]])} />);
+    render(<SettingsRolesMatrixSection />);
 
     expect(await screen.findByTestId("settings-roles-matrix-legend")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Create custom role" })).toBeInTheDocument();
     expect(screen.getByText(/Built-in roles cannot be edited/i)).toBeInTheDocument();
-    expect(screen.queryByTestId("settings-roles-builtin-summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-builtin-summary")).toBeInTheDocument();
     expect(screen.getByTestId("settings-roles-create-readiness")).toHaveTextContent("Enter a role name");
 
     const readReviewsCell = await screen.findByLabelText("Read reviews for Reader: Allowed");
@@ -79,8 +79,6 @@ describe("SettingsRolesMatrixSection", () => {
 
     const billingCell = screen.getByLabelText("Manage billing for Reader: Not allowed");
     expect(billingCell).toBeInTheDocument();
-    expect(screen.getByText("2 assignments")).toBeInTheDocument();
-
     fireEvent.click(screen.getByRole("button", { name: "Reviews permissions" }));
     expect(screen.queryByLabelText("Read reviews for Reader: Allowed")).not.toBeInTheDocument();
 
@@ -108,12 +106,10 @@ describe("SettingsRolesMatrixSection", () => {
     expect(await screen.findByRole("columnheader", { name: /Architect/ })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /^Operator/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Clone Architect role into the create form" })).toBeInTheDocument();
-    expect(screen.getByText(/Last updated/i)).toBeInTheDocument();
-
     vi.unstubAllGlobals();
   });
 
-  it("flags unsaved edits in the command bar and saves from there", async () => {
+  it("flags unsaved edits and surfaces save controls on the role column", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo) => {
       const url = typeof input === "string" ? input : input.url;
 
@@ -132,18 +128,15 @@ describe("SettingsRolesMatrixSection", () => {
 
     await screen.findByRole("heading", { name: "Create custom role" });
 
-    expect(screen.queryByTestId("settings-roles-command-bar")).not.toBeInTheDocument();
-
     fireEvent.click(screen.getByLabelText("Create reviews for Reviewer plus"));
 
     expect(screen.getByTestId("settings-roles-unsaved-notice")).toHaveTextContent("Reviewer plus");
-    expect(screen.getByTestId("settings-roles-command-bar")).toBeInTheDocument();
     expect(screen.getByTestId("settings-roles-unsaved-badge-role-custom")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save Reviewer plus role" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "Discard unsaved changes to Reviewer plus" }));
 
-    expect(screen.queryByTestId("settings-roles-command-bar")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-unsaved-badge-role-custom")).not.toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
@@ -156,32 +149,24 @@ describe("SettingsRolesMatrixSection", () => {
 
     render(<SettingsRolesMatrixSection />);
 
-    expect(await screen.findByText("Role matrix unavailable")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(await screen.findByText("Could not load roles")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.queryByTestId("settings-roles-matrix-legend")).not.toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
 
-  it("shows assignments unavailable when counts are unreliable", async () => {
-    stubRolesResponse(sampleRoles);
-
-    render(<SettingsRolesMatrixSection assignmentCountsReliable={false} />);
-
-    expect((await screen.findAllByText("Assignments unavailable")).length).toBeGreaterThan(0);
-    expect(screen.queryByText("2 assignments")).not.toBeInTheDocument();
-
-    vi.unstubAllGlobals();
-  });
-
-  it("marks high-risk permissions inline in the matrix", async () => {
-    stubRolesResponse(sampleRoles);
+  it("prompts before granting newly added high-risk permissions", async () => {
+    stubRolesResponse(rolesWithCustomColumn);
 
     render(<SettingsRolesMatrixSection />);
 
     await screen.findByRole("heading", { name: "Create custom role" });
 
-    expect(screen.getAllByText("High risk").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByLabelText("Manage billing for Reviewer plus"));
+    fireEvent.click(screen.getByRole("button", { name: "Save Reviewer plus role" }));
+
+    expect(screen.getByRole("heading", { name: "Grant high-risk permissions?" })).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

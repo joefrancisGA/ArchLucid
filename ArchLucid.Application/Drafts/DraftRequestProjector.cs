@@ -27,7 +27,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             RequestId = DraftSpawnedArchitectureRequestId.FromDraftId(draftId),
             Description = description,
             SystemName = systemName,
-            Environment = "prod",
+            Environment = string.Empty,
             CloudProvider = ResolveCloudProvider(document),
             Constraints = CopyTrimmedList(structuredBrief.ConfirmedConstraints),
             RequiredCapabilities = CopyTrimmedList(structuredBrief.ConfirmedRequiredCapabilities),
@@ -91,7 +91,9 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         if (intent.Length >= MinimumDescriptionLength)
             return intent;
 
-        return intent.PadRight(MinimumDescriptionLength, '.');
+        const string minimumLengthNote = "Draft intent did not meet the minimum description length.";
+
+        return intent.Length == 0 ? minimumLengthNote : $"{intent} {minimumLengthNote}";
     }
 
     private static List<string> BuildInlineRequirements(
@@ -167,7 +169,9 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
 
         foreach (ActorDescriptor actor in document.ActorSet.Actors)
         {
-            string label = string.IsNullOrWhiteSpace(actor.Label) ? "actor" : actor.Label;
+            string label = string.IsNullOrWhiteSpace(actor.Label)
+                ? "Actor name was not stored."
+                : actor.Label.Trim();
             assumptions.Add(
                 $"[actor:{actor.Origin}] {label}: {actor.Kind}/{actor.TrustOrigin}/{actor.Contract} (confidence {actor.Confidence})");
         }

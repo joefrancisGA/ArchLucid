@@ -26,7 +26,11 @@ export function buyerPipelineStageName(
 ): string {
   const trimmed = stageName.trim();
 
-  if (!buyerLabelsActive || trimmed.length === 0) {
+  if (trimmed.length === 0) {
+    return buyerLabelsActive ? "Pipeline stage was not stored." : "Pipeline stage was not stored.";
+  }
+
+  if (!buyerLabelsActive) {
     return fallbackStageName(trimmed);
   }
 
@@ -36,5 +40,5 @@ export function buyerPipelineStageName(
     return label;
   }
 
-  return fallbackStageName(trimmed);
+  return `Unknown pipeline stage (${fallbackStageName(trimmed)})`;
 }

@@ -21,15 +21,54 @@ export type ArchitectureCreatedFindingsNextActionProps = {
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
+function triageOpenFindings(findings: readonly QuickDecisionFinding[]): readonly QuickDecisionFinding[] {
+  return findings.filter((finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding));
+}
+
 function triageVisibleFindings(
   findings: readonly QuickDecisionFinding[],
 ): readonly QuickDecisionFinding[] {
-  const nonMuted = findings.filter(
-    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
-  );
+  const nonMuted = triageOpenFindings(findings);
   const { visibleFindings } = applyFindingsConfidenceVisibility(nonMuted, false);
 
   return visibleFindings;
+}
+
+function resolveTriagePrimaryActionLabel(
+  finding: QuickDecisionFinding,
+  hiddenLowConfidenceCount: number,
+  allOpenFindings: readonly QuickDecisionFinding[],
+): string {
+  const severity = finding.severityValue;
+  const title =
+    finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.";
+
+  if (severity === null || severity === undefined || !Number.isFinite(severity)) {
+    return `Triage: ${title}`;
+  }
+
+  const topSeverity = allOpenFindings.reduce<number | null>((max, row) => {
+    const value = row.severityValue;
+
+    if (value === null || value === undefined || !Number.isFinite(value)) {
+      return max;
+    }
+
+    return max === null ? value : Math.max(max, value);
+  }, null);
+
+  const tiedAtTop =
+    topSeverity !== null &&
+    severity === topSeverity &&
+    allOpenFindings.filter(
+      (row) => row.severityValue === topSeverity && !row.isMuted && !isReviewFindingDispositionClosed(row),
+    ).length > 1;
+
+  if (hiddenLowConfidenceCount > 0 || tiedAtTop || finding.enforcementTier === "Advisory") {
+    return `Triage first shown finding: ${title}`;
+  }
+
+  return `Triage highest-severity finding: ${title}`;
 }
 
 /** Findings-scoped primary action for create-home Findings tab (REF). */
@@ -37,8 +76,11 @@ export function ArchitectureCreatedFindingsNextAction(
   props: ArchitectureCreatedFindingsNextActionProps,
 ): React.JSX.Element | null {
   const actionVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const sortedFindings = sortQuickDecisionFindings(triageVisibleFindings(props.findings));
+  const openFindings = triageOpenFindings(props.findings);
+  const visibleFindings = triageVisibleFindings(props.findings);
+  const sortedFindings = sortQuickDecisionFindings(visibleFindings);
   const highestSeverityFinding = sortedFindings[0] ?? null;
+  const hiddenLowConfidenceCount = Math.max(0, openFindings.length - visibleFindings.length);
   const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
     includeCreateIntent: true,
   });
@@ -56,7 +98,7 @@ export function ArchitectureCreatedFindingsNextAction(
         </p>
         <Button type="button" variant={actionVariant} size="sm" className="mt-2 h-8" asChild>
           <Link href={href} prefetch={false} data-testid="architecture-findings-triage-primary-action">
-            Triage highest-severity finding
+            {resolveTriagePrimaryActionLabel(highestSeverityFinding, hiddenLowConfidenceCount, openFindings)}
           </Link>
         </Button>
       </div>

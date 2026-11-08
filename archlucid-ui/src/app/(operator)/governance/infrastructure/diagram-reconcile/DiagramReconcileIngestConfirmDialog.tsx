@@ -15,7 +15,7 @@ export type DiagramReconcileIngestConfirmDialogProps = {
   readonly open: boolean;
   readonly reviewTitle: string;
   readonly runId: string;
-  readonly existingNodeCount: number;
+  readonly existingNodeCount: number | null;
   readonly onOpenChange: (open: boolean) => void;
   readonly onConfirm: () => void;
 };
@@ -23,7 +23,12 @@ export type DiagramReconcileIngestConfirmDialogProps = {
 export function DiagramReconcileIngestConfirmDialog(
   props: DiagramReconcileIngestConfirmDialogProps,
 ): React.JSX.Element {
-  const replacingExisting = props.existingNodeCount > 0;
+  const replacingExisting =
+    props.existingNodeCount !== null && Number.isFinite(props.existingNodeCount) && props.existingNodeCount > 0;
+  const existingNodeCountLabel =
+    props.existingNodeCount !== null && Number.isFinite(props.existingNodeCount)
+      ? String(Math.trunc(props.existingNodeCount))
+      : "Active node count was not stored.";
 
   return (
     <AlertDialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -37,7 +42,7 @@ export function DiagramReconcileIngestConfirmDialog(
               <>
                 Ingest replaces the structured diagram model on review record{" "}
                 <strong>{props.reviewTitle}</strong> ({props.runId}). The current model has{" "}
-                {props.existingNodeCount} active node(s). This mutation is recorded on the audit trail.
+                {existingNodeCountLabel} active node(s). This mutation is recorded on the audit trail.
               </>
             ) : (
               <>

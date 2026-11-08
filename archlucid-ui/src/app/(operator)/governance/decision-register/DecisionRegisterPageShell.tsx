@@ -14,6 +14,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -178,7 +179,7 @@ export function DecisionRegisterPageShell(props: DecisionRegisterPageShellProps)
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(scopedRunId)}
             >
               Open review
             </Link>

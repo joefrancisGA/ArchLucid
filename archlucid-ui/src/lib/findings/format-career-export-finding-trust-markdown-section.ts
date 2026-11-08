@@ -11,7 +11,16 @@ export function formatCareerExportFindingTrustMarkdownSection(
   );
 
   if (exportable.length === 0) {
-    return "";
+    if (findings.length === 0) {
+      return "";
+    }
+
+    return [
+      "## Finding trust labels",
+      "",
+      "No exportable findings on this snapshot — muted or checklist-only rows were omitted.",
+      "",
+    ].join("\n");
   }
 
   lines.push("## Finding trust labels");
@@ -21,10 +30,13 @@ export function formatCareerExportFindingTrustMarkdownSection(
 
   for (const finding of exportable) {
     const trustLine = formatFindingTrustExportLine(finding);
-    const title = finding.title.trim().length > 0 ? finding.title.trim() : finding.findingId;
+    const title =
+      finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.";
+    const findingIdLabel =
+      finding.findingId.trim().length > 0 ? finding.findingId.trim() : "Finding id was not stored.";
 
     lines.push(
-      `- **${finding.findingId}** — ${title}: ${trustLine ?? "Trust label unavailable on this snapshot."}`,
+      `- **${findingIdLabel}** — ${title}: ${trustLine ?? "Trust label was not stored."}`,
     );
   }
 

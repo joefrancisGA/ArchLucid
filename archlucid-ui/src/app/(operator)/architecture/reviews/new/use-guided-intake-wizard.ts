@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, type SetStateAction } from "re
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
@@ -49,6 +53,8 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlStepIndex = parseGuidedIntakeStepFromSearch(searchParams.get("intakeStep"));
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
@@ -80,7 +86,11 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   const syncIntakeStepToUrl = useCallback(
     (nextStepIndex: number) => {
       commitHrefIfChanged(
-        guidedIntakeStepHrefFromSearch(readWindowLocationSearch(), nextStepIndex, pathname),
+        guidedIntakeStepHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          nextStepIndex,
+          pathname,
+        ),
         { notify: false },
       );
     },
@@ -111,7 +121,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   useEffect(() => {
     const syncIntakeStepFromUrl = (): void => {
       const parsedStep = parseGuidedIntakeStepFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("intakeStep"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "intakeStep"),
       );
       const nextStep =
         parsedStep === null
@@ -171,7 +181,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     blocksLlmRephrase: blocksLlmExecution,
   });
 
-  useGuidedIntakePriorRunPrefill({
+  const priorRunPrefill = useGuidedIntakePriorRunPrefill({
     priorRunId,
     freeTextIntent: form.freeTextIntent,
     businessOutcome: form.businessOutcome,
@@ -295,10 +305,18 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     !blocksLlmExecution &&
     policyPackCloudMismatch === null;
 
-  const rerunAutoSubmitStartedRef = useRef(false);
+  const rerunAutoSubmitPriorRunIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (priorRunId === null || workflow.busy || rerunAutoSubmitStartedRef.current) {
+    if (priorRunId === null || workflow.busy) {
+      if (priorRunId === null) {
+        rerunAutoSubmitPriorRunIdRef.current = null;
+      }
+
+      return;
+    }
+
+    if (rerunAutoSubmitPriorRunIdRef.current === priorRunId) {
       return;
     }
 
@@ -318,7 +336,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
       return;
     }
 
-    rerunAutoSubmitStartedRef.current = true;
+    rerunAutoSubmitPriorRunIdRef.current = priorRunId;
     void workflow.submitDraft();
   }, [
     canSubmit,
@@ -360,5 +378,6 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     stepLabel,
     clarificationInference,
     systemNameAvailability,
+    priorRunPrefillCopiedFromLine: priorRunPrefill.priorRunPrefillCopiedFromLine,
   };
 }

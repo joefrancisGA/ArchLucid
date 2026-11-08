@@ -33,7 +33,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         "ExecuteReader",
         "ExecuteReaderAsync",
         "QueryMultiple",
-        "QueryMultipleAsync");
+        "QueryMultipleAsync",
+        "QueryUnbufferedAsync");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
     [
@@ -70,7 +71,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
         context.RegisterSyntaxNodeAction(
             c => AnalyzeTypeDeclaration(c, context.Compilation),
-            SyntaxKind.ClassDeclaration);
+            SyntaxKind.ClassDeclaration,
+            SyntaxKind.RecordDeclaration);
 
         context.RegisterSyntaxNodeAction(
             c => AnalyzeMethodDeclaration(c, context.Compilation),
@@ -97,10 +99,10 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeTypeDeclaration(SyntaxNodeAnalysisContext context, Compilation compilation)
     {
-        if (context.Node is not ClassDeclarationSyntax classDeclaration)
+        if (context.Node is not TypeDeclarationSyntax typeDeclaration)
             return;
 
-        ISymbol? symbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration);
+        ISymbol? symbol = context.SemanticModel.GetDeclaredSymbol(typeDeclaration);
 
         if (symbol is null)
             return;
@@ -131,6 +133,12 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (!TryGetSqlArgument(invocation, context.SemanticModel, out ExpressionSyntax? sqlExpression))
             return;
 
+        if (IsCommandDefinitionSqlArgument(sqlExpression, context.SemanticModel))
+            return;
+
+        if (IsStoredProcedureDapperInvocation(invocation, context.SemanticModel))
+            return;
+
         AnalyzeSqlExpression(context, registry, sqlExpression, invocation.GetLocation());
     }
 
@@ -154,7 +162,80 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (sqlExpression is null)
             return;
 
+        if (IsStoredProcedureCommandDefinition(objectCreation, context.SemanticModel))
+            return;
+
         AnalyzeSqlExpression(context, registry, sqlExpression, objectCreation.GetLocation());
+    }
+
+    private static ExpressionSyntax UnwrapCommandDefinitionSqlExpression(
+        ExpressionSyntax sqlExpression,
+        SemanticModel semanticModel)
+    {
+        if (sqlExpression is IdentifierNameSyntax identifier)
+        {
+            ISymbol? symbol = semanticModel.GetSymbolInfo(identifier).Symbol;
+            SyntaxReference? reference = symbol?.DeclaringSyntaxReferences.FirstOrDefault();
+
+            if (reference?.GetSyntax() is VariableDeclaratorSyntax declarator &&
+                ReferenceEquals(declarator.SyntaxTree, semanticModel.SyntaxTree))
+            {
+                if (declarator.Initializer?.Value is ExpressionSyntax initializer)
+                    sqlExpression = initializer;
+                else if (symbol is ILocalSymbol local &&
+                         TryGetCommandDefinitionAssignmentRightHand(local, semanticModel) is ExpressionSyntax assigned)
+                    sqlExpression = assigned;
+            }
+        }
+
+        if (sqlExpression is not BaseObjectCreationExpressionSyntax objectCreation)
+            return sqlExpression;
+
+        ITypeSymbol? type = semanticModel.GetTypeInfo(objectCreation).Type;
+
+        if (type is null || !string.Equals(type.Name, "CommandDefinition", StringComparison.Ordinal))
+            return sqlExpression;
+
+        return TryGetCommandDefinitionSqlExpression(objectCreation) ?? sqlExpression;
+    }
+
+    private static ExpressionSyntax? TryGetCommandDefinitionAssignmentRightHand(
+        ILocalSymbol local,
+        SemanticModel semanticModel)
+    {
+        SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
+            return null;
+
+        if (!ReferenceEquals(declarator.SyntaxTree, semanticModel.SyntaxTree))
+            return null;
+
+        BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (block is null)
+            return null;
+
+        foreach (StatementSyntax statement in block.Statements)
+        {
+            if (statement is not ExpressionStatementSyntax { Expression: AssignmentExpressionSyntax assignment })
+                continue;
+
+            if (!assignment.OperatorToken.IsKind(SyntaxKind.EqualsToken))
+                continue;
+
+            if (assignment.Left is not IdentifierNameSyntax leftIdentifier)
+                continue;
+
+            ISymbol? leftSymbol = semanticModel.GetSymbolInfo(leftIdentifier).Symbol;
+
+            if (!SymbolEqualityComparer.Default.Equals(leftSymbol, local))
+                continue;
+
+            return assignment.Right;
+        }
+
+        return null;
     }
 
     private static ExpressionSyntax? TryGetCommandDefinitionSqlExpression(BaseObjectCreationExpressionSyntax objectCreation)
@@ -175,6 +256,99 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         return objectCreation.ArgumentList.Arguments[0].Expression;
     }
 
+    private static bool IsStoredProcedureCommandDefinition(
+        BaseObjectCreationExpressionSyntax objectCreation,
+        SemanticModel semanticModel)
+    {
+        if (objectCreation.ArgumentList is null)
+            return false;
+
+        IMethodSymbol? constructor = semanticModel.GetSymbolInfo(objectCreation).Symbol as IMethodSymbol;
+
+        foreach (ArgumentSyntax argument in objectCreation.ArgumentList.Arguments)
+        {
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is null && constructor is not null)
+            {
+                int argumentIndex = objectCreation.ArgumentList.Arguments.IndexOf(argument);
+
+                if (argumentIndex >= 0 && argumentIndex < constructor.Parameters.Length)
+                    parameterName = constructor.Parameters[argumentIndex].Name;
+            }
+
+            if (parameterName is null ||
+                !string.Equals(parameterName, "commandType", StringComparison.Ordinal))
+                continue;
+
+            if (TryGetConstantCommandType(argument.Expression, semanticModel) == System.Data.CommandType.StoredProcedure)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsCommandDefinitionSqlArgument(
+        ExpressionSyntax sqlExpression,
+        SemanticModel semanticModel)
+    {
+        ITypeSymbol? type = semanticModel.GetTypeInfo(sqlExpression).Type;
+
+        return type is not null &&
+               string.Equals(type.Name, "CommandDefinition", StringComparison.Ordinal);
+    }
+
+    private static bool IsStoredProcedureDapperInvocation(
+        InvocationExpressionSyntax invocation,
+        SemanticModel semanticModel)
+    {
+        if (invocation.ArgumentList?.Arguments.Count is not > 0)
+            return false;
+
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
+        {
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is null)
+            {
+                int argumentIndex = invocation.ArgumentList.Arguments.IndexOf(argument);
+
+                if (argumentIndex >= 0 && argumentIndex < method.Parameters.Length)
+                    parameterName = method.Parameters[argumentIndex].Name;
+            }
+
+            if (parameterName is null ||
+                !string.Equals(parameterName, "commandType", StringComparison.Ordinal))
+                continue;
+
+            if (TryGetConstantCommandType(argument.Expression, semanticModel) == System.Data.CommandType.StoredProcedure)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static System.Data.CommandType? TryGetConstantCommandType(
+        ExpressionSyntax expression,
+        SemanticModel semanticModel)
+    {
+        Optional<object?> constant = semanticModel.GetConstantValue(expression);
+
+        if (!constant.HasValue || constant.Value is null)
+            return null;
+
+        if (constant.Value is System.Data.CommandType commandType)
+            return commandType;
+
+        if (constant.Value is int commandTypeValue)
+            return (System.Data.CommandType)commandTypeValue;
+
+        return null;
+    }
+
     private static void AnalyzeSqlExpression(
         SyntaxNodeAnalysisContext context,
         TenantScopedTableRegistry registry,
@@ -186,8 +360,25 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (TenantScopeExemptSymbolHelper.TryGetExemption(containingSymbol, context.Compilation) is not null)
             return;
 
-        TenantScopedSqlExpressionResolver.ResolutionResult resolution =
-            TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);
+        try
+        {
+            sqlExpression = UnwrapCommandDefinitionSqlExpression(sqlExpression, context.SemanticModel);
+        }
+        catch (ArgumentException)
+        {
+            return;
+        }
+
+        TenantScopedSqlExpressionResolver.ResolutionResult resolution;
+
+        try
+        {
+            resolution = TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);
+        }
+        catch (ArgumentException)
+        {
+            return;
+        }
 
         IReadOnlyList<string> sqlTexts = resolution.GetSqlTextsToAnalyze().ToList();
 
@@ -204,7 +395,12 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         }
 
         foreach (string sqlText in sqlTexts)
+        {
+            if (string.IsNullOrWhiteSpace(sqlText))
+                continue;
+
             AnalyzeResolvedSql(context, registry, resolution, reportLocation, sqlText);
+        }
     }
 
     private static void AnalyzeResolvedSql(
@@ -351,4 +547,5 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         return string.Equals(containingType.Name, "SqlMapper", StringComparison.Ordinal) &&
                string.Equals(containingType.ContainingNamespace.ToDisplayString(), "Dapper", StringComparison.Ordinal);
     }
+
 }

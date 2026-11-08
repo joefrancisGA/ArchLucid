@@ -31,12 +31,14 @@ public static class ExecDigestCompositionMarkdownFormatter
         sb.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
         sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
         sb.AppendLine();
-        sb.AppendLine($"**Week label:** {composition.WeekLabel}");
-        sb.AppendLine($"**Dashboard:** {composition.DashboardUrl}");
-        sb.AppendLine($"**Sponsor value link:** {composition.SponsorValueReportUrl}");
+        sb.AppendLine($"**Week label:** {FormatDigestField(composition.WeekLabel, "Week label was not stored.")}");
+        sb.AppendLine($"**Dashboard:** {FormatDigestField(composition.DashboardUrl, "Dashboard link was not stored.")}");
+        sb.AppendLine($"**Sponsor value link:** {FormatDigestField(composition.SponsorValueReportUrl, "Sponsor value link was not stored.")}");
         sb.AppendLine();
         if (composition.CommittedManifestsInWeek is { } c)
             sb.AppendLine($"**Committed manifests (digest window):** {c.ToString(CultureInfo.InvariantCulture)}");
+        else
+            sb.AppendLine("**Committed manifests (digest window):** Committed manifest count was not stored.");
         if (!string.IsNullOrWhiteSpace(composition.FindingsDeltaSummary))
         {
             sb.AppendLine();
@@ -53,8 +55,11 @@ public static class ExecDigestCompositionMarkdownFormatter
                 string rehearsalLabel = string.IsNullOrWhiteSpace(run.RehearsalRowLabel)
                     ? string.Empty
                     : $" [{run.RehearsalRowLabel}]";
-                sb.AppendLine($"- `{run.RunIdHex}`{rehearsalLabel} — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}" +
-                              (string.IsNullOrWhiteSpace(run.Caption) ? string.Empty : $" — {run.Caption}"));
+                string captionSuffix = string.IsNullOrWhiteSpace(run.Caption)
+                    ? " — Run caption was not stored."
+                    : $" — {run.Caption.Trim()}";
+                sb.AppendLine(
+                    $"- `{run.RunIdHex}`{rehearsalLabel} — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}{captionSuffix}");
             }
         }
 
@@ -71,4 +76,7 @@ public static class ExecDigestCompositionMarkdownFormatter
         sb.AppendLine(composition.ComplianceDriftMarkdown);
         return sb.ToString();
     }
+
+    private static string FormatDigestField(string? value, string notStoredLabel) =>
+        string.IsNullOrWhiteSpace(value) ? notStoredLabel : value.Trim();
 }

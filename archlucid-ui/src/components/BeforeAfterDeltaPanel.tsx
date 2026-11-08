@@ -299,17 +299,18 @@ function BeforeAfterDeltaCyclePanel({
         </p>
       ) : null}
 
-      {data.roiSourceFreshness.length > 0 ? (
-        <p
-          data-testid="before-after-delta-roi-freshness"
-          className={cn("mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
-        >
-          ROI source freshness disposition: {data.roiSourceFreshness}
-          {data.roiSourceFreshness === "HOLD" || data.roiSourceFreshness === "WARN"
-            ? " — treat estimated USD savings as internal directional only until freshness clears."
-            : ""}
-        </p>
-      ) : null}
+      <p
+        data-testid="before-after-delta-roi-freshness"
+        className={cn("mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {data.roiSourceFreshness.length > 0
+          ? `ROI source freshness disposition: ${data.roiSourceFreshness}${
+              data.roiSourceFreshness === "HOLD" || data.roiSourceFreshness === "WARN"
+                ? " — treat estimated USD savings as internal directional only until freshness clears."
+                : ""
+            }`
+          : "ROI source freshness disposition was not stored."}
+      </p>
     </section>
   );
 }

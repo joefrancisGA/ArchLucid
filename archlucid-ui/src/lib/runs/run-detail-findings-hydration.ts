@@ -78,7 +78,12 @@ function synthesizeResultsFromFindingSummaries(
 
       return {
         findingId,
-        message: title.length > 0 ? title : category.length > 0 ? category : findingId,
+        message:
+          title.length > 0
+            ? title
+            : category.length > 0
+              ? category
+              : "Finding title was not stored.",
         category: category.length > 0 ? category : undefined,
         severity: coerceBuyerFindingSeverity(row.severity),
         policyRuleId,

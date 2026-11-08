@@ -4,8 +4,9 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 /** Maps inspect API wire JSON to the UI payload shape (camelCase normalization). */
 export function mapFindingInspectApiPayload(raw: Record<string, unknown>): FindingInspectPayload {
   const evidenceRaw = raw.evidence;
+  const evidenceListReturned = Array.isArray(evidenceRaw);
   const evidence =
-    Array.isArray(evidenceRaw)
+    evidenceListReturned
       ? evidenceRaw.map((item) => {
           const row = item as Record<string, unknown>;
 
@@ -18,10 +19,10 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
       : [];
 
   const recommendedActionsRaw = raw.recommendedActions;
-  const recommendedActions =
-    Array.isArray(recommendedActionsRaw)
-      ? recommendedActionsRaw.filter((value): value is string => typeof value === "string")
-      : [];
+  const recommendedActionsReturned = Array.isArray(recommendedActionsRaw);
+  const recommendedActions = recommendedActionsReturned
+    ? recommendedActionsRaw.filter((value): value is string => typeof value === "string")
+    : [];
 
   return {
     findingId: typeof raw.findingId === "string" ? raw.findingId : "",
@@ -31,6 +32,7 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
     evidence,
     reasoningSummary: typeof raw.reasoningSummary === "string" ? raw.reasoningSummary : null,
     recommendedActions,
+    recommendedActionsReturned,
     auditRowId: typeof raw.auditRowId === "string" ? raw.auditRowId : null,
     runId: typeof raw.runId === "string" ? raw.runId : "",
     manifestVersion: typeof raw.manifestVersion === "string" ? raw.manifestVersion : null,
@@ -54,5 +56,6 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
     remediationDueUtc: typeof raw.remediationDueUtc === "string" ? raw.remediationDueUtc : null,
     trustLabel: typeof raw.trustLabel === "string" ? raw.trustLabel : null,
     trustLabelReason: typeof raw.trustLabelReason === "string" ? raw.trustLabelReason : null,
+    evidenceListReturned,
   };
 }

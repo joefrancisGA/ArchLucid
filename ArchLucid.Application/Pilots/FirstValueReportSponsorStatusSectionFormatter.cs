@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
@@ -35,12 +36,13 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine();
         sb.AppendLine("| Question | Sponsor-safe answer |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
-        sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)} |");
-        sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
-        sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
+        sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof, deltas)} |");
+        sb.AppendLine($"| Execution mode | {FormatSponsorExecutionMode(run)} |");
+        sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof, deltas)} |");
+        sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
+        sb.AppendLine($"| Audit row basis | {FormatSponsorAuditRowBasis(deltas, proof)} |");
         sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail, deltas)} |");
         sb.AppendLine(
             $"| Semantic support | {FirstValueReportSemanticSupportBandSectionFormatter.FormatSponsorStatusTableCell(detail, deltas)} |");
@@ -49,68 +51,92 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof)
-    {
-        if (proof.DemoTenantWarningRequired)
-            return "**Demo-derived** — illustrative sample output; do not present as buyer outcome.";
+    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
+        PilotDemoTenantDisciplineHonestyCopy.FormatSponsorFirstPageEvidenceSourceCell(proof, deltas);
 
-        return proof.BuyerSafeRedactionProfile.Length > 0
-            ? $"**{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.BuyerSafeRedactionProfile)}** — tenant-scoped persisted proof fields."
-            : "**Tenant evidence** — persisted proof fields available; redaction profile not labeled.";
-    }
+    // First-page cell wraps shared execution-mode copy with simulator-substitution honesty.
+    private static string FormatSponsorExecutionMode(ArchitectureRun run) =>
+        SponsorExecutionModeMarkdownFormatter.FormatSponsorFirstPageTableCell(run);
 
-    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof)
-    {
-        return proof.AgentOutputPilotStrictEvidenceSatisfied
-            ? "PilotStrict posture satisfied — no rejecting trace/faithfulness signals attested for this run."
-            : "**HOLD** — PilotStrict posture failed; do not use sponsor-safe real-mode wording yet.";
-    }
+    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
+        PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(deltas);
 
-    private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
-    {
-        if (!proof.LlmCallCountResolved)
-            return "**Not attested** — execution trace query failed; do not cite an LLM call count.";
+    private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, proof);
 
-        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run (zero may be valid when simulator substitution applies — see quality disposition).";
-    }
+    private static string FormatSponsorAuditRowBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatProofPackageCell(deltas, proof);
 
     private static string FormatSponsorRoiBasis(
         ProofPackageCompletenessResponse proof,
         SponsorRoiClaimDispositionResult roiClaimGate)
     {
-        string label = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.RoiConfidenceLabel);
+        string label = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(
+            FormatRoiConfidenceLabel(PilotRoiEvidenceConfidenceHonestyCopy.ResolveDisplayLabel(proof, roiClaimGate)));
         string inputsSummary = proof.RoiBaselineInputs is null
-            ? string.Empty
-            : $" Per-field inputs: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
+            ? " Per-field ROI inputs were not stored."
+            : $" Per-field inputs: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
+
+        PilotRoiEvidenceConfidence evidenceConfidence = roiClaimGate.EvidenceConfidence;
 
         if (roiClaimGate.Disposition is SponsorRoiClaimDisposition.Pass
-            && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
-            && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true)
-            return $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}";
+            && evidenceConfidence is PilotRoiEvidenceConfidence.Strong
+            && roiClaimGate.ProjectedDollarClaimsSponsorSafe)
+        {
+            return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
+                evidenceConfidence,
+                $"**{evidenceConfidence}** — {label}.{inputsSummary}");
+        }
 
-        string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
-            ? FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
-            : roiClaimGate.NarrativeBlock;
+        string fallback = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
 
-        return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
+        return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
+            evidenceConfidence,
+            $"**{evidenceConfidence}** — {label}; {fallback}.{inputsSummary}");
     }
 
     private static string FormatSponsorTopFindings(ArchitectureRunDetail detail, PilotRunDeltas deltas)
     {
-        List<ArchitectureFinding> topFindings = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas)
+        List<ArchitectureFinding> materialFindings = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas)
             .Select(static (Finding, Index) => new { Finding, Index })
             .OrderByDescending(static f => f.Finding.Severity)
             .ThenBy(static f => f.Index)
-            .Take(3)
             .Select(static f => f.Finding)
             .ToList();
+
+        List<ArchitectureFinding> topFindings = materialFindings.Take(3).ToList();
 
         if (topFindings.Count == 0)
             return "No active findings recorded in this package.";
 
-        return string.Join(
-            "<br />",
-            topFindings.Select(static f => $"{f.Severity}: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(TruncateSponsorFinding(f.Message))}"));
+        string intro = PilotExportPreviewHonestyCopy.FormatCappedListIntro(
+            topFindings.Count,
+            materialFindings.Count,
+            "top finding preview line(s)");
+
+        return $"{intro}<br />{string.Join("<br />", topFindings.Select(FormatSponsorTopFindingLine))}";
+    }
+
+    private static string FormatSponsorTopFindingLine(ArchitectureFinding finding)
+    {
+        string severityLabel = FormatSponsorFindingSeverityLabel(finding);
+        string message = string.IsNullOrWhiteSpace(finding.Message)
+            ? SponsorReviewPacketExportHonestyCopy.FormatTopFindingTitle(finding)
+            : TruncateSponsorFinding(finding.Message);
+
+        return $"{severityLabel}: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(message)}";
+    }
+
+    private static string FormatSponsorFindingSeverityLabel(ArchitectureFinding finding)
+    {
+        return finding.Severity switch
+        {
+            FindingSeverity.Info => "Info",
+            FindingSeverity.Warning => "Warning",
+            FindingSeverity.Error => "Error",
+            FindingSeverity.Critical => "Critical",
+            _ => PilotTopFindingPresentationHonestyCopy.SeverityNotStored,
+        };
     }
 
     private static string FormatSponsorDeferredBuyerRequirements()
@@ -125,10 +151,12 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         if (disposition == SponsorSafeProofDisposition.Sendable)
             return "Send sponsor packet after human redaction review and qualitative baseline confirmation.";
 
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (deltas.IsDemoTenant)
             return "Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send.";
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied || run.RealModeFellBackToSimulator)
+        if (!deltas.AgentOutputPilotStrictSignalsResolved
+            || deltas.AgentOutputPilotStrictViolatesSponsorEvidence
+            || run.RealModeFellBackToSimulator)
             return "Hold sponsor send; resolve AI quality/simulator disclosure before forwarding.";
 
         return "Review caveats, collect missing ROI/evidence fields, then regenerate the packet.";
@@ -136,11 +164,11 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
     private static string TruncateSponsorFinding(string value)
     {
-        string trimmed = value.Trim();
+        return PilotExportPreviewHonestyCopy.FormatShortenedPreview(value, "Finding text was not stored.");
+    }
 
-        if (trimmed.Length <= 96)
-            return trimmed;
-
-        return string.Concat(trimmed.AsSpan(0, 93), "...");
+    private static string FormatRoiConfidenceLabel(string? label)
+    {
+        return string.IsNullOrWhiteSpace(label) ? "ROI confidence label was not stored." : label.Trim();
     }
 }

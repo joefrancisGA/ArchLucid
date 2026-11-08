@@ -10,7 +10,7 @@ import {
   isGenericLearnMoreSlug,
   LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS,
 } from "@/lib/learn-more-job-match-inventory";
-import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
 import {
   PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES,
@@ -66,7 +66,7 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
   it("remaps tenant settings and recommendation-learning off getting-started", () => {
     expect(pageHelpTopicForPathname("/administration/workspace-settings")).toEqual({
       slug: "workspace-settings",
-      label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL,
+      label: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
     });
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe(
       "pilot-feedback",

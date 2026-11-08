@@ -112,6 +112,50 @@ public sealed class TrialLifecyclePolicyTests
     }
 
     [SkippableFact]
+    public void TryGetNextAdvancement_returns_null_for_converted_tenant()
+    {
+        DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
+        TenantRecord tenant = MinimalTenant(TrialLifecycleStatus.Converted, anchor);
+
+        TrialLifecyclePolicy.TryGetNextAdvancement(tenant, anchor.AddYears(1), DefaultOpts)
+            .Should()
+            .BeNull();
+    }
+
+    [SkippableFact]
+    public void TryGetNextAdvancement_returns_null_for_unrecognized_trial_status()
+    {
+        DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
+        TenantRecord tenant = MinimalTenant("pending_manual_review", anchor);
+
+        TrialLifecyclePolicy.TryGetNextAdvancement(tenant, anchor.AddYears(1), DefaultOpts)
+            .Should()
+            .BeNull();
+    }
+
+    [SkippableFact]
+    public void ComputeDaysRemaining_returns_null_when_trial_expiry_missing()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Guid.NewGuid(),
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialExpiresUtc = null,
+            TrialStatus = TrialLifecycleStatus.Active,
+        };
+
+        TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
+                tenant,
+                DateTimeOffset.UtcNow,
+                DefaultOpts)
+            .Should()
+            .BeNull();
+    }
+
+    [SkippableFact]
     public void ComputeDaysRemaining_for_read_only_uses_export_only_deadline()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);

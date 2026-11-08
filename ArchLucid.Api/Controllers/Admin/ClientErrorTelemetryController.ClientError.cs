@@ -42,6 +42,11 @@ public sealed partial class ClientErrorTelemetryController
                     ProblemTypes.ValidationFailed);
 
             foreach (KeyValuePair<string, string> pair in body.Context)
+            {
+                if (pair.Key is null || pair.Value is null)
+                    return this.BadRequestProblem(
+                        "Context keys and values must not be null.",
+                        ProblemTypes.ValidationFailed);
 
                 if (pair.Key.Length > ClientErrorTelemetryIngestLimits.MaxContextKeyLength
                     || pair.Value.Length > ClientErrorTelemetryIngestLimits.MaxContextValueLength)
@@ -49,6 +54,7 @@ public sealed partial class ClientErrorTelemetryController
                     return this.BadRequestProblem(
                         $"Context keys must be at most {ClientErrorTelemetryIngestLimits.MaxContextKeyLength} characters and values at most {ClientErrorTelemetryIngestLimits.MaxContextValueLength} characters.",
                         ProblemTypes.ValidationFailed);
+            }
         }
 
         if (_logger.IsEnabled(LogLevel.Warning))

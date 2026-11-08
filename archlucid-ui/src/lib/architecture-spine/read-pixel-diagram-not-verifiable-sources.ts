@@ -7,18 +7,30 @@ import {
 } from "@/lib/architecture-spine/pixel-diagram-not-verifiable-warnings";
 
 export type PixelDiagramNotVerifiableSource = {
-  readonly fileName: string;
+  readonly fileName: string | null;
   readonly sourceMimeType: string;
   readonly evidenceItemId: string | null;
   readonly pendingStoredFileMarker: string | null;
 };
 
+export const PIXEL_DIAGRAM_FILE_NAME_NOT_STORED = "Diagram file name was not stored." as const;
+
 /** TB-645 operator copy — not "we analyzed your screenshot." */
 export const PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE =
   "Diagram file stored; topology not extracted.";
 
+export const PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE = "Topology was not extracted." as const;
+
+function isMissingPixelDiagramFileName(fileName: string | null): boolean {
+  return fileName === null || fileName.trim().length === 0;
+}
+
 export function formatPixelDiagramNotVerifiableLabel(source: PixelDiagramNotVerifiableSource): string {
   const disposition = "not verifiable";
+
+  if (isMissingPixelDiagramFileName(source.fileName)) {
+    return `${PIXEL_DIAGRAM_FILE_NAME_NOT_STORED} — ${PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE} (${disposition})`;
+  }
 
   return `${source.fileName} — ${PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE} (${disposition})`;
 }
@@ -43,10 +55,6 @@ export function parsePixelDiagramNotVerifiableWarning(warning: string): PixelDia
 
   const payload = warning.slice(PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX.length);
   const fileName = parseWarningToken(payload, "file");
-
-  if (fileName === null) {
-    return null;
-  }
 
   return {
     fileName,

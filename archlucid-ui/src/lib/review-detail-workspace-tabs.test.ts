@@ -49,6 +49,22 @@ describe("review-detail-workspace-tabs", () => {
     expect(readReviewDetailTabFromHref("/architecture/reviews/new")).toBeNull();
   });
 
+  it("rewrites flat peer review URLs onto the nested desk when architecture id is known", () => {
+    window.history.replaceState({}, "", "/architecture/reviews/run-1");
+
+    writeReviewDetailTabToUrl("findings", {
+      runId: "run-1",
+      architectureId: "architecture-identity-001",
+      findingId: "finding-1",
+      hash: "run-detail-first-review-spine-findings",
+    });
+
+    expect(window.location.pathname).toBe("/architecture/architectures/architecture-identity-001/reviews/run-1");
+    expect(window.location.search).toContain("reviewTab=findings");
+    expect(window.location.search).toContain("findingId=finding-1");
+    expect(window.location.hash).toBe("#run-detail-first-review-spine-findings");
+  });
+
   it("writes and reads reviewTab from the browser location without navigation", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview");
     const replaceStateSpy = vi.spyOn(window.history, "replaceState");

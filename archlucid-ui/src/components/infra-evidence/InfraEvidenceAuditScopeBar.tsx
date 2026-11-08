@@ -28,6 +28,9 @@ type InfraEvidenceAuditScopeBarProps = {
   readonly testId?: string;
 };
 
+const AUDIT_CONTROL_NUMBER_TITLE_NOT_STORED =
+  "Control number and title were not stored." as const;
+
 function formatAuditControlLabel(
   auditScope: InfraEvidenceWorkbenchAuditScope,
   controlNumber?: string | null,
@@ -39,7 +42,7 @@ function formatAuditControlLabel(
     return labelParts.join(" · ");
   }
 
-  return auditScope.controlId;
+  return `${AUDIT_CONTROL_NUMBER_TITLE_NOT_STORED} Control id: ${auditScope.controlId}.`;
 }
 
 function formatAuditControlOptionLabel(match: CloudResourceAuditLineageMatch): string {
@@ -49,7 +52,7 @@ function formatAuditControlOptionLabel(match: CloudResourceAuditLineageMatch): s
     return labelParts.join(" · ");
   }
 
-  return match.controlId;
+  return `${AUDIT_CONTROL_NUMBER_TITLE_NOT_STORED} Control id: ${match.controlId}.`;
 }
 
 export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProps): React.JSX.Element {

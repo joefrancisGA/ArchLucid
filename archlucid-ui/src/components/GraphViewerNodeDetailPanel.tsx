@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useState, type JSX } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-n
 import {
   findingIdForGraphDeepLink,
   graphFindingDetailHref,
+  graphReviewRunExplanationHref,
+  resolveGraphReviewDeskArchitectureId,
 } from "@/lib/graph-finding-deep-links";
 import {
   graphBuyerTrailDispositionLine,
@@ -70,6 +72,15 @@ export function GraphViewerNodeDetailPanel({
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const graphNodeTechnicalAppendixOpenParam = searchParams.get("graphNodeTechnicalAppendixOpen");
+  const canonicalRunId = canonicalizeDemoRunId(runId.trim());
+  const deskArchitectureId = useMemo(
+    () =>
+      resolveGraphReviewDeskArchitectureId(canonicalRunId, {
+        pathname,
+        search: searchParams.toString(),
+      }),
+    [canonicalRunId, pathname, searchParams],
+  );
   const [technicalAppendixOpen, setTechnicalAppendixOpenState] = useState(() =>
     parseGraphNodeTechnicalAppendixOpenFromSearch(graphNodeTechnicalAppendixOpenParam),
   );
@@ -135,7 +146,11 @@ export function GraphViewerNodeDetailPanel({
             <strong>Label:</strong>{" "}
             {selectedNode.label === null || selectedNode.label === undefined
               ? "Node label was not stored."
-              : selectedNode.label}
+              : selectedNode.label === ""
+                ? "Node label was stored empty."
+                : selectedNode.label.trim().length === 0
+                  ? "Node label was stored empty."
+                  : selectedNode.label}
           </p>
         </>
       )}
@@ -180,9 +195,7 @@ export function GraphViewerNodeDetailPanel({
       {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "Decision" ? (
         <div className="mt-3 flex flex-col gap-2">
           <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-            <Link
-              href={`/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}#run-explanation`}
-            >
+            <Link href={graphReviewRunExplanationHref(canonicalRunId, deskArchitectureId)}>
               {BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA}
             </Link>
           </Button>
@@ -202,15 +215,15 @@ export function GraphViewerNodeDetailPanel({
               );
             }
 
-            const rid = canonicalizeDemoRunId(runId.trim());
-
             return (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                   <Link href={getShowcaseManifestHref()}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
                 </Button>
                 <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-                  <Link href={graphFindingDetailHref(rid, fid)}>{BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA}</Link>
+                  <Link href={graphFindingDetailHref(canonicalRunId, fid, deskArchitectureId)}>
+                    {BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA}
+                  </Link>
                 </Button>
               </div>
             );
@@ -225,14 +238,23 @@ export function GraphViewerNodeDetailPanel({
             <ul>
               {Object.entries(selectedNode.metadata).map(([key, value]) => (
                 <li key={key}>
-                  <strong>{key}:</strong> {String(value)}
+                  <strong>{key}:</strong>{" "}
+                  {value === null || value === undefined
+                    ? "This value was not stored."
+                    : typeof value === "string" && value.length === 0
+                      ? "This value was stored empty."
+                      : String(value)}
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No metadata available.</p>
+            <p>Metadata was not stored on this node.</p>
           )}
         </>
+      ) : buyerTrailPanel && (!selectedNode.metadata || Object.keys(selectedNode.metadata).length === 0) ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Metadata was not stored on this graph node.
+        </p>
       ) : selectedNode.metadata && Object.keys(selectedNode.metadata).length > 0 ? (
         (() => {
           const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines(selectedNode.metadata);
@@ -293,15 +315,23 @@ export function GraphViewerNodeDetailPanel({
             </>
           );
         })()
+      ) : buyerTrailPanel ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Metadata was not stored on this node.
+        </p>
       ) : null}
 
-      {selectedNode.reasoningTrace !== undefined &&
-      selectedNode.reasoningTrace !== null &&
-      selectedNode.reasoningTrace.trim().length > 0 ? (
-        <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+      <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+        {selectedNode.reasoningTrace !== undefined &&
+        selectedNode.reasoningTrace !== null &&
+        selectedNode.reasoningTrace.trim().length > 0 ? (
           <ReasoningTraceReadMore heading="Reasoning trace" trace={selectedNode.reasoningTrace} />
-        </div>
-      ) : null}
+        ) : (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Reasoning trace was not stored.
+          </p>
+        )}
+      </div>
 
       {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel && !compactChrome ? (
         <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">

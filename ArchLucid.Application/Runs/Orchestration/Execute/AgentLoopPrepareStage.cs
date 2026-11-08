@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Governance;
@@ -78,7 +79,12 @@ public sealed class AgentLoopPrepareStage(
             ? _runGovernanceScopePinService.BeginRestoredScope(runHeader)
             : PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences, request.CloudProvider);
 
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            _taskRepository,
+            executeScope,
+            lookupRunId,
+            cancellationToken);
 
         if (tasks.Count == 0)
         {

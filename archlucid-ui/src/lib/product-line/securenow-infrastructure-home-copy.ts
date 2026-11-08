@@ -16,7 +16,7 @@ export const SECURENOW_INFRASTRUCTURE_DRIFT_LABEL =
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Environment" as const;
 
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
-  "Explore resources, connections, changes, and evidence-backed answers." as const;
+  "Explore resources, connections, changes, and evidence-backed answers. Collection is Azure Reader inventory or an approved upload." as const;
 
 /**
  * SecureNow home — infrastructure evidence workbench destinations.
@@ -47,7 +47,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
   {
     href: SECURENOW_INFRASTRUCTURE_ASK_PATH,
     label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_ASK_PATH],
-    summary: "Ask a question about this environment. The answer cites collected evidence.",
+    summary: "Explain one stored ranked path. The answer cites collected evidence and does not change the rank.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,

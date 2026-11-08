@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatPilotOutcomesAnalysisCoverage } from "@/lib/pilot-outcomes-agent-type-labels";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { cn } from "@/lib/utils";
 import {
   parsePilotOutcomesTechnicalDetailsOpenFromSearch,
@@ -91,7 +92,8 @@ export function PilotValueReportFindingsSection(props: Props) {
     setTechnicalDetailsOpenState(parsePilotOutcomesTechnicalDetailsOpenFromSearch(pilotOutcomesTechnicalDetailsOpenParam));
   }, [pilotOutcomesTechnicalDetailsOpenParam]);
 
-  const timelineRows = data.committedRunsTimeline ?? [];
+  const timelineOmitted = data.committedRunsTimeline === undefined || data.committedRunsTimeline === null;
+  const timelineRows = timelineOmitted ? [] : data.committedRunsTimeline;
   const showTimelineCapNote = data.runDetailsTruncated === true && (data.runDetailCap ?? 0) > 0;
 
   return (
@@ -165,6 +167,15 @@ export function PilotValueReportFindingsSection(props: Props) {
             </Link>
           </p>
         ) : null}
+        {timelineOmitted ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Finalized review list was not stored.
+          </p>
+        ) : timelineRows.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Finalized review list was stored empty.
+          </p>
+        ) : (
         <EnterpriseTable ariaLabel="Finalized reviews in pilot value report" className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
           <EnterpriseTableHead className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
             <EnterpriseTableHeadRow>
@@ -211,7 +222,7 @@ export function PilotValueReportFindingsSection(props: Props) {
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Highest severity was not stored</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Open actions were not stored</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>
-                  <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
+                  <Link href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(row.runId)} className={OPERATOR_LINK.inline}>
                     Open review
                   </Link>
                 </EnterpriseTableCell>
@@ -219,6 +230,7 @@ export function PilotValueReportFindingsSection(props: Props) {
             ))}
           </EnterpriseTableBody>
         </EnterpriseTable>
+        )}
       </section>
 
       <CollapsibleSection

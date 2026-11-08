@@ -1,5 +1,7 @@
-import { firstRecommendationSentence, severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY } from "@/lib/quick-decision-finding-wire-fields";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import {
@@ -8,23 +10,76 @@ import {
   runDetailSectionHref,
 } from "@/lib/findings/finding-source-evidence-links";
 
-/** Shown when a finding carries no recommendation text of its own. */
-export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "No recommended action recorded for this finding.";
+export const QUICK_DECISION_RECOMMENDATION_NOT_STORED = "Recommended action was not stored." as const;
 
 export const QUICK_DECISION_RECOMMENDATION_STORED_EMPTY =
   "Recommended action was stored empty." as const;
 
-/** First recommendation sentence, or the shared fallback when the finding has no recommendation. */
-export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {
-  if (finding.recommendation.length === 0) {
-    return QUICK_DECISION_RECOMMENDATION_FALLBACK;
+export const QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED =
+  "Evidence reference count was not stored." as const;
+
+export const QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO =
+  "Zero evidence references were stored." as const;
+
+export const QUICK_DECISION_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
+export const QUICK_DECISION_EVIDENCE_GRAPH_NAV_DISCLAIMER =
+  "Graph link opens layout adjacency on this review, not a stored per-reference evidence URL." as const;
+
+export function quickDecisionEvidenceGraphLinkAccessibleLabel(visibleLabel: string): string {
+  return `${visibleLabel}. ${QUICK_DECISION_EVIDENCE_GRAPH_NAV_DISCLAIMER}`;
+}
+
+export function formatQuickDecisionFindingEvidenceLinkLabel(
+  evidenceRefCount: number | null,
+): string {
+  if (evidenceRefCount === null || evidenceRefCount === undefined) {
+    return QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED;
   }
 
-  if (finding.recommendation.trim().length === 0) {
+  if (evidenceRefCount <= 0) {
+    return QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO;
+  }
+
+  const noun = evidenceRefCount === 1 ? "reference was" : "references were";
+
+  return `${evidenceRefCount} evidence ${noun} stored — ${QUICK_DECISION_EVIDENCE_LINK_NOT_STORED}`;
+}
+
+/** @deprecated Use {@link QUICK_DECISION_RECOMMENDATION_NOT_STORED}. */
+export const QUICK_DECISION_RECOMMENDATION_FALLBACK = QUICK_DECISION_RECOMMENDATION_NOT_STORED;
+
+export const QUICK_DECISION_FINDING_MESSAGE_NOT_STORED = "Finding message was not stored." as const;
+
+export function formatQuickDecisionFindingMessageDisplay(message: string): string {
+  if (message.length === 0) {
+    return QUICK_DECISION_FINDING_MESSAGE_NOT_STORED;
+  }
+
+  const trimmed = message.trim();
+
+  if (trimmed.length === 0) {
+    return QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY;
+  }
+
+  return trimmed;
+}
+
+export function formatQuickDecisionRecommendedAction(recommendation: string): string {
+  if (recommendation.length === 0) {
+    return QUICK_DECISION_RECOMMENDATION_NOT_STORED;
+  }
+
+  if (recommendation.trim().length === 0) {
     return QUICK_DECISION_RECOMMENDATION_STORED_EMPTY;
   }
 
-  return firstRecommendationSentence(finding.recommendation);
+  return formatRecommendationFirstSentenceWithTruncationHonesty(recommendation);
+}
+
+/** First recommendation sentence, or omission copy when the finding has no recommendation. */
+export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {
+  return formatQuickDecisionRecommendedAction(finding.recommendation);
 }
 
 /** Severity wording used by ITSM / work-item payloads (coarser than the severity badge scale). */
@@ -50,7 +105,7 @@ export function buildQuickDecisionFindingEvidenceLinks(
   const manifestId = defaultManifestIdForShowcaseFinding(runId, finding.findingId);
   const manifestHref = manifestId !== null ? runDetailSectionHref(runId, "manifest-summary") : null;
   const graphHref =
-    (evidenceRefCount !== null && evidenceRefCount > 0) || graphFocusId !== null
+    evidenceRefCount !== null && evidenceRefCount > 0
       ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
       : null;
   const viewEvidenceHref =

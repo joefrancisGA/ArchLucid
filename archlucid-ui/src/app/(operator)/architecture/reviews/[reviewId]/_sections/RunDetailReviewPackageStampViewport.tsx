@@ -28,6 +28,7 @@ import { deriveFirstReviewSpineBandSummary } from "@/lib/reviews/first-review-sp
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly architectureRequestId?: string | null;
   readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
@@ -56,6 +57,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly workingCareerRehearsalDoor?: string | null;
   readonly preCommitGateEnabled?: boolean | null;
   readonly unmappedFindingCount?: number;
+  readonly hasFindingsSnapshot?: boolean;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -82,7 +84,14 @@ export function RunDetailReviewPackageStampViewport(
     feasibilityVerdict,
     structuralExecutionMode: props.structuralExecutionMode,
     findings: props.quickDecisionFindings ?? [],
+    hasFindingsSnapshot: props.hasFindingsSnapshot,
+    reviewHasGoldenManifest: props.hasGoldenManifest,
   });
+  const openGateNavigationInput = {
+    findings: props.quickDecisionFindings ?? [],
+    hasFindingsSnapshot: props.hasFindingsSnapshot === true,
+    reviewHasGoldenManifest: props.hasGoldenManifest,
+  };
 
   if (props.hasGoldenManifest && feasibilityVerdict !== null) {
     return (
@@ -91,6 +100,12 @@ export function RunDetailReviewPackageStampViewport(
           <RunDetailFirstReviewSpineBand
             summary={firstReviewSpineSummary}
             unmappedFindingCount={props.unmappedFindingCount}
+            runId={props.runId}
+            architectureId={props.parentArchitectureId}
+            isSample={props.isSample}
+            manifestVersion={props.manifestVersion}
+            sampleSponsorParagraph={feasibilityVerdict.summary}
+            openGateNavigationInput={openGateNavigationInput}
           />
         ) : null}
         {!pipelineTerminalFailure ? (
@@ -171,6 +186,8 @@ export function RunDetailReviewPackageStampViewport(
           summary={firstReviewSpineSummary}
           unmappedFindingCount={props.unmappedFindingCount}
           runId={props.runId}
+          architectureId={props.parentArchitectureId}
+          openGateNavigationInput={openGateNavigationInput}
         />
       ) : null}
       {!pipelineTerminalFailure ? (

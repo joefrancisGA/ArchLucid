@@ -21,6 +21,6 @@ describe("ManifestBuyerBundleDownloadSection", () => {
     const region = screen.getByTestId("manifest-buyer-bundle-download");
     expect(region.tagName).not.toBe("DETAILS");
     expect(region).toHaveAttribute("id", "manifest-bundle-zip");
-    expect(screen.getByRole("link", { name: "Download finalized review" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download finalized review" })).toBeInTheDocument();
   });
 });

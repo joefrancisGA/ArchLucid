@@ -51,6 +51,7 @@ export function composeRunDetailOverviewTab(
     reviewDisplayTitle,
     reviewOwnerLabel,
     reviewStatusSummary,
+    hasFindingsSnapshot,
     severityCounts,
     submittedArchitectureText,
     workspaceStatus,
@@ -74,7 +75,7 @@ export function composeRunDetailOverviewTab(
         packageOwnerLabel={reviewOwnerLabel}
         workspaceStatus={workspaceStatus}
       />
-      {blockingApprovalCount > 0 ? (
+      {blockingApprovalCount !== null && blockingApprovalCount > 0 ? (
         <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
       ) : null}
       <RunDetailInfeasibleDecisionLead feasibilityVerdict={feasibilityVerdict} runId={m.resolvedDetail.run.runId} />
@@ -86,6 +87,7 @@ export function composeRunDetailOverviewTab(
         evidenceCoverageLine={evidenceCoverageSummary.summaryLine}
         primaryConcern={reviewStatusSummary.primaryConcern}
         materialSeverityLine={materialSeverityLine}
+        hasFindingsSnapshot={hasFindingsSnapshot}
         suppressedReason={decisionSnapshotSuppressedReason}
       />
       {executiveBottomLineEl}

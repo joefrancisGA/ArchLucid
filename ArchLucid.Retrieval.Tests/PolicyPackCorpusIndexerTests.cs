@@ -38,6 +38,42 @@ public sealed class PolicyPackCorpusIndexerTests
     }
 
     [Fact]
+    public async Task BuildDocumentsAsync_missing_version_and_severity_use_not_stored_sentences()
+    {
+        string packsRoot = Path.Combine(Path.GetTempPath(), $"archlucid-policy-pack-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(packsRoot);
+
+        try
+        {
+            string packDirectory = Path.Combine(packsRoot, "missing-meta-pack");
+            Directory.CreateDirectory(packDirectory);
+            string rulesPath = Path.Combine(packDirectory, "compliance-rules.json");
+            await File.WriteAllTextAsync(
+                rulesPath,
+                """{"rulePackId":"pack-a", "rules":[{"ruleId":"rule-1","controlName":"Control","description":"Description"}]}""");
+
+            MockOptionsMonitor<PolicyPackCorpusIndexerOptions> options = new(new PolicyPackCorpusIndexerOptions
+            {
+                PolicyPacksDirectory = packsRoot,
+                RulesFileName = "compliance-rules.json",
+            });
+
+            PolicyPackCorpusIndexer sut = new(options);
+            IReadOnlyList<RetrievalDocument> docs = await sut.BuildDocumentsAsync(CancellationToken.None);
+
+            docs.Should().ContainSingle();
+            docs[0].Content.Should().Contain("Rule pack version was not stored.");
+            docs[0].Content.Should().Contain("Rule severity was not stored.");
+            docs[0].Content.Should().NotContain("v0.0.0");
+            docs[0].Content.Should().NotContain("[Info]");
+        }
+        finally
+        {
+            Directory.Delete(packsRoot, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name()
     {
         string packsRoot = Path.Combine(Path.GetTempPath(), $"archlucid-policy-pack-{Guid.NewGuid():N}");

@@ -54,6 +54,7 @@ public sealed partial class ScimUserService
         await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, null, userName, cancellationToken);
 
         bool seatReserved = false;
+        bool userInserted = false;
 
         try
         {
@@ -69,6 +70,7 @@ public sealed partial class ScimUserService
 
             ScimUserRecord created = await _users.InsertAsync(tenantId, externalId, userName, displayName, active, null, ScimResolvedRoleOrigin.Unknown,
                 cancellationToken);
+            userInserted = true;
             string? role = await ResolveRoleAsync(tenantId, created.Id, cancellationToken);
             ScimResolvedRoleOrigin origin = role is null ? ScimResolvedRoleOrigin.Unknown : ScimResolvedRoleOrigin.ScimGroups;
 
@@ -83,7 +85,7 @@ public sealed partial class ScimUserService
         }
         catch
         {
-            if (seatReserved)
+            if (seatReserved && !userInserted)
                 await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
 
             throw;
@@ -101,6 +103,7 @@ public sealed partial class ScimUserService
         await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, id, userName, cancellationToken);
 
         bool wasActive = existing.Active;
+        bool userRowUpdated = false;
 
         try
         {
@@ -113,11 +116,13 @@ public sealed partial class ScimUserService
                 await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
 
             await _users.ReplaceAsync(tenantId, id, externalId, userName, displayName, active, choices.FinalRole, choices.FinalOrigin, cancellationToken);
+            userRowUpdated = true;
             await LogAsync(tenantId, AuditEventTypes.ScimUserUpdated, $"{{\"userId\":\"{id:D}\",\"externalId\":\"{JsonEncoded(externalId)}\"}}", cancellationToken);
         }
         catch
         {
-            await CompensateSeatTransitionAsync(tenantId, wasActive, active, cancellationToken);
+            if (!userRowUpdated)
+                await CompensateSeatTransitionAsync(tenantId, wasActive, active, cancellationToken);
 
             throw;
         }
@@ -132,6 +137,7 @@ public sealed partial class ScimUserService
             throw new ScimNotFoundException("User not found.");
 
         bool seatDecremented = false;
+        bool userDeactivated = false;
 
         try
         {
@@ -142,11 +148,12 @@ public sealed partial class ScimUserService
             }
 
             await _users.DeactivateAsync(tenantId, id, cancellationToken);
+            userDeactivated = true;
             await LogAsync(tenantId, AuditEventTypes.ScimUserDeactivated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
         }
         catch
         {
-            if (seatDecremented)
+            if (seatDecremented && !userDeactivated)
                 await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
 
             throw;

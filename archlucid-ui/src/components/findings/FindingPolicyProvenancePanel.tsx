@@ -113,11 +113,29 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
   }, []);
 
   if (!hasPolicyContext && model.evidence.length === 0 && trimmedTrace.length === 0) {
-    return null;
+    return (
+      <section
+        className={cn(
+          "rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
+          compact ? "p-3" : "p-4",
+          className,
+        )}
+        aria-label="Policy provenance"
+        data-testid="finding-policy-provenance-panel"
+      >
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", compact ? OPERATOR_TYPOGRAPHY.badge : OPERATOR_TYPOGRAPHY.helper)}>
+          Policy citation was not stored.
+        </p>
+      </section>
+    );
   }
 
   const violationLabel =
-    model.pack !== null ? `Policy violation: ${model.pack.packName}` : "Policy violation";
+    model.pack !== null
+      ? `Policy violation: ${model.pack.packName}`
+      : hasPolicyContext
+        ? "Policy pack name was not stored."
+        : "Policy violation";
 
   const headingLabel = prominent ? "Triggered by policy" : "Policy provenance";
 
@@ -155,7 +173,9 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
           <FindingPolicyTraceabilityBadges pack={model.pack} policy={model.policy} />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", compact ? OPERATOR_TYPOGRAPHY.badge : OPERATOR_TYPOGRAPHY.helper)}>
             {prominent
-              ? "This finding exists because the policy rule evaluated your architecture evidence. Select a badge to preview rule text."
+              ? model.evidence.length > 0
+                ? "This finding exists because the policy rule evaluated your architecture evidence. Select a badge to preview rule text."
+                : "Policy evidence citations were not stored on this finding. Select a badge to preview rule text."
               : "Select a badge to preview the rule text without leaving this review."}
           </p>
         </div>

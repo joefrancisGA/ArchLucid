@@ -91,6 +91,61 @@ public sealed class ExecDigestComposerTests
     }
 
     [SkippableFact]
+    public async Task ComposeAsync_labels_empty_compliance_change_types_as_not_stored()
+    {
+        Mock<IComplianceDriftTrendService> compliance = new();
+        compliance
+            .Setup(s => s.GetTrendAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<TimeSpan>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ComplianceDriftTrendPoint
+                {
+                    BucketUtc = new DateTime(2026, 4, 13, 0, 0, 0, DateTimeKind.Utc),
+                    ChangeCount = 0,
+                    ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal),
+                },
+            ]);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(s => s.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ExecDigestComposer composer = new(
+            compliance.Object,
+            authority.Object,
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IPilotRunDeltaComputer>(),
+            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
+            CreateManifestHashService(),
+            Mock.Of<IRunRepository>(),
+            NullLogger<ExecDigestComposer>.Instance);
+
+        Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        DateTime start = new(2026, 4, 13, 0, 0, 0, DateTimeKind.Utc);
+        DateTime end = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            ProjectId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
+        };
+
+        ExecDigestComposition result = await composer.ComposeAsync(tenantId, start, end, scope, "https://app.example", CancellationToken.None);
+
+        result.ComplianceDriftMarkdown.Should().Contain(ExecDigestComposer.ComplianceDriftTopChangeTypesNotStoredLabel);
+    }
+
+    [SkippableFact]
     public async Task ComposeAsync_omits_user_info_from_operator_base_url_in_dashboard_link()
     {
         Mock<IComplianceDriftTrendService> compliance = new();

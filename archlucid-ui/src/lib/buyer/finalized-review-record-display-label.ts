@@ -35,7 +35,13 @@ export function finalizedReviewRecordDisplayLabel(
 
   const buyerTitle = buyerFacingReviewTitleFromSummary(run).trim();
 
-  if (buyerTitle.length > 0 && buyerTitle !== "Untitled review") {
+  const hasStoredBuyerTitle =
+    buyerTitle.length > 0 &&
+    buyerTitle !== "Untitled review" &&
+    buyerTitle !== "Review title was not stored." &&
+    buyerTitle !== "Review description was not stored.";
+
+  if (hasStoredBuyerTitle) {
     return buyerTitle;
   }
 
@@ -51,7 +57,5 @@ export function finalizedReviewRecordDisplayLabel(
     return trimmedManifestId;
   }
 
-  return buyerTitle.length === 0 || buyerTitle === "Untitled review"
-    ? "Untitled review"
-    : "Manifest id not recorded";
+  return hasStoredBuyerTitle ? "Manifest id not recorded" : "Review title was not stored.";
 }

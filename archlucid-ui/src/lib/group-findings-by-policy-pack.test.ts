@@ -26,32 +26,23 @@ function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFind
 }
 
 describe("group-findings-by-policy-pack", () => {
-  it("groups findings by inferred bundled pack from compliance rule keys", () => {
+  it("does not invent catalog pack names from rule-key prefixes without a stored manifest pack", () => {
     const findings = [
-      finding({ findingId: "f1", title: "A", policyRuleId: "sec-base-001" }),
-      finding({ findingId: "f2", title: "B", policyRuleId: "sec-base-010" }),
-      finding({ findingId: "f3", title: "C", policyRuleId: "waf-az-004" }),
+      finding({ findingId: "f1", title: "A", policyRuleId: "soc2-example" }),
+      finding({ findingId: "f2", title: "B", policyRuleId: "sec-base-001" }),
     ];
 
     const summary = summarizeQuickDecisionFindingsByPolicyPack(findings);
-    const grouped = groupQuickDecisionFindingsByPolicyPack(findings);
 
     expect(summary).toEqual([
       {
-        groupKey: "security architecture baseline",
-        packDisplayName: "Security Architecture Baseline",
+        groupKey: "pack name was not stored.",
+        packDisplayName: "Pack name was not stored.",
         findingCount: 2,
-        packHref: "/governance/policy-packs?ruleId=sec-base-001",
-      },
-      {
-        groupKey: "azure well-architected framework",
-        packDisplayName: "Azure Well-Architected Framework",
-        findingCount: 1,
-        packHref: "/governance/policy-packs?ruleId=waf-az-004",
+        packHref: "/governance/policy-packs?ruleId=soc2-example",
+        packNameInferredFromRuleKey: false,
       },
     ]);
-    expect(grouped).toHaveLength(2);
-    expect(grouped[0]?.findings.map((row) => row.findingId)).toEqual(["f1", "f2"]);
   });
 
   it("falls back to manifest rule set label when rule keys are absent", () => {
@@ -78,7 +69,7 @@ describe("group-findings-by-policy-pack", () => {
     const impact = summarizePolicyPackFindingImpact(findings);
 
     expect(impact.totalFindings).toBe(2);
-    expect(impact.mappedFindingCount).toBe(1);
-    expect(impact.unmappedFindingCount).toBe(1);
+    expect(impact.mappedFindingCount).toBe(0);
+    expect(impact.unmappedFindingCount).toBe(2);
   });
 });

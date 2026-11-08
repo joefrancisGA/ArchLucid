@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamFromRouterSearchParams, searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
@@ -28,6 +29,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER } from "@/lib/evidence-readable-text";
 import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-accepted-formats";
 import { FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER, FIRST_PILOT_MIN_BRIEF_CHARS } from "@/lib/first-pilot-intake";
+import { deriveQuickStartFilenameClassHonestyNotices } from "@/lib/first-pilot-analyzable-evidence";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import {
@@ -35,6 +37,11 @@ import {
   parseFirstPilotStandardsSelectionOpenFromSearch,
 } from "@/lib/reviews/first-pilot-standards-selection-disclosure-url";
 
+import {
+  FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY,
+  FIRST_PILOT_EMPTY_LISTS_NOT_RECORDED_NONE_COPY,
+  FIRST_PILOT_REQUIRED_CAPABILITIES_NOT_COLLECTED_COPY,
+} from "./first-pilot-intake-payload";
 import { FirstPilotIntakeScopeGate } from "./FirstPilotIntakeScopeGate";
 import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
 import type { FirstPilotIntakeWizardState } from "./use-first-pilot-intake-wizard";
@@ -65,6 +72,8 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   const { wizard } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlStandardsSelectionOpen = parseFirstPilotStandardsSelectionOpenFromSearch(
     searchParams.get("firstPilotStandardsSelectionOpen"),
   );
@@ -76,11 +85,19 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   const extractionProgress = wizard.evidenceExtractionProgress;
   const showExtractionCard = extractionProgress.phase !== "idle";
   const cardIsOutOfView = useElementOutOfView(extractionCardRef, showExtractionCard);
+  const quickStartFilenameHonestyNotices = useMemo(
+    () => deriveQuickStartFilenameClassHonestyNotices(wizard.evidenceFileNames),
+    [wizard.evidenceFileNames],
+  );
 
   const syncStandardsSelectionOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        firstPilotStandardsSelectionDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        firstPilotStandardsSelectionDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          open,
+          pathname,
+        ),
         { notify: false },
       );
     },
@@ -110,7 +127,7 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   useEffect(() => {
     const syncStandardsSelectionOpenFromUrl = (): void => {
       const next = parseFirstPilotStandardsSelectionOpenFromSearch(
-        new URLSearchParams(window.location.search).get("firstPilotStandardsSelectionOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "firstPilotStandardsSelectionOpen"),
       );
 
       if (standardsSelectionOpenRef.current === next) {
@@ -201,6 +218,17 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
             wizard.setClientValidationMessage(null);
           }}
         />
+
+        {quickStartFilenameHonestyNotices.length > 0 ? (
+          <ul
+            className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-pilot-filename-class-honesty"
+          >
+            {quickStartFilenameHonestyNotices.map((notice) => (
+              <li key={notice}>{notice}</li>
+            ))}
+          </ul>
+        ) : null}
 
         {showExtractionCard ? (
           <EvidenceExtractionProgressCard
@@ -295,6 +323,27 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
         />
 
         <FirstPilotIntakeScopeGate wizard={wizard} />
+
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-pilot-environment-not-collected"
+        >
+          {FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY}
+        </p>
+
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-pilot-empty-lists-not-recorded-none"
+        >
+          {FIRST_PILOT_EMPTY_LISTS_NOT_RECORDED_NONE_COPY}
+        </p>
+
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-pilot-required-capabilities-not-collected"
+        >
+          {FIRST_PILOT_REQUIRED_CAPABILITIES_NOT_COLLECTED_COPY}
+        </p>
 
         <PreExecuteCostEstimateNotice
           testId="first-pilot-pre-execute-cost"

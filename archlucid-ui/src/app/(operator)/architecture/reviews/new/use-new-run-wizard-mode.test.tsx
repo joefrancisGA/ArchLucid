@@ -1,10 +1,10 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { act, fireEvent, renderHook, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const wizardModeSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -24,12 +24,28 @@ const wizardModeSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -39,7 +55,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => wizardModeSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => wizardModeSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       wizardModeSearchParamsHarness.applyHref(href);
 
@@ -54,13 +70,15 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/hooks/use-new-run-wizard-committed-probe-query", () => ({
-  useNewRunWizardCommittedProbeQuery: () => ({
+  useNewRunWizardCommittedProbeQuery: vi.fn(() => ({
     isPending: false,
     isSuccess: false,
     isError: false,
     data: undefined,
-  }),
+  })),
 }));
+
+import { useNewRunWizardCommittedProbeQuery } from "@/hooks/use-new-run-wizard-committed-probe-query";
 
 import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { WIZARD_MODE_STORAGE_KEY } from "./new-run-wizard-steps";
@@ -79,6 +97,12 @@ describe("useNewRunWizardMode", () => {
   beforeEach(() => {
     wizardModeSearchParamsHarness.reset();
     window.localStorage.clear();
+    vi.mocked(useNewRunWizardCommittedProbeQuery).mockReturnValue({
+      isPending: false,
+      isSuccess: false,
+      isError: false,
+      data: undefined,
+    } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>);
   });
 
   it("follows mode= URL changes without a popstate event", () => {
@@ -96,5 +120,52 @@ describe("useNewRunWizardMode", () => {
     expect(result.current.wizardMode).toBe("full");
     expect(window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY)).toBe("full");
     expect(wizardModeSearchParamsHarness.state.query).toContain("mode=full");
+  });
+
+  it("writes wizard mode from useSearchParams when window.location.search lags after soft navigation", () => {
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    wizardModeSearchParamsHarness.setWindowLocationSearch("staleToolbar=old");
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    act(() => {
+      result.current.persistWizardMode("full");
+    });
+
+    expect(wizardModeSearchParamsHarness.state.query).toContain("mode=full");
+    expect(wizardModeSearchParamsHarness.state.query).not.toContain("staleToolbar");
+  });
+
+  it("keeps wizard mode from useSearchParams when popstate reads lagging window.location.search", () => {
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    wizardModeSearchParamsHarness.setWindowLocationSearch("mode=full");
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("quick");
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.wizardMode).toBe("quick");
+  });
+
+  it("surfaces committed-manifest probe failure without claiming no finalized reviews exist", () => {
+    vi.mocked(useNewRunWizardCommittedProbeQuery).mockReturnValue({
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      data: undefined,
+    } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>);
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("quick");
+    expect(result.current.committedManifestProbeFailed).toBe(true);
   });
 });

@@ -14,6 +14,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -450,6 +451,7 @@ public sealed class ManifestsControllerEvidenceScopeTests
             Mock.Of<IAuthorityCommitProjectionBuilder>(),
             Mock.Of<IComparisonService>(),
             Mock.Of<IAgentResultDiffService>(),
+            Mock.Of<IAgentResultRepository>(),
             scopeProvider,
             Mock.Of<IManifestHashService>());
 

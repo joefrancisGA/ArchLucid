@@ -10,7 +10,7 @@ partial class GraphCoverageAnalyzer
         IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
 
         List<string> categories = topologyNodes
-            .Select(x => x.Category ?? "general")
+            .Select(x => GraphTopologyCategoryHonesty.ResolvePresentCategory(x.Category))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 

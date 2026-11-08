@@ -44,6 +44,9 @@ internal static class AgentResultEnvelopeAgentTypeResolver
 
         foreach (ArchitectureFinding finding in findings)
         {
+            if (finding is null)
+                continue;
+
             if (finding.SourceAgent != default)
                 return finding.SourceAgent;
         }
@@ -60,6 +63,9 @@ internal static class AgentResultEnvelopeAgentTypeResolver
 
         foreach (ArchitectureFinding finding in findings)
         {
+            if (finding is null)
+                continue;
+
             if (finding.SourceAgent == default)
                 finding.SourceAgent = agentType;
         }

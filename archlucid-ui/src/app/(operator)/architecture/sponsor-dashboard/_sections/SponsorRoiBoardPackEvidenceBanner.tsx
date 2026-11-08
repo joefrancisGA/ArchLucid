@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 import { StatusTag } from "@/components/ui/status-tag";
 import { SPONSOR_ROI_PROOF_STATUS_HELP_HREF } from "@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiProofStatusStrip";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   boardPackClusterPostureLabel,
   buildBoardPackEvidenceClusterRows,
@@ -91,6 +92,9 @@ export function SponsorRoiBoardPackEvidenceBanner(
         ))}
       </ul>
 
+      <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-board-pack-non-summing">
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
       <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         See{" "}
         <Link href={SPONSOR_ROI_PROOF_STATUS_HELP_HREF} className={OPERATOR_LINK.inline}>

@@ -1,3 +1,5 @@
+import { formatCloudConnectionImportSuccessMessage } from "@/lib/cloud-connection-import-success-message";
+
 /** Operator-facing copy for `/integrations/cloud-connections/gcp` (TB-1774). */
 
 export const GCP_CLOUD_CONNECTION_BANNED_COPY = [
@@ -42,8 +44,8 @@ export const GCP_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
   "Save a connection and run Re-poll now to import inventory.";
 
 export function formatGcpConnectionCollectionSuccessMessage(
-  resourceCount: number,
-  packageId: string,
+  resourceCount: number | null | undefined,
+  packageId: string | null | undefined,
 ): string {
-  return `Collection completed (${resourceCount} resources imported as package ${packageId}).`;
+  return formatCloudConnectionImportSuccessMessage("Collection", resourceCount, packageId);
 }

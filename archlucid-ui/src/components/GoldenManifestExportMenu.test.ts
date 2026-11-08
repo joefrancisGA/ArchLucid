@@ -47,3 +47,12 @@ describe("GoldenManifestExportMenu (FC-73/75)", () => {
     expect(source).toContain("golden-manifest-export-legacy-sealed-warning");
   });
 });
+
+describe("GoldenManifestExportMenu (blocked export copy)", () => {
+  const source = readFileSync(join(import.meta.dirname, "GoldenManifestExportMenu.tsx"), "utf8");
+
+  it("surfaces sponsor export blocked reasons in the UI", () => {
+    expect(source).toContain("golden-manifest-export-blocked-reason");
+    expect(source).toContain("exportBlockedReasonChrome");
+  });
+});

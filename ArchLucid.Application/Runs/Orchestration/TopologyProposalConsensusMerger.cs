@@ -47,14 +47,14 @@ public static class TopologyProposalConsensusMerger
             secondary.RequiredControls ?? []);
 
         int disagreementCount =
-            (primaryServices.Count - intersectedServices.Count)
-            + (secondaryServices.Count - intersectedServices.Count)
-            + (primaryDatastores.Count - intersectedDatastores.Count)
-            + (secondaryDatastores.Count - intersectedDatastores.Count)
+            (CountDistinctServiceKeys(primaryServices) - intersectedServices.Count)
+            + (CountDistinctServiceKeys(secondaryServices) - intersectedServices.Count)
+            + (CountDistinctDatastoreKeys(primaryDatastores) - intersectedDatastores.Count)
+            + (CountDistinctDatastoreKeys(secondaryDatastores) - intersectedDatastores.Count)
             + (primaryRelationships.Count - intersectedRelationshipRows.Count)
             + (secondaryRelationships.Count - intersectedRelationshipRows.Count)
-            + ((primary.RequiredControls?.Count ?? 0) - intersectedControls.Count)
-            + ((secondary.RequiredControls?.Count ?? 0) - intersectedControls.Count);
+            + (CountDistinctControlKeys(primary.RequiredControls) - intersectedControls.Count)
+            + (CountDistinctControlKeys(secondary.RequiredControls) - intersectedControls.Count);
 
         AgentTopologyProposal merged = new()
         {
@@ -197,16 +197,38 @@ public static class TopologyProposalConsensusMerger
         return combined;
     }
 
+    private static int CountDistinctControlKeys(IReadOnlyList<string>? controls)
+    {
+        if (controls is not { Count: > 0 })
+            return 0;
+
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string control in controls)
+        {
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
+                continue;
+
+            keys.Add(normalizedKey);
+        }
+
+        return keys.Count;
+    }
+
     private static List<string> IntersectControls(IReadOnlyList<string> primary, IReadOnlyList<string> secondary)
     {
         HashSet<string> secondaryControls = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string control in secondary ?? [])
         {
-            if (string.IsNullOrWhiteSpace(control))
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
                 continue;
 
-            secondaryControls.Add(control.Trim());
+            secondaryControls.Add(normalizedKey);
         }
 
         List<string> intersection = [];
@@ -214,15 +236,15 @@ public static class TopologyProposalConsensusMerger
 
         foreach (string control in primary)
         {
-            if (string.IsNullOrWhiteSpace(control))
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
                 continue;
 
-            string trimmed = control.Trim();
-
-            if (!secondaryControls.Contains(trimmed) || !seenIntersection.Add(trimmed))
+            if (!secondaryControls.Contains(normalizedKey) || !seenIntersection.Add(normalizedKey))
                 continue;
 
-            intersection.Add(trimmed);
+            intersection.Add(normalizedKey);
         }
 
         return intersection;
@@ -230,6 +252,16 @@ public static class TopologyProposalConsensusMerger
 
     private static string ServiceKey(ManifestService service) =>
         $"{ResolveServiceIdentity(service)}|{service.ServiceType}|{service.RuntimePlatform}";
+
+    private static int CountDistinctServiceKeys(IReadOnlyList<ManifestService> services)
+    {
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestService service in services)
+            keys.Add(ServiceKey(service));
+
+        return keys.Count;
+    }
 
     private static string DatastoreKey(ManifestDatastore datastore) =>
         $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}|{datastore.RuntimePlatform}";
@@ -252,6 +284,16 @@ public static class TopologyProposalConsensusMerger
         return string.IsNullOrWhiteSpace(datastore.DatastoreName)
             ? string.Empty
             : CanonicalizeConsensusManifestEndpointReference(datastore.DatastoreName);
+    }
+
+    private static int CountDistinctDatastoreKeys(IReadOnlyList<ManifestDatastore> datastores)
+    {
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestDatastore datastore in datastores)
+            keys.Add(DatastoreKey(datastore));
+
+        return keys.Count;
     }
 
     private static string CanonicalizeConsensusManifestEndpointReference(string value) =>

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Contracts.Operations;
@@ -111,8 +112,13 @@ public sealed class OperationQueryService(
     if (run is null)
       return null;
 
+    string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
     IReadOnlyList<Contracts.Agents.AgentTask> tasks =
-      await _agentTaskRepository.GetByRunIdAsync(scope, runId.ToString("D"), cancellationToken);
+      await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+        _agentTaskRepository,
+        scope,
+        canonicalRunId,
+        cancellationToken).ConfigureAwait(false);
 
     return RunOperationProjector.Project(
       operationId,

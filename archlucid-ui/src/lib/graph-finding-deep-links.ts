@@ -1,7 +1,56 @@
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
+import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  getFindingDetailHref,
+  getFindingEvidenceTraceHref,
+} from "@/lib/findings/finding-evidence-navigation";
+import { readRecentPrimaryReviewDeskTarget } from "@/lib/reviews/review-pin-run-url";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
+
+export type ResolveGraphReviewDeskArchitectureIdOptions = {
+  readonly pathname?: string | null;
+  readonly search?: string | null;
+  readonly architectureId?: string | null;
+};
+
+/** AO-33 — evidence graph deep links stay on the Working nested desk when continuity is known. */
+export function resolveGraphReviewDeskArchitectureId(
+  runId: string,
+  options?: ResolveGraphReviewDeskArchitectureIdOptions,
+): string | null {
+  const explicitArchitectureId = options?.architectureId?.trim() ?? "";
+
+  if (explicitArchitectureId.length > 0) {
+    return explicitArchitectureId;
+  }
+
+  const fromPath = extractArchitectureIdentityIdFromPathname(options?.pathname ?? "", options?.search ?? "");
+
+  if (fromPath !== null) {
+    return fromPath;
+  }
+
+  const recent = readRecentPrimaryReviewDeskTarget();
+  const trimmedRunId = runId.trim();
+
+  if (recent !== null && recent.primaryRunId === trimmedRunId) {
+    return recent.architectureId;
+  }
+
+  return null;
+}
+
+export const GRAPH_RUN_EXPLANATION_HASH = "#run-explanation";
+
+export function graphReviewRunExplanationHref(runId: string, architectureId?: string | null): string {
+  return buildReviewWorkspaceRouteHref({
+    runId,
+    architectureId,
+    hash: GRAPH_RUN_EXPLANATION_HASH,
+  });
+}
 
 /** Query param read by {@link GraphPageContent} to pre-select a node in buyer-trail graph presentation. */
 export const GRAPH_NODE_FOCUS_QUERY_PARAM = "graphNodeId";
@@ -56,10 +105,18 @@ export function findingIdForGraphDeepLink(node: GraphNodeVm): string | null {
   return null;
 }
 
-export function graphFindingDetailHref(runId: string, findingId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+export function graphFindingDetailHref(
+  runId: string,
+  findingId: string,
+  architectureId?: string | null,
+): string {
+  return getFindingDetailHref(runId, findingId, { architectureId });
 }
 
-export function graphFindingInspectHref(runId: string, findingId: string): string {
-  return getFindingEvidenceTraceHref(runId, findingId);
+export function graphFindingInspectHref(
+  runId: string,
+  findingId: string,
+  architectureId?: string | null,
+): string {
+  return getFindingEvidenceTraceHref(runId, findingId, { architectureId });
 }

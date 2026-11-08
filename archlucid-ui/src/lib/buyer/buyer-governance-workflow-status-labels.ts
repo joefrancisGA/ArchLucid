@@ -17,6 +17,6 @@ export function buyerGovernanceWorkflowStatusLabel(status: string): string {
       return "Withdrawn";
 
     default:
-      return status.trim().length > 0 ? status : "Unknown";
+      return status.trim().length > 0 ? status : "Workflow status was not stored.";
   }
 }

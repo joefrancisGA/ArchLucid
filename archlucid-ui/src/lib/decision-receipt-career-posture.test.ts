@@ -15,6 +15,13 @@ describe("decisionReceiptCareerPosture (CG-025)", () => {
     expect(posture.rehearsalIncomplete).toBe(true);
   });
 
+  it("does not default missing execution mode to Simulator (P-09)", () => {
+    const posture = resolveDecisionReceiptCareerPosture({});
+
+    expect(posture.structuralExecutionMode).toBe("Execution mode was not stored.");
+    expect(JSON.stringify(posture)).not.toContain("Simulator");
+  });
+
   it("does not mark real career receipts rehearsal incomplete", () => {
     const posture = resolveDecisionReceiptCareerPosture({
       structuralExecutionMode: StructuralExecutionModeWire.Real,

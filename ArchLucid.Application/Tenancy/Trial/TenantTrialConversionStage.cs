@@ -117,12 +117,12 @@ public sealed class TenantTrialConversionStage(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantTrialConverted,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ActorUserId = actor.Trim(),
+                ActorUserName = actor.Trim(),
                 TenantId = tenant.Id,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { targetTier = body?.TargetTier }),
+                DataJson = JsonSerializer.Serialize(new { targetTier = tier?.ToString() }),
             },
             cancellationToken).ConfigureAwait(false);
 

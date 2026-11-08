@@ -92,5 +92,28 @@ describe("review-lifecycle-next-action-registry (TB-2366)", () => {
         },
       })?.href,
     ).toBe("/architecture/reviews/new?rerun=run-1");
+    expect(
+      reviewLifecycleNextActionInstance({
+        id: "answer-clarifications",
+        hrefInput: { runId: "run-1" },
+      }),
+    ).toBeNull();
+    expect(
+      reviewLifecycleNextActionInstance({
+        id: "answer-clarifications",
+        hrefInput: {
+          runId: "run-1",
+          correctionHref: "/architecture/reviews/new?rerun=run-1",
+        },
+      })?.description,
+    ).toBe("Open the clarifying questions stored for this review.");
+    const postFinalize = listReviewLifecycleNextActions({
+      surface: "post-commit-habit-loop",
+      phase: "post-finalize",
+      hrefInput: { runId: "run-1", showCompareCta: true, hasManifest: true },
+    });
+
+    expect(postFinalize.primary?.label).toBe("Open sponsor briefing");
+    expect(postFinalize.primary?.description).toContain("deliverables section");
   });
 });

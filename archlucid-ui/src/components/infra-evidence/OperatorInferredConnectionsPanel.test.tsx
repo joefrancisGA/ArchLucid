@@ -61,6 +61,21 @@ describe("OperatorInferredConnectionsPanel", () => {
     expect(screen.getByTestId("operator-inferred-connections-confirm")).toBeEnabled();
   });
 
+  it("does not use ARM id as the host when toHost is missing", async () => {
+    vi.mocked(operatorInferredConnectionApi.listOperatorInferredConnections).mockResolvedValue([
+      {
+        ...uploadRow,
+        toHost: null,
+        toCatalog: null,
+        toArmId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+      },
+    ]);
+
+    render(<OperatorInferredConnectionsPanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText(/Host name was not stored\. Resource id:/)).toBeInTheDocument();
+  });
+
   it("labels missing destination metadata without inventing a host", async () => {
     vi.mocked(operatorInferredConnectionApi.listOperatorInferredConnections).mockResolvedValue([
       { ...uploadRow, fromLabel: null, fromArmId: null, toHost: null, toCatalog: "orders", settingName: null },

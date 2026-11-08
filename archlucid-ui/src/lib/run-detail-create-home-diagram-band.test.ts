@@ -37,7 +37,7 @@ describe("create-home diagram band regression (TB-1845)", () => {
     const red = findUiRouteTrafficRow("RED");
 
     expect(red).toBeDefined();
-    expect(red?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=architecture");
+    expect(red?.path).toBe("/architecture/reviews/[reviewId]?archTab=diagram");
     expect(red?.section).toBe("Tab surface");
 
     for (const phrase of RED_TRAFFIC_HONESTY_PHRASES) {

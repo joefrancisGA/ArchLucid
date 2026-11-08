@@ -53,9 +53,10 @@ export type AskMainPanelProps = {
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   askCitationActionFollowUps: readonly AskCitationActionFollowUp[];
   showPostAssistantFollowUps: boolean;
-  retrievalDegraded?: boolean;
+  retrievalDegraded?: boolean | null;
   hideRunPicker?: boolean;
   clearScopeHref?: string;
+  pinnedArchitectureId?: string;
 };
 
 export function AskMainPanel(props: AskMainPanelProps) {
@@ -87,9 +88,10 @@ export function AskMainPanel(props: AskMainPanelProps) {
     askAssistantGroundingLinks,
     askCitationActionFollowUps,
     showPostAssistantFollowUps,
-    retrievalDegraded = false,
+    retrievalDegraded = null,
     hideRunPicker = false,
     clearScopeHref,
+    pinnedArchitectureId,
   } = props;
 
   const reviewPicked = runId.trim().length > 0;
@@ -106,9 +108,13 @@ export function AskMainPanel(props: AskMainPanelProps) {
     questionSent,
   });
   const coverageHonestyQuery = useAskRunCoverageHonestyQuery(runId, { enabled: reviewPicked });
-  const isFinalizedReview = useMemo(() => {
-    if (!reviewPicked || coverageHonestyQuery.data === undefined) {
-      return false;
+  const isFinalizedReview = useMemo((): boolean | undefined => {
+    if (!reviewPicked) {
+      return undefined;
+    }
+
+    if (coverageHonestyQuery.data === undefined) {
+      return undefined;
     }
 
     return isReviewManifestFinalized(coverageHonestyQuery.data.manifestSummary?.status);
@@ -160,6 +166,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
             runId={runId}
             buyerPolishedShell={buyerPolishedShell}
             clearScopeHref={clearScopeHref}
+            pinnedArchitectureId={pinnedArchitectureId}
           />
           {reviewPicked ? <AskRunCoverageHonestyStrip runId={runId} /> : null}
           {hideCompareChrome ? null : (

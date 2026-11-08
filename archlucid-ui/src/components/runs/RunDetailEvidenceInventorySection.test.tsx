@@ -40,6 +40,7 @@ const storedFileItem: RunDetailEvidenceInventoryItem = {
   evidenceItemId: null,
   ingestedUtc: "2026-08-09T12:00:00Z",
   citingFindingCount: 0,
+  citingFindingCountStored: true,
 };
 
 const citationItem: RunDetailEvidenceInventoryItem = {
@@ -50,6 +51,7 @@ const citationItem: RunDetailEvidenceInventoryItem = {
   evidenceItemId: null,
   ingestedUtc: "2026-08-09T12:00:00Z",
   citingFindingCount: 1,
+  citingFindingCountStored: true,
 };
 
 describe("RunDetailEvidenceInventorySection", () => {

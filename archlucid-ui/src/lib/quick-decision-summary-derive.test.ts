@@ -30,6 +30,12 @@ function baseFinding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisi
 }
 
 describe("quick-decision-summary-derive", () => {
+  it("does not split on e.g. or i.e. abbreviations (P-20)", () => {
+    expect(firstRecommendationSentence("Use TLS e.g. HTTPS for transit. Rotate keys next.")).toBe(
+      "Use TLS e.g. HTTPS for transit.",
+    );
+  });
+
   it("firstRecommendationSentence returns first sentence when punctuation present", () => {
     expect(firstRecommendationSentence("Patch Redis. Rotate credentials.")).toBe("Patch Redis.");
     expect(firstRecommendationSentence("Alert now! Then verify.")).toBe("Alert now!");
@@ -369,7 +375,7 @@ describe("quick-decision-summary-derive", () => {
         statusKind: "neutral",
       });
       expect(humanReviewStatusDisplay(99)).toEqual({
-        label: "Human review status unknown",
+        label: "Human review status was not a recognized stored value.",
         statusKind: "neutral",
       });
     });

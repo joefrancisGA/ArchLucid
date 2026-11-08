@@ -7,6 +7,7 @@ import { CardFooter } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT,
+  GUIDED_INTAKE_SAVE_AND_CONTINUE_FOOTER_HELPER,
   guidedIntakeClarificationsAnsweredCounter,
   resolveGuidedIntakeClarificationsDoneLabel,
 } from "@/lib/guided-intake-copy";
@@ -17,6 +18,7 @@ import {
 
 export type SocraticIntakeWizardFooterActionsProps = {
   readonly handledClarificationCount: number;
+  readonly skippedClarificationCount?: number;
   readonly totalRequiredClarifications: number;
   readonly allClarificationsHandled: boolean;
   readonly canReviewAnswers: boolean;
@@ -43,7 +45,8 @@ export function SocraticIntakeWizardFooterActions(
             data-testid="socratic-clarifications-answered-counter"
           >
             {guidedIntakeClarificationsAnsweredCounter(
-              props.handledClarificationCount,
+              Math.max(0, props.handledClarificationCount - (props.skippedClarificationCount ?? 0)),
+              props.skippedClarificationCount ?? 0,
               props.totalRequiredClarifications,
             )}
           </p>
@@ -52,6 +55,9 @@ export function SocraticIntakeWizardFooterActions(
               {GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT}
             </p>
           ) : null}
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-save-and-continue-hint">
+            {GUIDED_INTAKE_SAVE_AND_CONTINUE_FOOTER_HELPER}
+          </p>
         </div>
         <Button
           type="button"

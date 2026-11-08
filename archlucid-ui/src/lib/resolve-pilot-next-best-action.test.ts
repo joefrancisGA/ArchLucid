@@ -73,6 +73,23 @@ describe("resolvePilotNextBestAction", () => {
     expect(action.href).toBe("/architecture/reviews/run-ready#finalize-review");
   });
 
+  it("surfaces missing open-finding count instead of finalize when count was not returned", () => {
+    const action = resolvePilotNextBestAction(
+      {
+        ...emptyCtx,
+        hasCommittedManifest: true,
+        committedReviewCount: 1,
+        firstCommittedRunId: "run-committed",
+        latestRunId: "run-committed",
+        latestRunReadyToFinalize: true,
+      },
+      true,
+      { openFindingsCount: null, hasWorkspaceReviews: true },
+    );
+
+    expect(action.label).toBe("Open finding count was not stored.");
+  });
+
   it("opens open findings only when open findings count is greater than zero", () => {
     const action = resolvePilotNextBestAction(
       {

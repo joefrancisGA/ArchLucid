@@ -46,7 +46,7 @@ function groupDiffsBySection(diffs: readonly DiffItem[]): Map<string, DiffItem[]
 
   for (const diff of diffs) {
     const section =
-      diff.section === null || diff.section === undefined
+      diff.section === null || diff.section === undefined || diff.section.trim().length === 0
         ? "Section was not stored."
         : diff.section.trim();
     const existing = grouped.get(section) ?? [];
@@ -242,7 +242,7 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
                       data-testid="architecture-seal-delta-row"
                     >
                       <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                        {item.key}
+                        {item.key?.trim().length ? item.key : "Field key was not stored."}
                       </p>
                       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                         {architectureSealDeltaDiffKindLabel(item.diffKind ?? "")}

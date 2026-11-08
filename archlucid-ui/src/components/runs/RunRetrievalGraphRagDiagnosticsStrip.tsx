@@ -59,14 +59,10 @@ export function RunRetrievalGraphRagDiagnosticsStrip(
         <dd className="m-0 tabular-nums sm:justify-self-end">{tokensInLabel}</dd>
         <dt>Pilot floor</dt>
         <dd className="m-0 sm:justify-self-end">{pilotFloor}</dd>
-        {qualityPosture ? (
-          <>
-            <dt>Quality posture</dt>
-            <dd className="m-0 sm:justify-self-end" data-testid="graph-rag-quality-posture">
-              {qualityPosture}
-            </dd>
-          </>
-        ) : null}
+        <dt>Quality posture</dt>
+        <dd className="m-0 sm:justify-self-end" data-testid="graph-rag-quality-posture">
+          {qualityPosture ?? "Not returned"}
+        </dd>
       </dl>
       <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         {GRAPH_RAG_REVIEW_RETRIEVAL_SCOPE_LINE}

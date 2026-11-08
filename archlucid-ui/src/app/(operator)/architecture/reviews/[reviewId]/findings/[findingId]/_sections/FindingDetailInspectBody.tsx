@@ -12,13 +12,18 @@ import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPl
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
+import {
+  FINDING_DETAIL_CLAIM_DISCIPLINE,
+  FINDING_DETAIL_POLICY_CITATION_NOT_STORED,
+} from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { phiMinimizationBuyerConsequenceNarrative } from "@/lib/findings/finding-display-from-inspect";
+import { FINDING_NO_EVIDENCE_TRAIL_SENTENCE } from "@/lib/findings/finding-inspect-graph-evidence";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { mapInspectPayloadToQuickDecisionFinding } from "@/lib/findings/finding-inspect-job-view";
 import { findingStatusTagKind } from "./finding-detail-route-display";
@@ -66,6 +71,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
     policyProvenanceModel,
     policyTraceExcerpt,
     severityRationale,
+    confidenceLevel,
     graphEvidenceHref,
     linkedManifestHref,
     inspectHref,
@@ -139,16 +145,27 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                   {severityRationale}
                 </p>
               ) : null}
-              {policyProvenanceModel !== null &&
-              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+              {policyProvenanceModel !== null ? (
                 <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
+              ) : inspectPayload !== null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {FINDING_DETAIL_POLICY_CITATION_NOT_STORED}
+                </p>
               ) : null}
               {labels !== null ? (
                 <div className="flex flex-wrap items-center gap-2">
-                  {labels.severityLabel ? <SeverityTag severity={labels.severityLabel} /> : null}
+                  {labels.severityLabel ? (
+                    <SeverityTag severity={labels.severityLabel} />
+                  ) : (
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      Severity was not stored
+                    </span>
+                  )}
                   {labels.statusLabel ? (
                     <StatusTag kind={findingStatusTagKind(labels.statusLabel)} label={labels.statusLabel} />
-                  ) : null}
+                  ) : (
+                    <StatusTag kind="neutral" label="Status was not stored" />
+                  )}
                   {inspectPayload !== null ? (
                     <FindingClassificationChip
                       classification={resolveFindingInspectExportClassification(inspectPayload)}
@@ -158,13 +175,41 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                     />
                   ) : null}
                   {inspectPayload !== null ? (
-                  <FindingSemanticSupportBandChip
-                    finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
-                    showReason
-                    structuralExecutionMode={structuralExecutionMode}
-                  />
+                    <FindingSemanticSupportBandChip
+                      finding={mapInspectPayloadToQuickDecisionFinding(inspectPayload)}
+                      showReason
+                      structuralExecutionMode={structuralExecutionMode}
+                    />
                   ) : null}
+                  <StatusTag kind="neutral" label={labels.categoryLabel ?? "Category was not stored"} />
+                  {labels.impactedAreaLabel !== null && labels.impactedAreaLabel !== undefined ? (
+                    labels.impactedAreaLabel.length > 0 ? (
+                      <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />
+                    ) : (
+                      <StatusTag kind="neutral" label="Business impact was stored empty." />
+                    )
+                  ) : (
+                    <StatusTag kind="neutral" label="Business impact was not stored." />
+                  )}
                 </div>
+              ) : null}
+              {inspectPayload !== null ? (
+                confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
+                  <FindingConfidenceBadge level={confidenceLevel} />
+                ) : confidenceLevel === null || confidenceLevel === undefined ? (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Confidence was not stored.
+                  </p>
+                ) : (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Stored confidence level: {confidenceLevel}.
+                  </p>
+                )
+              ) : null}
+              {graphEvidenceHref === null && inspectPayload !== null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {FINDING_NO_EVIDENCE_TRAIL_SENTENCE}
+                </p>
               ) : null}
             </OperatorPageHeader>
 
@@ -230,12 +275,16 @@ export function FindingDetailInspectBody({ presentation }: Props) {
             />
           ) : null}
 
-          {inspectPayload !== null && buyerRecommendedActionParagraph !== null ? (
+          {inspectPayload !== null
+            && buyerRecommendedActionParagraph !== null
+            && decisionSummary !== null ? (
             <FindingInspectRecommendedActionSection
               tone="detail"
               structuredActions={[...buyerStructuredActions]}
               recommendedActionParagraph={buyerRecommendedActionParagraph}
               showOwnerCadence
+              riskOwnerLabel={decisionSummary.riskOwner}
+              nextReviewLabel={decisionSummary.nextReview}
             />
           ) : null}
 

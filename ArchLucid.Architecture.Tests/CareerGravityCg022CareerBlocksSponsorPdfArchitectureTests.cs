@@ -21,7 +21,7 @@ public sealed class CareerGravityCg022CareerBlocksSponsorPdfArchitectureTests
         mapper.Should().Contain("ResolveSimulatorRehearsalBannerOnArtifactForExport");
         mapper.Should().Contain("WorkingCareerRehearsalDoor: input.WorkingCareerRehearsalDoor");
         mapper.Should().Contain("WorkingCareerRehearsalDoorValues.Rehearsal");
-        loader.Should().Contain("detail.Run.WorkingCareerRehearsalDoor");
+        loader.Should().Contain("detail.Run!.WorkingCareerRehearsalDoor");
     }
 
     [Fact]

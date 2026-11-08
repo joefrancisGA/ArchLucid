@@ -52,6 +52,16 @@ describe("package-print-rehearsal-honesty (CG-023)", () => {
     ).toBeNull();
   });
 
+  it("labels missing review type when rehearsal door is null", () => {
+    const strip = resolvePackagePrintRehearsalHonestyStrip({
+      workingDesk: true,
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      effectiveWorkingCareerRehearsalDoor: null,
+    });
+
+    expect(strip?.body).toContain("Review type was not stored");
+  });
+
   it("omits rehearsal strip for sample runs and non-working desks", () => {
     expect(
       resolvePackagePrintRehearsalHonestyStrip({

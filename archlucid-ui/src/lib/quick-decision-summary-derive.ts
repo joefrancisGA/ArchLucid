@@ -10,16 +10,21 @@ export {
   type FindingHumanReviewStatusDisplay,
   normalizeFindingHumanReviewStatus,
   humanReviewStatusDisplay,
+  quickDecisionDecisionStateHelper,
   coerceArchitectureFindingSeverity,
 } from "@/lib/quick-decision-severity-labels";
 
 export {
   extractQuickDecisionFindingsFromRunDetail,
+  countRunDetailFindingsMissingFindingId,
+  formatRunDetailFindingsMissingFindingIdLine,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   resolveRunDetailFindingStreams,
   extractIacStubForFinding,
   findingHasNoSourceEvidence,
+  findingHasMissingEvidenceRefCount,
+  findingHasStoredZeroEvidenceRefCount,
   sortQuickDecisionFindings,
   partitionQuickDecisionFindings,
   buildWorkspaceCardRenderedFindings,

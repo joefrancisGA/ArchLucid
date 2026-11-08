@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
+  GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
   GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE,
   GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
@@ -53,9 +54,9 @@ describe("guided-intake-copy (TB-773)", () => {
 });
 
 describe("resolveGuidedIntakeClarificationsDoneLabel", () => {
-  it("shows Start review once every clarification is handled", () => {
+  it("shows Save answers and continue once every clarification is handled", () => {
     expect(resolveGuidedIntakeClarificationsDoneLabel(true, false)).toBe(
-      GUIDED_INTAKE_CLARIFICATIONS_START_REVIEW_LABEL,
+      GUIDED_INTAKE_CLARIFICATIONS_SAVE_AND_CONTINUE_LABEL,
     );
   });
 

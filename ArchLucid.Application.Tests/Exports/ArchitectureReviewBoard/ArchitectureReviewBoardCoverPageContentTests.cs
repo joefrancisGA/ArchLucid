@@ -69,6 +69,25 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
     }
 
     [Fact]
+    public void Resolve_whitelabel_uses_omission_copy_for_blank_firm_and_engagement_titles()
+    {
+        WhitelabelConfiguration whitelabel = new()
+        {
+            FirmDisplayName = "   ",
+            ClientEngagementTitle = "",
+        };
+
+        ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
+            new ArchitectureReviewBoardExportDocumentModel { RunId = "run-1" },
+            whitelabel,
+            new DateTimeOffset(2026, 5, 22, 0, 0, 0, TimeSpan.Zero),
+            activeTrialExportNotice: null);
+
+        cover.Title.Should().Be(ArchitectureReviewBoardCoverPageContent.FirmDisplayNameNotStoredNotice);
+        cover.Subtitle.Should().Be(ArchitectureReviewBoardCoverPageContent.ClientEngagementTitleNotStoredNotice);
+    }
+
+    [Fact]
     public void Resolve_whitelabel_uses_firm_title_and_engagement_subtitle()
     {
         WhitelabelConfiguration whitelabel = new()

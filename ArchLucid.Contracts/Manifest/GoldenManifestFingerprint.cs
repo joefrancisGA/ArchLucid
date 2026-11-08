@@ -31,7 +31,8 @@ public static class GoldenManifestFingerprint
 
     /// <summary>
     ///     Uppercase hex SHA-256 over structural manifest content only (excludes <c>RunId</c>,
-    ///     <c>Metadata.CreatedUtc</c>, and <c>Metadata.DecisionTraceIds</c>).
+    ///     <c>Metadata.CreatedUtc</c>, <c>Metadata.DecisionTraceIds</c>, inventory
+    ///     <c>CapturedUtc</c>, and inventory <c>ContentHashSha256</c>).
     /// </summary>
     public static string ComputeContentSha256Hex(GoldenManifest manifest) =>
         ComputeContentSha256Hex(manifest, createTimePins: null, EmptyCommittedArtifactInventory);
@@ -54,6 +55,9 @@ public static class GoldenManifestFingerprint
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
+
+        if (committedArtifactInventory is null)
+            throw new ArgumentNullException(nameof(committedArtifactInventory));
 
         ManifestGovernance governance = manifest.Governance ?? new ManifestGovernance();
         ManifestMetadata metadata = manifest.Metadata ?? new ManifestMetadata();
@@ -135,16 +139,15 @@ public static class GoldenManifestFingerprint
             createTimeKnowledgeModelContentHashSha256 = createTimePins?.KnowledgeModelContentHashSha256Hex,
             createTimeFocusedPilotModeEnabled = createTimePins?.FocusedPilotModeEnabled,
             createTimeFocusedPilotCloudProvider = createTimePins?.FocusedPilotCloudProvider,
+            // Inventory CapturedUtc is Manifest.CreatedUtc (run create time). Inventory
+            // ContentHashSha256 is SHA-256 of sealed artifact bytes that still carry run
+            // identity: golden-manifest JSON includes RunId/CreatedUtc/DecisionTraceIds, and
+            // findings-snapshot IDs are SHA-256(runId|taskId|slot). Hasher B already excludes
+            // that identity from the manifest projection; hashing it via inventory made every
+            // nightly golden-cohort SHA unique even when structural content was unchanged.
             committedArtifactInventory = committedArtifactInventory
                 .OrderBy(row => row.ArtifactName, StringComparer.Ordinal)
-                .Select(row => new
-                {
-                    row.ArtifactName,
-                    row.ContentType,
-                    row.ContentHashSha256,
-                    row.Producer,
-                    row.CapturedUtc,
-                })
+                .Select(ProjectInventoryContent)
                 .ToArray(),
         };
 
@@ -152,6 +155,14 @@ public static class GoldenManifestFingerprint
 
         return Convert.ToHexString(SHA256.HashData(utf8));
     }
+
+    private static object ProjectInventoryContent(CommittedArtifactInventoryFingerprintRow row) =>
+        new
+        {
+            row.ArtifactName,
+            row.ContentType,
+            row.Producer,
+        };
 
     /// <summary>Parses JSON then computes <see cref="ComputeSha256Hex" /> (stable round-trip).</summary>
     public static string ComputeSha256HexFromManifestJson(string manifestJson)

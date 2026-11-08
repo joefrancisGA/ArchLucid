@@ -83,6 +83,50 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
     }
 
     [Fact]
+    public void Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "arch.md",
+                    ContentType = "text/markdown",
+                    Content = "Body.",
+                },
+            ],
+        };
+
+        request.FramingAnswers = null!;
+
+        request.FramingAnswers.Should().BeEmpty();
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(request);
+
+        snapshot.FramingAnswers.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Capture_preserves_display_casing_without_splitting_case_insensitive_cache_identity()
+    {
+        ClosedLoopReasoningRequest mixed = new()
+        {
+            DeclaredPriorities = [" Security ", "cost", "Cost"],
+        };
+        ClosedLoopReasoningRequest canonical = new()
+        {
+            DeclaredPriorities = ["security", "cost"],
+        };
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(mixed);
+
+        snapshot.DeclaredPriorities.Should().Equal("cost", "Security");
+        ReviewCacheManifestBuilder.Build(snapshot).DeclaredPrioritiesHash
+            .Should().Be(ReviewCacheManifestBuilder.Build(canonical).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
     public void Capture_normalizes_declared_priorities()
     {
         ClosedLoopReasoningRequest request = new()

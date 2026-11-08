@@ -61,7 +61,9 @@ public sealed class RegisteredAgentHandlersInspector(IEnumerable<IAgentHandler> 
     {
         List<RegisteredAgentHandlerInfo> items = new(_handlers.Count);
 
-        foreach (IAgentHandler handler in _handlers.OrderBy(h => h.AgentTypeKey, StringComparer.OrdinalIgnoreCase))
+        foreach (IAgentHandler handler in _handlers
+                     .Where(static handler => handler is not null)
+                     .OrderBy(h => h.AgentTypeKey, StringComparer.OrdinalIgnoreCase))
         {
             Type t = handler.GetType();
 

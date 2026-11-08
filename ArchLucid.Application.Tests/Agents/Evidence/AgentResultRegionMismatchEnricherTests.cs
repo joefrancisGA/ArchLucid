@@ -16,6 +16,90 @@ public sealed class AgentResultRegionMismatchEnricherTests
     private readonly AgentResultRegionMismatchEnricher _sut = new();
 
     [Fact]
+    public async Task EnrichAsync_appends_warning_when_openai_named_service_omits_runtime_platform_in_restricted_region()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "Azure OpenAI completion",
+                    RuntimePlatform = RuntimePlatform.Unknown,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+        proposal.Warnings[0].Should().Contain("Microsoft.CognitiveServices/accounts");
+    }
+
+    [Fact]
+    public async Task EnrichAsync_appends_warning_when_machine_learning_named_service_omits_runtime_platform_in_restricted_region()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "Azure Machine Learning scoring",
+                    RuntimePlatform = RuntimePlatform.Unknown,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+        proposal.Warnings[0].Should().Contain("Microsoft.MachineLearningServices/workspaces");
+    }
+
+    [Fact]
     public async Task EnrichAsync_appends_warning_when_azure_openai_region_is_restricted()
     {
         ArchitectureRequest request = new()
@@ -178,6 +262,46 @@ public sealed class AgentResultRegionMismatchEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_uses_request_region_constraint_when_constraint_has_leading_whitespace_and_service_region_missing()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = [" region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("RegionMismatch");
+        proposal.Warnings[0].Should().Contain("qatarcentral");
+    }
+
+    [Fact]
     public async Task EnrichAsync_initializes_warnings_when_null_before_appending_region_mismatch()
     {
         ArchitectureRequest request = new()
@@ -270,6 +394,171 @@ public sealed class AgentResultRegionMismatchEnricherTests
             AddedServices =
             [
                 new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        Func<Task> act = async () =>
+            await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        proposal.Warnings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_skips_null_constraint_entries_when_service_region_missing()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral", null!],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        proposal.Warnings.Should().ContainSingle();
+        proposal.Warnings[0].Should().Contain("qatarcentral");
+    }
+
+    [Fact]
+    public async Task EnrichAsync_skips_null_result_entries()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            null!,
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        Func<Task> act = async () =>
+            await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        proposal.Warnings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_skips_null_added_service_entries()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedServices =
+            [
+                null!,
+                new ManifestService
+                {
+                    RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                    AzureArmRegion = "qatarcentral",
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run",
+                TaskId = "task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+            },
+        ];
+
+        Func<Task> act = async () =>
+            await _sut.EnrichAsync("run", request, new AgentEvidencePackage(), results, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        proposal.Warnings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_skips_null_added_datastore_entries()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+            Constraints = ["region:qatarcentral"],
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            AddedDatastores =
+            [
+                null!,
+                new ManifestDatastore
                 {
                     RuntimePlatform = RuntimePlatform.AzureOpenAi,
                     AzureArmRegion = "qatarcentral",

@@ -3,9 +3,9 @@
 import type { InfraEvidencePagedResponse } from "@/lib/infra-evidence/infra-evidence-drift-types";
 
 export type CloudResourceExplorerWorkCounts = {
-  openOperationalFindingsCount: number;
-  openRemediationInstancesCount: number;
-  inventoryDriftChangeCount: number;
+  openOperationalFindingsCount?: number;
+  openRemediationInstancesCount?: number;
+  inventoryDriftChangeCount?: number;
 };
 
 export type CloudResourceSummary = {

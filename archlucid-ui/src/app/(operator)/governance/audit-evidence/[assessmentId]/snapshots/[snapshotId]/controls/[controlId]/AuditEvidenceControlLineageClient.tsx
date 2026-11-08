@@ -63,6 +63,11 @@ import {
   auditEvidenceLineageChainHrefFromSearch,
   resolveAuditEvidenceLineageChainExpanded,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
+import {
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT,
+  controlEvidenceMarkdownFileName,
+  formatAuditEvidenceControlLineageMarkdown,
+} from "@/lib/audit-evidence-control-lineage-markdown";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 
@@ -164,6 +169,22 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
       setPackageDownloadBusy(false);
     }
   }, [props.assessmentId, props.snapshotId]);
+
+  const onDownloadControlEvidence = useCallback(() => {
+    if (!lineage) {
+      return;
+    }
+
+    const blob = new Blob([formatAuditEvidenceControlLineageMarkdown(lineage)], {
+      type: "text/markdown;charset=utf-8",
+    });
+    const href = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = href;
+    anchor.download = controlEvidenceMarkdownFileName(lineage.controlNumber);
+    anchor.click();
+    URL.revokeObjectURL(href);
+  }, [lineage]);
 
   const onCopyLineageLink = useCallback(async () => {
     if (typeof window === "undefined") {
@@ -283,6 +304,25 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                   {AUDIT_EVIDENCE_CONTROL_LINEAGE_SNAPSHOT_SCOPE_NOTE}
                 </p>
               </div>
+              {lineage ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    data-testid="audit-evidence-control-lineage-download"
+                    onClick={onDownloadControlEvidence}
+                  >
+                    Download control evidence
+                  </Button>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                    data-testid="audit-evidence-control-lineage-download-limit"
+                  >
+                    {AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT}
+                  </p>
+                </>
+              ) : null}
               <Button
                 type="button"
                 variant="outline"

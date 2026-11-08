@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import { DiagramsWorkbenchSecureNowAwareDiagramViewer } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowAwareDiagramViewer";
@@ -10,7 +11,6 @@ import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/
 import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -48,6 +48,7 @@ import {
   fetchInfraEvidenceMermaidPreview,
   fetchInfraEvidenceMermaidRender,
   formatInfraEvidenceMermaidApiError,
+  infraEvidenceMermaidRenderQueriesEqual,
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
@@ -93,6 +94,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
   INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS,
   resolveInfraEvidenceDiagramFamily,
+  resolveSelectableInfraEvidenceDiagramFamily,
   type InfraEvidenceDiagramFamily,
 } from "@/lib/infra-evidence/infra-evidence-diagram-family";
 import {
@@ -102,6 +104,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-client-guard";
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
 import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
+import { filterInfraEvidenceDiagramOutlineByPathHopsWithBasis } from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
 import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
@@ -115,6 +118,10 @@ import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import {
+  formatInfraEvidenceDiagramMetricsAnnouncement,
+  isInfraEvidenceDiagramEdgeCountStored,
+} from "@/lib/infra-evidence/format-infra-evidence-diagram-metrics-announcement";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   buildInfraDiagramsSubscriptionFilterOptions,
@@ -130,6 +137,7 @@ import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra
 import { parseInfraDiagramsDataFlowCaptionPresentation } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
 import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
+import { resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid } from "@/lib/infra-evidence/resolve-infra-evidence-seed-catalog-outline";
 import {
   normalizeInfraEvidenceLayoutSvgForDisplay,
   normalizeInfraEvidenceMermaidSourceForDisplay,
@@ -144,6 +152,7 @@ import {
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
   dependencyNeighborhoodRequiresAppliedSeed,
+  shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline,
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
@@ -193,11 +202,22 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_LINK,
   DESIGN_TOKENS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  SECURENOW_DIAGRAM_PATH_FOCUS_ACTIVE_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_FULL_SUBSCRIPTION_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID,
+  SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_HOP_LABELS,
+  SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT,
+} from "@/lib/product-line/securenow-diagram-path-focus-copy";
+import { fetchSecurityEvidencePathDetail } from "@/lib/security-evidence-path-api";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
@@ -216,6 +236,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL,
@@ -250,9 +271,9 @@ import {
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
+  formatInfraEvidenceMermaidAlwaysExcludedReason,
   formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
   formatInfraEvidenceMermaidRenderFailureDescription,
-  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
 } from "@/lib/infra-evidence/format-infra-evidence-mermaid-fallback-artifact-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -304,6 +325,10 @@ const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
 function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resourceGroupName: string): string {
+  if (mode.trim().length === 0) {
+    return "Diagram mode was stored empty.";
+  }
+
   if (isInfraDiagramsResourceGroupMode(mode)) {
     if (resourceGroupName.length > 0) {
       return `Resource group · ${resourceGroupName}`;
@@ -318,16 +343,20 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 
   const option = INFRA_DIAGRAMS_MODE_OPTIONS.find((entry) => entry.value === mode);
 
-  return option?.label ?? mode;
+  return option?.label ?? `Diagram mode ${mode} has no reviewer label.`;
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Diagram neighbors are adjacency on this layout, not network isolation. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
+    case "executive":
+    case "identity":
+    case "data":
+      return "This diagram shows inventory structure. It is not observed traffic.";
     case "dataArchitecture":
       return "This diagram shows what stores data.";
     case "dataFlow":
@@ -430,6 +459,22 @@ export function DiagramsWorkbenchClient() {
   );
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraDiagramsSnapshotIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM));
+  const urlPathId = searchParams.get("pathId")?.trim() ?? "";
+  const [showRestOfSubscription, setShowRestOfSubscription] = useState(false);
+  const pathDetailQuery = useQuery({
+    queryKey: ["infra-diagrams", "path-detail", urlPathId],
+    queryFn: () => fetchSecurityEvidencePathDetail(urlPathId),
+    enabled: urlPathId.length > 0,
+    retry: false,
+  });
+  const pathFocusActive = urlPathId.length > 0 && !showRestOfSubscription;
+  const diagramsPageLead = isSecureNowProductLine(productLine)
+    ? SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD
+    : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD;
+
+  useEffect(() => {
+    setShowRestOfSubscription(false);
+  }, [urlPathId]);
   const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
     searchParams.get(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM),
   );
@@ -502,6 +547,9 @@ export function DiagramsWorkbenchClient() {
     readonly InfraEvidenceMermaidFallbackArtifactSummary[]
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
+  const selectedSnapshotIdRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdRef.current = selectedSnapshotId;
+  const renderQueryRef = useRef<InfraEvidenceMermaidRenderQuery | null>(null);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
     urlEvidenceFamily as InfraEvidenceDiagramFamily,
@@ -521,11 +569,14 @@ export function DiagramsWorkbenchClient() {
   );
   const [seedCandidateNodes, setSeedCandidateNodes] = useState<InfraEvidenceMermaidOutlineNode[]>([]);
   const [seedCatalogOutline, setSeedCatalogOutline] = useState<InfraEvidenceMermaidOutline | null>(null);
+  const [seedCatalogSnapshotId, setSeedCatalogSnapshotId] = useState<string | null>(null);
   const [loadingSeedCatalog, setLoadingSeedCatalog] = useState(false);
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
-  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[]>([]);
+  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[] | undefined>(
+    undefined,
+  );
   const [renderResult, setRenderResult] = useState<InfraEvidenceMermaidRenderResponse | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -547,23 +598,18 @@ export function DiagramsWorkbenchClient() {
   }, [urlMermaidMode]);
 
   useEffect(() => {
-    setSelectedEvidenceFamily(urlEvidenceFamily as InfraEvidenceDiagramFamily);
-  }, [urlEvidenceFamily]);
-
-  useEffect(() => {
-    setSeedNodeDraft(urlSeedNodeId);
-
-    if (urlMermaidMode !== "dependencyNeighborhood") {
-      setAppliedSeedNodeId("");
+    if (loadingSnapshots || snapshots.length === 0) {
       return;
     }
 
-    const trimmedUrlSeed = urlSeedNodeId.trim();
+    const resolvedSnapshotId = resolveInfraDiagramsSelectedSnapshotId(urlSnapshotId, snapshots);
 
-    if (trimmedUrlSeed.length > 0) {
-      setAppliedSeedNodeId(trimmedUrlSeed);
-    }
-  }, [urlMermaidMode, urlSeedNodeId]);
+    setSelectedSnapshotId(resolvedSnapshotId);
+  }, [loadingSnapshots, snapshots, urlSnapshotId]);
+
+  useEffect(() => {
+    setSelectedEvidenceFamily(urlEvidenceFamily as InfraEvidenceDiagramFamily);
+  }, [urlEvidenceFamily]);
 
   useEffect(() => {
     setShowPrivateEndpoints(urlIncludePrivateEndpoints);
@@ -593,6 +639,8 @@ export function DiagramsWorkbenchClient() {
     setSelectedSubscriptionFilter(urlSubscriptionFilter);
   }, [urlSubscriptionFilter]);
 
+  const lastSelfGeneratedUrlRef = useRef<string | null>(null);
+
   const syncUrl = useCallback(
     (patch: {
       snapshotId?: string;
@@ -607,7 +655,10 @@ export function DiagramsWorkbenchClient() {
       includeAvdAssets?: boolean;
       evidenceFamily?: string;
     }) => {
-      router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
+      const href = infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname);
+
+      lastSelfGeneratedUrlRef.current = href;
+      router.replace(href, {
         scroll: false,
       });
     },
@@ -617,6 +668,95 @@ export function DiagramsWorkbenchClient() {
   const syncUrlRef = useRef(syncUrl);
 
   syncUrlRef.current = syncUrl;
+
+  const priorUrlSnapshotIdRef = useRef(urlSnapshotId);
+  const suppressUrlSeedApplyRef = useRef(false);
+  const lastUrlSeedNodeIdRef = useRef(urlSeedNodeId);
+  const appliedSeedNodeIdRef = useRef(appliedSeedNodeId);
+  appliedSeedNodeIdRef.current = appliedSeedNodeId;
+  const selectedSnapshotIdForSeedRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdForSeedRef.current = selectedSnapshotId;
+  const currentUrlRef = useRef("");
+  currentUrlRef.current = `${pathname}?${searchParams.toString()}`;
+  const lastConsumedUrlRef = useRef("");
+  const selfGeneratedPatchPendingRef = useRef(false);
+
+  useEffect(() => {
+    const priorSnapshotId = priorUrlSnapshotIdRef.current;
+    priorUrlSnapshotIdRef.current = urlSnapshotId;
+
+    if (priorSnapshotId === urlSnapshotId || priorSnapshotId.length === 0) {
+      return;
+    }
+
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      return;
+    }
+
+    setAppliedSeedNodeId("");
+    setSeedNodeDraft("");
+    suppressUrlSeedApplyRef.current = true;
+    syncUrlRef.current({ seedNodeId: "" });
+  }, [urlMermaidMode, urlSnapshotId]);
+
+  useEffect(() => {
+    const priorUrlSeedNodeId = lastUrlSeedNodeIdRef.current;
+    lastUrlSeedNodeIdRef.current = urlSeedNodeId;
+
+    setSeedNodeDraft(urlSeedNodeId);
+
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      setAppliedSeedNodeId("");
+      return;
+    }
+
+    if (suppressUrlSeedApplyRef.current) {
+      const trimmedPendingSeed = urlSeedNodeId.trim();
+
+      if (trimmedPendingSeed.length > 0) {
+        setAppliedSeedNodeId("");
+        setSeedNodeDraft("");
+        return;
+      }
+
+      suppressUrlSeedApplyRef.current = false;
+    }
+
+    const trimmedUrlSeed = urlSeedNodeId.trim();
+
+    if (trimmedUrlSeed.length === 0) {
+      // Self-generated URL patches (display options, automatic subscription
+      // filter) rebuild the query string and can briefly omit seedNodeId
+      // while the router catches up. Only treat an empty URL seed as that
+      // transient omission when the current URL still matches the pending
+      // self-generated patch; back/soft navigation to the same snapshot
+      // without seedNodeId is an intentional seed removal that returns to
+      // the seed-required state.
+      const currentUrl = currentUrlRef.current;
+
+      if (currentUrl !== lastConsumedUrlRef.current) {
+        lastConsumedUrlRef.current = currentUrl;
+        selfGeneratedPatchPendingRef.current = currentUrl === lastSelfGeneratedUrlRef.current;
+      }
+
+      const trimmedAppliedSeed = appliedSeedNodeIdRef.current.trim();
+      const renderedSnapshotId = selectedSnapshotIdForSeedRef.current;
+
+      if (
+        selfGeneratedPatchPendingRef.current
+        && trimmedAppliedSeed.length > 0
+        && priorUrlSeedNodeId.trim() === trimmedAppliedSeed
+        && renderedSnapshotId.length > 0
+        && urlSnapshotId === renderedSnapshotId
+      ) {
+        setSeedNodeDraft(trimmedAppliedSeed);
+        syncUrlRef.current({ seedNodeId: trimmedAppliedSeed });
+        return;
+      }
+    }
+
+    setAppliedSeedNodeId(trimmedUrlSeed.length > 0 ? trimmedUrlSeed : "");
+  }, [urlMermaidMode, urlSeedNodeId, urlSnapshotId]);
 
   const activeModePreview = useMemo(
     () => modePreviews.find((preview) => preview.mode === selectedMode) ?? null,
@@ -797,6 +937,18 @@ export function DiagramsWorkbenchClient() {
     return null;
   }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
+  const diagramSnapshotAltLabel = useMemo(() => {
+    if (selectedSnapshotDisplayLabel !== null && selectedSnapshotDisplayLabel.trim().length > 0) {
+      return selectedSnapshotDisplayLabel;
+    }
+
+    if (selectedSnapshotId.trim().length > 0) {
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
+    }
+
+    return "Snapshot was not stored.";
+  }, [selectedSnapshotDisplayLabel, selectedSnapshotId]);
+
   const selectedModeLabel = useMemo(() => {
     if (!diagramTypeSelected) {
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER;
@@ -821,7 +973,7 @@ export function DiagramsWorkbenchClient() {
     const metrics = renderResult?.metrics;
     const metricLine =
       renderResult != null && metrics != null
-        ? `${metrics.nodeCount} nodes and ${metrics.edgeCount} edges across ${metrics.subgraphCount} subgraphs.`
+        ? formatInfraEvidenceDiagramMetricsAnnouncement(metrics)
         : renderResult != null
           ? "Diagram metrics were not stored."
           : "";
@@ -888,7 +1040,8 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
-  const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
+  const dataFlowEdgeCountUnknown =
+    selectedMode === "dataFlow" && !isInfraEvidenceDiagramEdgeCountStored(metrics);
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const dataFlowHasNoResourcesOrConnections =
@@ -986,10 +1139,20 @@ export function DiagramsWorkbenchClient() {
       return null;
     }
 
+    const optionLabel =
+      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label?.trim() ?? "";
     const subscriptionLabel =
-      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
-      ?? selectedSnapshot.subscriptionName?.trim()
-      ?? "Subscription not labeled";
+      selectedSubscriptionFilter.length === 0
+        ? "Subscription scope not selected"
+        : optionLabel.length > 0
+          ? optionLabel
+          : selectedSnapshot.subscriptionName === null || selectedSnapshot.subscriptionName === undefined
+            ? selectedSnapshot.subscriptionId?.trim().length
+              ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
+              : "Subscription name was not stored."
+            : selectedSnapshot.subscriptionName.trim().length === 0
+              ? "Subscription name was stored empty."
+              : selectedSnapshot.subscriptionName.trim();
 
     return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
   }, [
@@ -1001,11 +1164,20 @@ export function DiagramsWorkbenchClient() {
 
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
-  const completenessWarnings = useMemo(
-    () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
-    [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
-  );
-  const completenessSummary = renderResult?.completenessSummary ?? null;
+  const completenessWarnings = useMemo(() => {
+    if (renderResult !== null && renderResult.completenessWarnings !== undefined) {
+      return renderResult.completenessWarnings;
+    }
+
+    return snapshotCompletenessWarnings;
+  }, [renderResult, snapshotCompletenessWarnings]);
+  const completenessSummary = useMemo(() => {
+    if (renderResult !== null && "completenessSummary" in renderResult) {
+      return renderResult.completenessSummary ?? null;
+    }
+
+    return undefined;
+  }, [renderResult]);
 
   const renderStatusPresentation = useMemo(() => {
     if (renderStatus.length === 0 || renderStatus !== "Failed") {
@@ -1019,12 +1191,12 @@ export function DiagramsWorkbenchClient() {
   }, [diagramContentEmpty, renderStatus]);
 
   const mermaidOutline = useMemo(() => {
-    if (mermaidSource.trim().length === 0) {
+    if (displayMermaidSource.trim().length === 0) {
       return null;
     }
 
-    return parseInfraEvidenceMermaidOutline(mermaidSource);
-  }, [mermaidSource]);
+    return parseInfraEvidenceMermaidOutline(displayMermaidSource);
+  }, [displayMermaidSource]);
 
   const visibleMermaidOutline = useMemo(() => {
     if (mermaidOutline == null) {
@@ -1034,31 +1206,84 @@ export function DiagramsWorkbenchClient() {
     return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
   }, [includeNeverShow, mermaidOutline]);
 
+  const pathHopDiagramFilter = useMemo(() => {
+    if (!pathFocusActive || pathDetailQuery.data == null) {
+      return {
+        outline: visibleMermaidOutline,
+        matchBasis: "unfiltered" as const,
+      };
+    }
+
+    return filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(
+      visibleMermaidOutline,
+      pathDetailQuery.data.hops,
+    );
+  }, [pathDetailQuery.data, pathFocusActive, visibleMermaidOutline]);
+
+  const pathScopedMermaidOutline = pathHopDiagramFilter.outline;
+  const pathHopDiagramMatchBasis = pathHopDiagramFilter.matchBasis;
+
+  const pathFocusMatchedNoNodes =
+    pathFocusActive
+    && pathDetailQuery.data != null
+    && visibleMermaidOutline != null
+    && visibleMermaidOutline.nodes.length > 0
+    && pathScopedMermaidOutline != null
+    && pathScopedMermaidOutline.nodes.length === 0;
+
   const evidenceFamilyFilterEnabled = EVIDENCE_FAMILY_FILTER_MODES.has(selectedMode);
   const availableEvidenceFamilies = useMemo(
     () => INFRA_EVIDENCE_DIAGRAM_FAMILIES.filter(
-      (family) => visibleMermaidOutline?.edges.some(
+      (family) => pathScopedMermaidOutline?.edges.some(
         (edge) => resolveInfraEvidenceDiagramFamily(edge) === family,
       ) === true,
     ),
-    [visibleMermaidOutline],
+    [pathScopedMermaidOutline],
   );
+  const effectiveEvidenceFamily = useMemo(
+    () => resolveSelectableInfraEvidenceDiagramFamily(selectedEvidenceFamily, availableEvidenceFamilies),
+    [availableEvidenceFamilies, selectedEvidenceFamily],
+  );
+
+  useEffect(() => {
+    if (!evidenceFamilyFilterEnabled || effectiveEvidenceFamily === selectedEvidenceFamily) {
+      return;
+    }
+
+    setSelectedEvidenceFamily(effectiveEvidenceFamily);
+    syncUrl({ evidenceFamily: effectiveEvidenceFamily });
+  }, [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, selectedEvidenceFamily, syncUrl]);
+
   const familyFilteredOutline = useMemo(
     () => evidenceFamilyFilterEnabled
-      ? filterInfraEvidenceDiagramOutlineByFamily(visibleMermaidOutline ?? { nodes: [], edges: [] }, selectedEvidenceFamily)
-      : visibleMermaidOutline,
-    [evidenceFamilyFilterEnabled, selectedEvidenceFamily, visibleMermaidOutline],
+      ? filterInfraEvidenceDiagramOutlineByFamily(
+          pathScopedMermaidOutline ?? { nodes: [], edges: [] },
+          effectiveEvidenceFamily,
+        )
+      : pathScopedMermaidOutline,
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, pathScopedMermaidOutline],
+  );
+  const visiblePathConnectors = useMemo(
+    () => pathFocusActive && familyFilteredOutline != null
+      ? familyFilteredOutline.edges.map((edge) => ({
+          from: edge.from,
+          to: edge.to,
+          label: edge.label,
+        }))
+      : null,
+    [familyFilteredOutline, pathFocusActive],
   );
   const visibleFamilyConnectors = useMemo(
-    () => evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+    () => evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
       ? familyFilteredOutline?.edges.map((edge) => ({
           from: edge.from,
           to: edge.to,
           label: edge.label,
         })) ?? []
       : null,
-    [evidenceFamilyFilterEnabled, familyFilteredOutline, selectedEvidenceFamily],
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, familyFilteredOutline],
   );
+  const diagramVisibleConnectors = visiblePathConnectors ?? visibleFamilyConnectors;
 
   const handleEvidenceFamilyChange = useCallback(
     (family: InfraEvidenceDiagramFamily) => {
@@ -1225,15 +1450,30 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setSeedCandidateNodes([]);
     setSeedCatalogOutline(null);
+    setSeedCatalogSnapshotId(null);
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    setRenderResult(null);
+    setLoadError(null);
+    setSubscriptionResourceGroupArtifacts([]);
+    setModePreviews([]);
+    setSnapshotCompletenessWarnings(undefined);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
+    if (
+      !shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline(selectedMode, appliedSeedNodeId)
+    ) {
+      return;
+    }
+
     if (visibleMermaidOutline == null || visibleMermaidOutline.nodes.length === 0) {
       return;
     }
 
     setSeedCandidateNodes([...visibleMermaidOutline.nodes]);
-  }, [visibleMermaidOutline]);
+  }, [appliedSeedNodeId, selectedMode, visibleMermaidOutline]);
 
   useEffect(() => {
     if (
@@ -1245,24 +1485,37 @@ export function DiagramsWorkbenchClient() {
       return;
     }
 
-    if (seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0) {
+    if (
+      seedCatalogOutline != null
+      && seedCatalogOutline.nodes.length > 0
+      && seedCatalogSnapshotId === selectedSnapshotId
+    ) {
       return;
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadSeedCatalog() {
       setLoadingSeedCatalog(true);
 
       try {
-        const catalogRender = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, { mode: "executive" });
-        const catalogOutline = parseInfraEvidenceMermaidOutline(catalogRender.mermaid ?? "");
+        const catalogRender = await fetchInfraEvidenceMermaidRender(requestSnapshotId, { mode: "executive" });
+        const catalogOutline = resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid(
+          catalogRender.mermaid ?? "",
+        );
 
-        if (cancelled || catalogOutline == null || catalogOutline.nodes.length === 0) {
+        if (
+          cancelled
+          || requestSnapshotId !== selectedSnapshotIdRef.current
+          || catalogOutline == null
+          || catalogOutline.nodes.length === 0
+        ) {
           return;
         }
 
         setSeedCatalogOutline(catalogOutline);
+        setSeedCatalogSnapshotId(requestSnapshotId);
         setSeedCandidateNodes([
           ...filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow).nodes,
         ]);
@@ -1283,27 +1536,67 @@ export function DiagramsWorkbenchClient() {
   }, [
     deepLinkedSnapshotMissing,
     dependencyNeighborhoodAwaitingSeed,
+    includeNeverShow,
     seedCatalogOutline,
+    seedCatalogSnapshotId,
     selectedMode,
     selectedSnapshotId,
+  ]);
+
+  useEffect(() => {
+    if (
+      selectedMode !== "dependencyNeighborhood"
+      || !dependencyNeighborhoodAwaitingSeed
+      || seedCatalogOutline == null
+      || seedCatalogSnapshotId !== selectedSnapshotId
+      || loadingSeedCatalog
+    ) {
+      return;
+    }
+
+    setSeedCandidateNodes([
+      ...filterInfraEvidenceMermaidOutline(seedCatalogOutline, includeNeverShow).nodes,
+    ]);
+  }, [
+    dependencyNeighborhoodAwaitingSeed,
     includeNeverShow,
+    loadingSeedCatalog,
+    seedCatalogOutline,
+    seedCatalogSnapshotId,
+    selectedMode,
+    selectedSnapshotId,
   ]);
 
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
 
-    if (selectedSnapshotDisplayLabel != null) {
+    if (deepLinkedSnapshotMissing) {
+      parts.push("Linked snapshot id was not found in this workspace");
+    } else if (selectedSnapshotDisplayLabel != null) {
       parts.push(`Snapshot ${selectedSnapshotDisplayLabel}`);
+    } else if (selectedSnapshotId.length === 0) {
+      parts.push("Snapshot was not selected");
     }
 
-    parts.push(selectedModeLabel);
+    if (!diagramTypeSelected) {
+      parts.push("Diagram type was not selected.");
+    } else {
+      parts.push(selectedModeLabel);
+    }
 
     if (urlCloudResourceId.length > 0) {
-      parts.push(`resource ${urlCloudResourceId}`);
+      parts.push(`Cloud resource id ${urlCloudResourceId} (scoped link; name was not stored)`);
     }
 
     return parts.join(" · ");
-  }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
+  }, [
+    deepLinkedSnapshotMissing,
+    diagramTypeSelected,
+    selectedModeLabel,
+    selectedSnapshotDisplayLabel,
+    selectedSnapshotId,
+    urlCloudResourceId,
+  ]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (!diagramsSubscriptionChosen || !diagramTypeSelected) {
@@ -1537,7 +1830,12 @@ export function DiagramsWorkbenchClient() {
         setSelectedViewKey("");
         setRenderResult(null);
         setSubscriptionResourceGroupArtifacts([]);
-        syncUrl({ mermaidMode: "", mermaidView: "", subscriptionFilter: nextSubscriptionFilter });
+        syncUrl({
+          mermaidMode: "",
+          mermaidView: "",
+          seedNodeId: "",
+          subscriptionFilter: nextSubscriptionFilter,
+        });
       }
 
       if (!snapshotStillVisible) {
@@ -1545,7 +1843,13 @@ export function DiagramsWorkbenchClient() {
         setSelectedMode("");
         setSelectedViewKey("");
         setRenderResult(null);
-        syncUrl({ snapshotId: "", mermaidMode: "", mermaidView: "", subscriptionFilter: nextSubscriptionFilter });
+        syncUrl({
+          snapshotId: "",
+          mermaidMode: "",
+          mermaidView: "",
+          seedNodeId: "",
+          subscriptionFilter: nextSubscriptionFilter,
+        });
       }
     },
     [selectedSnapshotId, snapshots, syncUrl],
@@ -1653,23 +1957,26 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadPreview() {
       setLoadingPreview(true);
       setLoadError(null);
 
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(selectedSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setModePreviews(preview.modes ?? []);
-          setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
+          setSnapshotCompletenessWarnings(
+            preview.completenessWarnings === undefined ? undefined : preview.completenessWarnings,
+          );
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
-          setSnapshotCompletenessWarnings([]);
+          setSnapshotCompletenessWarnings(undefined);
         }
       } finally {
         if (!cancelled) {
@@ -1696,18 +2003,19 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = resourceGroupSnapshotId;
 
     async function loadSubscriptionResourceGroups() {
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(resourceGroupSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
         const previewArtifacts = (preview.modes ?? []).flatMap((modePreview) => modePreview.fallbackArtifacts ?? []);
         const artifacts = resolveInfraDiagramsResourceGroupFallbackArtifacts(previewArtifacts);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setSubscriptionResourceGroupArtifacts(artifacts);
         }
       } catch {
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setSubscriptionResourceGroupArtifacts([]);
         }
       }
@@ -1727,6 +2035,8 @@ export function DiagramsWorkbenchClient() {
   ]);
 
   useEffect(() => {
+    renderQueryRef.current = renderQuery;
+
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setRenderResult(null);
       return;
@@ -1740,6 +2050,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     const activeRenderQuery = renderQuery;
+    const requestSnapshotId = selectedSnapshotId;
     let cancelled = false;
 
     async function loadRender() {
@@ -1747,9 +2058,13 @@ export function DiagramsWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, activeRenderQuery);
+        const response = await fetchInfraEvidenceMermaidRender(requestSnapshotId, activeRenderQuery);
 
-        if (!cancelled) {
+        if (
+          !cancelled
+          && requestSnapshotId === selectedSnapshotIdRef.current
+          && infraEvidenceMermaidRenderQueriesEqual(activeRenderQuery, renderQueryRef.current)
+        ) {
           setRenderResult(response);
 
           if (
@@ -1763,7 +2078,11 @@ export function DiagramsWorkbenchClient() {
           }
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (
+          !cancelled
+          && requestSnapshotId === selectedSnapshotIdRef.current
+          && infraEvidenceMermaidRenderQueriesEqual(activeRenderQuery, renderQueryRef.current)
+        ) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setRenderResult(null);
         }
@@ -1820,9 +2139,17 @@ export function DiagramsWorkbenchClient() {
       setSelectedSnapshotId(nextSnapshotId);
       setSelectedViewKey("");
       setRenderResult(null);
+
+      if (selectedMode === "dependencyNeighborhood") {
+        setAppliedSeedNodeId("");
+        setSeedNodeDraft("");
+        syncUrl({ snapshotId: nextSnapshotId, mermaidView: "", seedNodeId: "" });
+        return;
+      }
+
       syncUrl({ snapshotId: nextSnapshotId, mermaidView: "" });
     },
-    [syncUrl],
+    [selectedMode, syncUrl],
   );
 
   const handleModeChange = useCallback(
@@ -1940,17 +2267,50 @@ export function DiagramsWorkbenchClient() {
 
     try {
       const query = renderQuery;
+      const layoutEngine = renderResult?.layoutEngine ?? null;
+      const pngRasterSource =
+        layoutEngine === "inventory-forest" || layoutEngine === "graphviz-fdp"
+          ? ("server-graphviz" as const)
+          : ("server-mermaid-cli" as const);
       const readingStrip = {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings,
+        layoutEngine,
+        pngRasterSource,
+        executiveOverflowStripped:
+          selectedMode === "executive"
+          && mermaidSource.trim().length > 0
+          && mermaidSource !== displayMermaidSource,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         snapshotLabel:
           selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
         ...(isInfraDiagramsResourceGroupMode(selectedMode)
           ? { resourceGroupScopeName: selectedResourceGroupName }
           : {}),
         ...(selectedMode === "dependencyNeighborhood"
-          ? { dependencyNeighborhoodSeedLabel: appliedSeedNodeId }
+          ? {
+              dependencyNeighborhoodSeedId: appliedSeedNodeId,
+              dependencyNeighborhoodSeedDisplayName: (() => {
+                const trimmedSeed = appliedSeedNodeId.trim();
+
+                if (trimmedSeed.length === 0) {
+                  return null;
+                }
+
+                const matchedNode = seedCandidateNodes.find(
+                  (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === trimmedSeed,
+                );
+
+                if (matchedNode === undefined) {
+                  return null;
+                }
+
+                const resourceName = resolveInfraEvidenceDiagramOutlineResourceName(matchedNode).trim();
+
+                return resourceName.length > 0 && resourceName !== trimmedSeed ? resourceName : null;
+              })(),
+            }
           : {}),
       };
 
@@ -1963,7 +2323,10 @@ export function DiagramsWorkbenchClient() {
         fallbackMermaidSource: mermaidSource,
         fallbackSvgMarkup: exportableSvgMarkup,
         dark,
-        readingStrip,
+        readingStrip: {
+          ...readingStrip,
+          pngRasterSource: "browser-fallback",
+        },
       });
 
       if (result.usedBrowserFallback) {
@@ -1988,6 +2351,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     renderQuery,
+    renderResult?.layoutEngine,
     selectedSnapshotId,
     tooLargeForBrowser,
   ]);
@@ -2043,7 +2407,7 @@ export function DiagramsWorkbenchClient() {
       <OperatorPageHeader
         navHref={pathname}
         title={pageTitle}
-        subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
+        subtitle={diagramsPageLead}
         titleTestId="infra-diagrams-page-title"
         metadata={<DiagramsBreadcrumb />}
       />
@@ -2078,6 +2442,74 @@ export function DiagramsWorkbenchClient() {
         testId="infra-diagrams-page-shortcuts"
         entries={diagramsWorkbenchPageShortcutsDisclosureEntries()}
       />
+
+      {urlPathId.length > 0 ? (
+        <section
+          className={cnCard}
+          aria-labelledby="infra-diagrams-path-focus-heading"
+          data-testid="infra-diagrams-path-focus-banner"
+        >
+          <h2 id="infra-diagrams-path-focus-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Path focus requested
+          </h2>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+            Path {urlPathId} is the requested SecureNow path. Path hops and cut points remain authoritative in Path inspect.
+            {pathFocusMatchedNoNodes ? (
+              <>
+                {" "}
+                {SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_BODY}
+              </>
+            ) : pathFocusActive ? (
+              ` ${SECURENOW_DIAGRAM_PATH_FOCUS_ACTIVE_BODY}`
+            ) : (
+              ` ${SECURENOW_DIAGRAM_PATH_FOCUS_FULL_SUBSCRIPTION_BODY}`
+            )}
+          </p>
+          {pathFocusMatchedNoNodes ? (
+            <p
+              className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="securenow-diagram-path-focus-no-nodes-next"
+            >
+              {SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT}
+            </p>
+          ) : null}
+          {pathFocusActive && !pathFocusMatchedNoNodes && pathHopDiagramMatchBasis === "hopLabels" ? (
+            <p
+              className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="securenow-diagram-path-focus-match-basis"
+            >
+              {SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_HOP_LABELS}
+            </p>
+          ) : null}
+          {pathFocusActive && !pathFocusMatchedNoNodes && pathHopDiagramMatchBasis === "cloudResourceId" ? (
+            <p
+              className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="securenow-diagram-path-focus-match-basis"
+            >
+              {SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID}
+            </p>
+          ) : null}
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link
+              href={`/security/remediation-factory?pathId=${encodeURIComponent(urlPathId)}`}
+              className={OPERATOR_LINK.inline}
+            >
+              Open Path inspect
+            </Link>
+            {pathFocusActive ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="securenow-diagram-show-subscription"
+                onClick={() => setShowRestOfSubscription(true)}
+              >
+                Show the rest of the subscription
+              </Button>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
@@ -2571,9 +3003,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <div className="grid min-w-[16rem] flex-1 gap-2">
                   <Label htmlFor="infra-diagrams-seed-node-input">
-                    {seedCandidateNodes.length > 0
-                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL}
                   </Label>
                   <Input
                     id="infra-diagrams-seed-node-input"
@@ -2591,9 +3021,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                   <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                    {seedCandidateNodes.length > 0
-                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL}
                   </span>
                   <input
                     className={cnField}
@@ -2757,7 +3185,6 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
         <InfraDiagramsExportHonestyStrip />
-        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="infra-diagrams-export" />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-2">
@@ -2789,7 +3216,7 @@ export function DiagramsWorkbenchClient() {
                 }
                 onClick={runMermaidExport}
               >
-                Export Mermaid
+                Download Mermaid source
               </Button>
             </div>
             {pngExportDisabledReason != null ? (
@@ -2935,7 +3362,7 @@ export function DiagramsWorkbenchClient() {
             dataFlowEdgeCountUnknown
               ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
               : dataFlowHasNoResourcesOrConnections
-                ? "This data-flow canvas has no resources and no connections."
+                ? "No paintable data-flow resources or edges are in this snapshot."
                 : dataFlowHasNoConnections
                 ? "The snapshot has inventory and no declared connection to draw."
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
@@ -2952,12 +3379,14 @@ export function DiagramsWorkbenchClient() {
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION}
             </p>
           ) : null}
-          {isInfraDiagramsResourceGroupMode(selectedMode) && selectedResourceGroupName.length > 0 && !isResourceGroupMapDiagram ? (
+          {isInfraDiagramsResourceGroupMode(selectedMode) && !isResourceGroupMapDiagram ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-one-resource-group-caption"
             >
-              This diagram shows one resource group.
+              {selectedResourceGroupName.length > 0
+                ? `This diagram shows resources in ${selectedResourceGroupName}. Other resource groups in this snapshot are not on this canvas.`
+                : "Resource group name was not stored. Other resource groups in this snapshot are not on this canvas."}
             </p>
           ) : null}
           {isBackboneKeepDiagram ? (
@@ -2991,9 +3420,7 @@ export function DiagramsWorkbenchClient() {
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                     {alwaysExcludedCollapseEntries.map((entry, index) => (
                       <li key={`${entry.kind}-${entry.reason ?? "missing"}-${index}`}>
-                        {entry.reason === null || entry.reason === undefined
-                          ? INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED
-                          : entry.reason}
+                        {formatInfraEvidenceMermaidAlwaysExcludedReason(entry.reason)}
                       </li>
                     ))}
                   </ul>
@@ -3012,8 +3439,8 @@ export function DiagramsWorkbenchClient() {
                   key={family}
                   type="button"
                   size="sm"
-                  variant={selectedEvidenceFamily === family ? "primary" : "outline"}
-                  aria-pressed={selectedEvidenceFamily === family}
+                  variant={effectiveEvidenceFamily === family ? "primary" : "outline"}
+                  aria-pressed={effectiveEvidenceFamily === family}
                   onClick={() => handleEvidenceFamilyChange(family)}
                 >
                   {INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS[family]}
@@ -3022,22 +3449,35 @@ export function DiagramsWorkbenchClient() {
             </div>
           ) : null}
           {evidenceFamilyFilterEnabled
-            && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+            && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
             && familyFilteredOutline?.edges.length === 0 ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-evidence-family-empty"
             >
-              No connectors in this family on this diagram. Connectors in other families are still listed under All.
+              No relationships in this family on this diagram. Relationships in other families are still listed under All.
             </p>
           ) : null}
-          <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
+          <InfraEvidenceDiagramReadingLegend
+            mode={selectedMode}
+            executiveOverflowStripped={
+              mermaidSource.trim().length > 0 && mermaidSource !== displayMermaidSource
+            }
+            crossGroupFanOutIncluded={includeCrossGroupFanOut}
+            executiveFirstTwelveDrawn={
+              selectedMode === "executive"
+              && mermaidSource.includes("first 12 resources drawn on this diagram")
+            }
+            dataFlowHasObservedInLogs={
+              selectedMode === "dataFlow" && /Observed in logs/i.test(mermaidSource)
+            }
+          />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
-            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
+            textAlternative={`Inventory diagram for snapshot ${diagramSnapshotAltLabel} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${diagramSnapshotAltLabel}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
@@ -3048,7 +3488,7 @@ export function DiagramsWorkbenchClient() {
             focusNonce={cameraFocusNonce}
             outline={familyFilteredOutline}
             selectedConnector={selectedConnector}
-            visibleConnectors={visibleFamilyConnectors}
+            visibleConnectors={diagramVisibleConnectors}
             onSelectConnector={handleConnectorSelect}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
@@ -3057,7 +3497,7 @@ export function DiagramsWorkbenchClient() {
           <InfraEvidenceDiagramLegend
             outline={familyFilteredOutline}
             mermaidSource={
-              evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+              evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
                 ? null
                 : displayMermaidSource
             }

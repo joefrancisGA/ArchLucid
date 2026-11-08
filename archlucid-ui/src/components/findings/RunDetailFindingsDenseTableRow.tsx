@@ -10,6 +10,7 @@ import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
+import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import {
   EnterpriseTableCell,
   EnterpriseTableRow,
@@ -20,7 +21,9 @@ import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
-import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
+import { formatQuickDecisionConfidenceWorkspaceLabel, formatQuickDecisionFindingDensityScoreDisplay, formatQuickDecisionFindingTitleDisplay } from "@/lib/findings/quick-decision-finding-display";
+import { buildQuickDecisionFindingEvidenceLinks, formatQuickDecisionFindingEvidenceLinkLabel } from "@/lib/quick-decision-finding-links";
+import { resolveFindingEvidenceRefSnippetsWireState } from "@/lib/findings/finding-source-evidence-excerpt-copy";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -82,7 +85,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
             event.stopPropagation();
           }}
         >
-          {finding.title}
+          {formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title)}
         </Link>
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
@@ -116,14 +119,19 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Classification was not stored</p>
         )}
         <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-          {finding.findingId}
+          Finding id:{" "}
+          {finding.findingId.trim().length > 0 ? finding.findingId : "Finding id was not stored."}
         </p>
+        <FindingEvidenceRefSnippets
+          snippets={finding.evidenceRefSnippets ?? []}
+          wireState={resolveFindingEvidenceRefSnippetsWireState(finding.evidenceRefSnippets)}
+        />
       </EnterpriseTableCell>
       {showDensityScore ? (
         <EnterpriseTableCell className="w-[5rem] align-top tabular-nums text-al-text-secondary">
           {finding.insightDensityScore !== null && finding.insightDensityScore !== undefined ? (
             <span data-testid={`run-detail-findings-density-${finding.findingId}`}>
-              {Math.trunc(finding.insightDensityScore)}
+              {formatQuickDecisionFindingDensityScoreDisplay(finding.insightDensityScore)}
             </span>
           ) : (
             "Density was not stored"
@@ -134,9 +142,11 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         {finding.confidenceLevel === "High" ||
         finding.confidenceLevel === "Medium" ||
         finding.confidenceLevel === "Low" ? (
-          <FindingConfidenceBadge level={finding.confidenceLevel} />
+          <FindingConfidenceBadge level={finding.confidenceLevel} showScopeLine />
         ) : (
-          <span className="text-al-text-secondary">Confidence was not stored</span>
+          <span className="text-al-text-secondary">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[7rem] align-top">
@@ -146,7 +156,9 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip href={viewEvidenceHref} evidenceRefCount={evidenceRefCount} />
         ) : (
-          <span className="text-al-text-secondary">Evidence link was not stored</span>
+          <span className="text-al-text-secondary">
+            {formatQuickDecisionFindingEvidenceLinkLabel(evidenceRefCount)}
+          </span>
         )}
       </EnterpriseTableCell>
     </EnterpriseTableRow>

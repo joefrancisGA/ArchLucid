@@ -43,6 +43,27 @@ public sealed class ComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public void TryBuildDriftReportContent_uses_trimmed_comparison_record_id_in_download_filename()
+    {
+        const string comparisonRecordId = "cmp-drift-filename";
+        Mock<IDriftReportFormatter> formatter = new();
+        formatter
+            .Setup(f => f.FormatMarkdown(It.IsAny<DriftAnalysisResult>(), comparisonRecordId))
+            .Returns("# drift");
+
+        ComparisonsApplicationService sut = CreateSut(driftFormatter: formatter.Object);
+
+        DriftReportContent? content = sut.TryBuildDriftReportContent(
+            new DriftAnalysisResult { DriftDetected = false, Summary = "ok", Items = [] },
+            $"  {comparisonRecordId}  ",
+            "markdown");
+
+        content.Should().NotBeNull();
+        content!.FileName.Should().Be($"drift-report_{comparisonRecordId}.md");
+        formatter.Verify(f => f.FormatMarkdown(It.IsAny<DriftAnalysisResult>(), comparisonRecordId), Times.Once);
+    }
+
+    [Fact]
     public async Task TryBuildBatchReplayZipAsync_returns_null_when_every_replay_fails()
     {
         Mock<IComparisonRecordRepository> comparisons = new();
@@ -116,7 +137,8 @@ public sealed class ComparisonsApplicationServiceTests
 
     private static ComparisonsApplicationService CreateSut(
         IRunDetailQueryService? runDetail = null,
-        IComparisonRecordRepository? comparisonRecords = null)
+        IComparisonRecordRepository? comparisonRecords = null,
+        IDriftReportFormatter? driftFormatter = null)
     {
         return new ComparisonsApplicationService(
             runDetail ?? new Mock<IRunDetailQueryService>().Object,
@@ -125,7 +147,7 @@ public sealed class ComparisonsApplicationServiceTests
             new Mock<IComparisonReplayService>().Object,
             new Mock<ICompareRunsApplicationFacade>().Object,
             new Mock<IComparisonReplayCostEstimator>().Object,
-            new Mock<IDriftReportFormatter>().Object,
+            driftFormatter ?? new Mock<IDriftReportFormatter>().Object,
             new DriftReportDocxExport());
     }
 }

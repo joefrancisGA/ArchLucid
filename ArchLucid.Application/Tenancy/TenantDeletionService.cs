@@ -236,11 +236,13 @@ public sealed class TenantDeletionService(
                 new PlatformAuditEvent
                 {
                     EventType = AuditEventTypes.TenantDataDeleted,
-                    ActorUserId = invocation.ActorUserId,
-                    ActorUserName = invocation.ActorUserName,
+                    ActorUserId = invocation.ActorUserId.Trim(),
+                    ActorUserName = invocation.ActorUserName.Trim(),
                     SubjectTenantId = tenantId,
                     DataJson = dataJson,
-                    CorrelationId = invocation.CorrelationId
+                    CorrelationId = string.IsNullOrWhiteSpace(invocation.CorrelationId)
+                        ? null
+                        : invocation.CorrelationId.Trim(),
                 },
                 cancellationToken)
             .ConfigureAwait(false);

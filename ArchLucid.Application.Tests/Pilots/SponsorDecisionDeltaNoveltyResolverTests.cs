@@ -1,4 +1,5 @@
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -15,6 +16,79 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class SponsorDecisionDeltaNoveltyResolverTests
 {
+    [Fact]
+    public void Resolve_when_audit_row_basis_unresolved_does_not_claim_pilot_strict_attested_evidence_class()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = false,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            proof,
+            BuildGate());
+
+        result.EvidenceClassLabel.Should().Be("Persisted run proof — audit row basis unresolved");
+        result.EvidenceClassLabel.Should().NotContain("PilotStrict posture attested");
+        result.ConfidenceBasisSummary.Should().Contain("audit row count resolved: no");
+    }
+
+    [Fact]
+    public void Resolve_when_audit_row_basis_unresolved_on_deltas_uses_deltas_not_stale_proof_flag()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+
+        PilotRunDeltas deltas = BuildDeltas() with { AuditRowCountResolved = false };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            BuildGate());
+
+        result.EvidenceClassLabel.Should().Be("Persisted run proof — audit row basis unresolved");
+        result.ConfidenceBasisSummary.Should().Contain("audit row count resolved: no");
+    }
+
+    [Fact]
+    public void Resolve_non_obvious_rationale_when_demo_on_deltas_uses_deltas_not_stale_proof_flag()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+        PilotRunDeltas deltas = BuildDeltas() with { IsDemoTenant = true };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            BuildGate());
+
+        result.NonObviousRationale.Should().Contain("Demo-derived output");
+        result.NoveltyConfidence.Should().Be(SponsorNoveltyConfidence.NotAssessed);
+    }
+
     [Fact]
     public void Resolve_when_committed_with_findings_emits_partial_or_strong_novelty()
     {
@@ -294,6 +368,37 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
         markdown.Should().Contain("**Evidence class:**");
     }
 
+    [Fact]
+    public void Resolve_when_finding_message_is_blank_uses_not_stored_label()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        detail.Results[0].Findings[0].Message = "   ";
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        result.DecisionDeltaSummary.Should().NotContain("(no message)");
+    }
+
+    [Fact]
+    public void Resolve_when_committed_with_empty_material_findings_does_not_claim_no_change_decision()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Be(PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty);
+        result.DecisionDeltaSummary.Should().NotContain("did not surface a material recommended change");
+    }
+
     private static ArchitectureRunDetail BuildDetail(bool isCommitted, bool includeFindings)
     {
         GoldenManifest? manifest = isCommitted
@@ -361,6 +466,8 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
                 ManifestVersion = "v1",
             },
             IsDemoTenant = false,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
     private static ProofPackageCompletenessResponse BuildProof() =>
@@ -368,6 +475,7 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
         {
             AgentOutputPilotStrictEvidenceSatisfied = true,
             LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
             DemoTenantWarningRequired = false,
             BuyerSafeRedactionProfile = "tenant-default",
         };

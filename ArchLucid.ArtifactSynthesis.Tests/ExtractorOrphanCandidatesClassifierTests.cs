@@ -44,4 +44,26 @@ public sealed class ExtractorOrphanCandidatesClassifierTests
 
         findings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ClassifyFromOrphanCandidatesJson_uses_not_stored_copy_for_missing_type_and_reason()
+    {
+        const string json =
+            """
+            {
+              "candidates": [
+                {
+                  "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/d1"
+                }
+              ]
+            }
+            """;
+
+        IReadOnlyList<ExtractorOrphanCandidateFinding> findings =
+            ExtractorOrphanCandidatesClassifier.ClassifyFromOrphanCandidatesJson(json);
+
+        findings.Should().ContainSingle();
+        findings[0].ResourceType.Should().Be(ExtractorOrphanCandidatesClassifier.ResourceTypeNotStored);
+        findings[0].Message.Should().Be(ExtractorOrphanCandidatesClassifier.OrphanReasonNotStored);
+    }
 }

@@ -19,9 +19,21 @@ export function formatQualityGateModeStampLabel(
   recordedMode: QualityGateModeInput,
   hostMode: QualityGateModeInput,
 ): string {
-  const mode = normalizeQualityGateMode(recordedMode) ?? normalizeQualityGateMode(hostMode) ?? "WarnOnly";
+  const recorded = normalizeQualityGateMode(recordedMode);
 
-  return mode === "PilotStrict" ? "Quality gate: PilotStrict" : "Quality gate: WarnOnly";
+  if (recorded !== null) {
+    return recorded === "PilotStrict" ? "Quality gate: PilotStrict" : "Quality gate: WarnOnly";
+  }
+
+  const host = normalizeQualityGateMode(hostMode);
+
+  if (host !== null) {
+    return host === "PilotStrict"
+      ? "Quality gate: PilotStrict (host default)"
+      : "Quality gate: WarnOnly (host default)";
+  }
+
+  return "Quality gate mode was not stored.";
 }
 
 export function shouldBlockWorkingCareerExportForQualityGate(input: {

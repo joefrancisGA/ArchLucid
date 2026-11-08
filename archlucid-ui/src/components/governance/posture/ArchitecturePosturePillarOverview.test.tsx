@@ -85,6 +85,23 @@ describe("ArchitecturePosturePillarOverview", () => {
     expect(screen.getByTestId("architecture-posture-examination-Security")).toHaveTextContent("Partially examined");
   });
 
+  it("labels missing snapshot time without implying a stored timestamp", () => {
+    useGovernancePostureQuery.mockReturnValue({
+      data: {
+        ...createSummary(),
+        latestSnapshotCreatedUtc: null,
+      },
+      isPending: false,
+      isError: false,
+      isFetching: false,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitecturePosturePillarOverview projectId="proj-1" />);
+
+    expect(screen.getByText(/Latest review snapshot time was not returned/i)).toBeInTheDocument();
+  });
+
   it("does not render when disabled", () => {
     useGovernancePostureQuery.mockReturnValue({
       data: createSummary(),

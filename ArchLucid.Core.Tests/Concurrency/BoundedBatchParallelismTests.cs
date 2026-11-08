@@ -10,7 +10,8 @@ public sealed class BoundedBatchParallelismTests
 {
     [Theory]
     [InlineData(4, 25, 4)]
-    [InlineData(0, 10, 10)]
+    [InlineData(0, 10, 8)]
+    [InlineData(-1, 100, 8)]
     [InlineData(8, 3, 3)]
     [InlineData(-1, 0, 1)]
     public void ResolveMaxDegree_clamps_to_batch_size(int configured, int batchCount, int expected)

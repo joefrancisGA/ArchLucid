@@ -39,6 +39,23 @@ public abstract class ComparisonRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task Create_trims_comparison_record_id_on_persist()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        string canonicalId = "cmp_contract_trim_" + Guid.NewGuid().ToString("N");
+        ComparisonRecord row = CreateRecord($"  {canonicalId}  ");
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        ComparisonRecord? loaded = await repo.GetByIdAsync(canonicalId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ComparisonRecordId.Should().Be(canonicalId);
+    }
+
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_record()
     {
         SkipIfSqlServerUnavailable();
@@ -59,6 +76,23 @@ public abstract class ComparisonRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetById_finds_row_when_lookup_comparison_record_id_has_surrounding_whitespace()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        string canonicalId = "cmp_contract_pad_" + Guid.NewGuid().ToString("N");
+        ComparisonRecord row = CreateRecord(canonicalId);
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        ComparisonRecord? loaded = await repo.GetByIdAsync($"  {canonicalId}  ", CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ComparisonRecordId.Should().Be(canonicalId);
+    }
+
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -68,6 +102,28 @@ public abstract class ComparisonRecordRepositoryContractTests
             await repo.GetByIdAsync("missing_" + Guid.NewGuid().ToString("N"), CancellationToken.None);
 
         result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetByExportRecordIdAsync_finds_row_when_lookup_export_id_differs_only_by_casing()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        const string storedExportRecordId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string lookupExportRecordId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        ComparisonRecord row = CreateRecord(
+            "cmp_exp_case_" + Guid.NewGuid().ToString("N"),
+            "export-record-diff");
+        row.LeftExportRecordId = storedExportRecordId;
+        row.RightExportRecordId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> list =
+            await repo.GetByExportRecordIdAsync(lookupExportRecordId, CancellationToken.None);
+
+        list.Should().ContainSingle(r => r.ComparisonRecordId == row.ComparisonRecordId);
     }
 
     [SkippableFact]

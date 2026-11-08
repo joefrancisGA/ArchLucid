@@ -55,7 +55,8 @@ public sealed class AgentCuratedEvidenceProposer(
         if (!_options.Enabled)
             return null;
 
-        if (!(result.Findings ?? []).Any(AgentArchitectureFindingEmissionGate.HasTypedEmission))
+        if (!(result.Findings ?? []).Any(static finding =>
+                finding is not null && AgentArchitectureFindingEmissionGate.HasTypedEmission(finding)))
             return null;
 
         string userPrompt = BuildUserPrompt(runId, request, evidence, result);
@@ -89,14 +90,24 @@ public sealed class AgentCuratedEvidenceProposer(
         string catalogSummary = JsonSerializer.Serialize(
             new
             {
-                policies = (evidence.Policies ?? []).Select(p => new { p.PolicyId, p.Title }).Take(20),
-                patterns = (evidence.Patterns ?? []).Select(p => new { p.PatternId, p.Name }).Take(20),
-                services = (evidence.ServiceCatalog ?? []).Select(s => new { s.ServiceId, s.ServiceName }).Take(20),
+                policies = (evidence.Policies ?? [])
+                    .Where(static entry => entry is not null)
+                    .Select(p => new { p.PolicyId, p.Title })
+                    .Take(20),
+                patterns = (evidence.Patterns ?? [])
+                    .Where(static entry => entry is not null)
+                    .Select(p => new { p.PatternId, p.Name })
+                    .Take(20),
+                services = (evidence.ServiceCatalog ?? [])
+                    .Where(static entry => entry is not null)
+                    .Select(s => new { s.ServiceId, s.ServiceName })
+                    .Take(20),
             },
             JsonOptions);
 
         string findingsSummary = JsonSerializer.Serialize(
             (result.Findings ?? [])
+                .Where(static finding => finding is not null)
                 .Where(AgentArchitectureFindingEmissionGate.HasTypedEmission)
                 .Select(f => new { Title = f.Message, f.Severity, f.Category })
                 .Take(12),
@@ -147,9 +158,10 @@ public sealed class AgentCuratedEvidenceProposer(
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(payload.Rationale))
                 return null;
 
-            if (!IsSupportedType(payload.Type))
+            if (!ProposedEvidenceSupportedTypes.IsSupported(payload.Type))
                 return null;
 
+            ProposedEvidencePayloadNormalizer.NormalizeTextFields(payload);
             return JsonSerializer.Serialize(payload, JsonOptions);
         }
         catch (JsonException)
@@ -158,9 +170,4 @@ public sealed class AgentCuratedEvidenceProposer(
         }
     }
 
-    private static bool IsSupportedType(string? type) =>
-        !string.IsNullOrWhiteSpace(type)
-        && (type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
-            || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
-            || type.Equals("Service", StringComparison.OrdinalIgnoreCase));
 }
