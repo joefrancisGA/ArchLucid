@@ -44,6 +44,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("./RoiSummaryNextReviewFooterClient", () => ({
+  RoiSummaryNextReviewFooterClient: () => <div data-testid="roi-summary-next-review-footer-stub" />,
+}));
+
 vi.mock("@/components/RoiSponsorExportVocabularyRail", () => ({
   RoiSponsorExportVocabularyRail: () => <div data-testid="roi-sponsor-export-vocabulary" />,
 }));

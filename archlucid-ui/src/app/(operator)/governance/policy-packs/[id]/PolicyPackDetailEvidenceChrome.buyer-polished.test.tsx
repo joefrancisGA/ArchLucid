@@ -14,7 +14,21 @@ import {
   POLICY_PACK_DETAIL_CLAIM_DISCIPLINE,
   POLICY_PACK_DETAIL_FOLLOW_UPS_TITLE,
 } from "@/lib/policy/policy-pack-detail-evidence-copy";
-import * as demoUiEnv from "@/lib/demo-ui-env";
+const evalChromeMock = vi.hoisted(() => ({ enabled: true }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+  useProductionDeskChrome: () => !evalChromeMock.enabled,
+}));
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
@@ -35,8 +49,6 @@ vi.mock("@/components/LayerHeader", () => ({
 
 describe("Policy pack detail buyer-polished chrome (GPI)", () => {
   it("renders skip link and primary content landmark in evidence chrome", () => {
-    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
-
     render(
       <PolicyPackDetailEvidenceChrome>
         <div>Pack body</div>
@@ -59,8 +71,6 @@ describe("Policy pack detail buyer-polished chrome (GPI)", () => {
   });
 
   it("renders governance breadcrumb trail and orientation after pack body in buyer shell", () => {
-    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
-
     render(
       <PolicyPackDetailEvidenceChrome>
         <ResponsibleAiPolicyPackDetail
