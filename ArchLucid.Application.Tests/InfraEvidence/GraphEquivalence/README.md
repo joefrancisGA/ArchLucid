@@ -14,7 +14,7 @@ Run from the repository root:
 dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter 'FullyQualifiedName~AzureGraphEquivalenceBaselineTests'
 ```
 
-Before simplifying one helper, run the suite on the pinned baseline and on the proposed implementation with unchanged fixtures and expected output. Review every semantic difference. Preserve this baseline during behavior-preserving refactors. An intentional correction requires separately justified expected behavior, updated independent assertions, and an explicitly reviewed baseline change; never regenerate the baseline automatically when a test fails.
+Before simplifying one helper, run the suite on the pinned baseline and on the proposed implementation with unchanged fixtures and expected output. Review every semantic difference. Preserve this baseline during behavior-preserving refactors. An intentional correction requires separately justified expected behavior, updated independent assertions, and an explicitly reviewed baseline change; never regenerate the baseline automatically when a test fails. When product diagram honesty labels change in a reviewed RC43 batch, run `ARCHLUCID_REGENERATE_GRAPH_EQUIVALENCE=1 dotnet test … --filter FullyQualifiedName~Regenerate_master_baseline` and commit the JSON diff.
 
 Scope and known limitations:
 

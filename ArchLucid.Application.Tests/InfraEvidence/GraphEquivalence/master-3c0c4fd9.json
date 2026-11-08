@@ -81,7 +81,7 @@
         {
           "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
           "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
-          "Label": "depends on",
+          "Label": "Dependency was stored. Observed use was not stored.",
           "ProvenanceKind": "ObservedFact",
           "InferenceSource": "captured-fixture",
           "DeclaredConnectionId": null,
@@ -212,7 +212,7 @@
         {
           "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
           "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.managedidentity/userassignedidentities/identity-a",
-          "Label": "depends on",
+          "Label": "Dependency was stored. Observed use was not stored.",
           "ProvenanceKind": "ObservedFact",
           "InferenceSource": "captured-fixture",
           "DeclaredConnectionId": null,
@@ -300,7 +300,7 @@
         {
           "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
           "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
-          "Label": "depends on",
+          "Label": "Dependency was stored. Observed use was not stored.",
           "ProvenanceKind": "ObservedFact",
           "InferenceSource": "captured-fixture",
           "DeclaredConnectionId": null,
@@ -388,7 +388,7 @@
         {
           "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
           "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
-          "Label": "depends on",
+          "Label": "Dependency was stored. Observed use was not stored.",
           "ProvenanceKind": "ObservedFact",
           "InferenceSource": "captured-fixture",
           "DeclaredConnectionId": null,
@@ -497,27 +497,16 @@
         {
           "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
           "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
-          "EdgeType": "CONNECTS_TO",
-          "Label": "CONNECTS_TO",
-          "ProvenanceKind": "DeterministicInference",
-          "InferenceSource": "inventory-property-arm-id",
-          "Weight": 1,
-          "DeclaredConnectionId": null,
-          "properties": {
-            "inventory.indirectRelationship.evidenceCurrency": "Current",
-            "inventory.indirectRelationship.evidenceSource": "inventory-property-arm-id"
-          }
-        },
-        {
-          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
-          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
           "EdgeType": "privateEndpointTarget",
           "Label": "privateEndpointTarget",
-          "ProvenanceKind": null,
+          "ProvenanceKind": "DeterministicInference",
           "InferenceSource": "inventory-private-endpoint",
           "Weight": 1,
           "DeclaredConnectionId": null,
           "properties": {
+            "evidence.propertyKey": "privateLinkServiceId",
+            "evidence.resourceRowId": "00000000-0000-0000-0000-000000000004",
+            "evidence.targetArmId": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
             "inventory.indirectRelationship.evidenceCurrency": "Current",
             "inventory.indirectRelationship.evidenceSource": "inventory-private-endpoint"
           }
@@ -554,7 +543,7 @@
         {
           "identity": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
           "NodeType": "TopologyResource",
-          "Label": "vnet-b",
+          "Label": "Resource name was not stored. \u00B7 Not in captured snapshot.",
           "Category": "network",
           "SourceType": "azure-inventory-snapshot",
           "properties": {
@@ -587,7 +576,10 @@
           "InferenceSource": "captured-fixture",
           "Weight": 1,
           "DeclaredConnectionId": null,
-          "properties": {}
+          "properties": {
+            "inventory.indirectRelationship.evidenceCurrency": "Current",
+            "inventory.indirectRelationship.evidenceSource": "captured-fixture"
+          }
         }
       ],
       "diagramGroups": [
@@ -616,7 +608,7 @@
         {
           "identity": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
           "group": "/Subscription remote/RG remote-rg",
-          "Label": "vnet-b",
+          "Label": "Resource name was not stored. \u00B7 Not in captured snapshot.",
           "NodeType": "TopologyResource",
           "ArmResourceType": "Microsoft.Network/virtualNetworks",
           "HasPrivateEndpointAccess": false,
@@ -638,7 +630,7 @@
         {
           "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
           "to": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
-          "Label": "peering",
+          "Label": "Collected snapshot \u00B7 captured-fixture",
           "ProvenanceKind": "ObservedFact",
           "InferenceSource": "captured-fixture",
           "DeclaredConnectionId": null,
