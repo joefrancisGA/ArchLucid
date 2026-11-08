@@ -113,6 +113,12 @@ class ReconciliationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'snapshot mismatch'):
             lab.compare(self.coverage, self.native, self.exports)
 
+    def test_reject_question_export_not_pinned_by_v1_evidence_audit(self):
+        self.coverage['subscriptions'][0]['questionQueueStatus'] = 'NotProvided'
+        self.save([native_question()], [api_question()])
+        with self.assertRaisesRegex(ValueError, 'did not pin a question export'):
+            lab.compare(self.coverage, self.native, self.exports)
+
     def test_fail_on_drift_exit_code(self):
         self.save([native_question()], [api_question(fingerprint='different')])
         coverage_path = self.root / 'evidence.json'
