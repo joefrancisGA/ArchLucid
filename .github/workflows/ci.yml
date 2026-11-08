@@ -1996,6 +1996,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      # Do not cancel sibling roots when one registry/GitHub 504 flakes provider install.
+      fail-fast: false
       # Throttle parallel registry.terraform.io downloads (grafana/azurerm) to avoid HTTP 429.
       max-parallel: 2
       fail-fast: false
@@ -2763,17 +2765,18 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset
-    # RC43 diagnostic exception: the OpenAPI snapshot remains a separate hard gate,
-    # but contract mismatch must not suppress independent .NET/SQL test evidence.
-    # All other refs retain the existing OpenAPI-success prerequisite.
+    # RC43 diagnostic exception: OpenAPI snapshot and public Terraform stack validate remain
+    # separate hard gates, but must not suppress independent .NET/SQL test evidence when
+    # registry/GitHub 504 flakes provider install on one public stack.
+    # All other refs retain the existing OpenAPI + public-stacks success prerequisites.
     if: >-
       ${{
         !cancelled()
         && needs.gitleaks.result == 'success'
         && needs.ci-path-lanes.result == 'success'
         && needs.terraform-validate-private.result == 'success'
-        && needs.terraform-validate-public-stacks.result == 'success'
         && needs.guards-pre-corset.result == 'success'
+        && (github.ref == 'refs/heads/RC43' || needs.terraform-validate-public-stacks.result == 'success')
         && (github.ref == 'refs/heads/RC43' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
