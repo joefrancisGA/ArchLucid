@@ -99,6 +99,18 @@ describe("operator-recent-views", () => {
     );
   });
 
+  it("CA-38: peer review recents retain parentArchitectureId for desk resume", () => {
+    const next = recordRecentView(parseStoredRecentViews(null), {
+      href: "/architecture/reviews/run-peer-1",
+      label: "Review",
+      kind: "review",
+      parentArchitectureId: "architecture-identity-001",
+    });
+
+    expect(next.entries[0]?.parentArchitectureId).toBe("architecture-identity-001");
+    expect(next.entries[0]?.href).toContain("architecture-identity-001");
+  });
+
   it("SG-088: nested review visits collapse to architecture desk recents", () => {
     const next = recordRecentView(parseStoredRecentViews(null), {
       href: "/architecture/architectures/architecture-identity-001/reviews/run-nested-1",

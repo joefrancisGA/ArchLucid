@@ -40,4 +40,9 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
     label: "Readout outline",
     summary: "Stage 6 facilitation. Not an approved offer and not customer evidence.",
   },
+  {
+    href: "/trust#self-assessment",
+    label: "Trust Center",
+    summary: "Owner self-assessment and diligence ZIP. Not CPA attestation or a published third-party pen test.",
+  },
 ];

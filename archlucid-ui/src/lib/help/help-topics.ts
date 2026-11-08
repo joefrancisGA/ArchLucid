@@ -77,6 +77,15 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: ["/architecture/reviews/new", "/", "/architecture/first-review-guide"],
   },
   {
+    id: "working-desk-urls",
+    title: "Working desk review URLs",
+    keywords: ["nested", "architecture", "desk", "review", "url", "continuity", "peer"],
+    summary:
+      "When Working mode knows your architecture identity, review links should stay under the architecture desk — not only the peer /architecture/reviews path.",
+    docPath: "docs/engineering/review-href-routing.md",
+    routes: ["/architecture/architectures", "/architecture/reviews", "/architecture/first-review-guide"],
+  },
+  {
     id: "artifacts",
     title: "Reviewing artifacts",
     keywords: ["download", "review", "bundle", "zip"],
