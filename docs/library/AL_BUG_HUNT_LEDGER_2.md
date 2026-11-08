@@ -5627,6 +5627,14 @@
 
 ## Zone: api-key-auth
 
+2026-11-08 thorough hunt (dry #144): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five open monitor rows — **valid-no-repro** test-actor names go through `ExtractProvidedApiKey` on purpose (`When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; production throws if `AllowTestActorHeaders` is on), **valid-no-repro** expiry at the exact instant is rejected (`When_admin_key_expiry_is_exactly_now_returns_failure`, `When_read_only_key_expiry_is_exactly_now_returns_failure`), **valid-no-repro** FormC runs before invisible stripping on both config and header (`Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping`), **valid-no-repro** snapshot `IsConfigured` uses the same normalizer as auth (`HasConfiguredKeyMaterial` → `ApiKeyMaterialMasker` → `Normalize`; `GetSnapshot_treats_*_as_unconfigured`), **valid-no-repro** admin slot is checked before reader when both contain the same unexpired material (admin branch ~88–104; expired-admin fallback `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`). No new row met the hunt-ready bar. Scoped Api filter **94/96** (`FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings`, `--no-build` after `ArchLucid.Api` pid 7672 locked a rebuild; 2 `AdminApiKeySettingsEndpointTests` failed opening SQL Server). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance test-actor header uses the same invisible-char normalization as `X-Api-Key` — **cheap-disproof 2026-11-08 thorough hunt #144:** `ExtractProvidedApiKey`; regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — authentication fails when `timeProvider.GetUtcNow()` equals `ExpiresAtUtc` — **cheap-disproof 2026-11-08 thorough hunt #144:** inclusive expiry is intentional; regressions `When_admin_key_expiry_is_exactly_now_returns_failure` and `When_read_only_key_expiry_is_exactly_now_returns_failure`.
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer.Normalize` — FormC before invisible strip diverges for decomposed paste vs composed config — **cheap-disproof 2026-11-08 thorough hunt #144:** both sides call `Normalize`; regression `Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — masked `IsConfigured` does not re-run auth normalization — **cheap-disproof 2026-11-08 thorough hunt #144:** `HasConfiguredKeyMaterial` counts masker segments after `Normalize`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared material in admin and reader slots authenticates as admin when both are unexpired — **cheap-disproof 2026-11-08 thorough hunt #144:** admin branch precedes reader; expired-admin reader fallback is `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
+
 2026-11-01 seed hunt (seed-only #143): re-read `ApiKeyAuthenticationHandler`, `AdminApiKeySettingsService`, and `AdminApiKeySettingsController` after `bugsmash-2` fast-forward; no row met hunt-ready bar for a failing repro in zone paths; cheap-disproof closed five recycled `(candidate)` monitors from hunt #142 (SHA-256 `ConstantTimeKeyEquals` design ~225–233; whitespace-only `HasConfiguredKeyMaterial` ~87–88; Production `DevelopmentBypassAll` guard ~64–67; legacy `RotateKeyIdAsync` invalidate ~85; comma-segment `\uFFFD`-only — all saturated hunts #141–#142); seeded five follow-on `(candidate)` rows; scoped filter **135/137** passed (94 `ArchLucid.Api.Tests` + 41 `ArchLucid.Core.Tests` `ApiKeyMaterial*`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM; `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-11-01 seed hunt #143:** intentional digest compare; see hunt #142 diary.
@@ -5635,11 +5643,11 @@
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-11-01 seed hunt #143:** `InvalidatePrevious = true` by design (#90).
 - [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — comma-separated second segment replacement-char-only ignored — **cheap-disproof 2026-11-01 seed hunt #143:** per-segment normalize + masker; hunt #142 `\uFFFD` strip suite.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance test-actor header uses same invisible-char normalization as `X-Api-Key` — locus: ~165–187 / `ExtractProvidedApiKey`; input: `X-ArchLucid-Test-Actor-Name` with embedded format character when `AllowTestActorHeaders`; reachability: segregation-of-duties E2E peer approve (monitor).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.IsKeyExpired` — authentication fails when `timeProvider.GetUtcNow()` equals `ExpiresAtUtc` (`>=` boundary) — locus: ~239–240; input: key rotated to expire at exact instant; reachability: scheduled rotation cutover (monitor).
-- [ ] (candidate) `ApiKeyMaterialNormalizer.Normalize` — `NormalizationForm.FormC` before invisible strip may diverge on decomposed paste vs composed config — locus: ~17–22; input: NFD vs NFC same visible key; reachability: macOS/Word paste paths (monitor).
-- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — masked `IsConfigured` does not re-run auth normalization on read — locus: `BuildSlot` ~75–84; input: slot material that normalizes empty while masker still counts a segment; reachability: admin settings GET vs live auth (monitor; paste hit suite).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared material in admin and reader slots authenticates as admin when both non-expired — locus: admin branch before reader ~88–114; input: identical key in both config slots; reachability: least-privilege expectation (monitor; shared-key expiry regressions).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — governance test-actor header uses same invisible-char normalization as `X-Api-Key` — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — authentication fails when `timeProvider.GetUtcNow()` equals `ExpiresAtUtc` (`>=` boundary) — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer.Normalize` — `NormalizationForm.FormC` before invisible strip may diverge on decomposed paste vs composed config — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — masked `IsConfigured` does not re-run auth normalization on read — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — shared material in admin and reader slots authenticates as admin when both non-expired — **cheap-disproof 2026-11-08 thorough hunt #144:** closed at the zone header.
 
 2026-10-30 thorough hunt (hit #137): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded combining grapheme joiner (`U+034F`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u034F`); regressions `When_admin_key_config_has_embedded_combining_grapheme_joiner_still_authenticates`, `Normalize_strips_embedded_combining_grapheme_joiner_from_key_material`, `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #136 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85, duplicate normalization hit-suite recycle); reseeded five follow-on `(candidate)` rows; scoped filter 81/83 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from Word or browser copy paths that inject a combining grapheme joiner between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
 
@@ -6292,10 +6300,10 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 143
+- **hunts:** 144
 - **bugs-found:** 31
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-08
 - **last-bug:** 2026-10-30 — replacement character from ill-formed UTF-16 broke API key auth while admin snapshot showed configured
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -6307,20 +6315,6 @@
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** audit uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 - [x] (proven) `AdminApiKeySettingsController` rotation audits — API key principal name was copied onto the event, then `AuditService` stored `ActorUserId` as `unknown` because `NameIdentifier` is absent unless `ExplicitActor` is set — **hit 2026-10-09 seed hunt (seed→hit):** both settings rotate and legacy key-id rotate share `LogRotationAuditAsync`; regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` (failed first as `unknown`).
 - [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
-
-- **id:** api-key-auth
-- **status:** open
-- **impact:** high
-- **aliases:** API key auth; admin API key settings
-- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
-- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 79
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — legacy API key rotation audit stored a noncanonical route slot
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-10 seed hunt (seed-only): re-read authentication matching, key normalization, expiry, rotation, and audit boundaries; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact picker filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. The five existing candidates remain bounded and unproven.
 
@@ -6372,20 +6366,6 @@
 2026-09-27 seed hunt (seed→hit): proved UTF-8 BOM-only `Authentication:ApiKey:AdminKey` still showed configured in admin snapshot and Append rotate while `ApiKeyAuthenticationHandler` rejected all keys; shared `ApiKeyMaterialNormalizer` (trim + BOM strip); `ApiKeyMaterialMasker` skips BOM-only comma segments; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`; 48 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
 2026-09-26 seed hunt (seed→hit): reseeded api-key-auth; proved `Authentication:ApiKey:*` values pasted with a UTF-8 BOM prefix failed `MatchesAnyCommaSeparatedKey` while operators still saw configured slots; fixed by stripping BOM during key-material normalization in `ApiKeyAuthenticationHandler`; regression `When_admin_key_config_has_utf8_bom_prefix_still_authenticates`; 45 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
-
-- **id:** api-key-auth
-- **status:** open
-- **impact:** high
-- **aliases:** API key auth; admin API key settings
-- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
-- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 79
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — legacy API key rotation audit stored a noncanonical route slot
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): API key rotation wrote the principal name into the audit event, then `AuditService` replaced `ActorUserId` with `unknown` because the principal has no `NameIdentifier`. Both rotate routes now set `ExplicitActor`.
 
