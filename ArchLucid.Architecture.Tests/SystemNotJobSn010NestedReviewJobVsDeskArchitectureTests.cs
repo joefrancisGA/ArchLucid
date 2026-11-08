@@ -50,16 +50,18 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
                 "_sections",
                 "ImpactPreviewEvidenceBasisSection.tsx"));
 
-        // Impact preview routes through the desk-continuity wrapper, which calls the nested resolver.
-        evolutionView.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
-        evolutionView.Should().Contain("pinnedArchitectureId");
-        evidenceBasis.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
-        evidenceBasis.Should().Contain("architectureId");
-
-        string scopedWrapper = ArchitectureSourceProbe.ReadPathWithPartials(
+        string scopedLinkResolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "insights", "scoped-insight-open-review-href.ts"));
 
-        scopedWrapper.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
+        // Both surfaces intentionally delegate through desk continuity, not directly to the SN-010 mint.
+        evolutionView.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
+        evolutionView.Should().Contain("architectureId: pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null");
+        evidenceBasis.Should().Contain("resolveScopedInsightOpenReviewHrefWithDeskContinuity");
+        evidenceBasis.Should().Contain("architectureId: props.architectureId");
+
+        // The shared helper retains the nested review mint and architecture identity.
+        scopedLinkResolver.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref(runId.trim(), options?.architectureId ?? null)");
+        scopedLinkResolver.Should().Contain("readCachedLastOpenArchitectureId()");
     }
 
     [Fact]
