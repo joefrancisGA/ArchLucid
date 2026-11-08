@@ -1,3 +1,5 @@
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
 export const SECURENOW_INVESTIGATION_EFFORT_HEADING =
   "Investigation effort" as const;
 
@@ -26,19 +28,19 @@ export const SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_RESULT =
 
 export const SECURENOW_INVESTIGATION_EFFORT_NOTES = [
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/PILOT_MEASUREMENT_LOG.md",
+    href: securenowInternalDocHref("PILOT_MEASUREMENT_LOG.md"),
     label: "Pilot measurement log",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_COST_INPUT.md",
+    href: securenowInternalDocHref("ROI_COST_INPUT.md"),
     label: "Cost input",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_FIXTURE_WORKSHEET.md",
+    href: securenowInternalDocHref("ROI_FIXTURE_WORKSHEET.md"),
     label: "Fixture worksheet",
   },
   {
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_SEND_RULE.md",
+    href: securenowInternalDocHref("ROI_SEND_RULE.md"),
     label: "Send rule",
   },
 ] as const;

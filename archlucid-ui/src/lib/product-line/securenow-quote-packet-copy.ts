@@ -1,3 +1,5 @@
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
 export const SECURENOW_QUOTE_PACKET_HEADING = "Quote packet" as const;
 
 export const SECURENOW_QUOTE_PACKET_LEAD =
@@ -35,18 +37,18 @@ export const SECURENOW_QUOTE_PACKET_SEQUENCE = [
 export const SECURENOW_QUOTE_PACKET_LINKS = [
   {
     label: "SKU and meter card",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/SKU_METER_CARD.md",
+    href: securenowInternalDocHref("SKU_METER_CARD.md"),
   },
   {
     label: "Quote-to-pilot checklist",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/QUOTE_TO_PILOT_CHECKLIST.md",
+    href: securenowInternalDocHref("QUOTE_TO_PILOT_CHECKLIST.md"),
   },
   {
     label: "Quote cover",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/QUOTE_COVER.md",
+    href: securenowInternalDocHref("QUOTE_COVER.md"),
   },
   {
     label: "Order form",
-    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ORDER_FORM_TEMPLATE.md",
+    href: securenowInternalDocHref("ORDER_FORM_TEMPLATE.md"),
   },
 ] as const;

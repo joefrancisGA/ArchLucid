@@ -1,6 +1,7 @@
 import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
 
 export const SECURENOW_PILOT_DECISION_HEADING = "Pilot decision preparation" as const;
 
@@ -28,8 +29,8 @@ export const SECURENOW_DECISION_CYCLE_HEADING = "Decision cycle" as const;
 export const SECURENOW_DECISION_CYCLE_LEAD =
   "A person writes the qualify start, the close, and one stall step in the decision cycle log. SecureNow beta remains NO_GO." as const;
 
-export const SECURENOW_DECISION_CYCLE_LOG_PATH =
-  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md" as const;
+/** In-app route for the internal SecureNow decision cycle log (no GitHub blob links in operator UI). */
+export const SECURENOW_DECISION_CYCLE_LOG_PATH = securenowInternalDocHref("DECISION_CYCLE_LOG.md");
 
 export type SecureNowDecisionCycleStallStep = {
   readonly label: string;
