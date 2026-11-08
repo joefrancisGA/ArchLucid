@@ -2,6 +2,8 @@ import type { ReactElement, ReactNode } from "react";
 
 import Link from "next/link";
 
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
+
 import { Button } from "@/components/ui/button";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -159,7 +161,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             className={OPERATOR_LINK.nav}
-            href={`/architecture/reviews/${encodeURIComponent(props.runId)}/provenance`}
+            href={resolveDeskContinuityProvenanceHref(props.runId)}
             data-testid="run-detail-provenance-link"
           >
             Full provenance view

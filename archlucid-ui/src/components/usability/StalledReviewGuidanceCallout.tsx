@@ -4,6 +4,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
+
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
@@ -40,7 +42,7 @@ export function StalledReviewGuidanceCallout(props: StalledReviewGuidanceCallout
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button asChild type="button" size="sm" variant="outline">
-          <Link href={`/architecture/reviews/${encodeURIComponent(props.runId)}`}>Refresh review detail</Link>
+          <Link href={resolveDeskContinuityReviewOpenHref(props.runId)}>Refresh review detail</Link>
         </Button>
         <InAppHelpLink
           helpSlug="troubleshooting"

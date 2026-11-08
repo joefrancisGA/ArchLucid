@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -119,6 +120,14 @@ export function RunDetailOutcomeCards({
 }: RunDetailOutcomeCardsProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const fullProvenanceHref = useMemo(
+    () =>
+      resolveDeskContinuityProvenanceHref(runId, {
+        pathname,
+        search: searchParams.toString(),
+      }),
+    [pathname, runId, searchParams],
+  );
   const urlMonitoredRiskOpen = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
     searchParams.get(RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM),
   );
@@ -514,7 +523,7 @@ export function RunDetailOutcomeCards({
           </Link>
           <Link
             className={cn("mt-2 block", supplementaryNavLinkClass)}
-            href={`/architecture/reviews/${encodeURIComponent(runId)}/provenance`}
+            href={fullProvenanceHref}
           >
             Full provenance view
           </Link>

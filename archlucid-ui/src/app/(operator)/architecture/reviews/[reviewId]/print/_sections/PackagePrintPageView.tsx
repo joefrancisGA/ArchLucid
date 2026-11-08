@@ -1,6 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
+
+import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -68,14 +72,26 @@ export type PackagePrintPageViewProps = {
 /** Print-friendly architecture package summary (TB-2205). */
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
   const { presentation, listScopedRunId = null, meetingCaptureBlockedReason = null } = props;
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const { reviewJobHref: backHref } = useWorkingBackLocator({
     reviewId: presentation.runId,
     reviewTab: "review-package",
+    architectureId: props.parentArchitectureId,
   });
 
   const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;
+  const scopedListRunOpenHref = useMemo(
+    () =>
+      resolveDeskContinuityReviewOpenHref(scopedListRunId, {
+        pathname,
+        search: searchParams.toString(),
+        architectureId: props.parentArchitectureId,
+      }),
+    [pathname, props.parentArchitectureId, scopedListRunId, searchParams],
+  );
   const packagePrintInspectSteps = resolvePackagePrintInspectSteps({
     reviewPicked: presentation.runId.trim().length > 0,
     summaryLoaded: true,
@@ -304,7 +320,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/architecture/reviews/${encodeURIComponent(scopedListRunId)}`}
+              href={scopedListRunOpenHref}
             >
               Open review
             </Link>

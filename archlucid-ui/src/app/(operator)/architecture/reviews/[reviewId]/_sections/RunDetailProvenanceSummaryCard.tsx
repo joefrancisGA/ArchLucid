@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -56,6 +57,15 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const fullProvenanceHref = useMemo(
+    () =>
+      resolveDeskContinuityProvenanceHref(runId, {
+        pathname,
+        search: searchParams.toString(),
+        architectureId: architectureRequestIdStored,
+      }),
+    [architectureRequestIdStored, pathname, runId, searchParams],
+  );
   const urlIdentifiersOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
     searchParams.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
   );
@@ -181,7 +191,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}
-              href={`/architecture/reviews/${encodeURIComponent(runId)}/provenance`}
+              href={fullProvenanceHref}
             >
               View full provenance
             </Link>
