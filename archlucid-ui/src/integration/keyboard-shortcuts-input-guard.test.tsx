@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { parseKeyCombo } from "@/hooks/useKeyboardShortcuts";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 const { mockPush } = vi.hoisted(() => ({
   mockPush: vi.fn(),
@@ -113,7 +114,7 @@ describe("keyboard shortcuts input guard (integration)", () => {
     fireComboOn(plain, "alt+n");
 
     expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith("/architecture/reviews/new");
+    expect(mockPush).toHaveBeenCalledWith(ARCHITECTURES_NEW_PATH);
   });
 
   it("does not open help or navigate when Shift+? is pressed while focus is in an input", () => {
