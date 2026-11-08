@@ -3,6 +3,8 @@ import {
   architectureNestedFindingsPath,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { readRecentPrimaryReviewDeskTarget } from "@/lib/reviews/review-pin-run-url";
 
 export type WorkingShareHrefInput = {
   readonly architectureId?: string | null;
@@ -85,9 +87,26 @@ function workingShareFindingsHref(
   return `${architectureNestedFindingsPath(architectureId)}${serializeSearchParams(params)}`;
 }
 
+function resolveWorkingShareArchitectureId(input: WorkingShareHrefInput): string {
+  const explicitArchitectureId = input.architectureId?.trim() ?? "";
+
+  if (explicitArchitectureId.length > 0) {
+    return explicitArchitectureId;
+  }
+
+  const reviewId = input.reviewId?.trim() ?? "";
+  const recent = readRecentPrimaryReviewDeskTarget();
+
+  if (recent !== null && reviewId.length > 0 && recent.primaryRunId === reviewId && recent.architectureId !== null) {
+    return recent.architectureId;
+  }
+
+  return readCachedLastOpenArchitectureId() ?? "";
+}
+
 /** Working clipboard/share URLs prefer the architecture afternoon document (AO-09 / IP-004). */
 export function workingShareHref(input: WorkingShareHrefInput): WorkingShareHrefResult {
-  const architectureId = input.architectureId?.trim() ?? "";
+  const architectureId = resolveWorkingShareArchitectureId(input);
   const reviewId = input.reviewId?.trim() ?? "";
   const searchSuffix = serializeSearchParams(
     (() => {

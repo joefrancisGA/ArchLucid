@@ -1,8 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 
 import { workingShareHref, WORKING_SHARE_UNLINKED_JOB_TOAST } from "@/lib/architecture/working-share-href";
+
+vi.mock("@/lib/desk-continuity-preference", () => ({
+  readCachedLastOpenArchitectureId: vi.fn(() => null),
+}));
+
+vi.mock("@/lib/reviews/review-pin-run-url", () => ({
+  readRecentPrimaryReviewDeskTarget: vi.fn(() => null),
+}));
 
 /** SG-034 — working share must prefer nested architecture routes when the architecture id is known. */
 describe("workingShareHref (SY-20 / AO-09 / AO-38 / IP-004 / SG-034)", () => {
@@ -28,6 +36,24 @@ describe("workingShareHref (SY-20 / AO-09 / AO-38 / IP-004 / SG-034)", () => {
     expect(result.isUnlinkedJob).toBe(true);
     expect(result.href).toBe("/architecture/reviews/run-unlinked");
     expect(WORKING_SHARE_UNLINKED_JOB_TOAST.toLowerCase()).toContain("not linked");
+  });
+
+  it("AO-33: uses recent primary desk when parentArchitectureId prop is omitted", async () => {
+    const pinRun = await import("@/lib/reviews/review-pin-run-url");
+
+    vi.mocked(pinRun.readRecentPrimaryReviewDeskTarget).mockReturnValueOnce({
+      primaryRunId: "run-001",
+      architectureId: "architecture-identity-001",
+    });
+
+    const result = workingShareHref({
+      reviewId: "run-001",
+    });
+
+    expect(result.isUnlinkedJob).toBe(false);
+    expect(result.href).toBe(
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-001`,
+    );
   });
 
   it("copies architecture desk when only architecture id is provided", () => {

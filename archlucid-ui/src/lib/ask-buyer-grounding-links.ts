@@ -35,12 +35,17 @@ export function resolveAskBuyerOpenReviewHref(
   options?: BuyerAskGroundingLinksForRunOptions,
 ): string {
   const findingId = options?.primaryFindingId?.trim() ?? "";
+  const architectureId = options?.architectureId ?? readCachedLastOpenArchitectureId();
+  const hasNestedDesk = (architectureId?.trim() ?? "").length > 0;
 
   if (findingId.length > 0) {
-    return resolveQuickDecisionFindingWorkspaceHref(runId, findingId);
+    return resolveQuickDecisionFindingWorkspaceHref(runId, findingId, {
+      architectureId,
+      isWorkingMode: hasNestedDesk,
+    });
   }
 
-  return resolveSystemNotJobWorkingReviewOpenHref(runId, options?.architectureId ?? null);
+  return resolveSystemNotJobWorkingReviewOpenHref(runId, architectureId);
 }
 
 function firstNonEmptyFindingId(findingIds: readonly string[] | null | undefined): string | null {
