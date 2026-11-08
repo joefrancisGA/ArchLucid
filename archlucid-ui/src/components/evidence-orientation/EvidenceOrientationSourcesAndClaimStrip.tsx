@@ -39,6 +39,8 @@ export type EvidenceOrientationSourcesAndClaimStripProps = {
   readonly claimStyle?: EvidenceOrientationClaimStyle;
   readonly claimElement?: "aside" | "div";
   readonly sourcesStyle?: EvidenceOrientationSourcesStyle;
+  /** Optional cap passed through to {@link EvidenceOrientationSourcesSection} (job-context filtering). */
+  readonly maxLinks?: number;
 };
 
 /**
@@ -65,6 +67,7 @@ export function EvidenceOrientationSourcesAndClaimStrip({
   claimStyle = EVIDENCE_CLAIM_STYLE.evaluationCaution,
   claimElement,
   sourcesStyle = EVIDENCE_SOURCES_STYLE.evaluationMuted,
+  maxLinks,
 }: EvidenceOrientationSourcesAndClaimStripProps): React.JSX.Element {
   const stripTestId: string = part === "both" ? `${slug}-orientation` : `${slug}-orientation-${part}`;
   const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
@@ -80,6 +83,7 @@ export function EvidenceOrientationSourcesAndClaimStrip({
           links={sources}
           style={sourcesStyle}
           distinguishFollowUpDestinations={false}
+          maxLinks={maxLinks}
         />
       )}
 

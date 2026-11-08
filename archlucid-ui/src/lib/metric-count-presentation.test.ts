@@ -7,6 +7,7 @@ import {
   countGovernanceRowsMatchingFilter,
   formatMetricCountHeadline,
   formatMetricCountScopeLabel,
+  formatMetricCountScopeLabelFromPresentation,
   reviewFindingsGovernanceQueuePresentation,
   workspaceOpenFindingsPresentation,
   operatorHomeActiveReviewsPresentation,
@@ -31,11 +32,12 @@ function sampleRow(
 }
 
 describe("metric-count-presentation", () => {
-  it("formats operator home open findings without workspace scope suffix", () => {
+  it("formats operator home open findings with workspace + open filter scope", () => {
     const presentation = workspaceOpenFindingsPresentation(12);
 
     expect(formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun })).toBe("");
-    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings");
+    expect(formatMetricCountScopeLabelFromPresentation(presentation)).toBe("this workspace · open");
+    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · this workspace · open");
     expect(presentation.href).toBe("/governance/findings?filter=open");
   });
 

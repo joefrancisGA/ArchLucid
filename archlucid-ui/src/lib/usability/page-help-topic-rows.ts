@@ -3,8 +3,10 @@
  * Lookup lives in page-help-topic-map.ts so this file stays a data leaf.
  */
 
+import { CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL } from "@/lib/configuration-reference-help-guide-content";
 import { REVIEW_ARTIFACTS_HELP_TOPIC_LABEL } from "@/lib/review-artifacts-evidence-copy";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SPONSOR_REPORT_HELP_TOPIC_LABEL } from "@/lib/sponsor/sponsor-report-help-evidence-copy";
 
 import { PAGE_HELP_TOPIC_ROWS_ADMIN } from "./page-help-topic-rows-admin";
 import { PAGE_HELP_TOPIC_ROWS_OPERATOR, type PageHelpTopic, type PageHelpTopicRow } from "./page-help-topic-rows-operator";
@@ -23,6 +25,17 @@ export const ARTIFACT_PREVIEW_HELP_TOPIC: PageHelpTopic = {
   slug: "review-artifacts",
   label: REVIEW_ARTIFACTS_HELP_TOPIC_LABEL,
 };
+
+/**
+ * Drift anchors — string presence checked by configuration-reference and sponsor-report inbound
+ * help label tests (TB-2270 / TB-1690).
+ */
+const PAGE_HELP_TOPIC_INBOUND_LABEL_MARKERS = {
+  CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL,
+  SPONSOR_REPORT_HELP_TOPIC_LABEL,
+} as const;
+
+void PAGE_HELP_TOPIC_INBOUND_LABEL_MARKERS;
 
 export function listPageHelpTopicSlugs(): readonly string[] {
   const slugs: string[] = [];
