@@ -33,6 +33,7 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
             client,
             JsonOptions,
+            factory,
             "REQ-COMP-PAR-" + Guid.NewGuid().ToString("N")[..8]);
 
         IComparisonRecordRepository repository =

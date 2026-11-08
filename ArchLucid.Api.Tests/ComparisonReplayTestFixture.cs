@@ -42,20 +42,16 @@ public static class ComparisonReplayTestFixture
     /// </summary>
     /// <param name="client">API test client.</param>
     /// <param name="jsonOptions">JSON options for DTOs.</param>
+    /// <param name="factory">Host factory for pin-aware execute and finalize (SQL golden path).</param>
     /// <param name="requestId">Request id for the initial architecture request.</param>
     /// <returns>Tuple of <c>(originalRunId, replayRunId)</c>.</returns>
-    public static Task<(string RunId, string ReplayRunId)> CreateRunExecuteCommitReplayAsync(
-        HttpClient client,
-        JsonSerializerOptions jsonOptions,
-        string requestId = "REQ-FIXTURE-001") =>
-        CreateRunExecuteCommitReplayAsync(client, jsonOptions, factory: null, requestId);
-
     public static async Task<(string RunId, string ReplayRunId)> CreateRunExecuteCommitReplayAsync(
         HttpClient client,
         JsonSerializerOptions jsonOptions,
-        ArchLucidApiFactory? factory,
+        ArchLucidApiFactory factory,
         string requestId = "REQ-FIXTURE-001")
     {
+        ArgumentNullException.ThrowIfNull(factory);
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
@@ -64,20 +60,9 @@ public static class ComparisonReplayTestFixture
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
 
-        if (factory is not null)
-        {
-            await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
-            HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
-            await commitResponse.EnsureSuccessForTestAsync();
-        }
-        else
-        {
-            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-
-            HttpResponseMessage commitResponse =
-                await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
-            await commitResponse.EnsureSuccessForTestAsync();
-        }
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
+        await commitResponse.EnsureSuccessForTestAsync();
 
         string replayManifestVersion = NewReplayCommittedManifestVersion();
 
