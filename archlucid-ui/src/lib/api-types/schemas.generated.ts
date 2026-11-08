@@ -10941,6 +10941,7 @@ export interface components {
             offset?: number;
             value?: null | string;
         };
+        /** @enum {string} */
         StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         /** @enum {string} */
         StructuredBriefSuggestionKind: "Constraint" | "Assumption" | "RequiredCapability";
