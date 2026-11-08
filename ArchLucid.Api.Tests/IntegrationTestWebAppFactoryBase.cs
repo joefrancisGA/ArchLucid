@@ -43,6 +43,30 @@ public abstract class IntegrationTestWebAppFactoryBase : BaseIntegrationTestFixt
         base.ConfigureClient(client);
 
         client.Timeout = HttpClientTimeout;
+        EnsureTestServerBaseAddress(client);
+    }
+
+    /// <summary>
+    ///     CI #2168 follow-up: <see cref="CreateDefaultClient(DelegatingHandler)" /> on a worker thread can
+    ///     occasionally return an <see cref="HttpClient" /> without <see cref="HttpClient.BaseAddress" /> while the
+    ///     <see cref="WebApplicationFactory{TEntryPoint}.Server" /> is still warming; relative integration paths then fail
+    ///     fast with <c>BaseAddress must be set</c>.
+    /// </summary>
+    private void EnsureTestServerBaseAddress(HttpClient client)
+    {
+        if (client.BaseAddress is not null)
+            return;
+
+        Uri? baseAddress = Server.BaseAddress;
+
+        if (baseAddress is not null)
+        {
+            client.BaseAddress = baseAddress;
+
+            return;
+        }
+
+        client.BaseAddress = new Uri("http://localhost");
     }
 
     /// <inheritdoc />
