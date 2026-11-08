@@ -73,7 +73,8 @@ internal static class DataFlowPlacementEndpointIncluder
                         vnetArmId,
                         StringComparison.OrdinalIgnoreCase));
 
-                if (vnetNode is not null)
+                if (vnetNode is not null
+                    && !IsDataFlowPlacementOnlyVirtualNetwork(vnetNode))
                 {
                     AddIfMissing(vnetNode, includedById, nodes);
                 }
@@ -81,11 +82,17 @@ internal static class DataFlowPlacementEndpointIncluder
         }
 
         if (AzureInventoryTopologyCategory.IsVirtualNetworkArmType(
-                DiagramAstGraphNodeClassifier.ReadArmType(placementNode)))
+                DiagramAstGraphNodeClassifier.ReadArmType(placementNode))
+            && !IsDataFlowPlacementOnlyVirtualNetwork(placementNode))
         {
             AddIfMissing(placementNode, includedById, nodes);
         }
     }
+
+    private static bool IsDataFlowPlacementOnlyVirtualNetwork(GraphNode node) =>
+        InventoryDataFlowStageResolver.Resolve(node) is null
+        && AzureInventoryTopologyCategory.IsVirtualNetworkArmType(
+            DiagramAstGraphNodeClassifier.ReadArmType(node));
 
     private static void AddIfMissing(
         GraphNode node,

@@ -15,7 +15,8 @@ internal static class DiagramPrivateEndpointTargetAnnotator
         DiagramAst ast,
         IReadOnlyList<GraphNode> graphNodes,
         IReadOnlyList<GraphEdge> graphEdges,
-        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        DiagramMode mode = DiagramMode.FullSubscription)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graphNodes);
@@ -77,10 +78,12 @@ internal static class DiagramPrivateEndpointTargetAnnotator
                 var label => label.Trim(),
             };
 
+            string? storedPrivateEndpointName = mode == DiagramMode.DataFlow ? null : privateEndpointName;
+
             foreach (DiagramNode targetNode in targetNodes)
             {
                 targetNode.HasPrivateEndpointAccess = true;
-                targetNode.PrivateEndpointAccessName = privateEndpointName;
+                targetNode.PrivateEndpointAccessName = storedPrivateEndpointName;
             }
 
             string? fromDiagramId = null;

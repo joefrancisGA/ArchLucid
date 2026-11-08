@@ -30,15 +30,70 @@ internal static class DiagramEdgeLabelHumanizer
                 continue;
             }
 
+            if (diagramMode == DiagramMode.DataFlow)
+            {
+                if (ShouldPreserveDataFlowEdgeLabel(edge.Label)
+                    || !IsDataFlowPrimaryCanvasInference(edge.InferenceSource)
+                    || !TryResolveDataFlowCanvasVerb(edge.InferenceSource, edge.Label, out string dataFlowVerb))
+                {
+                    continue;
+                }
+
+                edge.Label = dataFlowVerb;
+
+                continue;
+            }
+
             string resolvedLabel = ResolveDisplayLabel(
                 edge.Label,
-                edge.InferenceSource,
+                edge.Label,
                 edge.InferenceSource,
                 diagramMode: diagramMode);
             edge.Label = string.IsNullOrWhiteSpace(resolvedLabel)
                 ? DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel
                 : resolvedLabel;
         }
+    }
+
+    private static bool IsDataFlowPrimaryCanvasInference(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        string normalized = inferenceSource.Trim();
+
+        if (GraphEdgeInferenceSources.TrySplitQualifier(normalized, out string baseSource, out _))
+        {
+            normalized = baseSource;
+        }
+
+        return string.Equals(normalized, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, GraphEdgeInferenceSources.InventoryAppAuthorizedAccess, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, GraphEdgeInferenceSources.InventoryEventGridDestination, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, GraphEdgeInferenceSources.InventoryPeReachableTarget, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldPreserveDataFlowEdgeLabel(string? label)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return false;
+        }
+
+        string trimmed = label.Trim();
+
+        return trimmed.Contains("stored", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("observed", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("configured", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("Firewall subnet", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("Evidence currency", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("backend", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("Sends traffic", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "Routes to", StringComparison.Ordinal);
     }
 
     private static bool ShouldPreserveInventoryRelationshipLabel(string? storedLabel, string? inferenceSource)
@@ -187,12 +242,6 @@ internal static class DiagramEdgeLabelHumanizer
             return "in";
         }
 
-        if (diagramMode == DiagramMode.DataFlow
-            && TryResolveDataFlowCanvasVerb(inferenceSource, edgeType, out string dataFlowCanvasVerb))
-        {
-            return dataFlowCanvasVerb;
-        }
-
         if (!UsesTopologyPlacementVerbLabels(diagramMode))
         {
             if (IsInventorySubnetPlacementInference(inferenceSource))
@@ -229,7 +278,7 @@ internal static class DiagramEdgeLabelHumanizer
             return InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel;
         }
 
-        if (TryResolveAuthorizationOverlayLabel(edgeType, inferenceSource, out string authorizationOverlayLabel))
+        if (TryResolveAuthorizationOverlayLabel(edgeType, inferenceSource, diagramMode, out string authorizationOverlayLabel))
         {
             return authorizationOverlayLabel;
         }
@@ -365,6 +414,7 @@ internal static class DiagramEdgeLabelHumanizer
     private static bool TryResolveAuthorizationOverlayLabel(
         string? edgeType,
         string? inferenceSource,
+        DiagramMode diagramMode,
         out string label)
     {
         label = string.Empty;
@@ -373,7 +423,9 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryAppAuthorizedAccess, StringComparison.OrdinalIgnoreCase)
             || string.Equals(inferenceSource, AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, StringComparison.OrdinalIgnoreCase))
         {
-            label = DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel;
+            label = diagramMode == DiagramMode.Executive
+                ? "May access"
+                : DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel;
 
             return true;
         }
