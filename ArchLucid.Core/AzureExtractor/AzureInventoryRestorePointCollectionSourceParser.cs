@@ -34,6 +34,50 @@ public static class AzureInventoryRestorePointCollectionSourceParser
         return null;
     }
 
+    /// <summary>
+    ///     Returns the ARM id to store on graph nodes, preserving inventory selection casing when available.
+    /// </summary>
+    public static string? ParseGraphStorageArmId(IReadOnlyDictionary<string, string> properties)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        string? normalized = Parse(properties);
+
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return null;
+        }
+
+        foreach (string key in new[] { "source.id", InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId })
+        {
+            if (!properties.TryGetValue(key, out string? rawValue)
+                || string.IsNullOrWhiteSpace(rawValue))
+            {
+                continue;
+            }
+
+            string? resolved = TryResolveArmReferenceValue(rawValue);
+
+            if (string.IsNullOrWhiteSpace(resolved))
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    ArmResourceIdNormalizer.Normalize(resolved),
+                    normalized,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return key.Equals("source.id", StringComparison.Ordinal)
+                    && !rawValue.Trim().StartsWith("{", StringComparison.Ordinal)
+                    ? rawValue.Trim()
+                    : resolved;
+            }
+        }
+
+        return normalized;
+    }
+
     private static string? TryResolveArmReferenceValue(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -45,6 +89,7 @@ public static class AzureInventoryRestorePointCollectionSourceParser
 
         // Parse raw JSON first. Percent-decoding the whole blob first would rewrite sibling
         // escapes such as %22 and corrupt the document before the id can be read.
+
         if (trimmed.StartsWith("{", StringComparison.Ordinal))
         {
             return TryReadArmIdFromJson(trimmed);

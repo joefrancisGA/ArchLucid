@@ -17,6 +17,9 @@ public static class ContractCollectionDefaults
     public static Dictionary<string, string> CoalesceStringDictionaryOrdinalIgnoreCase(Dictionary<string, string>? value) =>
         value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+    public static Dictionary<string, string> CoalesceStringDictionaryOrdinal(Dictionary<string, string>? value) =>
+        value ?? new Dictionary<string, string>(StringComparer.Ordinal);
+
     public static string CoalesceRequired(string? value) => value ?? string.Empty;
 
     /// <summary>Substitutes <c>[]</c> when JSON deserializes explicit <c>null</c> on persisted JSON-array column strings.</summary>

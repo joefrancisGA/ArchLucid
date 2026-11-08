@@ -209,6 +209,7 @@ public static class AzureInventorySecurityEdgeMaterializer
             warnings);
         AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
         AddEntraGroupMembershipEdges(entraGroupMemberships, relationships, relationshipKeys);
+
         foreach (JsonElement association in networkAssociations)
         {
             AzureInventoryNetworkAssociationEdgeMapper.MapAssociation(
@@ -1019,13 +1020,6 @@ public static class AzureInventorySecurityEdgeMaterializer
                     inventoriedArmIds,
                     out string resolvedDestinationArmId,
                     out string diagnosticInferenceSource);
-
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    diagnosticInferenceSource = GraphEdgeInferenceSources.WithQualifier(
-                        GraphEdgeInferenceSources.InventoryDiagnosticDestination,
-                        name.Trim());
-                }
 
                 AddRelationship(
                     relationships,

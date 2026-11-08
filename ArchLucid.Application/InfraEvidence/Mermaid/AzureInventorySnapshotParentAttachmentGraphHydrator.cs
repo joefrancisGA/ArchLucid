@@ -67,7 +67,7 @@ internal static class AzureInventorySnapshotParentAttachmentGraphHydrator
         GraphNode node,
         IReadOnlyDictionary<string, string> properties)
     {
-        string? sourceArmId = AzureInventoryRestorePointCollectionSourceParser.Parse(properties);
+        string? sourceArmId = AzureInventoryRestorePointCollectionSourceParser.ParseGraphStorageArmId(properties);
 
         if (!string.IsNullOrWhiteSpace(sourceArmId))
         {

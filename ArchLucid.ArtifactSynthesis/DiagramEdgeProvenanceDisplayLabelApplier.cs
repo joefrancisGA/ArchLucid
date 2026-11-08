@@ -87,6 +87,11 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
             return label.Length > 0;
         }
 
+        if (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryDatabricksAccessConnector, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         return label.StartsWith("declared · ", StringComparison.Ordinal);
     }
 }

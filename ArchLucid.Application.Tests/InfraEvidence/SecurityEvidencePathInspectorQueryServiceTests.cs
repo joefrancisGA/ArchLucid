@@ -45,7 +45,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         detail.CitingFindingIds.Should().ContainSingle().Which.Should().Be(FindingId);
         detail.Hops.Should().HaveCount(2);
         detail.Hops[0].ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
-        detail.Hops[0].FromNodeLabel.Should().StartWith("principal:");
+        detail.Hops[0].FromNodeLabel.Should().Be("Principal display name was not stored.");
         detail.Hops[0].ToNodeLabel.Should().Be("sa1");
         detail.WeakestHop.Should().NotBeNull();
         detail.WeakestHop!.HopOrdinal.Should().Be(2);

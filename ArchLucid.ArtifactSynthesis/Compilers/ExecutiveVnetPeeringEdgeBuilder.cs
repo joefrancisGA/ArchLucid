@@ -103,6 +103,14 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
+            if (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
+                && (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(edge.Label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase)))
+            {
+                AssignPeeringProvenance(edge, connectedPeeringObserved: true);
+                continue;
+            }
+
             if (HasBlankCapturedPeeringLabel(edge))
             {
                 edge.Label = "peering";
