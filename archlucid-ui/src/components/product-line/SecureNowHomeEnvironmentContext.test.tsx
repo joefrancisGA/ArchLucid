@@ -129,11 +129,9 @@ describe("SecureNowHomeEnvironmentContext", () => {
     );
     expect(screen.queryByText("Inventory capture completed.")).not.toBeInTheDocument();
     expect(screen.queryByText("Inventory capture failed.")).not.toBeInTheDocument();
+    const nextStepLink = await screen.findByRole("link", { name: "One ranked path" });
     expect(screen.getByTestId("securenow-home-next-step")).toHaveTextContent("One ranked path");
-    expect(screen.getByRole("link", { name: "One ranked path" })).toHaveAttribute(
-      "href",
-      "/security/remediation-factory",
-    );
+    expect(nextStepLink).toHaveAttribute("href", "/security/remediation-factory");
   });
 
   it("links the next step to the first loaded ranked path id", async () => {
