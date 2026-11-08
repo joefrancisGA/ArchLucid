@@ -108,9 +108,9 @@ describe("Enterprise authority UI shaping — governance", () => {
     render(page);
 
     await waitFor(() => {
-      expect(screen.getAllByRole("button", { name: "Refresh" }).length).toBeGreaterThan(0);
+      expect(screen.getByTestId("standards-rules-refresh-button")).toBeInTheDocument();
     });
 
-    expect(screen.getAllByRole("button", { name: "Refresh" })[0]).not.toBeDisabled();
+    expect(screen.getByTestId("standards-rules-refresh-button")).not.toBeDisabled();
   });
 });
