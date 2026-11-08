@@ -146,7 +146,9 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
 
-    expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    });
   });
 });
 
