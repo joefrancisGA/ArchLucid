@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -172,15 +173,3 @@ public static class SecureNowOfflineQuestionReplay
     }
 }
 
-/// <summary>Diagnostic replay subset; never a full findings or policy-pack assessment.</summary>
-public sealed class SecureNowOfflineQuestionReplayResult
-{
-    public string SubscriptionId { get; init; } = string.Empty;
-    public string PackageSha256 { get; init; } = string.Empty;
-    public DateTime CaptureUtc { get; init; }
-    public int ResourceCount { get; init; }
-    public int RelationshipCount { get; init; }
-    public int CompletenessWarningCount { get; init; }
-    public int DiagramCandidates { get; init; }
-    public IReadOnlyList<SecureNowQuestionRecord> Questions { get; init; } = [];
-}
