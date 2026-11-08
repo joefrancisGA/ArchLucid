@@ -1,5 +1,6 @@
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { buildAzureExtractUploadHref } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const CORE_PILOT_FINAL_STEP_INDEX = CORE_PILOT_STEPS.length - 1;
@@ -75,13 +76,13 @@ export function resolveCorePilotStepPresentation(
 
   if (ctx.hasCommittedManifest && ctx.latestCommittedRunId !== null) {
     return {
-      href: `/architecture/reviews/${encodeURIComponent(ctx.latestCommittedRunId)}`,
+      href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(ctx.latestCommittedRunId),
       label: "Open finalized review",
     };
   }
 
   return {
-    href: `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID),
     label: "Open sample finalized review",
   };
 }

@@ -1,6 +1,8 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { reviewsHubInventoryFilterHref } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-inventory-filters";
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   matchesGovernanceFindingsRunScope,
@@ -148,9 +150,11 @@ export function buildGovernanceFindingsQueueHref(input?: {
 
 export function buildReviewDetailFindingsTabHref(runId: string): string {
   const trimmedRunId = runId.trim();
-  const params = new URLSearchParams({ reviewTab: "findings" });
+  const architectureId = resolveGlobalSearchDeskArchitectureId({ runId: trimmedRunId });
 
-  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${params.toString()}`;
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    architectureId,
+  });
 }
 
 export function buildArchitectureClarificationsTabHref(runId: string): string {

@@ -14,6 +14,7 @@ import { ProvenancePageWorkspaceTimeline } from "@/components/provenance/Provena
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveWorkingReviewChildSuffixHref } from "@/lib/architecture/working-review-child-suffix-href";
 import {
   PROVENANCE_BUYER_OVERVIEW,
   PROVENANCE_BUYER_START_HERE_HELPER,
@@ -107,9 +108,14 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
         return;
       }
 
-      router.push(`/architecture/reviews/${encodeURIComponent(trimmed)}/provenance`);
+      router.push(
+        resolveWorkingReviewChildSuffixHref(trimmed, "provenance", {
+          pathname,
+          search: currentSearch,
+        }),
+      );
     },
-    [router],
+    [currentSearch, pathname, router],
   );
 
   const provenanceWorkspaceBody = hasScopedRun ? (
