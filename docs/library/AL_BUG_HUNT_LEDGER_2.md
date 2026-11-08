@@ -23884,15 +23884,24 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
-**Hunts:** 20 · **Bugs found:** 11 · **Consecutive dry hunts:** 5
+**Hunts:** 19 · **Bugs found:** 12 · **Consecutive dry hunts:** 0
+
+2026-11-08 thorough hunt (hit #66): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the shared `NullabilityInfoContext` on `ApiRequestNullCollectionElementsGuard`: overlapping `[FromBody]` checks called `Create` on one static context, and `GetNullableContext` threw `ArgumentException` ("An item with the same key has already been added") out of the action filter. Each thread now keeps its own context. Regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`. Cheap-disproof closed the five collection-type monitors — **invalid** `Collection<T>` root batch (no cataloged batch root; same extend-the-root-list class as hit **#353**), **invalid** `BlockingCollection<T>` property (enumerable walk already covers it; no cataloged property), **valid-no-repro** `[FromForm]` mis-tagged as `[FromBody]` (filter requires `BindingSource.Body`), **valid-no-repro** private collection properties (`BindingFlags.Public`; JSON binding does not populate them), **invalid** `IProducerConsumerCollection<T>` without `IEnumerable<>` (the interface extends `IEnumerable<>`). Scoped **39/39** `FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests` (`RunAnalyzers=false`). Private beta: overlapping JSON body requests no longer fail the action with HTTP 500 from the collection-null filter; the body is validated instead.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard` — shared `NullabilityInfoContext` throws when overlapping requests read collection nullability — **hit 2026-11-08 thorough hunt #66:** thread-local context; regression `ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap`.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Collection<T>` (`System.Collections.ObjectModel`) root batch without `ParameterInfo` — **cheap-disproof 2026-11-08 thorough hunt #66:** no cataloged batch root; hit **#353** class.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `BlockingCollection<T>` property on request DTOs — **cheap-disproof 2026-11-08 thorough hunt #66:** enumerable walk already covers it; no cataloged property.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromForm]` body mis-tagged as `[FromBody]` on the same parameter — **cheap-disproof 2026-11-08 thorough hunt #66:** filter requires `BindingSource.Body`.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `private` collection property on a nested DTO — **cheap-disproof 2026-11-08 thorough hunt #66:** public instance properties only; model binding does not populate private properties.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryGetEnumerableElementType` — `IProducerConsumerCollection<T>` implemented but not `IEnumerable<>` — **cheap-disproof 2026-11-08 thorough hunt #66:** `IProducerConsumerCollection<T>` extends `IEnumerable<T>`.
 
 2026-11-06 thorough hunt (dry #65): **rotation at pick time** (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'itsm-inbound-webhooks' (outcomes: dry, dry, dry).*; **`AvoidZoneId`** **`itsm-inbound-webhooks`**; hunted **`pickResult.zoneId`** **`api-request-null-collection-elements`**). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#61** reseed — **invalid** `ObservableCollection<T>` root batch without `ParameterInfo` (`IsRootLevelCollectionType` has no `ObservableCollection<>`; same “extend root list when catalog adds batch root” class as hit **#353** / dry **#61**), **invalid** `SortedSet<T>` / `SortedDictionary<,>` property on request DTOs (`VisitCollection` walks any `IEnumerable` collection property — ordering type does not bypass walk; no cataloged sorted-collection DTO row yet — #350 parity), **valid-no-repro** `[FromBody]` with `BindingSource` not `Body` skips filter (`parameter.BindingInfo?.BindingSource != BindingSource.Body` — intentional; true `[FromBody]` uses `BindingSource.Body`; dry #14 / monitor dry **#61**), **invalid** `init`-only collection property skipped by catalog (`GetProperties` includes init-only properties with `CanRead`; C# 9+ — monitor dry **#61** / architecture-test parity), **valid-no-repro** `TryVisitRootBodyCollection` skips when runtime body type is not assignable to parameter type (`parameterType.IsInstanceOfType(root)` guard ~165 — fail-closed omission if binder ever mis-delivers; not observed on cataloged MVC actions; hit **#353** / dry **#61**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#65** closed themes); scoped **38/38** `FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests` (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Collection<T>` (`System.Collections.ObjectModel`) root batch without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: if catalog adds non-generic observable collection base batch root (monitor dry **#65** / hit **#353**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `BlockingCollection<T>` property on request DTOs — locus: enumerable walk + snapshot enumeration; input: if catalog adds producer/consumer bag on DTO (dry **#65** / #350).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromForm]` body mis-tagged as `[FromBody]` on same parameter — locus: action descriptor only; input: controller attribute typo; reachability: compile-time / review (monitor dry **#65** / dry #14).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `private` collection property on nested DTO — locus: `BindingFlags.Public`; input: future nested private collection; reachability: style violation (dry **#65**).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryGetEnumerableElementType` — `IProducerConsumerCollection<T>` implemented but not `IEnumerable<>` — locus: interface enumeration fallback; input: exotic collection implementation (monitor dry **#65** / hit **#353**).
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Collection<T>` (`System.Collections.ObjectModel`) root batch without `ParameterInfo` — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `BlockingCollection<T>` property on request DTOs — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromForm]` body mis-tagged as `[FromBody]` on same parameter — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `private` collection property on nested DTO — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryGetEnumerableElementType` — `IProducerConsumerCollection<T>` implemented but not `IEnumerable<>` — **cheap-disproof 2026-11-08 thorough hunt #66:** closed at the zone header.
 
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ObservableCollection<T>` root batch without `ParameterInfo` — **cheap-disproof 2026-11-06 thorough hunt #65:** closed dry **#61** monitor queue; `IsRootLevelCollectionType`; hit **#353**.
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `SortedSet<T>` / `SortedDictionary<,>` property on request DTOs — **cheap-disproof 2026-11-06 thorough hunt #65:** closed dry **#61** monitor queue; `IsEnumerableCollection` + no catalog row (#350).
@@ -24065,13 +24074,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 18
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-11-06
-- **last-bug:** 2026-11-03 — single-arg guard skipped ConcurrentStack root null slots
+- **hunts:** 19
+- **bugs-found:** 12
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — shared nullability context threw when overlapping body checks ran
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
 

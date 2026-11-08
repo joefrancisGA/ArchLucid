@@ -9,7 +9,23 @@ namespace ArchLucid.Api.Validation;
 /// </summary>
 public static class ApiRequestNullCollectionElementsGuard
 {
-    private static readonly NullabilityInfoContext NullabilityContext = new();
+    // NullabilityInfoContext stores member metadata in a Dictionary. One shared instance
+    // throws when overlapping requests read collection nullability at the same time.
+    private static readonly ThreadLocal<NullabilityInfoContext> NullabilityContexts =
+        new(static () => new NullabilityInfoContext());
+
+    private static NullabilityInfoContext NullabilityContext
+    {
+        get
+        {
+            NullabilityInfoContext? context = NullabilityContexts.Value;
+
+            if (context is null)
+                throw new InvalidOperationException("Nullability context was not created for this thread.");
+
+            return context;
+        }
+    }
 
     public const string ValidationMessage =
         "Request body collection properties must not be null when required, and collections must not contain null elements.";

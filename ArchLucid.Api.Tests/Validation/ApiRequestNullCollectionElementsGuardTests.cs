@@ -25,6 +25,25 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_rejects_null_elements_when_calls_overlap()
+    {
+        // NullabilityInfoContext is not thread-safe. The guard keeps one static context
+        // for every request, so overlapping [FromBody] checks must still reject null slots.
+        NonNullableStringListRequest request = new()
+        {
+            Tags = ["ok", null!],
+        };
+
+        Parallel.For(0, 32, _ =>
+        {
+            for (int attempt = 0; attempt < 25; attempt++)
+            {
+                ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+            }
+        });
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_false_for_empty_entries()
     {
         PutRunCoverageAcknowledgementRequest request = new() { Entries = [] };
