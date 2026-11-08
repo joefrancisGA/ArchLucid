@@ -26,7 +26,13 @@ internal static class AzureInventorySnapshotPublicIpParentEdgeHydrator
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
-            if (!resource.ResourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(resource.ResourceType)
+                || !resource.ResourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.AzureResourceId))
             {
                 continue;
             }
