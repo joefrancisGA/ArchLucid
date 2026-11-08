@@ -8,6 +8,7 @@ import {
   REVIEW_SCORECARD_SAMPLE_HREF,
 } from "@/lib/review-scorecard-empty-state";
 import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
+import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 /**

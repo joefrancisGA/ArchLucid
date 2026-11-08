@@ -58,6 +58,6 @@ describe("career-gravity nested desk door inventory (CG-007)", () => {
     );
 
     expect(nestedAsk).toMatch(/AskPageContent/);
-    expect(nestedAsk).toMatch(/useEffectiveWorkingCareerRehearsalDoor/);
+    expect(nestedAsk).toMatch(/WorkingArchitectureNestedToolShell/);
   });
 });

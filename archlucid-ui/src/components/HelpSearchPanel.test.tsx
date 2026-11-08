@@ -39,14 +39,6 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => authorityMock,
 }));
 
-vi.mock("@/components/usability/ProductConceptsGlossaryDialog", () => ({
-  ProductConceptsGlossaryDialog: () => null,
-}));
-
-vi.mock("@/lib/help/help-index", () => ({
-  searchHelpDocumentation: vi.fn(() => []),
-}));
-
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
   const guidedWorkspace = {
@@ -63,6 +55,14 @@ vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
     useWorkspaceModeOrDefault: () => guidedWorkspace,
   };
 });
+
+vi.mock("@/components/usability/ProductConceptsGlossaryDialog", () => ({
+  ProductConceptsGlossaryDialog: () => null,
+}));
+
+vi.mock("@/lib/help/help-index", () => ({
+  searchHelpDocumentation: vi.fn(() => []),
+}));
 
 afterEach(() => {
   setHelpPageSituation(null);

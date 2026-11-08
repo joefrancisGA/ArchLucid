@@ -40,7 +40,7 @@ describe("core-pilot-steps", () => {
     expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.shortBody.toLowerCase()).toContain("cloud inventory");
     expect(uploadStep.detail?.toLowerCase()).toContain("cloud inventory");
-    expect(uploadStep.detail?.toLowerCase()).toContain("extract");
+    expect(uploadStep.detail?.toLowerCase()).toContain("cloud inventory script");
     expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
     expect(uploadStep.primaryHref).toBe("/administration/extract-upload");
   });
