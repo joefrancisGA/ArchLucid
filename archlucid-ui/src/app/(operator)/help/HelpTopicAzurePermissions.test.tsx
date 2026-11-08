@@ -16,11 +16,17 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionDeskChrome: () => false,
-  useProductionEvalChrome: () => true,
+  useProductionEvalChrome: () => false,
 }));
 
 vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/azure-permissions",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel", () => ({
@@ -31,6 +37,10 @@ vi.mock("@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel",
 
 vi.mock("@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext", () => ({
   HelpAzurePermissionsConnectionContext: () => <div data-testid="azure-permissions-connection-context" />,
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" as const }),
 }));
 
 import { HelpAzurePermissionsGuideView } from "@/app/(operator)/help/_sections/HelpAzurePermissionsGuideView";
@@ -58,12 +68,13 @@ import {
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
-  AZURE_PERMISSIONS_HELP_SOURCES,
+  AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES,
   formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
 import { AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "@/lib/azure-permissions-help-page-copy";
 import { CONNECT_AZURE_SECURELY_PAGE_TITLE } from "@/lib/connect-azure-securely-help-content";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -202,7 +213,10 @@ describe("HelpAzurePermissionsGuideView", () => {
     );
 
     const followUps = screen.getByTestId("azure-permissions-help-sources");
-    const visibleSources = filterWhereToGoNextFollowUpLinks(AZURE_PERMISSIONS_HELP_SOURCES);
+    const visibleSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES),
+      "/help/azure-permissions",
+    );
 
     for (const source of visibleSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

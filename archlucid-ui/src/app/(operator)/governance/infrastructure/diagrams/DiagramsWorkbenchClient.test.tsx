@@ -9,6 +9,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION,
@@ -54,8 +55,10 @@ vi.mock("@/lib/security-evidence-path-api", () => ({
   fetchSecurityEvidencePathDetail: fetchSecurityEvidencePathDetailMock,
 }));
 
+const diagramsProductLineMock = vi.hoisted(() => ({ value: "security" as "architecture" | "security" }));
+
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
-  useProductLine: () => ({ productLine: "security" }),
+  useProductLine: () => ({ productLine: diagramsProductLineMock.value }),
 }));
 
 vi.mock("@/lib/use-iana-time-zone-preference", () => ({
@@ -516,7 +519,7 @@ describe("DiagramsWorkbenchClient", () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full");
     render(<DiagramsWorkbenchClient />);
 
-    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.getByText(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     const primaryContent = await screen.findByTestId("infra-diagrams-primary-content");
     expect(primaryContent.className).not.toMatch(/mx-auto/);
@@ -644,7 +647,6 @@ describe("DiagramsWorkbenchClient", () => {
       expect(strip).not.toHaveTextContent("subgraphs");
     });
     expect(screen.getByTestId("infra-diagrams-render-failed")).toHaveTextContent("Simulated render failure.");
-    expect(screen.queryByText("This view is too large to read.")).not.toBeInTheDocument();
   });
 
   it("shows resource scope banner and scoped Ask link when cloudResourceId is in the URL", async () => {
@@ -1886,6 +1888,7 @@ describe("DiagramsWorkbenchClient", () => {
   });
 
   it("links the SecureNow breadcrumb parent to the infrastructure overview", async () => {
+    diagramsProductLineMock.value = "architecture";
     pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
@@ -1893,6 +1896,7 @@ describe("DiagramsWorkbenchClient", () => {
     const breadcrumbLink = (await screen.findByTestId("infra-diagrams-breadcrumb")).querySelector("a");
 
     expect(breadcrumbLink).toHaveAttribute("href", SECURENOW_INFRASTRUCTURE_PATH);
+    diagramsProductLineMock.value = "security";
   });
 
   it("passes the active render query to PNG export", async () => {

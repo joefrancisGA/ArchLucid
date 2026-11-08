@@ -62,6 +62,7 @@ vi.mock("@/lib/resolve-nav-link-for-pathname", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/alert-rules",
   useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams("tab=advanced-rules&runId=run-composite-test"),
 }));

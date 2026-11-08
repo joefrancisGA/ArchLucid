@@ -104,6 +104,7 @@ describe("specialty help guides — operator surfaces batch", () => {
       "search-review-evidence",
       "servicenow-integration",
       "sponsor-dashboard",
+      "structured-brief",
       "system-health",
       "workspace-settings",
     ]);
