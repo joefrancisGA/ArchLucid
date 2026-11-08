@@ -1,3 +1,5 @@
+> **Scope:** Internal SecureNow engineering SQL replay test documentation; not production deployment, customer-data authorization, or full security-path assurance.
+
 # SecureNow Evidence Lab — SQL-backed replay integration (increment 3)
 
 **Scope:** reusable engineering verification based on the existing SQL integration-test fixture. This is **not yet** a general-purpose offline CLI for the complete security-path/findings pipeline.
