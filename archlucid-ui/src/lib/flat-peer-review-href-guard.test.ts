@@ -11,6 +11,12 @@ const GUARDED_RELATIVE_DIRS = [
   "src/components/advisory",
   "src/components/digests",
   "src/components/governance",
+  "src/components/insights",
+] as const;
+
+const GUARDED_COMPONENT_FILES = [
+  "src/components/GraphViewerNodeDetailPanel.tsx",
+  "src/components/ManifestTopDecisionsCard.tsx",
 ] as const;
 
 function walkTsxFiles(dir: string, acc: string[]): void {
@@ -53,6 +59,15 @@ describe("flat peer review href guard (Operate scopes)", () => {
         if (body.includes(FLAT_REVIEW_HREF_SUBSTRING)) {
           offenders.push(file);
         }
+      }
+    }
+
+    for (const rel of GUARDED_COMPONENT_FILES) {
+      const file = join(uiRoot, rel);
+      const body = readFileSync(file, "utf8");
+
+      if (body.includes(FLAT_REVIEW_HREF_SUBSTRING)) {
+        offenders.push(file);
       }
     }
 

@@ -13,6 +13,7 @@ import {
 } from "@/lib/trial-sample-azure-deploy";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
+import { resolveShowcaseOperatorReviewHref } from "@/lib/showcase-operator-review-href";
 
 type TenantTrialStatusResponse = {
   status?: string;
@@ -254,7 +255,7 @@ export function OnboardingStartClient() {
             ) : null}
             {hasSample ? (
               <Button asChild variant="outline">
-                <Link href={`/architecture/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
+                <Link href={resolveShowcaseOperatorReviewHref(sampleId)} data-testid="onboarding-open-sample-run">
                   Open sample review
                 </Link>
               </Button>
