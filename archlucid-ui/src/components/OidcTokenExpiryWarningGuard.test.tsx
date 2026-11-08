@@ -10,6 +10,8 @@ import {
 const ensureAccessTokenFreshMock = vi.hoisted(() => vi.fn(async () => undefined));
 const getAccessTokenExpiresAtMsMock = vi.hoisted(() => vi.fn(() => 0));
 const isJwtAuthModeMock = vi.hoisted(() => vi.fn(() => true));
+const clearOidcSessionMock = vi.hoisted(() => vi.fn());
+const pulseBffSessionActivityMock = vi.hoisted(() => vi.fn(async () => "ok" as const));
 
 const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-1/print" }));
 
@@ -24,6 +26,11 @@ vi.mock("@/lib/oidc/config", () => ({
 vi.mock("@/lib/oidc/session", () => ({
   ensureAccessTokenFresh: ensureAccessTokenFreshMock,
   getAccessTokenExpiresAtMs: () => getAccessTokenExpiresAtMsMock(),
+  clearOidcSession: clearOidcSessionMock,
+}));
+
+vi.mock("@/lib/oidc/bff-session-sync", () => ({
+  pulseBffSessionActivity: () => pulseBffSessionActivityMock(),
 }));
 
 describe("OidcTokenExpiryWarningGuard (LI-14)", () => {
@@ -33,6 +40,9 @@ describe("OidcTokenExpiryWarningGuard (LI-14)", () => {
     ensureAccessTokenFreshMock.mockClear();
     getAccessTokenExpiresAtMsMock.mockReturnValue(0);
     isJwtAuthModeMock.mockReturnValue(true);
+    clearOidcSessionMock.mockClear();
+    pulseBffSessionActivityMock.mockReset();
+    pulseBffSessionActivityMock.mockResolvedValue("ok");
   });
 
   afterEach(() => {
@@ -104,5 +114,18 @@ describe("OidcTokenExpiryWarningGuard (LI-14)", () => {
 
     expect(screen.getByTestId("session-token-expiry-warning")).toBeInTheDocument();
     expect(screen.getByTestId("session-token-expiry-warning-refresh")).toBeInTheDocument();
+  });
+
+  it("clears the OIDC session when the expiry-warning activity pulse is unauthorized", async () => {
+    pulseBffSessionActivityMock.mockResolvedValue("unauthorized");
+
+    render(<OidcTokenExpiryWarningGuard />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(pulseBffSessionActivityMock).toHaveBeenCalled();
+    expect(clearOidcSessionMock).toHaveBeenCalled();
   });
 });

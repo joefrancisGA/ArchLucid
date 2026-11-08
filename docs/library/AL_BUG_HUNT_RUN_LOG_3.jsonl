@@ -2721,3 +2721,4 @@
 {"at":"2026-11-04T01:46:00.0000000Z","zoneId":"securenow-question-queue","outcome":"dry","productLine":"securenow"}
 {"at":"2026-11-04T01:49:00.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow"}
 {"at":"2026-11-04T12:52:00.0000000Z","zoneId":"securenow-question-queue","outcome":"dry","productLine":"securenow"}
+{"at":"2026-11-08T18:36:29.4000213Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/OidcTokenExpiryWarningGuard.tsx","archlucid-ui/src/components/OidcTokenExpiryWarningGuard.test.tsx"],"severity":"high","defectClass":"fail-open-validation"}

@@ -4454,6 +4454,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The local picker still had the hunt #121 expiry-warning row open; on `bugsmash-3` the 2026-11-03 seed hunt had closed it as valid-no-repro because the guard was thought to share the keepalive hook. It does not. `OidcTokenExpiryWarningGuard` calls `pulseBffSessionActivity` and ignores `unauthorized`, while `useOidcSessionKeepalive` clears the local session. The warning guard now clears the session on that result. Regression `clears the OIDC session when the expiry-warning activity pulse is unauthorized` failed first (`clearOidcSession` was not called) and then passed with the warning-guard and keepalive tests (**10/10**). Private beta: when an invited operator is on a long review and the server rejects the session activity pulse, the page clears the local sign-in instead of still looking signed in.
+
+- [x] (proven) `OidcTokenExpiryWarningGuard` — expiry warning pulsed BFF activity without clearing the session on unauthorized — **hit 2026-11-08 thorough hunt:** clear the local session on `unauthorized`, matching `useOidcSessionKeepalive`; regression `clears the OIDC session when the expiry-warning activity pulse is unauthorized`. [class:fail-open-validation]
+
 2026-11-04 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed pass after empty open-hypothesis queue; cheap-disproof closed five header `(candidate)` monitor rows from pass-22 reseed — **valid-no-repro** bell PKCE `state` tamper (`pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session state contains interior bell control characters`), **valid-no-repro** pipe-only JSON `error_description` (`oauth-callback-messages.test.ts` parity), **valid-no-repro** pipe-only authorize `error_description` (percent-encoded parity), **valid-no-repro** token-endpoint HTTP 200 JSON roots `10`/`11`/`12` (`parseOidcTokenResponse` rejects non-object roots; regressions added), **valid-no-repro** BFF refresh HTTP `515`/`516`/`517` soft-fail without session clear (parity regressions added). Reseeded five follow-on `(candidate)` monitor rows below; scoped `src/lib/oidc` vitest **1040/1040**. Private beta: n/a.
 
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) — **cheap-disproof 2026-11-04 seed hunt:** regression above.
@@ -7722,13 +7726,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 103
-- **bugs-found:** 74
+- **hunts:** 104
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-04
-- **last-bug:** 2026-11-03 — token POST left non-trim C0 on authorization code and PKCE verifier
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — expiry warning ignored an unauthorized BFF activity pulse
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-30 seed hunt (seed-only): re-read the OIDC discovery, PKCE, token, session, and BFF sync library; all 58 scoped OIDC tests passed; retained two discovery/redirect candidates for a later repro pass.
 
