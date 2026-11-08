@@ -21,7 +21,7 @@ public sealed class PolicyPackCategoryCoverageValidatorTests
         IReadOnlyList<string> violations = PolicyPackCategoryCoverageValidator.GetMissingCategoryViolations(
             context,
             findings: [],
-            successfulEngineTypes: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "azure-inventory-security-baseline" });
+            successfulEngineTypes: new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "security-coverage" });
 
         violations.Should().BeEmpty();
     }
