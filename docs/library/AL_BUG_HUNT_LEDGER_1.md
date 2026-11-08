@@ -11065,6 +11065,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId`: a `Microsoft.Maintenance/configurationAssignments` row stores the target VM on `properties.resourceId` and the assignment's own id on `id`. Wrapper search returned the target, so the assignment was indexed as the VM. The row's own ARM id is now read before the property bag. Regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target` failed first (`HasMismatches` true) and then passed with the properties-bag-only and nested `resourceId` regressions (**3/3**, `RunAnalyzers=false`). Storage accounts still have no `properties.id`; this is the reachable property-bag id. Private beta: when an invited operator reconciles a maintenance configuration assignment, that assignment stays matched to its own resource id instead of being indexed as the virtual machine named in the property bag.
+
+- [x] (proven) `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — `properties.resourceId` on a configuration assignment replaced the row id — **hit 2026-11-08 thorough hunt:** read the row's own ARM id before the property bag; regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target`. [class:identity-alias]
+
 2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId`: an AWS Config S3 item stores the bucket name on `configuration.name` and the ARN on `arn`. The reader returned that name first, the name is not an ARN, and the item was left unmatched. Each id key is now kept only when it looks like an ARN, so the item ARN is still read. Regression `CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn` failed first (`HasMismatches` true) and then passed with the configuration-bag and `resourceName` regressions (**6/6**, `RunAnalyzers=false`). The open nested `properties.id` candidate stays open: a storage account property bag does not carry `properties.id`. Private beta: when an invited operator reconciles an S3 bucket recorded the way AWS Config records it, with the bucket name under configuration and the ARN on the item, that bucket matches the topology instead of looking missing from inventory.
 
 - [x] (proven) `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — AWS Config `configuration.name` hid the item ARN — **hit 2026-11-08 thorough hunt:** keep the first candidate that looks like an ARN; regression `CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn`. [class:identity-alias]
@@ -20120,11 +20124,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 94
-- **bugs-found:** 89
+- **hunts:** 95
+- **bugs-found:** 90
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — AWS Config configuration.name hid the S3 item ARN
+- **last-bug:** 2026-11-08 — configuration assignment properties.resourceId replaced the row id
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -20284,7 +20288,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — **cheap-disproof 2026-11-08 thorough hunt:** both stored values are required; see the zone header.
 - [x] (invalid) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — **cheap-disproof 2026-11-08 thorough hunt:** `access_key` redaction; see the zone header.
 - [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` was not a topology id key — **hit 2026-11-08 thorough hunt:** regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link`. [class:other]
-- [ ] (candidate) `InventoryResourcesJsonRowReader.TryGetTrimmedString` — nested `properties.id` is read before the row id — locus: wrapper properties are searched before the row's own keys; input: row `resourceId` is the storage account ARM id and `properties.id` is a different ARM id; wrong outcome: the row is indexed under the nested id; reachability: richer `resources.json` rows whose property bag includes an ARM `id`.
+- [x] (proven) `InventoryResourcesJsonRowReader.TryGetTrimmedString` — nested property-bag id was read before the row id — **hit 2026-11-08 thorough hunt:** storage accounts have no `properties.id`; the reachable input is `Microsoft.Maintenance/configurationAssignments` `properties.resourceId`; regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target`. [class:identity-alias]
 - [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — **cheap-disproof 2026-11-08 thorough hunt:** distinct token; see the zone header.
 
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService.AppendTraceFieldSection` — whitespace-only `ParsedResultJson` still opens a fence — **cheap-disproof 2026-10-29 seed hunt:** stored-empty copy is written without a fence.
