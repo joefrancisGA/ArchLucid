@@ -513,6 +513,9 @@ export function DiagramsWorkbenchClient() {
     readonly InfraEvidenceMermaidFallbackArtifactSummary[]
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
+  // Updated during render so a preview that resolves before effect cleanup still sees the new snapshot.
+  const selectedSnapshotIdRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdRef.current = selectedSnapshotId;
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
     urlEvidenceFamily as InfraEvidenceDiagramFamily,
@@ -1694,6 +1697,12 @@ export function DiagramsWorkbenchClient() {
   }, [showAvdAssets, syncUrl]);
 
   useEffect(() => {
+    setModePreviews([]);
+    setSnapshotCompletenessWarnings([]);
+    setRenderResult(null);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setModePreviews([]);
       setSnapshotCompletenessWarnings([]);
@@ -1702,20 +1711,24 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadPreview() {
       setLoadingPreview(true);
       setLoadError(null);
 
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(selectedSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
+        const previewStillCurrent = !cancelled && requestSnapshotId === selectedSnapshotIdRef.current;
 
-        if (!cancelled) {
+        if (previewStillCurrent) {
           setModePreviews(preview.modes ?? []);
           setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        const previewStillCurrent = !cancelled && requestSnapshotId === selectedSnapshotIdRef.current;
+
+        if (previewStillCurrent) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
           setSnapshotCompletenessWarnings([]);
@@ -1789,6 +1802,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     const activeRenderQuery = renderQuery;
+    const requestSnapshotId = selectedSnapshotId;
     let cancelled = false;
 
     async function loadRender() {
@@ -1796,9 +1810,10 @@ export function DiagramsWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, activeRenderQuery);
+        const response = await fetchInfraEvidenceMermaidRender(requestSnapshotId, activeRenderQuery);
+        const renderStillCurrent = !cancelled && requestSnapshotId === selectedSnapshotIdRef.current;
 
-        if (!cancelled) {
+        if (renderStillCurrent) {
           setRenderResult(response);
 
           if (
@@ -1812,7 +1827,9 @@ export function DiagramsWorkbenchClient() {
           }
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        const renderStillCurrent = !cancelled && requestSnapshotId === selectedSnapshotIdRef.current;
+
+        if (renderStillCurrent) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setRenderResult(null);
         }

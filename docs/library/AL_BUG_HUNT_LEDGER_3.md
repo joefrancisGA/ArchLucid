@@ -18525,13 +18525,17 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 20
-- **bugs-found:** 19
+- **hunts:** 21
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — completeness warnings lingered after snapshot URL change
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — late preview wrote the previous snapshot's completeness warnings onto the next snapshot
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-11-08 thorough hunt (hit): no rotation (`shouldRotate: false`; the latest `ui-review-detail-workspace` outcome is a hit, so the low-yield streak is 0). A slow mermaid preview for snapshot A still called `setSnapshotCompletenessWarnings` after the URL had moved to snapshot B, so B showed A's completeness warning. Effect cleanup was not enough: the preview resolved after the selected snapshot had already changed. Ignore preview and render completions whose snapshot id is no longer current, and clear preview warnings plus the prior render when the selected snapshot id changes. Regression `clears completeness warnings when URL snapshot id changes before a slow preview for the prior snapshot completes` failed first (the banner returned, scoped to the new snapshot, with the prior warning) and DiagramsWorkbenchClient vitest then passed that case. The five hunt monitors below stay open. Private beta: when an invited operator switches infra diagram snapshots, a slow preview from the previous snapshot no longer puts that snapshot's completeness warnings on the snapshot they just opened.
+
+- [x] (proven) `DiagramsWorkbenchClient.loadPreview` — a slow preview for the previous snapshot applied its completeness warnings after the URL snapshot changed — **hit 2026-11-08 thorough hunt:** apply preview and render only while the request snapshot is still current, and clear snapshot-scoped preview state when the selected snapshot id changes; regression above. `[class:state-machine-gap]`
 
 2026-11-01 thorough hunt (hit): promoted **snapshot completeness warnings banner keeping prior snapshot copy after URL snapshot navigation** — `selectedSnapshotId` reset cleared `modePreviews` but left `snapshotCompletenessWarnings` populated until the next preview fetch finished, and a slow preview for snapshot A could still reapply warnings without an immediate reset; clear `snapshotCompletenessWarnings` with other snapshot-scoped preview state on `selectedSnapshotId` change (preview fetch already guarded by `selectedSnapshotIdRef`); regression `clears completeness warnings when URL snapshot id changes before a slow preview for the prior snapshot completes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped DiagramsWorkbenchClient vitest 68/68 passed. Private beta: Invited operators who change infra diagram snapshots no longer see the previous snapshot's completeness warning banner while the new snapshot's preview loads.
 
