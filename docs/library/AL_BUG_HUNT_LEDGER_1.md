@@ -7417,6 +7417,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 2026-10-31 thorough hunt #251 (dry): no rotation. Picker `(candidate)` document name internal space is stale — **invalid** vs **proven hit 2026-10-30 thorough hunt** (`HasUsableMultilineBodyText` on names; regression `Deserialize_keeps_document_when_name_contains_internal_spaces`). Cheap-disproof closed five open `(candidate)` rows — **invalid** declaration `format` with `; charset=` suffix (compact format token by design; API validator exact match at intake per set-4 `#1108` family; document `contentType` intentionally uses `NormalizeContentTypeForLookup`), **invalid** dead `MaterializeStringList` helper (unused; live lists route through `MaterializeReferenceStringList` / `MaterializePathReferenceStringList`), **valid-no-repro** U+2028/U+2029 in policy lines rejected by `HasUsableMultilineBodyText` exotic whitespace rule (intentional paste hygiene), **valid-no-repro** orchestrator serialize without pre-materialize (`AuthorityPipelineWorkProcessor` always deserializes and `EnsureMutableCollections` before gate; 2026-10-30 seed hunt), **invalid** declaration `format` with embedded newline (compact identifier; trimmed paste belongs in `content`). Reseeded five `(candidate)` rows; scoped payload JSON tests **50/50** (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
 - [x] (invalid) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — document name with internal space dropped (`network diagram`) — **cheap-disproof 2026-10-31 thorough hunt #251:** regression `Deserialize_keeps_document_when_name_contains_internal_spaces`; hit 2026-10-30 thorough hunt.
@@ -7498,6 +7499,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+### Hypotheses
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
 
 - [x] (proven) `HasUsableEvidenceBundleId` — embedded no-break space in `evidenceBundleId` passed `HasSubstantiveText` and combining-mark checks but survived `Trim()` in `AuthorityPipelineMaterializeWork`, causing bundle lookup failure and outbox retries — **hit 2026-10-04 seed hunt:** `HasNoInternalWhitespace` guard on evidence bundle ids only; regressions `IsValidForProcessing_rejects_embedded_nbsp_in_evidence_bundle_id` and `Deserialize_rejects_evidence_bundle_id_with_embedded_nbsp`.
@@ -11059,6 +11061,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` `tf.self_link`: Terraform show stores `values.self_link` as `tf.self_link`, and the id lists only had CAI `selfLink` plus `tf.id`. A Google SQL instance whose `tf.id` is the short name and whose API self link is `tf.self_link` was left unmatched. The topology, inventory, and serialized-bag id lists now include `tf.self_link`. Regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link` failed first (`HasMismatches` true) and then passed with the existing `selfLink` topology test (**3/3**, `RunAnalyzers=false`). Cheap-disproof: omitted `publicNetworkAccess` stays uncompared because this analyzer requires a stored inventory value; `shared_access_key_enabled` is redacted (`access_key` fragment) so the bag has no boolean; `SecuredByPerimeter` stays a distinct token from `Disabled`, which is the disagreement to evaluate; `tf.enablehttpstrafficonly` is not emitted because `SanitizePropertyKey` keeps underscores and `tf.enable_https_traffic_only` already resolves. Nested `properties.id` shadowing stays a candidate. Private beta: when an invited operator reconciles a Terraform declaration whose Google resource id is only the API self link stored as tf.self_link, that resource matches inventory instead of looking missing from the declaration.
+
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` was not a topology id key — **hit 2026-11-08 thorough hunt:** read `tf.self_link` beside `selfLink` on the topology, inventory, and serialized-bag id lists; regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link`. [class:other]
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — **cheap-disproof 2026-11-08 thorough hunt:** `TryReadInventoryValue` skips a missing key; a contradiction requires both stored values. The book default of Enabled is the reachability classifier, not this compare.
+- [x] (invalid) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — **cheap-disproof 2026-11-08 thorough hunt:** `shared_access_key_enabled` normalizes to a name containing `accesskey` and ingest redacts it, so the declaration bag does not contain `false`.
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — **cheap-disproof 2026-11-08 thorough hunt:** `NormalizeSecurityToken` maps `Disabled` to `false` and leaves `SecuredByPerimeter` distinct, so the mismatch shows the two stored values.
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **cheap-disproof 2026-11-08 thorough hunt:** `SanitizePropertyKey` keeps underscores, so show JSON is `tf.enable_https_traffic_only`, which already resolves.
+
 2026-10-29 seed hunt (seed-only): reread declaration-versus-inventory, inventory reconciliation, and comparison export after the `tf.https_traffic_only_enabled` and `tf.enable_https_traffic_only` hits. No row met the hunt-ready bar. Cheap-disproof: whitespace-only `ParsedResultJson` already uses the stored-empty copy and `AppendTraceFieldSection` does not open a fence; `ExportRecordDiffService` trims `TemplateProfile` before compare. Left open: omitted storage `publicNetworkAccess` (book ch. 6 treats absence as Enabled), shared-key `allowSharedKeyAccess` (book ch. 3; terraform `shared_access_key_enabled` is stored as `[REDACTED]` because the ingest key check treats `access_key` as secret material), GCP topology `tf.self_link`, nested inventory `id` shadowing, and inventory `SecuredByPerimeter` against a Disabled declaration.
 
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService.AppendTraceFieldSection` — whitespace-only `ParsedResultJson` still opens a fence — **cheap-disproof 2026-10-29 seed hunt:** `FormatTraceField` returns the stored-empty copy and the section writes that sentence without a fence.
@@ -11070,7 +11080,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService` — trace `ParsedResultJson` whitespace-only uses stored-empty copy but fence still opens — **cheap-disproof 2026-10-29:** `FormatTraceField` returns stored-empty and `AppendTraceFieldSection` does not fence that sentence.
 - [ ] (candidate) `ReplayComparisonInterpretationDiffSlice` — agent change note when only `ParseSucceeded` flips with identical claims — locus: materiality gate; input: left parse false right true, same claims; wrong outcome: silent or noisy; reachability: flaky agent reruns.
 - [x] (invalid) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` change when only whitespace differs — **cheap-disproof 2026-10-29:** compare trims both sides through `NormalizeOptionalString`.
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — locus: HttpsOnly aliases; input: `tf.enablehttpstrafficonly=true` vs inventory `supportsHttpsTrafficOnly=false`; wrong outcome: miss mismatch; reachability: compacted Terraform show keys.
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **cheap-disproof 2026-11-08 thorough hunt:** sanitizer keeps underscores; `tf.enable_https_traffic_only` already resolves.
 
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that only recognized `tf.https_only` and `tf.supports_https_traffic_only`, so a storage account declared with azurerm `https_traffic_only_enabled = true` (the argument in `infra/terraform-storage/main.tf`, which Terraform show stores as `tf.https_traffic_only_enabled`) produced no mismatch when Azure inventory `supportsHttpsTrafficOnly` was false; `DeclarationSecurityPropertyKeyResolver` now includes `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1102/1102** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform sets https_traffic_only_enabled to true and whose Azure inventory has supportsHttpsTrafficOnly false, that contradiction is reported.
 
@@ -20102,13 +20112,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 92
-- **bugs-found:** 87
+- **hunts:** 93
+- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Terraform enable_https_traffic_only was not an HTTPS-only claim
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — Terraform tf.self_link was not read as a GCP topology resource id
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - [x] (proven) `ComparisonAuditService.RecordEndToEndAsync` — canonical record columns but dashed `LeftRunId`/`RightRunId` inside `PayloadJson` broke verify replay — **hit 2026-10-16 seed hunt:** regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`.
 
@@ -20263,18 +20273,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — locus: `TryReadInventoryValue` returns false when the key is absent; input: Microsoft.Storage/storageAccounts row with no `publicNetworkAccess` and declaration `tf.public_network_access_enabled`=`false`; wrong outcome: no mismatch while book ch. 6 treats the omitted property as Enabled; reachability: `docs/book/lab/listings/python/ch06_reachability.py` `storage_public_exposure`.
-- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — locus: `TrackedLogicalPropertyNames`; input: inventory `allowSharedKeyAccess`=`true` against a declaration that shared keys are disabled; wrong outcome: no mismatch; reachability: `infra/terraform-securenow-in-tenant/main.tf` `shared_access_key_enabled = false` and book ch. 3 `allowSharedKeyAccess`. Ingest stores that Terraform key as `[REDACTED]` because `access_key` is a sensitive fragment, so a production bag may not contain `false`.
-- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` is not a topology id key — locus: key list has `selfLink` and `tf.id` and omits `tf.self_link`; input: graph property `tf.self_link` set to a Google API self link and no other id-shaped property; wrong outcome: the node is omitted from reconciliation; reachability: `TerraformShowJsonInfrastructureDeclarationParser` stores every `values.*` attribute as `tf.{sanitized name}`.
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — **cheap-disproof 2026-11-08 thorough hunt:** both stored values are required; see the zone header.
+- [x] (invalid) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — **cheap-disproof 2026-11-08 thorough hunt:** `access_key` redaction; see the zone header.
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` was not a topology id key — **hit 2026-11-08 thorough hunt:** regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link`. [class:other]
 - [ ] (candidate) `InventoryResourcesJsonRowReader.TryGetTrimmedString` — nested `properties.id` is read before the row id — locus: wrapper properties are searched before the row's own keys; input: row `resourceId` is the storage account ARM id and `properties.id` is a different ARM id; wrong outcome: the row is indexed under the nested id; reachability: richer `resources.json` rows whose property bag includes an ARM `id`.
-- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — locus: value compare and the public-exposure gate; input: declaration `publicNetworkAccess`=`Disabled` and inventory `publicNetworkAccess`=`SecuredByPerimeter`; wrong outcome: a data-protection mismatch even though book ch. 6 says that inventory value is unknown; reachability: `docs/book/chapters/06-network-exposure.md` and `docs/book/lab/listings/python/tests/test_ch06_reachability.py`.
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — **cheap-disproof 2026-11-08 thorough hunt:** distinct token; see the zone header.
 
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService.AppendTraceFieldSection` — whitespace-only `ParsedResultJson` still opens a fence — **cheap-disproof 2026-10-29 seed hunt:** stored-empty copy is written without a fence.
 - [x] (invalid) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` whitespace is a false diff — **cheap-disproof 2026-10-29 seed hunt:** both sides are trimmed before compare.
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `enable_https_traffic_only` declaration key — **hit 2026-10-29 seed hunt:** resolve `tf.enable_https_traffic_only`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_enable_https_traffic_only`. [class:fail-open-validation]
 
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — locus: HttpsOnly aliases; input: `tf.enablehttpstrafficonly=true` vs inventory `supportsHttpsTrafficOnly=false`; wrong outcome: miss mismatch; reachability: compacted Terraform show keys.
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **cheap-disproof 2026-11-08 thorough hunt:** sanitizer keeps underscores; `tf.enable_https_traffic_only` already resolves.
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `https_traffic_only_enabled` was not an HTTPS-only declaration — **hit 2026-10-29 seed hunt:** resolve `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`. [class:fail-open-validation]
 
