@@ -183,7 +183,9 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
     const sources = screen.getByTestId("itsm-oauth-callback-sources");
     expect(within(sources).getByRole("link", { name: /Open Audit/i })).toHaveAttribute("href", GOVERNANCE_AUDIT_PATH);
 
-    expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("itsm-oauth-callback-outcome"));
+    });
   }
 
   it("maps IdP denial to blocked callout with unchanged connector state", async () => {
