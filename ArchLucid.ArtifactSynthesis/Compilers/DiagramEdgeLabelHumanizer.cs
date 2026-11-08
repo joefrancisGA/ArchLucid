@@ -315,6 +315,12 @@ internal static class DiagramEdgeLabelHumanizer
             return "in";
         }
 
+        if (diagramMode == DiagramMode.Executive
+            && string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramRelationshipLabelTexts.Peered;
+        }
+
         if (UsesTopologyPlacementVerbLabels(diagramMode)
             && string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
         {

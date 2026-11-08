@@ -62,7 +62,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(fallbackKey, out DiagramEdge? fallbackEdge))
             {
-                if (ShouldPreserveDirectPlacementEdge(fallbackEdge))
+                if (ShouldPreserveDirectPlacementEdge(fallbackEdge, ast))
                 {
                     continue;
                 }
@@ -75,7 +75,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
                     !edge.IsLayoutOnly
                     && string.Equals(edge.FromNodeId, resolved.FromDiagramNodeId, StringComparison.Ordinal)
                     && string.Equals(edge.ToNodeId, resolved.ToDiagramNodeId, StringComparison.Ordinal)
-                    && ShouldPreserveDirectPlacementEdge(edge)))
+                    && ShouldPreserveDirectPlacementEdge(edge, ast)))
             {
                 continue;
             }
@@ -94,11 +94,37 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         }
     }
 
-    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge)
+    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge, DiagramAst ast)
     {
+        if (!IsDirectSubnetAttachmentEndpoint(edge.FromNodeId, ast))
+        {
+            return false;
+        }
+
         return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDirectSubnetAttachmentEndpoint(string diagramNodeId, DiagramAst ast)
+    {
+        DiagramNode? fromNode = ast.Nodes.FirstOrDefault(node =>
+            string.Equals(node.NodeId, diagramNodeId, StringComparison.Ordinal));
+
+        if (fromNode is null || string.IsNullOrWhiteSpace(fromNode.ArmResourceType))
+        {
+            return false;
+        }
+
+        string armType = fromNode.ArmResourceType;
+
+        if (armType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
+            && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatResolvedLabel(InventoryDiagramIndirectRelationshipResolvedEdge resolved)

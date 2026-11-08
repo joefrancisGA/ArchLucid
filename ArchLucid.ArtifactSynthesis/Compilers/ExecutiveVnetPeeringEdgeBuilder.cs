@@ -111,14 +111,6 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
-            if (HasBlankCapturedPeeringLabel(edge))
-            {
-                edge.Label = "peering";
-                edge.InferenceSource ??= GraphEdgeInferenceSources.InventoryVnetPeering;
-                AssignPeeringProvenance(edge, connectedPeeringObserved: true);
-                continue;
-            }
-
             if (!ShouldAnnotateAsObservedPeering(edge))
             {
                 continue;
@@ -196,12 +188,17 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
         if (connectedPeeringObserved)
         {
-            if (HasBlankCapturedPeeringLabel(edge)
-                || string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+            if (HasBlankCapturedPeeringLabel(edge))
             {
-                edge.Label = "peering";
+                return;
             }
-            else if (!IsConnectedPeeringLabel(edge.Label))
+
+            if (!IsConnectedPeeringLabel(edge.Label)
+                && !string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+            {
+                edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
+            }
+            else if (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
             {
                 edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
             }
