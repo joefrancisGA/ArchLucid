@@ -43,7 +43,10 @@ export function governanceFindingInspectHref(
     return `${architectureNestedFindingsPath(architectureId)}?${params.toString()}`;
   }
 
-  return getFindingEvidenceTraceHref(runId, findingId, options?.findingsQueueRunId);
+  return getFindingEvidenceTraceHref(runId, findingId, {
+    findingsQueueRunId: options?.findingsQueueRunId,
+    architectureId: options?.architectureId,
+  });
 }
 
 export type GovernanceQueueAuxiliaryFindingHrefInput = {
@@ -73,7 +76,10 @@ export function resolveGovernanceQueueAuxiliaryFindingHref(
     });
   }
 
-  return getFindingDetailHref(runId, findingId, input?.findingsQueueRunId);
+  return getFindingDetailHref(runId, findingId, {
+    findingsQueueRunId: input?.findingsQueueRunId,
+    architectureId: inspectHrefOptions?.architectureId,
+  });
 }
 
 /** Findings workspace deep link for queue disposition work (findingId + first-review spine hash). */
@@ -119,7 +125,9 @@ export function governanceFindingQueuePrimaryInspectHref(
   }
 
   if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
-    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId, {
+      architectureId: options?.architectureId,
+    });
   }
 
   return governanceFindingInspectHref(row.runId, row.findingId, options);
@@ -142,9 +150,14 @@ export function governanceFindingQueueRowTitleInspectHref(
 }
 
 /** Review column link: findings workspace when this row still needs disposition recording. */
-export function governanceFindingQueueRowReviewHrefForRow(row: GovernanceFindingQueueRow): string {
+export function governanceFindingQueueRowReviewHrefForRow(
+  row: GovernanceFindingQueueRow,
+  options?: GovernanceFindingInspectHrefOptions,
+): string {
   if (governanceFindingQueueRowNeedsDispositionRecording(row)) {
-    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId);
+    return governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId, {
+      architectureId: options?.architectureId,
+    });
   }
 
   return governanceFindingQueueRowReviewHref(row.runId);
