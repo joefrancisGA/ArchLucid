@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { buildArchitectureCreateRequest } from "@/lib/architecture/build-architecture-create-request";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import type { WizardFormValues } from "@/lib/wizard-schema";
+import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 
 const baseValues: WizardFormValues = {
+  ...buildDefaultWizardValues(),
   requestId: "req-robustness-1",
   description: "Operator architecture context for a payment platform migration with multi-region failover.",
   systemName: "Payments",
@@ -13,14 +14,6 @@ const baseValues: WizardFormValues = {
   constraints: ["Use managed identity"],
   requiredCapabilities: ["HA"],
   assumptions: ["Single tenant"],
-  priorManifestVersion: "",
-  inlineRequirements: [],
-  documents: [],
-  policyReferences: [],
-  topologyHints: [],
-  securityBaselineHints: [],
-  infrastructureDeclarations: [],
-  modelExecutionProfileOverride: "WorkspaceDefault",
 };
 
 describe("buildArchitectureCreateRequest", () => {

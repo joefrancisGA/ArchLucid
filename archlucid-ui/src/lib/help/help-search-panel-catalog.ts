@@ -4,6 +4,8 @@ import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 
+import { ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/engineering-troubleshooting-help-guide-content";
+
 import {
   ADVANCED_ADMIN_TOPICS,
   HELP_DRAWER_SEARCH_ALIASES,
@@ -18,8 +20,11 @@ export const HELP_SEARCH_PANEL_ONBOARDING_HUB_PATH = FIRST_REVIEW_GUIDE_PATH;
 /** TB-1378 guard anchor — first architecture review help handoff. */
 export const HELP_SEARCH_PANEL_FIRST_ARCHITECTURE_REVIEW_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
 
-/** TB-1248 guard anchor — engineering runbook handoff stays canonical. */
+/** TB-1248 / TB-2264 guard anchor — engineering runbook handoff stays canonical. */
 export const HELP_SEARCH_PANEL_ENGINEERING_TROUBLESHOOTING_PATH = "/help/engineering-troubleshooting" as const;
+
+export const HELP_SEARCH_PANEL_ENGINEERING_TROUBLESHOOTING_TOPIC_LABEL =
+  ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL;
 
 export const HELP_SEARCH_PANEL_TITLE = "Help" as const;
 
