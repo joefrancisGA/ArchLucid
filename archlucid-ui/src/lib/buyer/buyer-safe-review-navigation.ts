@@ -12,6 +12,7 @@ import {
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 export type PrimaryReviewExploreLink = {
@@ -135,5 +136,5 @@ export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryRevie
 }
 
 export function getCanonicalReviewWorkspaceHref(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+  return resolveScopedInsightOpenReviewHrefWithDeskContinuity(canonicalizeDemoRunId(runId));
 }

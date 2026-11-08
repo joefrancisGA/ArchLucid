@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { WELCOME_OPERATOR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
 import { setWelcomeModalVisible } from "@/lib/operator/operator-onboarding-coordination";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type WelcomeModalProps = {
@@ -135,7 +136,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
     onDismiss();
 
     if (buyerShell) {
-      router.push(`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+      router.push(resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID));
 
       return;
     }

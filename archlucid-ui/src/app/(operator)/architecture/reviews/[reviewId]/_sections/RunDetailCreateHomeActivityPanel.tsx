@@ -5,7 +5,8 @@ import Link from "next/link";
 import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { Button } from "@/components/ui/button";
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD,
@@ -72,11 +73,10 @@ function RunDetailCreateHomeActivityOrientation(props: {
   readonly pagePrimaryOwnedElsewhere?: boolean;
 }): ReactElement {
   const overviewVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
-  const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview", { includeCreateIntent: true });
-  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings", { includeCreateIntent: true });
-  const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation", {
-    includeCreateIntent: true,
-  });
+  const architectureId = resolveGlobalSearchDeskArchitectureId({ runId: props.runId.trim() });
+  const overviewHref = buildReviewDetailTabHref(props.runId, "overview", { architectureId });
+  const findingsHref = buildReviewDetailTabHref(props.runId, "findings", { architectureId });
+  const clarificationsHref = buildReviewDetailTabHref(props.runId, "decisions-remediation", { architectureId });
 
   return (
     <div

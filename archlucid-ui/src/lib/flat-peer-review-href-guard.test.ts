@@ -16,7 +16,15 @@ const GUARDED_RELATIVE_DIRS = [
   "src/components/operator",
   "src/components/runs",
   "src/components/usability",
+  "src/components/wizard",
+  "src/components/showcase",
   "src/app/(operator)/architecture/reviews",
+] as const;
+
+const GUARDED_ROOT_COMPONENT_FILES = [
+  "src/components/PreCommitGovernanceBlockPanel.tsx",
+  "src/components/RunIdQuickOpen.tsx",
+  "src/components/SampleFirstReviewPackageCard.tsx",
 ] as const;
 
 const GUARDED_COMPONENT_FILES = [
@@ -67,7 +75,7 @@ describe("flat peer review href guard (Operate scopes)", () => {
       }
     }
 
-    for (const rel of GUARDED_COMPONENT_FILES) {
+    for (const rel of [...GUARDED_COMPONENT_FILES, ...GUARDED_ROOT_COMPONENT_FILES]) {
       const file = join(uiRoot, rel);
       const body = readFileSync(file, "utf8");
 

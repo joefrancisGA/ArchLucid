@@ -2,7 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+
+import { resolveDeskContinuityProvenanceHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
@@ -102,6 +105,11 @@ function allStagesReady(summary: RunSummary | null | undefined): boolean {
  * Step 7: poll review summary and visualize review-package stages.
  */
 export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardStepTrackProps) {
+  const pathname = usePathname() ?? "";
+  const provenanceHref = useMemo(
+    () => resolveDeskContinuityProvenanceHref(runId, { pathname }),
+    [pathname, runId],
+  );
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const ctxStatus = resolveWizardTrackStageStatus(pollSummary?.hasContextSnapshot);
   const graphStatus = resolveWizardTrackStageStatus(pollSummary?.hasGraphSnapshot);
@@ -234,7 +242,7 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
           <nav className={cn("mt-3 flex flex-wrap gap-x-3 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}
-              href={reviewDetailHrefAfterGeneration(runId)}
+              href={reviewDetailHrefAfterGeneration(runId, { pathname })}
               onClick={() => {
                 recordReviewGenerationHandoff(runId, "wizard-track");
               }}
@@ -247,7 +255,7 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
             >
               Compare two reviews
             </Link>
-            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${runId}/provenance`}>
+            <Link className={OPERATOR_LINK.nav} href={provenanceHref}>
               View provenance
             </Link>
           </nav>
