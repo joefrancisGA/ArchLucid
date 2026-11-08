@@ -147,7 +147,7 @@ export function recommendedHelpSearchPanelTopicIds(
     }
 
     if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
-      return [...row.topicIds];
+      return filterWorkingHomeHelpTopicIds(row.topicIds, workingMode);
     }
   }
 
