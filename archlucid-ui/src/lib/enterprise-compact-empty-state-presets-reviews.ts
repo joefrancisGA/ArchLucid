@@ -9,6 +9,7 @@ import {
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
+import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   ALERT_RULES_LIST_EMPTY_BODY,
@@ -91,7 +92,11 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "Start an architecture review to gather evidence, evaluate findings, and record decisions. Or explore the sample review.",
   actions: [
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
-    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`, variant: "outline" },
+    {
+      label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
+      href: resolveScopedInsightOpenReviewHrefWithDeskContinuity(SHOWCASE_STATIC_DEMO_RUN_ID),
+      variant: "outline",
+    },
   ],
 };
 

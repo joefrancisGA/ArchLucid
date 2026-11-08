@@ -33,7 +33,8 @@ import { SponsorRoiProofStatusStrip } from "./SponsorRoiProofStatusStrip";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
-import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor-roi-identified-vs-realized";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
+import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor/sponsor-roi-identified-vs-realized";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   manifestSummarySealedVersionForCopyGuard,
@@ -268,6 +269,20 @@ export function SponsorRoiSummarySection({
     displayData.systemCount === 0 &&
     displayData.latestRunCount === 0 &&
     displayData.totalEstimatedUsdSavings === 0;
+  const dispositionReviewHref = ((): string | null => {
+    if (scopedReviewTrimmed.length > 0) {
+      return resolveLibOpenReviewHref(scopedReviewTrimmed, { tab: "decisions-remediation" });
+    }
+
+    const firstRunId = displayData.systems[0]?.runId?.trim() ?? "";
+
+    if (firstRunId.length === 0) {
+      return null;
+    }
+
+    return resolveLibOpenReviewHref(firstRunId, { tab: "decisions-remediation" });
+  })();
+
   const resolvedPortfolioSavings = resolveRunSavingsUsd({
     serverSummary: buildSponsorServerSavingsSummary(
       displayData.totalEstimatedUsdSavings,
@@ -371,6 +386,7 @@ export function SponsorRoiSummarySection({
         <SponsorRoiIdentifiedVsRealizedPanel
           summary={displayData}
           buckets={resolveSponsorRoiIdentifiedVsRealized(displayData)}
+          dispositionReviewHref={dispositionReviewHref}
         />
         <SponsorRoiSystemsIncludedSection summary={displayData} />
         <div className="grid gap-3 sm:grid-cols-2">
