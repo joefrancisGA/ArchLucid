@@ -74,6 +74,7 @@ import { matchesGovernanceFindingsArchitectureScope } from "@/lib/governance/gov
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { parseNestedReviewDeskFromPathname } from "@/lib/architecture/review-url-state-pathname";
 import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
@@ -482,6 +483,17 @@ export function resolveGovernanceFindingsSponsorHandoffHref(
 
     if (locator.architectureId !== null) {
       architectureId = locator.architectureId;
+    }
+  }
+
+  if (architectureId.length === 0) {
+    const continuityArchitectureId = resolveGlobalSearchDeskArchitectureId({
+      runId,
+      pathname: path,
+    });
+
+    if (continuityArchitectureId !== null) {
+      architectureId = continuityArchitectureId;
     }
   }
 

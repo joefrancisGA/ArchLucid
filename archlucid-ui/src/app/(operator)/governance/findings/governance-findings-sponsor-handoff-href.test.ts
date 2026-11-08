@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { resolveGovernanceFindingsSponsorHandoffHref } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 
-vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: (): string | null => null,
+vi.mock("@/lib/global-search-desk-architecture-id", () => ({
+  resolveGlobalSearchDeskArchitectureId: vi.fn(() => null),
 }));
 
 describe("resolveGovernanceFindingsSponsorHandoffHref", () => {
@@ -36,6 +36,20 @@ describe("resolveGovernanceFindingsSponsorHandoffHref", () => {
 
     expect(href).toBe(
       `/architecture/architectures/${encodeURIComponent("arch-explicit")}/reviews/${encodeURIComponent("run-x")}?reviewTab=review-package`,
+    );
+  });
+
+  it("uses desk continuity resolver when scoped architecture id is absent", async () => {
+    const { resolveGlobalSearchDeskArchitectureId } = await import("@/lib/global-search-desk-architecture-id");
+
+    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValueOnce("arch-continuity");
+
+    const href = resolveGovernanceFindingsSponsorHandoffHref("run-1", {
+      pathname: "/governance/findings",
+    });
+
+    expect(href).toBe(
+      "/architecture/architectures/arch-continuity/reviews/run-1?reviewTab=review-package",
     );
   });
 });

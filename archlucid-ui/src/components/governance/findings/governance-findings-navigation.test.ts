@@ -148,6 +148,27 @@ describe("governance queue review landing URL", () => {
       governanceFindingQueueFindingsWorkspaceHref(row.runId, row.findingId),
     );
   });
+
+  it("uses nested desk when queue inspect options include architecture id", () => {
+    const row = queueRow({
+      classification: "DecisionGradeFinding",
+      latestDisposition: null,
+      findingId: "finding-9",
+    });
+
+    expect(
+      governanceFindingQueuePrimaryInspectHref(row, { architectureId: "arch-desk" }),
+    ).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
+    expect(
+      governanceFindingQueueFindingsWorkspaceHref("run-1", "finding-9", {
+        architectureId: "arch-desk",
+      }),
+    ).toBe(
+      "/architecture/architectures/arch-desk/reviews/run-1?reviewTab=findings&findingId=finding-9#run-detail-first-review-spine-findings",
+    );
+  });
 });
 
 describe("governanceFindingManifestRecordHref", () => {
