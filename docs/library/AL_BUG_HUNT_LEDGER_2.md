@@ -11466,15 +11466,23 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 60 · **Bugs found:** 32 · **Consecutive dry hunts:** 12
+**Hunts:** 61 · **Bugs found:** 32 · **Consecutive dry hunts:** 13
+
+2026-11-08 thorough hunt (dry #65): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed the five monitor rows reseeded at dry **#64** — **invalid** `TenantId == Guid.Empty` is not treated as an unscoped route (`ProcessAsync` returns validation failed "Tenant id is required." before secret resolution; unscoped routes pass `null`, and `null == Guid.Empty` is false), **invalid** HMAC over a BOM-prefixed body does not use a different byte string (`ReadUtf8Async` keeps U+FEFF and `Encoding.UTF8.GetBytes` writes those bytes back), **invalid** `NormalizeStatusToken` does not fold distinct vendor labels (`NormalizeStatusText` trims and canonicalizes whole numbers only; "Resolved" and "Closed" stay distinct), **valid-no-repro** ServiceNow `short_description` without `state` or `incident_state` is rejected (`TryRead` requires a non-empty status), **valid-no-repro** replay-guard eviction removes the claim only after the cache entry is gone, and a claim that is still in `_claimedKeys` stays rejected until that callback (fail-closed). No new row met the hunt-ready bar. Private beta: n/a.
+
+- [x] (invalid) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` treated as missing tenant for unscoped routes — **cheap-disproof 2026-11-08 thorough hunt #65:** empty guid is validation-failed, not an unscoped lookup.
+- [x] (invalid) `WebhookSecrets.IsValidHmacSha256Signature` — signature compares against a trimmed string while the vendor signed raw BOM bytes — **cheap-disproof 2026-11-08 thorough hunt #65:** UTF-8 string round-trip preserves U+FEFF.
+- [x] (invalid) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — `NormalizeStatusToken` collapses distinct vendor status labels — **cheap-disproof 2026-11-08 thorough hunt #65:** only whitespace and whole-number forms are canonicalized.
+- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.TryRead` — `short_description` without `state` or `incident_state` — **cheap-disproof 2026-11-08 thorough hunt #65:** missing status returns false.
+- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — post-eviction callback races with `TryClaimAsync` — **cheap-disproof 2026-11-08 thorough hunt #65:** overlap rejects the second claim until the evicted token is removed.
 
 2026-11-06 thorough hunt (dry #64): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; run-log low-yield streak on **`itsm-inbound-webhooks`** is **2/3** before this record — outcomes **dry** **#62** and **dry** **#63**). Cheap-disproof closed five open `(candidate)` monitor rows from dry **#63** reseed — **invalid** declared `Content-Length` smaller than on-wire body (`InboundWebhookBoundedBodyReader` streams to EOF with a max ceiling and never relies on a short `Content-Length` to cap read size; Kestrel/host request framing validates `Content-Length` vs stream — mis-framed requests fail at transport before this code; dry **#63** / TB-967), **valid-no-repro** whitespace-only delivery headers → synthetic replay id (`ResolveDeliveryId` treats whitespace like absent; distinct synthetic keys per payload/status — optional delivery headers; dry **#63** / TB-968), **invalid** unbounded deep JSON without `MaxDepth` blows stack (`JsonDocument.Parse` uses default `JsonDocumentOptions` max depth (64); excessive depth throws `JsonException` → `TryParseWebhookJson` validation failed; dry **#63** / seed **#211**), **invalid** Jira status only under `statusCategory` without `fields.status.name` (`TryReadJiraStatusName` walks `issue.fields.status.name` only; missing → `TryRead` false; dry **#63** / dry **#59**), **valid-no-repro** ambiguous external key across tenants on unscoped webhook (`TryResolveCorrelationAsync` uses `TryGetByExternalKeyAsync` when no tenant id — repository returns null when multiple rows share key; `SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlIntegrationTests` / dry **#63**). Reseeded five follow-on `(candidate)` rows below (recycled dry **#64** closed themes); scoped **90/90** `FullyQualifiedName~ItsmInboundWebhook` tests (79 Application + 11 Persistence, `RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` treated as missing tenant for unscoped routes — locus: `Guid?` vs empty guid check; input: route binding edge; reachability: routing regression (dry **#64** / dry **#63**).
-- [ ] (candidate) `WebhookSecrets.IsValidHmacSha256Signature` — signature compares against wrong body when controller passes trimmed string but HMAC was computed on raw bytes with BOM — locus: `ReadUtf8Async` string round-trip; input: UTF-8 BOM-prefixed JSON; reachability: vendor proxy (dry **#64** / seed **#211**).
-- [ ] (candidate) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — `NormalizeStatusToken` collapses distinct vendor status labels to same canonical string — locus: `NormalizeStatusText`; input: vendor synonyms; reachability: replay key collision (dry **#64** / TB-968).
-- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.TryRead` — `short_description` present without `state`/`incident_state` — locus: required status path; input: partial incident mirror; reachability: integration template (dry **#64** / seed **#30**).
-- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard` — post-eviction callback removes claim from `_claimedKeys` while concurrent `TryClaimAsync` observes false duplicate — locus: `RegisterPostEvictionCallback`; input: clock/eviction race; reachability: high churn webhook flood (dry **#64** / TB-968).
+- [x] (invalid) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` treated as missing tenant for unscoped routes — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
+- [x] (invalid) `WebhookSecrets.IsValidHmacSha256Signature` — signature compares against wrong body when controller passes trimmed string but HMAC was computed on raw bytes with BOM — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
+- [x] (invalid) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — `NormalizeStatusToken` collapses distinct vendor status labels to same canonical string — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
+- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.TryRead` — `short_description` present without `state`/`incident_state` — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
+- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — post-eviction callback removes claim from `_claimedKeys` while concurrent `TryClaimAsync` observes false duplicate — **cheap-disproof 2026-11-08 thorough hunt #65:** closed at the zone header.
 
 - [x] (invalid) `InboundWebhookBoundedBodyReader.ReadUtf8Async` — declared `Content-Length` smaller than actual body bytes read — **cheap-disproof 2026-11-06 thorough hunt #64:** closed dry **#63** monitor queue; stream read + host framing; TB-967.
 - [x] (valid-no-repro) `ItsmInboundWebhooksController.ResolveDeliveryId` — both delivery headers whitespace-only falls through to synthetic id while vendor retried same logical delivery — **cheap-disproof 2026-11-06 thorough hunt #64:** closed dry **#63** monitor queue; whitespace → null; TB-968.
@@ -11870,10 +11878,10 @@
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-11-05
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-11-08
 - **last-bug:** 2026-10-29 — legacy non-tenant webhook route bypass under tenant-scope policy (#198)
 - **related-pd-tb:** none
 - **code-changed-since:** no
