@@ -138,7 +138,7 @@ def wrap_loop(text: str, sources_expr: str, path_arg: str) -> str:
       {path_arg},
     );
 
-    for (const source of expectedSources"""
+    for (const source of expectedSources)"""
     return text.replace(old, new, 1)
 
 

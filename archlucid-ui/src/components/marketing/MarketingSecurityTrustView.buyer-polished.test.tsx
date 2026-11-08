@@ -51,11 +51,11 @@ describe("MarketingSecurityTrustView buyer-polished shell (SEC)", () => {
     expect(orientationTop.compareDocumentPosition(vocabularyDisclosure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const expectedSources = filterOrientationSourcesForJobContext(
-      filterWhereToGoNextFollowUpLinks(securityTrustEvidenceSources("architecture"),
+      filterWhereToGoNextFollowUpLinks(securityTrustEvidenceSources("architecture")),
       SECURITY_TRUST_CANONICAL_PATH,
     );
 
-    for (const source of expectedSources)) {
+    for (const source of expectedSources) {
       expect(within(sourcesSection).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
   });

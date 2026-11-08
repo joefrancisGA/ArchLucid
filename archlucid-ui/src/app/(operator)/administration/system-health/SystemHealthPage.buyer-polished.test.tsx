@@ -38,7 +38,6 @@ import {
   SYSTEM_HEALTH_SKIP_TARGET_ID,
 } from "@/lib/system-health-page-copy";
 import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
-import { SYSTEM_HEALTH_CANONICAL_PATH } from "@/lib/system-health-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
@@ -78,7 +77,7 @@ describe("System health buyer-polished shell (ADY)", () => {
 
     const expectedSources = filterOrientationSourcesForJobContext(
       filterWhereToGoNextFollowUpLinks(SYSTEM_HEALTH_SOURCES),
-      SYSTEM_HEALTH_CANONICAL_PATH,
+      "/",
     );
 
     for (const source of expectedSources) {

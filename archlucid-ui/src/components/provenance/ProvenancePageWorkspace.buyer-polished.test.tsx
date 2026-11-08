@@ -208,11 +208,11 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
     expect(orientationBottom).toContainElement(sourcesSection);
 
     const expectedSources = filterOrientationSourcesForJobContext(
-      filterWhereToGoNextFollowUpLinks(buildProvenanceSources("demo-run"),
+      filterWhereToGoNextFollowUpLinks(buildProvenanceSources("demo-run")),
       "/architecture/reviews/demo-run/provenance",
     );
 
-    for (const source of expectedSources)) {
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
