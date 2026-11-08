@@ -201,6 +201,23 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                         placementDiagramId,
                         InventoryDiagramRelationshipLabelTexts.PrivateAccess,
                         sourceEdge);
+
+                    GraphEdge placementSourceEdge = new()
+                    {
+                        EdgeType = AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                        Label = "in",
+                        InferenceSource = GraphEdgeInferenceSources.InventoryPeSubnet,
+                        ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                    };
+
+                    TryAddVisibleEdge(
+                        ast,
+                        visibleEdgeKeys,
+                        visibleDiagramIds,
+                        targetDiagramId,
+                        placementDiagramId,
+                        "in",
+                        placementSourceEdge);
                 }
             }
         }
@@ -457,7 +474,9 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
     {
         return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase);
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ResolveLiftedLabel(
@@ -490,6 +509,23 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
     {
         if (!visibleDiagramIds.Contains(fromDiagramId) || !visibleDiagramIds.Contains(toDiagramId))
         {
+            return;
+        }
+
+        DiagramEdge? existing = ast.Edges.FirstOrDefault(edge =>
+            !edge.IsLayoutOnly
+            && string.Equals(edge.FromNodeId, fromDiagramId, StringComparison.Ordinal)
+            && string.Equals(edge.ToNodeId, toDiagramId, StringComparison.Ordinal));
+
+        if (existing is not null)
+        {
+            if (string.Equals(label, "in", StringComparison.OrdinalIgnoreCase))
+            {
+                existing.Label = "in";
+                existing.InferenceSource ??= sourceEdge.InferenceSource;
+                existing.ProvenanceKind ??= sourceEdge.ProvenanceKind;
+            }
+
             return;
         }
 

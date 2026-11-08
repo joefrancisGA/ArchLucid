@@ -135,10 +135,10 @@ internal static class AzureInventorySnapshotHiddenHopComposer
                     edgeKeys,
                     targetEdge.ToNodeId,
                     vnetNodeId,
-                    GraphEdgeTypes.ConnectsTo,
-                    GraphEdgeInferenceSources.InventoryPrivateEndpoint,
-                    label: "private endpoint",
-                    provenanceKind: ProvenanceKind.DerivedFact.ToString());
+                    AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                    GraphEdgeInferenceSources.InventoryPeSubnet,
+                    label: "in",
+                    provenanceKind: targetEdge.ProvenanceKind ?? ProvenanceKind.ObservedFact.ToString());
             }
         }
     }

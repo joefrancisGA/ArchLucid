@@ -190,7 +190,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                     edge.Label,
                     edge.EdgeType,
                     edge.InferenceSource,
-                    edge.Properties),
+                    edge.Properties,
+                    diagramMode: mode),
                 ProvenanceKind = edge.ProvenanceKind,
                 InferenceSource = edge.InferenceSource,
                 DeclaredConnectionId = edge.DeclaredConnectionId,
@@ -308,7 +309,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramSparseComponentPacker.Pack(ast);
         InventoryDiagramPrivateEndpointConnectionLabelApplier.Apply(ast, graph, nodeIdMap);
-        DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
+        DiagramPrivateEndpointHiddenTargetVnetPlacementEnsurer.Apply(ast, graph, nodeIdMap, mode);
+        DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast, mode);
         InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, nodeIdMap);
 
         if (mode == DiagramMode.Executive)

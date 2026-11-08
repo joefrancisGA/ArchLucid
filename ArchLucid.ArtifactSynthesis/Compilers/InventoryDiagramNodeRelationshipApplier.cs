@@ -89,9 +89,43 @@ internal static class InventoryDiagramNodeRelationshipApplier
             return;
         }
 
+        RetargetPolicyEdgesBeforeNodeRemoval(ast, removedDiagramNodeIds);
+
         ast.Nodes.RemoveAll(node => removedDiagramNodeIds.Contains(node.NodeId));
         ast.Edges.RemoveAll(edge =>
             removedDiagramNodeIds.Contains(edge.FromNodeId) || removedDiagramNodeIds.Contains(edge.ToNodeId));
+    }
+
+    private static void RetargetPolicyEdgesBeforeNodeRemoval(DiagramAst ast, ISet<string> removedDiagramNodeIds)
+    {
+        foreach (DiagramEdge edge in ast.Edges.Where(candidate => !candidate.IsLayoutOnly).ToList())
+        {
+            bool referencesRemovedNode = removedDiagramNodeIds.Contains(edge.FromNodeId)
+                || removedDiagramNodeIds.Contains(edge.ToNodeId);
+
+            if (!referencesRemovedNode)
+            {
+                continue;
+            }
+
+            if (!string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventorySubnetNsg,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (removedDiagramNodeIds.Contains(edge.ToNodeId))
+            {
+                edge.ToNodeId = edge.FromNodeId;
+            }
+
+            if (removedDiagramNodeIds.Contains(edge.FromNodeId))
+            {
+                edge.FromNodeId = edge.ToNodeId;
+            }
+        }
     }
 
     private static bool TryPromoteConnectionNode(
