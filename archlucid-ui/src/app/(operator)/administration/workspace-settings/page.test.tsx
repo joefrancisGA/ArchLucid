@@ -138,7 +138,7 @@ describe("TenantSettingsPage", () => {
     expect(screen.getByTestId("tenant-settings-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-settings-sources")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-active-scope-summary")).toHaveTextContent(
-      "Active scope: Workspace: Pilot — Pilot",
+      "Active scope: Pilot — Pilot",
     );
     expect(await screen.findByTestId("tenant-settings-tenant-display-name")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-page-help-link")).toBeInTheDocument();

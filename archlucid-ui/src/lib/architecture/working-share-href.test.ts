@@ -4,7 +4,8 @@ import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-
 
 import { workingShareHref, WORKING_SHARE_UNLINKED_JOB_TOAST } from "@/lib/architecture/working-share-href";
 
-describe("workingShareHref (SY-20 / AO-09 / AO-38 / IP-004)", () => {
+/** SG-034 — working share must prefer nested architecture routes when the architecture id is known. */
+describe("workingShareHref (SY-20 / AO-09 / AO-38 / IP-004 / SG-034)", () => {
   it("IP-004: prefers nested findings path when architecture id is known", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",

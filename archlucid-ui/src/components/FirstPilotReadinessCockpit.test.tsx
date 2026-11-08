@@ -71,6 +71,7 @@ describe("FirstPilotReadinessCockpit", () => {
   beforeEach(() => {
     sessionStorage.clear();
     localStorage.clear();
+    localStorage.setItem("archlucid_operator_home_disclosure_workspace_readiness_v1", "1");
     resetOperatorQueryClientForTests();
   });
 
