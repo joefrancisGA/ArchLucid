@@ -20,7 +20,11 @@ describe("SelfDescribingMetricCount", () => {
       "href",
       "/governance/findings?filter=open",
     );
-    expect(screen.getByText("open findings")).toBeInTheDocument();
+    expect(screen.getByText("open findings · this workspace · open")).toBeInTheDocument();
+    expect(screen.getByTestId("home-open-findings-metric")).toHaveAttribute(
+      "aria-label",
+      "4 open findings · this workspace · open",
+    );
   });
 
   it("uses middle-dot separators and suppresses redundant scope labels", () => {
