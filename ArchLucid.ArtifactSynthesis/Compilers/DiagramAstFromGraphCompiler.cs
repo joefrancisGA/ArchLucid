@@ -321,6 +321,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (mode == DiagramMode.Executive)
         {
             DiagramExecutiveVnetPeeringOverlayLabelApplier.Apply(ast);
+            ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
         }
 
         if (!isDataArchitectureMode)

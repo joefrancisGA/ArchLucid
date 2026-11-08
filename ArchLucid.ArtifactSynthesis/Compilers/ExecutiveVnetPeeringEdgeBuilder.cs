@@ -103,6 +103,14 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
+            if (HasBlankCapturedPeeringLabel(edge))
+            {
+                edge.Label = "peering";
+                edge.InferenceSource ??= GraphEdgeInferenceSources.InventoryVnetPeering;
+                AssignPeeringProvenance(edge, connectedPeeringObserved: true);
+                continue;
+            }
+
             if (!ShouldAnnotateAsObservedPeering(edge))
             {
                 continue;
@@ -110,6 +118,23 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
             AssignPeeringProvenance(edge, connectedPeeringObserved: IsConnectedPeeringLabel(edge.Label));
         }
+    }
+
+    private static bool HasBlankCapturedPeeringLabel(DiagramEdge edge)
+    {
+        return string.IsNullOrWhiteSpace(edge.Label)
+            || string.Equals(
+                edge.Label,
+                DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel,
+                StringComparison.Ordinal)
+            || string.Equals(
+                edge.Label,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.Ordinal)
+            || string.Equals(
+                edge.Label,
+                InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
+                StringComparison.Ordinal);
     }
 
     private static bool ShouldAnnotateAsObservedPeering(DiagramEdge edge)
@@ -159,17 +184,16 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
     private static void AssignPeeringProvenance(DiagramEdge edge, bool connectedPeeringObserved)
     {
-        if (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
-        {
-            edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringStoredConnectedStateNotStored;
-            connectedPeeringObserved = false;
-        }
-
         edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
 
         if (connectedPeeringObserved)
         {
-            if (!IsConnectedPeeringLabel(edge.Label))
+            if (HasBlankCapturedPeeringLabel(edge)
+                || string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+            {
+                edge.Label = "peering";
+            }
+            else if (!IsConnectedPeeringLabel(edge.Label))
             {
                 edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
             }

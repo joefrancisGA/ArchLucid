@@ -103,7 +103,7 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
                     ast,
                     localDiagramNodeId,
                     remoteDiagramNodeId,
-                    InventoryDiagramRelationshipLabelTexts.Peered,
+                    "peering",
                     GraphEdgeInferenceSources.InventoryVnetPeering,
                     ProvenanceKind.ObservedFact.ToString());
             }

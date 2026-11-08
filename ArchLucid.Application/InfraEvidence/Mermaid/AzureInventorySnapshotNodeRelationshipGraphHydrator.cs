@@ -42,7 +42,9 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                 continue;
             }
 
-            if (!propertiesByRowId.ContainsKey(resource.ResourceRowId))
+            bool hasStoredProperties = propertiesByRowId.ContainsKey(resource.ResourceRowId);
+
+            if (!hasStoredProperties && category != InventoryDiagramNodeRelationshipCategory.Policy)
             {
                 continue;
             }
@@ -54,7 +56,9 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                         .ToString();
             }
 
-            IReadOnlyDictionary<string, string> propertyDictionary = indexes.GetUsableProperties(resource.ResourceRowId);
+            IReadOnlyDictionary<string, string> propertyDictionary = hasStoredProperties
+                ? indexes.GetUsableProperties(resource.ResourceRowId)
+                : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             switch (category)
             {

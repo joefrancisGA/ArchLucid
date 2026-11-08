@@ -73,7 +73,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
                         graph,
                         armIdToDiagramNodeId,
                         removedDiagramNodeIds,
-                        emitPolicyEdges);
+                        emitPolicyEdges,
+                        mode);
                     break;
             }
         }
@@ -176,7 +177,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
         GraphSnapshot graph,
         IReadOnlyDictionary<string, string> armIdToDiagramNodeId,
         ISet<string> removedDiagramNodeIds,
-        bool emitPolicyEdges)
+        bool emitPolicyEdges,
+        DiagramMode mode)
     {
         string? armResourceType = DiagramAstGraphNodeClassifier.ReadArmType(graphNode);
 
@@ -202,7 +204,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 graph,
                 armIdToDiagramNodeId,
                 removedDiagramNodeIds,
-                emitPolicyEdges);
+                emitPolicyEdges,
+                mode);
         }
 
         return false;
@@ -326,7 +329,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
         GraphSnapshot graph,
         IReadOnlyDictionary<string, string> armIdToDiagramNodeId,
         ISet<string> removedDiagramNodeIds,
-        bool emitPolicyEdges)
+        bool emitPolicyEdges,
+        DiagramMode mode)
     {
         Dictionary<string, string> properties = graphNode.Properties;
         IReadOnlyList<AzureInventoryNsgAssociation> associations = AzureInventoryNsgAssociationParser.Parse(properties);
@@ -351,7 +355,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
             IReadOnlyList<string> endpointArmIds = ResolveNsgAssociationEndpointArmIds(
                 association,
                 nicOwnerArmIdByNicArmId,
-                subnetOwnerArmIds);
+                subnetOwnerArmIds,
+                armIdToDiagramNodeId);
 
             foreach (string endpointArmId in endpointArmIds)
             {
@@ -400,7 +405,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
             }
         }
 
-        removedDiagramNodeIds.Add(nsgNode.NodeId);
+        if (mode != DiagramMode.Network)
+        {
+            removedDiagramNodeIds.Add(nsgNode.NodeId);
+        }
+
         return true;
     }
 
@@ -585,26 +594,40 @@ internal static class InventoryDiagramNodeRelationshipApplier
     private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(
         AzureInventoryNsgAssociation association,
         IReadOnlyDictionary<string, string> nicOwnerArmIdByNicArmId,
-        IReadOnlyDictionary<string, HashSet<string>> subnetOwnerArmIds)
+        IReadOnlyDictionary<string, HashSet<string>> subnetOwnerArmIds,
+        IReadOnlyDictionary<string, string> armIdToDiagramNodeId)
     {
         if (string.Equals(association.TargetKind, AzureInventoryNsgAssociationParser.SubnetKind, StringComparison.OrdinalIgnoreCase))
         {
             string subnetArmId = ArmResourceIdNormalizer.Normalize(association.TargetArmId);
-            if (subnetOwnerArmIds.TryGetValue(subnetArmId, out HashSet<string>? ownerArmIds))
+            if (subnetOwnerArmIds.TryGetValue(subnetArmId, out HashSet<string>? ownerArmIds)
+                && ownerArmIds.Count > 0)
             {
                 return ownerArmIds.ToList();
+            }
+
+            if (subnetOwnerArmIds.ContainsKey(subnetArmId)
+                || armIdToDiagramNodeId.ContainsKey(subnetArmId))
+            {
+                return [subnetArmId];
             }
 
             string? vnetArmId = DiagramAstVnetTopologyResolver.TryResolveVnetIdFromSubnetArmId(subnetArmId);
 
-            if (!string.IsNullOrWhiteSpace(vnetArmId)
-                && subnetOwnerArmIds.TryGetValue(vnetArmId, out ownerArmIds))
+            if (!string.IsNullOrWhiteSpace(vnetArmId))
             {
-                return ownerArmIds.ToList();
+                if (subnetOwnerArmIds.TryGetValue(vnetArmId, out ownerArmIds)
+                    && ownerArmIds.Count > 0)
+                {
+                    return ownerArmIds.ToList();
+                }
+
+                if (armIdToDiagramNodeId.ContainsKey(vnetArmId))
+                {
+                    return [vnetArmId];
+                }
             }
 
-            // A visible subnet is still a valid endpoint when no workload
-            // placement edge was collected for it.
             return [subnetArmId];
         }
 

@@ -62,7 +62,21 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(fallbackKey, out DiagramEdge? fallbackEdge))
             {
+                if (ShouldPreserveDirectPlacementEdge(fallbackEdge))
+                {
+                    continue;
+                }
+
                 AssignResolvedRelationship(fallbackEdge, formattedLabel, resolved.InferenceSource, resolved.EvidenceCurrency);
+                continue;
+            }
+
+            if (ast.Edges.Any(edge =>
+                    !edge.IsLayoutOnly
+                    && string.Equals(edge.FromNodeId, resolved.FromDiagramNodeId, StringComparison.Ordinal)
+                    && string.Equals(edge.ToNodeId, resolved.ToDiagramNodeId, StringComparison.Ordinal)
+                    && ShouldPreserveDirectPlacementEdge(edge)))
+            {
                 continue;
             }
 
@@ -78,6 +92,13 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             ast.Edges.Add(newEdge);
             existingEdges[edgeKey] = newEdge;
         }
+    }
+
+    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge)
+    {
+        return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatResolvedLabel(InventoryDiagramIndirectRelationshipResolvedEdge resolved)

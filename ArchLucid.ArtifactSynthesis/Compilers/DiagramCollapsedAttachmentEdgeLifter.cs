@@ -85,8 +85,21 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
                 visibleDiagramIds,
                 out string? toDiagramId);
 
-            if (fromVisible && toVisible)
+            if (fromVisible && toVisible && !IsComposedPlacementEdge(graphEdge))
             {
+                continue;
+            }
+
+            if (fromVisible && toVisible && IsComposedPlacementEdge(graphEdge))
+            {
+                TryAddVisibleEdge(
+                    ast,
+                    visibleEdgeKeys,
+                    visibleDiagramIds,
+                    fromDiagramId!,
+                    toDiagramId!,
+                    ResolveLiftedLabel(graphEdge, graphNodesById, graphEdge.ToNodeId),
+                    graphEdge);
                 continue;
             }
 
@@ -438,6 +451,13 @@ internal static class DiagramCollapsedAttachmentEdgeLifter
         }
 
         return null;
+    }
+
+    private static bool IsComposedPlacementEdge(GraphEdge edge)
+    {
+        return string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ResolveLiftedLabel(

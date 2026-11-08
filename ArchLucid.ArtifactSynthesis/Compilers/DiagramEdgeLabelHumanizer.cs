@@ -94,6 +94,12 @@ internal static class DiagramEdgeLabelHumanizer
                 || string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase);
         }
 
+        if (IsInventorySubnetPlacementInference(inferenceSource)
+            && string.Equals(label, "in", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryNetworkConnection, StringComparison.OrdinalIgnoreCase))
         {
             return label.Length > 0;
@@ -173,6 +179,21 @@ internal static class DiagramEdgeLabelHumanizer
         string? inferenceSource = null,
         IReadOnlyDictionary<string, string>? properties = null)
     {
+        if (string.Equals(storedLabel?.Trim(), "in", StringComparison.OrdinalIgnoreCase))
+        {
+            return "in";
+        }
+
+        if (IsInventorySubnetPlacementInference(inferenceSource))
+        {
+            return "in";
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
+        {
+            return "peering";
+        }
+
         if (properties != null
             && properties.TryGetValue(
                 InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey,
@@ -1056,6 +1077,20 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         return false;
+    }
+
+    private static bool IsInventorySubnetPlacementInference(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        return string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(inferenceSource, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(inferenceSource, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(inferenceSource, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase);
     }
 
     private static Dictionary<string, string> BuildInventoryAliasToGraphEdgeType()
