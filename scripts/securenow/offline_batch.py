@@ -130,6 +130,9 @@ def execute(
         files_by_sub[sub] = package
 
     out_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    # Avoid stale aggregate comparison/results from a prior invocation.
+    for report_file in ("batch-report.json", "reconciliation.json"):
+        (out_dir / report_file).unlink(missing_ok=True)
     native_dir = out_dir / "native"
     native_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     (out_dir / "evidence-coverage.json").write_text(
@@ -198,6 +201,16 @@ def execute(
             "inventoryQuestionParity": parity,
             "questionQueueStatus": package["questionQueueStatus"],
             "evidenceFileCoverage": package["evidenceFileCoverage"],
+            "nativeStages": {
+                stage: (
+                    "EXECUTED_PARTIAL" if native_state == "NATIVE_PARTIAL_REPLAY"
+                    else "NOT_VERIFIED"
+                )
+                for stage in (
+                    "zipInventoryReader", "securityEdgeMaterializer",
+                    "diagramQuestionCompiler",
+                )
+            },
             "engineStages": {name: "NOT_EXECUTED" for name in STAGES_NOT_EXECUTED},
             "provenanceAuthenticated": False,
             "questionsAutomaticallyAnswered": 0,
