@@ -84,6 +84,39 @@ public static class IntegrationTestRunLifecycleSupport
             JsonContent.Create(new { format }),
             cancellationToken);
 
+    /// <summary>Single source for end-to-end compare summary POST (persist or ad-hoc summary).</summary>
+    public static string EndToEndCompareSummaryRelativeUrl(string leftRunId, string rightRunId) =>
+        $"/v1/architecture/review/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(leftRunId)}&rightRunId={Uri.EscapeDataString(rightRunId)}";
+
+    /// <summary>POST end-to-end compare summary with an optional JSON body (e.g. <c>persist</c> flag).</summary>
+    public static Task<HttpResponseMessage> PostEndToEndCompareSummaryForTestAsync(
+        this HttpClient client,
+        string leftRunId,
+        string rightRunId,
+        HttpContent? body = null,
+        CancellationToken cancellationToken = default) =>
+        client.PostAsync(EndToEndCompareSummaryRelativeUrl(leftRunId, rightRunId), body, cancellationToken);
+
+    /// <summary>POST persist end-to-end comparison; returns <c>X-ArchLucid-ComparisonRecordId</c>.</summary>
+    public static async Task<string> PostPersistEndToEndComparisonForTestAsync(
+        this HttpClient client,
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken = default)
+    {
+        using HttpResponseMessage persist = await client
+            .PostEndToEndCompareSummaryForTestAsync(
+                leftRunId,
+                rightRunId,
+                JsonContent.Create(new { persist = true }),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        await persist.EnsureSuccessForTestAsync().ConfigureAwait(false);
+
+        return persist.ReadComparisonRecordIdHeaderForTest();
+    }
+
     /// <summary>Single source for the review finalize route used by test harness helpers.</summary>
     public static string FinalizeReviewRelativeUrl(string runId) =>
         $"/v1/architecture/review/{runId}/finalize";

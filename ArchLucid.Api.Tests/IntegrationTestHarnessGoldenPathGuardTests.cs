@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>).
+///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, nine facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -41,6 +41,13 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     {
         IntegrationTestHarnessGoldenPathGuardSupport.ScanHandRolledIntakePostAsync().Should().BeEmpty(
             "use PostArchitectureRequestForTestAsync or CreateFinalizedRunAsync instead of PostAsync(IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl, …).");
+    }
+
+    [Fact]
+    public void Api_test_sources_do_not_embed_raw_end_to_end_compare_summary_urls()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanRawEndToEndCompareSummaryUrls().Should().BeEmpty(
+            "use EndToEndCompareSummaryRelativeUrl, PostEndToEndCompareSummaryForTestAsync, or PostPersistEndToEndComparisonForTestAsync.");
     }
 
     [Fact]

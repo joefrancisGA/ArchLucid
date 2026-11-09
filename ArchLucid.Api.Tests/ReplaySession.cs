@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -11,8 +10,6 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public sealed class ReplaySession
 {
-    private static readonly JsonSerializerOptions ReplayBodyJson = new(JsonSerializerDefaults.Web);
-
     private ReplaySession(ArchLucidApiFactory factory, HttpClient client, JsonSerializerOptions jsonOptions)
     {
         Factory = factory;
@@ -62,7 +59,7 @@ public sealed class ReplaySession
     public Task<FinalizedRun> CreateFinalizedAsync(string requestId = "REQ-FIXTURE-001") =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
-    public async Task<(string RunId, string ReplayRunId)> CommitAndReplayAsync(string requestId = "REQ-FIXTURE-001")
+    public async Task<CommittedReplayPair> CommitAndReplayAsync(string requestId = "REQ-FIXTURE-001")
     {
         FinalizedRun finalized = await CreateFinalizedAsync(requestId).ConfigureAwait(false);
         string runId = finalized.RunId;
@@ -76,27 +73,9 @@ public sealed class ReplaySession
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions).ConfigureAwait(false);
 
-        return (runId, replayPayload!.ReplayRunId);
+        return new CommittedReplayPair(runId, replayPayload!.ReplayRunId);
     }
 
-    public async Task<string> PersistEndToEndComparisonAsync(string leftRunId, string rightRunId)
-    {
-        HttpResponseMessage persist = await Client.PostAsync(
-            $"/v1/architecture/review/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(leftRunId)}&rightRunId={Uri.EscapeDataString(rightRunId)}",
-            new StringContent("""{"persist":true}""", Encoding.UTF8, "application/json")).ConfigureAwait(false);
-        await persist.EnsureSuccessForTestAsync().ConfigureAwait(false);
-
-        if (!persist.Headers.TryGetValues("X-ArchLucid-ComparisonRecordId", out IEnumerable<string>? values))
-            throw new InvalidOperationException("X-ArchLucid-ComparisonRecordId header missing.");
-
-        string? comparisonRecordId = values.FirstOrDefault();
-
-        if (string.IsNullOrEmpty(comparisonRecordId))
-            throw new InvalidOperationException("X-ArchLucid-ComparisonRecordId header missing.");
-
-        return comparisonRecordId;
-    }
-
-    private static StringContent JsonContent(object value) =>
-        new(JsonSerializer.Serialize(value, ReplayBodyJson), Encoding.UTF8, "application/json");
+    public Task<string> PersistEndToEndComparisonAsync(string leftRunId, string rightRunId) =>
+        Client.PostPersistEndToEndComparisonForTestAsync(leftRunId, rightRunId);
 }
