@@ -660,6 +660,7 @@ public sealed class FinalizeReadinessServiceTests
             .ReturnsAsync([]);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
+
         if (agentExecutionTraceRepository is null)
         {
             traces
@@ -673,6 +674,7 @@ public sealed class FinalizeReadinessServiceTests
             .ReturnsAsync([]);
 
         Mock<IAgentOutputQualityGateOptionsResolver> qualityOptions = new();
+
         if (qualityGateOptionsResolver is not null)
         {
             qualityOptions
