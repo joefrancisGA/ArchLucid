@@ -167,14 +167,14 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
         ReadProblemType(await promote.Content.ReadAsStringAsync()).Should().Be(ProblemTypes.BadRequest);
     }
 
-    private async Task<(string RunId, string ManifestVersion)> CreateCommittedRunAsync(string requestId)
+    private async Task<FinalizedRun> CreateCommittedRunAsync(string requestId)
     {
-        (string runId, string manifestVersion) = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
 
-        runId.Should().NotBeNullOrWhiteSpace();
-        manifestVersion.Should().NotBeNullOrWhiteSpace();
+        finalized.RunId.Should().NotBeNullOrWhiteSpace();
+        finalized.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 
-        return (runId, manifestVersion);
+        return finalized;
     }
 
     private static string ReadProblemType(string body)

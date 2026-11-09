@@ -19,8 +19,8 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         string idempotencyKey = "tb323-create-" + Guid.NewGuid().ToString("N");
         object body = TestRequestFactory.CreateArchitectureRequest("REQ-TB323-CREATE");
 
-        using HttpRequestMessage first = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body));
-        first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+        using HttpRequestMessage first =
+            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
         HttpResponseMessage firstResponse = await Client.SendAsync(first);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -28,8 +28,8 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
             await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        using HttpRequestMessage second = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body));
-        second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+        using HttpRequestMessage second =
+            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
         HttpResponseMessage secondResponse = await Client.SendAsync(second);
         secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);

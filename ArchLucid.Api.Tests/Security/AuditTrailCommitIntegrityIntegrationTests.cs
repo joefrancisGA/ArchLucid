@@ -55,7 +55,9 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
             string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
+            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(requestId),
+                "tb290-audit-");
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
@@ -113,7 +115,9 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
             string requestId = "REQ-AUDIT-ISO-" + Guid.NewGuid().ToString("N")[..12];
-            HttpResponseMessage create = await PostArchitectureRequestAsync(clientA, TestRequestFactory.CreateArchitectureRequest(requestId));
+            HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(requestId),
+                "tb290-audit-");
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             Guid runGuid = Guid.Parse(created!.Run.RunId);
@@ -154,15 +158,6 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
         {
             return false;
         }
-    }
-
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tb290-audit-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)

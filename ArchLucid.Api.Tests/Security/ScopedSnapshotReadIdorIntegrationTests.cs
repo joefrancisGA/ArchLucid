@@ -531,9 +531,9 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-SNAPIDOR-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tb073-snapshot-");
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
 
@@ -598,15 +598,6 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         {
             return false;
         }
-    }
-
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tb073-snapshot-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)

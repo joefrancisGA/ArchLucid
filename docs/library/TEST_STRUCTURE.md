@@ -270,11 +270,11 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**. Subclasses can call **`CreateFinalizedRunAsync`**, **`FinalizeRunAsync`**, and **`PostExecuteWithPinsAsync`** instead of hand-rolling lifecycle URLs.
-- **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (`CreateArchitectureRequestMessage`, `PostExecuteForTestAsync`, `PostFinalizeForTestAsync`, `CreateFinalizedRunForTestAsync`, …).
+- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**. Subclasses can call **`CreateFinalizedRunAsync`** (returns **`FinalizedRun`**), **`FinalizeRunAsync`**, and **`PostExecuteWithPinsAsync`** instead of hand-rolling lifecycle URLs.
+- **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (`CreateArchitectureRequestMessage`, `PostGreenfieldArchitectureRequestForTestAsync`, `PostExecuteForTestAsync`, `PostFinalizeForTestAsync`, `CreateFinalizedRunForTestAsync`, …).
 - **ReplaySession** (Api.Tests) — comparison-replay golden path (create, execute, finalize, replay, persist). Prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**; do not add parallel comparison fixtures.
 
-**Source-scan guards** (`IntegrationTestRawFinalizeUrlGuardTests`, `IntegrationTestRawExecuteUrlGuardTests`, `IntegrationTestRawReviewReplayUrlGuardTests`, `IntegrationTestRawArchitectureRequestUrlGuardTests`, `IntegrationTestPostExecuteUnlessBeforeFinalizeGuardTests`, `IntegrationTestEnsureSuccessForTestGuardTests`, `Suite=Core`) keep lifecycle URLs, intake POSTs, execute-before-finalize pin refresh, and failure assertions on the harness golden path.
+**Source-scan guards** (`IntegrationTestRawFinalizeUrlGuardTests`, `IntegrationTestRawExecuteUrlGuardTests`, `IntegrationTestRawReviewReplayUrlGuardTests`, `IntegrationTestRawArchitectureRequestUrlGuardTests`, `IntegrationTestPostExecuteUnlessBeforeFinalizeGuardTests`, `IntegrationTestPrivateIntakeWrapperGuardTests`, `IntegrationTestEnsureSuccessForTestGuardTests`, `Suite=Core`) keep lifecycle URLs, intake POSTs, execute-before-finalize pin refresh, and failure assertions on the harness golden path.
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

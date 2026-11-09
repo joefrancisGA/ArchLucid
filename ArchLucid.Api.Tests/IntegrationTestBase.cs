@@ -65,7 +65,7 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
         Client.PostFinalizeForTestAsync(Factory, runId, body);
 
     /// <summary>Create → execute → finalize; returns run id and committed manifest version.</summary>
-    protected Task<(string RunId, string ManifestVersion)> CreateFinalizedRunAsync(string requestId) =>
+    protected Task<FinalizedRun> CreateFinalizedRunAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
     /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
