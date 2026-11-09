@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -42,12 +43,23 @@ STAGES_NOT_EXECUTED = (
 def run_native(dll: Path, package: Path, output: Path, timeout: int) -> str:
     """Run an already-built native replay executable; never restore/build."""
     try:
+        environment = {
+            key: value for key, value in os.environ.items()
+            if key in {
+                "PATH", "HOME", "USERPROFILE", "SYSTEMROOT", "WINDIR",
+                "DOTNET_ROOT", "DOTNET_ROOT_X64", "LD_LIBRARY_PATH",
+                "TMPDIR", "TMP", "TEMP",
+            }
+        }
+        environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1"
+        environment["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "1"
         completed = subprocess.run(
             ["dotnet", str(dll), "--zip", str(package), "--out", str(output)],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
+            env=environment,
             timeout=timeout,
         )
     except subprocess.TimeoutExpired:
@@ -91,8 +103,8 @@ def execute(
         raise ValueError("questions-dir must be an existing directory")
     if coverage_dir is not None and not coverage_dir.is_dir():
         raise ValueError("coverage-dir must be an existing directory")
-    if out_dir.resolve() == package_dir.resolve():
-        raise ValueError("output directory cannot equal package directory")
+    if out_dir.resolve().is_relative_to(package_dir.resolve()):
+        raise ValueError("output directory cannot be inside package directory")
     expected = evidence_lab.read_json_file(expected_subscriptions)
     if (not isinstance(expected, list) or not expected
             or any(not isinstance(s, str) or not reconcile_replay.SUB_PATTERN.fullmatch(
