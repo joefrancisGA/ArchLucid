@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Http;
@@ -32,7 +32,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
         if (!await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage replayResponse = await Client.PostAsync(

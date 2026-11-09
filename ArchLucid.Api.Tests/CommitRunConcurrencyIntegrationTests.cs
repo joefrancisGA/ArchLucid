@@ -53,7 +53,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
 
         for (int i = 0; i < parallel; i++)
         {
-            tasks[i] = client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+            tasks[i] = client.PostFinalizeForTestAsync(factory, runId);
         }
 
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);

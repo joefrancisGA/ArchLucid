@@ -62,8 +62,8 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
-        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
 
         CommitRunResponseDto? commitPayload =

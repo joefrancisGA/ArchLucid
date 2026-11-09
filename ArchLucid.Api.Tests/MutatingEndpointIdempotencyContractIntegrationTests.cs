@@ -60,7 +60,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         string idempotencyKey = "tb323-commit-" + Guid.NewGuid().ToString("N");
         object commitBody = new { notifySponsor = false };
 
-        using HttpRequestMessage firstCommit = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/finalize");
+        using HttpRequestMessage firstCommit = IntegrationTestRunLifecycleSupport.CreateFinalizeReviewRequest(runId);
         firstCommit.Content = JsonContent(commitBody);
         firstCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -71,7 +71,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         firstCommitPayload.Should().NotBeNull();
         string firstManifestVersion = firstCommitPayload!.Manifest.Metadata.ManifestVersion;
 
-        using HttpRequestMessage secondCommit = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/finalize");
+        using HttpRequestMessage secondCommit = IntegrationTestRunLifecycleSupport.CreateFinalizeReviewRequest(runId);
         secondCommit.Content = JsonContent(commitBody);
         secondCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -98,7 +98,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);

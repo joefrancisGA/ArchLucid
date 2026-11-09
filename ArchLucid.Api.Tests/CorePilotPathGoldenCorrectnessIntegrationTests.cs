@@ -44,9 +44,9 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         created.Should().NotBeNull();
         string runId = created!.Run.RunId;
 
-        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
 
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage reportResponse = await client.GetAsync($"/v1/pilots/runs/{runId}/first-value-report");

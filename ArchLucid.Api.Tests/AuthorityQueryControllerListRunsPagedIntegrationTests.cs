@@ -33,7 +33,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
@@ -65,7 +65,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
@@ -93,7 +93,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage defaultSlugResponse =

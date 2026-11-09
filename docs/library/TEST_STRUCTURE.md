@@ -271,7 +271,7 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 ## Fixtures and shared setup
 
 - **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**.
-- **ComparisonReplayTestFixture** (Api.Tests) — comparison-replay flow helpers.
+- **ReplaySession** (Api.Tests) — comparison-replay golden path (create, execute, finalize, replay, persist).
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 
