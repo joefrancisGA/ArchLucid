@@ -13,7 +13,7 @@
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~184 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
-**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). SecureNow quote fees are [§9](#9-securenow-quote-fees-not-a-public-list-price). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
+**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). SecureNow list prices are [§9](#9-securenow-list-price-quote-only). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
 
 **Readiness scoring boundary:** Trust, reference, and assurance discounts are **commercial pricing choices** that account for buyer friction. They are not `(A)` headline product-readiness deductions and must not be used to imply that V1 pilots are blocked by SOC 2 CPA attestation, third-party pen-test publication, live commerce, or public references. Those items remain procurement realism / deferred-scope context unless a separate owner decision picks them up.
 
@@ -413,11 +413,13 @@ Use this when first deals produce signal about price tolerance. Do not change li
 
 ---
 
-## 9. SecureNow quote fees (not a public list price)
+## 9. SecureNow list price (quote only)
 
-> **Owner approved:** 2026-10-29. **Recorded here:** 2026-11-09 so SecureNow has one fee source. **Not a public list price.** Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off. Public pages must link here and must not restate these amounts.
+> **Owner approved:** 2026-10-29. **Recorded here:** 2026-11-09 so SecureNow has one fee source. **Public list price:** owner decision 2026-11-09. Orders are by quote only. Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off.
 
 An ArchLucid Team, Professional, or Enterprise payment does not grant SecureNow. Currency is **USD**. Prices exclude sales tax. There is no monthly card price.
+
+These amounts may be shown on the public SecureNow SKU card (`/securenow-sku`) and on the signed-in quote packet (`/administration/securenow-quote-packet`). A page that shows them must match this table and carry the conditions in this section. Every other doc links here and does not restate the amounts.
 
 | ID | What it sells | Price | Meter |
 | --- | --- | --- | --- |
