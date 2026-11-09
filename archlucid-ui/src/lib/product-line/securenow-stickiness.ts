@@ -76,68 +76,71 @@ export function resolveSecureNowPinnedPathStatus(
   return "not-in-latest";
 }
 
-function storageKey(prefix: string, workspaceId: string): string {
+export type SecureNowStickinessScope = {
+  readonly tenantId: string;
+  readonly workspaceId: string;
+};
+
+function storageKey(prefix: string, scope: SecureNowStickinessScope): string {
+  return `${prefix}${scope.tenantId.trim()}:${scope.workspaceId.trim()}`;
+}
+
+function legacyStorageKey(prefix: string, workspaceId: string): string {
   return `${prefix}${workspaceId.trim()}`;
 }
 
-export function readSecureNowLastOpenedSnapshotId(workspaceId: string): string | null {
-  if (typeof window === "undefined" || workspaceId.trim().length === 0) {
+function readScopedValue(prefix: string, scope: SecureNowStickinessScope): string | null {
+  if (typeof window === "undefined" || scope.workspaceId.trim().length === 0) {
     return null;
   }
 
-  const stored = window.localStorage.getItem(storageKey(LAST_OPENED_SNAPSHOT_PREFIX, workspaceId));
-  const trimmed = stored?.trim() ?? "";
+  const scoped = window.localStorage.getItem(storageKey(prefix, scope))?.trim() ?? "";
 
-  return trimmed.length === 0 ? null : trimmed;
+  if (scoped.length > 0) {
+    return scoped;
+  }
+
+  const legacy = window.localStorage.getItem(legacyStorageKey(prefix, scope.workspaceId))?.trim() ?? "";
+
+  return legacy.length === 0 ? null : legacy;
 }
 
-export function writeSecureNowLastOpenedSnapshotId(workspaceId: string, snapshotId: string): void {
+function writeScopedValue(prefix: string, scope: SecureNowStickinessScope, value: string): void {
   if (typeof window === "undefined") {
     return;
   }
 
-  const trimmedWorkspaceId = workspaceId.trim();
-  const trimmedSnapshotId = snapshotId.trim();
-
-  if (trimmedWorkspaceId.length === 0 || trimmedSnapshotId.length === 0) {
+  if (scope.workspaceId.trim().length === 0 || value.trim().length === 0) {
     return;
   }
 
-  window.localStorage.setItem(storageKey(LAST_OPENED_SNAPSHOT_PREFIX, trimmedWorkspaceId), trimmedSnapshotId);
+  window.localStorage.setItem(storageKey(prefix, scope), value.trim());
+  window.localStorage.removeItem(legacyStorageKey(prefix, scope.workspaceId));
 }
 
-export function readSecureNowPinnedPathId(workspaceId: string): string | null {
-  if (typeof window === "undefined" || workspaceId.trim().length === 0) {
-    return null;
-  }
-
-  const stored = window.localStorage.getItem(storageKey(PINNED_PATH_PREFIX, workspaceId));
-  const trimmed = stored?.trim() ?? "";
-
-  return trimmed.length === 0 ? null : trimmed;
+export function readSecureNowLastOpenedSnapshotId(scope: SecureNowStickinessScope): string | null {
+  return readScopedValue(LAST_OPENED_SNAPSHOT_PREFIX, scope);
 }
 
-export function writeSecureNowPinnedPathId(workspaceId: string, pathId: string): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const trimmedWorkspaceId = workspaceId.trim();
-  const trimmedPathId = pathId.trim();
-
-  if (trimmedWorkspaceId.length === 0 || trimmedPathId.length === 0) {
-    return;
-  }
-
-  window.localStorage.setItem(storageKey(PINNED_PATH_PREFIX, trimmedWorkspaceId), trimmedPathId);
+export function writeSecureNowLastOpenedSnapshotId(scope: SecureNowStickinessScope, snapshotId: string): void {
+  writeScopedValue(LAST_OPENED_SNAPSHOT_PREFIX, scope, snapshotId);
 }
 
-export function clearSecureNowPinnedPathId(workspaceId: string): void {
-  if (typeof window === "undefined" || workspaceId.trim().length === 0) {
+export function readSecureNowPinnedPathId(scope: SecureNowStickinessScope): string | null {
+  return readScopedValue(PINNED_PATH_PREFIX, scope);
+}
+
+export function writeSecureNowPinnedPathId(scope: SecureNowStickinessScope, pathId: string): void {
+  writeScopedValue(PINNED_PATH_PREFIX, scope, pathId);
+}
+
+export function clearSecureNowPinnedPathId(scope: SecureNowStickinessScope): void {
+  if (typeof window === "undefined" || scope.workspaceId.trim().length === 0) {
     return;
   }
 
-  window.localStorage.removeItem(storageKey(PINNED_PATH_PREFIX, workspaceId));
+  window.localStorage.removeItem(storageKey(PINNED_PATH_PREFIX, scope));
+  window.localStorage.removeItem(legacyStorageKey(PINNED_PATH_PREFIX, scope.workspaceId));
 }
 
 export function countSecureNowExtendDispositionsInBrowserCache(): number {

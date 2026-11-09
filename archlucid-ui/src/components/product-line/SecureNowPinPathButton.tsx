@@ -13,12 +13,13 @@ type SecureNowPinPathButtonProps = {
   readonly pathId: string;
 };
 
-/** One watched path per workspace. Browser storage only. Not a usage score. */
+/** One watched path per tenant workspace. Browser storage only until server sync ships. Not a usage score. */
 export function SecureNowPinPathButton(props: SecureNowPinPathButtonProps): React.JSX.Element | null {
   const pathId = props.pathId.trim();
   const scope = useOperatorScopeQueryKey();
+  const stickinessScope = { tenantId: scope.tenantId, workspaceId: scope.workspaceId };
   const [pinnedPathId, setPinnedPathId] = useState<string | null>(() =>
-    readSecureNowPinnedPathId(scope.workspaceId),
+    readSecureNowPinnedPathId(stickinessScope),
   );
 
   if (pathId.length === 0) {
@@ -29,13 +30,13 @@ export function SecureNowPinPathButton(props: SecureNowPinPathButtonProps): Reac
 
   function togglePin(): void {
     if (isPinned) {
-      clearSecureNowPinnedPathId(scope.workspaceId);
+      clearSecureNowPinnedPathId(stickinessScope);
       setPinnedPathId(null);
 
       return;
     }
 
-    writeSecureNowPinnedPathId(scope.workspaceId, pathId);
+    writeSecureNowPinnedPathId(stickinessScope, pathId);
     setPinnedPathId(pathId);
   }
 

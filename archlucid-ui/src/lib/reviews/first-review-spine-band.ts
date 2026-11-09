@@ -314,6 +314,7 @@ export function resolveFirstReviewOpenGateReviewHref(input: {
     findingId,
     hash,
     architectureId: input.architectureId,
+    workbenchFocus: tab === "findings" ? "findings" : null,
   });
 }
 

@@ -25,6 +25,8 @@ const SECURENOW_INTERNAL_DOC_TO_OPERATOR_HREF: Readonly<Record<string, string>> 
   "sku_meter_card.md": "/administration/securenow-quote-packet#sku-meter-card",
   "sponsor_readout_outline.md":
     "/administration/securenow-sponsor-path#sponsor-readout-outline",
+  "procurement_index.md": "/administration/securenow-reviewer-packet#procurement-index",
+  "controlled_pilot_proposal.md": "/administration/securenow-reviewer-packet#controlled-pilot-proposal",
 };
 
 /** Resolve SecureNow internal markdown under `docs/securenow/` to an in-app operator href. */

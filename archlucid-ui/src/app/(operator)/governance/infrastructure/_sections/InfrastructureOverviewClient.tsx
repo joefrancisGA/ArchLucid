@@ -57,6 +57,7 @@ import { SecureNowRemediationHomeSection } from "@/components/product-line/Secur
 import { SecureNowHomeEnvironmentContext } from "@/components/product-line/SecureNowHomeEnvironmentContext";
 import { SecureNowHomeWorkSummary } from "@/components/product-line/SecureNowHomeWorkSummary";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { ArchLucidOpenGateReturnHomeSection } from "@/components/architecture/ArchLucidOpenGateReturnHomeSection";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
@@ -165,6 +166,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             {secureNowHome ? <SecureNowScenarioHomeSection /> : null}
             {secureNowHome ? <SecureNowReviewerHomeSection /> : null}
             {secureNowHome ? <SecureNowSponsorHomeSection /> : null}
+            {!secureNowHome && productLine === "architecture" ? <ArchLucidOpenGateReturnHomeSection /> : null}
             <SecureNowFindingsHomeSection />
             <SecureNowInfrastructureHomeSection />
             <SecureNowRemediationHomeSection />

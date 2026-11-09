@@ -10,6 +10,12 @@ import {
   SECURENOW_READOUT_PACK_HEADING,
   SECURENOW_READOUT_PACK_LEAD,
 } from "@/lib/product-line/securenow-readout-pack-copy";
+import {
+  SECURENOW_READOUT_PACK_FILLED_FIXTURE_HEADING,
+  SECURENOW_READOUT_PACK_FILLED_FIXTURE_LEAD,
+  SECURENOW_READOUT_PACK_FILLED_FIXTURE_ROWS,
+} from "@/lib/product-line/securenow-readout-pack-filled-fixture-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowReadoutPackPageView(): React.JSX.Element {
   return (
@@ -17,6 +23,25 @@ export function SecureNowReadoutPackPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_READOUT_PACK_HEADING} subtitle={SECURENOW_READOUT_PACK_LEAD} />
 
       <main className="mt-6 max-w-4xl space-y-6">
+        <section
+          aria-labelledby="securenow-readout-pack-filled-fixture-heading"
+          className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
+          data-testid="securenow-readout-pack-filled-fixture"
+        >
+          <h2 id="securenow-readout-pack-filled-fixture-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {SECURENOW_READOUT_PACK_FILLED_FIXTURE_HEADING}
+          </h2>
+          <p className={cnMutedHelper()}>{SECURENOW_READOUT_PACK_FILLED_FIXTURE_LEAD}</p>
+          <dl className="m-0 space-y-2">
+            {SECURENOW_READOUT_PACK_FILLED_FIXTURE_ROWS.map((row) => (
+              <div key={row.label}>
+                <dt className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>{row.label}</dt>
+                <dd className={cnMutedHelper()}>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <section aria-labelledby="securenow-readout-pack-fixtures-heading" className="space-y-3">
           <h2 id="securenow-readout-pack-fixtures-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Fixture readout anchors

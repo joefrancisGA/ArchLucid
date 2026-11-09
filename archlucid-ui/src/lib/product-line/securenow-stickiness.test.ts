@@ -50,11 +50,12 @@ describe("securenow stickiness", () => {
   });
 
   it("stores one pinned path per workspace and counts Extend cache rows", () => {
-    writeSecureNowPinnedPathId("ws-1", "path-1");
-    writeSecureNowPinnedPathId("ws-1", "path-2");
+    const scope = { tenantId: "tenant-1", workspaceId: "ws-1" };
+    writeSecureNowPinnedPathId(scope, "path-1");
+    writeSecureNowPinnedPathId(scope, "path-2");
     writeSecureNowPilotDisposition("path-2", { outcome: "Extend", rationale: "Need a later capture." });
 
-    expect(readSecureNowPinnedPathId("ws-1")).toBe("path-2");
+    expect(readSecureNowPinnedPathId(scope)).toBe("path-2");
     expect(countSecureNowExtendDispositionsInBrowserCache()).toBe(1);
   });
 

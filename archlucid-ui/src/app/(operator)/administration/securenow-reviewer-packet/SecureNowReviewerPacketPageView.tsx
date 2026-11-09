@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SecureNowReviewerProcurementChecklist } from "@/components/product-line/SecureNowReviewerProcurementChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -25,7 +26,13 @@ export function SecureNowReviewerPacketPageView(): React.JSX.Element {
       <main className="mt-6 max-w-3xl space-y-6">
         <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_REVIEWER_PACKET_NO_GO}</p>
 
-        <section aria-labelledby="securenow-reviewer-packet-procurement-heading" className="space-y-2">
+        <SecureNowReviewerProcurementChecklist />
+
+        <section
+          id="procurement-index"
+          aria-labelledby="securenow-reviewer-packet-procurement-heading"
+          className="space-y-2 scroll-mt-24"
+        >
           <h2 id="securenow-reviewer-packet-procurement-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Procurement packet contents
           </h2>
@@ -80,7 +87,11 @@ export function SecureNowReviewerPacketPageView(): React.JSX.Element {
           </ul>
         </section>
 
-        <section aria-labelledby="securenow-reviewer-packet-sources-heading" className="space-y-2">
+        <section
+          id="controlled-pilot-proposal"
+          aria-labelledby="securenow-reviewer-packet-sources-heading"
+          className="space-y-2 scroll-mt-24"
+        >
           <h2 id="securenow-reviewer-packet-sources-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Source notes
           </h2>

@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { writeArchLucidOpenGateReturnRecord } from "@/lib/architecture/archlucid-open-gate-return-storage";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -59,6 +62,7 @@ function gateOutcomeStatusKind(
 /** Unified first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBandProps): ReactElement {
   const { summary } = props;
+  const scope = useOperatorScopeQueryKey();
   const openGateSectionId = resolveFirstReviewSpineOpenGateSectionId(summary.openGateReviewTab);
   const trimmedRunId = props.runId?.trim() ?? "";
   const hasOpenGateNavigationInput =
@@ -112,6 +116,27 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
     openGateHref !== null
     && hasOpenGateNavigationInput
     && props.openGateNavigationInput?.hasFindingsSnapshot !== false;
+
+  useEffect(() => {
+    const trimmedRunId = props.runId?.trim() ?? "";
+
+    if (
+      !openGateLinkEnabled
+      || openGateHref === null
+      || summary.openGateLabel === null
+      || trimmedRunId.length === 0
+      || scope.workspaceId.trim().length === 0
+    ) {
+      return;
+    }
+
+    writeArchLucidOpenGateReturnRecord(scope.workspaceId, {
+      runId: trimmedRunId,
+      openGateLabel: summary.openGateLabel,
+      href: openGateHref,
+      recordedAtUtc: new Date().toISOString(),
+    });
+  }, [openGateHref, openGateLinkEnabled, props.runId, scope.workspaceId, summary.openGateLabel]);
 
   const openGateLinkAriaLabel = ((): string | undefined => {
     if (!openGateLinkEnabled || summary.openGateReviewTab === null) {
@@ -175,13 +200,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             Open gate: {summary.openGateLabel}.{" "}
             {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
               openGateLinkEnabled ? (
-                <Link
-                  href={openGateHref ?? "#"}
-                  className={OPERATOR_LINK.inline}
-                  aria-label={openGateLinkAriaLabel}
-                >
-                  Open the gate
-                </Link>
+                "Use the button below to open the gate."
               ) : hasOpenGateNavigationInput && props.openGateNavigationInput?.hasFindingsSnapshot === false ? (
                 "Findings snapshot was not stored — open gate link withheld."
               ) : (
