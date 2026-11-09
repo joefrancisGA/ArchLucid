@@ -13,7 +13,7 @@
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~184 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
-**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
+**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). SecureNow quote fees are [§9](#9-securenow-quote-fees-not-a-public-list-price). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
 
 **Readiness scoring boundary:** Trust, reference, and assurance discounts are **commercial pricing choices** that account for buyer friction. They are not `(A)` headline product-readiness deductions and must not be used to imply that V1 pilots are blocked by SOC 2 CPA attestation, third-party pen-test publication, live commerce, or public references. Those items remain procurement realism / deferred-scope context unless a separate owner decision picks them up.
 
@@ -413,6 +413,23 @@ Use this when first deals produce signal about price tolerance. Do not change li
 
 ---
 
+## 9. SecureNow quote fees (not a public list price)
+
+> **Owner approved:** 2026-10-29. **Recorded here:** 2026-11-09 so SecureNow has one fee source. **Not a public list price.** Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off. Public pages must link here and must not restate these amounts.
+
+An ArchLucid Team, Professional, or Enterprise payment does not grant SecureNow. Currency is **USD**. Prices exclude sales tax. There is no monthly card price.
+
+| ID | What it sells | Price | Meter |
+| --- | --- | --- | --- |
+| **SN-EVAL** | 45-day controlled evaluation | **$8,000** once | Up to **2** Azure subscriptions and **4** successful snapshots. Reader-only. The customer makes any change outside SecureNow. |
+| **SN-ANNUAL** | One-year subscription evidence | **$24,000** per year, billed annually in advance | **3** Azure subscriptions, **24** successful snapshots in the year, **5** named operators. Included contact channel is business-hours email. That channel is an acknowledgement target, not a support SLA. |
+| **SN-SUB-ADD** | One more subscription on an annual term | **$6,000** per year | Cap **10** subscriptions on this sheet. An 11th subscription is a custom order, not this row. |
+| **SN-SNAP-4** | Extra captures | **$1,500** prepaid | **4** successful snapshots. Unused balance expires at the end of that annual term. |
+
+The **$8,000** evaluation fee is credited in full against **SN-ANNUAL** only when the annual order is signed within **90 days** after the evaluation ends. It is not credited against any ArchLucid SKU.
+
+Seller of record, tax posture, and payout identity stay in [`docs/securenow/PRIVATE_PRICE_SHEET.md`](../securenow/PRIVATE_PRICE_SHEET.md). That sheet must not repeat the dollar amounts in this section.
+
 ## Related documents
 
 | Doc | Use |
@@ -426,3 +443,4 @@ Use this when first deals produce signal about price tolerance. Do not change li
 | [POSITIONING.md](POSITIONING.md) | Positioning narrative and proof points |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Guided pilot success criteria |
 | [../CHANGELOG.md](../CHANGELOG.md) | Release history including pricing freeze entry |
+| [../securenow/PRIVATE_PRICE_SHEET.md](../securenow/PRIVATE_PRICE_SHEET.md) | SecureNow seller, tax, and payout identity. Fees are §9 of this file. |

@@ -57,6 +57,13 @@ PRICE_PATTERNS = [
     "$25,000",
     "$65,000",
     "$100,000",
+    # SecureNow quote fees — PRICING_PHILOSOPHY.md §9. Phrases are specific so
+    # unrelated "$1,500" / "$6,000" amounts elsewhere are not locked.
+    "**$8,000** once",
+    "**$24,000** per year",
+    "**$6,000** per year",
+    "**$1,500** prepaid",
+    "**$8,000** evaluation fee",
 ]
 
 # Extensions to scan. Skip binary files and generated artefacts.
