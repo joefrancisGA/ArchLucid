@@ -1,6 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+import { resolveLibReviewProvenanceHref } from "@/lib/architecture/lib-open-review-href";
 import { buildPackagePrintBackHref } from "@/lib/package-print-view";
 
 export const PACKAGE_PRINT_CANONICAL_PATH_PATTERN =
@@ -13,11 +14,9 @@ export const PACKAGE_PRINT_SOURCES_INTRO =
   "Use these follow-ups when the print summary leads into package review, provenance, or diligence help.";
 
 export function buildPackagePrintSources(runId: string): readonly EvidenceSourceLink[] {
-  const encRun = encodeURIComponent(runId.trim());
-
   return [
     { label: "Architecture package", href: buildPackagePrintBackHref(runId) },
-    { label: "Review provenance", href: `/architecture/reviews/${encRun}/provenance` },
+    { label: "Review provenance", href: resolveLibReviewProvenanceHref(runId) },
     { label: "Architecture reviews", href: "/architecture/reviews" },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   ] as const;

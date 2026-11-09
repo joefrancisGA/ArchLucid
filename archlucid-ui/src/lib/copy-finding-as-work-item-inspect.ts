@@ -1,3 +1,7 @@
+import {
+  resolveLibFindingDetailHref,
+  resolveLibOpenReviewHref,
+} from "@/lib/architecture/lib-open-review-href";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import {
   findingTrustExportJsonFields,
@@ -122,9 +126,9 @@ function ruleSummary(
  */
 export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat, input: FindingWorkItemBuildInput): string {
   const origin = input.siteOrigin.replace(/\/$/, "");
-  const runPath = `/architecture/reviews/${encodeURIComponent(input.runId)}`;
-  const base = `${origin}${runPath}`;
-  const explainUrl = `${base}/findings/${encodeURIComponent(input.findingId)}`;
+  const runPath = resolveLibOpenReviewHref(input.runId);
+  const reviewUrl = `${origin}${runPath}`;
+  const explainUrl = `${origin}${resolveLibFindingDetailHref(input.runId, input.findingId)}`;
   const inspectUrl = `${origin}${getFindingEvidenceTraceHref(input.runId, input.findingId)}`;
   const heading = findingHeading(input);
 
@@ -185,7 +189,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         evidence:
           input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts : ["Evidence excerpt was not stored."],
         links: {
-          review: base,
+          review: reviewUrl,
           finding: explainUrl,
           inspect: inspectUrl,
         },
@@ -333,7 +337,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     evidenceBlock,
     "",
     "### Links",
-    `- ${findingWorkItemReviewLinkLabel(input.productLineId)}: ${base}`,
+    `- ${findingWorkItemReviewLinkLabel(input.productLineId)}: ${reviewUrl}`,
     `- Finding (explain page): ${explainUrl}`,
     `- Structured inspector: ${inspectUrl}`,
   );

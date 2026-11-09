@@ -3,8 +3,9 @@ import {
   FINDING_JOB_VIEW_LABELS,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
-import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
+import { resolveLibReviewWorkspaceHref } from "@/lib/architecture/lib-open-review-href";
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 
 /** Query param for findings workspace job-view filter (TB-2179 deep links). */
 export const REVIEW_FINDINGS_JOB_VIEW_PARAM = "findingJobView";
@@ -34,7 +35,11 @@ export function buildReviewFindingsTabHref(
     params.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, jobView);
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${params.toString()}`;
+  return resolveLibReviewWorkspaceHref({
+    runId: trimmedRunId,
+    reviewTab: "findings",
+    search: params,
+  });
 }
 
 /** Persists job-view filter in the address bar without a Next.js soft navigation. */

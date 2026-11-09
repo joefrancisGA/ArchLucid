@@ -1,5 +1,6 @@
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveShowcaseOperatorFindingHref } from "@/lib/showcase-operator-review-href";
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { getActiveSampleScenario } from "@/lib/samples/registry";
@@ -81,5 +82,5 @@ export function showcasePrimaryFindingDetailHref(
   const effectiveRunId = canonicalizeDemoRunId(runId);
   const effectiveFindingId = findingId.trim();
 
-  return `/architecture/reviews/${encodeURIComponent(effectiveRunId)}/findings/${encodeURIComponent(effectiveFindingId)}`;
+  return resolveShowcaseOperatorFindingHref(effectiveRunId, effectiveFindingId);
 }

@@ -1,3 +1,4 @@
+import { resolveLibReviewProvenanceHref } from "@/lib/architecture/lib-open-review-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -28,11 +29,9 @@ export function buildFindingDetailSources(
   runId: string,
   findingId: string,
 ): readonly EvidenceSourceLink[] {
-  const encRun = encodeURIComponent(runId.trim());
-
   return [
     { label: "Evidence trace", href: getFindingEvidenceTraceHref(runId, findingId) },
-    { label: "Review provenance", href: `/architecture/reviews/${encRun}/provenance` },
+    { label: "Review provenance", href: resolveLibReviewProvenanceHref(runId) },
     { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
     { label: "Findings help", href: inAppHelpHref("findings") },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },

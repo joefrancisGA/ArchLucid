@@ -1,4 +1,5 @@
 import type { SponsorOrphanCandidateSummary } from "@/lib/sponsor/sponsor-report-markdown";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import type { PilotValueReportTimelineRow } from "@/types/pilot-value-report";
 
@@ -117,7 +118,7 @@ export function buildSponsorScorecardRecommendedActions(
       id: "overdue-review",
       headline: "Complete overdue architecture review",
       explanation: `'${overdue.systemName}' has been pending for ${overdue.daysPending} days.`,
-      href: `/architecture/reviews/${encodeURIComponent(overdue.runId)}`,
+      href: resolveLibOpenReviewHref(overdue.runId),
       sortWeight: overdue.daysPending,
     });
   }

@@ -1,3 +1,4 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import type { PilotValueReportJson, PilotValueReportTimelineRow } from "@/types/pilot-value-report";
 
 export type PilotOutcomesEmptyDiagnostics = {
@@ -47,7 +48,7 @@ export function buildPilotOutcomesMostRecentFinalizedReviewHref(runId: string | 
     return null;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
+  return resolveLibOpenReviewHref(trimmedRunId);
 }
 
 export function buildPilotOutcomesEmptyDiagnostics(

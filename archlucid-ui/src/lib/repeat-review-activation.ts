@@ -1,3 +1,4 @@
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
@@ -22,7 +23,7 @@ function reviewHref(runId: string | null | undefined): string | null {
     return null;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+  return resolveLibOpenReviewHref(runId.trim());
 }
 
 /**
