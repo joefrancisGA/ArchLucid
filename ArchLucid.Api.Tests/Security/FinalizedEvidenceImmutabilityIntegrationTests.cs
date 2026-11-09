@@ -30,12 +30,12 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
         string fingerprintBefore = await GoldenManifestRawFingerprintAsync(runId);
 
-        HttpResponseMessage secondCommit = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage secondCommit = await Client.PostFinalizeForTestAsync(Factory, runId);
         secondCommit.StatusCode.Should().Be(HttpStatusCode.OK);
         string fingerprintAfterSecondCommit = await GoldenManifestRawFingerprintAsync(runId);
         fingerprintAfterSecondCommit.Should().Be(fingerprintBefore);
@@ -78,7 +78,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
             await firstExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage secondExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);

@@ -40,9 +40,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -80,9 +78,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         blocks[0].GetProperty("layer").GetString().Should().Be("integrity");
         blocks[0].GetProperty("code").GetString().Should().Be("lifecycle_phase_incomplete");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -109,9 +105,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await dispositionResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -160,9 +154,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             && block.GetProperty("code").GetString() == "scorecard"
             && block.GetProperty("message").GetString()!.Contains("deferred finding", StringComparison.Ordinal));
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -178,9 +170,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -217,9 +207,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             && block.GetProperty("code").GetString() == "scorecard"
             && block.GetProperty("message").GetString()!.Contains("hypothesis", StringComparison.Ordinal));
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -235,9 +223,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -274,9 +260,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             && block.GetProperty("code").GetString() == "scorecard"
             && block.GetProperty("message").GetString()!.Contains("contradiction", StringComparison.Ordinal));
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -292,9 +276,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -331,9 +313,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             && block.GetProperty("code").GetString() == "scorecard"
             && block.GetProperty("message").GetString()!.Contains("open question", StringComparison.Ordinal));
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -349,9 +329,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectBlockingScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -380,9 +358,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
         root.GetProperty("blockedReasonSummary").GetString().Should().Contain("unresolved blocking");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -397,9 +373,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectLowConfidenceScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -428,9 +402,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
         root.GetProperty("blockedReasonSummary").GetString().Should().Contain("low confidence");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -445,9 +417,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnverifiedAssumptionScorecardFindingsAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -476,9 +446,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
         root.GetProperty("blockedReasonSummary").GetString().Should().Contain("unverified assumptions");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -493,9 +461,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectCoverageGapScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -525,9 +491,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
         root.GetProperty("blockedReasonSummary").GetString().Should().Contain("mandatory requirement");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -542,9 +506,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnresolvedHighSeverityScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -573,9 +535,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
         root.GetProperty("blockedReasonSummary").GetString().Should().Contain("accepted-risk disposition");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -593,9 +553,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         string? expectedReason = await TryReadPreCommitReadinessBlockReasonAsync(runId);
         expectedReason.Should().NotBeNull("pinned critical finding and BlockCommitOnCritical pin must block pre-commit gate");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -626,9 +584,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
         root.GetProperty("blockedReasonSummary").GetString().Should().Contain(expectedReason);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -644,9 +600,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -679,9 +633,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.CareerArtifact
             && block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.SkippedMustCode);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -697,9 +649,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -731,9 +681,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         blocks.EnumerateArray().Should().Contain(block =>
             block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.TrailMissingCode);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -749,9 +697,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinWorkingDeskModeForDevUserAsync(Factory);
         await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -784,9 +730,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         blocks.EnumerateArray().Should().Contain(block =>
             block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.DegradedFindingCoverageCode);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -801,9 +745,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -836,9 +778,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "decision_grade_provenance");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -853,9 +793,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -888,9 +826,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "existential_assumption");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -905,9 +841,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -940,9 +874,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "agent_output_quality");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -957,9 +889,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidenceReferentialIntegrityViolationAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -992,9 +922,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "evidence_referential_integrity");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1009,9 +937,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeMixedAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1044,9 +970,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "structural_execution_mode");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1061,9 +985,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinUnsupportedSemanticSupportFindingAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1096,9 +1018,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "unsupported_semantic_support");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1113,9 +1033,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinArchitectureVersionContentHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1148,9 +1066,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "architecture_version_pin");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1165,9 +1081,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeFallbackAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1200,9 +1114,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "structural_execution_mode");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1217,9 +1129,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinPolicyPackPinHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1252,9 +1162,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "create_time_pin_integrity");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1269,9 +1177,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidencePackagePinHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1304,9 +1210,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "create_time_pin_integrity");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1321,9 +1225,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinDraftSpawnDocumentHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -1356,9 +1258,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
             && block.GetProperty("code").GetString() == "create_time_pin_integrity");
 
-        HttpResponseMessage finalizeResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
-            null);
+        HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 

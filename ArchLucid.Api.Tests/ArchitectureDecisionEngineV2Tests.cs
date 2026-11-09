@@ -29,7 +29,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         await WaitForDecisionNodesAsync(runId);
         HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");

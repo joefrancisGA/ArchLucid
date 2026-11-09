@@ -26,7 +26,7 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);

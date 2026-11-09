@@ -54,7 +54,7 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
         string etagBefore = beforeExecute.Headers.ETag!.Tag;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage afterCommit = await Client.GetAsync($"/v1/architecture/review/{runId}");

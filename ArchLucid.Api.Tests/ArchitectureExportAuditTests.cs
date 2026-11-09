@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -26,7 +26,7 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await Client.PostFinalizeForTestAsync(Factory, runId);
 
         var request = new
         {

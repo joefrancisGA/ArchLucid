@@ -12,6 +12,16 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public static class IntegrationTestRunLifecycleSupport
 {
+    /// <summary>Single source for the review finalize route used by test harness helpers.</summary>
+    public static string FinalizeReviewRelativeUrl(string runId) =>
+        $"/v1/architecture/review/{runId}/finalize";
+
+    /// <summary>Builds a finalize <see cref="HttpRequestMessage" /> (idempotency / custom body tests).</summary>
+    public static HttpRequestMessage CreateFinalizeReviewRequest(
+        string runId,
+        HttpContent? body = null) =>
+        new(HttpMethod.Post, FinalizeReviewRelativeUrl(runId)) { Content = body };
+
     public static async Task<bool> IsAuthorityPipelineCompleteExecuteConflictAsync(
         this HttpResponseMessage response,
         CancellationToken cancellationToken = default)
@@ -64,7 +74,7 @@ public static class IntegrationTestRunLifecycleSupport
             .ConfigureAwait(false);
 
         return await client.PostAsync(
-            $"/v1/architecture/review/{runId}/finalize",
+            FinalizeReviewRelativeUrl(runId),
             body,
             cancellationToken);
     }

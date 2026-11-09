@@ -42,7 +42,7 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         Guid primaryRunId = Guid.Parse(runId);
 

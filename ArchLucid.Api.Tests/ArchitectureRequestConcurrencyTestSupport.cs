@@ -626,7 +626,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             try
             {
                 using HttpResponseMessage response = await client.PostAsync(
-                    $"/v1/architecture/review/{runId}/finalize",
+                    IntegrationTestRunLifecycleSupport.FinalizeReviewRelativeUrl(runId),
                     null,
                     attemptBudget.Token);
 
