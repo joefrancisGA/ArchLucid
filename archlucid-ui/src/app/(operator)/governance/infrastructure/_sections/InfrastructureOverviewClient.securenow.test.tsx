@@ -74,6 +74,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
 
     expect(sectionTestIds).toEqual([
       "securenow-home-environment-context",
+      "securenow-pilot-spine-home-section",
       "securenow-first-hour-home-section",
       "securenow-first-useful-answer-home-section",
       "securenow-self-service-home-section",

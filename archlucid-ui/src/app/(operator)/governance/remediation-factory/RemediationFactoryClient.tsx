@@ -19,6 +19,7 @@ import {
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -660,6 +661,8 @@ export function RemediationFactoryClient() {
       />
 
       <SecureNowRemediationFactoryCollectionSetupBanner />
+
+      <SecureNowPilotWalkthroughBanner productLine={productLine} />
 
       <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}

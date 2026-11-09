@@ -479,6 +479,18 @@ describe("product-line catalog", () => {
         "architecture",
       ),
     ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-pilot-spine",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-pilot-spine",
+        "architecture",
+      ),
+    ).toBe(false);
   });
 
   it("lets an override move a destination into Security without editing the catalog file", () => {
