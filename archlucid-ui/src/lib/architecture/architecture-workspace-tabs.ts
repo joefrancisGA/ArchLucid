@@ -1,6 +1,7 @@
+import { resolveLibReviewWorkspaceHref } from "@/lib/architecture/lib-open-review-href";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { FROM_GENERATION_QUERY_KEY } from "@/lib/review-generation-handoff";
-import { REVIEW_DETAIL_TAB_PARAM, isReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+import { isReviewDetailTabId, REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { mapArchitectureTabToReviewTab, mapReviewTabToArchitectureTab } from "@/lib/unified-review-workspace-tabs";
 
 /**
@@ -101,16 +102,18 @@ export function buildArchitectureWorkspaceTabHref(
   options?: BuildArchitectureWorkspaceTabHrefOptions,
 ): string {
   const canonicalTab = mapArchitectureTabToReviewTab(tab);
-  const params = new URLSearchParams({
-    [REVIEW_DETAIL_TAB_PARAM]: canonicalTab,
-  });
+  const params = new URLSearchParams();
 
   if (options?.includeCreateIntent === true) {
     params.set(FROM_GENERATION_QUERY_KEY, "1");
     params.set("intent", CREATE_ARCHITECTURE_INTENT);
   }
 
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
+  return resolveLibReviewWorkspaceHref({
+    runId,
+    reviewTab: canonicalTab,
+    search: params,
+  });
 }
 
 export function readArchitectureWorkspaceTabFromHref(href: string): ArchitectureWorkspaceTabId | null {

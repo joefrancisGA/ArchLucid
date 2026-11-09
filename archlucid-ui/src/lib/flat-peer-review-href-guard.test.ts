@@ -20,13 +20,20 @@ const GUARDED_RELATIVE_DIRS = [
   "src/components/showcase",
   "src/components/reviews",
   "src/app/(operator)/governance/sealed-records",
+  "src/app/(operator)/governance/approval-requests",
   "src/app/(operator)/architecture/reviews",
+  "src/app/(operator)/architecture/sponsor-dashboard",
+  "src/app/(operator)/insights/compare-two-reviews",
+  "src/components/architecture",
+  "src/components/provenance",
+  "src/components/explanation",
 ] as const;
 
 const GUARDED_ROOT_COMPONENT_FILES = [
   "src/components/PreCommitGovernanceBlockPanel.tsx",
   "src/components/RunIdQuickOpen.tsx",
   "src/components/SampleFirstReviewPackageCard.tsx",
+  "src/components/AskAssistantMessageBody.tsx",
 ] as const;
 
 const GUARDED_COMPONENT_FILES = [
