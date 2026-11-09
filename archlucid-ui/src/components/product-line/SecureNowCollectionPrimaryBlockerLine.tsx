@@ -8,6 +8,7 @@ import {
   resolveSecureNowCollectionPrimaryBlocker,
   resolveSecureNowCollectionYouAreHere,
 } from "@/lib/product-line/securenow-collection-setup-checklist";
+import { resolveSecureNowCollectionRecoveryLinkLabel } from "@/lib/product-line/securenow-collection-recovery-copy";
 import { cn } from "@/lib/utils";
 
 export type SecureNowCollectionPrimaryBlockerLineProps = {
@@ -45,7 +46,7 @@ export function SecureNowCollectionPrimaryBlockerLine(
             href={youAreHere.recoveryHref}
             data-testid={`${props.testIdPrefix}-collection-you-are-here-recovery`}
           >
-            Fix this step
+            {resolveSecureNowCollectionRecoveryLinkLabel(blocker.stepId)}
           </Link>
         </p>
       </div>
@@ -62,7 +63,7 @@ export function SecureNowCollectionPrimaryBlockerLine(
     >
       <span className="font-medium text-al-text-primary">Blocking collection step:</span>{" "}
       <Link className={OPERATOR_LINK.inline} href={blocker.recoveryHref}>
-        {blocker.stepLabel}
+        {resolveSecureNowCollectionRecoveryLinkLabel(blocker.stepId)}
       </Link>
       . {blocker.detail}
     </p>

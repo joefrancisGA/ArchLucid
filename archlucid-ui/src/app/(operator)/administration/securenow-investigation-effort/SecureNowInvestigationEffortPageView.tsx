@@ -11,6 +11,7 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_LEAD,
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
+import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
 import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
@@ -97,6 +98,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       />
 
       <div className="mt-6 max-w-3xl space-y-6">
+        <SecureNowInvestigationEffortScopeLine />
         <section aria-labelledby="securenow-investigation-effort-inputs-heading" className="space-y-3">
           <h2 id="securenow-investigation-effort-inputs-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Entered inputs

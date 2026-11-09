@@ -4,7 +4,7 @@ export const SECURENOW_INVESTIGATION_EFFORT_HEADING =
   "Investigation effort" as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_LEAD =
-  "Record comparable minutes in the pilot measurement log. Share a number only when the send rule passes. SecureNow beta remains NO_GO." as const;
+  "Enter your own investigation minutes first. ROI stays ROI not calculated until all five inputs are positive and not the fixture tuple. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL =
   "This page does not start a timer, calculate ROI, or copy a fee. This page is not a savings claim." as const;

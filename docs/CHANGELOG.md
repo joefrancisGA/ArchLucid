@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-09 - Floor scores: ROI inputs, collection next step, buyer list prices
+
+**Outcome.** SecureNow investigation effort puts operator inputs first, collapses the synthetic worksheet, and shows scope when capture is missing or succeeded. Collection blockers name one next step (Reader grant, subscription, capture) and link extract-and-upload on the capture step. ArchLucid marketing copy states monthly list prices live on `/pricing` with quote-only checkout.
+
+**Surfaces.** Investigation effort page, collection setup sections, ArchLucid beta evaluation strip, `BUYER_SALES_LED_PRICING_NOTE`.
+
 ## 2026-11-09 - SecureNow amounts are the public list price
 
 **Outcome.** Owner decision: the four SecureNow amounts in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §9 are the public list price, sold by quote only. The public SKU card and signed-in quote packet now render the same table with quote-only conditions. This is not a Stripe Price, not a Partner Center plan, and not permission to invoice. Beta remains **NO_GO**.

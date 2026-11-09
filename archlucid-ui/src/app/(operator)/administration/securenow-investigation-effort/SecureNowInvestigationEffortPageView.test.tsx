@@ -18,6 +18,17 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: false,
+      azureSubscriptionIdsPresent: false,
+      hasSuccessfulPull: false,
+    },
+    isPending: false,
+  }),
+}));
+
 vi.mock("@/lib/product-line/securenow-investigation-effort-sync", () => ({
   loadSecureNowInvestigationEffortInputs: vi.fn(async () => {
     const { readSecureNowInvestigationEffortInputs } = await import(
