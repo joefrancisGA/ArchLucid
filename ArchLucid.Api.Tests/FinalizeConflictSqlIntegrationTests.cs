@@ -32,9 +32,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_before_execute_maps_integrity_conflict_to_409()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-FINALIZE-409-" + Guid.NewGuid().ToString("N")[..8])));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-FINALIZE-409-" + Guid.NewGuid().ToString("N")[..8]));
         await createResponse.EnsureSuccessForTestAsync();
 
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -54,9 +52,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_before_execute_matches_finalize_integrity_block()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-READINESS-409-" + Guid.NewGuid().ToString("N")[..8])));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-READINESS-409-" + Guid.NewGuid().ToString("N")[..8]));
         await createResponse.EnsureSuccessForTestAsync();
 
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -1290,9 +1286,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
     private async Task<string> CreateExecutedRunIdAsync(string requestIdPrefix)
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestIdPrefix + Guid.NewGuid().ToString("N")[..8])));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestIdPrefix + Guid.NewGuid().ToString("N")[..8]));
 
         await createResponse.EnsureSuccessForTestAsync();
 

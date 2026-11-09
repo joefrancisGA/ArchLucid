@@ -52,9 +52,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         const string requestId = "REQ-PR-A2-COHORT-DEMO-001";
-        HttpResponseMessage createResponse = await client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

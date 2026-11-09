@@ -17,9 +17,7 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetManifestSummary_IncludesEvidenceContext()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-EVIDENCE-001")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-EVIDENCE-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

@@ -179,9 +179,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailCriticalPageBundle_ReturnsOk_WithSlices()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-CRITICAL-001")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-CRITICAL-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -208,9 +206,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailTimelinesBundle_ReturnsOk_WithSlices()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-TIMELINES-001")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-TIMELINES-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -236,9 +232,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailWorkspaceContextBundle_ReturnsOk_WithSlices()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-WORKSPACE-001")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-WORKSPACE-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

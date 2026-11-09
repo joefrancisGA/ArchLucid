@@ -33,9 +33,8 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         StepTiming tGet = new("GET /v1/architecture/manifest/{version}");
 
         tCreate.Sw.Start();
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}"));
         tCreate.Sw.Stop();
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -101,9 +100,8 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
 
     private async Task<(string ManifestVersion, string RunId, CommitRunResponseDto Commit)> CreateCommittedRunAsync()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);

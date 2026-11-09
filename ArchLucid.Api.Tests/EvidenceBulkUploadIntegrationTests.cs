@@ -23,9 +23,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
     public async Task UploadBulkEvidence_With200Files_ReturnsSuccess_AndAudits()
     {
         // Arrange
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-001")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-001"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
@@ -85,9 +83,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
     public async Task UploadBulkEvidence_With201Files_ReturnsBadRequest_AndNoAudits()
     {
         // Arrange
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-002")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-002"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;

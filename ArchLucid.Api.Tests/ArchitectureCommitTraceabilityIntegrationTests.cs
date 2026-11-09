@@ -41,9 +41,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage createResponse = await client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001")));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

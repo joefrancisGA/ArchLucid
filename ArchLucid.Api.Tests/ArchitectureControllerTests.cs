@@ -52,9 +52,7 @@ public sealed class ArchitectureControllerTests
         {
             object request = TestRequestFactory.CreateArchitectureRequest("REQ-API-001");
 
-            HttpResponseMessage response = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(request));
+            HttpResponseMessage response = await client.PostArchitectureRequestForTestAsync(request);
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -78,9 +76,7 @@ public sealed class ArchitectureControllerTests
     {
         await RunWithIsolatedFactory(async (client, factory) =>
         {
-            HttpResponseMessage createResponse = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-002")));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-002"));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -106,9 +102,7 @@ public sealed class ArchitectureControllerTests
     {
         await RunWithIsolatedFactory(async (client, factory) =>
         {
-            HttpResponseMessage createResponse = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-003")));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-003"));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -152,9 +146,7 @@ public sealed class ArchitectureControllerTests
             const string requestId = "REQ-API-004";
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-            HttpResponseMessage createResponse = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -185,9 +177,7 @@ public sealed class ArchitectureControllerTests
     {
         await RunWithIsolatedFactory(async (client, factory) =>
         {
-            HttpResponseMessage createResponse = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC")));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC"));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -224,9 +214,7 @@ public sealed class ArchitectureControllerTests
             const string requestId = "REQ-API-006";
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-            HttpResponseMessage createResponse = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -270,9 +258,7 @@ public sealed class ArchitectureControllerTests
             const string requestId = "REQ-API-005";
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-            HttpResponseMessage createResponse = await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -465,9 +451,7 @@ public sealed class ArchitectureControllerTests
             foreach (ArchitectureRequest template in templates)
             {
                 HttpResponseMessage response =
-                    await client.PostAsync(
-                        IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                        JsonContent(template));
+                    await client.PostArchitectureRequestForTestAsync(template);
 
                 if (response.StatusCode != HttpStatusCode.Created)
                 {

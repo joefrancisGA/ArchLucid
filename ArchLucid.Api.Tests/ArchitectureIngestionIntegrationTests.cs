@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -64,9 +64,7 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
             ]
         };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(request));
+        HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(request);
 
         if (response.StatusCode != HttpStatusCode.Created)
         {
