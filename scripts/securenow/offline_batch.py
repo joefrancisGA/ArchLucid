@@ -130,6 +130,8 @@ def execute(
 
     def one(sub: str, package: Path) -> tuple[str, str]:
         destination = native_dir / f"{sub}.native.json"
+        # Never reuse a previous result as evidence of this execution.
+        destination.unlink(missing_ok=True)
         state = executor(native_dll, package, destination, timeout)
         if state != "EXECUTED":
             return sub, state
