@@ -122,7 +122,8 @@ public sealed class FinalizeReadinessServiceTests
         result.Blocks.Should().Contain(block =>
             block.Layer == FinalizeReadinessLayers.Governance
             && block.Code == "pre_commit_gate"
-            && block.Message == "Critical findings exceed policy pack threshold.");
+            && block.Message ==
+               "Critical findings exceed policy pack threshold. Recording finding dispositions does not bypass finalize gates.");
         preCommitGate.Verify(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -659,6 +660,7 @@ public sealed class FinalizeReadinessServiceTests
             .ReturnsAsync([]);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
+
         if (agentExecutionTraceRepository is null)
         {
             traces
@@ -672,6 +674,7 @@ public sealed class FinalizeReadinessServiceTests
             .ReturnsAsync([]);
 
         Mock<IAgentOutputQualityGateOptionsResolver> qualityOptions = new();
+
         if (qualityGateOptionsResolver is not null)
         {
             qualityOptions

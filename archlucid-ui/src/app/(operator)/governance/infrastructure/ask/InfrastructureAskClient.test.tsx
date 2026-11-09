@@ -116,7 +116,6 @@ describe("InfrastructureAskClient", () => {
       citations: [],
       simulatorLabel: null,
     });
-    searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
@@ -129,7 +128,7 @@ describe("InfrastructureAskClient", () => {
     expect(screen.queryByTestId("infra-ask-insufficient-evidence")).toBeNull();
     expect(screen.queryByTestId("infra-ask-insufficient-evidence-scope")).toBeNull();
     expect(screen.getByTestId("infra-ask-snapshot-honesty")).toHaveTextContent(
-      INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITHOUT_SNAPSHOT,
+      INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITH_SNAPSHOT,
     );
   });
 

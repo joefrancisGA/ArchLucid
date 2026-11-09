@@ -6,26 +6,34 @@ import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-
 
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
 
-const policyPacksNavigation = vi.hoisted(() => ({
-  replace: vi.fn(),
-  push: vi.fn(),
-  searchParams: new URLSearchParams(),
-}));
+const policyPacksSearchParams = vi.hoisted(() => ({ current: new URLSearchParams() }));
+const policyPacksRouterReplace = vi.hoisted(() =>
+  vi.fn((href: string) => {
+    const queryIndex = href.indexOf("?");
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: (href: string) => {
-      const queryIndex = href.indexOf("?");
-
-      policyPacksNavigation.searchParams =
-        queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
-      policyPacksNavigation.replace(href);
-    },
-    push: policyPacksNavigation.push,
+    policyPacksSearchParams.current =
+      queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
   }),
-  usePathname: () => INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
-  useSearchParams: () => policyPacksNavigation.searchParams,
-}));
+);
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal as () => Promise<typeof import("next/navigation")>, {
+    useSearchParams: () => policyPacksSearchParams.current,
+    usePathname: () => INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: policyPacksRouterReplace,
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
+  });
+});
 
 const listPlatformBundledPolicyPacks = vi.fn();
 const setPlatformBundledPolicyPackActivation = vi.fn();
@@ -69,9 +77,8 @@ const sampleRow = {
 describe("AdminPlatformBundledPolicyPacksPageClient", () => {
   beforeEach(() => {
     nav.callerAuthorityRank = 3;
-    policyPacksNavigation.searchParams = new URLSearchParams();
-    policyPacksNavigation.replace.mockReset();
-    policyPacksNavigation.push.mockReset();
+    policyPacksSearchParams.current = new URLSearchParams();
+    policyPacksRouterReplace.mockClear();
     listPlatformBundledPolicyPacks.mockReset();
     setPlatformBundledPolicyPackActivation.mockReset();
     listPlatformBundledPolicyPacks.mockResolvedValue([sampleRow]);

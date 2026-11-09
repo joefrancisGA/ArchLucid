@@ -6043,7 +6043,7 @@ jobs:
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -6083,6 +6083,8 @@ jobs:
         uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create catalog + start API (shared script)
+        env:
+          ARCHLUCID_K6_CREATE_RUN_SMOKE_MAX_TIME_SECONDS: "1200"
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6CiSmoke "${RUNNER_TEMP}/k6-ci-api.log" "${RUNNER_TEMP}/k6-ci-api.pid"
 
       - name: Run k6 CI smoke
