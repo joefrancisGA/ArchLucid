@@ -45,8 +45,7 @@ public static class IntegrationTestRunLifecycleSupport
         await client.PostExecuteForTestAsync(runId, cancellationToken);
 
         await IntegrationTestArchitectureVersionPinSupport
-            .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken)
-            .ConfigureAwait(false);
+            .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken);
     }
 
     /// <summary>
@@ -60,8 +59,7 @@ public static class IntegrationTestRunLifecycleSupport
         CancellationToken cancellationToken = default)
     {
         await IntegrationTestArchitectureVersionPinSupport
-            .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken)
-            .ConfigureAwait(false);
+            .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken);
 
         return await client.PostAsync(
             $"/v1/architecture/review/{runId}/finalize",

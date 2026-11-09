@@ -83,9 +83,7 @@ public static class ComparisonReplayTestFixture
 
         if (factory is not null)
         {
-            await IntegrationTestArchitectureVersionPinSupport
-                .EnsureCurrentPinForRunAsync(factory, runId)
-                .ConfigureAwait(false);
+            await IntegrationTestArchitectureVersionPinSupport.EnsureCurrentPinForRunAsync(factory, runId);
         }
 
         HttpResponseMessage replayResponse = await client.PostAsync(

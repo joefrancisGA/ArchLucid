@@ -1,6 +1,7 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration.Create.Hooks;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Persistence.Ports;
@@ -38,33 +39,52 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             return;
 
         using IServiceScope scope = factory.Services.CreateScope();
-        IServiceProvider services = scope.ServiceProvider;
+        await EnsureCreateTimePinFingerprintsForRunAsync(scope.ServiceProvider, runId, runGuid, cancellationToken);
+    }
 
+    private static async Task EnsureCreateTimePinFingerprintsForRunAsync(
+        IServiceProvider services,
+        string runId,
+        Guid runGuid,
+        CancellationToken cancellationToken)
+    {
         IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
-        RunRecord? header = await runRepository
-            .GetByIdAsync(DefaultScope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
+        RunRecord? header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
 
-        if (header is null || header.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
+        if (header is null)
             return;
 
-        if (string.IsNullOrWhiteSpace(header.ArchitectureRequestId))
-            return;
-
-        IArchitectureRequestRepository requestRepository =
-            services.GetRequiredService<IArchitectureRequestRepository>();
-        ArchitectureRequest? request = await requestRepository
-            .GetByIdAsync(header.ArchitectureRequestId, cancellationToken)
-            .ConfigureAwait(false);
+        ArchitectureRequest? request = await TryLoadArchitectureRequestAsync(services, header, cancellationToken);
 
         if (request is null)
+            return;
+
+        if (header.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
+        {
+            IArchitectureRunCreateIdentityLinkHook? identityLink =
+                services.GetService<IArchitectureRunCreateIdentityLinkHook>();
+
+            if (identityLink is not null)
+            {
+                await identityLink.TryLinkReviewRunArchitectureIdentityAsync(request, runId, cancellationToken);
+                header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
+
+                if (header is null)
+                    return;
+            }
+        }
+
+        architectureId = header.ArchitectureId ?? Guid.Empty;
+
+        if (architectureId == Guid.Empty)
             return;
 
         IArchitectureKnowledgeModelAccess knowledgeModelAccess =
             services.GetRequiredService<IArchitectureKnowledgeModelAccess>();
         ArchitectureKnowledgeModel? knowledgeModel = await knowledgeModelAccess
-            .GetForRunAsync(DefaultScope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
+            .GetForRunAsync(DefaultScope, runGuid, cancellationToken);
+
+        bool headerMutated = false;
 
         if (HasIncompleteCreateTimePinFingerprints(header))
         {
@@ -73,8 +93,8 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             if (createPinOrchestrator is not null)
             {
                 await createPinOrchestrator
-                    .ApplyCreateTimePinsAsync(header, DefaultScope, request, cancellationToken)
-                    .ConfigureAwait(false);
+                    .ApplyCreateTimePinsAsync(header, DefaultScope, request, cancellationToken);
+                headerMutated = true;
             }
 
             if (knowledgeModel is not null)
@@ -83,37 +103,63 @@ internal static class IntegrationTestArchitectureVersionPinSupport
                     header,
                     knowledgeModel,
                     knowledgeModel.ModelId ?? header.KnowledgeModelId);
+                headerMutated = true;
             }
 
-            await runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
+            if (headerMutated)
+                await runRepository.UpdateAsync(header, cancellationToken);
         }
+
+        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
 
         IArchitectureVersionKnowledgeModelPinSync? pinSync =
             services.GetService<IArchitectureVersionKnowledgeModelPinSync>();
 
         if (pinSync is not null && knowledgeModel is not null)
         {
-            await pinSync
-                .SyncPinnedVersionToSavedModelAsync(DefaultScope, header, knowledgeModel, cancellationToken)
-                .ConfigureAwait(false);
-
-            return;
+            await pinSync.SyncPinnedVersionToSavedModelAsync(DefaultScope, header, knowledgeModel, cancellationToken);
         }
-
-        IArchitectureVersionService? versionService = services.GetService<IArchitectureVersionService>();
-
-        if (versionService is not null)
+        else
         {
-            await versionService
-                .EnsureRunVersionPinnedAsync(
-                    DefaultScope,
-                    runGuid,
-                    architectureId,
-                    request,
-                    knowledgeModel,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            IArchitectureVersionService versionService = services.GetRequiredService<IArchitectureVersionService>();
+            await versionService.EnsureRunVersionPinnedAsync(
+                DefaultScope,
+                runGuid,
+                architectureId,
+                request,
+                knowledgeModel,
+                cancellationToken);
         }
+
+        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+        knowledgeModel ??= await knowledgeModelAccess.GetForRunAsync(DefaultScope, runGuid, cancellationToken);
+
+        if (header.PinnedKnowledgeModelContentHashSha256 is null or { Length: 0 } && knowledgeModel is not null)
+        {
+            RunHeaderKnowledgeModelContentPin.ApplyToHeader(
+                header,
+                knowledgeModel,
+                knowledgeModel.ModelId ?? header.KnowledgeModelId);
+            await runRepository.UpdateAsync(header, cancellationToken);
+        }
+    }
+
+    private static async Task<ArchitectureRequest?> TryLoadArchitectureRequestAsync(
+        IServiceProvider services,
+        RunRecord header,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(header.ArchitectureRequestId))
+            return null;
+
+        IArchitectureRequestRepository requestRepository =
+            services.GetRequiredService<IArchitectureRequestRepository>();
+
+        return await requestRepository.GetByIdAsync(header.ArchitectureRequestId, cancellationToken);
     }
 
     private static bool HasIncompleteCreateTimePinFingerprints(RunRecord header)

@@ -122,7 +122,8 @@ public sealed class FinalizeReadinessServiceTests
         result.Blocks.Should().Contain(block =>
             block.Layer == FinalizeReadinessLayers.Governance
             && block.Code == "pre_commit_gate"
-            && block.Message == "Critical findings exceed policy pack threshold.");
+            && block.Message ==
+               "Critical findings exceed policy pack threshold. Recording finding dispositions does not bypass finalize gates.");
         preCommitGate.Verify(gate => gate.EvaluateAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
