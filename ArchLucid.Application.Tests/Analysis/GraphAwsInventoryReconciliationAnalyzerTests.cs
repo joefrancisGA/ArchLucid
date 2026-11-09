@@ -1343,6 +1343,33 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn()
+    {
+        // AWS Config records the S3 bucket name on configuration.name and the item ARN separately.
+        const string arn = "arn:aws:s3:::config-bucket-name";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "arn": "{{arn}}",
+                  "configuration": {
+                    "name": "config-bucket-name"
+                  }
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceName_property()
     {
         const string arn =

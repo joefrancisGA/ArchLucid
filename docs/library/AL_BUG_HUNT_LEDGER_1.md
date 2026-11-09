@@ -3545,6 +3545,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-11-08 seed hunt (seed→hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex`: a for_each data source `data.azurerm_app_service.main["primary"]` does not own the bare data root, and that root's leaf identity is the managed address `azurerm_app_service.main`, so a relationship citing `data.azurerm_app_service.main` attached to the managed resource. The indexed data-source root is now recorded on its own and fans out when more than one instance shares it. Regression `MapRelationships_resolves_indexed_data_source_root_when_managed_resource_has_the_same_address` failed first (`FromNodeId` was `managed-api`) and then passed with the managed-address and quoted-index regressions (**3/3**, `RunAnalyzers=false`). Private beta: when an invited operator's topology cites a Terraform data source that uses for_each, and a managed resource has the same type and name, the relationship stays on the data source instead of attaching to the managed resource.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — indexed data-source root resolved to the managed resource with the same address — **hit 2026-11-08 seed hunt:** record `data.<type>.<name>` for an indexed data source; regression `MapRelationships_resolves_indexed_data_source_root_when_managed_resource_has_the_same_address`. [class:state-machine-gap]
+
 2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` registering a Terraform data-source leaf as the managed address `azurerm_app_service.main`, so `module.network.data.azurerm_app_service.main` indexed first stole that key from the managed resource; data-source leaves no longer occupy the managed address and do not join its shared-leaf group; regression `MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first`; scoped filter 1015/1015 (`RunAnalyzers=false`). Private beta: when an invited operator's topology includes both a Terraform data source and the managed resource with the same type and name, a relationship that cites the managed address stays on the managed resource instead of attaching to the data source that was indexed first.
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — Terraform data source indexed first claimed the managed resource address — **hit 2026-10-30 seed hunt:** release a data-source-owned bare leaf and group data sources under a `data.` identity; regression `MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first`. [class:state-machine-gap]
@@ -3685,13 +3689,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 108
-- **bugs-found:** 77
+- **hunts:** 109
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — indexed data-source root resolved to the managed resource with the same address
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2397 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 - **status:** open
@@ -3699,13 +3703,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 108
-- **bugs-found:** 77
+- **hunts:** 109
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — indexed data-source root resolved to the managed resource with the same address
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-20 seed hunt (seed→hit): promoted declared `endpointAliases` ARM keys with trailing slashes not indexed under `NormalizeArmResourceId`, so relationships using the canonical ARM path missed rename aliases and graph merge dropped edges; register ARM alias keys via `TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases`; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`; 993 scoped edge-mapper/graph-merge tests passed.
 
@@ -3809,13 +3813,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 108
-- **bugs-found:** 77
+- **hunts:** 109
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — indexed data-source root resolved to the managed resource with the same address
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2447 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 
@@ -11061,6 +11065,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId`: a `Microsoft.Maintenance/configurationAssignments` row stores the target VM on `properties.resourceId` and the assignment's own id on `id`. Wrapper search returned the target, so the assignment was indexed as the VM. The row's own ARM id is now read before the property bag. Regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target` failed first (`HasMismatches` true) and then passed with the properties-bag-only and nested `resourceId` regressions (**3/3**, `RunAnalyzers=false`). Storage accounts still have no `properties.id`; this is the reachable property-bag id. Private beta: when an invited operator reconciles a maintenance configuration assignment, that assignment stays matched to its own resource id instead of being indexed as the virtual machine named in the property bag.
+
+- [x] (proven) `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — `properties.resourceId` on a configuration assignment replaced the row id — **hit 2026-11-08 thorough hunt:** read the row's own ARM id before the property bag; regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target`. [class:identity-alias]
+
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId`: an AWS Config S3 item stores the bucket name on `configuration.name` and the ARN on `arn`. The reader returned that name first, the name is not an ARN, and the item was left unmatched. Each id key is now kept only when it looks like an ARN, so the item ARN is still read. Regression `CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn` failed first (`HasMismatches` true) and then passed with the configuration-bag and `resourceName` regressions (**6/6**, `RunAnalyzers=false`). The open nested `properties.id` candidate stays open: a storage account property bag does not carry `properties.id`. Private beta: when an invited operator reconciles an S3 bucket recorded the way AWS Config records it, with the bucket name under configuration and the ARN on the item, that bucket matches the topology instead of looking missing from inventory.
+
+- [x] (proven) `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — AWS Config `configuration.name` hid the item ARN — **hit 2026-11-08 thorough hunt:** keep the first candidate that looks like an ARN; regression `CompareQuality_Analyze_matches_inventory_when_configuration_name_is_the_bucket_and_the_row_has_the_arn`. [class:identity-alias]
+
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` `tf.self_link`: Terraform show stores `values.self_link` as `tf.self_link`, and the id lists only had CAI `selfLink` plus `tf.id`. A Google SQL instance whose `tf.id` is the short name and whose API self link is `tf.self_link` was left unmatched. The topology, inventory, and serialized-bag id lists now include `tf.self_link`. Regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link` failed first (`HasMismatches` true) and then passed with the existing `selfLink` topology test (**3/3**, `RunAnalyzers=false`). Cheap-disproof: omitted `publicNetworkAccess` stays uncompared because this analyzer requires a stored inventory value; `shared_access_key_enabled` is redacted (`access_key` fragment) so the bag has no boolean; `SecuredByPerimeter` stays a distinct token from `Disabled`, which is the disagreement to evaluate; `tf.enablehttpstrafficonly` is not emitted because `SanitizePropertyKey` keeps underscores and `tf.enable_https_traffic_only` already resolves. Nested `properties.id` shadowing stays a candidate. Private beta: when an invited operator reconciles a Terraform declaration whose Google resource id is only the API self link stored as tf.self_link, that resource matches inventory instead of looking missing from the declaration.
+
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` was not a topology id key — **hit 2026-11-08 thorough hunt:** read `tf.self_link` beside `selfLink` on the topology, inventory, and serialized-bag id lists; regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link`. [class:other]
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — **cheap-disproof 2026-11-08 thorough hunt:** `TryReadInventoryValue` skips a missing key; a contradiction requires both stored values. The book default of Enabled is the reachability classifier, not this compare.
+- [x] (invalid) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — **cheap-disproof 2026-11-08 thorough hunt:** `shared_access_key_enabled` normalizes to a name containing `accesskey` and ingest redacts it, so the declaration bag does not contain `false`.
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — **cheap-disproof 2026-11-08 thorough hunt:** `NormalizeSecurityToken` maps `Disabled` to `false` and leaves `SecuredByPerimeter` distinct, so the mismatch shows the two stored values.
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **cheap-disproof 2026-11-08 thorough hunt:** `SanitizePropertyKey` keeps underscores, so show JSON is `tf.enable_https_traffic_only`, which already resolves.
+
 2026-10-29 seed hunt (seed-only): reread declaration-versus-inventory, inventory reconciliation, and comparison export after the `tf.https_traffic_only_enabled` and `tf.enable_https_traffic_only` hits. No row met the hunt-ready bar. Cheap-disproof: whitespace-only `ParsedResultJson` already uses the stored-empty copy and `AppendTraceFieldSection` does not open a fence; `ExportRecordDiffService` trims `TemplateProfile` before compare. Left open: omitted storage `publicNetworkAccess` (book ch. 6 treats absence as Enabled), shared-key `allowSharedKeyAccess` (book ch. 3; terraform `shared_access_key_enabled` is stored as `[REDACTED]` because the ingest key check treats `access_key` as secret material), GCP topology `tf.self_link`, nested inventory `id` shadowing, and inventory `SecuredByPerimeter` against a Disabled declaration.
 
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService.AppendTraceFieldSection` — whitespace-only `ParsedResultJson` still opens a fence — **cheap-disproof 2026-10-29 seed hunt:** `FormatTraceField` returns the stored-empty copy and the section writes that sentence without a fence.
@@ -11072,7 +11092,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService` — trace `ParsedResultJson` whitespace-only uses stored-empty copy but fence still opens — **cheap-disproof 2026-10-29:** `FormatTraceField` returns stored-empty and `AppendTraceFieldSection` does not fence that sentence.
 - [ ] (candidate) `ReplayComparisonInterpretationDiffSlice` — agent change note when only `ParseSucceeded` flips with identical claims — locus: materiality gate; input: left parse false right true, same claims; wrong outcome: silent or noisy; reachability: flaky agent reruns.
 - [x] (invalid) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` change when only whitespace differs — **cheap-disproof 2026-10-29:** compare trims both sides through `NormalizeOptionalString`.
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — locus: HttpsOnly aliases; input: `tf.enablehttpstrafficonly=true` vs inventory `supportsHttpsTrafficOnly=false`; wrong outcome: miss mismatch; reachability: compacted Terraform show keys.
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **cheap-disproof 2026-11-08 thorough hunt:** sanitizer keeps underscores; `tf.enable_https_traffic_only` already resolves.
 
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that only recognized `tf.https_only` and `tf.supports_https_traffic_only`, so a storage account declared with azurerm `https_traffic_only_enabled = true` (the argument in `infra/terraform-storage/main.tf`, which Terraform show stores as `tf.https_traffic_only_enabled`) produced no mismatch when Azure inventory `supportsHttpsTrafficOnly` was false; `DeclarationSecurityPropertyKeyResolver` now includes `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1102/1102** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform sets https_traffic_only_enabled to true and whose Azure inventory has supportsHttpsTrafficOnly false, that contradiction is reported.
 
@@ -20104,13 +20124,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 92
-- **bugs-found:** 87
+- **hunts:** 95
+- **bugs-found:** 90
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Terraform enable_https_traffic_only was not an HTTPS-only claim
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — configuration assignment properties.resourceId replaced the row id
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - [x] (proven) `ComparisonAuditService.RecordEndToEndAsync` — canonical record columns but dashed `LeftRunId`/`RightRunId` inside `PayloadJson` broke verify replay — **hit 2026-10-16 seed hunt:** regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`.
 
@@ -20265,18 +20285,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — locus: `TryReadInventoryValue` returns false when the key is absent; input: Microsoft.Storage/storageAccounts row with no `publicNetworkAccess` and declaration `tf.public_network_access_enabled`=`false`; wrong outcome: no mismatch while book ch. 6 treats the omitted property as Enabled; reachability: `docs/book/lab/listings/python/ch06_reachability.py` `storage_public_exposure`.
-- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — locus: `TrackedLogicalPropertyNames`; input: inventory `allowSharedKeyAccess`=`true` against a declaration that shared keys are disabled; wrong outcome: no mismatch; reachability: `infra/terraform-securenow-in-tenant/main.tf` `shared_access_key_enabled = false` and book ch. 3 `allowSharedKeyAccess`. Ingest stores that Terraform key as `[REDACTED]` because `access_key` is a sensitive fragment, so a production bag may not contain `false`.
-- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` is not a topology id key — locus: key list has `selfLink` and `tf.id` and omits `tf.self_link`; input: graph property `tf.self_link` set to a Google API self link and no other id-shaped property; wrong outcome: the node is omitted from reconciliation; reachability: `TerraformShowJsonInfrastructureDeclarationParser` stores every `values.*` attribute as `tf.{sanitized name}`.
-- [ ] (candidate) `InventoryResourcesJsonRowReader.TryGetTrimmedString` — nested `properties.id` is read before the row id — locus: wrapper properties are searched before the row's own keys; input: row `resourceId` is the storage account ARM id and `properties.id` is a different ARM id; wrong outcome: the row is indexed under the nested id; reachability: richer `resources.json` rows whose property bag includes an ARM `id`.
-- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — locus: value compare and the public-exposure gate; input: declaration `publicNetworkAccess`=`Disabled` and inventory `publicNetworkAccess`=`SecuredByPerimeter`; wrong outcome: a data-protection mismatch even though book ch. 6 says that inventory value is unknown; reachability: `docs/book/chapters/06-network-exposure.md` and `docs/book/lab/listings/python/tests/test_ch06_reachability.py`.
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — **cheap-disproof 2026-11-08 thorough hunt:** both stored values are required; see the zone header.
+- [x] (invalid) `DeclarationInventoryContradictionAnalyzer.Analyze` — shared key access is not a tracked logical property — **cheap-disproof 2026-11-08 thorough hunt:** `access_key` redaction; see the zone header.
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — `tf.self_link` was not a topology id key — **hit 2026-11-08 thorough hunt:** regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_self_link`. [class:other]
+- [x] (proven) `InventoryResourcesJsonRowReader.TryGetTrimmedString` — nested property-bag id was read before the row id — **hit 2026-11-08 thorough hunt:** storage accounts have no `properties.id`; the reachable input is `Microsoft.Maintenance/configurationAssignments` `properties.resourceId`; regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target`. [class:identity-alias]
+- [x] (valid-no-repro) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — **cheap-disproof 2026-11-08 thorough hunt:** distinct token; see the zone header.
 
 - [x] (invalid) `MarkdownArchitectureAnalysisExportService.AppendTraceFieldSection` — whitespace-only `ParsedResultJson` still opens a fence — **cheap-disproof 2026-10-29 seed hunt:** stored-empty copy is written without a fence.
 - [x] (invalid) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` whitespace is a false diff — **cheap-disproof 2026-10-29 seed hunt:** both sides are trimmed before compare.
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `enable_https_traffic_only` declaration key — **hit 2026-10-29 seed hunt:** resolve `tf.enable_https_traffic_only`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_enable_https_traffic_only`. [class:fail-open-validation]
 
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — locus: HttpsOnly aliases; input: `tf.enablehttpstrafficonly=true` vs inventory `supportsHttpsTrafficOnly=false`; wrong outcome: miss mismatch; reachability: compacted Terraform show keys.
+- [x] (invalid) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **cheap-disproof 2026-11-08 thorough hunt:** sanitizer keeps underscores; `tf.enable_https_traffic_only` already resolves.
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `https_traffic_only_enabled` was not an HTTPS-only declaration — **hit 2026-10-29 seed hunt:** resolve `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`. [class:fail-open-validation]
 
@@ -24224,13 +24244,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
-2026-10-30 seed hunt (seed-only): reread decisioning after the half-minute RPO fix. No row met the hunt-ready bar without repeating a saturated class or the minute-rounding, NSG field, visit-key, or SKU-token mechanisms. Seeded five candidates below. No production code changed. Private beta: n/a.
+2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `DatastoreSkuReader.TryRead`: `zoneRedundant=false` returned SingleRegion before `accountReplicationType=GRS`. GRS is geo-redundant and not zone-redundant (`templates/context-ingestion/simple-terraform-sketch.json` stores `account_replication_type = "GRS"`; DX-25 reads that key and `zoneRedundant` on the same datastore). A false geo or zone flag now falls through to the SKU token, and a false flag still means single-region when no SKU token maps. Regression `TryRead_maps_grs_when_zone_redundant_is_false` failed first (`SingleRegion`) and then passed with the SKU reader and requirement-tier tests (**12/12**, `RunAnalyzers=false`). Cheap-disproof: `httpsOnly` `0` and `zone_redundant` `no` are coerced to `false` by `GraphJsonScalarReaders.TryNormalizeBooleanString` before these classifiers. `hostNetwork=false` remap and the in-memory sealed-slice insert stay candidates. Private beta: when an invited operator's storage account is GRS and that datastore also records zone redundancy as false, the review treats the account as geo-redundant instead of single-region.
 
-- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returns SingleRegion before the SKU token is read. [class:boolean-coercion]
-- [ ] (candidate) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy, so the app service is not flagged. [class:boolean-coercion]
+- [x] (proven) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returned SingleRegion before the SKU token — **hit 2026-11-08 thorough hunt:** read a mapped SKU before a false zone or geo flag becomes single-region; regression `TryRead_maps_grs_when_zone_redundant_is_false`. [class:boolean-coercion]
+- [x] (valid-no-repro) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy — **cheap-disproof 2026-11-08 thorough hunt:** graph property bags coerce `0` to `false` before the classifier.
 - [ ] (candidate) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — a missing in-scope row inserts `manifest` when `manifest.TenantId` is not `scope.TenantId`; the SQL update throws instead. [class:authz-scope]
 - [ ] (candidate) `DeclarationPremiseConflictClassifier.MapThemeToConflictKind` — `k8s.hostNetwork` value `false` still remaps a network-isolation baseline to workload isolation. [class:boolean-coercion]
-- [ ] (candidate) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled, so it counts as replica evidence. [class:boolean-coercion]
+- [x] (valid-no-repro) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled — **cheap-disproof 2026-11-08 thorough hunt:** graph property bags coerce `no` to `false`, which this method already treats as disabled.
+
+2026-10-30 seed hunt (seed-only): reread decisioning after the half-minute RPO fix. No row met the hunt-ready bar without repeating a saturated class or the minute-rounding, NSG field, visit-key, or SKU-token mechanisms. Seeded five candidates below. No production code changed. Private beta: n/a.
+
+- [x] (proven) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returns SingleRegion before the SKU token is read — **hit 2026-11-08 thorough hunt:** see the zone header. [class:boolean-coercion]
+- [x] (valid-no-repro) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy, so the app service is not flagged — **cheap-disproof 2026-11-08 thorough hunt:** see the zone header.
+- [x] (superseded) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — missing in-scope row insert — **moved 2026-11-08:** open candidate is on the 2026-11-08 hunt note.
+- [x] (superseded) `DeclarationPremiseConflictClassifier.MapThemeToConflictKind` — `k8s.hostNetwork` value `false` — **moved 2026-11-08:** open candidate is on the 2026-11-08 hunt note.
+- [x] (valid-no-repro) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled, so it counts as replica evidence — **cheap-disproof 2026-11-08 thorough hunt:** see the zone header.
 
 2026-10-30 seed hunt (seed→hit): promoted `DrRpoQualityAttributeParser.ConvertHoursToMinutes`, which rounds `rpoHours` `0.0083` (the hours `RequestQualityAttributeMaterializer` stores for `RPO 0.5 minutes`) to 0 minutes, so the recovery finding states `RPO 0 min`; a positive fraction under half a minute now stays at 1 minute while exact hour products such as 0.25 hours stay 15 minutes; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1402/1416** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator records a recovery objective of half a minute, the review states that RPO as 1 minute instead of 0 minutes.
 
@@ -24318,13 +24346,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 66
-- **bugs-found:** 54
+- **hunts:** 67
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — half-minute RPO hours rounded to 0 minutes
+- **last-hunt:** 2026-11-08
+- **last-bug:** 2026-11-08 — zoneRedundant false hid a GRS datastore SKU as single-region
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 seed hunt (seed→hit): proved a simple-terraform Cosmos account named `polyglot` with `terraformType` `azurerm_cosmosdb_account` was skipped by the RPO walk; longer product tokens and declaration type fields now count, and Cosmos role assignments stay excluded; regressions `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` and `AnalyzeAsync_emits_none_when_terraform_type_is_cosmos_role_assignment`; 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed.
 

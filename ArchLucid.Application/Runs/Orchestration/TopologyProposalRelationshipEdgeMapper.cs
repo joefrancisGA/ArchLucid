@@ -107,6 +107,10 @@ public static class TopologyProposalRelationshipEdgeMapper
     {
         Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, List<string>> sharedLeafNodeIds = new(StringComparer.OrdinalIgnoreCase);
+        // An indexed data source leaf is azurerm_<type>.<name>, which the managed resource already owns.
+        // The data.<type>.<name> root has to be recorded separately or it resolves to that managed node.
+        Dictionary<string, string> uniqueIndexedDataSourceRootNodeIds = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<string>> ambiguousIndexedDataSourceRootNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in topologyNodes)
         {
@@ -162,6 +166,13 @@ public static class TopologyProposalRelationshipEdgeMapper
             else
             {
                 indexedTerraformEndpointIdentities.Add(withoutInstanceKey);
+
+                if (dataSourceAddress && !string.IsNullOrWhiteSpace(node.NodeId))
+                    RememberIndexedDataSourceRoot(
+                        "data." + withoutInstanceKey,
+                        node.NodeId,
+                        uniqueIndexedDataSourceRootNodeIds,
+                        ambiguousIndexedDataSourceRootNodeIds);
 
                 if (ambiguousIndexedTerraformEndpointIdentities.Contains(withoutInstanceKey))
                 {
@@ -270,7 +281,39 @@ public static class TopologyProposalRelationshipEdgeMapper
         foreach (string sharedLeaf in ambiguousSharedTerraformLeafNodeIds.Keys)
             endpointKeyToNodeId.Remove(sharedLeaf);
 
+        foreach (KeyValuePair<string, string> dataRoot in uniqueIndexedDataSourceRootNodeIds)
+        {
+            if (ambiguousIndexedDataSourceRootNodeIds.ContainsKey(dataRoot.Key))
+                continue;
+
+            endpointKeyToNodeId.TryAdd(dataRoot.Key, dataRoot.Value);
+        }
+
+        foreach (KeyValuePair<string, List<string>> dataRoot in ambiguousIndexedDataSourceRootNodeIds)
+            ambiguousSharedTerraformLeafNodeIds[dataRoot.Key] = dataRoot.Value;
+
         return endpointKeyToNodeId;
+    }
+
+    private static void RememberIndexedDataSourceRoot(
+        string dataRoot,
+        string nodeId,
+        Dictionary<string, string> uniqueIndexedDataSourceRootNodeIds,
+        Dictionary<string, List<string>> ambiguousIndexedDataSourceRootNodeIds)
+    {
+        if (ambiguousIndexedDataSourceRootNodeIds.ContainsKey(dataRoot))
+        {
+            ambiguousIndexedDataSourceRootNodeIds[dataRoot].Add(nodeId);
+
+            return;
+        }
+
+        if (!uniqueIndexedDataSourceRootNodeIds.TryAdd(dataRoot, nodeId))
+        {
+            string firstNodeId = uniqueIndexedDataSourceRootNodeIds[dataRoot];
+            uniqueIndexedDataSourceRootNodeIds.Remove(dataRoot);
+            ambiguousIndexedDataSourceRootNodeIds[dataRoot] = [firstNodeId, nodeId];
+        }
     }
 
     private static string NormalizeAliasTargetNodeId(string aliasTargetNodeId)

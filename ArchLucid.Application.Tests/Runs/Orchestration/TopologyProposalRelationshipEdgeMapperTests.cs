@@ -1375,6 +1375,64 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_indexed_data_source_root_when_managed_resource_has_the_same_address()
+    {
+        // for_each data sources are addressed as data.<type>.<name>["key"]. The bare data root
+        // must not fall through to the managed resource that owns the same type and name.
+        const string managedAddress = "azurerm_app_service.main";
+        const string dataAddress = "data." + managedAddress + "[\"primary\"]";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "managed-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "managed-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = managedAddress,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "data-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "data-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = dataAddress,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "data." + managedAddress,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle();
+        edges[0].FromNodeId.Should().Be("data-api");
+        edges[0].ToNodeId.Should().Be("ds-1");
+    }
+
+    [Fact]
     public void MapRelationships_resolves_unindexed_root_when_graph_has_single_indexed_instance_with_quoted_key_in_source_id()
     {
         const string rootTerraformAddress = "azurerm_app_service.main";

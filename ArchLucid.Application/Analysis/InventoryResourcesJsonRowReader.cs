@@ -83,6 +83,17 @@ internal static class InventoryResourcesJsonRowReader
         }
     }
 
+    internal static string? TryGetDirectTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)
+    {
+        if (row.ValueKind is not JsonValueKind.Object)
+            return null;
+
+        if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
+            return direct;
+
+        return null;
+    }
+
     internal static string? TryGetTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)
     {
         if (row.ValueKind is JsonValueKind.Object)
