@@ -1919,7 +1919,7 @@ jobs:
 
       - name: Cache Terraform provider plugins
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-plugins-${{ runner.os }}-${{ hashFiles('infra/**/.terraform.lock.hcl', 'deploy/**/.terraform.lock.hcl') }}
