@@ -105,6 +105,9 @@ class OfflineBatchTests(unittest.TestCase):
         report = self.execute(questions=True)
         self.assertEqual(report["status"], "PARTIAL_NATIVE_REPLAY_ONLY")
         self.assertEqual(report["nativeExecutionCount"], 2)
+        self.assertEqual(
+            report["nativeDllSha256"],
+            hashlib.sha256(self.native_dll.read_bytes()).hexdigest())
         self.assertTrue(all(
             item["inventoryQuestionParity"] == "MATCHED_PARTIAL_SLICE"
             for item in report["subscriptions"]))
