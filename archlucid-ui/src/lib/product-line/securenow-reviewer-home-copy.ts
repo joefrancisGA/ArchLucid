@@ -2,6 +2,7 @@ import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-h
 import {
   WHY_SECURENOW_CONVERSATION_MAILTO,
 } from "@/lib/marketing/why-securenow-draft-copy";
+import { SECURENOW_ACCELERATOR_INDEX_PATH } from "@/lib/product-line/securenow-accelerator-index-copy";
 import { SECURENOW_REVIEWER_PACKET_PATH } from "@/lib/product-line/securenow-reviewer-packet-copy";
 
 export const SECURENOW_REVIEWER_HOME_SECTION_HEADING = "For reviewers" as const;
@@ -19,6 +20,16 @@ export const SECURENOW_REVIEWER_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     href: "/securenow-sample",
     label: "SecureNow sample",
     summary: "One synthetic ranked path. Not a customer result.",
+  },
+  {
+    href: SECURENOW_ACCELERATOR_INDEX_PATH,
+    label: "Accelerator index",
+    summary: "Fixture walks, readout pack, and scenario handoffs — start here for templates.",
+  },
+  {
+    href: `${SECURENOW_REVIEWER_PACKET_PATH}#securenow-reviewer-procurement-evidence-map`,
+    label: "Procurement evidence map",
+    summary: "Trust, assurance, quote packet — and what is not published.",
   },
   {
     href: SECURENOW_REVIEWER_PACKET_PATH,

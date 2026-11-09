@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { ProcurementEvidenceMapSection } from "@/components/procurement/ProcurementEvidenceMapSection";
 import { SecureNowReviewerProcurementChecklist } from "@/components/product-line/SecureNowReviewerProcurementChecklist";
+import { SECURENOW_PROCUREMENT_EVIDENCE_ROWS } from "@/lib/procurement/procurement-evidence-map-copy";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -27,6 +29,8 @@ export function SecureNowReviewerPacketPageView(): React.JSX.Element {
         <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_REVIEWER_PACKET_NO_GO}</p>
 
         <SecureNowReviewerProcurementChecklist />
+
+        <ProcurementEvidenceMapSection rows={SECURENOW_PROCUREMENT_EVIDENCE_ROWS} testId="securenow-reviewer-procurement-evidence-map" />
 
         <section
           id="procurement-index"

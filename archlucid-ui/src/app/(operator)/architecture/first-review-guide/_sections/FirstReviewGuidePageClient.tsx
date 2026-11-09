@@ -69,6 +69,8 @@ import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSe
 import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
 import { FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
+import { ArchLucidBetaSkuContentsSection } from "@/components/product-line/ArchLucidBetaSkuContentsSection";
+import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
 import { FirstReviewOpenGateStarterShortcut } from "@/components/usability/FirstReviewOpenGateStarterShortcut";
 import { OnboardingSampleReviewShortcut } from "@/components/usability/OnboardingSampleReviewShortcut";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
@@ -360,6 +362,10 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
 
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <FirstReviewOpenGateStarterShortcut /> : null}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <ArchLucidBetaSkuContentsSection showQuoteLink /> : null}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <ArchLucidProcurementEvidenceHomeSection /> : null}
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
 

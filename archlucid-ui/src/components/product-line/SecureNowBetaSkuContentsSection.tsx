@@ -8,6 +8,7 @@ import {
   SECURENOW_BETA_SKU_CONTENTS_LEAD,
   SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF,
   SECURENOW_BETA_SKU_CONTENTS_QUOTE_LABEL,
+  SECURENOW_OPERATOR_QUOTE_PACKET_HREF,
 } from "@/lib/product-line/securenow-beta-sku-contents-copy";
 
 type SecureNowBetaSkuContentsSectionProps = {
@@ -57,7 +58,13 @@ export function SecureNowBetaSkuContentsSection(
             {SECURENOW_BETA_SKU_CONTENTS_QUOTE_LABEL}
           </Link>
         </p>
-      ) : null}
+      ) : (
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_OPERATOR_QUOTE_PACKET_HREF}>
+            Open signed-in quote packet
+          </Link>
+        </p>
+      )}
     </section>
   );
 }

@@ -340,6 +340,34 @@ export function resolveFirstReviewFindingsWorkspaceHref(input: {
     findingId,
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
     architectureId: input.architectureId,
+    workbenchFocus: "findings",
+  });
+}
+
+/** Findings tab deep link when disposition recording is the next open-gate action. */
+export function resolveFirstReviewRecordDispositionHref(input: {
+  readonly runId: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly hasFindingsSnapshot: boolean;
+  readonly architectureId?: string | null;
+}): string | null {
+  const trimmedRunId = input.runId.trim();
+
+  if (trimmedRunId.length === 0 || !input.hasFindingsSnapshot) {
+    return null;
+  }
+
+  const findingId = resolveFirstOpenDispositionFindingId(input.findings);
+
+  if (findingId === null) {
+    return resolveFirstReviewFindingsWorkspaceHref(input);
+  }
+
+  return buildReviewDetailTabHref(trimmedRunId, "findings", {
+    findingId,
+    hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
+    architectureId: input.architectureId,
+    workbenchFocus: "findings",
   });
 }
 
@@ -361,6 +389,7 @@ export function resolveFirstReviewTopFindingInspectHref(input: {
     findingId,
     hash: resolveFirstReviewSpineOpenGateSectionId("findings"),
     architectureId: input.architectureId,
+    workbenchFocus: "findings",
   });
 }
 

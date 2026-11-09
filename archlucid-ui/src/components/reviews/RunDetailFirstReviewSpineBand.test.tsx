@@ -135,7 +135,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
 
     expect(screen.getByTestId("run-detail-first-review-spine-top-finding-link")).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
