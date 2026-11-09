@@ -212,6 +212,24 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
   });
 
   it("does not show verified associations when the detail list is empty", async () => {
+    vi.mocked(fetchRemediationInstanceDetail).mockResolvedValueOnce({
+      instance: {
+        instanceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        findingId: "22222222-2222-2222-2222-222222222222",
+        patternKey: "storage.encrypt-at-rest",
+        status: "PreflightBlocked",
+        automationLevel: "Guided",
+        cloudResourceId: "33333333-3333-3333-3333-333333333333",
+        waveId: null,
+        createdUtc: "2026-09-01T12:00:00Z",
+        updatedUtc: "2026-09-01T12:00:00Z",
+      },
+      finding: null,
+      activeMatch: null,
+      evidence: [],
+      verifiedRemediationAssociations: [],
+    });
+
     searchParams = new URLSearchParams("");
     render(<RemediationWorkbenchClient />);
 
@@ -221,10 +239,7 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
 
     fireEvent.click(await screen.findByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("infra-remediation-preflight-blocked-reason")).toBeInTheDocument();
-    });
-
+    expect(await screen.findByTestId("infra-remediation-preflight-blocked-reason")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-remediation-verified-associations")).not.toBeInTheDocument();
   });
 });

@@ -81,6 +81,13 @@ public static class ComparisonReplayTestFixture
 
         string replayManifestVersion = NewReplayCommittedManifestVersion();
 
+        if (factory is not null)
+        {
+            await IntegrationTestArchitectureVersionPinSupport
+                .EnsureCurrentPinForRunAsync(factory, runId)
+                .ConfigureAwait(false);
+        }
+
         HttpResponseMessage replayResponse = await client.PostAsync(
             $"/v1/architecture/review/{runId}/replay",
             JsonContent(new

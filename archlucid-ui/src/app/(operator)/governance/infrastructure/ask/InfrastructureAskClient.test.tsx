@@ -116,7 +116,6 @@ describe("InfrastructureAskClient", () => {
       citations: [],
       simulatorLabel: null,
     });
-    searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {

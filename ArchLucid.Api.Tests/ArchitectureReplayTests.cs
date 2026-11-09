@@ -53,10 +53,14 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         const string rightVersion = "v1-replay";
+
+        await IntegrationTestArchitectureVersionPinSupport
+            .EnsureCurrentPinForRunAsync(Factory, runId)
+            .ConfigureAwait(false);
 
         var replayRequest = new
         {
