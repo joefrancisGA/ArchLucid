@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-09 - SecureNow quote fees have one source
+
+**Outcome.** The owner-approved SecureNow quote fees now live only in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §9. [`PRIVATE_PRICE_SHEET.md`](securenow/PRIVATE_PRICE_SHEET.md) keeps seller, tax, and payout identity and no longer repeats the amounts. The fees are still not a public list price, not checkout, and not permission to invoice. Beta remains **NO_GO**.
+
+**Surfaces.** `scripts/ci/check_pricing_single_source.py` locks the four fee phrases and the evaluation-fee credit sentence.
+
 ## 2026-09-18 - Azure extractor: customer-owned scheduled agent
 
 **Outcome.** Production Azure inventory collection can run as a customer-owned Automation runbook or Function timer so operators do not pull from a command line or UI. The agent reuses `Get-ArchLucidAzurePackage.ps1` and `POST /v1/azure-extractor/upload`.

@@ -26,7 +26,7 @@ Owner-approved SKU identifiers on the private quote sheet (not copied here): **S
 
 ## How to ask for the fee
 
-Fee amounts and meters live only in [`PRIVATE_PRICE_SHEET.md`](PRIVATE_PRICE_SHEET.md). The owner sends figures under a separate approval. This cover does not contain those figures and does not authorize forwarding the fee table.
+Fee amounts live only in [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §9. Seller and tax posture stay in [`PRIVATE_PRICE_SHEET.md`](PRIVATE_PRICE_SHEET.md). The owner sends figures under a separate approval. This cover does not contain those figures and does not authorize forwarding the fee table.
 
 ## Seller
 
