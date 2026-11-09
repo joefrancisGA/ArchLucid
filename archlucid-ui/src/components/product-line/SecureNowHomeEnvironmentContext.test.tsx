@@ -90,6 +90,7 @@ function snapshot(overrides: Record<string, unknown> = {}) {
 
 describe("SecureNowHomeEnvironmentContext", () => {
   beforeEach(() => {
+    window.localStorage.clear();
     listTier2Connections.mockReset();
     listTier2Connections.mockResolvedValue([]);
     attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockReset();
@@ -298,12 +299,19 @@ describe("SecureNowHomeEnvironmentContext", () => {
     renderContext();
 
     await waitFor(() => {
-      expect(screen.getByTestId("securenow-capture-delta")).toHaveTextContent("Added: path-added");
+      expect(screen.getByTestId("securenow-capture-delta")).toHaveTextContent("1 added, 1 gone, 1 unchanged");
     });
 
     const delta = screen.getByTestId("securenow-capture-delta");
-    expect(delta).toHaveTextContent("Gone: path-gone");
-    expect(delta).toHaveTextContent("Unchanged: path-shared");
+    expect(delta).toHaveTextContent("Added:");
+    expect(screen.getByRole("link", { name: "path-added" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory?pathId=path-added",
+    );
+    expect(screen.getByRole("link", { name: "path-gone" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory?pathId=path-gone",
+    );
     expect(delta).toHaveTextContent("This is not a usage claim.");
   });
 });

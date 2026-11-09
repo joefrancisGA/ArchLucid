@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -16,8 +17,13 @@ import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-ev
 import {
   computeSecureNowCapturePathDelta,
   collectSecurityEvidencePathIdsFromAttackPathReport,
-  formatSecureNowCapturePathDeltaList,
 } from "@/lib/product-line/securenow-capture-path-delta";
+import {
+  formatSecureNowCapturePathDeltaCounts,
+  readSecureNowLastOpenedSnapshotId,
+  secureNowPathInspectHref,
+  writeSecureNowLastOpenedSnapshotId,
+} from "@/lib/product-line/securenow-stickiness";
 import { fetchRankedSecurityEvidencePaths, fetchSecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -78,10 +84,39 @@ function collectionGapDescription(snapshot: InfraEvidenceSnapshotSummary): strin
   return null;
 }
 
+function PathIdLinks(props: { readonly pathIds: readonly string[] }): React.JSX.Element {
+  if (props.pathIds.length === 0) {
+    return <span>None</span>;
+  }
+
+  return (
+    <>
+      {props.pathIds.map((pathId, index) => (
+        <span key={pathId}>
+          {index > 0 ? ", " : null}
+          <ContextLink href={secureNowPathInspectHref(pathId)}>{pathId}</ContextLink>
+        </span>
+      ))}
+    </>
+  );
+}
+
 function CaptureDeltaBlock(props: {
+  readonly workspaceId: string;
   readonly eligibleSnapshots: readonly InfraEvidenceSnapshotSummary[];
   readonly reportQueries: ReadonlyArray<{ readonly isPending: boolean; readonly isError: boolean; readonly data: ReturnType<typeof collectSecurityEvidencePathIdsFromAttackPathReport> | undefined }>;
 }): React.JSX.Element {
+  const latestSnapshotId = props.eligibleSnapshots[0]?.snapshotId ?? null;
+  const [lastOpenedSnapshotId, setLastOpenedSnapshotId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const previous = readSecureNowLastOpenedSnapshotId(props.workspaceId);
+    setLastOpenedSnapshotId(previous);
+
+    if (latestSnapshotId !== null) {
+      writeSecureNowLastOpenedSnapshotId(props.workspaceId, latestSnapshotId);
+    }
+  }, [latestSnapshotId, props.workspaceId]);
   if (props.eligibleSnapshots.length < 2) {
     return (
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
@@ -112,13 +147,27 @@ function CaptureDeltaBlock(props: {
   const previousIds = props.reportQueries[1]?.data ?? [];
   const delta = computeSecureNowCapturePathDelta(previousIds, latestIds);
 
+  const returnSinceLastOpen =
+    lastOpenedSnapshotId === null || latestSnapshotId === null
+      ? null
+      : lastOpenedSnapshotId === latestSnapshotId
+        ? "No newer capture since you last opened Home."
+        : "New capture since you last opened Home.";
+
   return (
     <div className={cn("m-0 space-y-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
-      <p className="m-0">
-        Added: {formatSecureNowCapturePathDeltaList(delta.added)} · Gone:{" "}
-        {formatSecureNowCapturePathDeltaList(delta.gone)} · Unchanged:{" "}
-        {formatSecureNowCapturePathDeltaList(delta.unchanged)}
+      <p className="m-0" data-testid="securenow-capture-delta-counts">
+        {formatSecureNowCapturePathDeltaCounts(delta)}
       </p>
+      <p className="m-0">
+        Added: <PathIdLinks pathIds={delta.added} /> · Gone: <PathIdLinks pathIds={delta.gone} /> · Unchanged:{" "}
+        <PathIdLinks pathIds={delta.unchanged} />
+      </p>
+      {returnSinceLastOpen !== null ? (
+        <p className="m-0" data-testid="securenow-last-opened-capture">
+          {returnSinceLastOpen}
+        </p>
+      ) : null}
       <p className="m-0">
         This is not a usage claim.{" "}
         <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
@@ -290,6 +339,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
           This is not a timed SLA.
         </p>
         <CaptureDeltaBlock
+          workspaceId={scope.workspaceId}
           eligibleSnapshots={eligibleCaptureSnapshots}
           reportQueries={pathDeltaReportQueryViews}
         />
@@ -334,6 +384,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         This is not a timed SLA.
       </p>
       <CaptureDeltaBlock
+        workspaceId={scope.workspaceId}
         eligibleSnapshots={eligibleCaptureSnapshots}
         reportQueries={pathDeltaReportQueryViews}
       />

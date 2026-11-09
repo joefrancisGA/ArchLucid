@@ -36,6 +36,7 @@ import {
 import { buildResourceHubOverviewHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
+import { SecureNowPinPathButton } from "@/components/product-line/SecureNowPinPathButton";
 import {
   SECURENOW_PATH_INSPECT_ADVISORY_INSTANCE_LINK,
   SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE,
@@ -792,7 +793,8 @@ export function SecurityEvidencePathInspectPanel(props: {
           </p>
         ) : null}
         {resolvedPathId != null ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0 flex flex-wrap items-center gap-3", OPERATOR_TYPOGRAPHY.helper)}>
+            <SecureNowPinPathButton pathId={resolvedPathId} />
             <Link
               href={`/administration/securenow-sponsor-path?pathId=${encodeURIComponent(resolvedPathId)}`}
               className={OPERATOR_LINK.inline}
