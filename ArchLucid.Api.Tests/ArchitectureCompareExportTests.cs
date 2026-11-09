@@ -16,31 +16,13 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
     [SkippableFact]
     public async Task CompareManifestsExport_ReturnsMarkdownExport()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMPARE-EXPORT-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
-
+        (string runId, string leftVersion) = await CreateFinalizedRunAsync("REQ-COMPARE-EXPORT-001");
         const string requestedReplayManifestVersion = "v1-replay";
 
-        object replayRequest = new
-        {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = requestedReplayManifestVersion
-        };
-
-        HttpResponseMessage replayResponse =
-            await Client.PostAsync($"/v1/architecture/review/{runId}/replay", JsonContent(replayRequest));
+        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+            runId,
+            commitReplay: true,
+            manifestVersionOverride: requestedReplayManifestVersion);
         await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);

@@ -18,16 +18,10 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     {
         string runId = await Replay.CreateAndExecuteAsync("REQ-REPLAY-001");
 
-        var replayRequest = new
-        {
-            commitReplay = false,
-            executionMode = "Current",
-            manifestVersionOverride = (string?)null
-        };
-
-        HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
-            JsonContent(replayRequest));
+        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+            runId,
+            commitReplay: false,
+            manifestVersionOverride: null);
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -43,30 +37,13 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [SkippableFact]
     public async Task ReplayRun_WithCommitReplay_CreatesReplayManifest()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-REPLAY-002")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-REPLAY-002");
         const string rightVersion = "v1-replay";
 
-        var replayRequest = new
-        {
-            commitReplay = true,
-            executionMode = "Current",
-            manifestVersionOverride = rightVersion
-        };
-
-        HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
-            JsonContent(replayRequest));
+        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+            runId,
+            commitReplay: true,
+            manifestVersionOverride: rightVersion);
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

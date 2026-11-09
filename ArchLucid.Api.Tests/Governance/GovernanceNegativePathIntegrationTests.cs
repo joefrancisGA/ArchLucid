@@ -169,8 +169,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
 
     private async Task<(string RunId, string ManifestVersion)> CreateCommittedRunAsync(string requestId)
     {
-        (string runId, string manifestVersion) = await IntegrationTestRunLifecycleSupport
-            .CreateRunExecuteAndFinalizeForTestAsync(Client, Factory, JsonOptions, requestId);
+        (string runId, string manifestVersion) = await CreateFinalizedRunAsync(requestId);
 
         runId.Should().NotBeNullOrWhiteSpace();
         manifestVersion.Should().NotBeNullOrWhiteSpace();

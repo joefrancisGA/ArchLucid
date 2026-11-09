@@ -37,6 +37,42 @@ public static class IntegrationTestRunLifecycleSupport
         HttpContent? body = null) =>
         new(HttpMethod.Post, FinalizeReviewRelativeUrl(runId)) { Content = body };
 
+    /// <summary>Builds a review replay <see cref="HttpRequestMessage" /> (custom headers / audit tests).</summary>
+    public static HttpRequestMessage CreateReviewReplayRequest(
+        string runId,
+        bool commitReplay,
+        string executionMode = "Current",
+        string? manifestVersionOverride = null) =>
+        new(HttpMethod.Post, ReplayReviewRelativeUrl(runId))
+        {
+            Content = JsonContent.Create(new { commitReplay, executionMode, manifestVersionOverride })
+        };
+
+    /// <summary>
+    ///     POST review replay with optional κ pin refresh before commit-replay paths.
+    /// </summary>
+    public static async Task<HttpResponseMessage> PostReviewReplayForTestAsync(
+        this HttpClient client,
+        ArchLucidApiFactory? factory,
+        string runId,
+        bool commitReplay,
+        string executionMode = "Current",
+        string? manifestVersionOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (factory is not null)
+        {
+            await IntegrationTestArchitectureVersionPinSupport
+                .EnsureCurrentPinForRunAsync(factory, runId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return await client.PostAsync(
+            ReplayReviewRelativeUrl(runId),
+            JsonContent.Create(new { commitReplay, executionMode, manifestVersionOverride }),
+            cancellationToken);
+    }
+
     public static async Task<bool> IsAuthorityPipelineCompleteExecuteConflictAsync(
         this HttpResponseMessage response,
         CancellationToken cancellationToken = default)
@@ -49,6 +85,10 @@ public static class IntegrationTestRunLifecycleSupport
         return body.Contains("authority-pipeline complete", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    ///     Execute only when the authority pipeline is not already complete. Prefer
+    ///     <see cref="PostExecuteAndEnsureArchitectureVersionPinForTestAsync" /> when finalize follows in the same test.
+    /// </summary>
     public static async Task PostExecuteUnlessAuthorityPipelineCompleteAsync(
         this HttpClient client,
         string runId,

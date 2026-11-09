@@ -30,12 +30,10 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
 
         string replayManifestVersion = ReplaySession.NewReplayCommittedManifestVersion();
 
-        HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true, executionMode = "Current", manifestVersionOverride = replayManifestVersion
-            }));
+        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+            runId,
+            commitReplay: true,
+            manifestVersionOverride: replayManifestVersion);
         await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload!.ReplayRunId.Should().NotBe(runId);
