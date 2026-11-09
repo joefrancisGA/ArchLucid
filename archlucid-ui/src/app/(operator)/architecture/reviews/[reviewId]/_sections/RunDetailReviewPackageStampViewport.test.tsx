@@ -54,14 +54,16 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     );
 
     expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-review-package-procurement-evidence")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-review-package-package-detail-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
       /16 catalog engines were recorded/,
     );
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
-    expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
-    expect(screen.getByText(/inferred \(1\)/i)).toBeVisible();
-    expect(screen.getByText(/skipped must questions \(1\)/i)).toBeVisible();
+    expect(screen.getByText(/asserted \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/inferred \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/skipped must questions \(1\)/i)).toBeInTheDocument();
   });
 
   it("keeps the findings next-action link on the sealed stamp", () => {
@@ -91,9 +93,9 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
       />,
     );
 
-    expect(screen.getByTestId("run-detail-first-review-spine-disposition-findings-link")).toHaveAttribute(
+    expect(screen.getByTestId("run-detail-first-review-spine-record-disposition-primary")).toHaveAttribute(
       "href",
-      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-1?reviewTab=findings&findingId=finding-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
@@ -125,9 +127,9 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
       />,
     );
 
-    expect(screen.getByTestId("run-detail-first-review-spine-disposition-findings-link")).toHaveAttribute(
+    expect(screen.getByTestId("run-detail-first-review-spine-record-disposition-primary")).toHaveAttribute(
       "href",
-      "/architecture/architectures/architecture-identity-001/reviews/run-1?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      "/architecture/architectures/architecture-identity-001/reviews/run-1?reviewTab=findings&findingId=finding-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 

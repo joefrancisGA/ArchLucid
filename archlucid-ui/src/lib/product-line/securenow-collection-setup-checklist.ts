@@ -68,6 +68,37 @@ export type SecureNowCollectionPrimaryBlocker = {
 };
 
 /** First incomplete collection step — one headline blocker for Home and cloud connections. */
+export type SecureNowCollectionYouAreHere = {
+  readonly stepIndex: number;
+  readonly stepCount: number;
+  readonly stepLabel: string;
+  readonly recoveryHref: string;
+};
+
+export function resolveSecureNowCollectionYouAreHere(
+  input: SecureNowCollectionMissingInput,
+): SecureNowCollectionYouAreHere | null {
+  const blocker = resolveSecureNowCollectionPrimaryBlocker(input);
+
+  if (blocker === null) {
+    return null;
+  }
+
+  const steps = resolveSecureNowCollectionSetupSteps(input);
+  const stepIndex = steps.findIndex((step) => step.id === blocker.stepId);
+
+  if (stepIndex < 0) {
+    return null;
+  }
+
+  return {
+    stepIndex: stepIndex + 1,
+    stepCount: steps.length,
+    stepLabel: blocker.stepLabel,
+    recoveryHref: blocker.recoveryHref,
+  };
+}
+
 export function resolveSecureNowCollectionPrimaryBlocker(
   input: SecureNowCollectionMissingInput,
 ): SecureNowCollectionPrimaryBlocker | null {

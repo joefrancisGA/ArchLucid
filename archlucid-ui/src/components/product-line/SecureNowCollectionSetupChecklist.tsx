@@ -17,6 +17,7 @@ export type SecureNowCollectionSetupChecklistProps = {
   readonly input: SecureNowCollectionMissingInput;
   readonly testIdPrefix: string;
   readonly titleHeadingLevel?: "helper" | "cardTitle";
+  readonly suppressRecoveryLink?: boolean;
 };
 
 export function SecureNowCollectionSetupChecklist(
@@ -36,7 +37,7 @@ export function SecureNowCollectionSetupChecklist(
         emphasizedStepId={emphasizedStepId}
         testIdPrefix={props.testIdPrefix}
       />
-      {emphasizedStep !== undefined ? (
+      {emphasizedStep !== undefined && props.suppressRecoveryLink !== true ? (
         <p
           className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
           data-testid={`${props.testIdPrefix}-collection-setup-next`}

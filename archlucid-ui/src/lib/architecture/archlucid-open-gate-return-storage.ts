@@ -3,6 +3,7 @@ export type ArchLucidOpenGateReturnRecord = {
   readonly openGateLabel: string;
   readonly href: string;
   readonly recordedAtUtc: string;
+  readonly findingId?: string | null;
 };
 
 const STORAGE_PREFIX = "archlucid-open-gate-return:" as const;
@@ -29,6 +30,15 @@ export function readArchLucidOpenGateReturnRecord(workspaceId: string): ArchLuci
       typeof parsed.runId !== "string"
       || typeof parsed.openGateLabel !== "string"
       || typeof parsed.href !== "string"
+      || typeof parsed.recordedAtUtc !== "string"
+    ) {
+      return null;
+    }
+
+    if (
+      parsed.findingId !== undefined
+      && parsed.findingId !== null
+      && typeof parsed.findingId !== "string"
     ) {
       return null;
     }
