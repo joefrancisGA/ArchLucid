@@ -282,10 +282,13 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 | JWT, custom body, or idempotency header on intake | `CreateArchitectureRequestMessage` → `SendAsync` |
 | Greenfield SQL with transient 503 retry + unique idempotency key | `PostGreenfieldArchitectureRequestForTestAsync` |
 | Run through execute (and optional finalize) for most lifecycle tests | `CreateFinalizedRunAsync` / `CreateFinalizedRunForTestAsync` → **`FinalizedRun`** |
-| Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync`, `PersistEndToEndComparisonAsync`) |
+| Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync` → **`CommittedReplayPair`**, `PersistEndToEndComparisonAsync`) |
+| Per-test isolated SQL factory (no class fixture) | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
+| Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** / **`PostEndToEndCompareSummaryForTestAsync`** |
+| JSON body outside `IntegrationTestBase.JsonContent` | **`IntegrationTestHttpContent.CreateJson`** with **`IntegrationTestBase.CreateApiJsonOptions()`** |
 | Assert HTTP success with CI-friendly logs | `EnsureSuccessForTestAsync` (not `EnsureSuccessStatusCode`) |
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, eight facts) centralizes harness golden-path rules (lifecycle URLs, intake POSTs, execute-before-finalize pin refresh, greenfield intake dedupe, `EnsureSuccessForTestAsync`).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, nine facts) centralizes harness golden-path rules (lifecycle URLs, intake POSTs, end-to-end compare summary URLs, execute-before-finalize pin refresh, greenfield intake dedupe, `EnsureSuccessForTestAsync`).
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

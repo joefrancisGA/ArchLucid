@@ -47,6 +47,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"\.PostAsync\s*\(\s*IntegrationTestRunLifecycleSupport\.ArchitectureRequestRelativeUrl",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RawEndToEndCompareSummaryEmbedRegex = new(
+        @"""/v1/architecture/review/compare/end-to-end/summary",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex PostExecuteUnlessRegex = new(
         @"\.PostExecuteUnlessAuthorityPipelineCompleteAsync\s*\(",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -68,6 +72,16 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> EndToEndCompareSummaryAllowlist = new(StringComparer.Ordinal)
+    {
+        nameof(IntegrationTestRunLifecycleSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+        nameof(ArchitectureComparisonAuditTests) + ".cs",
+        nameof(ArchitectureEndToEndCompareRunNotFoundTests) + ".cs",
+        nameof(ComparisonPersistConcurrencyIntegrationTests) + ".cs",
     };
 
     private static readonly HashSet<string> PostExecuteUnlessAllowlist = new(StringComparer.Ordinal)
@@ -130,6 +144,11 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         return ScanContentViolations(
             LifecycleSupportExclusions,
             static content => HandRolledIntakePostRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanRawEndToEndCompareSummaryUrls()
+    {
+        return ScanFileAllowlistViolations(EndToEndCompareSummaryAllowlist, RawEndToEndCompareSummaryEmbedRegex);
     }
 
     internal static List<string> ScanPostExecuteUnlessBeforeFinalize()

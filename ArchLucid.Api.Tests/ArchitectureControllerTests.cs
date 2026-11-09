@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Application.Templates;
@@ -23,32 +21,12 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureControllerTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
-
-    private static async Task RunWithIsolatedFactory(Func<HttpClient, ArchLucidApiFactory, Task> act)
-    {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = await factory.CreateBoundedClientAsync();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-        await IntegrationTestWorkspaceModeSupport.PinGuidedWorkspaceModeForDevUserAsync(factory);
-        await act(client, factory);
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task CreateRun_ReturnsRun()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             object request = TestRequestFactory.CreateArchitectureRequest("REQ-API-001");
 
@@ -74,7 +52,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GetRun_ReturnsTasks()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-002"));
 
@@ -100,7 +78,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task ExecuteRun_SeedsResults()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-003"));
 
@@ -141,7 +119,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CommitRun_CreatesManifest()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             const string requestId = "REQ-API-004";
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
@@ -175,7 +153,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task ExecuteRun_ExecutesTasksAndReturnsResults()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC"));
 
@@ -209,7 +187,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GoldenPath_EndToEnd_WithExecute()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             const string requestId = "REQ-API-006";
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
@@ -253,7 +231,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GoldenPath_EndToEnd()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             const string requestId = "REQ-API-005";
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
@@ -305,12 +283,12 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-001");
             using HttpRequestMessage first =
-                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(body, JsonOptions), idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
             firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -320,7 +298,7 @@ public sealed class ArchitectureControllerTests
             firstPayload.Should().NotBeNull();
 
             using HttpRequestMessage second =
-                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(body, JsonOptions), idempotencyKey);
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
             secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -338,18 +316,18 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CreateRun_SameIdempotencyKeyDifferentBody_Returns409()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object firstBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002A");
             using HttpRequestMessage first =
-                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(firstBody), idempotencyKey);
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(firstBody, JsonOptions), idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
             await firstResponse.EnsureSuccessForTestAsync();
             object secondBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002B");
             using HttpRequestMessage second =
-                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(secondBody), idempotencyKey);
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(secondBody, JsonOptions), idempotencyKey);
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
             secondResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -359,7 +337,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task CreateRun_ParallelSameIdempotencyKeyAndBody_AllSucceedWithSingleRunId()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             string idempotencyKey = $"idem-parallel-{Guid.NewGuid():N}";
             object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-PAR");
@@ -402,7 +380,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task GetArchitectureRequestTemplates_ReturnsCatalogSummariesWithExpectedIds()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             HttpResponseMessage response = await client.GetAsync("/v1/architecture/templates");
 
@@ -431,7 +409,7 @@ public sealed class ArchitectureControllerTests
     [SkippableFact]
     public async Task Post_each_catalog_template_creates_valid_run()
     {
-        await RunWithIsolatedFactory(async (client, factory) =>
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             ArchitectureRequest[] templates =
             [
@@ -470,7 +448,7 @@ public sealed class ArchitectureControllerTests
         string idempotencyKey)
     {
         using HttpRequestMessage request =
-            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
+            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(body, JsonOptions), idempotencyKey);
 
         return await client.SendAsync(request);
     }
