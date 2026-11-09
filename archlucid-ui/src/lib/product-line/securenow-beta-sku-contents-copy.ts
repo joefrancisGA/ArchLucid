@@ -1,3 +1,5 @@
+import { SECURENOW_PUBLIC_QUOTE_SEQUENCE_SECTION_ID } from "@/lib/marketing/securenow-public-commercial-packaging-copy";
+
 export const SECURENOW_BETA_SKU_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
 export const SECURENOW_BETA_SKU_CONTENTS_LEAD =
@@ -16,6 +18,10 @@ export const SECURENOW_BETA_SKU_CONTENTS_EXCLUDES = [
   "A customer outcome — fixture paths and samples stay synthetic until you capture your subscription",
 ] as const;
 
-export const SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF = "/administration/securenow-quote-packet" as const;
+export const SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF =
+  `/securenow-sku#${SECURENOW_PUBLIC_QUOTE_SEQUENCE_SECTION_ID}` as const;
 
-export const SECURENOW_BETA_SKU_CONTENTS_QUOTE_LABEL = "Open quote packet" as const;
+export const SECURENOW_BETA_SKU_CONTENTS_QUOTE_LABEL = "View quote sequence on this card" as const;
+
+/** Operator quote packet page keeps the administration surface for signed-in buyers. */
+export const SECURENOW_OPERATOR_QUOTE_PACKET_HREF = "/administration/securenow-quote-packet" as const;

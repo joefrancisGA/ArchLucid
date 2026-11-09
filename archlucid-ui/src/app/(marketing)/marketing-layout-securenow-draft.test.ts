@@ -40,6 +40,7 @@ describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
 
   it("matches the shipped resources links without adding why-securenow to welcome or footer", () => {
     expect(resourcesMenuSource).toContain('href="/why-securenow"');
+    expect(resourcesMenuSource).toContain('href="/securenow-sku"');
     expect(resourcesMenuSource).toContain('href="/securenow-sample"');
 
     expect(welcomeMarketingEngagementPathsSource).not.toContain('href="/why-securenow"');
@@ -48,8 +49,10 @@ describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
     expect(welcomeMarketingProofAtGlanceSource).not.toContain('href="/securenow-sample"');
 
     expect(marketingPublicFooterSource).toContain("PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF");
+    expect(marketingPublicFooterSource).toContain("PUBLIC_SECURENOW_SKU_CARD_HREF");
     expect(marketingPublicFooterSource).not.toContain('href="/why-securenow"');
     expect(welcomeMarketingPageSource).toContain("PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF");
+    expect(welcomeMarketingPageSource).toContain("PUBLIC_SECURENOW_SKU_CARD_HREF");
     expect(welcomeMarketingPageSource).not.toContain('href="/why-securenow"');
     expect(welcomeMarketingPageSource).toContain("SECURENOW_SAMPLE_FIXTURE_LINE");
     expect(securenowSampleCopySource).toContain("Synthetic fixture. Not a customer result.");

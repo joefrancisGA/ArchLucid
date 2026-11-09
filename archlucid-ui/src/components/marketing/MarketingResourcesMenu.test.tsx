@@ -54,6 +54,10 @@ describe("MarketingResourcesMenu", () => {
       "href",
       "/why-securenow",
     );
+    expect(screen.getByRole("menuitem", { name: "SecureNow SKU card" })).toHaveAttribute(
+      "href",
+      "/securenow-sku",
+    );
     expect(screen.getByRole("menuitem", { name: "SecureNow sample" })).toHaveAttribute(
       "href",
       "/securenow-sample",

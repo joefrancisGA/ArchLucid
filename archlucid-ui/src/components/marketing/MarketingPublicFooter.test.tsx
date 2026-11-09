@@ -6,6 +6,8 @@ import {
   PUBLIC_SAMPLE_REVIEW_LABEL,
   PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF,
   PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL,
+  PUBLIC_SECURENOW_SKU_CARD_HREF,
+  PUBLIC_SECURENOW_SKU_CARD_LABEL,
 } from "@/lib/marketing/public-sample-entry-links";
 
 import { MarketingPublicFooter } from "./MarketingPublicFooter";
@@ -45,6 +47,10 @@ describe("MarketingPublicFooter", () => {
     expect(screen.getByRole("link", { name: PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL })).toHaveAttribute(
       "href",
       PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF,
+    );
+    expect(screen.getByRole("link", { name: PUBLIC_SECURENOW_SKU_CARD_LABEL })).toHaveAttribute(
+      "href",
+      PUBLIC_SECURENOW_SKU_CARD_HREF,
     );
     expect(screen.queryByRole("link", { name: /why securenow/i })).toBeNull();
   });

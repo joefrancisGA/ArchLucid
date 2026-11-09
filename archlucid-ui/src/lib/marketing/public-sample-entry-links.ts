@@ -15,3 +15,7 @@ export const PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF = SECURENOW_SAMPLE_MARKETING_P
 
 export const PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL =
   `SecureNow sample (${SECURENOW_SAMPLE_FIXTURE_PATH_ID})` as const;
+
+export const PUBLIC_SECURENOW_SKU_CARD_HREF = "/securenow-sku" as const;
+
+export const PUBLIC_SECURENOW_SKU_CARD_LABEL = "SecureNow SKU and meter card" as const;
