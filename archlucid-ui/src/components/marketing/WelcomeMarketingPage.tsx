@@ -21,6 +21,8 @@ import {
   PUBLIC_SAMPLE_REVIEW_LABEL,
   PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF,
   PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL,
+  PUBLIC_SECURENOW_SKU_CARD_HREF,
+  PUBLIC_SECURENOW_SKU_CARD_LABEL,
 } from "@/lib/marketing/public-sample-entry-links";
 import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
@@ -122,6 +124,10 @@ export function WelcomeMarketingPage(props: {
             {" · "}
             <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF}>
               {PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL}
+            </Link>
+            {" · "}
+            <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SECURENOW_SKU_CARD_HREF}>
+              {PUBLIC_SECURENOW_SKU_CARD_LABEL}
             </Link>
             . {SECURENOW_SAMPLE_FIXTURE_LINE}
             {" · "}
