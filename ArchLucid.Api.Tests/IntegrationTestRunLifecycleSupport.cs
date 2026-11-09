@@ -72,9 +72,8 @@ public static class IntegrationTestRunLifecycleSupport
     /// <summary>
     ///     Create-run → execute (when needed) → pin refresh → finalize; returns run id and committed manifest version.
     /// </summary>
-    public static async Task<(string RunId, string ManifestVersion)> CreateRunExecuteAndFinalizeForTestAsync(
+    public static async Task<string> CreateArchitectureRunForTestAsync(
         HttpClient client,
-        ArchLucidApiFactory factory,
         JsonSerializerOptions jsonOptions,
         string requestId,
         CancellationToken cancellationToken = default)
@@ -87,7 +86,18 @@ public static class IntegrationTestRunLifecycleSupport
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions, cancellationToken);
-        string runId = created!.Run.RunId;
+
+        return created!.Run.RunId;
+    }
+
+    public static async Task<(string RunId, string ManifestVersion)> CreateRunExecuteAndFinalizeForTestAsync(
+        HttpClient client,
+        ArchLucidApiFactory factory,
+        JsonSerializerOptions jsonOptions,
+        string requestId,
+        CancellationToken cancellationToken = default)
+    {
+        string runId = await CreateArchitectureRunForTestAsync(client, jsonOptions, requestId, cancellationToken);
 
         await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId, cancellationToken);
         HttpResponseMessage commitResponse =

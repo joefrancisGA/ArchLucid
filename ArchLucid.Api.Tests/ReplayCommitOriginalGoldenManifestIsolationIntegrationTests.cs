@@ -20,22 +20,15 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
     [SkippableFact]
     public async Task CommitReplay_leaves_original_run_golden_manifest_payload_unchanged_and_uses_distinct_replay_run_id()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-INV013-REPLAY-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+        string runId = await Replay.CreateAndExecuteAsync("REQ-INV013-REPLAY-001");
+        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");
         await detailBeforeReplay.EnsureSuccessForTestAsync();
         string bodyBefore = await detailBeforeReplay.Content.ReadAsStringAsync();
         string fingerprintBefore = GoldenManifestRawFingerprint(bodyBefore);
 
-        string replayManifestVersion = ComparisonReplayTestFixture.NewReplayCommittedManifestVersion();
+        string replayManifestVersion = ReplaySession.NewReplayCommittedManifestVersion();
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/review/{runId}/replay",

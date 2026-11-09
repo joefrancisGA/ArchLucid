@@ -27,10 +27,8 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFact
     [SkippableFact]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, Factory, "REQ-VERIFY-DRIFT-001");
-        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
-            Client, runId, replayRunId);
+        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-VERIFY-DRIFT-001");
+        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(runId, replayRunId);
 
         HttpResponseMessage getResponse = await Client.GetAsync(
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}");
