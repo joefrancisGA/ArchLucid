@@ -28,6 +28,7 @@ import {
   PageContextualHelpButton,
 } from "@/components/usability/PageContextualHelpButton";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { resolveLibOpenReviewHref } from "@/lib/architecture/lib-open-review-href";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -103,7 +104,7 @@ export function GovernanceApprovalLineageDetailContent({
     ? governanceRiskPostureStatusTagPresentation(data.riskPosture)
     : null;
   const approvalParentHref = governanceApprovalRequestParentHref(a.runId);
-  const reviewHref = `/architecture/reviews/${encodeURIComponent(a.runId)}`;
+  const reviewHref = resolveLibOpenReviewHref(a.runId);
   const manifestMetricFields = data.manifest
     ? buildGovernanceLineageManifestMetricFields({ manifest: data.manifest, runId: a.runId })
     : [];

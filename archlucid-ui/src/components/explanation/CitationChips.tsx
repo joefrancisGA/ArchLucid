@@ -14,6 +14,7 @@ import {
   parseCitationChipsTechnicalCitationKeyFromSearch,
 } from "@/lib/explanation/citation-chips-technical-citation-disclosure-url";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { resolveAskGroundingLinkHref } from "@/lib/ask/resolve-ask-grounding-link-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveReviewUrlStatePathname, resolveScopedReviewPath } from "@/lib/architecture/review-url-state-pathname";
 import type { CitationReference } from "@/types/explanation";
@@ -145,7 +146,7 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
             <li key={`${c.kind}-${c.id}`}>
               {href !== null ? (
               <Link
-                href={href}
+                href={resolveAskGroundingLinkHref(href)}
                 className={chipClassName}
                 aria-label={`${kindLabel}: ${display.headline}`}
               >

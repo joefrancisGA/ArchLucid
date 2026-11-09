@@ -102,7 +102,7 @@ function renderTextWithUuidReviewLinks(
     parts.push(
       <Link
         key={`id-${m.index}-${id}`}
-        href={resolveScopedInsightOpenReviewHrefWithDeskContinuity(id)}
+        href={resolveAskGroundingLinkHref(resolveScopedInsightOpenReviewHrefWithDeskContinuity(id))}
         className={OPERATOR_BODY_INLINE_LINK_CLASS}
         aria-label={buyerPolishedLinks ? `Open linked review ${id}` : undefined}
         title={

@@ -20,6 +20,8 @@ Operators in **Working** mode should open review workspaces under the architectu
 | Lib / pilot rails (no pathname) | `resolveLibOpenReviewHref` | Uses desk continuity cache for first-pilot and palette hrefs |
 | Lib workspace / finding / provenance | `resolveLibReviewWorkspaceHref`, `resolveLibFindingDetailHref`, `resolveLibReviewProvenanceHref` | Lib copy, sponsor exports, findings job views, and evidence chips without `usePathname` |
 | Flat peer guard (CI) | `flat-peer-review-href-guard.test.ts` | Blocks `` href={`/architecture/reviews/${…}` `` in guarded Operate scopes |
+| Component href sweep (CI) | `component-peer-review-href-sweep-guard.test.ts` | Blocks inline peer `` encodeURIComponent `` builders in swept Operate TSX |
+| Global search open | `resolveGlobalSearchRunHref`, `resolveGlobalSearchFindingHref` | Resolves `architectureId` via `resolveGlobalSearchDeskArchitectureId` when the API omits it |
 
 ## Route shapes
 
