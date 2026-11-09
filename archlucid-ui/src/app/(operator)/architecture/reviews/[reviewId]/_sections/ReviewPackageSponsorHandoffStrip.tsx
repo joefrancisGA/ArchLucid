@@ -14,6 +14,7 @@ import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu"
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGateNotice";
+import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
 import type { SponsorRehearsalPreviewInput } from "@/lib/sponsor-rehearsal-preview";
 import { Button } from "@/components/ui/button";
@@ -181,6 +182,20 @@ export function ReviewPackageSponsorHandoffStrip(
           : RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
+      <details
+        className="mt-3 rounded-md border border-neutral-200 bg-al-surface px-3 py-2 dark:border-neutral-800"
+        data-testid="review-package-sponsor-roi-synthetic-disclosure"
+      >
+        <summary className={cn("cursor-pointer select-none font-medium", OPERATOR_TYPOGRAPHY.body)}>
+          Synthetic ROI worksheet (training numbers)
+        </summary>
+        <div className="mt-3">
+          <SecureNowInvestigationEffortSyntheticExamplePanel
+            testId="review-package-sponsor-roi-synthetic-example"
+            headingId="review-package-sponsor-roi-synthetic-heading"
+          />
+        </div>
+      </details>
       {!lowExtractionConfidenceCountKnown ? (
         <p
           className={cn("m-0 mt-3 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}

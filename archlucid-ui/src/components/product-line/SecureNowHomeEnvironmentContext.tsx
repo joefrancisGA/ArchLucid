@@ -207,10 +207,15 @@ function SecureNowHomeCollectionSetupBlock(props: {
 
   return (
     <div className="space-y-2">
-      <SecureNowCollectionPrimaryBlockerLine input={collectionInput} testIdPrefix="securenow-home" />
+      <SecureNowCollectionPrimaryBlockerLine
+        input={collectionInput}
+        testIdPrefix="securenow-home"
+        youAreHereMode
+      />
       <SecureNowCollectionSetupChecklist
         input={collectionInput}
         testIdPrefix="securenow-home"
+        suppressRecoveryLink
       />
     </div>
   );

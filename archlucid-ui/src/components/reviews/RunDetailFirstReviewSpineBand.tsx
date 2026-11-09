@@ -144,13 +144,23 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       return;
     }
 
+    const trimmedTopFindingId = summary.topFindingId?.trim() ?? "";
+
     writeArchLucidOpenGateReturnRecord(scope.workspaceId, {
       runId: trimmedRunId,
       openGateLabel: summary.openGateLabel,
       href: openGateHref,
       recordedAtUtc: new Date().toISOString(),
+      findingId: trimmedTopFindingId.length > 0 ? trimmedTopFindingId : null,
     });
-  }, [openGateHref, openGateLinkEnabled, props.runId, scope.workspaceId, summary.openGateLabel]);
+  }, [
+    openGateHref,
+    openGateLinkEnabled,
+    props.runId,
+    scope.workspaceId,
+    summary.openGateLabel,
+    summary.topFindingId,
+  ]);
 
   const openGateLinkAriaLabel = ((): string | undefined => {
     if (!openGateLinkEnabled || summary.openGateReviewTab === null) {

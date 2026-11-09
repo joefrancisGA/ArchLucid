@@ -7,6 +7,7 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import {
   readArchLucidOpenGateReturnRecord,
 } from "@/lib/architecture/archlucid-open-gate-return-storage";
+import { formatRelativeTime } from "@/lib/relative-time";
 import { FIRST_REVIEW_OPEN_GATE_STARTER_HREF, FIRST_REVIEW_OPEN_GATE_STARTER_LEAD } from "@/lib/architecture/first-review-open-gate-starter-copy";
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
@@ -40,7 +41,17 @@ export function ArchLucidOpenGateReturnHomeSection(): React.JSX.Element | null {
         {
           href: record.href,
           label: `Open gate: ${record.openGateLabel}`,
-          summary: `Last stored open gate on review ${record.runId}. Browser-local — not a usage score.`,
+          summary: ((): string => {
+            const relativeRecorded = formatRelativeTime(record.recordedAtUtc);
+            const findingSegment =
+              record.findingId !== null
+              && record.findingId !== undefined
+              && record.findingId.trim().length > 0
+                ? ` Top finding ${record.findingId.trim()}.`
+                : "";
+
+            return `Last stored open gate on review ${record.runId} (${relativeRecorded}).${findingSegment} Browser-local — not a usage score.`;
+          })(),
           recommendedFirst: true,
         },
         {

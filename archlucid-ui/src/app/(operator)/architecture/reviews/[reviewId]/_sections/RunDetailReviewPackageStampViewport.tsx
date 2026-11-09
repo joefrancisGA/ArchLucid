@@ -24,6 +24,9 @@ import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/r
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { deriveFirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
+import { ArchLucidReviewPackageProcurementHonestySection } from "@/components/procurement/ArchLucidReviewPackageProcurementHonestySection";
+
+import { RunDetailReviewPackagePackageDetailDisclosure } from "./RunDetailReviewPackagePackageDetailDisclosure";
 
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
@@ -108,6 +111,93 @@ export function RunDetailReviewPackageStampViewport(
             openGateNavigationInput={openGateNavigationInput}
           />
         ) : null}
+        <ArchLucidReviewPackageProcurementHonestySection />
+        <RunDetailReviewPackagePackageDetailDisclosure>
+          {!pipelineTerminalFailure ? (
+            <>
+              <RunDetailPreFinalizeGateHonestyStrip
+                findings={props.quickDecisionFindings}
+                manifestFinalized={props.hasGoldenManifest}
+                structuralExecutionMode={props.structuralExecutionMode}
+                workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
+              />
+              <RunDetailQualityGateModeStrip
+                runId={props.runId}
+                structuralExecutionMode={props.structuralExecutionMode}
+                isSample={props.isSample}
+              />
+            </>
+          ) : null}
+          <RunDetailCareerArtifactHonestyStrip
+            artifactKind="finalize"
+            runId={props.runId}
+            progressSummary={null}
+            manifestSummary={null}
+            graphSnapshot={props.graphSnapshot}
+            transparencyTrail={props.transparencyTrail ?? feasibilityVerdict?.transparencyTrail ?? null}
+            enginesSucceeded={props.enginesSucceeded}
+            workingDesk={isWorkingMode}
+            judgeSkippedByCap={props.judgeSkippedByCap}
+            catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+            preCommitGateEnabled={props.preCommitGateEnabled}
+            structuralExecutionMode={props.structuralExecutionMode}
+            isSample={props.isSample}
+            effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
+          />
+          <RunDetailReviewPackageClassificationSummary
+            findings={props.quickDecisionFindings ?? []}
+            withheldFindingCount={props.withheldFindingCount}
+            catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+          />
+          <PolicyPackInfluenceHonestyChip unmappedFindingCount={props.unmappedFindingCount} />
+          <RunDetailReviewPackageSemanticSupportBandSummary
+            findings={props.quickDecisionFindings ?? []}
+            structuralExecutionMode={props.structuralExecutionMode}
+          />
+          <RunDetailInsightDensityMeasurementDenominatorStrip
+            enginesSucceeded={props.enginesSucceeded}
+            actorNodeCount={measurementFloorOptions.actorNodeCount}
+            analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
+            judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+            judgeConfiguredCap={measurementFloorOptions.judgeConfiguredCap}
+            judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
+            heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+            heldCheckSecondPass={props.heldCheckSecondPass}
+            proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+            proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+            pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
+            suppressOnTerminalFailure={props.suppressMeasurementDenominator}
+          />
+          <RunDetailReviewPackageDecisionReceiptStrip
+            runId={props.runId}
+            feasibilityVerdict={feasibilityVerdict}
+            manifestVersion={props.manifestVersion}
+          />
+          {isWorkingMode ? (
+            <RunDetailOverviewTransparencyTrail
+              feasibilityVerdict={feasibilityVerdict}
+              runCompleted={props.runCompleted}
+              quickDecisionFindings={props.quickDecisionFindings}
+            />
+          ) : null}
+        </RunDetailReviewPackagePackageDetailDisclosure>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
+      {firstReviewSpineSummary !== null ? (
+        <RunDetailFirstReviewSpineBand
+          summary={firstReviewSpineSummary}
+          unmappedFindingCount={props.unmappedFindingCount}
+          runId={props.runId}
+          architectureId={props.parentArchitectureId}
+          openGateNavigationInput={openGateNavigationInput}
+        />
+      ) : null}
+      <ArchLucidReviewPackageProcurementHonestySection />
+      <RunDetailReviewPackagePackageDetailDisclosure>
         {!pipelineTerminalFailure ? (
           <>
             <RunDetailPreFinalizeGateHonestyStrip
@@ -123,6 +213,14 @@ export function RunDetailReviewPackageStampViewport(
             />
           </>
         ) : null}
+        <FirstReviewAzureInventoryZipPromptStrip
+          runId={props.runId}
+          architectureRequestId={props.architectureRequestId}
+          manifestFinalized={false}
+          azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+          heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+          proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+        />
         <RunDetailCareerArtifactHonestyStrip
           artifactKind="finalize"
           runId={props.runId}
@@ -150,7 +248,6 @@ export function RunDetailReviewPackageStampViewport(
           structuralExecutionMode={props.structuralExecutionMode}
         />
         <RunDetailInsightDensityMeasurementDenominatorStrip
-          enginesSucceeded={props.enginesSucceeded}
           actorNodeCount={measurementFloorOptions.actorNodeCount}
           analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
           judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
@@ -163,107 +260,19 @@ export function RunDetailReviewPackageStampViewport(
           pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
-        <RunDetailReviewPackageDecisionReceiptStrip
-          runId={props.runId}
+        <RunDetailOverviewTransparencyTrail
           feasibilityVerdict={feasibilityVerdict}
-          manifestVersion={props.manifestVersion}
+          runCompleted={props.runCompleted}
+          quickDecisionFindings={props.quickDecisionFindings}
         />
-        {isWorkingMode ? (
-          <RunDetailOverviewTransparencyTrail
-            feasibilityVerdict={feasibilityVerdict}
-            runCompleted={props.runCompleted}
-            quickDecisionFindings={props.quickDecisionFindings}
-          />
-        ) : null}
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-      {firstReviewSpineSummary !== null ? (
-        <RunDetailFirstReviewSpineBand
-          summary={firstReviewSpineSummary}
-          unmappedFindingCount={props.unmappedFindingCount}
+        <RunDetailSealDeskCoverageStrip
           runId={props.runId}
-          architectureId={props.parentArchitectureId}
-          openGateNavigationInput={openGateNavigationInput}
+          analysisStagesComplete={props.analysisStagesComplete}
+          graphSnapshot={props.graphSnapshot}
+          transparencyTrail={props.transparencyTrail ?? null}
+          className="mb-3"
         />
-      ) : null}
-      {!pipelineTerminalFailure ? (
-        <>
-            <RunDetailPreFinalizeGateHonestyStrip
-              findings={props.quickDecisionFindings}
-              manifestFinalized={props.hasGoldenManifest}
-              structuralExecutionMode={props.structuralExecutionMode}
-              workingCareerRehearsalDoor={props.workingCareerRehearsalDoor}
-            />
-            <RunDetailQualityGateModeStrip
-              runId={props.runId}
-              structuralExecutionMode={props.structuralExecutionMode}
-              isSample={props.isSample}
-            />
-        </>
-      ) : null}
-      <FirstReviewAzureInventoryZipPromptStrip
-        runId={props.runId}
-        architectureRequestId={props.architectureRequestId}
-        manifestFinalized={false}
-        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
-        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
-        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
-      />
-      <RunDetailCareerArtifactHonestyStrip
-        artifactKind="finalize"
-        runId={props.runId}
-        progressSummary={null}
-        manifestSummary={null}
-        graphSnapshot={props.graphSnapshot}
-        transparencyTrail={props.transparencyTrail ?? feasibilityVerdict?.transparencyTrail ?? null}
-        enginesSucceeded={props.enginesSucceeded}
-        workingDesk={isWorkingMode}
-        judgeSkippedByCap={props.judgeSkippedByCap}
-        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
-        preCommitGateEnabled={props.preCommitGateEnabled}
-        structuralExecutionMode={props.structuralExecutionMode}
-        isSample={props.isSample}
-        effectiveWorkingCareerRehearsalDoor={honestyWorkingCareerRehearsalDoor}
-      />
-      <RunDetailReviewPackageClassificationSummary
-        findings={props.quickDecisionFindings ?? []}
-        withheldFindingCount={props.withheldFindingCount}
-        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
-      />
-      <PolicyPackInfluenceHonestyChip unmappedFindingCount={props.unmappedFindingCount} />
-      <RunDetailReviewPackageSemanticSupportBandSummary
-        findings={props.quickDecisionFindings ?? []}
-        structuralExecutionMode={props.structuralExecutionMode}
-      />
-      <RunDetailInsightDensityMeasurementDenominatorStrip
-        actorNodeCount={measurementFloorOptions.actorNodeCount}
-        analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
-        judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
-        judgeConfiguredCap={measurementFloorOptions.judgeConfiguredCap}
-        judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
-        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
-        heldCheckSecondPass={props.heldCheckSecondPass}
-        proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
-        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
-        pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
-        suppressOnTerminalFailure={props.suppressMeasurementDenominator}
-      />
-      <RunDetailOverviewTransparencyTrail
-        feasibilityVerdict={feasibilityVerdict}
-        runCompleted={props.runCompleted}
-        quickDecisionFindings={props.quickDecisionFindings}
-      />
-      <RunDetailSealDeskCoverageStrip
-        runId={props.runId}
-        analysisStagesComplete={props.analysisStagesComplete}
-        graphSnapshot={props.graphSnapshot}
-        transparencyTrail={props.transparencyTrail ?? null}
-        className="mb-3"
-      />
+      </RunDetailReviewPackagePackageDetailDisclosure>
     </div>
   );
 }
