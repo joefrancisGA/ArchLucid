@@ -16,18 +16,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-DIFF-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-EXPORT-DIFF-001");
         var executiveRequest = new
         {
             templateProfile = "sponsor",

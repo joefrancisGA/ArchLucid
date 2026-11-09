@@ -24,17 +24,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         const string requestId = "REQ-AUTH-LIST-UNPAGED-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync(requestId);
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
 
@@ -56,17 +46,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         const string requestId = "REQ-AUTH-LIST-PAGED-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync(requestId);
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
 
@@ -84,17 +64,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsInScope_includes_run_hidden_from_default_project_slug()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-SCOPE-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-AUTH-LIST-SCOPE-001");
 
         HttpResponseMessage defaultSlugResponse =
             await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");

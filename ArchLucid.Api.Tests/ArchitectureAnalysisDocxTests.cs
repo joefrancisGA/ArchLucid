@@ -21,18 +21,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DOCX-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-DOCX-001");
         var request = new
         {
             includeEvidence = true,
@@ -63,18 +52,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DOCX-ASYNC-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-DOCX-ASYNC-001");
         var request = new
         {
             includeEvidence = true,

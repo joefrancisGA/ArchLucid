@@ -23,7 +23,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     public async Task Committed_run_rejects_agent_result_submission_and_preserves_golden_manifest_fingerprint()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-IMMUT-001")));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -63,7 +63,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     public async Task Committed_run_execute_is_idempotent_and_does_not_change_stored_results()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-EXEC-IDEM")));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);

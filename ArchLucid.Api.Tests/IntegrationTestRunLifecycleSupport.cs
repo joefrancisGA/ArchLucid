@@ -23,6 +23,21 @@ public static class IntegrationTestRunLifecycleSupport
     public static string ReplayReviewRelativeUrl(object runId) =>
         $"/v1/architecture/review/{runId}/replay";
 
+    /// <summary>Single source for persisted comparison record replay.</summary>
+    public static string ComparisonReplayRelativeUrl(string comparisonRecordId) =>
+        $"/v1/architecture/comparisons/{comparisonRecordId}/replay";
+
+    /// <summary>POST comparison record replay with standard JSON body.</summary>
+    public static Task<HttpResponseMessage> PostComparisonReplayForTestAsync(
+        this HttpClient client,
+        string comparisonRecordId,
+        string format = "markdown",
+        CancellationToken cancellationToken = default) =>
+        client.PostAsync(
+            ComparisonReplayRelativeUrl(comparisonRecordId),
+            JsonContent.Create(new { format }),
+            cancellationToken);
+
     /// <summary>Single source for the review finalize route used by test harness helpers.</summary>
     public static string FinalizeReviewRelativeUrl(string runId) =>
         $"/v1/architecture/review/{runId}/finalize";

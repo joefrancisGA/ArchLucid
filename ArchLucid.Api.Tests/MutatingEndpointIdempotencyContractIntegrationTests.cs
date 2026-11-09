@@ -19,7 +19,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         string idempotencyKey = "tb323-create-" + Guid.NewGuid().ToString("N");
         object body = TestRequestFactory.CreateArchitectureRequest("REQ-TB323-CREATE");
 
-        using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
+        using HttpRequestMessage first = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
         first.Content = JsonContent(body);
         first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -29,7 +29,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
             await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
+        using HttpRequestMessage second = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
         second.Content = JsonContent(body);
         second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -49,7 +49,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     public async Task CommitRun_same_idempotency_key_replays_without_new_manifest_version()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-COMMIT")));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -91,7 +91,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     public async Task Governance_approval_submit_same_idempotency_key_replays_without_duplicate_request_id()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-GOV")));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);

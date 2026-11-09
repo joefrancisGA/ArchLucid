@@ -45,20 +45,7 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsOk_AfterCommittedRun()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-GOV-PREVIEW-01")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commit =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
+        (string runId, string manifestVersion) = await CreateFinalizedRunAsync("REQ-GOV-PREVIEW-01");
 
         var previewBody = new { runId, manifestVersion, environment = "dev" };
         HttpResponseMessage previewResponse =

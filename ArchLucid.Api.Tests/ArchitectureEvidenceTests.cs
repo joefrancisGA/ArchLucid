@@ -19,16 +19,9 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
         const string requestId = "REQ-EVIDENCE-001";
         string expectedSystemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+        string runId = await CreateArchitectureRunAsync(requestId);
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await PostExecuteWithPinsAsync(runId);
         HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/evidence");
 
         evidenceResponse.StatusCode.Should().Be(HttpStatusCode.OK);

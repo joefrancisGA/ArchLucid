@@ -70,7 +70,7 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
                 PortfolioRecurrenceEnabled = false,
             });
 
-        put.EnsureSuccessStatusCode();
+        await put.EnsureSuccessForTestAsync();
 
         using HttpResponseMessage delete = await client.DeleteAsync("/v1/admin/settings/finding-engine-controls");
         delete.StatusCode.Should().Be(HttpStatusCode.OK);

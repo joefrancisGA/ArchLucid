@@ -37,17 +37,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRecommendations_after_commit_before_improvements_returns_ok_empty_array()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-REC-LIST-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-ADV-REC-LIST-001");
         HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{runId}/recommendations");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -62,17 +52,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRecommendations_after_improvements_includes_finding_source_evidence_links()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-REC-LINKS-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-ADV-REC-LINKS-001");
 
         HttpResponseMessage improvementsResponse =
             await Client.GetAsync($"/v1/advisory/runs/{runId}/improvements");

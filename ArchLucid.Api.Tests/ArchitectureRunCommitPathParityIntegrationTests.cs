@@ -53,7 +53,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
 
         const string requestId = "REQ-PR-A2-COHORT-DEMO-001";
         HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
         await createResponse.EnsureSuccessForTestAsync();

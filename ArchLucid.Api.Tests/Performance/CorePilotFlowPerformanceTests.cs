@@ -34,7 +34,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
 
         tCreate.Sw.Start();
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}")));
         tCreate.Sw.Stop();
         await createResponse.EnsureSuccessForTestAsync();
@@ -102,7 +102,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
     private async Task<(string ManifestVersion, string RunId, CommitRunResponseDto Commit)> CreateCommittedRunAsync()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}")));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

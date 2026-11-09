@@ -56,7 +56,7 @@ public sealed class AdminAgentOutputQualityGateModeEndpointTests(ApiKeyReaderAnd
             "/v1/admin/settings/agent-output-quality-gate-mode",
             new TenantAgentOutputQualityGateModeUpdateRequest { Mode = "WarnOnly" });
 
-        put.EnsureSuccessStatusCode();
+        await put.EnsureSuccessForTestAsync();
 
         using HttpResponseMessage delete = await client.DeleteAsync("/v1/admin/settings/agent-output-quality-gate-mode");
         delete.StatusCode.Should().Be(HttpStatusCode.OK);

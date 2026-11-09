@@ -47,7 +47,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
         HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
         await createResponse.EnsureSuccessForTestAsync();

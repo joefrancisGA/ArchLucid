@@ -14,14 +14,7 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetRun_returns_304_when_if_none_match_matches_row_version_etag()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-CONDGET-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-
-        CreateRunResponseDto? createDoc =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = createDoc!.Run.RunId;
+        string runId = await CreateArchitectureRunAsync("REQ-CONDGET-001");
 
         HttpResponseMessage first = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await first.EnsureSuccessForTestAsync();
@@ -40,21 +33,14 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetRun_returns_new_etag_after_run_advances_row_version()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-CONDGET-002")));
-        await createResponse.EnsureSuccessForTestAsync();
-
-        CreateRunResponseDto? createDoc =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = createDoc!.Run.RunId;
+        string runId = await CreateArchitectureRunAsync("REQ-CONDGET-002");
 
         HttpResponseMessage beforeExecute = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await beforeExecute.EnsureSuccessForTestAsync();
         string etagBefore = beforeExecute.Headers.ETag!.Tag;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
+        await PostExecuteWithPinsAsync(runId);
+        HttpResponseMessage commitResponse = await FinalizeRunAsync(runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage afterCommit = await Client.GetAsync($"/v1/architecture/review/{runId}");

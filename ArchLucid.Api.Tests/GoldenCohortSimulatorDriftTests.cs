@@ -73,7 +73,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             GoldenCohortItem item = document.Items[i];
 
             HttpResponseMessage createResponse = await Client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(GoldenCohortArchitectureRequestFactory.FromCohortItem(item)));
 
             string createBody = await createResponse.Content.ReadAsStringAsync();
@@ -85,7 +85,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             string runId = created.Run.RunId;
 
-            await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+            await PostExecuteWithPinsAsync(runId);
             HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
             await commitResponse.EnsureSuccessForTestAsync();
             string commitJson = await commitResponse.Content.ReadAsStringAsync();

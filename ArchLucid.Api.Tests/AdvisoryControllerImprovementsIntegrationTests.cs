@@ -33,17 +33,7 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
     [SkippableFact]
     public async Task GetImprovements_compareTo_missing_run_returns_404_run_problem()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-IMPROVE-001")));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync("REQ-ADV-IMPROVE-001");
         Guid primaryRunId = Guid.Parse(runId);
 
         Guid missingCompareRunId = Guid.Parse("00000000-0000-0000-0000-00000000aa02");

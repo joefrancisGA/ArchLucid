@@ -36,7 +36,9 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage createResponse =
-            await client.PostAsync("/v1/architecture/request", SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001")));
+            await client.PostAsync(
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
+                SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001")));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -69,7 +71,9 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage createResponse =
-            await client.PostAsync("/v1/architecture/request", SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002")));
+            await client.PostAsync(
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
+                SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002")));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
