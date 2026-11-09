@@ -55,7 +55,7 @@ No \`dotnet run\`, restore, Azure sign-in, SQL migration, CI trigger or cloud op
 - \`evidence-coverage.json\` and \`evidence-coverage.md\`: original ZIP inventory and source-file presence.
 - \`native/<subscriptionId>.native.json\`: directly generated **inventory-question subset** from the production ZIP reader, relationship mapper and question compiler.
 - \`reconciliation.json\`: created only when a questions directory is supplied; contains **partial InventoryEvidence slice** comparisons with the original exported question queue.
-- \`batch-report.json\`: deterministic, ordered per-subscription state, package hashes, collection gaps, source status, comparison result and stage execution truth.
+- \`batch-report.json\`: deterministic, ordered per-subscription state, package hashes, collection gaps, source status, comparison result and stage execution truth. It records the SHA-256 of the prebuilt native DLL, which identifies bytes but does not authenticate a trusted build or Git commit.
 
 The batch report explicitly labels **all SQL-backed engines and coordinator steps as NOT_EXECUTED**. It labels the ZIP/edge/question native stages as EXECUTED_PARTIAL only after validating a fresh native result. It never assigns a fictitious score or clearance to a subscription.
 
