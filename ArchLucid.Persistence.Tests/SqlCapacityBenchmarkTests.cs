@@ -24,10 +24,16 @@ public sealed class SqlCapacityBenchmarkTests(SqlServerPersistenceFixture fixtur
             await connection.OpenAsync();
             await using (SqlCommand setup = connection.CreateCommand())
             {
+                // Create the temp table outside sp_executesql so it remains in scope for
+                // the parameterized population command and the subsequent indexed reads.
                 setup.CommandText = """
                     CREATE TABLE #CapacityRows (TenantId uniqueidentifier NOT NULL,
                       Sequence int NOT NULL, Payload nvarchar(80) NOT NULL);
                     CREATE INDEX IX_CapacityRows_Scope ON #CapacityRows(TenantId, Sequence);
+                    """;
+                await setup.ExecuteNonQueryAsync();
+
+                setup.CommandText = """
                     DECLARE @i int = 0;
                     WHILE @i < @rows BEGIN
                       INSERT INTO #CapacityRows VALUES (@tenant, @i, N'fixture');
