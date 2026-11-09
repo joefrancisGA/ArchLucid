@@ -55,9 +55,9 @@ public sealed class SchemaAuthzKnownRouteHostTests
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-SCHAUTH-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
+        HttpResponseMessage create = await clientA.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "schema-authz-host-");
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
@@ -126,15 +126,6 @@ public sealed class SchemaAuthzKnownRouteHostTests
         {
             return false;
         }
-    }
-
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "schema-authz-host-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)

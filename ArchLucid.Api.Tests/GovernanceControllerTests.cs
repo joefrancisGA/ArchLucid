@@ -15,15 +15,15 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private async Task<(string RunId, string ManifestVersion)> CreateCommittedRunAsync(string requestId)
+    private async Task<FinalizedRun> CreateCommittedRunAsync(string requestId)
     {
-        (string runId, string manifestVersion) = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
 
-        runId.Should().NotBeNullOrWhiteSpace(
+        finalized.RunId.Should().NotBeNullOrWhiteSpace(
             "CreateRun response must include Run.RunId so downstream governance calls validate.");
-        manifestVersion.Should().NotBeNullOrWhiteSpace();
+        finalized.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 
-        return (runId, manifestVersion);
+        return finalized;
     }
 
     /// <summary>

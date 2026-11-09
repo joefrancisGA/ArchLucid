@@ -41,7 +41,9 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
             string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
+            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(requestId),
+                "tb294-val-");
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
             string realRunId = created!.Run.RunId;
@@ -72,12 +74,4 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
         }
     }
 
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tb294-val-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
-    }
 }

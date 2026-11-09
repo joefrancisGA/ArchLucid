@@ -23,6 +23,44 @@ public static class IntegrationTestRunLifecycleSupport
     public static HttpRequestMessage CreateArchitectureRequestMessage(string requestId) =>
         CreateArchitectureRequestMessage(JsonContent.Create(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
+    /// <summary>Builds an intake request with an <c>Idempotency-Key</c> header (idempotency contract tests).</summary>
+    public static HttpRequestMessage CreateArchitectureRequestMessage(HttpContent body, string idempotencyKey)
+    {
+        HttpRequestMessage request = CreateArchitectureRequestMessage(body);
+        request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+
+        return request;
+    }
+
+    /// <summary>POST intake with a structured body (non-standard payloads).</summary>
+    public static Task<HttpResponseMessage> PostArchitectureRequestForTestAsync(
+        this HttpClient client,
+        object body,
+        CancellationToken cancellationToken = default) =>
+        client.PostAsync(
+            ArchitectureRequestRelativeUrl,
+            JsonContent.Create(body),
+            cancellationToken);
+
+    /// <summary>
+    ///     Greenfield SQL create with transient 503 retry and a unique <c>Idempotency-Key</c> from
+    ///     <paramref name="idempotencyKeyPrefix" />.
+    /// </summary>
+    public static Task<HttpResponseMessage> PostGreenfieldArchitectureRequestForTestAsync(
+        this HttpClient client,
+        object body,
+        string idempotencyKeyPrefix,
+        CancellationToken cancellationToken = default)
+    {
+        string idempotencyKey = idempotencyKeyPrefix + Guid.NewGuid().ToString("N");
+
+        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
+            client,
+            body,
+            idempotencyKey,
+            cancellationToken);
+    }
+
     /// <summary>Single source for the review execute route used by test harness helpers.</summary>
     public static string ExecuteReviewRelativeUrl(object runId) =>
         $"/v1/architecture/review/{runId}/execute";
@@ -187,7 +225,7 @@ public static class IntegrationTestRunLifecycleSupport
     }
 
     /// <inheritdoc cref="CreateRunExecuteAndFinalizeForTestAsync" />
-    public static Task<(string RunId, string ManifestVersion)> CreateFinalizedRunForTestAsync(
+    public static Task<FinalizedRun> CreateFinalizedRunForTestAsync(
         HttpClient client,
         ArchLucidApiFactory factory,
         JsonSerializerOptions jsonOptions,
@@ -195,7 +233,7 @@ public static class IntegrationTestRunLifecycleSupport
         CancellationToken cancellationToken = default) =>
         CreateRunExecuteAndFinalizeForTestAsync(client, factory, jsonOptions, requestId, cancellationToken);
 
-    public static async Task<(string RunId, string ManifestVersion)> CreateRunExecuteAndFinalizeForTestAsync(
+    public static async Task<FinalizedRun> CreateRunExecuteAndFinalizeForTestAsync(
         HttpClient client,
         ArchLucidApiFactory factory,
         JsonSerializerOptions jsonOptions,
@@ -212,7 +250,7 @@ public static class IntegrationTestRunLifecycleSupport
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(jsonOptions, cancellationToken);
 
-        return (runId, commitPayload!.Manifest.Metadata.ManifestVersion);
+        return new FinalizedRun(runId, commitPayload!.Manifest.Metadata.ManifestVersion);
     }
 
     public static async Task<HttpResponseMessage> PostExecuteForTestAsync(

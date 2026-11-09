@@ -185,15 +185,6 @@ public sealed class AuditExportTenantIsolationIntegrationTests
         }
     }
 
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "tb295-audit-export-" + Guid.NewGuid().ToString("N");
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
-    }
-
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)
     {
         client.DefaultRequestHeaders.Remove("x-tenant-id");
