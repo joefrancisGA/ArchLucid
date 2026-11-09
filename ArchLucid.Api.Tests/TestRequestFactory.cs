@@ -2,6 +2,14 @@ namespace ArchLucid.Api.Tests;
 
 public static class TestRequestFactory
 {
+    /// <summary>Parallel-safe request id for integration tests (shard- and class-scoped).</summary>
+    public static string UniqueRequestId(string prefix)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(prefix);
+
+        return $"{prefix.Trim()}-{Guid.NewGuid():N}"[..64];
+    }
+
     /// <summary>Unique per <paramref name="requestId" /> so parallel integration shards do not collide on review name.</summary>
     public static string SystemNameForRequest(string requestId) => DeriveUniqueSystemName(requestId);
 

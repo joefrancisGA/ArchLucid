@@ -270,8 +270,11 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**.
-- **ReplaySession** (Api.Tests) — comparison-replay golden path (create, execute, finalize, replay, persist).
+- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**. Subclasses can call **`CreateFinalizedRunAsync`**, **`FinalizeRunAsync`**, and **`PostExecuteWithPinsAsync`** instead of hand-rolling lifecycle URLs.
+- **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (`PostExecuteForTestAsync`, `PostFinalizeForTestAsync`, `CreateFinalizedRunForTestAsync`, …).
+- **ReplaySession** (Api.Tests) — comparison-replay golden path (create, execute, finalize, replay, persist). Prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**; do not add parallel comparison fixtures.
+
+**Source-scan guards** (`IntegrationTestRawFinalizeUrlGuardTests`, `IntegrationTestRawExecuteUrlGuardTests`, `Suite=Core`) fail when integration tests embed interpolated finalize or execute URLs outside the lifecycle support type.
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 
