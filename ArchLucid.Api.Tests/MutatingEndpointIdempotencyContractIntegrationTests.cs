@@ -19,8 +19,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         string idempotencyKey = "tb323-create-" + Guid.NewGuid().ToString("N");
         object body = TestRequestFactory.CreateArchitectureRequest("REQ-TB323-CREATE");
 
-        using HttpRequestMessage first = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-        first.Content = JsonContent(body);
+        using HttpRequestMessage first = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body));
         first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
         HttpResponseMessage firstResponse = await Client.SendAsync(first);
@@ -29,8 +28,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
             await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        using HttpRequestMessage second = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-        second.Content = JsonContent(body);
+        using HttpRequestMessage second = IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body));
         second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
         HttpResponseMessage secondResponse = await Client.SendAsync(second);
@@ -55,7 +53,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
 
         string idempotencyKey = "tb323-commit-" + Guid.NewGuid().ToString("N");
         object commitBody = new { notifySponsor = false };
@@ -97,7 +95,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =

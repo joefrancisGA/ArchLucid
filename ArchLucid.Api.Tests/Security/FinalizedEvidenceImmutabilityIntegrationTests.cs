@@ -29,7 +29,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await PostExecuteWithPinsAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 

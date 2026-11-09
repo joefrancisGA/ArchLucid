@@ -46,7 +46,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
         await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(client, runId);
         const int parallel = 8;
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
