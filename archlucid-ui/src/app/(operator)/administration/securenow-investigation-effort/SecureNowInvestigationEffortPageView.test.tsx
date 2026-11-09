@@ -60,6 +60,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(screen.getByTestId("securenow-investigation-effort-input-storage-discipline")).toHaveTextContent(
       SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
     );
+    expect(screen.getByTestId("securenow-investigation-effort-scope-missing")).toHaveTextContent(
+      "No successful capture yet",
+    );
     expect(screen.getByTestId("securenow-investigation-effort-synthetic-example")).toHaveTextContent(
       "Synthetic worksheet walkthrough",
     );
