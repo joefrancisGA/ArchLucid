@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +8,32 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "security" }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "ws-1",
+    projectId: "prj-1",
+  }),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
+  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 20,
+    hasMore: false,
+  })),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
+  fetchRemediationInstances: vi.fn(async () => []),
+}));
+
+vi.mock("@/lib/security-evidence-path-api", () => ({
+  fetchSecurityEvidencePathAttackPathReport: vi.fn(async () => null),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -52,16 +79,27 @@ import {
   SECURENOW_FIRST_HOUR_OPERATOR_PATH,
 } from "@/lib/product-line/securenow-first-hour-home-copy";
 import { SECURENOW_SELF_SERVICE_OPERATOR_PATH } from "@/lib/product-line/securenow-self-service-home-copy";
-import { SECURENOW_RETURN_HOME_ROWS } from "@/lib/product-line/securenow-return-home-copy";
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
+
+function renderSecureNowHome(): void {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  render(
+    <QueryClientProvider client={queryClient}>
+      <InfrastructureOverviewClient secureNowHome />
+    </QueryClientProvider>,
+  );
+}
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("renders Home sections in SecureNow sidebar order", () => {
-    render(<InfrastructureOverviewClient secureNowHome />);
+  it("renders Home sections in SecureNow sidebar order", async () => {
+    renderSecureNowHome();
 
     expect(screen.getByTestId("governance-infrastructure-overview-page-title")).toHaveTextContent(
       OPERATOR_NAV_LINK_LABELS.home,
@@ -118,9 +156,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(
       screen.getByTestId(`securenow-sponsor-home-link-${SECURENOW_SPONSOR_HOME_ROWS[0]?.href}`),
     ).toHaveAttribute("href", SECURENOW_SPONSOR_HOME_ROWS[0]?.href);
-    expect(
-      screen.getByTestId(`securenow-return-home-link-${SECURENOW_RETURN_HOME_ROWS[0]?.href}`),
-    ).toHaveAttribute("href", SECURENOW_RETURN_HOME_ROWS[0]?.href);
+    expect(await screen.findByTestId("securenow-return-home-empty")).toHaveTextContent(
+      "Nothing unfinished on this workspace.",
+    );
     expect(
       screen.getByTestId(`securenow-first-hour-home-link-${SECURENOW_FIRST_HOUR_OPERATOR_PATH}`),
     ).toHaveAttribute("href", SECURENOW_FIRST_HOUR_OPERATOR_PATH);
@@ -149,7 +187,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   it("uses the short SecureNow lead and does not claim seven destinations", () => {
     vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "generic");
 
-    render(<InfrastructureOverviewClient secureNowHome />);
+    renderSecureNowHome();
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
@@ -181,7 +219,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   it("omits SecureNow home claim discipline on the uhg edition", () => {
     vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "uhg");
 
-    render(<InfrastructureOverviewClient secureNowHome />);
+    renderSecureNowHome();
 
     expect(
       screen.queryByText(/Advice and inventory evidence on this page are not an official compliance report/i),
