@@ -12,9 +12,24 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public static class IntegrationTestRunLifecycleSupport
 {
+    /// <summary>Architecture intake POST route used by test harness helpers.</summary>
+    public const string ArchitectureRequestRelativeUrl = "/v1/architecture/request";
+
+    /// <summary>Single source for the review execute route used by test harness helpers.</summary>
+    public static string ExecuteReviewRelativeUrl(object runId) =>
+        $"/v1/architecture/review/{runId}/execute";
+
+    /// <summary>Single source for the review replay route used by test harness helpers.</summary>
+    public static string ReplayReviewRelativeUrl(object runId) =>
+        $"/v1/architecture/review/{runId}/replay";
+
     /// <summary>Single source for the review finalize route used by test harness helpers.</summary>
     public static string FinalizeReviewRelativeUrl(string runId) =>
         $"/v1/architecture/review/{runId}/finalize";
+
+    /// <summary>Builds an execute <see cref="HttpRequestMessage" /> (concurrency / raw response tests).</summary>
+    public static HttpRequestMessage CreateExecuteReviewRequest(string runId, HttpContent? body = null) =>
+        new(HttpMethod.Post, ExecuteReviewRelativeUrl(runId)) { Content = body };
 
     /// <summary>Builds a finalize <see cref="HttpRequestMessage" /> (idempotency / custom body tests).</summary>
     public static HttpRequestMessage CreateFinalizeReviewRequest(
@@ -79,6 +94,15 @@ public static class IntegrationTestRunLifecycleSupport
             cancellationToken);
     }
 
+    public static Task<HttpResponseMessage> PostArchitectureRequestForTestAsync(
+        this HttpClient client,
+        string requestId,
+        CancellationToken cancellationToken = default) =>
+        client.PostAsync(
+            ArchitectureRequestRelativeUrl,
+            JsonContent.Create(TestRequestFactory.CreateArchitectureRequest(requestId)),
+            cancellationToken);
+
     /// <summary>
     ///     Create-run → execute (when needed) → pin refresh → finalize; returns run id and committed manifest version.
     /// </summary>
@@ -88,9 +112,8 @@ public static class IntegrationTestRunLifecycleSupport
         string requestId,
         CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent.Create(TestRequestFactory.CreateArchitectureRequest(requestId)),
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+            requestId,
             cancellationToken);
 
         await createResponse.EnsureSuccessForTestAsync();
@@ -99,6 +122,15 @@ public static class IntegrationTestRunLifecycleSupport
 
         return created!.Run.RunId;
     }
+
+    /// <inheritdoc cref="CreateRunExecuteAndFinalizeForTestAsync" />
+    public static Task<(string RunId, string ManifestVersion)> CreateFinalizedRunForTestAsync(
+        HttpClient client,
+        ArchLucidApiFactory factory,
+        JsonSerializerOptions jsonOptions,
+        string requestId,
+        CancellationToken cancellationToken = default) =>
+        CreateRunExecuteAndFinalizeForTestAsync(client, factory, jsonOptions, requestId, cancellationToken);
 
     public static async Task<(string RunId, string ManifestVersion)> CreateRunExecuteAndFinalizeForTestAsync(
         HttpClient client,
@@ -126,7 +158,7 @@ public static class IntegrationTestRunLifecycleSupport
         CancellationToken cancellationToken = default)
     {
         HttpResponseMessage response = await client.PostAsync(
-            $"/v1/architecture/review/{runId}/execute",
+            ExecuteReviewRelativeUrl(runId),
             null,
             cancellationToken);
 

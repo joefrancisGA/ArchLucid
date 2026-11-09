@@ -44,6 +44,26 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     /// <summary>Golden-path helpers for comparison replay tests using this fixture's client and factory.</summary>
     protected ReplaySession Replay => ReplaySession.From(Factory, Client, JsonOptions);
 
+    /// <summary>POST <c>/v1/architecture/request</c> with the standard integration payload.</summary>
+    protected Task<HttpResponseMessage> PostArchitectureRequestAsync(string requestId) =>
+        Client.PostArchitectureRequestForTestAsync(requestId);
+
+    /// <summary>Creates a run via the architecture request endpoint and returns the new run id.</summary>
+    protected Task<string> CreateArchitectureRunAsync(string requestId) =>
+        IntegrationTestRunLifecycleSupport.CreateArchitectureRunForTestAsync(Client, JsonOptions, requestId);
+
+    /// <summary>Execute with κ pin refresh (preferred before finalize).</summary>
+    protected Task PostExecuteWithPinsAsync(string runId) =>
+        Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
+
+    /// <summary>Finalize with κ pin refresh.</summary>
+    protected Task<HttpResponseMessage> FinalizeRunAsync(string runId, HttpContent? body = null) =>
+        Client.PostFinalizeForTestAsync(Factory, runId, body);
+
+    /// <summary>Create → execute → finalize; returns run id and committed manifest version.</summary>
+    protected Task<(string RunId, string ManifestVersion)> CreateFinalizedRunAsync(string requestId) =>
+        IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
+
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
     protected ArchLucidApiFactory Factory
     {

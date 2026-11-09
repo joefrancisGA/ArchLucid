@@ -65,7 +65,7 @@ public sealed class ReplaySession
         await commitResponse.EnsureSuccessForTestAsync().ConfigureAwait(false);
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
+            IntegrationTestRunLifecycleSupport.ReplayReviewRelativeUrl(runId),
             JsonContent(new
             {
                 commitReplay = true,

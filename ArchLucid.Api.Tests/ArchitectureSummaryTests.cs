@@ -20,21 +20,7 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
         const string requestId = "REQ-SUMMARY-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        (string runId, string manifestVersion) = await CreateFinalizedRunAsync(requestId);
 
         HttpResponseMessage summaryResponse =
             await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");

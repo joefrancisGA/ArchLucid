@@ -188,7 +188,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         Guid runId = Guid.Parse(created!.Run.RunId);
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId:D}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostExecuteForTestAsync(runId.ToString("D"));
         await executeResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage response =
@@ -217,7 +217,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         Guid runId = Guid.Parse(created!.Run.RunId);
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId:D}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostExecuteForTestAsync(runId.ToString("D"));
         await executeResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage response =
@@ -245,7 +245,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         Guid runId = Guid.Parse(created!.Run.RunId);
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId:D}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostExecuteForTestAsync(runId.ToString("D"));
         await executeResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage response =

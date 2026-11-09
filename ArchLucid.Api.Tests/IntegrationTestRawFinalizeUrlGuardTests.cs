@@ -22,20 +22,13 @@ public sealed class IntegrationTestRawFinalizeUrlGuardTests
     [Fact]
     public void Api_test_sources_do_not_embed_raw_finalize_urls()
     {
-        string repoRoot = FindRepoRoot();
-        string testsDir = Path.Combine(repoRoot, "ArchLucid.Api.Tests");
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
         List<string> violations = [];
 
-        foreach (string path in Directory.EnumerateFiles(testsDir, "*.cs", SearchOption.AllDirectories))
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources(
+                     nameof(IntegrationTestRunLifecycleSupport) + ".cs",
+                     nameof(IntegrationTestRawFinalizeUrlGuardTests) + ".cs"))
         {
-            string fileName = Path.GetFileName(path);
-
-            if (string.Equals(fileName, nameof(IntegrationTestRunLifecycleSupport) + ".cs", StringComparison.Ordinal))
-                continue;
-
-            if (string.Equals(fileName, nameof(IntegrationTestRawFinalizeUrlGuardTests) + ".cs", StringComparison.Ordinal))
-                continue;
-
             string content = File.ReadAllText(path);
 
             if (RawFinalizePostRegex.IsMatch(content) || RawFinalizeRequestRegex.IsMatch(content))
@@ -44,20 +37,5 @@ public sealed class IntegrationTestRawFinalizeUrlGuardTests
 
         violations.Should().BeEmpty(
             "use PostFinalizeForTestAsync, FinalizeReviewRelativeUrl, or CreateFinalizeReviewRequest instead of embedding the finalize path.");
-    }
-
-    private static string FindRepoRoot()
-    {
-        string? current = AppContext.BaseDirectory;
-
-        while (current is not null)
-        {
-            if (File.Exists(Path.Combine(current, "ArchLucid.sln")))
-                return current;
-
-            current = Directory.GetParent(current)?.FullName;
-        }
-
-        throw new InvalidOperationException("Could not locate repository root containing ArchLucid.sln.");
     }
 }

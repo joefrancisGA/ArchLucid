@@ -57,7 +57,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         bool parsed = Guid.TryParse(runId, out Guid runGuid);
         parsed.Should().BeTrue();
 
-        using HttpRequestMessage execute = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/execute");
+        using HttpRequestMessage execute = IntegrationTestRunLifecycleSupport.CreateExecuteReviewRequest(runId);
         execute.Headers.TryAddWithoutValidation(PilotTryRealModeHeaders.PilotTryRealMode, "1");
 
         HttpResponseMessage executeResponse = await client.SendAsync(execute);

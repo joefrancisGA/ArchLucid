@@ -81,7 +81,9 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage secondExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+        HttpResponseMessage secondExecute = await Client.PostAsync(
+            IntegrationTestRunLifecycleSupport.ExecuteReviewRelativeUrl(runId),
+            null);
         (await secondExecute.IsAuthorityPipelineCompleteExecuteConflictAsync()).Should().BeTrue();
 
         HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
