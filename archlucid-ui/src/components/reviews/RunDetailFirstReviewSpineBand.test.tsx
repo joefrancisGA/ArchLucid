@@ -53,17 +53,16 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
 
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent("Uncommitted review");
-    const openGateLink = screen.getByRole("link", {
+    const openGateLinks = screen.getAllByRole("link", {
       name: "Open the gate: Uncommitted review (review-package tab)",
     });
 
-    expect(openGateLink).toHaveAttribute(
+    expect(openGateLinks[0]).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
     );
-    expect(openGateLink).toHaveAttribute(
-      "aria-label",
-      "Open the gate: Uncommitted review (review-package tab)",
+    expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveTextContent(
+      "Open gate: Uncommitted review",
     );
   });
 
@@ -105,9 +104,9 @@ describe("RunDetailFirstReviewSpineBand", () => {
       />,
     );
 
-    const openGateLink = screen.getByRole("link", {
+    const openGateLink = screen.getAllByRole("link", {
       name: "Open the gate: Uncommitted review (review-package tab)",
-    });
+    })[0];
 
     expect(openGateLink).toHaveAttribute(
       "href",

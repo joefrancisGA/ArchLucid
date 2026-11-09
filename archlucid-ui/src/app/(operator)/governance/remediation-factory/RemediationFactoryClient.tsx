@@ -20,6 +20,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
+import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -663,6 +664,10 @@ export function RemediationFactoryClient() {
       <SecureNowRemediationFactoryCollectionSetupBanner />
 
       <SecureNowPilotWalkthroughBanner productLine={productLine} />
+
+      {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
+        <SecureNowRemediationFactoryStepFocusBanner selectedPathId={selectedPathId} />
+      ) : null}
 
       <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}

@@ -1,6 +1,8 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
+import { resolveSecureNowCollectionMissingDetail } from "@/lib/product-line/securenow-collection-missing-reason";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 
 export const SECURENOW_COLLECTION_SETUP_CHECKLIST_TITLE = "Collection setup" as const;
 
@@ -41,4 +43,35 @@ export function resolveSecureNowCollectionSetupRecoveryHref(
   _input: SecureNowCollectionMissingInput,
 ): string {
   return SECURENOW_COLLECTION_SETUP_RECOVERY_HREF;
+}
+
+export type SecureNowCollectionPrimaryBlocker = {
+  readonly stepId: string;
+  readonly stepLabel: string;
+  readonly detail: string;
+  readonly recoveryHref: string;
+};
+
+/** First incomplete collection step — one headline blocker for Home and cloud connections. */
+export function resolveSecureNowCollectionPrimaryBlocker(
+  input: SecureNowCollectionMissingInput,
+): SecureNowCollectionPrimaryBlocker | null {
+  if (isSecureNowCollectionSetupComplete(input)) {
+    return null;
+  }
+
+  const steps = resolveSecureNowCollectionSetupSteps(input);
+  const emphasizedStepId = resolveSecureNowCollectionSetupEmphasizedStepId(input);
+  const step = steps.find((entry) => entry.id === emphasizedStepId);
+
+  if (step === undefined || step.complete) {
+    return null;
+  }
+
+  return {
+    stepId: step.id,
+    stepLabel: step.label,
+    detail: resolveSecureNowCollectionMissingDetail(input),
+    recoveryHref: resolveSecureNowCollectionSetupRecoveryHref(input),
+  };
 }

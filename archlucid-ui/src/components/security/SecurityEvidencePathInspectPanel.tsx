@@ -52,6 +52,8 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
+  SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_HREF,
+  SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_LINE,
   SECURENOW_PATH_INSPECT_FRAMEWORK_THEME,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
   SECURENOW_PATH_INSPECT_LOADING,
@@ -783,6 +785,15 @@ export function SecurityEvidencePathInspectPanel(props: {
           ) : null}
         </div>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="securenow-path-inspect-expectation-keys"
+        >
+          {SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_LINE}{" "}
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_HREF}>
+            Standards and rules
+          </Link>
+        </p>
         {subjectLabel != null ? (
           <p
             className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}

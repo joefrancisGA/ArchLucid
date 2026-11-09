@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
@@ -80,6 +81,7 @@ export function SecureNowCollectionSetupStatusSection(
         </div>
       ) : (
         <>
+          <SecureNowCollectionPrimaryBlockerLine input={collectionInput} testIdPrefix={props.testIdPrefix} />
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`${props.testIdPrefix}-collection-setup-progress`}

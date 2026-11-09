@@ -1,3 +1,4 @@
+import { SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 
 export const SECURENOW_PATH_INSPECT_PANEL_TITLE = secureNowTitleCase("Path inspect");
@@ -21,6 +22,11 @@ export const SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE = secureNowTitleCase("Cut p
 
 export const SECURENOW_PATH_INSPECT_FRAMEWORK_THEME =
   "Framework theme: Microsoft cloud security benchmark. A cited theme is not a certification." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_LINE =
+  "Assigned packs expose named expectation keys in Standards and rules. Path rank and explanation outputs are not pack-parameterized (WK-21)." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_HREF = SECURENOW_STANDARDS_AND_RULES_PATH;
 
 export const SECURENOW_PATH_INSPECT_ROUTING_TITLE = secureNowTitleCase("Organizational routing");
 

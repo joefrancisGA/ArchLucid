@@ -8,6 +8,8 @@ import { SecureNowFirstHourPageView } from "@/app/(operator)/administration/secu
 import { SecureNowInvestigationEffortPageView } from "@/app/(operator)/administration/securenow-investigation-effort/SecureNowInvestigationEffortPageView";
 import { SecureNowPilotDecisionPageView } from "@/app/(operator)/administration/securenow-pilot-decision/SecureNowPilotDecisionPageView";
 import { SecureNowPilotSpinePageView } from "@/app/(operator)/administration/securenow-pilot-spine/SecureNowPilotSpinePageView";
+import { SecureNowReadoutPackPageView } from "@/app/(operator)/administration/securenow-readout-pack/SecureNowReadoutPackPageView";
+import { SecureNowReviewerPacketPageView } from "@/app/(operator)/administration/securenow-reviewer-packet/SecureNowReviewerPacketPageView";
 import { SecureNowReturnReasonsPageView } from "@/app/(operator)/administration/securenow-return-reasons/SecureNowReturnReasonsPageView";
 import { SecureNowSelfServicePageView } from "@/app/(operator)/administration/securenow-self-service/SecureNowSelfServicePageView";
 import { SecureNowSkuCardView } from "@/app/(marketing)/securenow-sku/SecureNowSkuCardView";
@@ -36,6 +38,8 @@ describe("SecureNow accessibility surfaces — axe", () => {
     ["return reasons", <SecureNowReturnReasonsPageView key="return-reasons" />],
     ["pilot decision", <SecureNowPilotDecisionPageView key="pilot-decision" />],
     ["pilot spine", <SecureNowPilotSpinePageView key="pilot-spine" />],
+    ["reviewer packet", <SecureNowReviewerPacketPageView key="reviewer-packet" />],
+    ["readout pack", <SecureNowReadoutPackPageView key="readout-pack" />],
     ["investigation effort", <SecureNowInvestigationEffortPageView key="investigation-effort" />],
     ["public synthetic sample", <SecureNowSampleView key="public-synthetic-sample" />],
     ["public SKU card", <SecureNowSkuCardView key="public-sku-card" />],

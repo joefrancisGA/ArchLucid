@@ -31,6 +31,7 @@ import {
   formatScopeSwitcherTriggerLabel,
   isSampleWorkspacePresentationScope,
 } from "@/lib/scope-switcher-display";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import {
   resolveSecureNowHomeCollectionSetupFallbackInput,
@@ -205,10 +206,13 @@ function SecureNowHomeCollectionSetupBlock(props: {
     });
 
   return (
-    <SecureNowCollectionSetupChecklist
-      input={collectionInput}
-      testIdPrefix="securenow-home"
-    />
+    <div className="space-y-2">
+      <SecureNowCollectionPrimaryBlockerLine input={collectionInput} testIdPrefix="securenow-home" />
+      <SecureNowCollectionSetupChecklist
+        input={collectionInput}
+        testIdPrefix="securenow-home"
+      />
+    </div>
   );
 }
 
