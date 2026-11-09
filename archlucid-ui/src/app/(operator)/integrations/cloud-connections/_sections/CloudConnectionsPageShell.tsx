@@ -25,6 +25,7 @@ import {
   SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
@@ -100,6 +101,9 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
       <h2 id="cloud-connections-collection-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         Collection status: Missing
       </h2>
+      <div className="mt-2">
+        <SecureNowCollectionPrimaryBlockerLine input={collectionMissingInput} testIdPrefix="cloud-connections" />
+      </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="cloud-connections-collection-missing-detail">
         {collectionMissingDetail}
       </p>

@@ -14,6 +14,8 @@ export const OPERATOR_PAGE_MARKETING_SCALE_SPACING_BASELINE_PATHS: readonly stri
   "app/(operator)/administration/securenow-return-reasons/SecureNowReturnReasonsPageView.tsx",
   "app/(operator)/administration/securenow-scenario-walks/SecureNowScenarioWalksPageView.tsx",
   "app/(operator)/administration/securenow-pilot-spine/SecureNowPilotSpinePageView.tsx",
+  "app/(operator)/administration/securenow-reviewer-packet/SecureNowReviewerPacketPageView.tsx",
+  "app/(operator)/administration/securenow-readout-pack/SecureNowReadoutPackPageView.tsx",
   "app/(operator)/administration/securenow-self-service/SecureNowSelfServicePageView.tsx",
   "app/(operator)/administration/securenow-sponsor-path/SecureNowSponsorPathPageView.tsx",
   "app/(operator)/administration/users/_sections/SettingsRolesMatrixSection.tsx",

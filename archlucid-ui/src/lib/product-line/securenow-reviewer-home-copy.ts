@@ -2,6 +2,7 @@ import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-h
 import {
   WHY_SECURENOW_CONVERSATION_MAILTO,
 } from "@/lib/marketing/why-securenow-draft-copy";
+import { SECURENOW_REVIEWER_PACKET_PATH } from "@/lib/product-line/securenow-reviewer-packet-copy";
 
 export const SECURENOW_REVIEWER_HOME_SECTION_HEADING = "For reviewers" as const;
 
@@ -20,9 +21,15 @@ export const SECURENOW_REVIEWER_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     summary: "One synthetic ranked path. Not a customer result.",
   },
   {
-    href: "/why-securenow#reviewer-pack",
+    href: SECURENOW_REVIEWER_PACKET_PATH,
     label: "Reviewer packet",
-    summary: "Ask for the procurement index, the quote cover, and the pilot proposal. Fees stay off this page.",
+    summary:
+      "Signed-in procurement index, SKU meters, quote sequence, trust links, and NO_GO — fees stay off this page.",
+  },
+  {
+    href: "/why-securenow#reviewer-pack",
+    label: "Public reviewer ask",
+    summary: "What to request before signing in. Not an offer.",
   },
   {
     href: "/administration/securenow-quote-packet",

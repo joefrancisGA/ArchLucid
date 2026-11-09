@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import { useMemo } from "react";
 
+import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -192,6 +193,18 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           </>
         )}
       </p>
+
+      {openGateLinkEnabled && openGateHref !== null ? (
+        <div className="mt-2">
+          <Button asChild size="sm" data-testid="run-detail-first-review-spine-open-gate-primary">
+            <Link href={openGateHref} aria-label={openGateLinkAriaLabel}>
+              {summary.openGateLabel !== null && summary.openGateLabel.trim().length > 0
+                ? `Open gate: ${summary.openGateLabel}`
+                : "Open the gate"}
+            </Link>
+          </Button>
+        </div>
+      ) : null}
 
       {props.isSample === true ? (
         <div className="mt-2 space-y-1 rounded border border-border bg-muted/30 p-2" data-testid="sample-review-evidence">
