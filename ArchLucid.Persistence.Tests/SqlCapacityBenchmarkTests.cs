@@ -56,12 +56,15 @@ public sealed class SqlCapacityBenchmarkTests(SqlServerPersistenceFixture fixtur
                 int count = 0;
                 while (await reader.ReadAsync()) count++;
                 long elapsed = Stopwatch.GetTimestamp() - began;
+
                 if (count == 0) throw new InvalidOperationException("Expected indexed rows");
+
                 if (i >= 0) samples[worker * iterationsPerWorker + i] = elapsed;
             }
         }));
         overall.Stop();
         string? root = Environment.GetEnvironmentVariable("ARCHLUCID_CAPACITY_BENCH_OUTPUT");
+
         if (string.IsNullOrWhiteSpace(root)) return;
         Directory.CreateDirectory(root);
         double[] sorted = samples.Select(t => t * 1000d / Stopwatch.Frequency).Order().ToArray();
