@@ -14,6 +14,10 @@ public sealed class IntegrationTestRawArchitectureRequestUrlGuardTests
         @"\.PostAsync\s*\(\s*""/v1/architecture/request""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RawArchitectureRequestHttpRequestRegex = new(
+        @"new\s*\(\s*HttpMethod\.Post\s*,\s*""/v1/architecture/request""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     [Fact]
     public void Api_test_sources_do_not_embed_raw_architecture_request_urls()
     {
@@ -26,11 +30,12 @@ public sealed class IntegrationTestRawArchitectureRequestUrlGuardTests
         {
             string content = File.ReadAllText(path);
 
-            if (RawArchitectureRequestPostRegex.IsMatch(content))
+            if (RawArchitectureRequestPostRegex.IsMatch(content)
+                || RawArchitectureRequestHttpRequestRegex.IsMatch(content))
                 violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
         }
 
         violations.Should().BeEmpty(
-            "use PostArchitectureRequestForTestAsync, CreateArchitectureRunForTestAsync, or CreateFinalizedRunAsync instead of embedding the intake path.");
+            "use PostArchitectureRequestForTestAsync, CreateArchitectureRequestMessage, CreateArchitectureRunForTestAsync, or CreateFinalizedRunAsync instead of embedding the intake path.");
     }
 }

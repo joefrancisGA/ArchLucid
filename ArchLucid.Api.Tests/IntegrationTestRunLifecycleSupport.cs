@@ -15,6 +15,14 @@ public static class IntegrationTestRunLifecycleSupport
     /// <summary>Architecture intake POST route used by test harness helpers.</summary>
     public const string ArchitectureRequestRelativeUrl = "/v1/architecture/request";
 
+    /// <summary>Builds an architecture intake <see cref="HttpRequestMessage" /> (JWT, idempotency, custom body tests).</summary>
+    public static HttpRequestMessage CreateArchitectureRequestMessage(HttpContent? body = null) =>
+        new(HttpMethod.Post, ArchitectureRequestRelativeUrl) { Content = body };
+
+    /// <summary>Builds an intake request with the standard <see cref="TestRequestFactory" /> payload.</summary>
+    public static HttpRequestMessage CreateArchitectureRequestMessage(string requestId) =>
+        CreateArchitectureRequestMessage(JsonContent.Create(TestRequestFactory.CreateArchitectureRequest(requestId)));
+
     /// <summary>Single source for the review execute route used by test harness helpers.</summary>
     public static string ExecuteReviewRelativeUrl(object runId) =>
         $"/v1/architecture/review/{runId}/execute";

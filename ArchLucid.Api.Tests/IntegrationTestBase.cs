@@ -48,6 +48,10 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task<HttpResponseMessage> PostArchitectureRequestAsync(string requestId) =>
         Client.PostArchitectureRequestForTestAsync(requestId);
 
+    /// <summary>Builds an intake <see cref="HttpRequestMessage" /> with optional custom content.</summary>
+    protected static HttpRequestMessage CreateArchitectureRequestMessage(HttpContent? body = null) =>
+        IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(body);
+
     /// <summary>Creates a run via the architecture request endpoint and returns the new run id.</summary>
     protected Task<string> CreateArchitectureRunAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateArchitectureRunForTestAsync(Client, JsonOptions, requestId);
