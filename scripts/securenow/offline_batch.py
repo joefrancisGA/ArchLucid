@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -54,12 +55,14 @@ def run_native(dll: Path, package: Path, output: Path, timeout: int) -> str:
         environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1"
         environment["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "1"
         completed = subprocess.run(
-            ["dotnet", str(dll), "--zip", str(package), "--out", str(output)],
+            ["dotnet", str(dll.resolve()), "--zip", str(package.resolve()),
+             "--out", str(output.resolve())],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
             env=environment,
+            cwd=output.parent,
             timeout=timeout,
         )
     except subprocess.TimeoutExpired:
@@ -112,12 +115,16 @@ def execute(
         raise ValueError("expected subscriptions must be a nonempty JSON array of IDs")
     if len(set(map(evidence_lab.normalize, expected))) != len(expected):
         raise ValueError("expected subscription IDs must be unique")
+    if len(expected) > MAX_SUBSCRIPTIONS:
+        raise ValueError("expected subscription set exceeds the bounded corpus")
 
     packages = sorted(package_dir.glob("*.zip"))
     if not packages or len(packages) > MAX_SUBSCRIPTIONS:
         raise ValueError(f"Provide 1..{MAX_SUBSCRIPTIONS} ZIP packages")
     if sum(p.stat().st_size for p in packages) > MAX_TOTAL_ZIP_BYTES:
         raise ValueError("Total ZIP input exceeds 1 GiB")
+    with native_dll.open("rb") as binary:
+        native_dll_sha256 = hashlib.file_digest(binary, "sha256").hexdigest()
     v1 = evidence_lab.run(
         packages, questions_dir, coverage_dir, expected_subscriptions, False
     )
@@ -229,6 +236,7 @@ def execute(
     return {
         "schema": SCHEMA,
         "status": outcome,
+        "nativeDllSha256": native_dll_sha256,
         "nativeExecutionCount": sum(
             row["nativeReplay"] == "NATIVE_PARTIAL_REPLAY" for row in rows
         ),
