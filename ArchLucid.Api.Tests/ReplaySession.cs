@@ -58,11 +58,14 @@ public sealed class ReplaySession
         return runId;
     }
 
+    /// <summary>Create → execute → finalize via the shared lifecycle harness.</summary>
+    public Task<FinalizedRun> CreateFinalizedAsync(string requestId = "REQ-FIXTURE-001") =>
+        IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
+
     public async Task<(string RunId, string ReplayRunId)> CommitAndReplayAsync(string requestId = "REQ-FIXTURE-001")
     {
-        string runId = await CreateAndExecuteAsync(requestId).ConfigureAwait(false);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId).ConfigureAwait(false);
-        await commitResponse.EnsureSuccessForTestAsync().ConfigureAwait(false);
+        FinalizedRun finalized = await CreateFinalizedAsync(requestId).ConfigureAwait(false);
+        string runId = finalized.RunId;
 
         HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(
             Factory,

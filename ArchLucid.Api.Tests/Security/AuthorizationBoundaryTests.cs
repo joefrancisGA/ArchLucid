@@ -22,11 +22,9 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     public async Task Reader_key_cannot_POST_architecture_request_returns_403()
     {
         using HttpClient client = CreateReaderClient();
-        string body = JsonSerializer.Serialize(TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"),
-            JsonOptions);
-        using HttpResponseMessage response = await client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            new StringContent(body, Encoding.UTF8, "application/json"));
+
+        using HttpResponseMessage response = await client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

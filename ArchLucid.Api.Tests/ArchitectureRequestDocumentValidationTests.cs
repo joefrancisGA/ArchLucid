@@ -31,9 +31,7 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
             }
         };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(root));
+        HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(root);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 

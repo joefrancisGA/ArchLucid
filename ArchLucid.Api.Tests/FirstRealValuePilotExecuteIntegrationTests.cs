@@ -45,9 +45,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage createResponse = await client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PILOT-REAL-1")));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PILOT-REAL-1"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

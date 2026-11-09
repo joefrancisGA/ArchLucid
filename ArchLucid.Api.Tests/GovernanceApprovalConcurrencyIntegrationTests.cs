@@ -17,9 +17,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
 {
     private async Task<string> CreateRunAsync(string requestId)
     {
-        HttpResponseMessage response = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+        HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
         await response.EnsureSuccessForTestAsync();
         CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         return payload!.Run.RunId;

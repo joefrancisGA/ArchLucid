@@ -46,9 +46,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     [SkippableFact]
     public async Task CommitRun_same_idempotency_key_replays_without_new_manifest_version()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-COMMIT")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-COMMIT"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
@@ -88,9 +86,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     [SkippableFact]
     public async Task Governance_approval_submit_same_idempotency_key_replays_without_duplicate_request_id()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-GOV")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-GOV"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -35,10 +35,8 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage createResponse =
-            await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001")));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -70,10 +68,8 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage createResponse =
-            await client.PostAsync(
-                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-                SerializeJsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002")));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

@@ -46,9 +46,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
         string requestId = "REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8];
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        HttpResponseMessage createResponse = await client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =

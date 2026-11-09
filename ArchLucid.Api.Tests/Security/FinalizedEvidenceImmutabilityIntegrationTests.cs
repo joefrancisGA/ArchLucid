@@ -22,9 +22,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     [SkippableFact]
     public async Task Committed_run_rejects_agent_result_submission_and_preserves_golden_manifest_fingerprint()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-IMMUT-001")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-IMMUT-001"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
@@ -62,9 +60,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     [SkippableFact]
     public async Task Committed_run_execute_is_idempotent_and_does_not_change_stored_results()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-EXEC-IDEM")));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-EXEC-IDEM"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
