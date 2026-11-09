@@ -274,6 +274,17 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 - **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (`CreateArchitectureRequestMessage`, `PostGreenfieldArchitectureRequestForTestAsync`, `PostExecuteForTestAsync`, `PostFinalizeForTestAsync`, `CreateFinalizedRunForTestAsync`, …).
 - **ReplaySession** (Api.Tests) — comparison-replay golden path (`CreateFinalizedAsync`, `CommitAndReplayAsync`, `PersistEndToEndComparisonAsync`, …). Prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**; do not add parallel comparison fixtures.
 
+### Api integration harness — which helper?
+
+| Goal | Use |
+|------|-----|
+| Standard intake POST (factory body or object) | `PostArchitectureRequestForTestAsync` or `CreateArchitectureRunForTestAsync` |
+| JWT, custom body, or idempotency header on intake | `CreateArchitectureRequestMessage` → `SendAsync` |
+| Greenfield SQL with transient 503 retry + unique idempotency key | `PostGreenfieldArchitectureRequestForTestAsync` |
+| Run through execute (and optional finalize) for most lifecycle tests | `CreateFinalizedRunAsync` / `CreateFinalizedRunForTestAsync` → **`FinalizedRun`** |
+| Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync`, `PersistEndToEndComparisonAsync`) |
+| Assert HTTP success with CI-friendly logs | `EnsureSuccessForTestAsync` (not `EnsureSuccessStatusCode`) |
+
 **Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, eight facts) centralizes harness golden-path rules (lifecycle URLs, intake POSTs, execute-before-finalize pin refresh, greenfield intake dedupe, `EnsureSuccessForTestAsync`).
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.

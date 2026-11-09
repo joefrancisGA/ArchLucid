@@ -39,6 +39,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"new\s*\(\s*HttpMethod\.Post\s*,\s*""/v1/architecture/request""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ConstantArchitectureRequestHttpRequestRegex = new(
+        @"new\s*\(\s*HttpMethod\.Post\s*,\s*IntegrationTestRunLifecycleSupport\.ArchitectureRequestRelativeUrl",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex HandRolledIntakePostRegex = new(
         @"\.PostAsync\s*\(\s*IntegrationTestRunLifecycleSupport\.ArchitectureRequestRelativeUrl",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -117,7 +121,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             LifecycleSupportExclusions,
             static content =>
                 RawArchitectureRequestPostRegex.IsMatch(content)
-                || RawArchitectureRequestHttpRequestRegex.IsMatch(content));
+                || RawArchitectureRequestHttpRequestRegex.IsMatch(content)
+                || ConstantArchitectureRequestHttpRequestRegex.IsMatch(content));
     }
 
     internal static List<string> ScanHandRolledIntakePostAsync()

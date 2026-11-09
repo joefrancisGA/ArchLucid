@@ -309,9 +309,8 @@ public sealed class ArchitectureControllerTests
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-001");
-            using HttpRequestMessage first = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-            first.Content = JsonContent(body);
-            first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+            using HttpRequestMessage first =
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
             firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -320,9 +319,8 @@ public sealed class ArchitectureControllerTests
                 await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             firstPayload.Should().NotBeNull();
 
-            using HttpRequestMessage second = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-            second.Content = JsonContent(body);
-            second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+            using HttpRequestMessage second =
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
             secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -344,16 +342,14 @@ public sealed class ArchitectureControllerTests
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object firstBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002A");
-            using HttpRequestMessage first = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-            first.Content = JsonContent(firstBody);
-            first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+            using HttpRequestMessage first =
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(firstBody), idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
             await firstResponse.EnsureSuccessForTestAsync();
             object secondBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002B");
-            using HttpRequestMessage second = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-            second.Content = JsonContent(secondBody);
-            second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+            using HttpRequestMessage second =
+                IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(secondBody), idempotencyKey);
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
             secondResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -473,9 +469,8 @@ public sealed class ArchitectureControllerTests
         object body,
         string idempotencyKey)
     {
-        using HttpRequestMessage request = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
-        request.Content = JsonContent(body);
-        request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+        using HttpRequestMessage request =
+            IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(JsonContent(body), idempotencyKey);
 
         return await client.SendAsync(request);
     }
