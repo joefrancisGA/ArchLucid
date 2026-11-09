@@ -24,15 +24,15 @@ export function resolveSecureNowCollectionMissingDetail(
   input: SecureNowCollectionMissingInput,
 ): string {
   if (!input.hasConfiguredProvider) {
-    return "Reader role on the subscription in scope is not configured yet.";
+    return "Next: grant Reader role on one Azure subscription in Cloud connections.";
   }
 
   if (!input.azureSubscriptionIdsPresent) {
-    return "Subscription scope is not selected on the Azure connection.";
+    return "Next: select one Azure subscription for the SecureNow scope.";
   }
 
   if (!input.hasSuccessfulPull) {
-    return "The latest capture failed or has not finished.";
+    return "Next: run a successful capture (upload a package or use your scheduled extractor).";
   }
 
   return "Collection status is missing for this scope.";

@@ -18,6 +18,17 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: false,
+      azureSubscriptionIdsPresent: false,
+      hasSuccessfulPull: false,
+    },
+    isPending: false,
+  }),
+}));
+
 vi.mock("@/lib/product-line/securenow-investigation-effort-sync", () => ({
   loadSecureNowInvestigationEffortInputs: vi.fn(async () => {
     const { readSecureNowInvestigationEffortInputs } = await import(
@@ -48,6 +59,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
     ).not.toHaveTextContent(/\$/);
     expect(screen.getByTestId("securenow-investigation-effort-input-storage-discipline")).toHaveTextContent(
       SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
+    );
+    expect(screen.getByTestId("securenow-investigation-effort-scope-missing")).toHaveTextContent(
+      "No successful capture yet",
     );
     expect(screen.getByTestId("securenow-investigation-effort-synthetic-example")).toHaveTextContent(
       "Synthetic worksheet walkthrough",

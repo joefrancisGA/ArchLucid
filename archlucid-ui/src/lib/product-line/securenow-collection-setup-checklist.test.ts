@@ -28,7 +28,7 @@ describe("resolveSecureNowCollectionPrimaryBlocker", () => {
       stepLabel: "Cloud provider configured",
       recoveryHref: "/integrations/cloud-connections#cloud-connections-options-heading",
     });
-    expect(blocker?.detail).toMatch(/not configured/i);
+    expect(blocker?.detail).toMatch(/grant Reader role/i);
   });
 
   it("returns you-are-here coordinates for the primary blocker", () => {

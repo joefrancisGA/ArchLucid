@@ -1,7 +1,7 @@
 export const ARCHLUCID_BETA_SKU_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_LEAD =
-  "What a controlled ArchLucid evaluation includes and what it does not. Tier list prices are sales-led; no checkout fee is published here." as const;
+  "What a controlled ArchLucid evaluation includes and what it does not. Monthly list prices are on /pricing; order by quote." as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_INCLUDES = [
   "Guided architecture review intake, evidence upload, and policy-pack assignment",
@@ -11,7 +11,7 @@ export const ARCHLUCID_BETA_SKU_CONTENTS_INCLUDES = [
 ] as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_EXCLUDES = [
-  "Live Stripe checkout, self-serve conversion, or a public fee on this page",
+  "Live Stripe checkout or self-serve conversion without sales confirmation",
   "CPA-issued SOC 2 report, third-party pen-test publication, or a sealed tenant review done for you",
   "Automatic changes in your cloud — recommendations stay advisory until you act",
 ] as const;

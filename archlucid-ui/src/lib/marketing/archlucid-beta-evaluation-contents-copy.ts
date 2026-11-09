@@ -1,7 +1,7 @@
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_LEAD =
-  "What sales-led ArchLucid evaluation includes before a sealed tenant review. This page does not publish a fee." as const;
+  "What sales-led ArchLucid evaluation includes before a sealed tenant review. Monthly list prices are in the tier grid above; order by quote." as const;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_INCLUDES = [
   "Hosted architecture review workspace with sample and tenant runs",
@@ -11,7 +11,7 @@ export const ARCHLUCID_BETA_EVALUATION_CONTENTS_INCLUDES = [
 ] as const;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_EXCLUDES = [
-  "Live self-serve checkout or a public list price on marketing pages",
+  "Live self-serve checkout without sales confirmation",
   "A sealed tenant review until you start, evidence, and commit your own run",
   "CPA-issued SOC 2 or third-party pen-test publication",
 ] as const;

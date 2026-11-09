@@ -8,7 +8,9 @@ import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collecti
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
+import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { resolveSecureNowCollectionPrimaryBlocker } from "@/lib/product-line/securenow-collection-setup-checklist";
 import {
   formatSecureNowCollectionSetupProgressSummary,
   isSecureNowCollectionSetupComplete,
@@ -44,6 +46,7 @@ export function SecureNowCollectionSetupStatusSection(
   }
 
   const collectionReady = isSecureNowCollectionSetupComplete(collectionInput);
+  const primaryBlocker = resolveSecureNowCollectionPrimaryBlocker(collectionInput);
 
   return (
     <section
@@ -101,6 +104,18 @@ export function SecureNowCollectionSetupStatusSection(
             >
               Cloud connections
             </Link>
+            {primaryBlocker !== null && primaryBlocker.stepId === "capture" ? (
+              <>
+                {" · "}
+                <Link
+                  href={EXTRACT_UPLOAD_PATH}
+                  className={OPERATOR_LINK.inline}
+                  data-testid={`${props.testIdPrefix}-collection-in-progress-extract-upload-link`}
+                >
+                  Extract and upload
+                </Link>
+              </>
+            ) : null}
           </p>
         </>
       )}
