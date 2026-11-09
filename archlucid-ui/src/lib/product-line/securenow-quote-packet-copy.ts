@@ -6,7 +6,7 @@ export const SECURENOW_QUOTE_PACKET_LEAD =
   "SKU identifiers and the quote sequence. Not an approved offer. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_QUOTE_PACKET_GUARDRAIL =
-  "Fees stay in the private price sheet. This page does not publish a price." as const;
+  "Published list prices are quote-only. Seller, tax, and payout identity stay in the private price sheet." as const;
 
 export const SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT =
   "This page cannot authorize commerce." as const;

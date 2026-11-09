@@ -7,9 +7,9 @@
 
 ## 2026-11-09 - SecureNow amounts are the public list price
 
-**Outcome.** Owner decision: the four SecureNow amounts in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §9 are the public list price, sold by quote only. §9 now allows them on the public SKU card and the signed-in quote packet. No page shows them yet. This is not a Stripe Price, not a Partner Center plan, and not permission to invoice. Beta remains **NO_GO**.
+**Outcome.** Owner decision: the four SecureNow amounts in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §9 are the public list price, sold by quote only. The public SKU card and signed-in quote packet now render the same table with quote-only conditions. This is not a Stripe Price, not a Partner Center plan, and not permission to invoice. Beta remains **NO_GO**.
 
-**Surfaces.** §9 heading and status note only. [`PRIVATE_PRICE_SHEET.md`](securenow/PRIVATE_PRICE_SHEET.md) and the SKU card copy still carry the earlier "not public" wording until a follow-up change.
+**Surfaces.** `securenow-published-list-price-copy.ts`, `SecureNowPublishedListPriceSection`, SKU card and quote packet pages, [`PRIVATE_PRICE_SHEET.md`](securenow/PRIVATE_PRICE_SHEET.md) identity banner, pricing single-source and commercial-packaging checks.
 
 ## 2026-11-09 - SecureNow quote fees have one source
 

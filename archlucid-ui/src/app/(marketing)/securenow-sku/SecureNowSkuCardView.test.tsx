@@ -30,6 +30,8 @@ describe("SecureNowSkuCardView", () => {
       SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF,
     );
     expect(screen.getByText(/SN-EVAL/i)).toBeInTheDocument();
-    expect(screen.queryByText(/\$/)).toBeNull();
+    expect(screen.getByTestId("securenow-published-list-price")).toBeInTheDocument();
+    expect(screen.getByText(/\$8,000/)).toBeInTheDocument();
+    expect(screen.getByText(/\$24,000/)).toBeInTheDocument();
   });
 });

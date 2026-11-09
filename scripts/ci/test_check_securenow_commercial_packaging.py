@@ -21,7 +21,9 @@ def _copy_tree(destination: Path) -> None:
         "archlucid-ui/src/lib/marketing/securenow-public-commercial-packaging-copy.ts",
         "archlucid-ui/src/lib/marketing/public-sample-entry-links.ts",
         "archlucid-ui/src/lib/product-line/securenow-beta-sku-contents-copy.ts",
+        "archlucid-ui/src/lib/product-line/securenow-published-list-price-copy.ts",
         "archlucid-ui/src/app/(marketing)/securenow-sku/SecureNowSkuCardView.tsx",
+        "archlucid-ui/src/app/(operator)/administration/securenow-quote-packet/SecureNowQuotePacketPageView.tsx",
         "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx",
         "archlucid-ui/src/components/marketing/MarketingPublicFooter.tsx",
     ):

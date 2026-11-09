@@ -20,6 +20,9 @@ export const SECURENOW_PATH_INSPECT_HOPS_TITLE = secureNowTitleCase("Path hops")
 
 export const SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE = secureNowTitleCase("Cut points");
 
+export const SECURENOW_PATH_INSPECT_CHANGE_IMPACT_DISCIPLINE =
+  "A cut point is an advisory intervention. Your engineer applies the change in Azure outside SecureNow. A later successful capture can support whether the condition changed." as const;
+
 export const SECURENOW_PATH_INSPECT_FRAMEWORK_THEME =
   "Framework theme: Microsoft cloud security benchmark. A cited theme is not a certification." as const;
 

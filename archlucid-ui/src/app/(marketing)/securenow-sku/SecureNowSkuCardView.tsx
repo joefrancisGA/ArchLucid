@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ProcurementEvidenceMapSection } from "@/components/procurement/ProcurementEvidenceMapSection";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowPublishedListPriceSection } from "@/components/product-line/SecureNowPublishedListPriceSection";
 import { SECURENOW_PROCUREMENT_EVIDENCE_ROWS } from "@/lib/procurement/procurement-evidence-map-copy";
 import { SecureNowPublicQuoteSequenceSection } from "@/components/product-line/SecureNowPublicQuoteSequenceSection";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
@@ -59,6 +60,7 @@ export function SecureNowSkuCardView(): React.JSX.Element {
         <p className={MARKETING_TYPOGRAPHY.body} data-testid="securenow-sku-architecture-boundary">
           {SECURENOW_ARCHITECTURE_SUBSCRIPTION_BOUNDARY}
         </p>
+        <SecureNowPublishedListPriceSection typography="marketing" />
         <SecureNowBetaSkuContentsSection />
         <ProcurementEvidenceMapSection
           rows={SECURENOW_PROCUREMENT_EVIDENCE_ROWS}

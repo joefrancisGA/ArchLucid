@@ -2,7 +2,7 @@ import { SECURENOW_ACCELERATOR_INDEX_PATH } from "@/lib/product-line/securenow-a
 import { SECURENOW_OPERATOR_QUOTE_PACKET_HREF } from "@/lib/product-line/securenow-beta-sku-contents-copy";
 
 export const SECURENOW_QUOTE_FEE_RECORDED_LINE =
-  "Owner-approved SecureNow quote fees are recorded in the pricing philosophy (section 9). This page does not print dollar amounts." as const;
+  "List prices match the pricing philosophy (section 9). Order by quote only — not checkout and not permission to invoice." as const;
 
 export const SECURENOW_QUOTE_FEE_ARCHITECTURE_BOUNDARY =
   "An ArchLucid Team or Professional subscription does not include SecureNow. Quote SecureNow separately." as const;

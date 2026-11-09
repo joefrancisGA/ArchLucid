@@ -11,6 +11,6 @@ export const SECURENOW_SKU_CARD_ROWS = [
 ] as const;
 
 export const SECURENOW_SKU_CARD_LIMIT =
-  "These identifiers are not active entitlements. This card does not state a fee, tax amount, discount, or public list price." as const;
+  "These identifiers are not active entitlements until a signed order. Published list prices are quote-only. Tax, discounts, and checkout are not on this site." as const;
 
 export { SECURENOW_ARCHITECTURE_SUBSCRIPTION_BOUNDARY } from "@/lib/marketing/securenow-public-commercial-packaging-copy";

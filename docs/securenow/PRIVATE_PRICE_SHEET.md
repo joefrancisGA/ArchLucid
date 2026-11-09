@@ -1,14 +1,14 @@
-> **Scope:** Owner-only record of the approved SecureNow private quote: fees, USD, tax extra, and payout identity. Not a public list price, not a customer offer, and not permission to invoice.
+> **Scope:** Owner-only record of SecureNow seller, USD posture, tax extra, and payout identity. List prices live in [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §9 — not a customer offer and not permission to invoice.
 
 # SecureNow private quote sheet
 
-> **OWNER APPROVED PRIVATE QUOTE SHEET** (2026-10-29). **NOT A PUBLIC LIST PRICE.** Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off.
+> **OWNER APPROVED PRIVATE QUOTE SHEET** (2026-10-29). **QUOTE IDENTITY ONLY.** Fees are published in pricing philosophy §9. Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off.
 
 This sheet records the fee, currency, tax posture, and payout identity the owner approved. Each customer still needs the open gates in [CONTROLLED_PILOT_OFFER.md](CONTROLLED_PILOT_OFFER.md). Marketplace publication stays **HOLD** in [MARKETPLACE_PREPUBLICATION_CONTRACT.md](MARKETPLACE_PREPUBLICATION_CONTRACT.md).
 
 ## Fees (USD)
 
-Dollar amounts, meters, and the evaluation-fee credit live only in [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §9. Do not copy them into this sheet or onto a public page. There is no monthly card price. These amounts are tax extra. See tax posture below.
+Dollar amounts, meters, and the evaluation-fee credit live only in [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §9 and on the public SKU card and signed-in quote packet. Do not copy them into this sheet. There is no monthly card price. These amounts are tax extra. See tax posture below.
 
 ## Currency
 
@@ -36,6 +36,6 @@ If a Marketplace charge is ever collected later, Microsoft’s tax calculation o
 
 ## Still not approved
 
-A contractual support SLA and service credits. Founder response targets are recorded in [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md) and are not that SLA. Also still not approved: a data-processing agreement, security assurances, beta release, a Partner Center listing, a Stripe Price, a public pricing page, and any live webhook or billing toggle.
+A contractual support SLA and service credits. Founder response targets are recorded in [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md) and are not that SLA. Also still not approved: a data-processing agreement, security assurances, beta release, a Partner Center listing, a Stripe Price, self-serve checkout, and any live webhook or billing toggle.
 
 Reserved ids are names to keep distinct from ArchLucid. They are not Partner Center records.

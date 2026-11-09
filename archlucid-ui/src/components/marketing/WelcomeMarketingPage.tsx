@@ -118,16 +118,16 @@ export function WelcomeMarketingPage(props: {
             ))}
           </ul>
           <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
+            <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SECURENOW_SKU_CARD_HREF}>
+              {PUBLIC_SECURENOW_SKU_CARD_LABEL}
+            </Link>
+            {" · "}
             <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SAMPLE_REVIEW_HREF}>
               {PUBLIC_SAMPLE_REVIEW_LABEL}
             </Link>
             {" · "}
             <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF}>
               {PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL}
-            </Link>
-            {" · "}
-            <Link className={MARKETING_SURFACES.inlineLink} href={PUBLIC_SECURENOW_SKU_CARD_HREF}>
-              {PUBLIC_SECURENOW_SKU_CARD_LABEL}
             </Link>
             . {SECURENOW_SAMPLE_FIXTURE_LINE}
             {" · "}

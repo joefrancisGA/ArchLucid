@@ -3,7 +3,7 @@ import { SECURENOW_PUBLIC_QUOTE_SEQUENCE_SECTION_ID } from "@/lib/marketing/secu
 export const SECURENOW_BETA_SKU_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
 export const SECURENOW_BETA_SKU_CONTENTS_LEAD =
-  "What a controlled SecureNow evaluation includes and what it does not. Quote fees are recorded in the pricing philosophy; this card does not print dollar amounts." as const;
+  "What a controlled SecureNow evaluation includes and what it does not. List prices are published quote-only; beta remains NO_GO." as const;
 
 export const SECURENOW_BETA_SKU_CONTENTS_INCLUDES = [
   "Reader-scoped Azure inventory capture for subscriptions you configure",
@@ -13,7 +13,7 @@ export const SECURENOW_BETA_SKU_CONTENTS_INCLUDES = [
 ] as const;
 
 export const SECURENOW_BETA_SKU_CONTENTS_EXCLUDES = [
-  "Public list price, live Stripe checkout, or an approved order form on this site",
+  "Live Stripe checkout or an approved self-serve order form on this site",
   "Azure write access, automatic remediation, or a certification claim",
   "A customer outcome — fixture paths and samples stay synthetic until you capture your subscription",
 ] as const;

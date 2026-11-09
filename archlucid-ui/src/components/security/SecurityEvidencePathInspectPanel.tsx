@@ -41,6 +41,7 @@ import { SecureNowPathInspectAssignedPacksLine } from "@/components/security/Sec
 import {
   SECURENOW_PATH_INSPECT_ADVISORY_INSTANCE_LINK,
   SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE,
+  SECURENOW_PATH_INSPECT_CHANGE_IMPACT_DISCIPLINE,
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
@@ -1021,6 +1022,12 @@ export function SecurityEvidencePathInspectPanel(props: {
             <div className="space-y-2" data-testid="security-evidence-path-cut-points">
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE}</h3>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Where you could break this path.</p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="securenow-path-change-impact-discipline"
+              >
+                {SECURENOW_PATH_INSPECT_CHANGE_IMPACT_DISCIPLINE}
+              </p>
               <p
                 className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="securenow-path-framework-theme"

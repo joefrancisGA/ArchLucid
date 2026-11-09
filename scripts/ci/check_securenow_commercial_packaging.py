@@ -13,6 +13,12 @@ METER_CARD = Path("docs/securenow/SKU_METER_CARD.md")
 QUOTE_PACKET_COPY = Path(
     "archlucid-ui/src/lib/product-line/securenow-quote-packet-copy.ts"
 )
+PUBLISHED_LIST_PRICE_COPY = Path(
+    "archlucid-ui/src/lib/product-line/securenow-published-list-price-copy.ts"
+)
+QUOTE_PACKET_VIEW = Path(
+    "archlucid-ui/src/app/(operator)/administration/securenow-quote-packet/SecureNowQuotePacketPageView.tsx"
+)
 REVIEWER_HOME_COPY = Path(
     "archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts"
 )
@@ -164,15 +170,28 @@ def validate(root: Path = ROOT) -> list[str]:
         if "/securenow-sku#securenow-public-quote-sequence" not in beta_contents:
             errors.append(f"{BETA_SKU_CONTENTS_COPY}: missing public quote sequence anchor href")
 
+    list_price_copy = _read(root, PUBLISHED_LIST_PRICE_COPY, errors)
+    if list_price_copy:
+        if "$" not in list_price_copy:
+            errors.append(f"{PUBLISHED_LIST_PRICE_COPY}: must contain published list price literals")
+        for sku in SKU_IDS:
+            if sku not in list_price_copy:
+                errors.append(f"{PUBLISHED_LIST_PRICE_COPY}: missing {sku}")
+
     sku_view = _read(root, SKU_CARD_VIEW, errors)
     if sku_view:
         for token in (
             "securenow-sku-architecture-boundary",
             "SecureNowPublicQuoteSequenceSection",
             "secureNowSkuMeterCapForSku",
+            "SecureNowPublishedListPriceSection",
         ):
             if token not in sku_view:
                 errors.append(f"{SKU_CARD_VIEW}: missing {token!r}")
+
+    quote_packet_view = _read(root, QUOTE_PACKET_VIEW, errors)
+    if quote_packet_view and "SecureNowPublishedListPriceSection" not in quote_packet_view:
+        errors.append(f"{QUOTE_PACKET_VIEW}: missing SecureNowPublishedListPriceSection")
 
     welcome = _read(root, WELCOME_PAGE, errors)
     if welcome:

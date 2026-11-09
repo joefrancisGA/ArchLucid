@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowPublishedListPriceSection } from "@/components/product-line/SecureNowPublishedListPriceSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -46,6 +47,8 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
             ))}
           </ol>
         </section>
+
+        <SecureNowPublishedListPriceSection typography="operator" />
 
         <SecureNowBetaSkuContentsSection showQuoteLink={false} />
 

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SecureNowQuotePacketPageView } from "./SecureNowQuotePacketPageView";
 
 describe("SecureNowQuotePacketPageView", () => {
-  it("renders a bounded, fee-free quote packet", () => {
+  it("renders a bounded quote packet with published list prices", () => {
     render(<SecureNowQuotePacketPageView />);
 
     expect(screen.getByTestId("securenow-quote-packet-page")).toBeInTheDocument();
@@ -25,7 +25,8 @@ describe("SecureNowQuotePacketPageView", () => {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
 
-    expect(screen.getByTestId("securenow-quote-packet-page")).not.toHaveTextContent("$");
+    expect(screen.getByTestId("securenow-published-list-price")).toBeInTheDocument();
+    expect(screen.getByText(/\$24,000/)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-beta-sku-contents-section")).toBeInTheDocument();
   });
 });

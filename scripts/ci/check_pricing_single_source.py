@@ -38,6 +38,10 @@ ALLOWED_PATHS_REL = {
     os.path.normpath("docs/go-to-market/TRIAL_AND_SIGNUP.md"),
     os.path.normpath("docs/CHANGELOG.md"),
     os.path.normpath("scripts/ci/check_pricing_single_source.py"),
+    # SecureNow §9 list prices on the SKU card and quote packet only.
+    os.path.normpath(
+        "archlucid-ui/src/lib/product-line/securenow-published-list-price-copy.ts"
+    ),
 }
 
 # Exact price strings that must not appear outside ALLOWED_PATHS.

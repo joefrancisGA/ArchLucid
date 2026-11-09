@@ -44,10 +44,10 @@ export const SECURENOW_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
   },
   {
     id: "quote",
-    label: "Quote packet (no public fee)",
+    label: "Quote packet (published list price)",
     status: "available",
     href: "/administration/securenow-quote-packet",
-    note: "Private quote sequence — no list price on this site.",
+    note: "SKU meters, quote sequence, and quote-only list prices.",
   },
   {
     id: "soc2-cpa",

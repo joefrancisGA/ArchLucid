@@ -8,7 +8,7 @@ export const SECURENOW_ARCHITECTURE_SUBSCRIPTION_BOUNDARY =
 export const SECURENOW_PUBLIC_QUOTE_SEQUENCE_HEADING = "Quote sequence (buyer-safe)" as const;
 
 export const SECURENOW_PUBLIC_QUOTE_SEQUENCE_LEAD =
-  "After scope alignment, the owner sends these documents in order. Quote fees are recorded in the pricing philosophy and are not printed on this page. SecureNow beta remains NO_GO." as const;
+  "After scope alignment, the owner sends these documents in order. List prices are on this card; full conditions are in the pricing philosophy (section 9). SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_PUBLIC_QUOTE_SEQUENCE_STEPS = SECURENOW_QUOTE_PACKET_SEQUENCE;
 
