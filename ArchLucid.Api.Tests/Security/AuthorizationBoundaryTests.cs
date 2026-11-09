@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +25,7 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
         string body = JsonSerializer.Serialize(TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"),
             JsonOptions);
         using HttpResponseMessage response = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             new StringContent(body, Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);

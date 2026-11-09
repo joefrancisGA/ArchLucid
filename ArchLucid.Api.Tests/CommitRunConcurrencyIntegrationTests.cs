@@ -37,7 +37,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(
                 TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-PAR-" + Guid.NewGuid().ToString("N")[..8])));
 

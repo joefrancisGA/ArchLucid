@@ -33,7 +33,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     public async Task Finalize_before_execute_maps_integrity_conflict_to_409()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-FINALIZE-409-" + Guid.NewGuid().ToString("N")[..8])));
         await createResponse.EnsureSuccessForTestAsync();
 
@@ -55,7 +55,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     public async Task Get_readiness_before_execute_matches_finalize_integrity_block()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-READINESS-409-" + Guid.NewGuid().ToString("N")[..8])));
         await createResponse.EnsureSuccessForTestAsync();
 
@@ -1291,7 +1291,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     private async Task<string> CreateExecutedRunIdAsync(string requestIdPrefix)
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestIdPrefix + Guid.NewGuid().ToString("N")[..8])));
 
         await createResponse.EnsureSuccessForTestAsync();

@@ -42,7 +42,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001")));
 
         await createResponse.EnsureSuccessForTestAsync();

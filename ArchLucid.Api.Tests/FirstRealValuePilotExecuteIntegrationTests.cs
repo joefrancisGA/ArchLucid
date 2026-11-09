@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -46,7 +46,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PILOT-REAL-1")));
 
         await createResponse.EnsureSuccessForTestAsync();

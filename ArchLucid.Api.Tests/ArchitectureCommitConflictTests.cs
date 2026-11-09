@@ -18,7 +18,7 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
     public async Task CommitBeforeExecute_Returns409Conflict()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-CONFLICT-001")));
 
         await createResponse.EnsureSuccessForTestAsync();

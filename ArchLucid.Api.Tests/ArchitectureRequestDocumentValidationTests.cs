@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -32,7 +32,7 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(root));
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

@@ -19,18 +19,7 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         const string requestId = "REQ-RUNDETAILS-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
+        (string runId, _) = await CreateFinalizedRunAsync(requestId);
         HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await runResponse.EnsureSuccessForTestAsync();
         RunDetailsResponseDto? payload =

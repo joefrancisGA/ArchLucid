@@ -64,7 +64,9 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
             ]
         };
 
-        HttpResponseMessage response = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
+        HttpResponseMessage response = await Client.PostAsync(
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
+            JsonContent(request));
 
         if (response.StatusCode != HttpStatusCode.Created)
         {

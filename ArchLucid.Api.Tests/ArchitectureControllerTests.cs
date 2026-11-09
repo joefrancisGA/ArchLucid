@@ -52,7 +52,9 @@ public sealed class ArchitectureControllerTests
         {
             object request = TestRequestFactory.CreateArchitectureRequest("REQ-API-001");
 
-            HttpResponseMessage response = await client.PostAsync("/v1/architecture/request", JsonContent(request));
+            HttpResponseMessage response = await client.PostAsync(
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
+                JsonContent(request));
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -77,7 +79,7 @@ public sealed class ArchitectureControllerTests
         await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-002")));
 
             await createResponse.EnsureSuccessForTestAsync();
@@ -105,7 +107,7 @@ public sealed class ArchitectureControllerTests
         await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-003")));
 
             await createResponse.EnsureSuccessForTestAsync();
@@ -151,7 +153,7 @@ public sealed class ArchitectureControllerTests
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
             HttpResponseMessage createResponse = await client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
@@ -184,7 +186,7 @@ public sealed class ArchitectureControllerTests
         await RunWithIsolatedFactory(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC")));
 
             await createResponse.EnsureSuccessForTestAsync();
@@ -223,7 +225,7 @@ public sealed class ArchitectureControllerTests
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
             HttpResponseMessage createResponse = await client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
@@ -269,7 +271,7 @@ public sealed class ArchitectureControllerTests
             string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
             HttpResponseMessage createResponse = await client.PostAsync(
-                "/v1/architecture/request",
+                IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
                 JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
 
             await createResponse.EnsureSuccessForTestAsync();
@@ -321,7 +323,7 @@ public sealed class ArchitectureControllerTests
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-001");
-            using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
+            using HttpRequestMessage first = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
             first.Content = JsonContent(body);
             first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -332,7 +334,7 @@ public sealed class ArchitectureControllerTests
                 await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             firstPayload.Should().NotBeNull();
 
-            using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
+            using HttpRequestMessage second = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
             second.Content = JsonContent(body);
             second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -356,14 +358,14 @@ public sealed class ArchitectureControllerTests
         {
             string idempotencyKey = $"idem-{Guid.NewGuid():N}";
             object firstBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002A");
-            using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
+            using HttpRequestMessage first = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
             first.Content = JsonContent(firstBody);
             first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
             await firstResponse.EnsureSuccessForTestAsync();
             object secondBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002B");
-            using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
+            using HttpRequestMessage second = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
             second.Content = JsonContent(secondBody);
             second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -463,7 +465,9 @@ public sealed class ArchitectureControllerTests
             foreach (ArchitectureRequest template in templates)
             {
                 HttpResponseMessage response =
-                    await client.PostAsync("/v1/architecture/request", JsonContent(template));
+                    await client.PostAsync(
+                        IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
+                        JsonContent(template));
 
                 if (response.StatusCode != HttpStatusCode.Created)
                 {
@@ -485,7 +489,7 @@ public sealed class ArchitectureControllerTests
         object body,
         string idempotencyKey)
     {
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
+        using HttpRequestMessage request = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
         request.Content = JsonContent(body);
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 

@@ -17,16 +17,9 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
     [SkippableFact]
     public async Task GetRunTraces_ReturnsPromptAndRawResponseAfterExecute()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TRACE-001")));
+        string runId = await CreateArchitectureRunAsync("REQ-TRACE-001");
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
+        await PostExecuteWithPinsAsync(runId);
         HttpResponseMessage tracesResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/traces");
 
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);

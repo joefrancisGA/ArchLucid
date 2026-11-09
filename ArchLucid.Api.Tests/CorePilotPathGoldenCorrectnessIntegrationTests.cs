@@ -35,7 +35,7 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest(expected.RequestId)));
 
         await createResponse.EnsureSuccessForTestAsync();

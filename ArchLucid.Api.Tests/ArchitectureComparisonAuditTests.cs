@@ -19,13 +19,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task EndToEndComparisonSummary_PersistsComparisonRecord()
     {
-        object request = TestRequestFactory.CreateArchitectureRequest("REQ-COMP-AUDIT-001");
-
-        HttpResponseMessage createResponse = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        string runId = await CreateArchitectureRunAsync("REQ-COMP-AUDIT-001");
 
         HttpResponseMessage executeResponse = await Client.PostExecuteForTestAsync(runId);
 

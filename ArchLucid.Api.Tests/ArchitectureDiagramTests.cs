@@ -17,21 +17,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        (_, string manifestVersion) = await CreateFinalizedRunAsync("REQ-DIAGRAM-001");
 
         HttpResponseMessage diagramResponse =
             await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
@@ -50,21 +36,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-002")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        (_, string manifestVersion) = await CreateFinalizedRunAsync("REQ-DIAGRAM-002");
 
         HttpResponseMessage diagramResponse = await Client.GetAsync(
             $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");

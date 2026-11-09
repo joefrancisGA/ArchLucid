@@ -33,7 +33,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(request));
 
         await response.EnsureSuccessForTestAsync();
@@ -56,7 +56,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         };
 
         HttpResponseMessage create = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(request));
 
         await create.EnsureSuccessForTestAsync();

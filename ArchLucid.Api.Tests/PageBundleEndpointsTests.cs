@@ -180,7 +180,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     public async Task GetRunDetailCriticalPageBundle_ReturnsOk_WithSlices()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-CRITICAL-001")));
 
         await createResponse.EnsureSuccessForTestAsync();
@@ -209,7 +209,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     public async Task GetRunDetailTimelinesBundle_ReturnsOk_WithSlices()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-TIMELINES-001")));
 
         await createResponse.EnsureSuccessForTestAsync();
@@ -237,7 +237,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     public async Task GetRunDetailWorkspaceContextBundle_ReturnsOk_WithSlices()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-WORKSPACE-001")));
 
         await createResponse.EnsureSuccessForTestAsync();

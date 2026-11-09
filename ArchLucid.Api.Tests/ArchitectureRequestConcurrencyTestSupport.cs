@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -129,7 +129,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
+        using HttpRequestMessage request = new(HttpMethod.Post, IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl);
         request.Content = JsonContent(body);
 
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -18,7 +18,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
     private async Task<string> CreateRunAsync(string requestId)
     {
         HttpResponseMessage response = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         await response.EnsureSuccessForTestAsync();
         CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);

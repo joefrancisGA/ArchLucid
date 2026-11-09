@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -17,7 +17,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
     public async Task PinRun_toggle_and_explicit_set_persist_on_summary()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
+            IntegrationTestRunLifecycleSupport.ArchitectureRequestRelativeUrl,
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PIN-001")));
 
         await createResponse.EnsureSuccessForTestAsync();

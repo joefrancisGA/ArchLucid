@@ -274,7 +274,7 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 - **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (`PostExecuteForTestAsync`, `PostFinalizeForTestAsync`, `CreateFinalizedRunForTestAsync`, …).
 - **ReplaySession** (Api.Tests) — comparison-replay golden path (create, execute, finalize, replay, persist). Prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**; do not add parallel comparison fixtures.
 
-**Source-scan guards** (`IntegrationTestRawFinalizeUrlGuardTests`, `IntegrationTestRawExecuteUrlGuardTests`, `IntegrationTestRawReviewReplayUrlGuardTests`, `Suite=Core`) fail when integration tests embed interpolated finalize, execute, or review-replay URLs outside the lifecycle support type.
+**Source-scan guards** (`IntegrationTestRawFinalizeUrlGuardTests`, `IntegrationTestRawExecuteUrlGuardTests`, `IntegrationTestRawReviewReplayUrlGuardTests`, `IntegrationTestRawArchitectureRequestUrlGuardTests`, `IntegrationTestEnsureSuccessForTestGuardTests`, `Suite=Core`) keep lifecycle URLs, intake POSTs, and failure assertions on the harness golden path.
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

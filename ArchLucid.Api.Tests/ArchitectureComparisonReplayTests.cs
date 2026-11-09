@@ -16,9 +16,7 @@ public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factor
         (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-COMP-REPLAY-001");
         string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(runId, replayRunId);
 
-        HttpResponseMessage replayComparisonResponse = await Client.PostAsync(
-            $"/v1/architecture/comparisons/{comparisonRecordId}/replay",
-            JsonContent(new { format = "markdown" }));
+        HttpResponseMessage replayComparisonResponse = await PostComparisonReplayAsync(comparisonRecordId);
 
         replayComparisonResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         replayComparisonResponse.Content.Headers.ContentType!.MediaType
