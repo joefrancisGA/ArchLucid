@@ -40,9 +40,24 @@ export function resolveSecureNowCollectionSetupEmphasizedStepId(
 }
 
 export function resolveSecureNowCollectionSetupRecoveryHref(
-  _input: SecureNowCollectionMissingInput,
+  input: SecureNowCollectionMissingInput,
 ): string {
-  return SECURENOW_COLLECTION_SETUP_RECOVERY_HREF;
+  const emphasizedStepId = resolveSecureNowCollectionSetupEmphasizedStepId(input);
+
+  return resolveSecureNowCollectionSetupStepRecoveryHref(emphasizedStepId);
+}
+
+export function resolveSecureNowCollectionSetupStepRecoveryHref(stepId: string): string {
+  switch (stepId) {
+    case "provider":
+      return "/integrations/cloud-connections#cloud-connections-options-heading";
+    case "subscription":
+      return "/integrations/cloud-connections/azure";
+    case "capture":
+      return "/administration/connection-status";
+    default:
+      return SECURENOW_COLLECTION_SETUP_RECOVERY_HREF;
+  }
 }
 
 export type SecureNowCollectionPrimaryBlocker = {
@@ -72,6 +87,6 @@ export function resolveSecureNowCollectionPrimaryBlocker(
     stepId: step.id,
     stepLabel: step.label,
     detail: resolveSecureNowCollectionMissingDetail(input),
-    recoveryHref: resolveSecureNowCollectionSetupRecoveryHref(input),
+    recoveryHref: resolveSecureNowCollectionSetupStepRecoveryHref(step.id),
   };
 }

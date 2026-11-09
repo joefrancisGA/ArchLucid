@@ -588,10 +588,23 @@ export function RemediationFactoryClient() {
   const onSelectPathAndFocusInspect = useCallback(
     (pathId: string) => {
       selectPath(pathId);
-      focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+      window.requestAnimationFrame(() => {
+        focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+        pathInspectPanelRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
     },
     [selectPath],
   );
+
+  useEffect(() => {
+    if (productLine !== "security" || selectedPathId === null) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+    });
+  }, [productLine, selectedPathId]);
 
   const onExplainScore = useCallback(() => {
     const findingId = selectedFindingIdRef.current;
@@ -741,18 +754,27 @@ export function RemediationFactoryClient() {
       />
 
       <section className="space-y-3" aria-label="Operator priority table">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
-        <Link
-          href={`${remediationInstancesPathForProductLine(productLine)}#${REMEDIATION_WAVES_SECTION_ID}`}
-          className={OPERATOR_LINK.inline}
-          data-testid="remediation-factory-open-waves"
-        >
-          {REMEDIATION_FACTORY_OPEN_WAVES_LABEL}
-        </Link>
-        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
-          These are SecureNow findings for the current inventory snapshot.
-        </p>
-        {rankedQuery.isError ? (
+        {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-priority-queue-collapsed">
+            Priority queue: {ranked.length} finding{ranked.length === 1 ? "" : "s"} on this snapshot. Step focus is on the
+            selected path below.
+          </p>
+        ) : (
+          <>
+            <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
+            <Link
+              href={`${remediationInstancesPathForProductLine(productLine)}#${REMEDIATION_WAVES_SECTION_ID}`}
+              className={OPERATOR_LINK.inline}
+              data-testid="remediation-factory-open-waves"
+            >
+              {REMEDIATION_FACTORY_OPEN_WAVES_LABEL}
+            </Link>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
+              These are SecureNow findings for the current inventory snapshot.
+            </p>
+          </>
+        )}
+        {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? null : rankedQuery.isError ? (
           <>
             <OperatorErrorRecoveryContract
               presentation={remediationFactoryPriorityQueueErrorRecovery()}

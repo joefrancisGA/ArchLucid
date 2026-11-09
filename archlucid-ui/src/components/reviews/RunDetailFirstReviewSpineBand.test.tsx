@@ -1,5 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "ws-1",
+    projectId: "project-1",
+  }),
+}));
 
 import { RunDetailFirstReviewSpineBand } from "./RunDetailFirstReviewSpineBand";
 import type { FirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
@@ -53,11 +61,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
 
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent("Uncommitted review");
-    const openGateLinks = screen.getAllByRole("link", {
-      name: "Open the gate: Uncommitted review (review-package tab)",
-    });
-
-    expect(openGateLinks[0]).toHaveAttribute(
+    expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
     );
@@ -104,11 +108,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
       />,
     );
 
-    const openGateLink = screen.getAllByRole("link", {
-      name: "Open the gate: Uncommitted review (review-package tab)",
-    })[0];
-
-    expect(openGateLink).toHaveAttribute(
+    expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
     );

@@ -35,7 +35,17 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
                 <p className={OPERATOR_TYPOGRAPHY.helper}>
                   Honest label: {scenario.honestLabel}
                 </p>
-                {scenario.id === "fixture-path-02" ? (
+                {scenario.operatorHandoffHref !== null && scenario.operatorHandoffLabel !== null ? (
+                  <p className={OPERATOR_TYPOGRAPHY.body}>
+                    <Link
+                      className={OPERATOR_LINK.inline}
+                      href={scenario.operatorHandoffHref}
+                      data-testid={`securenow-scenario-walk-link-${scenario.id}`}
+                    >
+                      {scenario.operatorHandoffLabel}
+                    </Link>
+                  </p>
+                ) : scenario.id === "fixture-path-02" ? (
                   <p className={OPERATOR_TYPOGRAPHY.body}>
                     <Link
                       className={OPERATOR_LINK.inline}

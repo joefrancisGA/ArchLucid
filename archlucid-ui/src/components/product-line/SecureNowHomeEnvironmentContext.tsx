@@ -103,7 +103,7 @@ function PathIdLinks(props: { readonly pathIds: readonly string[] }): React.JSX.
 }
 
 function CaptureDeltaBlock(props: {
-  readonly workspaceId: string;
+  readonly stickinessScope: { readonly tenantId: string; readonly workspaceId: string };
   readonly eligibleSnapshots: readonly InfraEvidenceSnapshotSummary[];
   readonly reportQueries: ReadonlyArray<{ readonly isPending: boolean; readonly isError: boolean; readonly data: ReturnType<typeof collectSecurityEvidencePathIdsFromAttackPathReport> | undefined }>;
 }): React.JSX.Element {
@@ -111,13 +111,13 @@ function CaptureDeltaBlock(props: {
   const [lastOpenedSnapshotId, setLastOpenedSnapshotId] = useState<string | null>(null);
 
   useEffect(() => {
-    const previous = readSecureNowLastOpenedSnapshotId(props.workspaceId);
+    const previous = readSecureNowLastOpenedSnapshotId(props.stickinessScope);
     setLastOpenedSnapshotId(previous);
 
     if (latestSnapshotId !== null) {
-      writeSecureNowLastOpenedSnapshotId(props.workspaceId, latestSnapshotId);
+      writeSecureNowLastOpenedSnapshotId(props.stickinessScope, latestSnapshotId);
     }
-  }, [latestSnapshotId, props.workspaceId]);
+  }, [latestSnapshotId, props.stickinessScope]);
   if (props.eligibleSnapshots.length < 2) {
     return (
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
@@ -343,7 +343,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
           This is not a timed SLA.
         </p>
         <CaptureDeltaBlock
-          workspaceId={scope.workspaceId}
+          stickinessScope={{ tenantId: scope.tenantId, workspaceId: scope.workspaceId }}
           eligibleSnapshots={eligibleCaptureSnapshots}
           reportQueries={pathDeltaReportQueryViews}
         />

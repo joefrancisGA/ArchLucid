@@ -7,7 +7,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import {
   resolveSecureNowCollectionSetupEmphasizedStepId,
-  resolveSecureNowCollectionSetupRecoveryHref,
+  resolveSecureNowCollectionSetupStepRecoveryHref,
   resolveSecureNowCollectionSetupSteps,
   SECURENOW_COLLECTION_SETUP_CHECKLIST_TITLE,
 } from "@/lib/product-line/securenow-collection-setup-checklist";
@@ -25,7 +25,7 @@ export function SecureNowCollectionSetupChecklist(
   const steps = resolveSecureNowCollectionSetupSteps(props.input);
   const emphasizedStepId = resolveSecureNowCollectionSetupEmphasizedStepId(props.input);
   const emphasizedStep = steps.find((step) => step.id === emphasizedStepId && !step.complete);
-  const recoveryHref = resolveSecureNowCollectionSetupRecoveryHref(props.input);
+  const recoveryHref = resolveSecureNowCollectionSetupStepRecoveryHref(emphasizedStepId);
 
   return (
     <div className="space-y-2" data-testid={`${props.testIdPrefix}-collection-setup-checklist`}>

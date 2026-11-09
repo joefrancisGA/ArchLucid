@@ -69,6 +69,7 @@ import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSe
 import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
 import { FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
+import { FirstReviewOpenGateStarterShortcut } from "@/components/usability/FirstReviewOpenGateStarterShortcut";
 import { OnboardingSampleReviewShortcut } from "@/components/usability/OnboardingSampleReviewShortcut";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
 
@@ -357,6 +358,8 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
   const firstReviewGuideChecklistBody = (
     <>
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <FirstReviewOpenGateStarterShortcut /> : null}
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
 

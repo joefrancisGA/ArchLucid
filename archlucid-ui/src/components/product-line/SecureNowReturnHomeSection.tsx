@@ -89,7 +89,8 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
   }
 
   const delta = computeSecureNowCapturePathDelta(previousReportQuery.data ?? [], latestReportQuery.data ?? []);
-  const pinnedPathId = browserMemoryReady ? readSecureNowPinnedPathId(scope.workspaceId) : null;
+  const stickinessScope = { tenantId: scope.tenantId, workspaceId: scope.workspaceId };
+  const pinnedPathId = browserMemoryReady ? readSecureNowPinnedPathId(stickinessScope) : null;
   const rows = buildSecureNowReturnHomeRows({
     awaitingVerificationCount: instancesQuery.isError
       ? 0
@@ -97,7 +98,7 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
     addedCount: deltaTargets.length >= 2 && !latestReportQuery.isError && !previousReportQuery.isError ? delta.added.length : 0,
     goneCount: deltaTargets.length >= 2 && !latestReportQuery.isError && !previousReportQuery.isError ? delta.gone.length : 0,
     latestSnapshotId: eligibleSnapshots[0]?.snapshotId ?? null,
-    lastOpenedSnapshotId: browserMemoryReady ? readSecureNowLastOpenedSnapshotId(scope.workspaceId) : null,
+    lastOpenedSnapshotId: browserMemoryReady ? readSecureNowLastOpenedSnapshotId(stickinessScope) : null,
     pinnedPathId,
     pinnedPathStatus:
       pinnedPathId === null || deltaTargets.length < 2

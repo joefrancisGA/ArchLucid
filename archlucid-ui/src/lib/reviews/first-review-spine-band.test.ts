@@ -49,4 +49,24 @@ describe("first-review spine band deep links", () => {
       "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=findings&findingId=finding-open-1#run-detail-first-review-spine-findings",
     );
   });
+
+  it("resolveFirstReviewOpenGateReviewHref adds workbenchFocus=findings when the open gate targets findings", () => {
+    const href = resolveFirstReviewOpenGateReviewHref({
+      runId: "run-abc",
+      findings: [
+        {
+          findingId: "uncited-1",
+          severityValue: 3,
+          evidenceRefCount: 0,
+          hasRecordedDisposition: false,
+        } as never,
+      ],
+      hasFindingsSnapshot: true,
+      reviewHasGoldenManifest: true,
+    });
+
+    expect(href).toContain("reviewTab=findings");
+    expect(href).toContain("findingId=uncited-1");
+    expect(href).toContain("workbenchFocus=findings");
+  });
 });
