@@ -26,6 +26,7 @@ import {
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
+import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 
@@ -188,6 +189,8 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           }
         />
 
+        <SecureNowPilotWalkthroughBanner productLine={productLine} />
+
         {collectionStatus}
         {collectionInProgress}
         {collectionReady}
@@ -252,6 +255,8 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
               {CLOUD_CONNECTIONS_START_HERE_LEAD}
             </p>
           </section>
+
+          <SecureNowPilotWalkthroughBanner productLine={productLine} />
 
           {collectionStatus}
           {collectionInProgress}

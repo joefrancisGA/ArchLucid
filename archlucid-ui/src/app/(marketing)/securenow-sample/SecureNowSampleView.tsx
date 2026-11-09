@@ -24,6 +24,10 @@ import {
   WHY_SECURENOW_DRAFT_PITCH,
   WHY_SECURENOW_STATUS_LINE,
 } from "@/lib/marketing/securenow-sample-copy";
+import {
+  SECURENOW_PILOT_SPINE_PATH,
+  secureNowPilotSpineHandoffHrefForBeatIndex,
+} from "@/lib/product-line/securenow-pilot-spine-copy";
 import { cn } from "@/lib/utils";
 
 /** SN-MKT-09 — public synthetic SecureNow sample (indexed; fixture only). */
@@ -59,6 +63,17 @@ export function SecureNowSampleView(): React.JSX.Element {
                   {beat.title}
                 </h2>
                 <p className={MARKETING_TYPOGRAPHY.body}>{beat.body}</p>
+                {secureNowPilotSpineHandoffHrefForBeatIndex(index) !== null ? (
+                  <p className={MARKETING_TYPOGRAPHY.body}>
+                    <Link
+                      href={secureNowPilotSpineHandoffHrefForBeatIndex(index) ?? "#"}
+                      className="text-al-link underline-offset-2 hover:underline"
+                      data-testid={`securenow-sample-beat-handoff-${index + 1}`}
+                    >
+                      Open beat {index + 1} in product (fixture walk)
+                    </Link>
+                  </p>
+                ) : null}
                 {beat.title === "One ranked path" ? (
                   <div
                     className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -107,6 +122,12 @@ export function SecureNowSampleView(): React.JSX.Element {
             Advisory cut point: {SECURENOW_SAMPLE_SECOND_FIXTURE_CUT_POINT}
           </p>
         </section>
+
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          <Link href={SECURENOW_PILOT_SPINE_PATH} className="text-al-link underline-offset-2 hover:underline">
+            Full six-beat pilot checklist (signed in)
+          </Link>
+        </p>
 
         <p className={MARKETING_TYPOGRAPHY.body}>
           {SECURENOW_SAMPLE_PATH_INSPECT_LEAD}{" "}
