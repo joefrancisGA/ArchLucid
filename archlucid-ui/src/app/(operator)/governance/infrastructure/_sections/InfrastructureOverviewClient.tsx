@@ -58,6 +58,9 @@ import { SecureNowHomeEnvironmentContext } from "@/components/product-line/Secur
 import { SecureNowHomeWorkSummary } from "@/components/product-line/SecureNowHomeWorkSummary";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { ArchLucidOpenGateReturnHomeSection } from "@/components/architecture/ArchLucidOpenGateReturnHomeSection";
+import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
+import { SecureNowAcceleratorHomeSection } from "@/components/product-line/SecureNowAcceleratorHomeSection";
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
@@ -156,6 +159,8 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         {showSecureNowGroupedHomeSections ? (
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
             {secureNowHome ? <SecureNowHomeEnvironmentContext /> : null}
+            {secureNowHome ? <SecureNowBetaSkuContentsSection showQuoteLink={false} /> : null}
+            {secureNowHome ? <SecureNowAcceleratorHomeSection /> : null}
             {secureNowHome ? <SecureNowPilotSpineHomeSection /> : null}
             {secureNowHome ? <SecureNowReadoutPackHomeSection /> : null}
             {secureNowHome ? <SecureNowFirstHourHomeSection /> : null}
@@ -167,6 +172,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             {secureNowHome ? <SecureNowReviewerHomeSection /> : null}
             {secureNowHome ? <SecureNowSponsorHomeSection /> : null}
             {!secureNowHome && productLine === "architecture" ? <ArchLucidOpenGateReturnHomeSection /> : null}
+            {!secureNowHome && productLine === "architecture" ? <ArchLucidProcurementEvidenceHomeSection /> : null}
             <SecureNowFindingsHomeSection />
             <SecureNowInfrastructureHomeSection />
             <SecureNowRemediationHomeSection />

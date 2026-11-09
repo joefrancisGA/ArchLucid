@@ -21,6 +21,7 @@ import {
   resolveFirstReviewSpineOpenGateSectionId,
   resolveFirstReviewOpenGateReviewHref,
   resolveFirstReviewFindingsWorkspaceHref,
+  resolveFirstReviewRecordDispositionHref,
   resolveFirstReviewTopFindingInspectHref,
   type FirstReviewSpineBandSummary,
 } from "@/lib/reviews/first-review-spine-band";
@@ -111,6 +112,19 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       architectureId: props.architectureId,
     });
   }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, summary.topFindingId, trimmedRunId]);
+
+  const recordDispositionHref = useMemo((): string | null => {
+    if (trimmedRunId.length === 0 || !hasOpenGateNavigationInput) {
+      return null;
+    }
+
+    return resolveFirstReviewRecordDispositionHref({
+      runId: trimmedRunId,
+      findings: props.openGateNavigationInput.findings,
+      hasFindingsSnapshot: props.openGateNavigationInput.hasFindingsSnapshot,
+      architectureId: props.architectureId,
+    });
+  }, [hasOpenGateNavigationInput, props.architectureId, props.openGateNavigationInput, trimmedRunId]);
 
   const openGateLinkEnabled =
     openGateHref !== null
@@ -214,7 +228,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       </p>
 
       {openGateLinkEnabled && openGateHref !== null ? (
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           <Button asChild size="sm" data-testid="run-detail-first-review-spine-open-gate-primary">
             <Link href={openGateHref} aria-label={openGateLinkAriaLabel}>
               {summary.openGateLabel !== null && summary.openGateLabel.trim().length > 0
@@ -222,7 +236,37 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
                 : "Open the gate"}
             </Link>
           </Button>
+          {summary.showDispositionNextAction && recordDispositionHref !== null ? (
+            <Button asChild size="sm" variant="outline" data-testid="run-detail-first-review-spine-record-disposition-primary">
+              <Link href={recordDispositionHref}>Record disposition</Link>
+            </Button>
+          ) : null}
         </div>
+      ) : null}
+
+      {summary.showTopFindingRow ? (
+        <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
+          <span className="font-semibold">
+            {summary.topFindingRankLabel ?? "Decision-grade finding:"}
+          </span>{" "}
+          {summary.topFindingSeverityLabel !== null
+          && !summary.topFindingSeverityLabel.startsWith("Severity")
+            ? `[${summary.topFindingSeverityLabel}] `
+            : summary.topFindingSeverityLabel !== null
+              ? `${summary.topFindingSeverityLabel} `
+              : ""}
+          {topFindingInspectHref !== null ? (
+            <Link
+              href={topFindingInspectHref}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-top-finding-link"
+            >
+              {summary.topFindingTitle}
+            </Link>
+          ) : (
+            summary.topFindingTitle
+          )}
+        </p>
       ) : null}
 
       {props.isSample === true ? (
@@ -237,8 +281,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         </div>
       ) : null}
 
+      <details className="mt-2 rounded border border-neutral-200 p-2 dark:border-neutral-800" data-testid="run-detail-first-review-spine-detail-disclosure">
+        <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.helper)}>
+          Spine detail (counts, dispositions, policy)
+        </summary>
+        <div className="mt-2 space-y-2">
       <p
-        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-first-review-spine-classification"
       >
         {summary.classificationCountsStored
@@ -272,50 +321,10 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
 
       {summary.showDispositionNextAction ? (
         <p
-          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="run-detail-first-review-spine-disposition-next-action"
         >
-          Record dispositions on open decision-grade findings before sponsor send.{" "}
-          {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
-            findingsWorkspaceHref !== null ? (
-              <Link
-                href={findingsWorkspaceHref}
-                className={OPERATOR_LINK.inline}
-                data-testid="run-detail-first-review-spine-disposition-findings-link"
-              >
-                Open this review&apos;s findings
-              </Link>
-            ) : (
-              "Findings snapshot was not stored."
-            )
-          ) : (
-            <>Review id was not stored.</>
-          )}
-        </p>
-      ) : null}
-
-      {summary.showTopFindingRow ? (
-        <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
-          <span className="font-semibold">
-            {summary.topFindingRankLabel ?? "Decision-grade finding:"}
-          </span>{" "}
-          {summary.topFindingSeverityLabel !== null
-          && !summary.topFindingSeverityLabel.startsWith("Severity")
-            ? `[${summary.topFindingSeverityLabel}] `
-            : summary.topFindingSeverityLabel !== null
-              ? `${summary.topFindingSeverityLabel} `
-              : ""}
-          {topFindingInspectHref !== null ? (
-            <Link
-              href={topFindingInspectHref}
-              className={OPERATOR_LINK.inline}
-              data-testid="run-detail-first-review-spine-top-finding-link"
-            >
-              {summary.topFindingTitle}
-            </Link>
-          ) : (
-            summary.topFindingTitle
-          )}
+          Record dispositions on open decision-grade findings before sponsor send. Use the button above when it is shown.
         </p>
       ) : null}
 
@@ -342,7 +351,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         unmappedFindingCount={props.unmappedFindingCount}
       />
 
-      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <Link
           href={POLICY_PACK_DELTA_DEMO_HELP_PATH}
           className={OPERATOR_LINK.inline}
@@ -351,6 +360,8 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           Policy-pack delta demo (sample runbook, not this review).
         </Link>
       </p>
+        </div>
+      </details>
     </section>
   );
 }

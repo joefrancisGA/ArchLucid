@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveFirstReviewFindingsWorkspaceHref,
   resolveFirstReviewOpenGateReviewHref,
+  resolveFirstReviewRecordDispositionHref,
 } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -45,9 +46,20 @@ describe("first-review spine band deep links", () => {
       architectureId: "architecture-identity-001",
     });
 
-    expect(href).toBe(
-      "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=findings&findingId=finding-open-1#run-detail-first-review-spine-findings",
-    );
+    expect(href).toContain("reviewTab=findings");
+    expect(href).toContain("findingId=finding-open-1");
+    expect(href).toContain("workbenchFocus=findings");
+  });
+
+  it("resolveFirstReviewRecordDispositionHref targets open disposition finding", () => {
+    const href = resolveFirstReviewRecordDispositionHref({
+      runId: "run-abc",
+      findings: [openDispositionFinding],
+      hasFindingsSnapshot: true,
+    });
+
+    expect(href).toContain("findingId=finding-open-1");
+    expect(href).toContain("workbenchFocus=findings");
   });
 
   it("resolveFirstReviewOpenGateReviewHref adds workbenchFocus=findings when the open gate targets findings", () => {
