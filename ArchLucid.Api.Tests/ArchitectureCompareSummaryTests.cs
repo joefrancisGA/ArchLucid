@@ -34,9 +34,7 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
 
         const string requestedReplayManifestVersion = "v1-replay";
 
-        await IntegrationTestArchitectureVersionPinSupport
-            .EnsureCurrentPinForRunAsync(Factory, runId)
-            .ConfigureAwait(false);
+        await IntegrationTestArchitectureVersionPinSupport.EnsureCurrentPinForRunAsync(Factory, runId);
 
         var replayRequest = new
         {

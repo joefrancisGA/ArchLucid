@@ -58,9 +58,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         await commitResponse.EnsureSuccessForTestAsync();
         const string rightVersion = "v1-replay";
 
-        await IntegrationTestArchitectureVersionPinSupport
-            .EnsureCurrentPinForRunAsync(Factory, runId)
-            .ConfigureAwait(false);
+        await IntegrationTestArchitectureVersionPinSupport.EnsureCurrentPinForRunAsync(Factory, runId);
 
         var replayRequest = new
         {
