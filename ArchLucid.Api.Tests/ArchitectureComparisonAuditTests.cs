@@ -35,14 +35,10 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = "v1-replay"
-            }));
+        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+            runId,
+            commitReplay: true,
+            manifestVersionOverride: "v1-replay");
         await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);

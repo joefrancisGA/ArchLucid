@@ -16,32 +16,13 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task CompareManifestsSummary_ReturnsMarkdownSummary()
     {
-        HttpResponseMessage createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMPARE-SUMMARY-001")));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
-
+        (string runId, string leftVersion) = await CreateFinalizedRunAsync("REQ-COMPARE-SUMMARY-001");
         const string requestedReplayManifestVersion = "v1-replay";
 
-        var replayRequest = new
-        {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = requestedReplayManifestVersion
-        };
-
-        HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/replay",
-            JsonContent(replayRequest));
+        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+            runId,
+            commitReplay: true,
+            manifestVersionOverride: requestedReplayManifestVersion);
         await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);

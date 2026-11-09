@@ -64,6 +64,14 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task<(string RunId, string ManifestVersion)> CreateFinalizedRunAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
+    /// <summary>POST <c>/v1/architecture/review/{runId}/replay</c> with harness replay JSON.</summary>
+    protected Task<HttpResponseMessage> PostReviewReplayAsync(
+        string runId,
+        bool commitReplay,
+        string executionMode = "Current",
+        string? manifestVersionOverride = null) =>
+        Client.PostReviewReplayForTestAsync(Factory, runId, commitReplay, executionMode, manifestVersionOverride);
+
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
     protected ArchLucidApiFactory Factory
     {
