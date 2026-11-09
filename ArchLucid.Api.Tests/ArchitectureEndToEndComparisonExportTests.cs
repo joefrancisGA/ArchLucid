@@ -18,8 +18,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task ExportRunsEndToEndComparisonMarkdown_ReturnsMarkdown()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, Factory, "REQ-E2E-EXPORT-001");
+        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-E2E-EXPORT-001");
 
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/review/compare/end-to-end/export?leftRunId={runId}&rightRunId={replayRunId}");
@@ -36,8 +35,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task ExportRunsEndToEndComparisonDocx_ReturnsDocx()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, Factory, "REQ-E2E-EXPORT-002");
+        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-E2E-EXPORT-002");
 
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/review/compare/end-to-end/export/docx?leftRunId={runId}&rightRunId={replayRunId}");
@@ -53,8 +51,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task DownloadEndToEndComparisonMarkdown_RangeRequest_Returns206PartialContent()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, Factory, "REQ-E2E-RANGE-001");
+        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-E2E-RANGE-001");
 
         string url =
             $"/v1/architecture/review/compare/end-to-end/export/file?leftRunId={runId}&rightRunId={replayRunId}";

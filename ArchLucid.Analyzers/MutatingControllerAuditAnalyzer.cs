@@ -469,13 +469,6 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         yield return arrowClauseScoped.Expression;
     }
 
-    private static bool LocalFunctionIsInvokedFromContainingMethod(
-        LocalFunctionStatementSyntax localFunctionStatementSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
-    {
-        return IsLocalFunctionReachableFromMethodEntry(localFunctionStatementSyntax, containingMethodDeclarationSyntax);
-    }
-
     private static bool IsLocalFunctionReachableFromMethodEntry(
         LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax)
@@ -674,40 +667,43 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "LogAsync", StringComparison.Ordinal))
             return false;
 
-        LocalFunctionStatementSyntax? enclosingLocalFunction =
-            memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
-
-        if (enclosingLocalFunction is not null &&
-            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
-        {
-            return false;
-        }
-
-        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(memberAccessExpressionSyntax, containingMethodDeclarationSyntax))
-            return false;
-
-        return LogAsyncSyntaxIsOnExecutedPath(memberAccessExpressionSyntax, semanticModel, cancellationToken);
+        return LogAsyncSyntaxCountsForAuditProof(
+            memberAccessExpressionSyntax,
+            containingMethodDeclarationSyntax,
+            semanticModel,
+            cancellationToken);
     }
 
     private static bool AuditLogAsyncInvocationCountsForAuditProof(
         InvocationExpressionSyntax invocationExpressionSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax,
         SemanticModel? semanticModel,
+        CancellationToken cancellationToken) =>
+        LogAsyncSyntaxCountsForAuditProof(
+            invocationExpressionSyntax,
+            containingMethodDeclarationSyntax,
+            semanticModel,
+            cancellationToken);
+
+    private static bool LogAsyncSyntaxCountsForAuditProof(
+        SyntaxNode logAsyncSyntaxNode,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel? semanticModel,
         CancellationToken cancellationToken)
     {
         LocalFunctionStatementSyntax? enclosingLocalFunction =
-            invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+            logAsyncSyntaxNode.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
         if (enclosingLocalFunction is not null &&
-            !LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax))
+            !IsLocalFunctionReachableFromMethodEntry(enclosingLocalFunction, containingMethodDeclarationSyntax))
         {
             return false;
         }
 
-        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(invocationExpressionSyntax, containingMethodDeclarationSyntax))
+        if (!AnonymousFunctionsAroundLogAsyncSyntaxAreInvoked(logAsyncSyntaxNode, containingMethodDeclarationSyntax))
             return false;
 
-        return LogAsyncSyntaxIsOnExecutedPath(invocationExpressionSyntax, semanticModel, cancellationToken);
+        return LogAsyncSyntaxIsOnExecutedPath(logAsyncSyntaxNode, semanticModel, cancellationToken);
     }
 
     // Catch filters and constant-unselected switch arms do not run, including when they sit inside a reachable local.

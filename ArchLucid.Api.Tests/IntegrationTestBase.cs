@@ -30,12 +30,19 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     ///     Aligned with <see cref="ArchLucid.Api.Startup.MvcExtensions" /> API JSON options (camelCase properties, string
     ///     enums).
     /// </summary>
-    protected readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new EvalCorpusFindingSeverityJsonConverter(), new JsonStringEnumConverter(null) }
-    };
+    protected readonly JsonSerializerOptions JsonOptions = CreateApiJsonOptions();
+
+    /// <summary>JSON options aligned with the API serializer; shared by <see cref="ReplaySession" />.</summary>
+    public static JsonSerializerOptions CreateApiJsonOptions() =>
+        new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new EvalCorpusFindingSeverityJsonConverter(), new JsonStringEnumConverter(null) }
+        };
+
+    /// <summary>Golden-path helpers for comparison replay tests using this fixture's client and factory.</summary>
+    protected ReplaySession Replay => ReplaySession.From(Factory, Client, JsonOptions);
 
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
     protected ArchLucidApiFactory Factory

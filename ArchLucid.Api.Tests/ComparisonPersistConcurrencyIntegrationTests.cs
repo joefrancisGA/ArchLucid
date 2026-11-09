@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-using ArchLucid.Contracts.Metadata;
+﻿using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
 
@@ -18,22 +15,13 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ComparisonPersistConcurrencyIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
     [SkippableFact]
     public async Task Five_parallel_persisted_compares_produce_five_distinct_in_memory_record_ids()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        ReplaySession replay = await ReplaySession.OpenAsync(factory);
 
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            client,
-            JsonOptions,
-            factory,
+        (string runId, string replayRunId) = await replay.CommitAndReplayAsync(
             "REQ-COMP-PAR-" + Guid.NewGuid().ToString("N")[..8]);
 
         IComparisonRecordRepository repository =
@@ -44,7 +32,7 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
 
         for (int i = 0; i < parallel; i++)
         {
-            tasks[i] = ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(client, runId, replayRunId);
+            tasks[i] = replay.PersistEndToEndComparisonAsync(runId, replayRunId);
         }
 
         IReadOnlyList<string> recordIds = await Task.WhenAll(tasks);

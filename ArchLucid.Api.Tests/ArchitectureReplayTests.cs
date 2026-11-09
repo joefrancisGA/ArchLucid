@@ -16,8 +16,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [SkippableFact]
     public async Task ReplayRun_ReexecutesPriorRun()
     {
-        string runId =
-            await ComparisonReplayTestFixture.CreateRunAndExecuteAsync(Client, JsonOptions, "REQ-REPLAY-001");
+        string runId = await Replay.CreateAndExecuteAsync("REQ-REPLAY-001");
 
         var replayRequest = new
         {

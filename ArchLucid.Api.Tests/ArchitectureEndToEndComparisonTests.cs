@@ -17,8 +17,7 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory fact
     [SkippableFact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {
-        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
-            Client, JsonOptions, Factory, "REQ-E2E-001");
+        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-E2E-001");
 
         string summaryUrl =
             $"/v1/architecture/review/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(runId)}&rightRunId={Uri.EscapeDataString(replayRunId)}";
