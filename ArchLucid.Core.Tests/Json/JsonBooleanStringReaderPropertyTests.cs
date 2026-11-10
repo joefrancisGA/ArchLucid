@@ -46,8 +46,7 @@ public sealed class JsonBooleanStringReaderPropertyTests
         // Recognized tokens (including numeric forms and trim/case variants)
         // are covered by the positive examples, not the negative property.
         bool recognized = Synonyms.Any(synonym =>
-            string.Equals(synonym.Input.Trim(), raw.Trim(), StringComparison.OrdinalIgnoreCase)) ||
-            raw.Trim() is "1" or "0";
+            string.Equals(synonym.Input.Trim(), raw.Trim(), StringComparison.OrdinalIgnoreCase));
 
         bool parsed = JsonBooleanStringReader.TryParseBooleanString(raw, out _);
         return (recognized || !parsed).ToProperty();
