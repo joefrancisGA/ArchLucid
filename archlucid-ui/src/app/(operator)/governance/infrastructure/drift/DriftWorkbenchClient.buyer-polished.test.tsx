@@ -86,6 +86,37 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => true,
 }));
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "security" as const }),
+}));
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: true,
+      azureSubscriptionIdsPresent: true,
+      hasSuccessfulPull: true,
+    },
+    isPending: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({ tenantId: "t", workspaceId: "w", projectId: "p" }),
+}));
+
+vi.mock("@tanstack/react-query", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-query")>("@tanstack/react-query");
+
+  return {
+    ...actual,
+    useQuery: () => ({
+      isPending: false,
+      data: { items: [{ pathId: "fixture-path-01" }] },
+    }),
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -143,6 +174,7 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
+    expect(await screen.findByTestId("securenow-drift-post-capture-next-step")).toBeInTheDocument();
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {

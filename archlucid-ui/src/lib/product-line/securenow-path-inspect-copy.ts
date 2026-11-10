@@ -89,4 +89,7 @@ export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE =
 export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE =
   "Configured path explanation uses the deterministic simulator for this workspace session." as const;
 
+export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE =
+  "Real agent mode is configured, but this explanation did not pass live citation checks. Treat the deterministic fallback below as authoritative — it does not change the rank." as const;
+
 export const SECURENOW_PATH_RANKED_PATHS_ERROR = "Ranked paths unavailable" as const;

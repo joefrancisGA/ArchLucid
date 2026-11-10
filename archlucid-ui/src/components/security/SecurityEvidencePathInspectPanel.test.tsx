@@ -61,6 +61,7 @@ import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAG
 import {
   SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE,
   SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -803,6 +804,70 @@ describe("SecurityEvidencePathInspectPanel", () => {
     const rejection = await screen.findByTestId("security-evidence-path-explanation-citation-rejection");
     expect(rejection).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG);
     expect(rejection).toHaveTextContent("Model cited hop-99 which is not on this path.");
+  });
+
+  it("states Real-session fallback discipline when Real mode returns a deterministic explanation", async () => {
+    vi.mocked(useAgentExecutionMode).mockReturnValue({
+      mode: "Real",
+      isSimulator: false,
+      isLoading: false,
+    });
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      explanation: {
+        explanationId: "exp-1",
+        pathId: "path-1",
+        executiveSummary: "Summary",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "WeakestHop",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: ["evidence-1"],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: new Date().toISOString(),
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(
+      await screen.findByTestId("security-evidence-path-explanation-real-fallback-discipline"),
+    ).toHaveTextContent(SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE);
   });
 
   it("links hop resource evidence when cloudResourceId is present", () => {
