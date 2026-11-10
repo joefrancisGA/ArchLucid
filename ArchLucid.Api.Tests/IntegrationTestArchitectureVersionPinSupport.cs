@@ -201,19 +201,16 @@ internal static class IntegrationTestArchitectureVersionPinSupport
         if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 })
             return;
 
-        IArchitectureKnowledgeModelAccess knowledgeModelAccess =
-            services.GetRequiredService<IArchitectureKnowledgeModelAccess>();
         IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
 
         knowledgeModel ??= await TryLoadKnowledgeModelForPinBackfillAsync(services, runGuid, header, cancellationToken);
 
+        // A missing persisted model is an evidence-integrity failure, not permission
+        // for the test harness to manufacture an empty replacement model.
         if (knowledgeModel is null)
         {
-            knowledgeModel = new ArchitectureKnowledgeModel
-            {
-                TenantId = DefaultScope.TenantId.ToString("D"),
-                RunId = runGuid.ToString("D"),
-            };
+            throw new InvalidOperationException(
+                $"Run '{runGuid:N}' has no persisted knowledge model for pin backfill; refusing to synthesize evidence.");
         }
 
         RunHeaderKnowledgeModelContentPin.ApplyToHeader(
@@ -221,14 +218,13 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             knowledgeModel,
             knowledgeModel.ModelId ?? header.KnowledgeModelId);
 
-        if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 })
+        if (header.PinnedKnowledgeModelContentHashSha256 is not { Length: > 0 })
         {
-            await runRepository.UpdateAsync(header, cancellationToken);
-
-            return;
+            throw new InvalidOperationException(
+                $"Run '{runGuid:N}' persisted knowledge model produced no content hash.");
         }
 
-        await knowledgeModelAccess.SaveForRunAsync(DefaultScope, runGuid, knowledgeModel, cancellationToken);
+        await runRepository.UpdateAsync(header, cancellationToken);
     }
 
     private static async Task EnsureArchitectureIdentityLinkedForBackfillAsync(
