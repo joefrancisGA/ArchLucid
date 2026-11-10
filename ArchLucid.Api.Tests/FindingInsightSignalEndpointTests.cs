@@ -110,17 +110,7 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
         Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
 
-        using HttpClient foreignClient = Factory.CreateClient();
-
-        foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
-            "x-tenant-id",
-            HarnessWellKnownTenants.ForeignTenantHeaderValue);
-        foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
-            "x-workspace-id",
-            ScopeIds.DefaultWorkspace.ToString("D"));
-        foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
-            "x-project-id",
-            ScopeIds.DefaultProject.ToString("D"));
+        using HttpClient foreignClient = HarnessDemoBaselineSupport.CreateForeignTenantClient(Factory);
 
         HttpResponseMessage response = await foreignClient.PostRunFindingInsightSignalHttpAsync(
             runId,

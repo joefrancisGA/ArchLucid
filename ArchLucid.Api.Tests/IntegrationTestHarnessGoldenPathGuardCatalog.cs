@@ -53,6 +53,7 @@ public static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(46, "CreateArchitectureRunAsync on IntegrationTestBase fixtures", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateArchitectureRunAsyncOnIntegrationTestBaseFixtures), "use ArrangeFinalizedAsync / CreateRunForTestAsync"),
         new(47, "raw canonical /v1/runs URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawCanonicalRunsUrlsInHarnessTests), "use RunsHarnessExtensions"),
         new(48, "hardcoded harness foreign tenant literals", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedHarnessForeignTenantGuids), "use HarnessWellKnownTenants"),
+        new(49, "private demo baseline seed helpers", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanPrivateDemoBaselineSeedMethodsInHarnessTests), "use HarnessDemoBaselineSupport.EnsureSeededAsync"),
     ];
 
     public sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

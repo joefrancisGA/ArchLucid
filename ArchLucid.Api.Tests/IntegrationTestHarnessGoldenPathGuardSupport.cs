@@ -91,7 +91,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxHarnessAllowlistedSourceFiles = 40;
 
     /// <summary><see cref="ReadFromJsonAsyncAllowlist" /> entry cap (burn-down ratchet).</summary>
-    internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
+    internal const int MaxReadFromJsonAllowlistedSourceFiles = 11;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
     internal const int MinHarnessGoldenPathSmokeSkippableFacts = 9;
@@ -151,6 +151,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly Regex HardcodedHarnessForeignTenantGuidRegex = new(
         @"77777777-7777-7777-7777-777777777777",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex PrivateDemoBaselineSeedMethodRegex = new(
+        @"private\s+async\s+Task\s+EnsureDemoBaselineSeededAsync\s*\(",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex CreateArchitectureRunAsyncOnFixtureRegex = new(
@@ -254,6 +258,12 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
     };
 
+    private static readonly HashSet<string> ReadJsonAssertionStyleAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: burn-down controller matrix StatusCode/EnsureSuccess before ReadJsonForTestAsync (slice 20).
+        nameof(ArchitectureControllerTests) + ".cs",
+    };
+
     private static readonly HashSet<string> EndToEndCompareSummaryAllowlist = new(StringComparer.Ordinal)
     {
         // harness-allowlist: compare summary URLs in lifecycle + targeted negative tests.
@@ -316,7 +326,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     private static readonly HashSet<string> ReadFromJsonAsyncAllowlist = new(StringComparer.Ordinal)
     {
         // harness-allowlist: burn-down large controller / concurrency suites (slice 6+).
-        nameof(ArchitectureControllerTests) + ".cs",
         nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
         nameof(ArchLucidHttpResponseIntegrationTestExtensions) + ".cs",
         nameof(EvolutionControllerFlowTests) + ".cs",
@@ -551,8 +560,11 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     internal static List<string> ScanRedundantEnsureSuccessBeforeReadJson()
     {
+        HashSet<string> excluded = new(LifecycleSupportExclusions, StringComparer.Ordinal);
+        excluded.UnionWith(ReadJsonAssertionStyleAllowlist);
+
         return ScanContentViolations(
-            LifecycleSupportExclusions,
+            excluded,
             static content => RedundantEnsureBeforeReadJsonRegex.IsMatch(content));
     }
 
@@ -584,8 +596,11 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     internal static List<string> ScanStatusCodeAssertionBeforeReadJson()
     {
+        HashSet<string> excluded = new(LifecycleSupportExclusions, StringComparer.Ordinal);
+        excluded.UnionWith(ReadJsonAssertionStyleAllowlist);
+
         return ScanContentViolations(
-            LifecycleSupportExclusions,
+            excluded,
             static content => IsHarnessTestSource(content) && StatusCodeAssertionBeforeReadJsonRegex.IsMatch(content));
     }
 
@@ -1181,7 +1196,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!RawAuthorityUrlRegex.IsMatch(content))
                 continue;
 
-            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, RawAuthorityUrlRegex));
         }
 
         return violations;
@@ -1265,6 +1280,33 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
                 continue;
 
             violations.Add(FormatSourceViolationWithLine(repoRoot, path, HardcodedHarnessForeignTenantGuidRegex));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanPrivateDemoBaselineSeedMethodsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!PrivateDemoBaselineSeedMethodRegex.IsMatch(content))
+                continue;
+
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, PrivateDemoBaselineSeedMethodRegex));
         }
 
         return violations;
@@ -1356,7 +1398,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!RawCanonicalRunsUrlRegex.IsMatch(content))
                 continue;
 
-            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, RawCanonicalRunsUrlRegex));
         }
 
         return violations;
