@@ -113,7 +113,7 @@ def validate(root: Path = ROOT) -> list[str]:
         for sku in SKU_IDS:
             if sku not in quote_packet:
                 errors.append(f"{QUOTE_PACKET_COPY}: missing {sku}")
-        for token in ("Not an approved offer", "cannot authorize commerce"):
+        for token in ("accepts SN-EVAL orders", "cannot authorize commerce"):
             if token not in quote_packet:
                 errors.append(f"{QUOTE_PACKET_COPY}: missing {token!r}")
         if "PRIVATE_PRICE_SHEET" in quote_packet:

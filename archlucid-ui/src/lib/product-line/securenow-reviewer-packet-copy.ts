@@ -12,10 +12,10 @@ export const SECURENOW_REVIEWER_PACKET_PATH = "/administration/securenow-reviewe
 export const SECURENOW_REVIEWER_PACKET_HEADING = "Reviewer packet (signed in)" as const;
 
 export const SECURENOW_REVIEWER_PACKET_LEAD =
-  "Procurement and readiness index for evaluators already in the tenant. Not an approved offer. SecureNow beta remains NO_GO." as const;
+  "Procurement and readiness index for evaluators already in the tenant. The owner accepts SN-EVAL orders at the published price by signed quote. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_REVIEWER_PACKET_GUARDRAIL =
-  "Fees stay in the private price sheet. This page does not publish a price or start commerce." as const;
+  "List prices are on the quote packet. This page does not take payment or start commerce." as const;
 
 export const SECURENOW_REVIEWER_PACKET_NO_GO =
   "SecureNow beta remains NO_GO until owner-directed pilot gates clear." as const;
