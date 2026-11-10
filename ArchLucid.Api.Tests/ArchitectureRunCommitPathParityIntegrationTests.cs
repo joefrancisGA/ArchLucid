@@ -1,9 +1,7 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -23,16 +21,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRunCommitPathParityIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Authority_commit_path_cohort_produces_committed_demo_shape()

@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Pilots;
@@ -19,10 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class FirstRealValuePilotExecuteIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     private sealed class AuditEventCursorPage
     {
@@ -33,17 +28,12 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         } = [];
     }
 
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
-
     [SkippableFact]
     public async Task ExecuteRun_WithPilotTryRealHeader_emitsFirstRealValueAuditEvents()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
+            .ConfigureAwait(false);
 
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PILOT-REAL-1"));
 

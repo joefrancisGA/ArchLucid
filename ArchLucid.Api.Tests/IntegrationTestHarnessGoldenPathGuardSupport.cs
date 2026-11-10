@@ -71,6 +71,14 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"private\s+static\s+Task<HttpResponseMessage>\s+PostArchitectureRequestAsync\s*\(",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex CommitAndReplayTupleRegex = new(
+        @"\(\s*string\s+runId\s*,\s*string\s+replayRunId\s*\)\s*=\s*await",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex HandRolledWebJsonOptionsRegex = new(
+        @"private\s+static\s+readonly\s+JsonSerializerOptions\s+\w+\s*=\s*new\s*\(\s*JsonSerializerDefaults\.Web\s*\)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly HashSet<string> LifecycleSupportExclusions = new(StringComparer.Ordinal)
     {
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
@@ -111,6 +119,14 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     private static readonly HashSet<string> PrivateIntakeExclusions = new(StringComparer.Ordinal)
     {
         nameof(IntegrationTestBase) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> HandRolledJsonOptionsAllowlist = new(StringComparer.Ordinal)
+    {
+        nameof(ArchitectureProvenanceExplanationEndpointTests) + ".cs",
+        nameof(FixtureLoader) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
     };
@@ -214,6 +230,64 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             PrivateIntakeExclusions,
             static content => PrivateGreenfieldIntakeWrapperRegex.IsMatch(content));
     }
+
+    internal static List<string> ScanCommitAndReplayTupleDeconstruction()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string content = File.ReadAllText(path);
+
+            if (!CommitAndReplayTupleRegex.IsMatch(content))
+                continue;
+
+            if (!content.Contains("CommitAndReplayAsync", StringComparison.Ordinal))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanHandRolledJsonOptionsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (HandRolledJsonOptionsAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!HandRolledWebJsonOptionsRegex.IsMatch(content))
+                continue;
+
+            if (content.Contains("CreateApiJsonOptions", StringComparison.Ordinal))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static bool IsHarnessTestSource(string content) =>
+        content.Contains("PostArchitectureRequestForTestAsync", StringComparison.Ordinal)
+        || content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal)
+        || content.Contains("CommitAndReplayAsync", StringComparison.Ordinal)
+        || content.Contains("IntegrationTestRunLifecycleSupport", StringComparison.Ordinal)
+        || content.Contains(": IntegrationTestBase", StringComparison.Ordinal)
+        || content.Contains("PostFinalizeForTestAsync", StringComparison.Ordinal);
 
     private static List<string> ScanContentViolations(
         HashSet<string> excludedFileNames,
