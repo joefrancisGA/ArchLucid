@@ -18,6 +18,6 @@ describe("ArchLucidBetaSkuContentsSection", () => {
       "href",
       ARCHLUCID_BETA_SKU_CONTENTS_QUOTE_HREF,
     );
-    expect(screen.getByText(/accepts a guided-pilot evaluation order/i)).toBeInTheDocument();
+    expect(screen.getByText(/accepts guided-pilot, design-partner/i)).toBeInTheDocument();
   });
 });

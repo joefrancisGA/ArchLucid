@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Owner accepts full ArchLucid commercial order book by quote
+
+**Outcome.** The owner accepts guided pilot, design partner, Enterprise evaluation, trial-to-paid, monthly Architect / Team / Professional, and custom policy-pack orders at published list prices by signed quote or order form. Stripe checkout is authorized when Prices are published. Until checkout is live, quote and order form remain binding. Beta remains **NO_GO**.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §4, `/pricing`, beta SKU contents, procurement evidence map.
+
 ## 2026-11-10 - Floor scores: accelerator start-here, snapshot on collection, quieter path inspect
 
 **Outcome.** The accelerator index starts on Manual upload or the latest Changes and drift snapshot. Collection setup names the latest snapshot id with a drift link. Path inspect collapses executive metrics and the path report after a path is selected. The first-review checklist sits under the sample starter. The procurement map names guided-pilot acceptance by signed quote.
