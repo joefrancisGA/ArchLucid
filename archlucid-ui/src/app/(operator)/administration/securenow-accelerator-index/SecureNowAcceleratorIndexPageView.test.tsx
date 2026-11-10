@@ -12,5 +12,9 @@ describe("SecureNowAcceleratorIndexPageView", () => {
       "href",
       "/administration/securenow-pilot-spine",
     );
+    expect(screen.getByTestId("securenow-accelerator-index-link-/infrastructure/manual-upload")).toHaveAttribute(
+      "href",
+      "/infrastructure/manual-upload",
+    );
   });
 });

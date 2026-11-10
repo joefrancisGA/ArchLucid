@@ -3,16 +3,29 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
   deriveAzureSubscriptionScopeFromConnections,
   deriveAzureSuccessfulPullFromConnections,
   deriveSecureNowCollectionSetupInput,
 } from "@/lib/product-line/derive-securenow-collection-setup-input";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
+import { resolveCollectionSnapshotCaptureSucceeded } from "@/lib/product-line/resolve-collection-snapshot-capture-succeeded";
 
 const DEFAULT_PROVIDER_SUMMARY = {
   status: "Not configured",
 } as const;
+
+async function readSnapshotCaptureStatuses(): Promise<readonly (number | string | null | undefined)[] | null> {
+  try {
+    const page = await fetchInfraEvidenceSnapshots(1, 20);
+    const items = page.items ?? [];
+
+    return items.map((item) => item.captureStatus);
+  } catch {
+    return null;
+  }
+}
 
 export function useSecureNowCollectionSetupInput(input: {
   readonly snapshotCaptureSucceeded: boolean | null;
@@ -22,7 +35,7 @@ export function useSecureNowCollectionSetupInput(input: {
   readonly isPending: boolean;
 } {
   const query = useQuery({
-    queryKey: ["securenow", "collection-setup-input"],
+    queryKey: ["securenow", "collection-setup-input", input.snapshotCaptureSucceeded],
     queryFn: async () => {
       const azureConnections = await listTier2Connections();
       const azureScope = deriveAzureSubscriptionScopeFromConnections(azureConnections);
@@ -37,12 +50,17 @@ export function useSecureNowCollectionSetupInput(input: {
         aws: false,
         gcp: false,
       };
+      const snapshotCaptureStatuses = await readSnapshotCaptureStatuses();
+      const snapshotCaptureSucceeded = resolveCollectionSnapshotCaptureSucceeded({
+        callerSnapshotCaptureSucceeded: input.snapshotCaptureSucceeded,
+        snapshotCaptureStatuses,
+      });
 
       return deriveSecureNowCollectionSetupInput({
         providerSummaries,
         successfulPullByProvider,
         azureSubscriptionIdsPresent: azureScope.azureSubscriptionIdsPresent,
-        snapshotCaptureSucceeded: input.snapshotCaptureSucceeded,
+        snapshotCaptureSucceeded,
       });
     },
     enabled: input.enabled !== false,

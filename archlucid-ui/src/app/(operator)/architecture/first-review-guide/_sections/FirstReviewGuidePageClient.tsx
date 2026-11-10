@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { FirstReviewOpenGateStarter } from "@/components/architecture/FirstReviewOpenGateStarter";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -401,6 +402,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
       <div className={OPERATOR_LAYOUT.sectionStack}>
         {!buyerPolishedShell ? firstReviewGuidePageHeader : null}
+        <FirstReviewOpenGateStarter />
         {firstReviewGuideChecklistBody}
       </div>
 

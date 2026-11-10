@@ -32,7 +32,7 @@ export function resolveSecureNowCollectionMissingDetail(
   }
 
   if (!input.hasSuccessfulPull) {
-    return "Next: run a successful capture (upload a package or use your scheduled extractor).";
+    return "Next: upload an extractor ZIP on Manual upload, or run your scheduled extractor.";
   }
 
   return "Collection status is missing for this scope.";

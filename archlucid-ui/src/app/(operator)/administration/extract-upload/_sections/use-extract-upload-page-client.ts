@@ -60,7 +60,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   const baselineQuery = useExtractUploadBaselineQuery(productLine);
 
   const persistAcceptedPackage = useCallback(
-    async (packageId: string, fileLabel: string, file: File) => {
+    async (packageId: string, snapshotId: string | null, fileLabel: string, file: File) => {
       const resourceCount = await countArchLucidAzurePackageResourcesFromFile(file);
       const actorLabel =
         resolveOperatorPrincipalOwnerLabel({
@@ -74,6 +74,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         resourceCount,
         fileLabel,
         associateRunId,
+        snapshotId,
       };
       writeExtractUploadAcceptedPackageRecord(record);
       setSessionAcceptedPackage(record);
@@ -90,7 +91,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
       const result = await upload.onUpload(request.file);
 
       if (result !== null) {
-        await persistAcceptedPackage(result.packageId, request.fileLabel, request.file);
+        await persistAcceptedPackage(result.packageId, result.snapshotId, request.fileLabel, request.file);
       }
     },
     [persistAcceptedPackage, upload],

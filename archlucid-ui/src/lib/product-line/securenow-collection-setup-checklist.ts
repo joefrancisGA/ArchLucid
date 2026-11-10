@@ -1,5 +1,6 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
+import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { resolveSecureNowCollectionMissingDetail } from "@/lib/product-line/securenow-collection-missing-reason";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
@@ -54,7 +55,7 @@ export function resolveSecureNowCollectionSetupStepRecoveryHref(stepId: string):
     case "subscription":
       return "/integrations/cloud-connections/azure";
     case "capture":
-      return "/administration/connection-status";
+      return SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH;
     default:
       return SECURENOW_COLLECTION_SETUP_RECOVERY_HREF;
   }

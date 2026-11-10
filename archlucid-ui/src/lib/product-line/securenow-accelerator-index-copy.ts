@@ -1,3 +1,7 @@
+import {
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
 export const SECURENOW_ACCELERATOR_INDEX_PATH = "/administration/securenow-accelerator-index" as const;
@@ -41,5 +45,15 @@ export const SECURENOW_ACCELERATOR_INDEX_ROWS: readonly SecureNowHomeDestination
     href: "/integrations/cloud-connections",
     label: "Collection setup",
     summary: "Cloud provider, subscription, and capture status.",
+  },
+  {
+    href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+    label: "Manual upload",
+    summary: "Upload an extractor ZIP. The accepted panel shows the upload id and snapshot id when ingest created one.",
+  },
+  {
+    href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+    label: "Changes and drift",
+    summary: "List snapshots after upload. A failed API load is not the same as an empty capture.",
   },
 ];
