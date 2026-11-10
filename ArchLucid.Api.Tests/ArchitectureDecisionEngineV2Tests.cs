@@ -19,7 +19,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CommitRun_PersistsDecisionNodes()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-DECISION-V2-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureDecisionEngineV2Tests)));
         await WaitForDecisionNodesAsync(finalized.RunId);
         HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions");
         decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);

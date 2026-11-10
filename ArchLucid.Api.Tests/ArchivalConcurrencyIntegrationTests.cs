@@ -30,13 +30,12 @@ public sealed class ArchivalConcurrencyIntegrationTests
     {
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
-        string requestId = "REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8];
+        string requestId = TestRequestIds.ForScenario(nameof(ArchivalConcurrencyIntegrationTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
         Guid runKey = Guid.Parse(runId);

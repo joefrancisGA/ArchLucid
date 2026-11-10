@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
 
@@ -35,7 +35,7 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task BatchReplay_MixedValidAndInvalid_ReturnsZipWithManifestAndPartialHeader()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-BATCH-PARTIAL-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(BatchReplayIntegrationTests)));
         PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
         string comparisonRecordId = persisted.ComparisonRecordId;
 

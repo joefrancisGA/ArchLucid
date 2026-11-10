@@ -16,17 +16,16 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task CompareAgentResultsSummary_ReturnsMarkdown()
     {
-        string runId = await CreateArchitectureRunAsync("REQ-AGENT-COMPARE-001");
+        string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAgentCompareTests)));
 
         await PostExecuteWithPinsAsync(runId);
 
-        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             runId,
             commitReplay: false,
             manifestVersionOverride: null);
 
-        await replayResponse.EnsureSuccessForTestAsync();
-        ReplayRunResponseDto? replayPayload =
+                ReplayRunResponseDto? replayPayload =
             await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         string replayRunId = replayPayload!.ReplayRunId;
 

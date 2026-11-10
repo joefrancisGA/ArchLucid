@@ -85,7 +85,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_after_execute_with_deferred_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-SCORECARD-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectDeferredScorecardFindingAsync(Factory, runId);
 
@@ -115,7 +115,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_after_deferred_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-SCORECARD-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectDeferredScorecardFindingAsync(Factory, runId);
 
@@ -162,7 +162,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_open_verify_hypothesis_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-VERIFY-HYP-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
@@ -180,7 +180,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_open_verify_hypothesis_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-VERIFY-HYP-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
@@ -215,7 +215,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_open_contradiction_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-CONTRADICTION-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
 
@@ -233,7 +233,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_open_contradiction_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-CONTRADICTION-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
 
@@ -268,7 +268,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_open_cannot_determine_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-CANNOT-DETERMINE-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
 
@@ -286,7 +286,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_open_cannot_determine_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-CANNOT-DETERMINE-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
 
@@ -321,7 +321,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_unresolved_blocking_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-BLOCKING-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectBlockingScorecardFindingAsync(Factory, runId);
 
@@ -339,7 +339,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_unresolved_blocking_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-BLOCKING-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectBlockingScorecardFindingAsync(Factory, runId);
 
@@ -365,7 +365,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_low_confidence_extraction_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-LOW-CONF-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectLowConfidenceScorecardFindingAsync(Factory, runId);
 
@@ -383,7 +383,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_low_confidence_extraction_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-LOW-CONF-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectLowConfidenceScorecardFindingAsync(Factory, runId);
 
@@ -409,7 +409,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_unverified_assumptions_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-ASSUMPTIONS-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnverifiedAssumptionScorecardFindingsAsync(Factory, runId);
 
@@ -427,7 +427,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_unverified_assumptions_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-ASSUMPTIONS-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnverifiedAssumptionScorecardFindingsAsync(Factory, runId);
 
@@ -453,7 +453,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_coverage_gap_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-COVERAGE-GAP-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectCoverageGapScorecardFindingAsync(Factory, runId);
 
@@ -472,7 +472,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_coverage_gap_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-COVERAGE-GAP-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectCoverageGapScorecardFindingAsync(Factory, runId);
 
@@ -498,7 +498,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_unresolved_high_severity_finding_maps_scorecard_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-HIGH-SEV-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnresolvedHighSeverityScorecardFindingAsync(Factory, runId);
 
@@ -516,7 +516,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_unresolved_high_severity_finding_matches_finalize_scorecard_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-HIGH-SEV-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnresolvedHighSeverityScorecardFindingAsync(Factory, runId);
 
@@ -542,7 +542,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_when_pre_commit_gate_blocks_maps_governance_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-PRECOMMIT-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinPreCommitGateBlockAsync(Factory, runId);
 
@@ -562,7 +562,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_pre_commit_block_matches_finalize_governance_conflict()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-PRECOMMIT-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinPreCommitGateBlockAsync(Factory, runId);
 
@@ -592,7 +592,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_skipped_must_questions_maps_career_artifact_block_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-SKIPPED-MUST-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
 
@@ -609,7 +609,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_skipped_must_questions_matches_finalize_career_artifact_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-SKIPPED-MUST-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
 
@@ -641,7 +641,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_missing_transparency_trail_maps_career_artifact_block_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-TRAIL-MISSING-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
 
@@ -658,7 +658,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_missing_transparency_trail_matches_finalize_career_artifact_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-TRAIL-MISSING-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
 
@@ -688,7 +688,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_degraded_finding_coverage_maps_career_artifact_block_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-DEGRADED-COV-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinWorkingDeskModeForDevUserAsync(Factory);
         await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
@@ -706,7 +706,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_degraded_finding_coverage_matches_finalize_career_artifact_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-DEGRADED-COV-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinWorkingDeskModeForDevUserAsync(Factory);
         await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
@@ -737,7 +737,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_provenance_violation_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-PROVENANCE-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
 
@@ -754,7 +754,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_provenance_violation_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-PROVENANCE-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
 
@@ -785,7 +785,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_existential_assumption_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-EXISTENTIAL-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
 
@@ -802,7 +802,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_existential_assumption_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-EXISTENTIAL-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
 
@@ -833,7 +833,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_rejected_agent_output_quality_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-AGENT-QUALITY-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
 
@@ -850,7 +850,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_rejected_agent_output_quality_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-AGENT-QUALITY-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
 
@@ -881,7 +881,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_evidence_referential_integrity_violation_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-EVIDENCE-INTEGRITY-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidenceReferentialIntegrityViolationAsync(Factory, runId);
 
@@ -898,7 +898,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_evidence_referential_integrity_violation_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-EVIDENCE-INTEGRITY-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidenceReferentialIntegrityViolationAsync(Factory, runId);
 
@@ -929,7 +929,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_structural_execution_mode_mixed_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-STRUCTURAL-MODE-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeMixedAsync(Factory, runId);
 
@@ -946,7 +946,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_structural_execution_mode_mixed_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-STRUCTURAL-MODE-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeMixedAsync(Factory, runId);
 
@@ -977,7 +977,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_unsupported_semantic_support_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-UNSUPPORTED-SEMANTIC-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinUnsupportedSemanticSupportFindingAsync(Factory, runId);
 
@@ -994,7 +994,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_unsupported_semantic_support_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-UNSUPPORTED-SEMANTIC-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinUnsupportedSemanticSupportFindingAsync(Factory, runId);
 
@@ -1025,7 +1025,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_architecture_version_pin_drift_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-ARCH-VERSION-PIN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinArchitectureVersionContentHashDriftAsync(Factory, runId);
 
@@ -1042,7 +1042,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_architecture_version_pin_drift_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-ARCH-VERSION-PIN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinArchitectureVersionContentHashDriftAsync(Factory, runId);
 
@@ -1073,7 +1073,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_structural_execution_mode_fallback_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-STRUCTURAL-FALLBACK-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeFallbackAsync(Factory, runId);
 
@@ -1090,7 +1090,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_structural_execution_mode_fallback_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-STRUCTURAL-FALLBACK-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeFallbackAsync(Factory, runId);
 
@@ -1121,7 +1121,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_policy_pack_pin_drift_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-POLICY-PIN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinPolicyPackPinHashDriftAsync(Factory, runId);
 
@@ -1138,7 +1138,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_policy_pack_pin_drift_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-POLICY-PIN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinPolicyPackPinHashDriftAsync(Factory, runId);
 
@@ -1169,7 +1169,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_evidence_package_pin_drift_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-EVIDENCE-PIN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidencePackagePinHashDriftAsync(Factory, runId);
 
@@ -1186,7 +1186,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_evidence_package_pin_drift_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-EVIDENCE-PIN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidencePackagePinHashDriftAsync(Factory, runId);
 
@@ -1217,7 +1217,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_with_draft_spawn_hash_drift_maps_integrity_conflict_to_409()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-FINALIZE-DRAFT-SPAWN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinDraftSpawnDocumentHashDriftAsync(Factory, runId);
 
@@ -1234,7 +1234,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Get_readiness_with_draft_spawn_hash_drift_matches_finalize_integrity_block()
     {
-        string runId = await CreateExecutedRunIdAsync("REQ-READINESS-DRAFT-SPAWN-409-");
+        string runId = await CreateExecutedRunIdAsync(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests)));
 
         await FinalizeConflictSqlIntegrationFixture.PinDraftSpawnDocumentHashDriftAsync(Factory, runId);
 

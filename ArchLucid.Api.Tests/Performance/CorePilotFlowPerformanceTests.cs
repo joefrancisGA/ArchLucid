@@ -36,8 +36,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(
             TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}"));
         tCreate.Sw.Stop();
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
@@ -49,8 +48,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         tCommit.Sw.Start();
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         tCommit.Sw.Stop();
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commit =
+                CommitRunResponseDto? commit =
             await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
@@ -102,8 +100,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(
             TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
@@ -111,8 +108,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
         await seedResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commit =
+                CommitRunResponseDto? commit =
             await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();

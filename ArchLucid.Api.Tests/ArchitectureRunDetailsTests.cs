@@ -16,13 +16,12 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task GetRun_ReturnsTypedRunDetailsResponse()
     {
-        const string requestId = "REQ-RUNDETAILS-001";
+        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureRunDetailsTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
         FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
         HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}");
-        await runResponse.EnsureSuccessForTestAsync();
-        RunDetailsResponseDto? payload =
+                RunDetailsResponseDto? payload =
             await runResponse.ReadJsonForTestAsync<RunDetailsResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();

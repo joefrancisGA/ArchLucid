@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -17,10 +17,10 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task ExportRunsEndToEndComparisonMarkdown_ReturnsMarkdown()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-E2E-EXPORT-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonExportTests)));
 
         EndToEndReplayComparisonExportResponse payload = await (
-            await Client.GetEndToEndCompareExportMarkdownForTestAsync(pair.RunId, pair.ReplayRunId))
+            await Client.GetEndToEndCompareExportMarkdownForTestAsync(pair))
             .ReadJsonForTestAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
         payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
@@ -29,10 +29,10 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task ExportRunsEndToEndComparisonDocx_ReturnsDocx()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-E2E-EXPORT-002");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonExportTests)));
 
         HttpResponseMessage response =
-            await Client.GetEndToEndCompareExportDocxForTestAsync(pair.RunId, pair.ReplayRunId);
+            await Client.GetEndToEndCompareExportDocxForTestAsync(pair);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType
@@ -45,10 +45,10 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task DownloadEndToEndComparisonMarkdown_RangeRequest_Returns206PartialContent()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-E2E-RANGE-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonExportTests)));
 
         using HttpRequestMessage req = IntegrationTestRunLifecycleSupport
-            .CreateEndToEndCompareExportFileRangeGetRequestForTest(pair.RunId, pair.ReplayRunId, 0, 15);
+            .CreateEndToEndCompareExportFileRangeGetRequestForTest(pair, 0, 15);
 
         HttpResponseMessage response = await Client.SendAsync(req);
 

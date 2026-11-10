@@ -20,7 +20,7 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
     [SkippableFact]
     public async Task CommitReplay_leaves_original_run_golden_manifest_payload_unchanged_and_uses_distinct_replay_run_id()
     {
-        string runId = await Replay.CreateAndExecuteAsync("REQ-INV013-REPLAY-001");
+        string runId = await Replay.CreateAndExecuteAsync(TestRequestIds.ForScenario(nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests)));
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");
@@ -30,12 +30,11 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
 
         string replayManifestVersion = ReplaySession.NewReplayCommittedManifestVersion();
 
-        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             runId,
             commitReplay: true,
             manifestVersionOverride: replayManifestVersion);
-        await replayResponse.EnsureSuccessForTestAsync();
-        ReplayRunResponseDto? replayPayload = await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
+                ReplayRunResponseDto? replayPayload = await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload!.ReplayRunId.Should().NotBe(runId);
 
         HttpResponseMessage detailAfterReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");

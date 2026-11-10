@@ -13,7 +13,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task EndToEndComparisonSummary_PersistsComparisonRecord()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-COMP-AUDIT-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureComparisonAuditTests)));
         PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
 
         ComparisonRecordResponseDto payload = await (

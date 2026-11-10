@@ -21,7 +21,7 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
         await IntegrationTestIsolatedSqlScope.RunWithReplayAsync(async (replay, factory) =>
         {
             CommittedReplayPair pair = await replay.CommitAndReplayAsync(
-                "REQ-COMP-PAR-" + Guid.NewGuid().ToString("N")[..8]);
+                TestRequestIds.ForScenario(nameof(ComparisonPersistConcurrencyIntegrationTests)));
 
             IComparisonRecordRepository repository =
                 factory.Services.GetRequiredService<IComparisonRecordRepository>();

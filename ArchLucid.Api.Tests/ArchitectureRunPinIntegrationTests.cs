@@ -16,10 +16,9 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
     [SkippableFact]
     public async Task PinRun_toggle_and_explicit_set_persist_on_summary()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PIN-001"));
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureRunPinIntegrationTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created!.Run!.RunId!;
 
@@ -33,8 +32,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
         firstPayload!.IsPinned.Should().BeTrue();
 
         HttpResponseMessage summaryAfterPin = await Client.GetAsync($"/v1/authority/reviews/{runId}/summary");
-        await summaryAfterPin.EnsureSuccessForTestAsync();
-        RunSummaryResponse? summary = await summaryAfterPin.ReadJsonForTestAsync<RunSummaryResponse>(JsonOptions);
+                RunSummaryResponse? summary = await summaryAfterPin.ReadJsonForTestAsync<RunSummaryResponse>(JsonOptions);
         summary.Should().NotBeNull();
         summary!.IsPinned.Should().BeTrue();
 

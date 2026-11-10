@@ -111,6 +111,12 @@ public static class IntegrationTestRunLifecycleSupport
         CancellationToken cancellationToken = default) =>
         client.GetAsync(EndToEndCompareExportMarkdownRelativeUrl(leftRunId, rightRunId), cancellationToken);
 
+    public static Task<HttpResponseMessage> GetEndToEndCompareExportMarkdownForTestAsync(
+        this HttpClient client,
+        CommittedReplayPair pair,
+        CancellationToken cancellationToken = default) =>
+        client.GetEndToEndCompareExportMarkdownForTestAsync(pair.RunId, pair.ReplayRunId, cancellationToken);
+
     public static Task<HttpResponseMessage> GetEndToEndCompareExportDocxForTestAsync(
         this HttpClient client,
         string leftRunId,
@@ -118,12 +124,24 @@ public static class IntegrationTestRunLifecycleSupport
         CancellationToken cancellationToken = default) =>
         client.GetAsync(EndToEndCompareExportDocxRelativeUrl(leftRunId, rightRunId), cancellationToken);
 
+    public static Task<HttpResponseMessage> GetEndToEndCompareExportDocxForTestAsync(
+        this HttpClient client,
+        CommittedReplayPair pair,
+        CancellationToken cancellationToken = default) =>
+        client.GetEndToEndCompareExportDocxForTestAsync(pair.RunId, pair.ReplayRunId, cancellationToken);
+
     public static Task<HttpResponseMessage> GetEndToEndCompareExportFileForTestAsync(
         this HttpClient client,
         string leftRunId,
         string rightRunId,
         CancellationToken cancellationToken = default) =>
         client.GetAsync(EndToEndCompareExportFileRelativeUrl(leftRunId, rightRunId), cancellationToken);
+
+    public static Task<HttpResponseMessage> GetEndToEndCompareExportFileForTestAsync(
+        this HttpClient client,
+        CommittedReplayPair pair,
+        CancellationToken cancellationToken = default) =>
+        client.GetEndToEndCompareExportFileForTestAsync(pair.RunId, pair.ReplayRunId, cancellationToken);
 
     /// <summary>GET export/file with a byte range (partial content tests).</summary>
     public static HttpRequestMessage CreateEndToEndCompareExportFileRangeGetRequestForTest(
@@ -135,6 +153,16 @@ public static class IntegrationTestRunLifecycleSupport
         {
             Headers = { Range = new System.Net.Http.Headers.RangeHeaderValue(rangeStartInclusive, rangeEndInclusive) }
         };
+
+    public static HttpRequestMessage CreateEndToEndCompareExportFileRangeGetRequestForTest(
+        CommittedReplayPair pair,
+        long rangeStartInclusive,
+        long rangeEndInclusive) =>
+        CreateEndToEndCompareExportFileRangeGetRequestForTest(
+            pair.RunId,
+            pair.ReplayRunId,
+            rangeStartInclusive,
+            rangeEndInclusive);
 
     /// <summary>POST end-to-end compare summary with an optional JSON body (e.g. <c>persist</c> flag).</summary>
     public static Task<HttpResponseMessage> PostEndToEndCompareSummaryForTestAsync(

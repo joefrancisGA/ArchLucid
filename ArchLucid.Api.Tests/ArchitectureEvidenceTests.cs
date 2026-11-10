@@ -16,7 +16,7 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {
-        const string requestId = "REQ-EVIDENCE-001";
+        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureEvidenceTests));
         string expectedSystemName = TestRequestFactory.SystemNameForRequest(requestId);
 
         string runId = await CreateArchitectureRunAsync(requestId);

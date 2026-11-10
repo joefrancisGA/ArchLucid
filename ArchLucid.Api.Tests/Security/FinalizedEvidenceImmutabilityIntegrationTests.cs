@@ -22,9 +22,8 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     [SkippableFact]
     public async Task Committed_run_rejects_agent_result_submission_and_preserves_golden_manifest_fingerprint()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-IMMUT-001"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FinalizedEvidenceImmutabilityIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await PostExecuteWithPinsAsync(runId);
@@ -60,9 +59,8 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     [SkippableFact]
     public async Task Committed_run_execute_is_idempotent_and_does_not_change_stored_results()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-EXEC-IDEM"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FinalizedEvidenceImmutabilityIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage firstExecute = await Client.PostExecuteForTestAsync(runId);
@@ -83,8 +81,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         (await secondExecute.IsAuthorityPipelineCompleteExecuteConflictAsync()).Should().BeTrue();
 
         HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-        await getRunResponse.EnsureSuccessForTestAsync();
-        GetRunResponseDto? getRunPayload =
+                GetRunResponseDto? getRunPayload =
             await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
         getRunPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
     }

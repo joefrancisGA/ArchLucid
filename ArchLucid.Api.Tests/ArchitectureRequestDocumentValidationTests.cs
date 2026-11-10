@@ -18,7 +18,7 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
     public async Task CreateRun_InvalidDocumentContentType_Returns400_WithFieldScopedError()
     {
         JsonNode root = JsonSerializer.SerializeToNode(
-            TestRequestFactory.CreateArchitectureRequest("REQ-DOC-CTYPE-400"),
+            TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureRequestDocumentValidationTests))),
             JsonOptions)!.AsObject();
 
         root["documents"] = new JsonArray

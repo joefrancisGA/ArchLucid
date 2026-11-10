@@ -17,7 +17,7 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestSummary_ReturnsMarkdown()
     {
-        const string requestId = "REQ-SUMMARY-001";
+        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureSummaryTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
         FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);

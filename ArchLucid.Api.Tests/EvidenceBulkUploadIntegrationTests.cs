@@ -23,9 +23,8 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
     public async Task UploadBulkEvidence_With200Files_ReturnsSuccess_AndAudits()
     {
         // Arrange
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-001"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(EvidenceBulkUploadIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using var content = new MultipartFormDataContent();
@@ -83,9 +82,8 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
     public async Task UploadBulkEvidence_With201Files_ReturnsBadRequest_AndNoAudits()
     {
         // Arrange
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-002"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(EvidenceBulkUploadIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using var content = new MultipartFormDataContent();

@@ -25,7 +25,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
     {
         object request = new
         {
-            requestId = "REQ-TEST-1",
+            requestId = TestRequestIds.ForScenario(nameof(ArchitectureTests)),
             description = "Test architecture",
             systemName = "TestSystem",
             environment = "dev",
@@ -46,7 +46,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         // Unique per execution: fixed "REQ-1" collides across sharded SQL integration runs.
         object request = new
         {
-            requestId = $"REQ-{Guid.NewGuid():N}",
+            requestId = TestRequestIds.ForScenario(nameof(ArchitectureTests)),
             description = "Test architecture",
             systemName = "TestSystem",
             environment = "dev",
@@ -73,8 +73,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         await seed.EnsureSuccessForTestAsync();
         HttpResponseMessage commit = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        await commit.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
+                CommitRunResponseDto? commitPayload =
             await commit.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 

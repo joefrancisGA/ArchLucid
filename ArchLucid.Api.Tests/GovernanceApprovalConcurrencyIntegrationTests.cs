@@ -18,18 +18,16 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
     private async Task<string> CreateRunAsync(string requestId)
     {
         HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
-        await response.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? payload = await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? payload = await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         return payload!.Run.RunId;
     }
 
     [SkippableFact]
     public async Task Thirty_two_parallel_approves_single_ok_terminal_outcome()
     {
-        string runId = await CreateRunAsync("REQ-GOV-32-" + Guid.NewGuid().ToString("N")[..8]);
+        string runId = await CreateRunAsync(TestRequestIds.ForScenario(nameof(GovernanceApprovalConcurrencyIntegrationTests)));
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(runId);
-        await submitResponse.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
+                GovernanceApprovalResponseDto? submitted =
             await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve";

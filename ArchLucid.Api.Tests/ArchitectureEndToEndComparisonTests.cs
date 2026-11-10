@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.Models;
+using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
@@ -14,7 +14,7 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory fact
     [SkippableFact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-E2E-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonTests)));
 
         EndToEndReplayComparisonSummaryResponse payload = await (
             await Client.PostEndToEndCompareSummaryForTestAsync(

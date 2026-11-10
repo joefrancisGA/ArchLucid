@@ -64,7 +64,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsInScope_includes_run_hidden_from_default_project_slug()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-AUTH-LIST-SCOPE-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests)));
 
         HttpResponseMessage defaultSlugResponse =
             await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");

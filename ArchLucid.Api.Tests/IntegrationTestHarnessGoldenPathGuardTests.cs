@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, seventeen facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twenty-two facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -114,6 +114,41 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
+    public void Harness_tests_do_not_return_task_tuple_run_pairs()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanTupleReturnTypesInHarnessTests().Should().BeEmpty(
+            "return FinalizedRun or CommittedReplayPair from IntegrationTestRunLifecycleSupport helpers instead of Task<(string, int)>.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_call_EnsureSuccess_immediately_before_ReadJsonForTestAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantEnsureSuccessBeforeReadJson().Should().BeEmpty(
+            "ReadJsonForTestAsync already asserts success; drop the redundant EnsureSuccessForTestAsync on the line above.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_call_PostReviewReplayAsync_outside_replay_protocol_fixtures()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanPostReviewReplayAsyncInHarnessTests().Should().BeEmpty(
+            "use CommittedReplayPair replay helpers or OpenCommittedPairAsync instead of ad-hoc PostReviewReplayAsync.");
+    }
+
+    [Fact]
+    public void Harness_tests_use_TestRequestIds_for_intake_ids()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedRequestIdsInHarnessTests().Should().BeEmpty(
+            "replace literal REQ-* ids with TestRequestIds.ForScenario unless the test is verifying a fixed external id.");
+    }
+
+    [Fact]
+    public void Harness_golden_path_guard_support_documents_allowlisted_paths()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanAllowlistCommentMarkersPresent().Should().BeEmpty(
+            "each golden-path allowlist entry in IntegrationTestHarnessGoldenPathGuardSupport must include a harness-allowlist comment.");
+    }
+
+    [Fact]
     public void Harness_golden_path_allowlists_do_not_grow_without_intent()
     {
         IntegrationTestHarnessGoldenPathGuardSupport.CountTotalAllowlistedHarnessFiles().Should()
@@ -121,9 +156,9 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_seventeen_scanners()
+    public void Guard_catalog_lists_twenty_two_scanners()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(17);
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(22);
     }
 
     [Fact]
