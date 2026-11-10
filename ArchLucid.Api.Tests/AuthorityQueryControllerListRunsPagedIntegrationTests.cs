@@ -1,8 +1,7 @@
 using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 
-using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Api.Contracts;
+using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
 
@@ -10,8 +9,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject" />:
-///     <see cref="ArchLucid.Core.Pagination.CursorPagedResponse{T}" /> (keyset + legacy page/size clamping) after a
-///     committed authority run exists.
+///     <see cref="CursorPagedResponse{T}" /> (keyset + legacy page/size clamping) after a committed authority run exists.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -27,15 +25,11 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?take=20");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        string body = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(body);
-        JsonElement root = doc.RootElement;
-        root.ValueKind.Should().Be(JsonValueKind.Object);
-        root.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
-        root.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
-        root.GetProperty("requestedTake").GetInt32().Should().Be(20);
-        root.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
-        root.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
+        CursorPagedResponse<RunSummaryResponse> body =
+            await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+
+        body.Items.Should().NotBeEmpty();
+        body.RequestedTake.Should().Be(20);
     }
 
     [SkippableFact]
@@ -47,14 +41,11 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
             $"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?page=1&pageSize=10");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        string body = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(body);
-        JsonElement root = doc.RootElement;
-        root.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
-        root.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
-        root.GetProperty("requestedTake").GetInt32().Should().Be(10);
-        root.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
-        root.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
+        CursorPagedResponse<RunSummaryResponse> body =
+            await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+
+        body.Items.Should().NotBeEmpty();
+        body.RequestedTake.Should().Be(10);
     }
 
     [SkippableFact]
@@ -65,25 +56,19 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         HttpResponseMessage defaultSlugResponse =
             await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");
         defaultSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        string defaultBody = await defaultSlugResponse.Content.ReadAsStringAsync();
-        using JsonDocument defaultDoc = JsonDocument.Parse(defaultBody);
-        Guid createdRunId = finalized.RunGuid;
-        defaultDoc.RootElement.GetProperty("items").EnumerateArray()
-            .Any(item => Guid.Parse(item.GetProperty("finalized.RunId").GetString()!) == createdRunId)
+        CursorPagedResponse<RunSummaryResponse> defaultPage =
+            await defaultSlugResponse.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+
+        defaultPage.Items.Any(item => item.RunId == finalized.RunGuid)
             .Should()
             .BeFalse("create maps SystemName onto the run project slug, not 'default'");
 
         HttpResponseMessage scopeResponse = await Client.GetAsync("/v1/authority/reviews?take=50");
         scopeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        string scopeBody = await scopeResponse.Content.ReadAsStringAsync();
-        using JsonDocument scopeDoc = JsonDocument.Parse(scopeBody);
-        JsonElement scopeRoot = scopeDoc.RootElement;
-        scopeRoot.GetProperty("items").EnumerateArray()
-            .Any(item => Guid.Parse(item.GetProperty("finalized.RunId").GetString()!) == createdRunId)
-            .Should()
-            .BeTrue();
-        scopeRoot.GetProperty("requestedTake").GetInt32().Should().Be(50);
-        scopeRoot.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
-        scopeRoot.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
+        CursorPagedResponse<RunSummaryResponse> scopePage =
+            await scopeResponse.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+
+        scopePage.Items.Any(item => item.RunId == finalized.RunGuid).Should().BeTrue();
+        scopePage.RequestedTake.Should().Be(50);
     }
 }

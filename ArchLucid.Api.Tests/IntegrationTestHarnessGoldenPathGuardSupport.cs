@@ -94,7 +94,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 6;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 7;
 
     private static readonly Regex DirectPinExecuteOnFixtureRegex = new(
         @"\bClient\.PostExecuteAndEnsureArchitectureVersionPinForTestAsync\s*\(",
@@ -126,6 +126,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly Regex RedundantSystemNameForRequestRegex = new(
         @"TestRequestFactory\.SystemNameForRequest\s*\(\s*\w+\.RequestId\s*\)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RawArchitectureReviewSubresourceUrlRegex = new(
+        @"(?:\$""|"")/v1/architecture/review/\{[^""\n]+\}/[^""\n]+""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex TupleReturnTypeRegex = new(
@@ -1022,6 +1026,60 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
                 content.Contains(": IntegrationTestBase", StringComparison.Ordinal)
                 && IsHarnessTestSource(content)
                 && RedundantSystemNameForRequestRegex.IsMatch(content));
+    }
+
+    private static readonly HashSet<string> RawArchitectureReviewSubresourceAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical review GET/subresource helpers.
+        nameof(FinalizedRunHarnessExtensions) + ".cs",
+        nameof(CreatedRunForTestHarnessExtensions) + ".cs",
+        // harness-allowlist: conflict matrix hand-rolls review routes by design.
+        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
+        // harness-allowlist-until: export / pin / evidence specialty GETs (#38 burn-down).
+        nameof(ArchitectureAnalysisDocxTests) + ".cs",
+        nameof(ArchitectureAnalysisExportTests) + ".cs",
+        nameof(ArchitectureAnalysisReportTests) + ".cs",
+        nameof(ArchitectureExportAuditTests) + ".cs",
+        nameof(ArchitectureExportRecordDiffTests) + ".cs",
+        nameof(ArchitectureRunPinIntegrationTests) + ".cs",
+        nameof(EvidenceBulkUploadIntegrationTests) + ".cs",
+        nameof(FindingEvidenceChainEndpointTests) + ".cs",
+        nameof(FindingInspectEndpointTests) + ".cs",
+        nameof(RunFindingsCsvExportEndpointTests) + ".cs",
+        nameof(RunStoredEvidenceFilesIntegrationTests) + ".cs",
+        nameof(TraceabilityBundleZipEndpointTests) + ".cs",
+    };
+
+    internal static List<string> ScanRawArchitectureReviewSubresourceUrlsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (RawArchitectureReviewSubresourceAllowlist.Contains(fileName))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!RawArchitectureReviewSubresourceUrlRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
     }
 
     private static void AddAllowlistFileNames(HashSet<string> union, HashSet<string> allowlist)

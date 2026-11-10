@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-seven scanner facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-eight scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -274,9 +274,18 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_thirty_seven_scanners()
+    public void Harness_tests_do_not_embed_raw_architecture_review_subresource_urls()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(37);
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanRawArchitectureReviewSubresourceUrlsInHarnessTests(),
+            38,
+            "use FinalizedRunHarnessExtensions or CreatedRunForTestHarnessExtensions for review subresource GETs.");
+    }
+
+    [Fact]
+    public void Guard_catalog_lists_thirty_eight_scanners()
+    {
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(38);
     }
 
     [Fact]

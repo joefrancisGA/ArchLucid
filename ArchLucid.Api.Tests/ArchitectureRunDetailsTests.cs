@@ -1,7 +1,7 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Contracts.Architecture;
 
 using FluentAssertions;
 
@@ -38,11 +38,8 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
             JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());
         authorityDetailDoc.RootElement.GetProperty("executionFlavorBuyerSummary").GetString().Should().NotBeNullOrWhiteSpace();
 
-        HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/roi");
-        await roiResponse.EnsureSuccessForTestAsync();
-        using JsonDocument doc = JsonDocument.Parse(await roiResponse.Content.ReadAsStringAsync());
-
-        doc.RootElement.GetProperty("finalized.RunId").GetString().Should().Be(finalized.RunId);
-        doc.RootElement.GetProperty("estimatedManualHoursSaved").GetDouble().Should().BeGreaterThan(0);
+        RunRoiScorecardDto roi = await finalized.GetRoiAsync(Client, JsonOptions);
+        roi.RunId.Should().Be(finalized.RunId);
+        roi.EstimatedManualHoursSaved.Should().BeGreaterThan(0);
     }
 }
