@@ -358,9 +358,39 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     </OperatorPageHeader>
   );
 
+  const firstReviewGuideProgressSection = (
+    <section
+      aria-labelledby="first-review-guide-progress-heading"
+      className="space-y-4"
+      data-testid="onboarding-progress"
+    >
+      <div className="space-y-2">
+        <h2 id="first-review-guide-progress-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE}
+        </h2>
+
+        <FirstReviewGuideProgressSummary
+          progress={guide.progress}
+          isPending={guide.isPending}
+          isError={guide.isError}
+        />
+      </div>
+
+      <FirstReviewGuideWalkthrough
+        steps={guide.steps}
+        isPending={guide.isPending}
+        isError={guide.isError}
+        announceProgress={guide.hasLoadedContext}
+        progressPhase={guide.progress.phase}
+      />
+    </section>
+  );
+
   const firstReviewGuideChecklistBody = (
     <>
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <FirstReviewOpenGateStarterShortcut /> : null}
+
+      {firstReviewGuideProgressSection}
 
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
 
@@ -369,32 +399,6 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <ArchLucidProcurementEvidenceHomeSection /> : null}
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
-
-      <section
-        aria-labelledby="first-review-guide-progress-heading"
-        className="space-y-4"
-        data-testid="onboarding-progress"
-      >
-        <div className="space-y-2">
-          <h2 id="first-review-guide-progress-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            {FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE}
-          </h2>
-
-          <FirstReviewGuideProgressSummary
-            progress={guide.progress}
-            isPending={guide.isPending}
-            isError={guide.isError}
-          />
-        </div>
-
-        <FirstReviewGuideWalkthrough
-          steps={guide.steps}
-          isPending={guide.isPending}
-          isError={guide.isError}
-          announceProgress={guide.hasLoadedContext}
-          progressPhase={guide.progress.phase}
-        />
-      </section>
     </>
   );
 

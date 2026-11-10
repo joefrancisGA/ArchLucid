@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Floor scores: accelerator start-here, snapshot on collection, quieter path inspect
+
+**Outcome.** The accelerator index starts on Manual upload or the latest Changes and drift snapshot. Collection setup names the latest snapshot id with a drift link. Path inspect collapses executive metrics and the path report after a path is selected. The first-review checklist sits under the sample starter. The procurement map names guided-pilot acceptance by signed quote.
+
+**Surfaces.** Accelerator index, collection setup, remediation factory, first-review guide, procurement map.
+
 ## 2026-11-10 - Owner accepts ArchLucid guided-pilot evaluation orders
 
 **Outcome.** The owner accepts a guided-pilot evaluation order at the published list price in pricing philosophy §4 by signed quote. Checkout, Stripe, monthly tiers, design partner, Enterprise evaluation, and custom-pack rows stay unaccepted from a page.

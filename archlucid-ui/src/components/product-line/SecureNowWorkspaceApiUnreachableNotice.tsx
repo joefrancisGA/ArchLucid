@@ -12,7 +12,12 @@ export function SecureNowWorkspaceApiUnreachableNotice(props: {
   readonly testId: string;
 }): React.JSX.Element {
   return (
-    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid={props.testId}>
+    <p
+      className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
+      role="alert"
+      aria-live="polite"
+      data-testid={props.testId}
+    >
       {props.message}{" "}
       <Link href={ADMINISTRATION_SYSTEM_HEALTH_PATH} className={OPERATOR_LINK.inline}>
         System health

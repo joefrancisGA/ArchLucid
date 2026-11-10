@@ -17,9 +17,8 @@ export const SECURENOW_ACCELERATOR_INDEX_GUARDRAIL =
 export const SECURENOW_ACCELERATOR_INDEX_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: "/administration/securenow-pilot-spine",
-    label: "Pilot walkthrough (start here)",
+    label: "Pilot walkthrough (fixture)",
     summary: "Six fixture beats with operator deep links.",
-    recommendedFirst: true,
   },
   {
     href: "/administration/securenow-readout-pack",
