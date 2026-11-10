@@ -74,7 +74,8 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
     {
         await EnsureDemoBaselineSeededAsync();
 
-        HttpResponseMessage response = await Client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
+        HttpResponseMessage response = await Client.GetFindingInspectHttpAsync(DemoPrimaryFindingId);
+        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 
@@ -101,8 +102,8 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
         Guid baselineRunGuid = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
 
         HttpResponseMessage response =
-            await Client.GetAsync(
-                $"/v1/architecture/review/{baselineRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
+            await Client.GetReviewScopedFindingInspectHttpAsync(baselineRunGuid, DemoPrimaryFindingId);
+        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 
@@ -118,11 +119,9 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
     {
         await EnsureDemoBaselineSeededAsync();
 
-        Guid mismatchedRunGuid = Guid.Parse("11111111-1111-1111-1111-111111111111");
-
-        HttpResponseMessage response =
-            await Client.GetAsync(
-                $"/v1/architecture/review/{mismatchedRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");
+        HttpResponseMessage response = await Client.GetReviewScopedFindingInspectHttpAsync(
+            HarnessWellKnownGuids.MismatchedRunForScopedFindingInspect,
+            DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -148,7 +147,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         WireDefaultSqlIntegrationScopeHeaders(client);
 
-        HttpResponseMessage response = await client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");
+        HttpResponseMessage response = await client.GetFindingInspectHttpAsync(DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -164,7 +163,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         WireDefaultSqlIntegrationScopeHeaders(client);
 
-        HttpResponseMessage response = await client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");
+        HttpResponseMessage response = await client.GetFindingInspectHttpAsync(DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

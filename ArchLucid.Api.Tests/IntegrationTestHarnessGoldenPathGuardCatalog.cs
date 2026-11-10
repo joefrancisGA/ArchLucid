@@ -1,7 +1,7 @@
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Human-readable catalog for <see cref="IntegrationTestHarnessGoldenPathGuardTests" /> (keep in sync when adding facts).</summary>
-internal static class IntegrationTestHarnessGoldenPathGuardCatalog
+public static class IntegrationTestHarnessGoldenPathGuardCatalog
 {
     internal static IReadOnlyList<HarnessGuardFact> Facts { get; } =
     [
@@ -50,7 +50,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(43, "authority allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountAuthorityAllowlistedSourceFiles), "shrink #42 allowlist or add an extension"),
         new(44, "JsonDocument allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountJsonDocumentAllowlistedSourceFiles), "shrink #40 allowlist or migrate to ReadJsonForTestAsync / AssertProblemForTestAsync"),
         new(45, "hardcoded harness unknown run GUID literals", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedHarnessUnknownRunGuids), "use HarnessWellKnownGuids"),
+        new(46, "CreateArchitectureRunAsync on IntegrationTestBase fixtures", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateArchitectureRunAsyncOnIntegrationTestBaseFixtures), "use ArrangeFinalizedAsync / CreateRunForTestAsync"),
+        new(47, "raw canonical /v1/runs URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawCanonicalRunsUrlsInHarnessTests), "use RunsHarnessExtensions"),
     ];
 
-    internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);
+    public sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);
 }

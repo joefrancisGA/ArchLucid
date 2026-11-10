@@ -47,7 +47,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             AsyncDocxJobPollDelay);
         state.Should().Be("Succeeded");
 
-        HttpResponseMessage fileResp = await Client.GetAsync($"/v1/jobs/{jobId}/file");
+        HttpResponseMessage fileResp = await IntegrationTestJobPollSupport.GetJobFileHttpAsync(Client, jobId!);
         fileResp.Content.Headers.ContentType!.MediaType
             .Should().Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 

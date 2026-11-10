@@ -17,7 +17,7 @@ public sealed class SponsorPreliminaryShareEndpointTests(ArchLucidApiFactory fac
     [SkippableFact]
     public async Task PostSponsorPreliminaryShare_WhenRunUnknown_Returns404Problem()
     {
-        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid runId = HarnessWellKnownGuids.UnknownRunForEvidenceChain;
 
         using HttpRequestMessage request = new(
             HttpMethod.Post,

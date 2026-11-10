@@ -17,10 +17,8 @@ public sealed class AuthorityReadsControllerIntegrationTests(ArchLucidApiFactory
     [SkippableFact]
     public async Task ListRuns_returns_cursor_paged_envelope()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/runs?take=20");
+        string body = await Client.ReadRunsListBodyAsync();
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        string body = await response.Content.ReadAsStringAsync();
         body.Should().Contain("\"items\"");
         body.Should().Contain("\"requestedTake\"");
     }
@@ -28,20 +26,16 @@ public sealed class AuthorityReadsControllerIntegrationTests(ArchLucidApiFactory
     [SkippableFact]
     public async Task GetRunDetail_unknown_run_returns_404_problem()
     {
-        Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc02");
-        HttpResponseMessage response = await Client.GetAsync($"/v1/runs/{missing:D}");
+        HttpResponseMessage response = await Client.GetRunDetailHttpAsync(HarnessWellKnownGuids.UnknownCanonicalRunDetail);
 
-        JsonDocument problem = await response.AssertProblemForTestAsync(
-            HttpStatusCode.NotFound,
-            ProblemTypes.RunNotFound);
+        JsonDocument problem = await response.AssertRunNotFoundAsync();
         problem.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.RunNotFound);
     }
 
     [SkippableFact]
     public async Task GetReviewTrail_unknown_run_returns_404_problem()
     {
-        Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc03");
-        HttpResponseMessage response = await Client.GetAsync($"/v1/runs/{missing:D}/review-trail");
+        HttpResponseMessage response = await Client.GetRunReviewTrailHttpAsync(HarnessWellKnownGuids.UnknownAuthorityRunForSmoke);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -49,13 +43,10 @@ public sealed class AuthorityReadsControllerIntegrationTests(ArchLucidApiFactory
     [SkippableFact]
     public async Task Legacy_authority_list_route_still_serves_same_envelope_shape()
     {
-        HttpResponseMessage canonical = await Client.GetAsync("/v1/runs?take=5");
-        HttpResponseMessage legacy = await Client.GetAsync("/v1/authority/reviews?take=5");
+        string canonicalBody = await Client.ReadRunsListBodyAsync(take: 5);
 
-        canonical.StatusCode.Should().Be(HttpStatusCode.OK);
-        legacy.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        string canonicalBody = await canonical.Content.ReadAsStringAsync();
+        HttpResponseMessage legacy = await Client.GetAuthorityReviewsInScopeHttpAsync("take=5");
+        await legacy.EnsureSuccessForTestAsync();
         string legacyBody = await legacy.Content.ReadAsStringAsync();
 
         canonicalBody.Should().Contain("\"items\"");

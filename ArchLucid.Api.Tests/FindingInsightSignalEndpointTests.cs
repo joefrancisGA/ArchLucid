@@ -91,7 +91,7 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
     public async Task PostInsightSignal_when_run_unknown_returns_404()
     {
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
-        Guid unknownRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid unknownRunId = HarnessWellKnownGuids.MismatchedRunForScopedFindingInspect;
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
             $"/v1/runs/{unknownRunId:D}/findings/{DemoPrimaryFindingId}/insight-signal",

@@ -9,6 +9,70 @@ namespace ArchLucid.Api.Tests;
 /// <summary>Read helpers for runs produced by <see cref="CreateRunForTestAsync" /> / <see cref="RunReadyForExecuteAsync" />.</summary>
 public static class CreatedRunForTestHarnessExtensions
 {
+    public static Task<HttpResponseMessage> GetFindingsExportCsvHttpAsync(
+        this CreatedRunForTest created,
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(created);
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{created.RunId}/findings/export/csv", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetTraceabilityBundleZipHttpAsync(
+        this CreatedRunForTest created,
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(created);
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{created.RunId}/traceability-bundle.zip", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetStoredEvidenceFilesHttpAsync(
+        this CreatedRunForTest created,
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(created);
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{created.RunId}/evidence/files", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetStoredEvidenceFileHttpAsync(
+        this CreatedRunForTest created,
+        HttpClient client,
+        string evidenceItemId,
+        string? disposition = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(created);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(evidenceItemId);
+
+        string path = string.IsNullOrEmpty(disposition)
+            ? $"/v1/architecture/review/{created.RunId}/evidence/files/{evidenceItemId}"
+            : $"/v1/architecture/review/{created.RunId}/evidence/files/{evidenceItemId}?disposition={disposition}";
+
+        return client.GetAsync(path, cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> PostEvidenceBulkHttpAsync(
+        this CreatedRunForTest created,
+        HttpClient client,
+        HttpContent content,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(created);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(content);
+
+        return client.PostAsync($"/v1/architecture/review/{created.RunId}/evidence/bulk", content, cancellationToken);
+    }
+
     public static Task<HttpResponseMessage> GetRunHttpAsync(
         this CreatedRunForTest created,
         HttpClient client,

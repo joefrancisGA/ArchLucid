@@ -17,10 +17,8 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task ExportRunFindingsCsv_WhenRunUnknown_Returns404Problem()
     {
-        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
-        using HttpResponseMessage res =
-            await Client.GetAsync($"/v1/architecture/review/{runId:D}/findings/export/csv");
+        using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(
+            HarnessWellKnownGuids.UnknownRunForReviewSubresource);
 
         res.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -30,8 +28,7 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
     {
         Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
 
-        using HttpResponseMessage res =
-            await Client.GetAsync($"/v1/architecture/review/{runId:D}/findings/export/csv");
+        using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(runId);
 
         // Guard with return rather than Skip.If: throwing SkipException after an async operation
         // causes the [SkippableFact] vstest runner to re-queue the test indefinitely (proven 30+

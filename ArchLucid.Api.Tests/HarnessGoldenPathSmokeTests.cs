@@ -146,9 +146,19 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         governance.ManifestVersion.Should().MatchRegex("^v\\d");
     }
 
+    [SkippableFact]
+    public async Task Golden_path_committed_replay_opens_from_finalized_request_id()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        CommittedReplayPair pair = await finalized.OpenCommittedReplayPairAsync(Replay);
+        pair.RunId.Should().NotBeNullOrWhiteSpace();
+        pair.ReplayRunId.Should().NotBeNullOrWhiteSpace();
+    }
+
     [Theory]
-    [InlineData("%20")]
-    [InlineData("%09")]
+    [InlineData(HarnessWellKnownEncodings.UrlEncodedSpace)]
+    [InlineData(HarnessWellKnownEncodings.UrlEncodedTab)]
     public async Task Golden_path_list_reviews_whitespace_project_returns_400_problem(string encodedWhitespaceProjectId)
     {
         HttpResponseMessage response =

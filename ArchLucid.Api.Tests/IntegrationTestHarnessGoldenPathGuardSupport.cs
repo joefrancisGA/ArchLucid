@@ -94,7 +94,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 10;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 11;
 
     /// <summary>Cap for <see cref="RawArchitectureReviewSubresourceAllowlist" /> (#38 burn-down ratchet).</summary>
     internal const int MaxReviewSubresourceAllowlistedSourceFiles = 12;
@@ -146,7 +146,15 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxJsonDocumentAllowlistedSourceFiles = 14;
 
     private static readonly Regex HardcodedHarnessUnknownRunGuidRegex = new(
-        @"Guid\.Parse\s*\(\s*""0{8}-0{4}-0{4}-0{4}-0{12}""",
+        @"Guid\.Parse\s*\(\s*""(?:0{8}-0{4}-0{4}-0{4}-0{12}|eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee|dddddddd-dddd-dddd-dddd-dddddddddddd|11111111-1111-1111-1111-111111111111|aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex CreateArchitectureRunAsyncOnFixtureRegex = new(
+        @"\bCreateArchitectureRunAsync\s*\(",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RawCanonicalRunsUrlRegex = new(
+        @"(?:\.GetAsync|\.PostAsync)\s*\(\s*\$?""/v1/runs/",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex RawArchitectureReviewBareGetRegex = new(
@@ -900,6 +908,18 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         || content.Contains(": IntegrationTestBase", StringComparison.Ordinal)
         || content.Contains("PostFinalizeForTestAsync", StringComparison.Ordinal);
 
+    private static bool IsRouteProtocolHarnessSource(string content) =>
+        content.Contains(
+            "Trait(\"" + HarnessGoldenPathGuardConstants.RouteProtocolTraitCategory + "\", \"" +
+            HarnessGoldenPathGuardConstants.RouteProtocolTraitValue + "\")",
+            StringComparison.Ordinal)
+        || content.Contains(
+            "Trait(" + nameof(HarnessGoldenPathGuardConstants) + "." +
+            nameof(HarnessGoldenPathGuardConstants.RouteProtocolTraitCategory) + ", " +
+            nameof(HarnessGoldenPathGuardConstants) + "." +
+            nameof(HarnessGoldenPathGuardConstants.RouteProtocolTraitValue) + ")",
+            StringComparison.Ordinal);
+
     private static List<string> ScanContentViolations(
         HashSet<string> excludedFileNames,
         Func<string, bool> isViolation)
@@ -1058,15 +1078,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         // harness-allowlist: canonical review GET/subresource helpers.
         nameof(FinalizedRunHarnessExtensions) + ".cs",
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
-        // harness-allowlist: conflict matrix hand-rolls review routes by design.
-        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
-        // harness-allowlist-until: evidence specialty GETs (#38 burn-down).
-        nameof(EvidenceBulkUploadIntegrationTests) + ".cs",
-        nameof(FindingEvidenceChainEndpointTests) + ".cs",
+        nameof(ReviewSubresourceHarnessExtensions) + ".cs",
+        nameof(FindingInspectHarnessExtensions) + ".cs",
+        // harness-allowlist-until: run-scoped findings inspect on demo baseline (#38 burn-down).
         nameof(FindingInspectEndpointTests) + ".cs",
-        nameof(RunFindingsCsvExportEndpointTests) + ".cs",
-        nameof(RunStoredEvidenceFilesIntegrationTests) + ".cs",
-        nameof(TraceabilityBundleZipEndpointTests) + ".cs",
     };
 
     internal static List<string> ScanRawArchitectureReviewSubresourceUrlsInHarnessTests()
@@ -1092,6 +1107,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!IsHarnessTestSource(content))
                 continue;
 
+            if (IsRouteProtocolHarnessSource(content))
+                continue;
+
             if (!RawArchitectureReviewSubresourceUrlRegex.IsMatch(content))
                 continue;
 
@@ -1111,7 +1129,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(FinalizedRunHarnessExtensions) + ".cs",
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
         // harness-allowlist-until: authority route contract matrices (#42 burn-down).
-        nameof(AuthorityReadsControllerIntegrationTests) + ".cs",
         nameof(AuthorityQueryControllerAnonymousIntegrationTests) + ".cs",
         nameof(PageBundleEndpointsTests) + ".cs",
         nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",
@@ -1142,6 +1159,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!IsHarnessTestSource(content))
                 continue;
 
+            if (IsRouteProtocolHarnessSource(content))
+                continue;
+
             if (!RawAuthorityUrlRegex.IsMatch(content))
                 continue;
 
@@ -1157,6 +1177,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     {
         // harness-allowlist: canonical negative-path GUID literals.
         nameof(HarnessWellKnownGuids) + ".cs",
+        // harness-allowlist: tenant-isolation literals in stored evidence files matrix.
+        nameof(RunStoredEvidenceFilesIntegrationTests) + ".cs",
     };
 
     internal static List<string> ScanHardcodedHarnessUnknownRunGuids()
@@ -1198,8 +1220,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         // harness-allowlist: canonical bare review GET helpers and specialty poll fixtures.
         nameof(FinalizedRunHarnessExtensions) + ".cs",
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
-        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
         nameof(GoldenCohortSimulatorDriftTests) + ".cs",
+        // harness-allowlist-until: controller matrix bare GET burn-down.
+        nameof(ArchitectureControllerTests) + ".cs",
     };
 
     internal static List<string> ScanRawArchitectureReviewBareGetUrlsInHarnessTests()
@@ -1225,7 +1248,92 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!IsHarnessTestSource(content))
                 continue;
 
+            if (IsRouteProtocolHarnessSource(content))
+                continue;
+
             if (!RawArchitectureReviewBareGetRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> RawCanonicalRunsUrlAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical /v1/runs helpers.
+        nameof(RunsHarnessExtensions) + ".cs",
+    };
+
+    internal static List<string> ScanRawCanonicalRunsUrlsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (RawCanonicalRunsUrlAllowlist.Contains(fileName))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (IsRouteProtocolHarnessSource(content))
+                continue;
+
+            if (!content.Contains("ArrangeFinalizedAsync", StringComparison.Ordinal)
+                && !content.Contains("CreateRunForTestAsync", StringComparison.Ordinal)
+                && !content.Contains("RunReadyForExecuteAsync", StringComparison.Ordinal)
+                && !content.Contains("ArrangeGovernanceCommittedAsync", StringComparison.Ordinal))
+                continue;
+
+            if (!RawCanonicalRunsUrlRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> CreateArchitectureRunAsyncOnFixtureAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: IntegrationTestBase defines CreateArchitectureRunAsync for low-level protocol callers.
+        nameof(IntegrationTestBase) + ".cs",
+    };
+
+    internal static List<string> ScanCreateArchitectureRunAsyncOnIntegrationTestBaseFixtures()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (CreateArchitectureRunAsyncOnFixtureAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!CreateArchitectureRunAsyncOnFixtureRegex.IsMatch(content))
                 continue;
 
             violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));

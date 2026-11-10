@@ -19,7 +19,7 @@ public sealed class PlanningGovernanceCommercialSmokeIntegrationTests(ArchLucidA
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        Guid fakeRunId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid fakeRunId = HarnessWellKnownGuids.UnknownRunForStoredEvidenceFiles;
 
         using HttpResponseMessage response =
             await client.GetAsync($"/v1/evidence-graph/reviews/{fakeRunId:D}");
