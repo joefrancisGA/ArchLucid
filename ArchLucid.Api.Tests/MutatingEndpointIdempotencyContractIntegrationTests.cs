@@ -46,9 +46,8 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     [SkippableFact]
     public async Task CommitRun_same_idempotency_key_replays_without_new_manifest_version()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-COMMIT"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(MutatingEndpointIdempotencyContractIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
@@ -86,15 +85,13 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     [SkippableFact]
     public async Task Governance_approval_submit_same_idempotency_key_replays_without_duplicate_request_id()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-GOV"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(MutatingEndpointIdempotencyContractIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
+                CommitRunResponseDto? commitPayload =
             await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;

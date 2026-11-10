@@ -35,10 +35,9 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
             .ConfigureAwait(false);
 
-        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PILOT-REAL-1"));
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FirstRealValuePilotExecuteIntegrationTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;

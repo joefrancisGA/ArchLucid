@@ -22,6 +22,11 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(15, "Content.ReadFromJsonAsync in harness", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanReadFromJsonAsyncInHarnessTests)),
         new(16, "harness allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountTotalAllowlistedHarnessFiles)),
         new(17, "TEST_STRUCTURE lifecycle helper coverage", nameof(IntegrationTestHarnessDocumentationGuardSupport.ScanUndocumentedLifecycleHelpers)),
+        new(18, "Task tuple return types in harness", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanTupleReturnTypesInHarnessTests)),
+        new(19, "redundant EnsureSuccess before ReadJson", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantEnsureSuccessBeforeReadJson)),
+        new(20, "PostReviewReplayAsync outside protocol tests", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanPostReviewReplayAsyncInHarnessTests)),
+        new(21, "hardcoded REQ intake ids", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedRequestIdsInHarnessTests)),
+        new(22, "allowlist comment markers", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanAllowlistCommentMarkersPresent)),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName);

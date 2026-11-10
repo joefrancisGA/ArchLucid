@@ -17,7 +17,8 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {
-        (_, string manifestVersion) = await CreateFinalizedRunAsync("REQ-DIAGRAM-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureDiagramTests)));
+        string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse =
             await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
@@ -36,7 +37,8 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
     {
-        (_, string manifestVersion) = await CreateFinalizedRunAsync("REQ-DIAGRAM-002");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureDiagramTests)));
+        string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse = await Client.GetAsync(
             $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");

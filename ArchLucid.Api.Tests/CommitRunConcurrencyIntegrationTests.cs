@@ -25,10 +25,9 @@ public sealed class CommitRunConcurrencyIntegrationTests
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
-                TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-PAR-" + Guid.NewGuid().ToString("N")[..8]));
+                TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(CommitRunConcurrencyIntegrationTests))));
 
-            await createResponse.EnsureSuccessForTestAsync();
-            CreateRunResponseDto? created =
+                        CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
 

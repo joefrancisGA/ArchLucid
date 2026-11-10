@@ -30,10 +30,9 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
-            TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001"));
+            TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureCommitTraceabilityIntegrationTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;

@@ -20,9 +20,8 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task ListStoredEvidenceFiles_AfterBulkUpload_ReturnsCatalogMetadata()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-001"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(RunStoredEvidenceFilesIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using MultipartFormDataContent content = new();
@@ -32,9 +31,7 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
 
         HttpResponseMessage uploadResponse =
             await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
-        await uploadResponse.EnsureSuccessForTestAsync();
-
-        BulkUploadResponseDto? uploadBody =
+                BulkUploadResponseDto? uploadBody =
             await uploadResponse.ReadJsonForTestAsync<BulkUploadResponseDto>(JsonOptions);
         uploadBody.Should().NotBeNull();
         uploadBody!.EvidenceItemIds.Should().ContainSingle();
@@ -57,9 +54,8 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task ListStoredEvidenceFiles_ForRunWithoutUploads_ReturnsEmptyArray()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-002"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(RunStoredEvidenceFilesIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage listResponse =
@@ -87,9 +83,8 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task ListStoredEvidenceFiles_ForOtherTenantRun_ReturnsNotFound()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-003"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(RunStoredEvidenceFilesIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using HttpClient foreignClient = Factory.CreateClient();
@@ -112,9 +107,8 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task ListStoredEvidenceFiles_AfterPngAndDocxBulkUpload_ReturnsBothCatalogRows()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-DUAL-001"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(RunStoredEvidenceFilesIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using MultipartFormDataContent content = new();
@@ -129,9 +123,7 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
 
         HttpResponseMessage uploadResponse =
             await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
-        await uploadResponse.EnsureSuccessForTestAsync();
-
-        BulkUploadResponseDto? uploadBody =
+                BulkUploadResponseDto? uploadBody =
             await uploadResponse.ReadJsonForTestAsync<BulkUploadResponseDto>(JsonOptions);
         uploadBody.Should().NotBeNull();
         uploadBody!.EvidenceItemIds.Should().HaveCount(2);
@@ -155,9 +147,8 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task DownloadStoredEvidenceFile_ReturnsAttachmentBytes()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-DL-001"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(RunStoredEvidenceFilesIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         byte[] payload = "hello evidence"u8.ToArray();
@@ -168,9 +159,7 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
 
         HttpResponseMessage uploadResponse =
             await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
-        await uploadResponse.EnsureSuccessForTestAsync();
-
-        BulkUploadResponseDto? uploadBody =
+                BulkUploadResponseDto? uploadBody =
             await uploadResponse.ReadJsonForTestAsync<BulkUploadResponseDto>(JsonOptions);
         string evidenceItemId = uploadBody!.EvidenceItemIds[0];
 
@@ -187,9 +176,8 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task DownloadStoredEvidenceFile_WithInlineDisposition_ReturnsInlineContentDisposition()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-INLINE-001"));
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(RunStoredEvidenceFilesIntegrationTests))));
+                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         byte[] payload = "preview text"u8.ToArray();
@@ -200,9 +188,7 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
 
         HttpResponseMessage uploadResponse =
             await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
-        await uploadResponse.EnsureSuccessForTestAsync();
-
-        BulkUploadResponseDto? uploadBody =
+                BulkUploadResponseDto? uploadBody =
             await uploadResponse.ReadJsonForTestAsync<BulkUploadResponseDto>(JsonOptions);
         string evidenceItemId = uploadBody!.EvidenceItemIds[0];
 

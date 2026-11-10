@@ -16,15 +16,14 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task CompareManifestsSummary_ReturnsMarkdownSummary()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-COMPARE-SUMMARY-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureCompareSummaryTests)));
         const string requestedReplayManifestVersion = "v1-replay";
 
-        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             finalized.RunId,
             commitReplay: true,
             manifestVersionOverride: requestedReplayManifestVersion);
-        await replayResponse.EnsureSuccessForTestAsync();
-        ReplayRunResponseDto? replayPayload =
+                ReplayRunResponseDto? replayPayload =
             await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload.Should().NotBeNull();
         replayPayload.Manifest.Should().NotBeNull();

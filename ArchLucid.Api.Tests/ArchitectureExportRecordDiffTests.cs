@@ -16,7 +16,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-EXPORT-DIFF-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureExportRecordDiffTests)));
         var executiveRequest = new
         {
             templateProfile = "sponsor",
@@ -72,8 +72,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
             JsonContent(internalRequest));
         await internalExport.EnsureSuccessForTestAsync();
         HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");
-        await historyResponse.EnsureSuccessForTestAsync();
-        RunExportHistoryResponse? history =
+                RunExportHistoryResponse? history =
             await historyResponse.ReadJsonForTestAsync<RunExportHistoryResponse>(JsonOptions);
         history.Should().NotBeNull();
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);

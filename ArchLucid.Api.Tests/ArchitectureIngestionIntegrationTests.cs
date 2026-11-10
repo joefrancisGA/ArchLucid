@@ -20,7 +20,7 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
     {
         ArchitectureRequest request = new()
         {
-            RequestId = "REQ-INGEST-INT-001",
+            RequestId = TestRequestIds.ForScenario(nameof(ArchitectureIngestionIntegrationTests)),
             Description =
                 "Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.",
             SystemName = "IngestionIntegrationSys",

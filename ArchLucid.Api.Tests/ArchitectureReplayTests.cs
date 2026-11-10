@@ -16,9 +16,9 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [SkippableFact]
     public async Task ReplayRun_ReexecutesPriorRun()
     {
-        string runId = await Replay.CreateAndExecuteAsync("REQ-REPLAY-001");
+        string runId = await Replay.CreateAndExecuteAsync(TestRequestIds.ForScenario(nameof(ArchitectureReplayTests)));
 
-        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             runId,
             commitReplay: false,
             manifestVersionOverride: null);
@@ -37,10 +37,10 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [SkippableFact]
     public async Task ReplayRun_WithCommitReplay_CreatesReplayManifest()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-REPLAY-002");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureReplayTests)));
         const string rightVersion = "v1-replay";
 
-        HttpResponseMessage replayResponse = await PostReviewReplayAsync(
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             finalized.RunId,
             commitReplay: true,
             manifestVersionOverride: rightVersion);

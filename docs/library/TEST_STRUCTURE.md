@@ -286,6 +286,10 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Goal | Use |
 |------|-----|
 | Parallel-safe request id | **`TestRequestIds.ForScenario`** |
+| Finalize in one verb (client + factory + JSON) | **`ArchitectureScenario.FinalizedAsync`** / **`IntegrationTestBase.FinalizeLifecycleAsync`** |
+| Committed replay pair from scenario name | **`ArchitectureScenario.CommittedPairAsync`** |
+| Governance self-approval problem JSON | **`GovernanceProblemAssertions.AssertGovernanceSelfApprovalAsync`** |
+| Tenant isolation greenfield primer | **`TenantIsolationScenario.WithGreenfieldPrimerAsync`** |
 | Standard intake POST (factory body or object) | **`PostArchitectureRequestForTestAsync`** or **`CreateArchitectureRunForTestAsync`** |
 | JWT, custom body, or idempotency header on intake | **`CreateArchitectureRequestMessage`** → `SendAsync` |
 | Greenfield SQL with transient 503 retry + unique idempotency key | **`PostGreenfieldArchitectureRequestForTestAsync`** |
@@ -296,7 +300,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Per-test isolated SQL factory | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
 | Isolated SQL + replay | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
 | Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** → **`PersistedComparison`**; **`PostEndToEndCompareSummaryForTestAsync`** |
-| End-to-end compare export (markdown, docx, file, ranged file) | **`GetEndToEndCompareExportMarkdownForTestAsync`**, **`GetEndToEndCompareExportDocxForTestAsync`**, **`GetEndToEndCompareExportFileForTestAsync`**, **`CreateEndToEndCompareExportFileRangeGetRequestForTest`** |
+| End-to-end compare export (markdown, docx, file, ranged file) | **`GetEndToEndCompareExportMarkdownForTestAsync`**, **`GetEndToEndCompareExportDocxForTestAsync`**, **`GetEndToEndCompareExportFileForTestAsync`**, **`CreateEndToEndCompareExportFileRangeGetRequestForTest`** (each accepts **`CommittedReplayPair`** or run ids) |
 | JSON after HTTP success | **`ReadJsonForTestAsync`** (not `Content.ReadFromJsonAsync` in harness-tagged tests) |
 | RFC 9457 negative paths | **`AssertProblemForTestAsync`** |
 | JSON body for requests | **`IntegrationTestHttpContent.CreateJson`** + **`CreateApiJsonOptions()`** |
@@ -304,7 +308,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, seventeen facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for fact titles. Allowlist growth is capped by fact **#16**.
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, twenty-two facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for fact titles (including **`TestRequestIds`**, redundant **`EnsureSuccessForTestAsync`** before **`ReadJsonForTestAsync`**, and **`PostReviewReplayForTestAsync`** usage). Allowlist growth is capped by **`MaxHarnessAllowlistedSourceFiles`** (guard ratchet, currently **41** unique allowlisted sources).
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

@@ -30,8 +30,7 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
 
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(expected.RequestId));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created!.Run.RunId;

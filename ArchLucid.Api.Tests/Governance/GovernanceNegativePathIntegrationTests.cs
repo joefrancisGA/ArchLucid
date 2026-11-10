@@ -22,14 +22,13 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Self_approval_returns_governance_self_approval_problem_and_audit_tb297()
     {
-        FinalizedRun committed = await CreateCommittedRunAsync("REQ-GOV-NEG-SELF-01");
+        FinalizedRun committed = await CreateCommittedRunAsync(TestRequestIds.ForScenario(nameof(GovernanceNegativePathIntegrationTests)));
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
             manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submit.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
             await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
@@ -39,10 +38,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             GovernanceSubmitterName,
             GovernanceSubmitterId);
 
-        approve.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        ReadProblemType(await approve.Content.ReadAsStringAsync())
-            .Should()
-            .Be(ProblemTypes.GovernanceSelfApproval);
+        await approve.AssertGovernanceSelfApprovalAsync();
 
         await AssertAuditContainsEventTypeAsync(AuditEventTypes.GovernanceSelfApprovalBlocked);
     }
@@ -50,16 +46,14 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Reject_after_approve_returns_conflict_tb297()
     {
-        // Unique per execution: fixed request ids collide across sharded SQL integration runs.
-        FinalizedRun committed = await CreateCommittedRunAsync($"REQ-GOV-NEG-REJ-{Guid.NewGuid():N}");
+        FinalizedRun committed = await CreateCommittedRunAsync(TestRequestIds.ForScenario(nameof(GovernanceNegativePathIntegrationTests)));
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
             manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submit.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
+                GovernanceApprovalResponseDto? submitted =
             await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(
@@ -83,7 +77,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Double_promote_to_prod_with_same_approval_returns_bad_request_tb297()
     {
-        FinalizedRun committed = await CreateCommittedRunAsync("REQ-GOV-NEG-DBL-01");
+        FinalizedRun committed = await CreateCommittedRunAsync(TestRequestIds.ForScenario(nameof(GovernanceNegativePathIntegrationTests)));
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -92,8 +86,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             targetEnvironment: "prod",
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submit.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
+                GovernanceApprovalResponseDto? submitted =
             await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(
@@ -133,7 +126,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Promote_with_stale_manifest_version_returns_bad_request_tb297()
     {
-        FinalizedRun committed = await CreateCommittedRunAsync("REQ-GOV-NEG-STALE-01");
+        FinalizedRun committed = await CreateCommittedRunAsync(TestRequestIds.ForScenario(nameof(GovernanceNegativePathIntegrationTests)));
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -142,8 +135,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             targetEnvironment: "prod",
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
-        await submit.EnsureSuccessForTestAsync();
-        GovernanceApprovalResponseDto? submitted =
+                GovernanceApprovalResponseDto? submitted =
             await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(

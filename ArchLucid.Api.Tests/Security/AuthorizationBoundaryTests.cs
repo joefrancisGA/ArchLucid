@@ -24,7 +24,7 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
         using HttpClient client = CreateReaderClient();
 
         using HttpResponseMessage response = await client.PostArchitectureRequestForTestAsync(
-            TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"));
+            TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(AuthorizationBoundaryTests))));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

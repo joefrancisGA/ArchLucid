@@ -88,7 +88,50 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Sum of unique allowlisted harness source files across all guard sets (growth ratchet).</summary>
-    internal const int MaxHarnessAllowlistedSourceFiles = 42;
+    internal const int MaxHarnessAllowlistedSourceFiles = 41;
+
+    private static readonly Regex TupleReturnTypeRegex = new(
+        @"Task<\(\s*string\s+\w+\s*,\s*string\s+\w+\s*\)>",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RedundantEnsureBeforeReadJsonRegex = new(
+        @"await\s+\w+\.EnsureSuccessForTestAsync\s*\(\s*\)\s*;\s*\r?\n\s*\w+\?\s+\w+\s*=\s*await\s+\w+\.ReadJsonForTestAsync",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex PostReviewReplayAsyncRegex = new(
+        @"\bPostReviewReplayAsync\s*\(",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex HardcodedRequestIdRegex = new(
+        @"""(REQ-[A-Z][A-Z0-9-]{4,})""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly HashSet<string> PostReviewReplayAsyncAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: tests replay protocol and manifest override semantics.
+        nameof(ArchitectureReplayTests) + ".cs",
+        nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",
+        nameof(IntegrationTestBase) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> HardcodedRequestIdAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: asserts intake payload request ids and idempotency matrix literals.
+        nameof(ArchitectureControllerTests) + ".cs",
+        // harness-allowlist: replay session fixture default parameter values.
+        nameof(ReplaySession) + ".cs",
+        // harness-allowlist: greenfield warm prefix literal for shard overload primer.
+        nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
+        nameof(ComparisonReplayCostEstimateIntegrationTests) + ".cs",
+        nameof(FixtureLoader) + ".cs",
+        nameof(GreenfieldSqlBootIntegrationTests) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+        nameof(ReplaySession) + ".cs",
+        nameof(TestRequestFactory) + ".cs",
+    };
 
     private static readonly HashSet<string> LifecycleSupportExclusions = new(StringComparer.Ordinal)
     {
@@ -379,6 +422,87 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         }
 
         return violations;
+    }
+
+    internal static List<string> ScanTupleReturnTypesInHarnessTests()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content => IsHarnessTestSource(content) && TupleReturnTypeRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanRedundantEnsureSuccessBeforeReadJson()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content => RedundantEnsureBeforeReadJsonRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanPostReviewReplayAsyncInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (PostReviewReplayAsyncAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!PostReviewReplayAsyncRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanHardcodedRequestIdsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (HardcodedRequestIdAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (content.Contains("TestRequestIds.ForScenario", StringComparison.Ordinal))
+                continue;
+
+            if (!HardcodedRequestIdRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanAllowlistCommentMarkersPresent()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        string path = Path.Combine(repoRoot, nameof(ArchLucid) + ".Api.Tests", nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs");
+        string content = File.ReadAllText(path);
+
+        if (content.Contains("harness-allowlist:", StringComparison.Ordinal))
+            return [];
+
+        return [path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal)];
     }
 
     internal static List<string> ScanUnbootstrappedCreateClientInHarnessTests()

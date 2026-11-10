@@ -16,7 +16,7 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task AnalysisReport_ReturnsUnifiedReport()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-ANALYSIS-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAnalysisReportTests)));
         var request = new
         {
             includeEvidence = true,

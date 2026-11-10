@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -16,7 +16,7 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
     [SkippableFact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-VERIFY-422-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ComparisonReplayVerify422Tests)));
         PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
         string comparisonRecordId = persisted.ComparisonRecordId;
 

@@ -21,7 +21,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-DOCX-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAnalysisDocxTests)));
         var request = new
         {
             includeEvidence = true,
@@ -52,7 +52,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-DOCX-ASYNC-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAnalysisDocxTests)));
         var request = new
         {
             includeEvidence = true,

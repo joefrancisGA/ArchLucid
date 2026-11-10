@@ -78,6 +78,10 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task<FinalizedRun> CreateFinalizedRunAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
+    /// <summary>Preferred alias: create → execute → finalize (<see cref="CreateFinalizedRunAsync" />).</summary>
+    protected Task<FinalizedRun> FinalizeLifecycleAsync(string scenario) =>
+        ArchitectureScenario.FinalizedAsync(Client, Factory, JsonOptions, scenario);
+
     /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
     protected Task<HttpResponseMessage> PostComparisonReplayAsync(string comparisonRecordId, string format = "markdown") =>
         Client.PostComparisonReplayForTestAsync(comparisonRecordId, format);

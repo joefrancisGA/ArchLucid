@@ -40,11 +40,10 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
             .ConfigureAwait(false);
 
-        const string requestId = "REQ-PR-A2-COHORT-DEMO-001";
+        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureRunCommitPathParityIntegrationTests));
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
+                CreateRunResponseDto? created =
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;

@@ -26,7 +26,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFact
     [SkippableFact]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-VERIFY-DRIFT-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ComparisonReplayVerifyDriftIntegrationTests)));
         PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
         string comparisonRecordId = persisted.ComparisonRecordId;
 

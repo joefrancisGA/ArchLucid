@@ -54,7 +54,7 @@ public sealed class ArchitectureControllerTests
     {
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
-            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-002"));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureControllerTests))));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -80,7 +80,7 @@ public sealed class ArchitectureControllerTests
     {
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
-            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-003"));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureControllerTests))));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
@@ -155,7 +155,7 @@ public sealed class ArchitectureControllerTests
     {
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
-            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC"));
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureControllerTests))));
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
