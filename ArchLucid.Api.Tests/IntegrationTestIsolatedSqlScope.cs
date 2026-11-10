@@ -12,9 +12,8 @@ public static class IntegrationTestIsolatedSqlScope
         ArgumentNullException.ThrowIfNull(act);
 
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = await factory.CreateBoundedClientAsync().ConfigureAwait(false);
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-        await IntegrationTestWorkspaceModeSupport.PinGuidedWorkspaceModeForDevUserAsync(factory).ConfigureAwait(false);
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
+            .ConfigureAwait(false);
         await act(client, factory).ConfigureAwait(false);
     }
 

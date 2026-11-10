@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,73 +17,63 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class CommitRunConcurrencyIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Parallel_commits_after_execute_all_succeed_with_same_manifest_version()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
+        {
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
                 TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-PAR-" + Guid.NewGuid().ToString("N")[..8]));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+            await createResponse.EnsureSuccessForTestAsync();
+            CreateRunResponseDto? created =
+                await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            string runId = created!.Run.RunId;
 
-        await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
-        await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(client, runId);
-        const int parallel = 8;
-        Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
+            await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
+            await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(client, runId);
+            const int parallel = 8;
+            Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
 
-        for (int i = 0; i < parallel; i++)
-        {
-            tasks[i] = client.PostFinalizeForTestAsync(factory, runId);
-        }
-
-        HttpResponseMessage[] responses = await Task.WhenAll(tasks);
-
-        try
-        {
-            string? manifestVersion = null;
-
-            foreach (HttpResponseMessage response in responses)
+            for (int i = 0; i < parallel; i++)
             {
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                tasks[i] = client.PostFinalizeForTestAsync(factory, runId);
+            }
 
-                CommitRunResponseDto? payload =
-                    await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-                payload.Should().NotBeNull();
-                payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+            HttpResponseMessage[] responses = await Task.WhenAll(tasks);
 
-                if (manifestVersion is null)
+            try
+            {
+                string? manifestVersion = null;
+
+                foreach (HttpResponseMessage response in responses)
                 {
-                    manifestVersion = payload.Manifest.Metadata.ManifestVersion;
-                }
-                else
-                {
-                    payload.Manifest.Metadata.ManifestVersion.Should().Be(manifestVersion);
+                    response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                    CommitRunResponseDto? payload =
+                        await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+                    payload.Should().NotBeNull();
+                    payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+
+                    if (manifestVersion is null)
+                    {
+                        manifestVersion = payload.Manifest.Metadata.ManifestVersion;
+                    }
+                    else
+                    {
+                        payload.Manifest.Metadata.ManifestVersion.Should().Be(manifestVersion);
+                    }
                 }
             }
-        }
-        finally
-        {
-            foreach (HttpResponseMessage response in responses)
+            finally
             {
-                response.Dispose();
+                foreach (HttpResponseMessage response in responses)
+                {
+                    response.Dispose();
+                }
             }
-        }
+        });
     }
 }

@@ -21,7 +21,7 @@ public sealed class AdminAgentOutputQualityGateModeEndpointTests(ApiKeyReaderAnd
     {
         using HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        IntegrationTestSqlClientBootstrap.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage put = await client.PutAsJsonAsync(
             "/v1/admin/settings/agent-output-quality-gate-mode",
@@ -50,7 +50,7 @@ public sealed class AdminAgentOutputQualityGateModeEndpointTests(ApiKeyReaderAnd
     {
         using HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        IntegrationTestSqlClientBootstrap.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage put = await client.PutAsJsonAsync(
             "/v1/admin/settings/agent-output-quality-gate-mode",

@@ -48,8 +48,8 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
     private static async Task<CohortArtifacts> CaptureCohortAsync()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
+            .ConfigureAwait(false);
 
         const string requestId = "REQ-PR-A2-COHORT-DEMO-001";
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));

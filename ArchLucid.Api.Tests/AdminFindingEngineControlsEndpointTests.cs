@@ -21,7 +21,7 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
     {
         using HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        IntegrationTestSqlClientBootstrap.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage put = await client.PutAsJsonAsync(
             "/v1/admin/settings/finding-engine-controls",
@@ -59,7 +59,7 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
     {
         using HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        IntegrationTestSqlClientBootstrap.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage put = await client.PutAsJsonAsync(
             "/v1/admin/settings/finding-engine-controls",

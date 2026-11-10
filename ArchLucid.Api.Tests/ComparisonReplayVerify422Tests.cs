@@ -17,7 +17,8 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
         CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-VERIFY-422-001");
-        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
+        PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
+        string comparisonRecordId = persisted.ComparisonRecordId;
 
         string body =
             JsonSerializer.Serialize(new { format = "markdown", replayMode = "verify", persistReplay = false });

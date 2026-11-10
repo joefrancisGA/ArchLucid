@@ -283,9 +283,10 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 | Greenfield SQL with transient 503 retry + unique idempotency key | `PostGreenfieldArchitectureRequestForTestAsync` |
 | Run through execute (and optional finalize) for most lifecycle tests | `CreateFinalizedRunAsync` / `CreateFinalizedRunForTestAsync` → **`FinalizedRun`** |
 | Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync` → assign **`CommittedReplayPair`**; use **`pair.RunId`** / **`pair.ReplayRunId`**, not anonymous tuples) |
-| Per-test isolated SQL factory (no class fixture) | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
+| SQL integration client (bounded + scope headers + workspace pin) | **`IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync`** |
+| Per-test isolated SQL factory (no class fixture) | **`IntegrationTestIsolatedSqlScope.RunAsync`** (uses bootstrap internally) |
 | Isolated SQL + comparison replay setup | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
-| Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** / **`PostEndToEndCompareSummaryForTestAsync`** |
+| Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** → **`PersistedComparison`** / **`PostEndToEndCompareSummaryForTestAsync`** |
 | End-to-end compare export (markdown, docx, file) | **`GetEndToEndCompareExport*ForTestAsync`** / **`EndToEndCompareExport*RelativeUrl`** |
 | Deserialize JSON after HTTP success | **`ReadJsonForTestAsync`** on **`HttpResponseMessage`** |
 | JSON body outside `IntegrationTestBase.JsonContent` | **`IntegrationTestHttpContent.CreateJson`** with **`IntegrationTestBase.CreateApiJsonOptions()`** |
