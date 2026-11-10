@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -48,10 +47,8 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     {
         CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-E2E-RANGE-001");
 
-        using HttpRequestMessage req = new(
-            HttpMethod.Get,
-            IntegrationTestRunLifecycleSupport.EndToEndCompareExportFileRelativeUrl(pair.RunId, pair.ReplayRunId));
-        req.Headers.Range = new RangeHeaderValue(0, 15);
+        using HttpRequestMessage req = IntegrationTestRunLifecycleSupport
+            .CreateEndToEndCompareExportFileRangeGetRequestForTest(pair.RunId, pair.ReplayRunId, 0, 15);
 
         HttpResponseMessage response = await Client.SendAsync(req);
 

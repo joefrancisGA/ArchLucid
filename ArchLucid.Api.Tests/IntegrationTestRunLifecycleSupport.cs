@@ -125,6 +125,17 @@ public static class IntegrationTestRunLifecycleSupport
         CancellationToken cancellationToken = default) =>
         client.GetAsync(EndToEndCompareExportFileRelativeUrl(leftRunId, rightRunId), cancellationToken);
 
+    /// <summary>GET export/file with a byte range (partial content tests).</summary>
+    public static HttpRequestMessage CreateEndToEndCompareExportFileRangeGetRequestForTest(
+        string leftRunId,
+        string rightRunId,
+        long rangeStartInclusive,
+        long rangeEndInclusive) =>
+        new(HttpMethod.Get, EndToEndCompareExportFileRelativeUrl(leftRunId, rightRunId))
+        {
+            Headers = { Range = new System.Net.Http.Headers.RangeHeaderValue(rangeStartInclusive, rangeEndInclusive) }
+        };
+
     /// <summary>POST end-to-end compare summary with an optional JSON body (e.g. <c>persist</c> flag).</summary>
     public static Task<HttpResponseMessage> PostEndToEndCompareSummaryForTestAsync(
         this HttpClient client,

@@ -292,7 +292,7 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 | JSON body outside `IntegrationTestBase.JsonContent` | **`IntegrationTestHttpContent.CreateJson`** with **`IntegrationTestBase.CreateApiJsonOptions()`** (required in harness-tagged tests; guard-enforced) |
 | Assert HTTP success with CI-friendly logs | `EnsureSuccessForTestAsync` (not `EnsureSuccessStatusCode`) |
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, twelve facts) centralizes harness golden-path rules (lifecycle URLs, intake POSTs, end-to-end compare summary/export URLs, `CommittedReplayPair`, `CreateApiJsonOptions`, execute-before-finalize pin refresh, greenfield intake dedupe, `EnsureSuccessForTestAsync`).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, thirteen facts) centralizes harness golden-path rules (lifecycle URLs, intake POSTs, end-to-end compare summary/export URLs, `CommittedReplayPair`, `CreateApiJsonOptions`, SQL client bootstrap, execute-before-finalize pin refresh, greenfield intake dedupe, `EnsureSuccessForTestAsync`).
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

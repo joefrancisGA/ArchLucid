@@ -131,6 +131,16 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
     };
 
+    private static readonly HashSet<string> UnbootstrappedCreateClientAllowlist = new(StringComparer.Ordinal)
+    {
+        nameof(AdminAgentOutputQualityGateModeEndpointTests) + ".cs",
+        nameof(AdminFindingEngineControlsEndpointTests) + ".cs",
+        "AuthorizationBoundaryTests.cs",
+        nameof(CommitRunRequiresCommitPermissionTests) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
     internal static List<string> ScanRawFinalizeUrls()
     {
         return ScanContentViolations(
@@ -280,6 +290,48 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
         return violations;
     }
+
+    internal static List<string> ScanUnbootstrappedCreateClientInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (UnbootstrappedCreateClientAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!RequiresSqlClientBootstrapHarness(content))
+                continue;
+
+            if (!content.Contains("factory.CreateClient()", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains("IntegrationTestSqlClientBootstrap", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static bool RequiresSqlClientBootstrapHarness(string content) =>
+        content.Contains("PostArchitectureRequestForTestAsync", StringComparison.Ordinal)
+        || content.Contains("PostFinalizeForTestAsync", StringComparison.Ordinal)
+        || content.Contains("CommitAndReplayAsync", StringComparison.Ordinal)
+        || content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal)
+        || content.Contains(": IntegrationTestBase", StringComparison.Ordinal);
 
     private static bool IsHarnessTestSource(string content) =>
         content.Contains("PostArchitectureRequestForTestAsync", StringComparison.Ordinal)

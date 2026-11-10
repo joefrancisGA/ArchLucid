@@ -1,8 +1,4 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Models;
-using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
@@ -17,29 +13,13 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetManifestSummary_IncludesEvidenceContext()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-EVIDENCE-001"));
-
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
-        HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-SUMMARY-EVIDENCE-001");
 
         // Evidence is appended on the dedicated endpoint; the default markdown summary is options-driven and evidence-agnostic.
-        HttpResponseMessage summaryResponse = await Client.GetAsync(
-            $"/v1/architecture/manifest/{manifestVersion}/summary/evidence");
-
-        summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ManifestMarkdownDocumentResponse? summaryPayload =
-            await summaryResponse.Content.ReadFromJsonAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
-        summaryPayload.Should().NotBeNull();
+        ManifestMarkdownDocumentResponse summaryPayload = await (
+            await Client.GetAsync(
+                $"/v1/architecture/manifest/{Uri.EscapeDataString(finalized.ManifestVersion)}/summary/evidence"))
+            .ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
         summaryPayload.Summary.Should().Contain("## Evidence Context");
         summaryPayload.Summary.Should().Contain("### Policy Evidence");
         summaryPayload.Summary.Should().Contain("### Service Catalog Hints");
