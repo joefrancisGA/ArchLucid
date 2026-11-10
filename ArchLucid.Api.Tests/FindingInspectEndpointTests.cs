@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
@@ -12,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -20,32 +18,14 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
-
 {
-    private static string DemoPrimaryFindingId =>
-        $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
-
-
-    /// <summary>
-    ///     Startup seed is optional (Demo:SeedOnStartup / Demo:Enabled may be off via user secrets); tests that need
-    ///     Contoso baseline rows must seed explicitly like <see cref="DemoSeedServiceTests" />.
-    /// </summary>
-    private async Task EnsureDemoBaselineSeededAsync()
-
-    {
-        using IServiceScope serviceScope = Factory.Services.CreateScope();
-
-        await serviceScope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
-    }
-
-
     /// <summary>Regression: after explicit seed, authority read-model exposes findings for the inspect repository.</summary>
     [SkippableFact]
     public async Task Demo_baseline_run_detail_has_findings_after_explicit_seed()
-
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
         using IServiceScope serviceScope = Factory.Services.CreateScope();
 
@@ -57,7 +37,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         RunDetailDto? detail = await authority.GetRunDetailAsync(
             scope,
-            ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
+            HarnessDemoBaselineSupport.AuthorityRunId,
             CancellationToken.None);
 
         detail.Should().NotBeNull();
@@ -67,21 +47,19 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
         detail.FindingsSnapshot!.Findings.Should().NotBeEmpty();
     }
 
-
     [SkippableFact]
     public async Task GetFindingInspect_when_seeded_returns_200_with_contract_shape()
-
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        HttpResponseMessage response = await Client.GetFindingInspectHttpAsync(DemoPrimaryFindingId);
+        HttpResponseMessage response = await Client.GetFindingInspectHttpAsync(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
         FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 
-        body.FindingId.Should().Be(DemoPrimaryFindingId);
+        body.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        body.RunId.Should().Be(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId);
+        body.RunId.Should().Be(HarnessDemoBaselineSupport.AuthorityRunId);
 
         body.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 
@@ -92,54 +70,46 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
         body.Evidence.Should().NotBeNull();
     }
 
-
     [SkippableFact]
     public async Task GetFindingInspectForRun_when_seeded_matching_route_run_returns_200()
-
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        Guid baselineRunGuid = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+        Guid baselineRunGuid = HarnessDemoBaselineSupport.AuthorityRunId;
 
         HttpResponseMessage response =
-            await Client.GetReviewScopedFindingInspectHttpAsync(baselineRunGuid, DemoPrimaryFindingId);
+            await Client.GetReviewScopedFindingInspectHttpAsync(baselineRunGuid, HarnessDemoBaselineSupport.DemoPrimaryFindingId);
         FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 
         body.RunId.Should().Be(baselineRunGuid);
 
-        body.FindingId.Should().Be(DemoPrimaryFindingId);
+        body.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
     }
-
 
     [SkippableFact]
     public async Task GetFindingInspectForRun_when_route_run_mismatch_returns_404()
-
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
         HttpResponseMessage response = await Client.GetReviewScopedFindingInspectHttpAsync(
             HarnessWellKnownGuids.MismatchedRunForScopedFindingInspect,
-            DemoPrimaryFindingId);
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
-
 
     [SkippableFact]
     public async Task GetFindingInspect_when_unknown_returns_404()
-
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/findings/does-not-exist/inspect");
+        HttpResponseMessage response = await Client.GetFindingInspectHttpAsync("does-not-exist");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-
     [SkippableFact]
     public async Task GetFindingInspect_anonymous_api_key_mode_returns_401()
-
     {
         await using HealthEndpointSecurityApiFactory factory = new();
 
@@ -147,15 +117,13 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         WireDefaultSqlIntegrationScopeHeaders(client);
 
-        HttpResponseMessage response = await client.GetFindingInspectHttpAsync(DemoPrimaryFindingId);
+        HttpResponseMessage response = await client.GetFindingInspectHttpAsync(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-
     [SkippableFact]
     public async Task GetFindingInspect_when_role_outside_read_authority_returns_403()
-
     {
         await using NoReadAuthorityRoleApiFactory factory = new();
 
@@ -163,21 +131,18 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         WireDefaultSqlIntegrationScopeHeaders(client);
 
-        HttpResponseMessage response = await client.GetFindingInspectHttpAsync(DemoPrimaryFindingId);
+        HttpResponseMessage response = await client.GetFindingInspectHttpAsync(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
-
 
     /// <summary>
     ///     DevelopmentBypass principal with a role that does not satisfy
     ///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ReadAuthority" />.
     /// </summary>
     private sealed class NoReadAuthorityRoleApiFactory : ArchLucidApiFactory
-
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
-
         {
             base.ConfigureWebHost(builder);
 

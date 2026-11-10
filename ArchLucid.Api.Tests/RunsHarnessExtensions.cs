@@ -35,6 +35,31 @@ public static class RunsHarnessExtensions
         return client.GetAsync($"/v1/runs/{runGuid:D}/review-trail", cancellationToken);
     }
 
+    public static Task<HttpResponseMessage> PostRunFindingInsightSignalHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        string findingId,
+        HttpContent? content,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(findingId);
+
+        return client.PostAsync($"/v1/runs/{runGuid:D}/findings/{findingId}/insight-signal", content, cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetRunFindingInsightSignalHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        string findingId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(findingId);
+
+        return client.GetAsync($"/v1/runs/{runGuid:D}/findings/{findingId}/insight-signal", cancellationToken);
+    }
+
     public static async Task<string> ReadRunsListBodyAsync(
         this HttpClient client,
         int take = 20,

@@ -65,7 +65,7 @@ public sealed class InsightDensityNoveltyRatesEndpointTests(ArchLucidApiFactory 
         using HttpClient foreignClient = Factory.CreateClient();
         foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
             "x-tenant-id",
-            Guid.Parse("77777777-7777-7777-7777-777777777777").ToString("D"));
+            HarnessWellKnownTenants.ForeignTenantHeaderValue);
         foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
             "x-workspace-id",
             Guid.Parse("88888888-8888-8888-8888-888888888888").ToString("D"));

@@ -1,7 +1,5 @@
 using System.Net;
-using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 
@@ -16,57 +14,60 @@ namespace ArchLucid.Api.Tests;
 /// <summary>HTTP coverage for run-scoped finding insight signals (DX-13).</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private static string DemoPrimaryFindingId =>
-        $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
-
-    private async Task EnsureDemoBaselineSeededAsync()
-    {
-        using IServiceScope serviceScope = Factory.Services.CreateScope();
-        await serviceScope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
-    }
-
     [SkippableFact]
     public async Task PostInsightSignal_when_seeded_returns_204_and_get_lists_kind()
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
 
-        HttpResponseMessage postResponse = await Client.PostAsJsonAsync(
-            $"/v1/runs/{runId:D}/findings/{DemoPrimaryFindingId}/insight-signal",
-            body,
-            JsonOptions);
+        HttpResponseMessage postResponse = await Client.PostRunFindingInsightSignalHttpAsync(
+            runId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         postResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        HttpResponseMessage getResponse = await Client.GetAsync(
-            $"/v1/runs/{runId:D}/findings/{DemoPrimaryFindingId}/insight-signal");        FindingInsightSignalStatusResponse? status =
+        HttpResponseMessage getResponse = await Client.GetRunFindingInsightSignalHttpAsync(
+            runId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
+
+        FindingInsightSignalStatusResponse? status =
             await getResponse.ReadJsonForTestAsync<FindingInsightSignalStatusResponse>(JsonOptions);
 
         status.Should().NotBeNull();
+
         status!.Kinds.Should().Contain(FindingInsightSignalKind.DidNotThinkOfThat);
     }
 
     [SkippableFact]
     public async Task PostInsightSignal_second_click_is_idempotent_for_same_kind()
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
-        string url = $"/v1/runs/{runId:D}/findings/{DemoPrimaryFindingId}/insight-signal";
 
-        HttpResponseMessage first = await Client.PostAsJsonAsync(url, body, JsonOptions);
-        HttpResponseMessage second = await Client.PostAsJsonAsync(url, body, JsonOptions);
+        HttpResponseMessage first = await Client.PostRunFindingInsightSignalHttpAsync(
+            runId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
+
+        HttpResponseMessage second = await Client.PostRunFindingInsightSignalHttpAsync(
+            runId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         first.StatusCode.Should().Be(HttpStatusCode.NoContent);
         second.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         FindingInsightSignalStatusResponse status = await (
-            await Client.GetAsync(url)).ReadJsonForTestAsync<FindingInsightSignalStatusResponse>(JsonOptions);
+            await Client.GetRunFindingInsightSignalHttpAsync(runId, HarnessDemoBaselineSupport.DemoPrimaryFindingId))
+            .ReadJsonForTestAsync<FindingInsightSignalStatusResponse>(JsonOptions);
 
         status.Kinds.Count(kind => kind == FindingInsightSignalKind.DidNotThinkOfThat).Should().Be(1);
     }
@@ -74,15 +75,15 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task PostInsightSignal_when_finding_unknown_returns_404()
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
 
-        HttpResponseMessage response = await Client.PostAsJsonAsync(
-            $"/v1/runs/{runId:D}/findings/does-not-exist/insight-signal",
-            body,
-            JsonOptions);
+        HttpResponseMessage response = await Client.PostRunFindingInsightSignalHttpAsync(
+            runId,
+            "does-not-exist",
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -93,10 +94,10 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
         Guid unknownRunId = HarnessWellKnownGuids.MismatchedRunForScopedFindingInspect;
 
-        HttpResponseMessage response = await Client.PostAsJsonAsync(
-            $"/v1/runs/{unknownRunId:D}/findings/{DemoPrimaryFindingId}/insight-signal",
-            body,
-            JsonOptions);
+        HttpResponseMessage response = await Client.PostRunFindingInsightSignalHttpAsync(
+            unknownRunId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -104,15 +105,16 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task PostInsightSignal_when_other_tenant_scope_returns_404()
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
 
         using HttpClient foreignClient = Factory.CreateClient();
+
         foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
             "x-tenant-id",
-            Guid.Parse("77777777-7777-7777-7777-777777777777").ToString("D"));
+            HarnessWellKnownTenants.ForeignTenantHeaderValue);
         foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
             "x-workspace-id",
             ScopeIds.DefaultWorkspace.ToString("D"));
@@ -120,10 +122,10 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
             "x-project-id",
             ScopeIds.DefaultProject.ToString("D"));
 
-        HttpResponseMessage response = await foreignClient.PostAsJsonAsync(
-            $"/v1/runs/{runId:D}/findings/{DemoPrimaryFindingId}/insight-signal",
-            body,
-            JsonOptions);
+        HttpResponseMessage response = await foreignClient.PostRunFindingInsightSignalHttpAsync(
+            runId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -131,8 +133,9 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task PostInsightSignal_when_body_missing_returns_400()
     {
-        HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/runs/{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:D}/findings/{DemoPrimaryFindingId}/insight-signal",
+        HttpResponseMessage response = await Client.PostRunFindingInsightSignalHttpAsync(
+            HarnessDemoBaselineSupport.AuthorityRunId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
             null);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -149,10 +152,10 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
 
         RecordFindingInsightSignalRequest body = new() { Kind = FindingInsightSignalKind.DidNotThinkOfThat };
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/v1/runs/{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:D}/findings/{DemoPrimaryFindingId}/insight-signal",
-            body,
-            JsonOptions);
+        HttpResponseMessage response = await client.PostRunFindingInsightSignalHttpAsync(
+            HarnessDemoBaselineSupport.AuthorityRunId,
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
