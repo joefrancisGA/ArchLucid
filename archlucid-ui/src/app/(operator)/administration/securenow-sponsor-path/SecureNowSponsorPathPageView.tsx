@@ -19,6 +19,10 @@ import {
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
+import {
+  SECURENOW_SPONSOR_PATH_NO_PATH_LEAD,
+  SECURENOW_SPONSOR_PATH_NO_PATH_REHEARSAL_HEADING,
+} from "@/lib/product-line/securenow-sponsor-path-no-path-copy";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -29,6 +33,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
   const [tenantAuditSaved, setTenantAuditSaved] = useState(false);
+  const [rehearsalOutcome, setRehearsalOutcome] = useState("");
 
   useEffect(() => {
     if (pathId.length === 0) {
@@ -98,11 +103,42 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
       />
       <main className="mt-6 max-w-4xl space-y-6">
         {pathId.length === 0 ? (
-          <p className={OPERATOR_TYPOGRAPHY.body}>
-            <Link className={OPERATOR_LINK.inline} href="/security/remediation-factory">
-              Select a ranked path in Path inspect.
-            </Link>
-          </p>
+          <section className="space-y-3" data-testid="securenow-sponsor-path-no-path">
+            <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_SPONSOR_PATH_NO_PATH_LEAD}</p>
+            <p className={OPERATOR_TYPOGRAPHY.body}>
+              <Link className={OPERATOR_LINK.inline} href="/security/remediation-factory">
+                Open Path inspect in the remediation factory
+              </Link>
+            </p>
+            <section aria-labelledby="securenow-sponsor-path-rehearsal-heading" className="space-y-2">
+              <h2 id="securenow-sponsor-path-rehearsal-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                {SECURENOW_SPONSOR_PATH_NO_PATH_REHEARSAL_HEADING}
+              </h2>
+              <label className="block space-y-1">
+                <span className={OPERATOR_TYPOGRAPHY.helper}>Outcome (rehearsal only)</span>
+                <select
+                  className="w-full rounded border border-border bg-background px-3 py-2"
+                  value={rehearsalOutcome}
+                  onChange={(event) => setRehearsalOutcome(event.target.value)}
+                  aria-label="Path disposition outcome rehearsal"
+                >
+                  <option value="">Select an outcome</option>
+                  <option value="Proceed">Proceed</option>
+                  <option value="Extend">Extend</option>
+                  <option value="Stop">Stop</option>
+                </select>
+              </label>
+              <SecureNowPilotDispositionOutcomeRehearsalPanels
+                outcome={rehearsalOutcome}
+                savedOutcome={null}
+                savedRationale={null}
+                pathId=""
+                testIdPrefix="securenow-sponsor-path-no-path"
+                stopHandoffTestId="securenow-sponsor-path-no-path-stop-handoff"
+              />
+            </section>
+            <SecureNowProcurementTrustStrip />
+          </section>
         ) : (
           <>
             <SecurityEvidencePathInspectPanel
