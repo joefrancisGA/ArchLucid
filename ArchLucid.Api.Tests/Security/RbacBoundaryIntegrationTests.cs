@@ -322,6 +322,15 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
             return true;
         }
 
+        // Ensure the protected bundled-policy-pack activation route is probed;
+        // never classify this parameter as an untestable endpoint.
+        if (string.Equals(name, "bundleContentFile", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "rbac-probe.json";
+
+            return true;
+        }
+
         if (string.Equals(name, "packVersion", StringComparison.OrdinalIgnoreCase))
         {
             value = "1.0.0";
