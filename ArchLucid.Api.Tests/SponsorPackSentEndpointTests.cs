@@ -17,7 +17,7 @@ public sealed class SponsorPackSentEndpointTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task PostSponsorPackSent_WhenRunUnknown_Returns404Problem()
     {
-        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid runId = HarnessWellKnownGuids.UnknownRunForReviewSubresource;
 
         using HttpRequestMessage request = new(
             HttpMethod.Post,

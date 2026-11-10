@@ -284,6 +284,77 @@ public static class FinalizedRunHarnessExtensions
             cancellationToken);
     }
 
+    public static Task<CommittedReplayPair> OpenCommittedReplayPairAsync(
+        this FinalizedRun finalized,
+        ReplaySession replay)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(replay);
+
+        return replay.OpenCommittedPairAsync(finalized.RequestId);
+    }
+
+    public static Task<HttpResponseMessage> GetFindingsExportCsvHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{finalized.RunId}/findings/export/csv", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetTraceabilityBundleZipHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{finalized.RunId}/traceability-bundle.zip", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetFindingEvidenceChainHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        string findingId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(findingId);
+
+        return client.GetAsync(
+            $"/v1/architecture/review/{finalized.RunId}/findings/{findingId}/evidence-chain",
+            cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetStoredEvidenceFilesHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{finalized.RunId}/evidence/files", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> PostEvidenceBulkHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        HttpContent content,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(content);
+
+        return client.PostAsync($"/v1/architecture/review/{finalized.RunId}/evidence/bulk", content, cancellationToken);
+    }
+
     public static Task<HttpResponseMessage> GetExportRecordDiffHttpAsync(
         this FinalizedRun finalized,
         HttpClient client,

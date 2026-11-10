@@ -67,7 +67,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
     {
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, _) =>
         {
-            Guid missingRun = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+            Guid missingRun = HarnessWellKnownGuids.UnknownRunForStoredEvidenceFiles;
 
             HttpResponseMessage response =
                 await client.GetAsync($"/v1/architecture/review/{missingRun:D}/provenance/a-node/explanation");

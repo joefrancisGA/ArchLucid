@@ -15,10 +15,8 @@ public sealed class TraceabilityBundleZipEndpointTests(ArchLucidApiFactory facto
     [SkippableFact]
     public async Task GetTraceabilityBundleZip_WhenRunUnknown_Returns404Problem()
     {
-        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-
-        using HttpResponseMessage res =
-            await Client.GetAsync($"/v1/architecture/review/{runId:D}/traceability-bundle.zip");
+        using HttpResponseMessage res = await Client.GetReviewTraceabilityBundleZipHttpAsync(
+            HarnessWellKnownGuids.UnknownRunForReviewSubresource);
 
         res.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

@@ -14,58 +14,17 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        var executiveRequest = new
-        {
-            templateProfile = "sponsor",
-            audience = "Executives",
-            externalDelivery = true,
-            executiveFriendly = true,
-            regulatedEnvironment = false,
-            needDetailedEvidence = false,
-            needExecutionTraces = false,
-            needDeterminismOrCompareAppendices = false,
-            includeEvidence = true,
-            includeExecutionTraces = false,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null,
-        };
 
-        var internalRequest = new
-        {
-            templateProfile = "internal",
-            audience = "Internal architects",
-            externalDelivery = false,
-            executiveFriendly = false,
-            regulatedEnvironment = false,
-            needDetailedEvidence = true,
-            needExecutionTraces = true,
-            needDeterminismOrCompareAppendices = true,
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = true,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null,
-        };
-
-        HttpResponseMessage executiveExport =
-            await finalized.PostAnalysisReportConsultingDocxHttpAsync(Client, JsonOptions, executiveRequest);
+        HttpResponseMessage executiveExport = await finalized.PostAnalysisReportConsultingDocxHttpAsync(
+            Client,
+            JsonOptions,
+            HarnessConsultingExportRequestFactory.CreateExecutiveSponsorBody());
         await executiveExport.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage internalExport =
-            await finalized.PostAnalysisReportConsultingDocxHttpAsync(Client, JsonOptions, internalRequest);
+        HttpResponseMessage internalExport = await finalized.PostAnalysisReportConsultingDocxHttpAsync(
+            Client,
+            JsonOptions,
+            HarnessConsultingExportRequestFactory.CreateInternalArchitectBody());
         await internalExport.EnsureSuccessForTestAsync();
 
         RunExportHistoryResponse history = await finalized.GetExportsHistoryAsync(Client, JsonOptions);

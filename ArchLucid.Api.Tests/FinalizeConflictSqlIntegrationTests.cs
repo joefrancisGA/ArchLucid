@@ -26,6 +26,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.RouteProtocolTraitCategory, HarnessGoldenPathGuardConstants.RouteProtocolTraitValue)]
 public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlIntegrationApiFactory factory)
     : IntegrationTestBase(factory), IClassFixture<FinalizeConflictSqlIntegrationApiFactory>
 {

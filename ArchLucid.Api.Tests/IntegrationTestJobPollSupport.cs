@@ -39,4 +39,15 @@ public static class IntegrationTestJobPollSupport
 
         return state;
     }
+
+    public static Task<HttpResponseMessage> GetJobFileHttpAsync(
+        HttpClient client,
+        string jobId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrWhiteSpace(jobId);
+
+        return client.GetAsync($"/v1/jobs/{jobId}/file", cancellationToken);
+    }
 }

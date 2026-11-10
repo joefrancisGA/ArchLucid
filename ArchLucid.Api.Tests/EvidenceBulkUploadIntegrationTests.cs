@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 
-using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -22,28 +20,23 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
     [SkippableFact]
     public async Task UploadBulkEvidence_With200Files_ReturnsSuccess_AndAudits()
     {
-        // Arrange
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(EvidenceBulkUploadIntegrationTests))));
-                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        CreatedRunForTest createdRun = await CreateRunForTestAsync();
 
         using var content = new MultipartFormDataContent();
 
         for (int i = 0; i < 200; i++)
         {
-            var fileContent = new ByteArrayContent([1, 2, 3]);
+            ByteArrayContent fileContent = new([1, 2, 3]);
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
             content.Add(fileContent, "files", $"file{i}.txt");
         }
 
-        // Act
-        HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
+        HttpResponseMessage response = await createdRun.PostEvidenceBulkHttpAsync(Client, content);
 
-        // Assert
         string failureBody = await response.Content.ReadAsStringAsync();
         response.StatusCode.Should().Be(HttpStatusCode.OK, failureBody);
 
-        using var scope = Factory.Services.CreateScope();
+        using IServiceScope scope = Factory.Services.CreateScope();
         IAuditRepository auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
         IReadOnlyList<AuditEvent> events = await auditRepo.GetByScopeAsync(
             ScopeIds.DefaultTenant,
@@ -53,7 +46,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
             CancellationToken.None);
 
         List<AuditEvent> bulkEvents = events
-            .Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached)
+            .Where(e => e.RunId == createdRun.RunGuid && e.EventType == AuditEventTypes.EvidenceBulkAttached)
             .ToList();
 
         bulkEvents.Should().HaveCount(1);
@@ -62,7 +55,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         AuditEventFilter payloadFilter = new()
         {
             EventType = AuditEventTypes.EvidenceBulkAttached,
-            RunId = Guid.Parse(runId),
+            RunId = createdRun.RunGuid,
             Take = 10,
             IncludeDataJson = true,
         };
@@ -81,35 +74,37 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
     [SkippableFact]
     public async Task UploadBulkEvidence_With201Files_ReturnsBadRequest_AndNoAudits()
     {
-        // Arrange
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(EvidenceBulkUploadIntegrationTests))));
-                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        CreatedRunForTest createdRun = await CreateRunForTestAsync();
 
         using var content = new MultipartFormDataContent();
 
         for (int i = 0; i < 201; i++)
         {
-            var fileContent = new ByteArrayContent([1, 2, 3]);
+            ByteArrayContent fileContent = new([1, 2, 3]);
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
             content.Add(fileContent, "files", $"file{i}.txt");
         }
 
-        // Act
-        HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
+        HttpResponseMessage response = await createdRun.PostEvidenceBulkHttpAsync(Client, content);
 
-        // Assert
         System.Text.Json.JsonDocument problemDetails = await response.AssertProblemForTestAsync(
             HttpStatusCode.BadRequest,
             ProblemTypes.EvidenceBulkUploadLimitExceeded);
         problemDetails.RootElement.GetProperty("type").GetString().Should()
             .Be(ProblemTypes.EvidenceBulkUploadLimitExceeded);
 
-        using var scope = Factory.Services.CreateScope();
-        var auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
-        var events = await auditRepo.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject, 100, CancellationToken.None);
+        using IServiceScope scope = Factory.Services.CreateScope();
+        IAuditRepository auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();
+        IReadOnlyList<AuditEvent> events = await auditRepo.GetByScopeAsync(
+            ScopeIds.DefaultTenant,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject,
+            100,
+            CancellationToken.None);
 
-        var bulkEvents = events.Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached).ToList();
+        List<AuditEvent> bulkEvents = events
+            .Where(e => e.RunId == createdRun.RunGuid && e.EventType == AuditEventTypes.EvidenceBulkAttached)
+            .ToList();
         bulkEvents.Should().BeEmpty();
     }
 }

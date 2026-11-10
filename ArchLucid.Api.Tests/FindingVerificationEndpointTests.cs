@@ -50,7 +50,7 @@ public sealed class FindingVerificationEndpointTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task PostFindingVerification_when_run_unknown_returns_404()
     {
-        Guid unknownRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid unknownRunId = HarnessWellKnownGuids.MismatchedRunForScopedFindingInspect;
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
             $"/v1/runs/{unknownRunId:D}/finding-verification",
