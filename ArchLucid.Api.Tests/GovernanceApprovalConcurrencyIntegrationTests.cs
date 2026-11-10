@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Parallel governance approve calls: exactly one terminal success; peers receive <c>400</c> or <c>409</c>.
+///     Parallel governance approve calls from distinct reviewer identities: exactly one terminal success; peers receive <c>400</c> or <c>409</c>.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -26,7 +26,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
     }
 
     [SkippableFact]
-    public async Task Thirty_two_parallel_approves_single_ok_terminal_outcome()
+    public async Task Thirty_two_parallel_distinct_approves_single_terminal_outcome()
     {
         string runId = await CreateRunAsync("REQ-GOV-32-" + Guid.NewGuid().ToString("N")[..8]);
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(runId);
@@ -37,11 +37,19 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
         string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve";
 
         const int parallel = 32;
+        // Different reviewer identities are genuinely competing transitions. Identical actor/comment
+        // pairs are intentionally idempotent retries and may all return HTTP 200 for a single mutation.
         Task<HttpResponseMessage>[] tasks = Enumerable.Range(0, parallel)
-            .Select(_ =>
-                PostJsonAsTestActorAsync(url, GovernanceReviewDecisionJsonContent("reviewer-32", "parallel-32"),
-                    "reviewer-32",
-                    "33333333-3333-3333-3333-333333333333"))
+            .Select(index =>
+            {
+                string reviewer = $"reviewer-32-{index:D2}";
+                string actorId = $"33333333-3333-3333-3333-{index + 1:D12}";
+                return PostJsonAsTestActorAsync(
+                    url,
+                    GovernanceReviewDecisionJsonContent(reviewer, $"parallel-32-{index:D2}"),
+                    reviewer,
+                    actorId);
+            })
             .ToArray();
 
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);
@@ -51,8 +59,16 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
             int ok = responses.Count(static r => r.StatusCode == HttpStatusCode.OK);
             int bad = responses.Count(static r => r.StatusCode == HttpStatusCode.BadRequest);
             int conflict = responses.Count(static r => r.StatusCode == HttpStatusCode.Conflict);
-            ok.Should().Be(1);
-            (ok + bad + conflict).Should().Be(parallel);
+            ok.Should().Be(1, "distinct reviewers must not both win the terminal approval transition");
+            (ok + bad + conflict).Should().Be(parallel, "there must be no hidden 5xx or unexpected status");
+
+            using HttpResponseMessage listResponse =
+                await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
+            listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            GovernanceApprovalResponseDto[]? requests =
+                await listResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
+            requests.Should().ContainSingle(x =>
+                x.ApprovalRequestId == submitted.ApprovalRequestId && x.Status == "Approved");
         }
         finally
         {
