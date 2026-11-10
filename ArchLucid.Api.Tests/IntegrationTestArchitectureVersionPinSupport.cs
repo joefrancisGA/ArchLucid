@@ -39,6 +39,7 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             return;
 
         using IServiceScope scope = factory.Services.CreateScope();
+        using IDisposable ambientScope = AmbientScopeContext.Push(DefaultScope);
         await EnsureCreateTimePinFingerprintsForRunAsync(scope.ServiceProvider, runId, runGuid, cancellationToken);
     }
 
