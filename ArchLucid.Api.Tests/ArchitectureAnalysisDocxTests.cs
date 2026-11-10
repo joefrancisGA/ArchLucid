@@ -1,8 +1,4 @@
-using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
@@ -22,24 +18,8 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        var request = new
-        {
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx",
-            JsonContent(request));
+        HttpResponseMessage response = await finalized.PostAnalysisReportDocxHttpAsync(Client, JsonOptions);
 
         response.Content.Headers.ContentType!.MediaType
             .Should().Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
@@ -51,24 +31,8 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        var request = new
-        {
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
 
-        HttpResponseMessage start = await Client.PostAsync(
-            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/async",
-            JsonContent(request));
+        HttpResponseMessage start = await finalized.PostAnalysisReportDocxAsyncJobHttpAsync(Client, JsonOptions);
 
         JsonElement payload = await start.ReadJsonForTestAsync<JsonElement>(JsonOptions);
         payload.TryGetProperty("jobId", out JsonElement jobIdEl).Should().BeTrue();

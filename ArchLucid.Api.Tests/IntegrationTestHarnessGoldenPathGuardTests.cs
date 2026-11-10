@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, forty-one scanner facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, forty-three scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -308,9 +308,25 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_forty_one_scanners()
+    public void Harness_tests_do_not_embed_raw_authority_urls()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(41);
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanRawAuthorityUrlsInHarnessTests(),
+            42,
+            "use AuthorityHarnessExtensions, GetAuthorityRunSummaryAsync, or ListAuthorityReviewsForProjectAsync.");
+    }
+
+    [Fact]
+    public void Authority_allowlist_does_not_grow_without_intent()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.CountAuthorityAllowlistedSourceFiles().Should()
+            .BeLessThanOrEqualTo(IntegrationTestHarnessGoldenPathGuardSupport.MaxAuthorityAllowlistedSourceFiles);
+    }
+
+    [Fact]
+    public void Guard_catalog_lists_forty_three_scanners()
+    {
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(43);
     }
 
     [Fact]

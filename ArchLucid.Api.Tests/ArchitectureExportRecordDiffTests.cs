@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
@@ -37,7 +34,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
             includeManifestCompare = false,
             compareManifestVersion = (string?)null,
             includeAgentResultCompare = false,
-            compareRunId = (string?)null
+            compareRunId = (string?)null,
         };
 
         var internalRequest = new
@@ -60,25 +57,27 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
             includeManifestCompare = false,
             compareManifestVersion = (string?)null,
             includeAgentResultCompare = false,
-            compareRunId = (string?)null
+            compareRunId = (string?)null,
         };
 
-        HttpResponseMessage executiveExport = await Client.PostAsync(
-            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
-            JsonContent(executiveRequest));
+        HttpResponseMessage executiveExport =
+            await finalized.PostAnalysisReportConsultingDocxHttpAsync(Client, JsonOptions, executiveRequest);
         await executiveExport.EnsureSuccessForTestAsync();
-        HttpResponseMessage internalExport = await Client.PostAsync(
-            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
-            JsonContent(internalRequest));
+
+        HttpResponseMessage internalExport =
+            await finalized.PostAnalysisReportConsultingDocxHttpAsync(Client, JsonOptions, internalRequest);
         await internalExport.EnsureSuccessForTestAsync();
+
         RunExportHistoryResponse history = await finalized.GetExportsHistoryAsync(Client, JsonOptions);
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
         string leftId = history.Exports[0].ExportRecordId;
         string rightId = history.Exports[1].ExportRecordId;
 
-        HttpResponseMessage compareResponse = await Client.GetAsync(
-            $"/v1/architecture/review/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");        ExportRecordDiffResponse? payload =
+        HttpResponseMessage compareResponse =
+            await finalized.GetExportRecordDiffHttpAsync(Client, leftId, rightId);
+
+        ExportRecordDiffResponse? payload =
             await compareResponse.ReadJsonForTestAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();

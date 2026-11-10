@@ -1,8 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -17,25 +12,8 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
     public async Task AnalysisReport_ReturnsUnifiedReport()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        var request = new
-        {
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{finalized.RunId}/analysis-report",
-            JsonContent(request));        ArchitectureAnalysisReportResponse? payload =
-            await response.ReadJsonForTestAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
+        ArchitectureAnalysisReportResponse payload = await finalized.PostAnalysisReportAsync(Client, JsonOptions);
         payload.Should().NotBeNull();
         payload.Report.Run.RunId.Should().Be(finalized.RunId);
         payload.Report.Evidence.Should().NotBeNull();
