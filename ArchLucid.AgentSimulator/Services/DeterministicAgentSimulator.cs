@@ -28,7 +28,7 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
 
             try
             {
-                if (!string.Equals(task.RunId, runId, StringComparison.Ordinal))
+                if (!RunIdsMatch(task.RunId, runId))
 
                     throw new InvalidOperationException(
                         $"Task '{task.TaskId}' belongs to run '{task.RunId}', not '{runId}'. " +
@@ -47,6 +47,20 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
         }
 
         return Task.FromResult<IReadOnlyList<AgentResult>>(results);
+    }
+
+    private static bool RunIdsMatch(string? taskRunId, string runId)
+    {
+        bool taskIsGuid = Guid.TryParse(taskRunId, out Guid taskGuid);
+        bool runIsGuid = Guid.TryParse(runId, out Guid runGuid);
+
+        // Persisted identities are GUIDs, but the deterministic simulator also
+        // supports matching opaque labels in existing offline golden scenarios.
+        // Never equate a GUID identity with an opaque label.
+        return taskIsGuid && runIsGuid
+            ? taskGuid == runGuid
+            : !taskIsGuid && !runIsGuid &&
+              string.Equals(taskRunId, runId, StringComparison.Ordinal);
     }
 
     private static AgentResult CreateResultForKey(

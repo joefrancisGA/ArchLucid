@@ -88,16 +88,20 @@ env:
 
 jobs:
   gitleaks:
-    # TEMP (owner 2026-11-07 / RC43 loopci): real gitleaks scan deferred until prod.
-    # Full-history clone + scan was ~10–15m and blocked every downstream job via needs: gitleaks;
-    # keep this job as a fast success so the dependency graph still fans out immediately.
+    # A successful no-op is not secret-scan evidence. Full-history scan is a blocking Tier-0 gate.
     name: "Security: gitleaks (secret scan)"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
-      - name: Skip gitleaks until production gate
-        run: |
-          echo "::notice::Gitleaks scan deferred until prod (RC43 throughput). Re-enable checkout fetch-depth:0 + gacts/gitleaks@v1.3.3 before production."
+      - name: Check out full history for secret detection
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Scan repository history for secrets (blocking)
+        uses: gacts/gitleaks@4fd785dcdaf557fda64e05b0ae033b8f7d82fb81 # v1.3.3, Node 24
+        with:
+          fail-on-error: true
 
   beta-readiness-wiring-guards:
     name: "CI: beta-readiness wiring guards"

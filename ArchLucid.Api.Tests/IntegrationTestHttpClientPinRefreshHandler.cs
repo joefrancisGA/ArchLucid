@@ -22,8 +22,9 @@ internal sealed class IntegrationTestHttpClientPinRefreshHandler : DelegatingHan
         string? runId = TryParseRunIdFromReviewLifecyclePath(request);
         bool isFinalize = runId is not null && IsFinalizePath(request);
         bool isExecute = runId is not null && IsExecutePath(request);
+        bool isReplay = runId is not null && IsReplayPath(request);
 
-        if (isFinalize)
+        if (isFinalize || isReplay)
         {
             await IntegrationTestArchitectureVersionPinSupport
                 .EnsureCurrentPinForRunAsync(_factory, runId!, cancellationToken)
@@ -55,6 +56,13 @@ internal sealed class IntegrationTestHttpClientPinRefreshHandler : DelegatingHan
         return request.Method == HttpMethod.Post
                && request.RequestUri is not null
                && request.RequestUri.AbsolutePath.EndsWith("/execute", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsReplayPath(HttpRequestMessage request)
+    {
+        return request.Method == HttpMethod.Post
+               && request.RequestUri is not null
+               && request.RequestUri.AbsolutePath.EndsWith("/replay", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? TryParseRunIdFromReviewLifecyclePath(HttpRequestMessage request)
