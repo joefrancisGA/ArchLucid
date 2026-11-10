@@ -51,6 +51,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"""/v1/architecture/review/compare/end-to-end/summary",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RawEndToEndCompareExportEmbedRegex = new(
+        @"""/v1/architecture/review/compare/end-to-end/export",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex PostExecuteUnlessRegex = new(
         @"\.PostExecuteUnlessAuthorityPipelineCompleteAsync\s*\(",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -81,7 +85,13 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
         nameof(ArchitectureComparisonAuditTests) + ".cs",
         nameof(ArchitectureEndToEndCompareRunNotFoundTests) + ".cs",
-        nameof(ComparisonPersistConcurrencyIntegrationTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> EndToEndCompareExportAllowlist = new(StringComparer.Ordinal)
+    {
+        nameof(IntegrationTestRunLifecycleSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
     };
 
     private static readonly HashSet<string> PostExecuteUnlessAllowlist = new(StringComparer.Ordinal)
@@ -149,6 +159,11 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal static List<string> ScanRawEndToEndCompareSummaryUrls()
     {
         return ScanFileAllowlistViolations(EndToEndCompareSummaryAllowlist, RawEndToEndCompareSummaryEmbedRegex);
+    }
+
+    internal static List<string> ScanRawEndToEndCompareExportUrls()
+    {
+        return ScanFileAllowlistViolations(EndToEndCompareExportAllowlist, RawEndToEndCompareExportEmbedRegex);
     }
 
     internal static List<string> ScanPostExecuteUnlessBeforeFinalize()

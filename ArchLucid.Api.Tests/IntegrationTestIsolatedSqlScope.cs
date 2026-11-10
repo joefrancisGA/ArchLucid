@@ -17,4 +17,14 @@ public static class IntegrationTestIsolatedSqlScope
         await IntegrationTestWorkspaceModeSupport.PinGuidedWorkspaceModeForDevUserAsync(factory).ConfigureAwait(false);
         await act(client, factory).ConfigureAwait(false);
     }
+
+    /// <summary>Isolated factory plus <see cref="ReplaySession" /> (comparison replay golden path).</summary>
+    public static async Task RunWithReplayAsync(Func<ReplaySession, ArchLucidApiFactory, Task> act)
+    {
+        ArgumentNullException.ThrowIfNull(act);
+
+        await using ArchLucidApiFactory factory = new();
+        ReplaySession replay = await ReplaySession.OpenAsync(factory).ConfigureAwait(false);
+        await act(replay, factory).ConfigureAwait(false);
+    }
 }
