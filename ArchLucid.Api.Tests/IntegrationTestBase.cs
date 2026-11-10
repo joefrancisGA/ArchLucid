@@ -105,11 +105,8 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     ///     Serializes <paramref name="value" /> with <see cref="JsonOptions" /> and returns <see cref="StringContent" />
     ///     suitable for <c>application/json</c> POST bodies.
     /// </summary>
-    protected StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    protected StringContent JsonContent(object value) =>
+        IntegrationTestHttpContent.CreateJson(value, JsonOptions);
 
     /// <summary>
     ///     POST <c>/v1/governance/approval-requests</c> using explicit camelCase JSON keys so binding stays stable across

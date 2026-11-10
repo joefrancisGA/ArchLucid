@@ -84,9 +84,46 @@ public static class IntegrationTestRunLifecycleSupport
             JsonContent.Create(new { format }),
             cancellationToken);
 
+    /// <summary>Query string for left/right run ids on end-to-end compare routes.</summary>
+    public static string EndToEndCompareRunPairQuery(string leftRunId, string rightRunId) =>
+        $"?leftRunId={Uri.EscapeDataString(leftRunId)}&rightRunId={Uri.EscapeDataString(rightRunId)}";
+
     /// <summary>Single source for end-to-end compare summary POST (persist or ad-hoc summary).</summary>
     public static string EndToEndCompareSummaryRelativeUrl(string leftRunId, string rightRunId) =>
-        $"/v1/architecture/review/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(leftRunId)}&rightRunId={Uri.EscapeDataString(rightRunId)}";
+        $"/v1/architecture/review/compare/end-to-end/summary{EndToEndCompareRunPairQuery(leftRunId, rightRunId)}";
+
+    /// <summary>Markdown export JSON endpoint.</summary>
+    public static string EndToEndCompareExportMarkdownRelativeUrl(string leftRunId, string rightRunId) =>
+        $"/v1/architecture/review/compare/end-to-end/export{EndToEndCompareRunPairQuery(leftRunId, rightRunId)}";
+
+    /// <summary>DOCX export endpoint.</summary>
+    public static string EndToEndCompareExportDocxRelativeUrl(string leftRunId, string rightRunId) =>
+        $"/v1/architecture/review/compare/end-to-end/export/docx{EndToEndCompareRunPairQuery(leftRunId, rightRunId)}";
+
+    /// <summary>Markdown file download endpoint (supports range requests).</summary>
+    public static string EndToEndCompareExportFileRelativeUrl(string leftRunId, string rightRunId) =>
+        $"/v1/architecture/review/compare/end-to-end/export/file{EndToEndCompareRunPairQuery(leftRunId, rightRunId)}";
+
+    public static Task<HttpResponseMessage> GetEndToEndCompareExportMarkdownForTestAsync(
+        this HttpClient client,
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken = default) =>
+        client.GetAsync(EndToEndCompareExportMarkdownRelativeUrl(leftRunId, rightRunId), cancellationToken);
+
+    public static Task<HttpResponseMessage> GetEndToEndCompareExportDocxForTestAsync(
+        this HttpClient client,
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken = default) =>
+        client.GetAsync(EndToEndCompareExportDocxRelativeUrl(leftRunId, rightRunId), cancellationToken);
+
+    public static Task<HttpResponseMessage> GetEndToEndCompareExportFileForTestAsync(
+        this HttpClient client,
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken = default) =>
+        client.GetAsync(EndToEndCompareExportFileRelativeUrl(leftRunId, rightRunId), cancellationToken);
 
     /// <summary>POST end-to-end compare summary with an optional JSON body (e.g. <c>persist</c> flag).</summary>
     public static Task<HttpResponseMessage> PostEndToEndCompareSummaryForTestAsync(
