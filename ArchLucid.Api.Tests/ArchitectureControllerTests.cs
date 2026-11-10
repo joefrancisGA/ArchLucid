@@ -63,7 +63,7 @@ public sealed class ArchitectureControllerTests
 
             string runId = created.Run.RunId;
 
-            HttpResponseMessage getResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+            HttpResponseMessage getResponse = await client.GetRunHttpAsync(runId);
 
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -92,7 +92,7 @@ public sealed class ArchitectureControllerTests
 
             if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             {
-                HttpResponseMessage seededRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+                HttpResponseMessage seededRunResponse = await client.GetRunHttpAsync(runId);
                 await seededRunResponse.EnsureSuccessForTestAsync();
                 GetRunResponseDto? seededPayload =
                     await seededRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
@@ -108,7 +108,7 @@ public sealed class ArchitectureControllerTests
             executePayload.RunId.Should().Be(runId);
             executePayload.Results.Should().HaveCount(4);
 
-            HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+            HttpResponseMessage getRunResponse = await client.GetRunHttpAsync(runId);
             await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
@@ -167,7 +167,7 @@ public sealed class ArchitectureControllerTests
 
             if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             {
-                HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+                HttpResponseMessage getRunResponse = await client.GetRunHttpAsync(runId);
                 await getRunResponse.EnsureSuccessForTestAsync();
                 GetRunResponseDto? seededPayload =
                     await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
@@ -246,7 +246,7 @@ public sealed class ArchitectureControllerTests
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
-            HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+            HttpResponseMessage getRunResponse = await client.GetRunHttpAsync(runId);
             await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);

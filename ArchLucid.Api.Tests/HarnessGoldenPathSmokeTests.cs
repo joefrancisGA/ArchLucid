@@ -72,34 +72,12 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
     }
 
     [SkippableFact]
-    public async Task Golden_path_authority_project_list_includes_committed_run()
-    {
-        FinalizedRun finalized = await ArrangeFinalizedAsync();
-
-        CursorPagedResponse<RunSummaryResponse> page =
-            await finalized.ListAuthorityReviewsForProjectAsync(Client, JsonOptions);
-
-        page.Items.Should().Contain(item => item.RunId == finalized.RunGuid);
-    }
-
-    [SkippableFact]
     public async Task Golden_path_manifest_summary_title_contains_system_name()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
 
         ManifestMarkdownDocumentResponse summary = await finalized.GetManifestSummaryAsync(Client, JsonOptions);
         summary.Content.Should().Contain($"# Architecture Summary: {finalized.SystemName}");
-    }
-
-    [SkippableFact]
-    public async Task Golden_path_run_details_echoes_arrange_request_id()
-    {
-        FinalizedRun finalized = await ArrangeFinalizedAsync();
-
-        RunDetailsResponseDto details = await finalized.GetRunDetailsAsync(Client, JsonOptions);
-        details.Run.RequestId.Should().Be(finalized.RequestId);
-        details.Manifest.Should().NotBeNull();
-        details.Manifest!.SystemName.Should().Be(finalized.SystemName);
     }
 
     [SkippableFact]

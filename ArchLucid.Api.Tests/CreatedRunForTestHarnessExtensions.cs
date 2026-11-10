@@ -81,7 +81,18 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(created);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{created.RunId}", cancellationToken);
+        return client.GetRunHttpAsync(created.RunId, cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetRunHttpAsync(
+        this HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(runId);
+
+        return client.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
     }
 
     public static HttpRequestMessage CreateRunGetRequest(this CreatedRunForTest created)

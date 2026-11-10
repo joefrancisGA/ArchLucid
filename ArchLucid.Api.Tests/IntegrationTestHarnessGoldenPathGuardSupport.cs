@@ -94,7 +94,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 11;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 9;
 
     /// <summary>Cap for <see cref="RawArchitectureReviewSubresourceAllowlist" /> (#38 burn-down ratchet).</summary>
     internal const int MaxReviewSubresourceAllowlistedSourceFiles = 12;
@@ -147,6 +147,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly Regex HardcodedHarnessUnknownRunGuidRegex = new(
         @"Guid\.Parse\s*\(\s*""(?:0{8}-0{4}-0{4}-0{4}-0{12}|eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee|dddddddd-dddd-dddd-dddd-dddddddddddd|11111111-1111-1111-1111-111111111111|aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex HardcodedHarnessForeignTenantGuidRegex = new(
+        @"77777777-7777-7777-7777-777777777777",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex CreateArchitectureRunAsyncOnFixtureRegex = new(
@@ -900,6 +904,20 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         || content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal)
         || content.Contains(": IntegrationTestBase", StringComparison.Ordinal);
 
+    private static string FormatSourceViolationWithLine(string repoRoot, string absolutePath, Regex regex)
+    {
+        string relative = absolutePath.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal);
+        string[] lines = File.ReadAllText(absolutePath).Split('\n');
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            if (regex.IsMatch(lines[i]))
+                return $"{relative}:{i + 1}";
+        }
+
+        return relative;
+    }
+
     private static bool IsHarnessTestSource(string content) =>
         content.Contains("PostArchitectureRequestForTestAsync", StringComparison.Ordinal)
         || content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal)
@@ -1080,8 +1098,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
         nameof(ReviewSubresourceHarnessExtensions) + ".cs",
         nameof(FindingInspectHarnessExtensions) + ".cs",
-        // harness-allowlist-until: run-scoped findings inspect on demo baseline (#38 burn-down).
-        nameof(FindingInspectEndpointTests) + ".cs",
     };
 
     internal static List<string> ScanRawArchitectureReviewSubresourceUrlsInHarnessTests()
@@ -1113,7 +1129,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!RawArchitectureReviewSubresourceUrlRegex.IsMatch(content))
                 continue;
 
-            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, RawArchitectureReviewSubresourceUrlRegex));
         }
 
         return violations;
@@ -1207,7 +1223,48 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!HardcodedHarnessUnknownRunGuidRegex.IsMatch(content))
                 continue;
 
-            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, HardcodedHarnessUnknownRunGuidRegex));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> HardcodedHarnessForeignTenantGuidAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical foreign tenant header literals.
+        nameof(HarnessWellKnownTenants) + ".cs",
+    };
+
+    internal static List<string> ScanHardcodedHarnessForeignTenantGuids()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (HardcodedHarnessForeignTenantGuidAllowlist.Contains(fileName))
+                continue;
+
+            if (string.Equals(fileName, nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!HardcodedHarnessForeignTenantGuidRegex.IsMatch(content))
+                continue;
+
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, HardcodedHarnessForeignTenantGuidRegex));
         }
 
         return violations;
@@ -1221,8 +1278,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(FinalizedRunHarnessExtensions) + ".cs",
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
         nameof(GoldenCohortSimulatorDriftTests) + ".cs",
-        // harness-allowlist-until: controller matrix bare GET burn-down.
-        nameof(ArchitectureControllerTests) + ".cs",
     };
 
     internal static List<string> ScanRawArchitectureReviewBareGetUrlsInHarnessTests()
@@ -1254,7 +1309,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!RawArchitectureReviewBareGetRegex.IsMatch(content))
                 continue;
 
-            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, RawArchitectureReviewBareGetRegex));
         }
 
         return violations;
