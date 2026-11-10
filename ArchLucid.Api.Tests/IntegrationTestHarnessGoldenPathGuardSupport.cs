@@ -94,7 +94,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 7;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 8;
+
+    /// <summary>Cap for <see cref="RawArchitectureReviewSubresourceAllowlist" /> (#38 burn-down ratchet).</summary>
+    internal const int MaxReviewSubresourceAllowlistedSourceFiles = 12;
 
     private static readonly Regex DirectPinExecuteOnFixtureRegex = new(
         @"\bClient\.PostExecuteAndEnsureArchitectureVersionPinForTestAsync\s*\(",
@@ -129,7 +132,15 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex RawArchitectureReviewSubresourceUrlRegex = new(
-        @"(?:\$""|"")/v1/architecture/review/\{[^""\n]+\}/[^""\n]+""",
+        @"\.GetAsync\s*\(\s*\$""/v1/architecture/review/\{[^""\n]+\}/[^""\n]+""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RawArchitectureReviewBareGetRegex = new(
+        @"\.GetAsync\s*\(\s*\$""/v1/architecture/review/\{[^""/]+\}""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex HandRolledJsonDocumentParseRegex = new(
+        @"JsonDocument\.Parse\s*\(",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex TupleReturnTypeRegex = new(
@@ -1039,9 +1050,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(ArchitectureAnalysisDocxTests) + ".cs",
         nameof(ArchitectureAnalysisExportTests) + ".cs",
         nameof(ArchitectureAnalysisReportTests) + ".cs",
-        nameof(ArchitectureExportAuditTests) + ".cs",
-        nameof(ArchitectureExportRecordDiffTests) + ".cs",
-        nameof(ArchitectureRunPinIntegrationTests) + ".cs",
         nameof(EvidenceBulkUploadIntegrationTests) + ".cs",
         nameof(FindingEvidenceChainEndpointTests) + ".cs",
         nameof(FindingInspectEndpointTests) + ".cs",
@@ -1074,6 +1082,104 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
                 continue;
 
             if (!RawArchitectureReviewSubresourceUrlRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static int CountReviewSubresourceAllowlistedSourceFiles() =>
+        RawArchitectureReviewSubresourceAllowlist.Count;
+
+    private static readonly HashSet<string> RawArchitectureReviewBareGetAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical bare review GET helpers and specialty poll fixtures.
+        nameof(FinalizedRunHarnessExtensions) + ".cs",
+        nameof(CreatedRunForTestHarnessExtensions) + ".cs",
+        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
+        nameof(GoldenCohortSimulatorDriftTests) + ".cs",
+    };
+
+    internal static List<string> ScanRawArchitectureReviewBareGetUrlsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (RawArchitectureReviewBareGetAllowlist.Contains(fileName))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!RawArchitectureReviewBareGetRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> HandRolledJsonDocumentParseAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: harness helpers and legacy controller matrices pending JsonDocument burn-down.
+        nameof(ArchLucidHttpResponseIntegrationTestExtensions) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
+        nameof(GoldenCohortSimulatorDriftTests) + ".cs",
+        nameof(ArchitectureTests) + ".cs",
+        nameof(EvolutionControllerFlowTests) + ".cs",
+        nameof(LearningControllerTests) + ".cs",
+        nameof(ProductLearningControllerTests) + ".cs",
+        nameof(BatchReplayIntegrationTests) + ".cs",
+        nameof(PolicyPackRequestValidationTests) + ".cs",
+        nameof(RecentPilotRunDeltasEndpointTests) + ".cs",
+        nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",
+        nameof(SecurityTrustPublicationControllerIntegrationTests) + ".cs",
+    };
+
+    internal static List<string> ScanHandRolledJsonDocumentParseInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (HandRolledJsonDocumentParseAllowlist.Contains(fileName))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Governance{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!HandRolledJsonDocumentParseRegex.IsMatch(content))
                 continue;
 
             violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));

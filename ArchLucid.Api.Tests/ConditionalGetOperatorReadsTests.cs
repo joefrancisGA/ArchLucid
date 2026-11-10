@@ -22,8 +22,7 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
         first.Headers.ETag.Should().NotBeNull();
         string etag = first.Headers.ETag!.Tag;
 
-        using HttpRequestMessage conditional = new(HttpMethod.Get, $"/v1/architecture/review/{runId}");
-        conditional.Headers.TryAddWithoutValidation("If-None-Match", etag);
+        using HttpRequestMessage conditional = created.CreateConditionalRunGetRequest(etag);
 
         HttpResponseMessage cached = await Client.SendAsync(conditional);
         cached.StatusCode.Should().Be(HttpStatusCode.NotModified);
@@ -45,14 +44,13 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
         HttpResponseMessage commitResponse = await FinalizeRunAsync(runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage afterCommit = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        HttpResponseMessage afterCommit = await created.GetRunHttpAsync(Client);
         await afterCommit.EnsureSuccessForTestAsync();
         string etagAfter = afterCommit.Headers.ETag!.Tag;
 
         etagAfter.Should().NotBe(etagBefore);
 
-        using HttpRequestMessage stale = new(HttpMethod.Get, $"/v1/architecture/review/{runId}");
-        stale.Headers.TryAddWithoutValidation("If-None-Match", etagBefore);
+        using HttpRequestMessage stale = created.CreateConditionalRunGetRequest(etagBefore);
 
         HttpResponseMessage refreshed = await Client.SendAsync(stale);
         refreshed.StatusCode.Should().Be(HttpStatusCode.OK);

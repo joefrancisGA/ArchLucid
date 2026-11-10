@@ -26,11 +26,7 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay",
             new StringContent(body, Encoding.UTF8, "application/json"));
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
-        string json = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(json);
-        doc.RootElement.GetProperty("status").GetInt32().Should().Be(422);
-        doc.RootElement.GetProperty("title").GetString().Should().Be("Unprocessable Entity");
+        JsonDocument doc = await response.AssertProblemForTestAsync(HttpStatusCode.UnprocessableEntity);
         doc.RootElement.GetProperty("type").GetString().Should().Contain("comparison-verification-failed");
         doc.RootElement.GetProperty("driftDetected").GetBoolean().Should().BeTrue();
         doc.RootElement.GetProperty("driftSummary").GetString().Should().Be("integration-test drift");
