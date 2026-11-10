@@ -1,13 +1,13 @@
 export const ARCHLUCID_BETA_SKU_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_LEAD =
-  "What a controlled ArchLucid evaluation includes and what it does not. Monthly list prices are on /pricing; order by quote." as const;
+  "The owner accepts a guided-pilot evaluation order at the published list price by signed quote. Monthly list prices are on /pricing. Checkout and the monthly tiers are not accepted from this page." as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_INCLUDES = [
   "Guided architecture review intake, evidence upload, and policy-pack assignment",
   "Simulator or platform Azure OpenAI execution with PilotStrict citation gates on Real mode",
   "Governed findings, dispositions, append-only audit, and exportable review evidence",
-  "Sales-led quote request and order-form path for paid pilots",
+  "Signed quote for the guided-pilot evaluation at the published list price",
 ] as const;
 
 export const ARCHLUCID_BETA_SKU_CONTENTS_EXCLUDES = [

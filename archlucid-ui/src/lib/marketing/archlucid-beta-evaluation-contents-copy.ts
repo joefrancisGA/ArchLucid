@@ -1,7 +1,7 @@
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_HEADING = "Beta evaluation contents" as const;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_LEAD =
-  "What sales-led ArchLucid evaluation includes before a sealed tenant review. Monthly list prices are in the tier grid above; order by quote." as const;
+  "The owner accepts a guided-pilot evaluation order at the published list price by signed quote. Monthly list prices are in the tier grid above. Checkout and the monthly tiers are not accepted from this page." as const;
 
 export const ARCHLUCID_BETA_EVALUATION_CONTENTS_INCLUDES = [
   "Hosted architecture review workspace with sample and tenant runs",

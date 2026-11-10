@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Owner accepts ArchLucid guided-pilot evaluation orders
+
+**Outcome.** The owner accepts a guided-pilot evaluation order at the published list price in pricing philosophy §4 by signed quote. Checkout, Stripe, monthly tiers, design partner, Enterprise evaluation, and custom-pack rows stay unaccepted from a page.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §4, `/pricing` sales-led note, beta evaluation contents on pricing and get-started.
+
 ## 2026-11-10 - Owner accepts SN-EVAL orders by signed quote
 
 **Outcome.** The owner accepts an SN-EVAL order at the published list price by signed quote, and attests a non-fixture Reader capture exists. The pricing philosophy, controlled-pilot note, SKU card, and quote packet say so. The capture id is not published. SN-ANNUAL, checkout, Stripe, and Marketplace stay unaccepted from a page. Beta remains **NO_GO**. The quote packet still cannot take payment.
