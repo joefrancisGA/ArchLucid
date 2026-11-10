@@ -1,9 +1,7 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -19,11 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Core_pilot_path_matches_golden_semantics_fixture()
@@ -31,8 +25,8 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         CorePilotPathExpectedSemantics expected = LoadExpectedSemantics();
 
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
+            .ConfigureAwait(false);
 
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(expected.RequestId));
 
@@ -122,11 +116,8 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         return expected!;
     }
 
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static StringContent JsonContent(object value) =>
+        IntegrationTestHttpContent.CreateJson(value, JsonOptions);
 
     private static IReadOnlyList<string> ReadZipEntryNames(byte[] zipBytes)
     {

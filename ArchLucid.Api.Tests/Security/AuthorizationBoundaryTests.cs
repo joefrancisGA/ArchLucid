@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests.Security;
 public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
     : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Reader_key_cannot_POST_architecture_request_returns_403()

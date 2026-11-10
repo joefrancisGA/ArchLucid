@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
@@ -24,24 +22,15 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureCommitTraceabilityIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task CommitRun_manifest_decision_trace_ids_align_with_returned_traces()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-
-        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001"));
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
+        {
+        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-TRACE-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
@@ -68,5 +57,6 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         gaps.Should()
             .BeEmpty(
                 "manifest metadata must list exactly the authority rule-audit trace ids returned with the commit body");
+        });
     }
 }

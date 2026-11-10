@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, ten facts).
+///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twelve facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -76,5 +76,19 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     {
         IntegrationTestHarnessGoldenPathGuardSupport.ScanPrivateGreenfieldIntakeWrappers().Should().BeEmpty(
             "use client.PostGreenfieldArchitectureRequestForTestAsync(body, idempotencyKeyPrefix) instead of duplicating greenfield intake helpers.");
+    }
+
+    [Fact]
+    public void Api_test_sources_do_not_destructure_CommitAndReplayAsync_into_anonymous_tuples()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanCommitAndReplayTupleDeconstruction().Should().BeEmpty(
+            "assign CommitAndReplayAsync to CommittedReplayPair and use pair.RunId / pair.ReplayRunId.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_hand_roll_JsonSerializerOptions_instead_of_CreateApiJsonOptions()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanHandRolledJsonOptionsInHarnessTests().Should().BeEmpty(
+            "use IntegrationTestBase.CreateApiJsonOptions() for lifecycle and replay harness tests (allowlist only for special encoders).");
     }
 }
