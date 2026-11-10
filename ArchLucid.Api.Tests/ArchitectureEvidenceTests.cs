@@ -17,11 +17,8 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {
         CreatedRunForTest created = await RunReadyForExecuteAsync();
-        string runId = created.RunId;
-        HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/evidence");        AgentEvidencePackageResponse? payload =
-            await evidenceResponse.ReadJsonForTestAsync<AgentEvidencePackageResponse>(JsonOptions);
-        payload.Should().NotBeNull();
-        payload.Evidence.RunId.Should().Be(runId);
+        AgentEvidencePackageResponse payload = await created.GetEvidenceAsync(Client, JsonOptions);
+        payload.Evidence.RunId.Should().Be(created.RunId);
         payload.Evidence.SystemName.Should().Be($"<untrusted_input>{created.SystemName}</untrusted_input>");
         payload.Evidence.Request.Description.Should().Contain("secure Azure RAG system");
         payload.Evidence.Policies.Should().NotBeEmpty();

@@ -17,7 +17,7 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
         CreatedRunForTest created = await CreateRunForTestAsync();
         string runId = created.RunId;
 
-        HttpResponseMessage first = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        HttpResponseMessage first = await created.GetRunHttpAsync(Client);
         await first.EnsureSuccessForTestAsync();
         first.Headers.ETag.Should().NotBeNull();
         string etag = first.Headers.ETag!.Tag;
@@ -37,7 +37,7 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
         CreatedRunForTest created = await CreateRunForTestAsync();
         string runId = created.RunId;
 
-        HttpResponseMessage beforeExecute = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        HttpResponseMessage beforeExecute = await created.GetRunHttpAsync(Client);
         await beforeExecute.EnsureSuccessForTestAsync();
         string etagBefore = beforeExecute.Headers.ETag!.Tag;
 

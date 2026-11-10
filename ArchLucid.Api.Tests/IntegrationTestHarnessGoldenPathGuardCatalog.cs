@@ -42,6 +42,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(35, "HarnessGoldenPathSmokeTests skippable fact count", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountHarnessGoldenPathSmokeSkippableFacts), "add smoke tests when extending the golden path"),
         new(36, "raw manifest summary URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawManifestSummaryUrlsInHarnessTests), "use FinalizedRun.GetManifestSummaryAsync"),
         new(37, "redundant SystemNameForRequest on arrange records", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantSystemNameForRequestOnHarnessRuns), "use FinalizedRun.SystemName / CreatedRunForTest.SystemName"),
+        new(38, "raw architecture review subresource URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawArchitectureReviewSubresourceUrlsInHarnessTests), "use FinalizedRunHarnessExtensions / CreatedRunForTestHarnessExtensions"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

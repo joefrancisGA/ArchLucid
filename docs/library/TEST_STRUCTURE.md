@@ -304,7 +304,9 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Committed replay pair | **`ArrangeCommittedPairAsync()`**; **`CommittedReplayPair.PersistEndToEndComparisonForTestAsync`**, **`ReadEndToEndCompareExportMarkdownAsync`** |
 | Intake run only | **`CreateRunForTestAsync()`** → **`CreatedRunForTest`** (**`RunGuid`**, **`SystemName`**) |
 | Intake + execute (no finalize) | **`RunReadyForExecuteAsync()`** → **`CreatedRunForTest`** |
-| Manifest summary / run details after finalize | **`GetManifestSummaryAsync`**, **`GetRunDetailsAsync`** on **`FinalizedRun`** |
+| Manifest summary / run reads after finalize | **`GetManifestSummaryAsync`**, **`GetRunDetailsAsync`**, **`GetEvidenceAsync`**, **`GetTracesAsync`**, **`GetDecisionsAsync`**, **`GetRoiAsync`** on **`FinalizedRun`** |
+| Run reads after intake / execute (no finalize) | **`GetRunHttpAsync`**, **`GetEvidenceAsync`**, **`GetTracesAsync`** on **`CreatedRunForTest`** |
+| Authority cursor paged lists | **`ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>`** (not hand-parsed **`JsonDocument`**) |
 | Authority-complete execute skip | **`HarnessSkipWhen.AuthorityPipelineCompleteOnCreateAsync`** |
 | Async job poll | **`IntegrationTestJobPollSupport.PollJobUntilSucceededOrFailedAsync`** |
 | Pin-aware execute on `IntegrationTestBase` | **`ExecuteForTestAsync`** only (not `PostExecuteWithPinsAsync`) |
@@ -334,11 +336,13 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Anti-patterns (harness `#26`–`#37`):** no **`FinalizeLifecycleAsync`**; no **`CreateFinalizedRunAsync(variable)`** on fixtures; no literal **`Idempotency-Key`** headers; no direct **`Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync`** on fixtures (use **`ExecuteForTestAsync`**); no duplicated **`Skip.If`** literals (use **`HarnessSkipReasons`** / **`HarnessSkipWhen`**); no **`ReadJsonForTestAsync`** for problem bodies; no explicit arguments to **`Arrange*Async`**; no redundant **`TestRequestIds.ForScenario(nameof(FixtureClass))`** on **`IntegrationTestBase`**; no raw **`/v1/architecture/manifest/…/summary`** URLs (use **`GetManifestSummaryAsync`**); no **`SystemNameForRequest(record.RequestId)`** when **`record.SystemName`** exists; keep **`HarnessGoldenPathSmokeTests`** **`[SkippableFact]`** count at or above **`MinHarnessGoldenPathSmokeSkippableFacts`** (**6**).
+**Anti-patterns (harness `#26`–`#38`):** no **`FinalizeLifecycleAsync`**; no **`CreateFinalizedRunAsync(variable)`** on fixtures; no literal **`Idempotency-Key`** headers; no direct **`Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync`** on fixtures (use **`ExecuteForTestAsync`**); no duplicated **`Skip.If`** literals (use **`HarnessSkipReasons`** / **`HarnessSkipWhen`**); no **`ReadJsonForTestAsync`** for problem bodies; no explicit arguments to **`Arrange*Async`**; no redundant **`TestRequestIds.ForScenario(nameof(FixtureClass))`** on **`IntegrationTestBase`**; no raw **`/v1/architecture/manifest/…/summary`** URLs (use **`GetManifestSummaryAsync`**); no raw **`/v1/architecture/review/…/`** subresource URLs (use harness extensions); no **`SystemNameForRequest(record.RequestId)`** when **`record.SystemName`** exists; keep **`HarnessGoldenPathSmokeTests`** **`[SkippableFact]`** count at or above **`MinHarnessGoldenPathSmokeSkippableFacts`** (**7**).
 
 **ReadFromJson burn-down order (allowlist):** `ArchitectureControllerTests` → concurrency support → `LearningControllerTests` / `ProductLearningControllerTests` → `EvolutionController*` → `PolicyPacksIntegrationTests` → `FinalizeConflictSqlIntegrationTests`.
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **thirty-seven** scanner facts + catalog/metadata). Global allowlist cap **`MaxHarnessAllowlistedSourceFiles`** (**40**); **`ReadFromJsonAsync`** sub-cap **`MaxReadFromJsonAllowlistedSourceFiles`** (**12**).
+**Review subresource URL burn-down (#38 allowlist):** export/docx (`ArchitectureAnalysis*`, `ArchitectureExport*`, `TraceabilityBundleZipEndpointTests`) → evidence uploads (`EvidenceBulkUploadIntegrationTests`, `RunStoredEvidenceFilesIntegrationTests`) → findings CSV/inspect → `ArchitectureRunPinIntegrationTests`.
+
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **thirty-eight** scanner facts + catalog/metadata). Global allowlist cap **`MaxHarnessAllowlistedSourceFiles`** (**40**); **`ReadFromJsonAsync`** sub-cap **`MaxReadFromJsonAllowlistedSourceFiles`** (**12**).
 
 **Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
 
