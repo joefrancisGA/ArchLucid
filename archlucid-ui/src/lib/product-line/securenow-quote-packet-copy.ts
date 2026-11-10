@@ -11,6 +11,11 @@ export const SECURENOW_QUOTE_PACKET_GUARDRAIL =
 export const SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT =
   "This page cannot authorize commerce." as const;
 
+export const SECURENOW_QUOTE_PACKET_SN_EVAL_HEADING = "SN-EVAL acceptance" as const;
+
+export const SECURENOW_QUOTE_PACKET_SN_EVAL_BODY =
+  "SN-EVAL controlled-pilot acceptance language anchors here. Quote and order form bind acceptance — this page is not a countersigned order." as const;
+
 export const SECURENOW_QUOTE_PACKET_SKUS = [
   ["SN-EVAL", "45-day evaluation; up to 2 Azure subscriptions and 4 successful snapshots"],
   [

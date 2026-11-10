@@ -5,9 +5,41 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureReviewNewSealedPackageCallout } from "@/app/(operator)/architecture/reviews/new/ArchitectureReviewNewSealedPackageCallout";
 import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
+import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 
 expect.extend(toHaveNoViolations);
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "security" as const }),
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => ({ tenantId: "t", workspaceId: "w", projectId: "p" }),
+}));
+
+vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
+  useSecureNowCollectionSetupInput: () => ({
+    collectionInput: {
+      hasConfiguredProvider: true,
+      azureSubscriptionIdsPresent: true,
+      hasSuccessfulPull: true,
+    },
+    isPending: false,
+  }),
+}));
+
+vi.mock("@tanstack/react-query", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-query")>("@tanstack/react-query");
+
+  return {
+    ...actual,
+    useQuery: () => ({
+      isPending: false,
+      data: { items: [{ pathId: "fixture-path-01" }] },
+    }),
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({
@@ -48,6 +80,12 @@ describe("score-lift chrome axe", () => {
         stopHandoffTestId="axe-stop-handoff"
       />,
     );
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("drift collection panel has no serious axe violations", async () => {
+    const { container } = render(<SecureNowDriftSecureNowCollectionPanel selectedSnapshotId="snap-1" />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

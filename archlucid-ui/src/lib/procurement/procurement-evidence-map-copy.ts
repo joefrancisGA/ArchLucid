@@ -88,7 +88,7 @@ export const ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     id: "al-eval-acceptance",
     label: "AL-EVAL guided-pilot acceptance",
     status: "available",
-    href: "/pricing#pricing-quote-request",
+    href: "/pricing#al-eval-acceptance",
     note: "Quote request anchors AL-EVAL acceptance language — not a countersigned order.",
   },
   {

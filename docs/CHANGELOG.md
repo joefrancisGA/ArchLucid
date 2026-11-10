@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 5: return-home walkthrough, procurement anchors, fixture-path-02
+
+**Outcome.** Architecture return-home marks the first-review walkthrough as start here when no open gate is stored. fixture-path-02 links to Path inspect; the accelerator index deep-links scenario walks. Quote packet exposes **#sn-eval**; pricing quote form exposes **#al-eval-acceptance**. jest-axe covers the drift collection panel.
+
+**Surfaces.** Architecture home return, accelerator index, scenario walks, quote packet, pricing, procurement map, accessibility suite.
+
 ## 2026-11-10 - Score lift round 4: sponsor parity, drift collection, empty-state ROI
 
 **Outcome.** Sponsor path shares Proceed / Extend / Stop rehearsal panels with pilot decision. Drift shows collection setup when incomplete, or Path inspect next step when ready. Simulator and path-inspect select prompts add synthetic ROI when collection is ready. jest-axe covers sealed callout, ArchLucid trust strip, and Proceed rehearsal.

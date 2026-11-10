@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 
 import { SecureNowHomeDestinationSection } from "@/components/product-line/SecureNowHomeDestinationSection";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { buildArchLucidOpenGateReturnHomeRowsWithRecommendedFirst } from "@/lib/architecture/archlucid-open-gate-return-home-rows";
 import {
   readArchLucidOpenGateReturnRecord,
 } from "@/lib/architecture/archlucid-open-gate-return-storage";
-import { formatRelativeTime } from "@/lib/relative-time";
-import { FIRST_REVIEW_OPEN_GATE_STARTER_HREF, FIRST_REVIEW_OPEN_GATE_STARTER_LEAD } from "@/lib/architecture/first-review-open-gate-starter-copy";
-import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
 const SECTION_HEADING = "Continue review" as const;
 
@@ -28,38 +26,7 @@ export function ArchLucidOpenGateReturnHomeSection(): React.JSX.Element | null {
     return null;
   }
 
-  const rows: readonly SecureNowHomeDestinationRow[] = record === null
-    ? [
-        {
-          href: FIRST_REVIEW_OPEN_GATE_STARTER_HREF,
-          label: "Sample first-review open gate",
-          summary: FIRST_REVIEW_OPEN_GATE_STARTER_LEAD,
-          recommendedFirst: true,
-        },
-      ]
-    : [
-        {
-          href: record.href,
-          label: `Open gate: ${record.openGateLabel}`,
-          summary: ((): string => {
-            const relativeRecorded = formatRelativeTime(record.recordedAtUtc);
-            const findingSegment =
-              record.findingId !== null
-              && record.findingId !== undefined
-              && record.findingId.trim().length > 0
-                ? ` Top finding ${record.findingId.trim()}.`
-                : "";
-
-            return `Last stored open gate on review ${record.runId} (${relativeRecorded}).${findingSegment} Browser-local — not a usage score.`;
-          })(),
-          recommendedFirst: true,
-        },
-        {
-          href: FIRST_REVIEW_OPEN_GATE_STARTER_HREF,
-          label: "Sample first-review open gate",
-          summary: FIRST_REVIEW_OPEN_GATE_STARTER_LEAD,
-        },
-      ];
+  const rows = buildArchLucidOpenGateReturnHomeRowsWithRecommendedFirst(record);
 
   return (
     <SecureNowHomeDestinationSection
