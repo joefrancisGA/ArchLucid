@@ -14,7 +14,7 @@ export const BUYER_MARKETING_PRICING_PAGE_INTRO =
 
 /** Sales-led posture: no self-serve checkout; quote and order form finalize commercial terms. */
 export const BUYER_SALES_LED_PRICING_NOTE =
-  "ArchLucid is sold through guided evaluation and procurement — request a quote for packaging, fair-use limits, and diligence artifacts. Monthly list prices are in the tier grid; checkout without sales confirmation is off.";
+  "ArchLucid is sold through guided evaluation and procurement. The owner accepts a guided-pilot evaluation order at the published list price by signed quote. Monthly list prices are in the tier grid. Checkout, Stripe, and the monthly tiers are not accepted from a page.";
 
 /** @deprecated Use {@link BUYER_SALES_LED_PRICING_NOTE}. */
 export const BUYER_SALES_LED_V1_PRICING_NOTE = BUYER_SALES_LED_PRICING_NOTE;
