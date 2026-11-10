@@ -155,7 +155,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         Guid runId = Guid.Parse(created.Run.RunId);
 
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId.ToString("D"));
+        await ExecuteForTestAsync(runId.ToString("D"));
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/critical-page-bundle");
@@ -177,7 +177,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         Guid runId = Guid.Parse(created.Run.RunId);
 
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId.ToString("D"));
+        await ExecuteForTestAsync(runId.ToString("D"));
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/timelines-bundle");
@@ -198,7 +198,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         Guid runId = Guid.Parse(created.Run.RunId);
 
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId.ToString("D"));
+        await ExecuteForTestAsync(runId.ToString("D"));
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/workspace-context-bundle");

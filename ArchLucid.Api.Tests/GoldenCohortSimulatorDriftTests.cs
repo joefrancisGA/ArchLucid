@@ -83,7 +83,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             string runId = created.Run.RunId;
 
-            await PostExecuteWithPinsAsync(runId);
+            await ExecuteForTestAsync(runId);
             HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
             await commitResponse.EnsureSuccessForTestAsync();
             string commitJson = await commitResponse.Content.ReadAsStringAsync();

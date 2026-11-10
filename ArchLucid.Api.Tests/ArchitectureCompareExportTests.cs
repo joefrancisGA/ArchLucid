@@ -15,7 +15,7 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
     [SkippableFact]
     public async Task CompareManifestsExport_ReturnsMarkdownExport()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureCompareExportTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         const string requestedReplayManifestVersion = "v1-replay";
 
         string rightVersion = await Replay.CommitReplayManifestVersionAsync(

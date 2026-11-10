@@ -40,6 +40,20 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         return payload!;
     }
 
+    /// <summary>Success check and non-empty response bytes (export / file integration tests).</summary>
+    public static async Task<byte[]> ReadBytesForTestAsync(
+        this HttpResponseMessage response,
+        [CallerMemberName] string callerMemberName = "")
+    {
+        ArgumentNullException.ThrowIfNull(response);
+
+        await response.EnsureSuccessForTestAsync(callerMemberName).ConfigureAwait(false);
+        byte[] bytes = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        bytes.Length.Should().BeGreaterThan(0);
+
+        return bytes;
+    }
+
     /// <summary>Asserts RFC 9457 Problem+JSON shape for negative integration tests.</summary>
     public static async Task<JsonDocument> AssertProblemForTestAsync(
         this HttpResponseMessage response,

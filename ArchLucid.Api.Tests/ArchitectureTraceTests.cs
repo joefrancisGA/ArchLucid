@@ -19,7 +19,7 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
     {
         string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureTraceTests)));
 
-        await PostExecuteWithPinsAsync(runId);
+        await ExecuteForTestAsync(runId);
         HttpResponseMessage tracesResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/traces");        AgentExecutionTraceResponse? payload =
             await tracesResponse.ReadJsonForTestAsync<AgentExecutionTraceResponse>(JsonOptions);
         payload.Should().NotBeNull();

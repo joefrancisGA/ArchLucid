@@ -16,7 +16,7 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
     [SkippableFact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
-        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(ComparisonReplayVerify422Tests));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync();
         PersistedComparison persisted = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
         string comparisonRecordId = persisted.ComparisonRecordId;
 

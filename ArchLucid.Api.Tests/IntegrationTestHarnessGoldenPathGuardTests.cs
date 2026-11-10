@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twenty-eight facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-two scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -61,7 +61,7 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     public void Api_test_sources_do_not_pair_post_execute_unless_with_finalize_setup()
     {
         IntegrationTestHarnessGoldenPathGuardSupport.ScanPostExecuteUnlessBeforeFinalize().Should().BeEmpty(
-            "use PostExecuteAndEnsureArchitectureVersionPinForTestAsync, PostExecuteWithPinsAsync, or CreateFinalizedRunAsync before finalize helpers.");
+            "use PostExecuteAndEnsureArchitectureVersionPinForTestAsync, ExecuteForTestAsync, or CreateFinalizedRunAsync before finalize helpers.");
     }
 
     [Fact]
@@ -138,7 +138,35 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     public void IntegrationTestBase_tests_use_pin_aware_execute_helper()
     {
         IntegrationTestHarnessGoldenPathGuardSupport.ScanPostExecuteWithoutPinInIntegrationTestBase().Should().BeEmpty(
-            "use PostExecuteAndEnsureArchitectureVersionPinForTestAsync (or PostExecuteWithPinsAsync) on IntegrationTestBase fixtures.");
+            "use PostExecuteAndEnsureArchitectureVersionPinForTestAsync (or ExecuteForTestAsync) on IntegrationTestBase fixtures.");
+    }
+
+    [Fact]
+    public void IntegrationTestBase_fixtures_use_ExecuteForTestAsync_not_direct_client_pin_execute()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanDirectPinExecuteOnIntegrationTestBase().Should().BeEmpty(
+            "use ExecuteForTestAsync on IntegrationTestBase fixtures instead of Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync.");
+    }
+
+    [Fact]
+    public void Harness_tests_use_HarnessSkipReasons_for_authority_pipeline_skips()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanDuplicateHarnessSkipReasonLiterals().Should().BeEmpty(
+            "use HarnessSkipReasons.AuthorityPipelineCompleteOnCreate* instead of duplicating skip message literals.");
+    }
+
+    [Fact]
+    public void ReadFromJsonAsync_allowlist_does_not_grow_without_intent()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.CountReadFromJsonAllowlistedSourceFiles().Should()
+            .BeLessThanOrEqualTo(IntegrationTestHarnessGoldenPathGuardSupport.MaxReadFromJsonAllowlistedSourceFiles);
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_deserialize_problem_details_with_ReadJsonForTestAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanReadJsonForProblemDetailsInHarnessTests().Should().BeEmpty(
+            "use AssertProblemForTestAsync for RFC 9457 negative paths.");
     }
 
     [Fact]
@@ -198,9 +226,9 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_twenty_eight_scanners()
+    public void Guard_catalog_lists_thirty_two_scanners()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(28);
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(32);
     }
 
     [Fact]

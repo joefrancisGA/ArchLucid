@@ -13,7 +13,7 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetManifestSummary_IncludesEvidenceContext()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureSummaryEvidenceTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
         // Evidence is appended on the dedicated endpoint; the default markdown summary is options-driven and evidence-agnostic.
         ManifestMarkdownDocumentResponse summaryPayload = await (

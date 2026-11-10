@@ -15,7 +15,7 @@ public sealed class ArchitectureCompareTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task CompareManifests_ReturnsDiff()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureCompareTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         const string requestedReplayManifestVersion = "v1-replay";
 
         string rightVersion = await Replay.CommitReplayManifestVersionAsync(

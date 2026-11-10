@@ -50,7 +50,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         HttpResponseMessage executeResponse = await client.SendAsync(execute);
 
         if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
-            Skip.If(true, "authority-pipeline complete on create; pilot execute audit test not applicable.");
+            Skip.If(true, HarnessSkipReasons.AuthorityPipelineCompleteOnCreatePilot);
 
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

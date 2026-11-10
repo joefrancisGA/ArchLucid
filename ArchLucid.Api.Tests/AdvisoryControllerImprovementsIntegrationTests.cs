@@ -33,7 +33,7 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
     [SkippableFact]
     public async Task GetImprovements_compareTo_missing_run_returns_404_run_problem()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AdvisoryControllerImprovementsIntegrationTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         Guid primaryRunId = Guid.Parse(finalized.RunId);
 
         Guid missingCompareRunId = Guid.Parse("00000000-0000-0000-0000-00000000aa02");

@@ -21,7 +21,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureAnalysisDocxTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         var request = new
         {
             includeEvidence = true,
@@ -41,18 +41,16 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx",
             JsonContent(request));
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType
             .Should().Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-        bytes.Length.Should().BeGreaterThan(0);
+        await response.ReadBytesForTestAsync();
     }
 
     [SkippableFact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureAnalysisDocxTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         var request = new
         {
             includeEvidence = true,
@@ -96,11 +94,9 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         state.Should().Be("Succeeded");
 
         HttpResponseMessage fileResp = await Client.GetAsync($"/v1/jobs/{jobId}/file");
-        fileResp.StatusCode.Should().Be(HttpStatusCode.OK);
         fileResp.Content.Headers.ContentType!.MediaType
             .Should().Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-        byte[] bytes = await fileResp.Content.ReadAsByteArrayAsync();
-        bytes.Length.Should().BeGreaterThan(0);
+        await fileResp.ReadBytesForTestAsync();
     }
 }

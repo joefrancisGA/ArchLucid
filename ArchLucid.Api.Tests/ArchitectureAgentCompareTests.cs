@@ -17,7 +17,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
     {
         string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAgentCompareTests)));
 
-        await PostExecuteWithPinsAsync(runId);
+        await ExecuteForTestAsync(runId);
 
         string replayRunId = await Replay.ReplayWithoutCommitAsync(runId);
 

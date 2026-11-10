@@ -90,6 +90,21 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     /// <summary>Sum of unique allowlisted harness source files across all guard sets (growth ratchet).</summary>
     internal const int MaxHarnessAllowlistedSourceFiles = 40;
 
+    /// <summary><see cref="ReadFromJsonAsyncAllowlist" /> entry cap (burn-down ratchet).</summary>
+    internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
+
+    private static readonly Regex DirectPinExecuteOnFixtureRegex = new(
+        @"\bClient\.PostExecuteAndEnsureArchitectureVersionPinForTestAsync\s*\(",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ReadJsonProblemDetailsRegex = new(
+        @"ReadJsonForTestAsync\s*<\s*(?:Microsoft\.AspNetCore\.Mvc\.)?ProblemDetails\s*>",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex DuplicateAuthoritySkipReasonRegex = new(
+        @"Skip\.If(?:Not)?\s*\([^,]+,\s*""authority-pipeline complete on create",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex TupleReturnTypeRegex = new(
         @"Task<\(\s*string\s+\w+\s*,\s*string\s+\w+\s*\)>",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -545,6 +560,48 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         }
 
         return violations;
+    }
+
+    internal static int CountReadFromJsonAllowlistedSourceFiles() => ReadFromJsonAsyncAllowlist.Count;
+
+    internal static List<string> ScanDirectPinExecuteOnIntegrationTestBase()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            if (string.Equals(Path.GetFileName(path), nameof(IntegrationTestBase) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!DirectPinExecuteOnFixtureRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanDuplicateHarnessSkipReasonLiterals()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content =>
+                IsHarnessTestSource(content) && DuplicateAuthoritySkipReasonRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanReadJsonForProblemDetailsInHarnessTests()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content =>
+                IsHarnessTestSource(content) && ReadJsonProblemDetailsRegex.IsMatch(content));
     }
 
     internal static List<string> ScanLiteralIdempotencyHeaderValuesInHarnessTests()

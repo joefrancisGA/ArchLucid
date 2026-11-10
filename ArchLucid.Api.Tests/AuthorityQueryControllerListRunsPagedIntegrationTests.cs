@@ -24,7 +24,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         string requestId = TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
 
@@ -46,7 +46,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         string requestId = TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
 
@@ -64,7 +64,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsInScope_includes_run_hidden_from_default_project_slug()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
         HttpResponseMessage defaultSlugResponse =
             await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");
