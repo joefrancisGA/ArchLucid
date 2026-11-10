@@ -2,6 +2,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration.Create.Hooks;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Persistence.Ports;
@@ -75,10 +76,8 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             throw new InvalidOperationException($"Run '{runId}' is missing ArchitectureId after identity link backfill.");
         }
 
-        IArchitectureKnowledgeModelAccess knowledgeModelAccess =
-            services.GetRequiredService<IArchitectureKnowledgeModelAccess>();
-        ArchitectureKnowledgeModel? knowledgeModel = await knowledgeModelAccess
-            .GetForRunAsync(DefaultScope, runGuid, cancellationToken);
+        ArchitectureKnowledgeModel? knowledgeModel =
+            await TryLoadKnowledgeModelForPinBackfillAsync(services, runGuid, header, cancellationToken);
 
         if (IsPolicyOrEvidencePinMissing(header))
         {
@@ -91,15 +90,15 @@ internal static class IntegrationTestArchitectureVersionPinSupport
             header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
         }
 
-        if (HasIncompleteCreateTimePinFingerprints(header) && knowledgeModel is not null)
-        {
-            RunHeaderKnowledgeModelContentPin.ApplyToHeader(
-                header,
-                knowledgeModel,
-                knowledgeModel.ModelId ?? header.KnowledgeModelId);
-            await runRepository.UpdateAsync(header, cancellationToken);
-            header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
-        }
+        await EnsureKnowledgeModelContentPinOnHeaderAsync(
+            services,
+            runGuid,
+            header,
+            knowledgeModel,
+            cancellationToken);
+
+        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
+        knowledgeModel ??= await TryLoadKnowledgeModelForPinBackfillAsync(services, runGuid, header, cancellationToken);
 
         IArchitectureVersionKnowledgeModelPinSync? pinSync =
             services.GetService<IArchitectureVersionKnowledgeModelPinSync>();
@@ -121,24 +120,115 @@ internal static class IntegrationTestArchitectureVersionPinSupport
         }
 
         header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
+        knowledgeModel ??= await TryLoadKnowledgeModelForPinBackfillAsync(services, runGuid, header, cancellationToken);
+        await EnsureKnowledgeModelContentPinOnHeaderAsync(
+            services,
+            runGuid,
+            header,
+            knowledgeModel,
+            cancellationToken);
 
-        knowledgeModel ??= await knowledgeModelAccess.GetForRunAsync(DefaultScope, runGuid, cancellationToken);
-
-        if (header.PinnedKnowledgeModelContentHashSha256 is null or { Length: 0 } && knowledgeModel is not null)
-        {
-            RunHeaderKnowledgeModelContentPin.ApplyToHeader(
-                header,
-                knowledgeModel,
-                knowledgeModel.ModelId ?? header.KnowledgeModelId);
-            await runRepository.UpdateAsync(header, cancellationToken);
-            header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
-        }
+        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
 
         if (header is not null && HasIncompleteCreateTimePinFingerprints(header))
         {
             throw new InvalidOperationException(
                 $"Run '{runId}' still has incomplete create-time pin fingerprints after backfill: {DescribeMissingPins(header)}.");
         }
+    }
+
+    /// <summary>
+    ///     <see cref="IArchitectureKnowledgeModelAccess.GetForRunAsync" /> fail-closes when the header lacks a κ hash;
+    ///     backfill must load persisted models without that guard.
+    /// </summary>
+    private static async Task<ArchitectureKnowledgeModel?> TryLoadKnowledgeModelForPinBackfillAsync(
+        IServiceProvider services,
+        Guid runGuid,
+        RunRecord header,
+        CancellationToken cancellationToken)
+    {
+        IArchitectureIntelligencePersistence? persistence =
+            services.GetService<IArchitectureIntelligencePersistence>();
+
+        if (persistence is null)
+            return null;
+
+        string tenantId = DefaultScope.TenantId.ToString("D");
+
+        if (!string.IsNullOrWhiteSpace(header.KnowledgeModelId))
+        {
+            ArchitectureKnowledgeModel? byModelId = await persistence
+                .GetModelAsync(tenantId, header.KnowledgeModelId, cancellationToken);
+
+            if (byModelId is not null)
+                return byModelId;
+        }
+
+        ArchitectureKnowledgeModel? byRunId = await persistence
+            .GetModelByRunIdAsync(tenantId, runGuid.ToString("D"), cancellationToken);
+
+        if (byRunId is not null)
+            return byRunId;
+
+        byRunId = await persistence
+            .GetModelByRunIdAsync(tenantId, runGuid.ToString("N"), cancellationToken);
+
+        if (byRunId is not null)
+            return byRunId;
+
+        IArchitectureIdentityRepository? identityRepository =
+            services.GetService<IArchitectureIdentityRepository>();
+
+        if (identityRepository is null || header.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
+            return null;
+
+        ArchitectureIdentityRecord? identity = await identityRepository
+            .GetByIdAsync(DefaultScope, architectureId, cancellationToken);
+
+        if (identity is null || string.IsNullOrWhiteSpace(identity.CurrentModelId))
+            return null;
+
+        return await persistence.GetModelAsync(tenantId, identity.CurrentModelId, cancellationToken);
+    }
+
+    private static async Task EnsureKnowledgeModelContentPinOnHeaderAsync(
+        IServiceProvider services,
+        Guid runGuid,
+        RunRecord header,
+        ArchitectureKnowledgeModel? knowledgeModel,
+        CancellationToken cancellationToken)
+    {
+        if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 })
+            return;
+
+        IArchitectureKnowledgeModelAccess knowledgeModelAccess =
+            services.GetRequiredService<IArchitectureKnowledgeModelAccess>();
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+
+        knowledgeModel ??= await TryLoadKnowledgeModelForPinBackfillAsync(services, runGuid, header, cancellationToken);
+
+        if (knowledgeModel is null)
+        {
+            knowledgeModel = new ArchitectureKnowledgeModel
+            {
+                TenantId = DefaultScope.TenantId.ToString("D"),
+                RunId = runGuid.ToString("D"),
+            };
+        }
+
+        RunHeaderKnowledgeModelContentPin.ApplyToHeader(
+            header,
+            knowledgeModel,
+            knowledgeModel.ModelId ?? header.KnowledgeModelId);
+
+        if (header.PinnedKnowledgeModelContentHashSha256 is { Length: > 0 })
+        {
+            await runRepository.UpdateAsync(header, cancellationToken);
+
+            return;
+        }
+
+        await knowledgeModelAccess.SaveForRunAsync(DefaultScope, runGuid, knowledgeModel, cancellationToken);
     }
 
     private static async Task EnsureArchitectureIdentityLinkedForBackfillAsync(

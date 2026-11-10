@@ -241,9 +241,7 @@ describe("AdvisoryScansContent", () => {
 
     expect(promptSpy).not.toHaveBeenCalled();
 
-    await waitFor(() => {
-      expect(screen.getByTestId("advisory-recommendation-disposition-dialog")).toBeInTheDocument();
-    });
+    expect(await screen.findByTestId("advisory-recommendation-disposition-dialog")).toBeInTheDocument();
     expect(screen.getByText(ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE)).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("advisory-recommendation-disposition-confirm"));
