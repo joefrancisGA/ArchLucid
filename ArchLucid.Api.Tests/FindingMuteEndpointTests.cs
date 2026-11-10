@@ -28,8 +28,8 @@ public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : Inte
             Reason = "Integration test mute reason."
         };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/mute",
+        HttpResponseMessage response = await Client.PostFindingMuteHttpAsync(
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
             IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -39,7 +39,7 @@ public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : Inte
     public async Task PostMute_when_body_missing_returns_400()
     {
         HttpResponseMessage response =
-            await Client.PostAsync($"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/mute", null);
+            await Client.PostFindingMuteHttpAsync(HarnessDemoBaselineSupport.DemoPrimaryFindingId, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -59,8 +59,8 @@ public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : Inte
             Reason = "Should not persist."
         };
 
-        HttpResponseMessage response = await client.PostAsync(
-            $"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/mute",
+        HttpResponseMessage response = await client.PostFindingMuteHttpAsync(
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
             IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);

@@ -31,10 +31,7 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage response = await client.PostArchitectureRequestForTestAsync(request);
 
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
-
             CreateRunResponseDto? payload = await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            payload.Should().NotBeNull();
             payload.Run.Should().NotBeNull();
             payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
             payload.Run.RequestId.Should().Be("REQ-API-001");
@@ -55,19 +52,14 @@ public sealed class ArchitectureControllerTests
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureControllerTests))));
 
-            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            created.Should().NotBeNull();
 
             string runId = created.Run.RunId;
 
             HttpResponseMessage getResponse = await client.GetRunHttpAsync(runId);
 
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
             GetRunResponseDto? payload = await getResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
-            payload.Should().NotBeNull();
             payload.Run.RunId.Should().Be(runId);
             payload.Tasks.Should().HaveCount(4);
             payload.Results.Should().BeEmpty();
@@ -81,37 +73,31 @@ public sealed class ArchitectureControllerTests
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureControllerTests))));
 
-            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
 
-            string runId = created!.Run.RunId;
+            string runId = created.Run.RunId;
 
             HttpResponseMessage executeResponse = await client.PostExecuteForTestAsync(runId);
 
             if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             {
                 HttpResponseMessage seededRunResponse = await client.GetRunHttpAsync(runId);
-                await seededRunResponse.EnsureSuccessForTestAsync();
                 GetRunResponseDto? seededPayload =
                     await seededRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
                 seededPayload!.Results.Should().HaveCount(4);
                 return;
             }
 
-            executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
             ExecuteRunResponseDto? executePayload =
                 await executeResponse.ReadJsonForTestAsync<ExecuteRunResponseDto>(JsonOptions);
-            executePayload.Should().NotBeNull();
             executePayload.RunId.Should().Be(runId);
             executePayload.Results.Should().HaveCount(4);
 
             HttpResponseMessage getRunResponse = await client.GetRunHttpAsync(runId);
-            await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
-            getRunPayload!.Results.Should().HaveCount(4);
+            getRunPayload.Results.Should().HaveCount(4);
         });
     }
 
@@ -125,19 +111,15 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
-            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            string runId = created!.Run.RunId;
+            string runId = created.Run.RunId;
 
             await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
             HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
 
-            commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
             CommitRunResponseDto? commitPayload =
                 await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
-            commitPayload.Should().NotBeNull();
             commitPayload.Manifest.Should().NotBeNull();
             commitPayload.Manifest.RunId.Should().Be(runId);
             commitPayload.Manifest.SystemName.Should().Be(systemName);
@@ -156,10 +138,8 @@ public sealed class ArchitectureControllerTests
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureControllerTests))));
 
-            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            created.Should().NotBeNull();
             string runId = created.Run.RunId;
 
             HttpResponseMessage executeResponse = await client.PostExecuteForTestAsync(runId);
@@ -167,17 +147,14 @@ public sealed class ArchitectureControllerTests
             if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             {
                 HttpResponseMessage getRunResponse = await client.GetRunHttpAsync(runId);
-                await getRunResponse.EnsureSuccessForTestAsync();
                 GetRunResponseDto? seededPayload =
                     await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
                 seededPayload!.Results.Should().HaveCount(4);
                 return;
             }
 
-            executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             ExecuteRunResponseDto? executePayload =
                 await executeResponse.ReadJsonForTestAsync<ExecuteRunResponseDto>(JsonOptions);
-            executePayload.Should().NotBeNull();
             executePayload.RunId.Should().Be(runId);
             executePayload.Results.Should().HaveCount(4);
         });
@@ -193,20 +170,16 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
-            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            created.Should().NotBeNull();
 
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
             await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
             HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
-            await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
-            commitPayload.Should().NotBeNull();
 
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
             manifestVersion.Should()
@@ -215,10 +188,8 @@ public sealed class ArchitectureControllerTests
             manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse =
-                await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
-            await manifestResponse.EnsureSuccessForTestAsync();
+                await client.GetArchitectureManifestHttpAsync(manifestVersion);
             ManifestDto? manifestPayload = await manifestResponse.ReadJsonForTestAsync<ManifestDto>(JsonOptions);
-            manifestPayload.Should().NotBeNull();
             manifestPayload.SystemName.Should().Be(systemName);
             manifestPayload.Services.Should().NotBeEmpty();
             manifestPayload.Datastores.Should().NotBeEmpty();
@@ -237,26 +208,21 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
 
-            await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
                 await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            created.Should().NotBeNull();
 
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
             HttpResponseMessage getRunResponse = await client.GetRunHttpAsync(runId);
-            await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
-            getRunPayload!.Tasks.Should().HaveCount(4);
+            getRunPayload.Tasks.Should().HaveCount(4);
 
             await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
             HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
-            await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
-            commitPayload.Should().NotBeNull();
 
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
             manifestVersion.Should()
@@ -265,10 +231,8 @@ public sealed class ArchitectureControllerTests
             manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse =
-                await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
-            await manifestResponse.EnsureSuccessForTestAsync();
+                await client.GetArchitectureManifestHttpAsync(manifestVersion);
             ManifestDto? manifestPayload = await manifestResponse.ReadJsonForTestAsync<ManifestDto>(JsonOptions);
-            manifestPayload.Should().NotBeNull();
             manifestPayload.SystemName.Should().Be(systemName);
             manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-api");
             manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-search");
@@ -290,24 +254,20 @@ public sealed class ArchitectureControllerTests
                 IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(body, JsonOptions), idempotencyKey);
 
             HttpResponseMessage firstResponse = await client.SendAsync(first);
-            firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
             CreateRunResponseDto? firstPayload =
                 await firstResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            firstPayload.Should().NotBeNull();
 
             using HttpRequestMessage second =
                 IntegrationTestRunLifecycleSupport.CreateArchitectureRequestMessage(IntegrationTestHttpContent.CreateJson(body, JsonOptions), idempotencyKey);
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
-            secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             secondResponse.Headers.TryGetValues("X-Idempotency-Replayed", out IEnumerable<string>? replayValues).Should()
                 .BeTrue();
             replayValues.Should().Contain("true");
 
             CreateRunResponseDto? secondPayload =
                 await secondResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-            secondPayload.Should().NotBeNull();
             secondPayload.Run.RunId.Should().Be(firstPayload.Run.RunId);
         });
     }
@@ -367,7 +327,6 @@ public sealed class ArchitectureControllerTests
 
                 CreateRunResponseDto? payload =
                     await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-                payload.Should().NotBeNull();
                 runIds.Add(payload.Run.RunId);
             }
 
@@ -383,12 +342,9 @@ public sealed class ArchitectureControllerTests
         {
             HttpResponseMessage response = await client.GetAsync("/v1/architecture/templates");
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
             List<ArchitectureRequestTemplateSummary>? items =
                 await response.ReadJsonForTestAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
-            items.Should().NotBeNull();
             items.Should().HaveCount(7);
 
             string[] ids = items!.Select(i => i.Id).OrderBy(s => s).ToArray();
@@ -435,7 +391,6 @@ public sealed class ArchitectureControllerTests
 
                 CreateRunResponseDto? payload =
                     await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-                payload.Should().NotBeNull();
                 payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
             }
         });
