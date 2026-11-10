@@ -308,7 +308,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Pin-aware execute on `IntegrationTestBase` | **`ExecuteForTestAsync`** only (not `PostExecuteWithPinsAsync`) |
 | Stable skip strings (authority complete on create) | **`HarnessSkipReasons`** |
 | Idempotency-Key header value for custom POSTs | **`TestRequestIds.IdempotencyKey`** |
-| Governance committed run arrange | **`GovernanceScenario.CommittedAsync`** / **`ArrangeGovernanceCommittedAsync`** |
+| Governance committed run arrange | **`ArrangeGovernanceCommittedAsync()`** / **`HarnessArrange.GovernanceCommittedAsync`** |
 | Governance self-approval problem JSON | **`GovernanceProblemAssertions.AssertGovernanceSelfApprovalAsync`** |
 | Tenant isolation greenfield primer | **`TenantIsolationScenario.WithGreenfieldPrimerAsync`** |
 | Tenant A + tenant B clients | **`TenantIsolationScenario.WithTwoScopedClientsAsync`** |
