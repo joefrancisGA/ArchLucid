@@ -149,11 +149,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailCriticalPageBundle_ReturnsOk_WithSlices()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(PageBundleEndpointsTests))));
-
-        CreateRunResponseDto created =
-            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runId = Guid.Parse(created.Run.RunId);
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        Guid runId = Guid.Parse(created.RunId);
 
         await ExecuteForTestAsync(runId.ToString("D"));
 
@@ -171,11 +168,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailTimelinesBundle_ReturnsOk_WithSlices()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(PageBundleEndpointsTests))));
-
-        CreateRunResponseDto created =
-            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runId = Guid.Parse(created.Run.RunId);
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        Guid runId = Guid.Parse(created.RunId);
 
         await ExecuteForTestAsync(runId.ToString("D"));
 
@@ -192,11 +186,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailWorkspaceContextBundle_ReturnsOk_WithSlices()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(PageBundleEndpointsTests))));
-
-        CreateRunResponseDto created =
-            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runId = Guid.Parse(created.Run.RunId);
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        Guid runId = Guid.Parse(created.RunId);
 
         await ExecuteForTestAsync(runId.ToString("D"));
 

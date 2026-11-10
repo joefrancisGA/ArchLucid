@@ -37,6 +37,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(30, "duplicate harness Skip.If reason literals", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanDuplicateHarnessSkipReasonLiterals), "use HarnessSkipReasons"),
         new(31, "ReadFromJsonAsync allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountReadFromJsonAllowlistedSourceFiles)),
         new(32, "ReadJsonForTestAsync for ProblemDetails", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanReadJsonForProblemDetailsInHarnessTests), "use AssertProblemForTestAsync"),
+        new(33, "explicit Arrange scenario argument", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanExplicitArrangeScenarioArguments), "use ArrangeFinalizedAsync() with no args"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

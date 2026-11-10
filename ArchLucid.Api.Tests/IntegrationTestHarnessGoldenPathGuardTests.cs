@@ -3,11 +3,14 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-two scanner facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-three scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
 {
+    internal const string GuardTestDotnetFilter = "FullyQualifiedName~IntegrationTestHarnessGoldenPathGuardTests";
+
+    internal const string DocumentedCoreSuiteDotnetFilter = "dotnet test ArchLucid.Api.Tests --filter Suite=Core";
     [Fact]
     public void Api_test_sources_do_not_embed_raw_finalize_urls()
     {
@@ -186,8 +189,19 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     [Fact]
     public void IntegrationTestBase_fixtures_use_TestRequestIds_for_CreateFinalizedRunAsync()
     {
-        IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateFinalizedRunWithoutTestRequestIdsOnFixtures().Should().BeEmpty(
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateFinalizedRunWithoutTestRequestIdsOnFixtures(),
+            27,
             "use ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync instead of CreateFinalizedRunAsync(variable).");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_pass_explicit_Arrange_scenario_arguments()
+    {
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanExplicitArrangeScenarioArguments(),
+            33,
+            "Arrange helpers derive scenario from the fixture class; call ArrangeFinalizedAsync() with no arguments.");
     }
 
     [Fact]
@@ -226,9 +240,19 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_thirty_two_scanners()
+    public void Guard_catalog_lists_thirty_three_scanners()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(32);
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(33);
+    }
+
+    [Fact]
+    public void Test_structure_documents_harness_core_and_guard_test_filters()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        string doc = File.ReadAllText(Path.Combine(repoRoot, "docs", "library", "TEST_STRUCTURE.md"));
+
+        doc.Should().Contain(DocumentedCoreSuiteDotnetFilter);
+        doc.Should().Contain(GuardTestDotnetFilter);
     }
 
     [Fact]

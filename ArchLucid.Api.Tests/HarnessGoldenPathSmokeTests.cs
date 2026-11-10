@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Api.Models;
 
 using FluentAssertions;
@@ -19,9 +21,7 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         PersistedComparison persisted = await pair.PersistEndToEndComparisonForTestAsync(Client);
         persisted.ComparisonRecordId.Should().NotBeNullOrWhiteSpace(); // struct field from PostPersist header
 
-        EndToEndReplayComparisonExportResponse payload = await (
-            await Client.GetEndToEndCompareExportMarkdownForTestAsync(pair))
-            .ReadJsonForTestAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
+        EndToEndReplayComparisonExportResponse payload = await pair.ReadEndToEndCompareExportMarkdownAsync(Client, JsonOptions);
         payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
     }
@@ -31,7 +31,7 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
         finalized.RunId.Should().NotBeNullOrWhiteSpace();
-        finalized.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+        finalized.ManifestVersion.Should().MatchRegex("^v\\d", "committed manifest version should be versioned");
 
         FinalizedRun governance = await ArrangeGovernanceCommittedAsync();
         governance.RunId.Should().NotBeNullOrWhiteSpace();
@@ -39,5 +39,14 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         CommittedReplayPair pair = await ArrangeCommittedPairAsync();
         pair.RunId.Should().NotBeNullOrWhiteSpace();
         pair.ReplayRunId.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_unknown_run_summary_returns_problem_details()
+    {
+        Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc03");
+        HttpResponseMessage response = await Client.GetAsync($"/v1/authority/reviews/{missing:D}/summary");
+
+        await response.AssertProblemForTestAsync(HttpStatusCode.NotFound, ProblemTypes.RunNotFound);
     }
 }
