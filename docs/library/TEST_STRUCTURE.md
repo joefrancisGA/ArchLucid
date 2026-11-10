@@ -282,7 +282,7 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 | JWT, custom body, or idempotency header on intake | `CreateArchitectureRequestMessage` → `SendAsync` |
 | Greenfield SQL with transient 503 retry + unique idempotency key | `PostGreenfieldArchitectureRequestForTestAsync` |
 | Run through execute (and optional finalize) for most lifecycle tests | `CreateFinalizedRunAsync` / `CreateFinalizedRunForTestAsync` → **`FinalizedRun`** |
-| Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync` → **`CommittedReplayPair`**, `PersistEndToEndComparisonAsync`) |
+| Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync` → assign **`CommittedReplayPair`**; use **`pair.RunId`** / **`pair.ReplayRunId`**, not anonymous tuples) |
 | Per-test isolated SQL factory (no class fixture) | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
 | Isolated SQL + comparison replay setup | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
 | Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** / **`PostEndToEndCompareSummaryForTestAsync`** |

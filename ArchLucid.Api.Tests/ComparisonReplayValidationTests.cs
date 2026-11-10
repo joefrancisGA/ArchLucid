@@ -11,8 +11,8 @@ public sealed class ComparisonReplayValidationTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task ReplayComparison_InvalidFormatAndReplayMode_Returns400WithValidationErrors()
     {
-        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-VALIDATE-001");
-        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(runId, replayRunId);
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-VALIDATE-001");
+        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
 
         var invalidBody = new { format = "invalid", replayMode = "bad" };
         HttpResponseMessage response = await Client.PostAsync(

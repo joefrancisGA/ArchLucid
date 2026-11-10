@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-
-using ArchLucid.Api.Models;
+﻿using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
@@ -17,18 +14,15 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory fact
     [SkippableFact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {
-        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-E2E-001");
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-E2E-001");
 
-        HttpResponseMessage response = await Client.PostEndToEndCompareSummaryForTestAsync(
-            runId,
-            replayRunId,
-            JsonContent(new PersistComparisonRequest { Persist = false }));
+        EndToEndReplayComparisonSummaryResponse payload = await (
+            await Client.PostEndToEndCompareSummaryForTestAsync(
+                pair.RunId,
+                pair.ReplayRunId,
+                JsonContent(new PersistComparisonRequest { Persist = false })))
+            .ReadJsonForTestAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EndToEndReplayComparisonSummaryResponse? payload =
-            await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
-        payload.Should().NotBeNull();
         payload.Summary.Should().Contain("# End-to-End Replay Comparison:");
     }
 }
