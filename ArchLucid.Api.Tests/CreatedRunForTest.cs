@@ -4,4 +4,6 @@ namespace ArchLucid.Api.Tests;
 public sealed record CreatedRunForTest(string RunId, string RequestId)
 {
     public Guid RunGuid => Guid.Parse(RunId);
+
+    public string SystemName => TestRequestFactory.SystemNameForRequest(RequestId);
 }

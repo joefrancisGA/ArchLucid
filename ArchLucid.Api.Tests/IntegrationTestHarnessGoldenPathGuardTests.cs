@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-five scanner facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-seven scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -256,9 +256,27 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_thirty_five_scanners()
+    public void Harness_tests_do_not_embed_raw_manifest_summary_urls()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(35);
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanRawManifestSummaryUrlsInHarnessTests(),
+            36,
+            "use FinalizedRunHarnessExtensions.GetManifestSummaryAsync instead of embedding the manifest summary path.");
+    }
+
+    [Fact]
+    public void Harness_tests_use_SystemName_on_arrange_records()
+    {
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantSystemNameForRequestOnHarnessRuns(),
+            37,
+            "use FinalizedRun.SystemName or CreatedRunForTest.SystemName instead of SystemNameForRequest(record.RequestId).");
+    }
+
+    [Fact]
+    public void Guard_catalog_lists_thirty_seven_scanners()
+    {
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(37);
     }
 
     [Fact]

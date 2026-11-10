@@ -17,26 +17,22 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
     public async Task GetRun_ReturnsTypedRunDetailsResponse()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        string systemName = TestRequestFactory.SystemNameForRequest(finalized.RequestId);
-        HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}");
-        RunDetailsResponseDto? payload =
-            await runResponse.ReadJsonForTestAsync<RunDetailsResponseDto>(JsonOptions);
+        RunDetailsResponseDto payload = await finalized.GetRunDetailsAsync(Client, JsonOptions);
 
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().Be(finalized.RunId);
         payload.Tasks.Should().HaveCount(4);
         payload.Results.Should().HaveCount(4);
         payload.Manifest.Should().NotBeNull();
-        payload.Manifest!.SystemName.Should().Be(systemName);
+        payload.Manifest!.SystemName.Should().Be(finalized.SystemName);
         payload.DecisionTraces.Should().NotBeEmpty();
         payload.ExecutionFlavorBuyerSummary.Should().NotBeNullOrWhiteSpace();
         payload.TrustEvidenceCard.Should().NotBeNull();
         payload.TrustEvidenceCard!.SelfAttestationNotice.Should().NotBeNullOrWhiteSpace();
         payload.TrustEvidenceCard.AuditTrail.Status.Should().NotBeNullOrWhiteSpace();
 
-        Guid authorityRunKey = Guid.Parse(finalized.RunId);
         HttpResponseMessage authorityDetailResponse =
-            await Client.GetAsync($"/v1/authority/reviews/{authorityRunKey:D}");
+            await Client.GetAsync($"/v1/authority/reviews/{finalized.RunGuid:D}");
         await authorityDetailResponse.EnsureSuccessForTestAsync();
         using JsonDocument authorityDetailDoc =
             JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());

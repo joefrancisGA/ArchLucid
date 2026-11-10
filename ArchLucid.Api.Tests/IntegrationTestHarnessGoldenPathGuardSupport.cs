@@ -94,7 +94,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 5;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 6;
 
     private static readonly Regex DirectPinExecuteOnFixtureRegex = new(
         @"\bClient\.PostExecuteAndEnsureArchitectureVersionPinForTestAsync\s*\(",
@@ -118,6 +118,14 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly Regex FixtureClassNameRegex = new(
         @"\b(?:class|record)\s+(\w+)\s*(?:\(|:\s*IntegrationTestBase)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RawManifestSummaryUrlRegex = new(
+        @"(?:\$""|"")/v1/architecture/manifest/[^""\n]+/summary""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RedundantSystemNameForRequestRegex = new(
+        @"TestRequestFactory\.SystemNameForRequest\s*\(\s*\w+\.RequestId\s*\)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex TupleReturnTypeRegex = new(
@@ -972,6 +980,48 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         string content = File.ReadAllText(path);
 
         return Regex.Matches(content, @"\[SkippableFact\]").Count;
+    }
+
+    private static readonly HashSet<string> RawManifestSummaryUrlAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical manifest summary GET lives on FinalizedRunHarnessExtensions.
+        nameof(FinalizedRunHarnessExtensions) + ".cs",
+    };
+
+    internal static List<string> ScanRawManifestSummaryUrlsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (RawManifestSummaryUrlAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!RawManifestSummaryUrlRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanRedundantSystemNameForRequestOnHarnessRuns()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content =>
+                content.Contains(": IntegrationTestBase", StringComparison.Ordinal)
+                && IsHarnessTestSource(content)
+                && RedundantSystemNameForRequestRegex.IsMatch(content));
     }
 
     private static void AddAllowlistFileNames(HashSet<string> union, HashSet<string> allowlist)

@@ -69,6 +69,17 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         created.RequestId.Should().Be(TestRequestIds.ForScenario(GetType().Name));
     }
 
+    [SkippableFact]
+    public async Task Golden_path_run_details_echoes_arrange_request_id()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        RunDetailsResponseDto details = await finalized.GetRunDetailsAsync(Client, JsonOptions);
+        details.Run.RequestId.Should().Be(finalized.RequestId);
+        details.Manifest.Should().NotBeNull();
+        details.Manifest!.SystemName.Should().Be(finalized.SystemName);
+    }
+
     [Theory]
     [InlineData("%20")]
     [InlineData("%09")]
