@@ -17,8 +17,7 @@ import {
   loadSecureNowPilotDispositionForPath,
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
-import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
-import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
+import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
@@ -159,13 +158,14 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                   {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
                 </p>
               ) : null}
-              {savedDisposition?.outcome === "Stop" ? (
-                <SecureNowPilotStopItsmHandoffBlock
-                  pathId={pathId}
-                  rationale={savedDisposition.rationale}
-                  handoffTestId="securenow-sponsor-path-pilot-stop-itsm-handoff"
-                />
-              ) : null}
+              <SecureNowPilotDispositionOutcomeRehearsalPanels
+                outcome={outcome}
+                savedOutcome={savedDisposition?.outcome ?? null}
+                savedRationale={savedDisposition?.rationale ?? null}
+                pathId={pathId}
+                testIdPrefix="securenow-sponsor-path"
+                stopHandoffTestId="securenow-sponsor-path-pilot-stop-itsm-handoff"
+              />
               <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}</p>
               <p className={OPERATOR_TYPOGRAPHY.helper}>
                 SecureNow recommends; it does not change Azure. A sponsor disposition does not clear beta NO_GO.
@@ -179,7 +179,6 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 </Link>
               </p>
             </section>
-            <SecureNowInvestigationEffortSyntheticExamplePanel testId="securenow-sponsor-path-synthetic-roi" />
             <SecureNowProcurementTrustStrip />
           </>
         )}
