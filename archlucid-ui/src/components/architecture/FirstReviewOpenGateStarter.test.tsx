@@ -14,5 +14,10 @@ describe("FirstReviewOpenGateStarter", () => {
       FIRST_REVIEW_OPEN_GATE_STARTER_HREF,
     );
     expect(screen.getByText(/Not a customer result/)).toBeInTheDocument();
+    expect(screen.getByText(/Policy-pack assignment is not this review/)).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-open-gate-starter-link")).toHaveAttribute(
+      "aria-describedby",
+      "first-review-open-gate-starter-lead first-review-open-gate-starter-not-this-review",
+    );
   });
 });

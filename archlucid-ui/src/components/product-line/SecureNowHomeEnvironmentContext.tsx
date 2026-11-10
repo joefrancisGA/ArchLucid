@@ -407,7 +407,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         This is not a timed SLA.
       </p>
       <CaptureDeltaBlock
-        workspaceId={scope.workspaceId}
+        stickinessScope={{ tenantId: scope.tenantId, workspaceId: scope.workspaceId }}
         eligibleSnapshots={eligibleCaptureSnapshots}
         reportQueries={pathDeltaReportQueryViews}
       />

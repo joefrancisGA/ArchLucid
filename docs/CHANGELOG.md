@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Floor scores follow-up: dynamic first hour, stickiness, first-review a11y
+
+**Outcome.** SecureNow Home Start here follows capture status on the first-hour table (cloud connections or Changes and drift for the latest snapshot). Return-home names the latest capture when Home has not recorded a last-opened snapshot. The first-review open-gate starter adds the not-this-review line and describes the primary CTA for assistive tech. Pricing FAQ link has an explicit accessible name. Home environment context passes stickiness scope into capture delta again.
+
+**Surfaces.** SecureNow Home, first-review guide, `/pricing`, stickiness return rows.
+
 ## 2026-11-10 - Owner accepts full ArchLucid commercial order book by quote
 
 **Outcome.** The owner accepts guided pilot, design partner, Enterprise evaluation, trial-to-paid, monthly Architect / Team / Professional, and custom policy-pack orders at published list prices by signed quote or order form. Stripe checkout is authorized when Prices are published. Until checkout is live, quote and order form remain binding. Beta remains **NO_GO**.

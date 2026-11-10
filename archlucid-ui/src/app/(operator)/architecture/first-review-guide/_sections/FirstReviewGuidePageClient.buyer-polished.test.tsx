@@ -153,6 +153,7 @@ describe("FirstReviewGuidePageClient buyer-polished shell (ARF)", () => {
     expect(firstViewport).not.toContainElement(pageHeader);
     expect(firstViewport).toContainElement(orientationTop);
     expect(firstViewport).toContainElement(onboardingProgress);
+    expect(firstViewport).toContainElement(screen.getByTestId("first-review-open-gate-starter"));
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(onboardingProgress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 

@@ -201,6 +201,15 @@ export function buildSecureNowReturnHomeRows(
   }
 
   const lastOpenedSnapshotId = input.lastOpenedSnapshotId?.trim() ?? "";
+  const latestSnapshotId = input.latestSnapshotId?.trim() ?? "";
+
+  if (lastOpenedSnapshotId.length === 0 && latestSnapshotId.length > 0) {
+    rows.push({
+      href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(latestSnapshotId)}`,
+      label: "Latest capture on this workspace",
+      summary: `Snapshot ${latestSnapshotId}. ${SECURENOW_STICKINESS_NOT_USAGE_CLAIM}`,
+    });
+  }
 
   if (lastOpenedSnapshotId.length > 0) {
     rows.push({
@@ -212,10 +221,9 @@ export function buildSecureNowReturnHomeRows(
 
   if (
     lastOpenedSnapshotId.length > 0
-    && input.latestSnapshotId !== null
-    && lastOpenedSnapshotId !== input.latestSnapshotId.trim()
+    && latestSnapshotId.length > 0
+    && lastOpenedSnapshotId !== latestSnapshotId
   ) {
-    const latestSnapshotId = input.latestSnapshotId.trim();
     rows.push({
       href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(latestSnapshotId)}`,
       label: "New capture since you last opened Home",

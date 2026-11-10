@@ -15,6 +15,8 @@ describe("PricingPageHero", () => {
     expect(screen.getByTestId("welcome-hero-product-visual")).toHaveAttribute("href", "/see-it");
     expect(screen.getByText(PRICING_PAGE_INTRO)).toBeInTheDocument();
     expect(screen.getByTestId("pricing-faq-link-line")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Product FAQ" })).toHaveAttribute("href", "/faq");
+    expect(
+      screen.getByRole("link", { name: "Product FAQ — pricing and packaging questions" }),
+    ).toHaveAttribute("href", "/faq");
   });
 });
