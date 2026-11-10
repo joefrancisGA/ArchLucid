@@ -16,11 +16,7 @@ public sealed class SponsorRoiSummaryEndpointTests(ArchLucidApiFactory factory) 
     [SkippableFact]
     public async Task GetSponsorReport_returns_ok_with_expected_shape()
     {
-        HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.RoiSponsorReport}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        SponsorRoiSummaryResponse? body =
+        HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.RoiSponsorReport}");        SponsorRoiSummaryResponse? body =
             await response.ReadJsonForTestAsync<SponsorRoiSummaryResponse>(JsonOptions);
 
         body.Should().NotBeNull();

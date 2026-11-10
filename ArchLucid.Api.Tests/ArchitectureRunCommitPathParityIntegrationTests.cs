@@ -49,10 +49,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         string runId = created.Run.RunId;
 
         await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
-        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
-        commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
-
-        CommitRunResponseDto? commitPayload =
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);        CommitRunResponseDto? commitPayload =
             await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         int manifestTraceIdCount = commitPayload.Manifest.Metadata.DecisionTraceIds.Count;

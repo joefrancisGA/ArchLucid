@@ -44,11 +44,7 @@ public sealed class InsightDensityNoveltyRatesEndpointTests(ArchLucidApiFactory 
         string url =
             $"/v1/tenants/current/insight-density/novelty-rates?from={fromUtc:O}&to={toUtc:O}";
 
-        HttpResponseMessage getResponse = await Client.GetAsync(url);
-
-        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        EngineInsightNoveltyRatesResponse? payload =
+        HttpResponseMessage getResponse = await Client.GetAsync(url);        EngineInsightNoveltyRatesResponse? payload =
             await getResponse.ReadJsonForTestAsync<EngineInsightNoveltyRatesResponse>(JsonOptions);
 
         payload.Should().NotBeNull();
@@ -77,10 +73,7 @@ public sealed class InsightDensityNoveltyRatesEndpointTests(ArchLucidApiFactory 
             "x-project-id",
             Guid.Parse("99999999-9999-9999-9999-999999999999").ToString("D"));
 
-        HttpResponseMessage response = await foreignClient.GetAsync(url);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        EngineInsightNoveltyRatesResponse? payload =
+        HttpResponseMessage response = await foreignClient.GetAsync(url);        EngineInsightNoveltyRatesResponse? payload =
             await response.ReadJsonForTestAsync<EngineInsightNoveltyRatesResponse>(JsonOptions);
         payload!.Rows.Should().BeEmpty();
     }

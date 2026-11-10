@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twenty-two facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twenty-five facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -128,10 +128,31 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Harness_tests_do_not_call_PostReviewReplayAsync_outside_replay_protocol_fixtures()
+    public void Harness_tests_do_not_call_review_replay_outside_replay_protocol_fixtures()
     {
         IntegrationTestHarnessGoldenPathGuardSupport.ScanPostReviewReplayAsyncInHarnessTests().Should().BeEmpty(
-            "use CommittedReplayPair replay helpers or OpenCommittedPairAsync instead of ad-hoc PostReviewReplayAsync.");
+            "use CommittedReplayPair replay helpers or OpenCommittedPairAsync instead of ad-hoc PostReviewReplayForTestAsync.");
+    }
+
+    [Fact]
+    public void IntegrationTestBase_tests_use_pin_aware_execute_helper()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanPostExecuteWithoutPinInIntegrationTestBase().Should().BeEmpty(
+            "use PostExecuteAndEnsureArchitectureVersionPinForTestAsync (or PostExecuteWithPinsAsync) on IntegrationTestBase fixtures.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_assert_HttpStatusCode_OK_before_ReadJsonForTestAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanOkStatusAssertionBeforeReadJson().Should().BeEmpty(
+            "ReadJsonForTestAsync already asserts success; drop redundant StatusCode.Should().Be(HttpStatusCode.OK) on the line above.");
+    }
+
+    [Fact]
+    public void IntegrationTestBase_classes_do_not_also_use_IntegrationTestIsolatedSqlScope()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanIsolatedSqlScopeInsideIntegrationTestBase().Should().BeEmpty(
+            "pick IntegrationTestBase (class fixture) or IntegrationTestIsolatedSqlScope.RunAsync — not both in one class.");
     }
 
     [Fact]
@@ -156,9 +177,9 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_twenty_two_scanners()
+    public void Guard_catalog_lists_twenty_five_scanners()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(22);
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(25);
     }
 
     [Fact]

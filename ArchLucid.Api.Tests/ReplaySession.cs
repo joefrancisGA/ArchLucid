@@ -41,7 +41,7 @@ public sealed class ReplaySession
         return new ReplaySession(factory, client, IntegrationTestBase.CreateApiJsonOptions());
     }
 
-    public async Task<string> CreateAndExecuteAsync(string requestId = "REQ-FIXTURE-001")
+    public async Task<string> CreateAndExecuteAsync(string requestId)
     {
         string runId = await IntegrationTestRunLifecycleSupport
             .CreateArchitectureRunForTestAsync(Client, JsonOptions, requestId)
@@ -52,14 +52,46 @@ public sealed class ReplaySession
     }
 
     /// <summary>Create → execute → finalize via the shared lifecycle harness.</summary>
-    public Task<FinalizedRun> CreateFinalizedAsync(string requestId = "REQ-FIXTURE-001") =>
+    public Task<FinalizedRun> CreateFinalizedAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
     /// <summary>Finalize + commit-replay in one call (preferred comparison arrange).</summary>
-    public Task<CommittedReplayPair> OpenCommittedPairAsync(string requestId = "REQ-FIXTURE-001") =>
+    public Task<CommittedReplayPair> OpenCommittedPairAsync(string requestId) =>
         CommitAndReplayAsync(requestId);
 
-    public async Task<CommittedReplayPair> CommitAndReplayAsync(string requestId = "REQ-FIXTURE-001")
+    public async Task<string> ReplayWithoutCommitAsync(string runId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(
+            Factory,
+            runId,
+            commitReplay: false,
+            manifestVersionOverride: null).ConfigureAwait(false);
+        ReplayRunResponseDto replayPayload =
+            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions).ConfigureAwait(false);
+
+        return replayPayload.ReplayRunId;
+    }
+
+    /// <summary>Commit-replay with an explicit manifest version (manifest compare tests).</summary>
+    public async Task<string> CommitReplayManifestVersionAsync(string runId, string manifestVersionOverride)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersionOverride);
+
+        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(
+            Factory,
+            runId,
+            commitReplay: true,
+            manifestVersionOverride: manifestVersionOverride).ConfigureAwait(false);
+        ReplayRunResponseDto replayPayload =
+            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions).ConfigureAwait(false);
+
+        return replayPayload.Manifest!.Metadata.ManifestVersion;
+    }
+
+    public async Task<CommittedReplayPair> CommitAndReplayAsync(string requestId)
     {
         FinalizedRun finalized = await CreateFinalizedAsync(requestId).ConfigureAwait(false);
         string runId = finalized.RunId;

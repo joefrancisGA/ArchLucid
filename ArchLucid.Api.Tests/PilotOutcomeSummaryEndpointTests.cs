@@ -15,11 +15,7 @@ public sealed class PilotOutcomeSummaryEndpointTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetOutcomeSummary_returns_ok_with_scorecard_shape()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/outcome-summary");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        PilotScorecardResponse? body = await response.ReadJsonForTestAsync<PilotScorecardResponse>(JsonOptions);
+        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/outcome-summary");        PilotScorecardResponse? body = await response.ReadJsonForTestAsync<PilotScorecardResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.TenantId.Should().NotBeEmpty();

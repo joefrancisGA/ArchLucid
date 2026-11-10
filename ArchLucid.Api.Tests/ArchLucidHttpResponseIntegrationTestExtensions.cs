@@ -49,7 +49,12 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        response.StatusCode.Should().Be(expectedStatus);
+        if (response.StatusCode != expectedStatus)
+        {
+            string failureBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            throw new HttpRequestException(
+                $"Expected HTTP {(int)expectedStatus} {expectedStatus} but got {(int)response.StatusCode} {response.StatusCode}. Body: {failureBody}");
+        }
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
 
         JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));

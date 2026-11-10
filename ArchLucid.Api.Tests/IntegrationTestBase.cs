@@ -82,17 +82,17 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task<FinalizedRun> FinalizeLifecycleAsync(string scenario) =>
         ArchitectureScenario.FinalizedAsync(Client, Factory, JsonOptions, scenario);
 
+    /// <summary>Same as <see cref="FinalizeLifecycleAsync" />; prefer in new tests for readable arrange.</summary>
+    protected Task<FinalizedRun> ArrangeFinalizedAsync(string scenario) =>
+        FinalizeLifecycleAsync(scenario);
+
+    /// <summary>Governance arrange: finalized (committed) run via <see cref="GovernanceScenario" />.</summary>
+    protected Task<FinalizedRun> ArrangeGovernanceCommittedAsync(string scenario) =>
+        GovernanceScenario.CommittedAsync(Client, Factory, JsonOptions, scenario);
+
     /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
     protected Task<HttpResponseMessage> PostComparisonReplayAsync(string comparisonRecordId, string format = "markdown") =>
         Client.PostComparisonReplayForTestAsync(comparisonRecordId, format);
-
-    /// <summary>POST <c>/v1/architecture/review/{runId}/replay</c> with harness replay JSON.</summary>
-    protected Task<HttpResponseMessage> PostReviewReplayAsync(
-        string runId,
-        bool commitReplay,
-        string executionMode = "Current",
-        string? manifestVersionOverride = null) =>
-        Client.PostReviewReplayForTestAsync(Factory, runId, commitReplay, executionMode, manifestVersionOverride);
 
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
     protected ArchLucidApiFactory Factory

@@ -106,12 +106,36 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"""(REQ-[A-Z][A-Z0-9-]{4,})""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex OkStatusBeforeReadJsonRegex = new(
+        @"\.StatusCode\.Should\(\)\.Be\(\s*HttpStatusCode\.OK[^;]*;\s*\r?\n\s*\w+\?\s+\w+\s*=\s*await\s+\w+\.ReadJsonForTestAsync",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ReviewReplayCallRegex = new(
+        @"\bPostReviewReplay(?:ForTest)?Async\s*\(",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex AllowlistBlockStartRegex = new(
+        @"^\s*private\s+static\s+readonly\s+HashSet<string>\s+\w+Allowlist\s*=\s*new",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly HashSet<string> PostReviewReplayAsyncAllowlist = new(StringComparer.Ordinal)
     {
         // harness-allowlist: tests replay protocol and manifest override semantics.
         nameof(ArchitectureReplayTests) + ".cs",
         nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",
-        nameof(IntegrationTestBase) + ".cs",
+        nameof(IntegrationTestRunLifecycleSupport) + ".cs",
+        nameof(ReplaySession) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> PostExecuteWithoutPinAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: exercises raw execute responses and idempotency conflicts.
+        nameof(ArchitectureControllerTests) + ".cs",
+        // harness-allowlist: tests execute idempotency and conflict without pin refresh.
+        "FinalizedEvidenceImmutabilityIntegrationTests.cs",
+        nameof(IntegrationTestRunLifecycleSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
     };
@@ -120,16 +144,15 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     {
         // harness-allowlist: asserts intake payload request ids and idempotency matrix literals.
         nameof(ArchitectureControllerTests) + ".cs",
-        // harness-allowlist: replay session fixture default parameter values.
-        nameof(ReplaySession) + ".cs",
         // harness-allowlist: greenfield warm prefix literal for shard overload primer.
         nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
+        // harness-allowlist: fixture / boot tests with fixed external ids.
         nameof(ComparisonReplayCostEstimateIntegrationTests) + ".cs",
         nameof(FixtureLoader) + ".cs",
         nameof(GreenfieldSqlBootIntegrationTests) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
-        nameof(ReplaySession) + ".cs",
+        // harness-allowlist: factory default payload id constant.
         nameof(TestRequestFactory) + ".cs",
     };
 
@@ -142,6 +165,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> EndToEndCompareSummaryAllowlist = new(StringComparer.Ordinal)
     {
+        // harness-allowlist: compare summary URLs in lifecycle + targeted negative tests.
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
@@ -151,6 +175,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> EndToEndCompareExportAllowlist = new(StringComparer.Ordinal)
     {
+        // harness-allowlist: export route literals live in lifecycle helpers only.
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
@@ -158,6 +183,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> PostExecuteUnlessAllowlist = new(StringComparer.Ordinal)
     {
+        // harness-allowlist: execute-unless helper is defined in lifecycle support.
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
@@ -165,6 +191,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> EnsureSuccessAllowlist = new(StringComparer.Ordinal)
     {
+        // harness-allowlist: concurrency harness uses EnsureSuccessStatusCode by design.
         nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
@@ -172,6 +199,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> PrivateIntakeExclusions = new(StringComparer.Ordinal)
     {
+        // harness-allowlist: base class defines shared intake helpers.
         nameof(IntegrationTestBase) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
@@ -455,7 +483,77 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!IsHarnessTestSource(content))
                 continue;
 
-            if (!PostReviewReplayAsyncRegex.IsMatch(content))
+            if (!ReviewReplayCallRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanOkStatusAssertionBeforeReadJson()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content => IsHarnessTestSource(content) && OkStatusBeforeReadJsonRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanPostExecuteWithoutPinInIntegrationTestBase()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (PostExecuteWithoutPinAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!content.Contains(".PostExecuteForTestAsync(", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains("PostExecuteAndEnsureArchitectureVersionPinForTestAsync", StringComparison.Ordinal))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> IsolatedSqlScopeMixedAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: controller matrix uses per-test isolated SQL inside class fixture.
+        nameof(ArchitectureControllerTests) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    internal static List<string> ScanIsolatedSqlScopeInsideIntegrationTestBase()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (IsolatedSqlScopeMixedAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!content.Contains("IntegrationTestIsolatedSqlScope.RunAsync", StringComparison.Ordinal))
                 continue;
 
             violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
@@ -497,12 +595,52 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     {
         string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
         string path = Path.Combine(repoRoot, nameof(ArchLucid) + ".Api.Tests", nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs");
-        string content = File.ReadAllText(path);
+        string[] lines = File.ReadAllLines(path);
+        List<string> violations = [];
+        bool inAllowlist = false;
+        bool blockDocumented = false;
 
-        if (content.Contains("harness-allowlist:", StringComparison.Ordinal))
-            return [];
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i];
 
-        return [path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal)];
+            if (AllowlistBlockStartRegex.IsMatch(line))
+            {
+                inAllowlist = true;
+                blockDocumented = false;
+
+                for (int j = i; j <= Math.Min(i + 3, lines.Length - 1); j++)
+                {
+                    if (lines[j].Contains("harness-allowlist:", StringComparison.Ordinal))
+                    {
+                        blockDocumented = true;
+                        break;
+                    }
+                }
+
+                continue;
+            }
+
+            if (inAllowlist && line.TrimStart().StartsWith("};", StringComparison.Ordinal))
+            {
+                inAllowlist = false;
+                blockDocumented = false;
+
+                continue;
+            }
+
+            if (!inAllowlist || blockDocumented || !line.Contains("nameof(", StringComparison.Ordinal))
+                continue;
+
+            if (line.Contains(nameof(IntegrationTestHarnessGoldenPathGuardSupport), StringComparison.Ordinal)
+                || line.Contains(nameof(IntegrationTestHarnessGoldenPathGuardTests), StringComparison.Ordinal)
+                || line.Contains(nameof(IntegrationTestRunLifecycleSupport), StringComparison.Ordinal))
+                continue;
+
+            violations.Add($"{path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal)}:{i + 1}");
+        }
+
+        return violations;
     }
 
     internal static List<string> ScanUnbootstrappedCreateClientInHarnessTests()

@@ -21,11 +21,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             runId,
             commitReplay: false,
-            manifestVersionOverride: null);
-
-        replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ReplayRunResponseDto? payload =
+            manifestVersionOverride: null);        ReplayRunResponseDto? payload =
             await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.OriginalRunId.Should().Be(runId);
@@ -43,11 +39,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
             finalized.RunId,
             commitReplay: true,
-            manifestVersionOverride: rightVersion);
-
-        replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ReplayRunResponseDto? payload =
+            manifestVersionOverride: rightVersion);        ReplayRunResponseDto? payload =
             await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Manifest.Should().NotBeNull();

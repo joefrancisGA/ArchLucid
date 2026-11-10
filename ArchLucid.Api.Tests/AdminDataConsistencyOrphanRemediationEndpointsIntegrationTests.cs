@@ -22,10 +22,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
     {
         HttpResponseMessage response =
             await Client.PostAsync(
-                "/v1/admin/diagnostics/data-consistency/orphan-golden-manifests?dryRun=true&maxRows=10", null);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        OrphanGoldenManifestRemediationResultDto? body =
+                "/v1/admin/diagnostics/data-consistency/orphan-golden-manifests?dryRun=true&maxRows=10", null);        OrphanGoldenManifestRemediationResultDto? body =
             await response.ReadJsonForTestAsync<OrphanGoldenManifestRemediationResultDto>(JsonOptions);
 
         body.Should().NotBeNull();
@@ -40,10 +37,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
     {
         HttpResponseMessage response =
             await Client.PostAsync(
-                "/v1/admin/diagnostics/data-consistency/orphan-findings-snapshots?dryRun=true&maxRows=10", null);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        OrphanFindingsSnapshotRemediationResultDto? body =
+                "/v1/admin/diagnostics/data-consistency/orphan-findings-snapshots?dryRun=true&maxRows=10", null);        OrphanFindingsSnapshotRemediationResultDto? body =
             await response.ReadJsonForTestAsync<OrphanFindingsSnapshotRemediationResultDto>(JsonOptions);
 
         body.Should().NotBeNull();

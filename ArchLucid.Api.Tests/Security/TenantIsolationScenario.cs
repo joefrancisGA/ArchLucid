@@ -16,4 +16,40 @@ public static class TenantIsolationScenario
 
         await exercise().ConfigureAwait(false);
     }
+
+    /// <summary>Primer + two SQL clients with explicit tenant/workspace/project scope headers.</summary>
+    public static async Task WithTwoScopedClientsAsync(
+        GreenfieldSqlApiFactory factory,
+        Guid tenantA,
+        Guid workspaceA,
+        Guid projectA,
+        Guid tenantB,
+        Guid workspaceB,
+        Guid projectB,
+        Func<HttpClient, HttpClient, Task> exercise)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(exercise);
+
+        await WithGreenfieldPrimerAsync(
+            factory,
+            async () =>
+            {
+                HttpClient clientA = factory.CreateClient();
+                HttpClient clientB = factory.CreateClient();
+
+                try
+                {
+                    GreenfieldIntegrationTenantScope.WireScope(clientA, tenantA, workspaceA, projectA);
+                    GreenfieldIntegrationTenantScope.WireScope(clientB, tenantB, workspaceB, projectB);
+
+                    await exercise(clientA, clientB).ConfigureAwait(false);
+                }
+                finally
+                {
+                    clientA.Dispose();
+                    clientB.Dispose();
+                }
+            }).ConfigureAwait(false);
+    }
 }

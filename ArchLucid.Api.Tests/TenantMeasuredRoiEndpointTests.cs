@@ -16,10 +16,7 @@ public sealed class TenantMeasuredRoiEndpointTests(ArchLucidApiFactory factory) 
     [SkippableFact]
     public async Task GetTenantMeasuredRoi_returns_200_with_snapshot_and_disclaimer()
     {
-        HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.TenantMeasuredRoi}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        TenantMeasuredRoiResponse? body =
+        HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.TenantMeasuredRoi}");        TenantMeasuredRoiResponse? body =
             await response.ReadJsonForTestAsync<TenantMeasuredRoiResponse>(JsonOptions);
 
         body.Should().NotBeNull();

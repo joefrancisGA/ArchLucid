@@ -30,11 +30,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        HttpResponseMessage response = await Client.SendAsync(request);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
@@ -50,11 +46,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=3");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        HttpResponseMessage response = await Client.SendAsync(request);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
@@ -67,11 +59,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=9999");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        HttpResponseMessage response = await Client.SendAsync(request);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
@@ -85,11 +73,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=-3");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        HttpResponseMessage response = await Client.SendAsync(request);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();

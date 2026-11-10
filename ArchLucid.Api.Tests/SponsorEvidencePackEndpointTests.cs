@@ -15,11 +15,7 @@ public sealed class SponsorEvidencePackEndpointTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetSponsorEvidencePack_returns_ok_with_process_and_governance_slice()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/sponsor-evidence-pack");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        SponsorEvidencePackResponse? pack =
+        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/sponsor-evidence-pack");        SponsorEvidencePackResponse? pack =
             await response.ReadJsonForTestAsync<SponsorEvidencePackResponse>(JsonOptions);
 
         pack.Should().NotBeNull();

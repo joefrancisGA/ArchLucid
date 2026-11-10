@@ -43,11 +43,7 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
         postResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         HttpResponseMessage getResponse = await Client.GetAsync(
-            $"/v1/runs/{runId:D}/findings/{DemoPrimaryFindingId}/insight-signal");
-
-        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        FindingInsightSignalStatusResponse? status =
+            $"/v1/runs/{runId:D}/findings/{DemoPrimaryFindingId}/insight-signal");        FindingInsightSignalStatusResponse? status =
             await getResponse.ReadJsonForTestAsync<FindingInsightSignalStatusResponse>(JsonOptions);
 
         status.Should().NotBeNull();

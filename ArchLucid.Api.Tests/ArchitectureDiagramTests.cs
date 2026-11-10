@@ -21,11 +21,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
         string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse =
-            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
-
-        diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        DiagramResponse? diagramPayload = await diagramResponse.ReadJsonForTestAsync<DiagramResponse>(JsonOptions);
+            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");        DiagramResponse? diagramPayload = await diagramResponse.ReadJsonForTestAsync<DiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.Format.Should().Be("mermaid");
         diagramPayload.Diagram.Should().Contain("flowchart LR");
@@ -41,11 +37,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
         string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse = await Client.GetAsync(
-            $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");
-
-        diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ManifestDiagramResponse? diagramPayload =
+            $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");        ManifestDiagramResponse? diagramPayload =
             await diagramResponse.ReadJsonForTestAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.DiagramType.Should().Be("Mermaid");

@@ -34,11 +34,7 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
 
         HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/review/{finalized.RunId}/analysis-report",
-            JsonContent(request));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ArchitectureAnalysisReportResponse? payload =
+            JsonContent(request));        ArchitectureAnalysisReportResponse? payload =
             await response.ReadJsonForTestAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Report.Run.RunId.Should().Be(finalized.RunId);
