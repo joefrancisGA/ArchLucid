@@ -35,15 +35,12 @@ public sealed class ReplaySession
     {
         ArgumentNullException.ThrowIfNull(factory);
 
-        HttpClient client = await factory.CreateBoundedClientAsync().ConfigureAwait(false);
-        WireDefaultSqlIntegrationScopeHeaders(client);
-        await IntegrationTestWorkspaceModeSupport.PinGuidedWorkspaceModeForDevUserAsync(factory).ConfigureAwait(false);
+        HttpClient client = await IntegrationTestSqlClientBootstrap
+            .CreateSqlIntegrationClientAsync(factory)
+            .ConfigureAwait(false);
 
         return new ReplaySession(factory, client, IntegrationTestBase.CreateApiJsonOptions());
     }
-
-    public static void WireDefaultSqlIntegrationScopeHeaders(HttpClient client) =>
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
     public async Task<string> CreateAndExecuteAsync(string requestId = "REQ-FIXTURE-001")
     {
@@ -76,6 +73,6 @@ public sealed class ReplaySession
         return new CommittedReplayPair(runId, replayPayload!.ReplayRunId);
     }
 
-    public Task<string> PersistEndToEndComparisonAsync(string leftRunId, string rightRunId) =>
+    public Task<PersistedComparison> PersistEndToEndComparisonAsync(string leftRunId, string rightRunId) =>
         Client.PostPersistEndToEndComparisonForTestAsync(leftRunId, rightRunId);
 }

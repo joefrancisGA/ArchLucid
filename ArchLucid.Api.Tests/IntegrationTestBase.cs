@@ -89,10 +89,7 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     /// <inheritdoc />
     public async Task InitializeAsync()
     {
-        Client = await CreateClientWithDefaultScopeHeadersAsync(Factory).ConfigureAwait(false);
-        await IntegrationTestWorkspaceModeSupport
-            .PinGuidedWorkspaceModeForDevUserAsync(Factory)
-            .ConfigureAwait(false);
+        Client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(Factory).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -328,14 +325,6 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
 
         _ = request.Headers.TryAddWithoutValidation(ArchLucidAuthOptions.TestActorNameHeader, testActorName.Trim());
         _ = request.Headers.TryAddWithoutValidation(ArchLucidAuthOptions.TestActorIdHeader, testActorId.Trim());
-    }
-
-    private static async Task<HttpClient> CreateClientWithDefaultScopeHeadersAsync(ArchLucidApiFactory apiFactory)
-    {
-        HttpClient client = await apiFactory.CreateBoundedClientAsync().ConfigureAwait(false);
-        WireDefaultSqlIntegrationScopeHeaders(client);
-
-        return client;
     }
 
     /// <summary>

@@ -27,15 +27,15 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
                 factory.Services.GetRequiredService<IComparisonRecordRepository>();
 
             const int parallel = 5;
-            Task<string>[] tasks = new Task<string>[parallel];
+            Task<PersistedComparison>[] tasks = new Task<PersistedComparison>[parallel];
 
             for (int i = 0; i < parallel; i++)
             {
                 tasks[i] = replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
             }
 
-            IReadOnlyList<string> recordIds = await Task.WhenAll(tasks);
-            recordIds.Select(static r => r).ToHashSet().Count.Should()
+            IReadOnlyList<PersistedComparison> persisted = await Task.WhenAll(tasks);
+            persisted.Select(static p => p.ComparisonRecordId).ToHashSet().Count.Should()
                 .Be(parallel, "each persist should create a new record id");
 
             IReadOnlyList<ComparisonRecord> matches = await repository.SearchAsync(

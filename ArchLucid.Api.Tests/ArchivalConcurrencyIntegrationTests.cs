@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
@@ -25,24 +23,13 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchivalConcurrencyIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
-    };
-
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     [SkippableFact]
     public async Task Five_parallel_archive_by_ids_all_200_and_run_drops_off_active_project_list()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
+        {
         string requestId = "REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8];
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
@@ -61,7 +48,9 @@ public sealed class ArchivalConcurrencyIntegrationTests
 
         for (int i = 0; i < parallel; i++)
         {
-            tasks[i] = client.PostAsync("/v1/admin/runs/archive-by-ids", JsonContent(body));
+            tasks[i] = client.PostAsync(
+                "/v1/admin/runs/archive-by-ids",
+                IntegrationTestHttpContent.CreateJson(body, JsonOptions));
         }
 
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);
@@ -95,5 +84,6 @@ public sealed class ArchivalConcurrencyIntegrationTests
                 response.Dispose();
             }
         }
+        });
     }
 }

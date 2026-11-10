@@ -135,7 +135,7 @@ public static class IntegrationTestRunLifecycleSupport
         client.PostAsync(EndToEndCompareSummaryRelativeUrl(leftRunId, rightRunId), body, cancellationToken);
 
     /// <summary>POST persist end-to-end comparison; returns <c>X-ArchLucid-ComparisonRecordId</c>.</summary>
-    public static async Task<string> PostPersistEndToEndComparisonForTestAsync(
+    public static async Task<PersistedComparison> PostPersistEndToEndComparisonForTestAsync(
         this HttpClient client,
         string leftRunId,
         string rightRunId,
@@ -151,7 +151,7 @@ public static class IntegrationTestRunLifecycleSupport
 
         await persist.EnsureSuccessForTestAsync().ConfigureAwait(false);
 
-        return persist.ReadComparisonRecordIdHeaderForTest();
+        return new PersistedComparison(persist.ReadComparisonRecordIdHeaderForTest());
     }
 
     /// <summary>Single source for the review finalize route used by test harness helpers.</summary>
