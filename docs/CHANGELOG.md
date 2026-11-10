@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 7: walkthrough step, architect empty parity, Real fallback
+
+**Outcome.** First-review guide names the next checklist step when prerequisites are complete (buyer-polished test). Architect snapshot empty states add drift review and synthetic ROI when collection is ready. Path inspect surfaces Real-session fallback discipline. Drift buyer-polished test asserts post-capture next step.
+
+**Surfaces.** First-review guide, remediation factory, Path inspect, drift workbench, tests.
+
 ## 2026-11-10 - Score lift round 6: working open gate, Path inspect mode, sponsor rehearsal
 
 **Outcome.** Working Home surfaces a one-line browser-local open gate from the last review spine. Path inspect names deterministic rank vs agent explanation mode. Sponsor path without `pathId` still rehearses Proceed / Extend / Stop. jest-axe covers drift post-capture and pricing AL-EVAL.

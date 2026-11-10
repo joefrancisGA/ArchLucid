@@ -182,7 +182,6 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
-import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";

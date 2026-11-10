@@ -52,6 +52,7 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
@@ -384,6 +385,10 @@ function PathExplanationSection(props: {
   const citationRejection = props.explanation?.modelOutputRejection?.trim() ?? "";
   const showCitationRejection =
     props.explanation?.provenanceKind === "DeterministicInference" && citationRejection.length > 0;
+  const showRealSessionFallbackDiscipline =
+    !props.useSimulator
+    && props.explanation !== null
+    && props.explanation.provenanceKind !== "AiInference";
 
   return (
     <div
@@ -415,6 +420,14 @@ function PathExplanationSection(props: {
       </Button>
       {props.explanationError != null ? (
         <StatusTag kind="needs-attention" label={props.explanationError} />
+      ) : null}
+      {showRealSessionFallbackDiscipline ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-explanation-real-fallback-discipline"
+        >
+          {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE}
+        </p>
       ) : null}
       {showCitationRejection ? (
         <div data-testid="security-evidence-path-explanation-citation-rejection">

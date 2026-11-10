@@ -90,4 +90,11 @@ describe("resolveRemediationFactoryArchitectSnapshotsEmptyState", () => {
 
     expect(state.actions?.[0]?.href).toBe(CLOUD_CONNECTIONS_PATH);
   });
+
+  it("adds drift review and synthetic ROI when collection is complete", () => {
+    const state = resolveRemediationFactoryArchitectSnapshotsEmptyState(true);
+
+    expect(state.actions?.[0]?.label).toBe("Review changes and drift");
+    expect(state.actions?.[1]?.href).toBe(SECURENOW_INVESTIGATION_EFFORT_PATH);
+  });
 });

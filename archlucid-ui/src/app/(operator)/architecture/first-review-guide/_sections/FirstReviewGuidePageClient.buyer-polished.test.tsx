@@ -168,6 +168,17 @@ describe("FirstReviewGuidePageClient buyer-polished shell (ARF)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
+
+  it("names the next walkthrough step when prerequisites are complete", () => {
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const nextStep = screen.getByTestId("first-review-walkthrough-next-step");
+    expect(nextStep).toHaveTextContent("Next checklist step: Define the architecture");
+    expect(within(nextStep).getByRole("link", { name: "Start review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
+  });
 });
 
 vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
