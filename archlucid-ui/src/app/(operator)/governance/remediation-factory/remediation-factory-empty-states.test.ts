@@ -14,6 +14,7 @@ import {
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 
 describe("resolveRemediationFactoryRankedPathsEmptyState", () => {
   it("prefers cloud collection when setup is incomplete", () => {
@@ -25,8 +26,13 @@ describe("resolveRemediationFactoryRankedPathsEmptyState", () => {
     expect(state.actions?.[1]?.href).toBe(GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH);
   });
 
-  it("keeps upload inventory primary when collection is complete", () => {
-    expect(resolveRemediationFactoryRankedPathsEmptyState(true)).toEqual(REMEDIATION_FACTORY_RANKED_PATHS_EMPTY);
+  it("keeps upload inventory primary when collection is complete and adds synthetic ROI walkthrough", () => {
+    const state = resolveRemediationFactoryRankedPathsEmptyState(true);
+
+    expect(state.actions?.[0]).toEqual(REMEDIATION_FACTORY_RANKED_PATHS_EMPTY.actions?.[0]);
+    expect(state.actions?.[1]).toEqual(REMEDIATION_FACTORY_RANKED_PATHS_EMPTY.actions?.[1]);
+    expect(state.actions?.[2]?.href).toBe(SECURENOW_INVESTIGATION_EFFORT_PATH);
+    expect(state.actions?.[2]?.label).toBe("Synthetic ROI walkthrough");
   });
 });
 

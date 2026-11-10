@@ -26,6 +26,7 @@ describe("OperatorHomeSecureNowCollectionSetupSection", () => {
 
     expect(screen.getByTestId("operator-home-securenow-collection-setup")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-collection-setup")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-beta-sku-contents-section")).toBeInTheDocument();
   });
 
   it("renders nothing when collection setup is complete", () => {

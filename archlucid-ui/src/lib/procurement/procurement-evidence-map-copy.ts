@@ -54,6 +54,13 @@ export const SECURENOW_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     note: "SKU meters, quote sequence, and quote-only list prices.",
   },
   {
+    id: "sn-eval-acceptance",
+    label: "SN-EVAL controlled pilot acceptance",
+    status: "available",
+    href: "/administration/securenow-quote-packet#sn-eval",
+    note: "Quote packet anchors SN-EVAL acceptance language — not a countersigned order.",
+  },
+  {
     id: "soc2-cpa",
     label: "CPA-issued SOC 2 Type II report",
     status: "not-published",

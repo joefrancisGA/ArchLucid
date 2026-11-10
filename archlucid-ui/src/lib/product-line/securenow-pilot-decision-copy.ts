@@ -1,7 +1,15 @@
 import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
+
+export const SECURENOW_PILOT_DECISION_EXTEND_ROI_LEAD =
+  "Extend keeps bounded scope open. Use the synthetic ROI worksheet for sponsor rehearsal — not tenant ROI." as const;
+
+export const SECURENOW_PILOT_DECISION_EXTEND_ROI_LINK_LABEL = "Open investigation effort worksheet" as const;
+
+export const SECURENOW_PILOT_DECISION_EXTEND_ROI_HREF = SECURENOW_INVESTIGATION_EFFORT_PATH;
 
 export const SECURENOW_PILOT_DECISION_HEADING = "Pilot decision preparation" as const;
 

@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 
 import { SecureNowHomeDestinationSection } from "@/components/product-line/SecureNowHomeDestinationSection";
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
+import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { resolveSecureNowCollectionReadyNextHref } from "@/lib/product-line/securenow-collection-setup-ready-copy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { isInfraEvidenceSnapshotCaptureSucceeded } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
@@ -24,6 +28,7 @@ import {
   SECURENOW_RETURN_HOME_EMPTY,
   SECURENOW_RETURN_HOME_API_UNREACHABLE,
   buildSecureNowReturnHomeRows,
+  markSecureNowReturnHomeRecommendedFirst,
   countRemediationInstancesAwaitingVerification,
   countSecureNowExtendDispositionsInBrowserCache,
   readSecureNowLastOpenedSnapshotId,
@@ -38,6 +43,9 @@ const SNAPSHOT_PAGE_SIZE = 20;
 export function SecureNowReturnHomeSection(): React.JSX.Element {
   const scope = useOperatorScopeQueryKey();
   const [browserMemoryReady, setBrowserMemoryReady] = useState(false);
+  const collectionSetupQuery = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+  });
   const snapshotsQuery = useQuery({
     queryKey: operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE),
     queryFn: () => fetchInfraEvidenceSnapshots(1, SNAPSHOT_PAGE_SIZE),
@@ -109,7 +117,7 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
   const delta = computeSecureNowCapturePathDelta(previousReportQuery.data ?? [], latestReportQuery.data ?? []);
   const stickinessScope = { tenantId: scope.tenantId, workspaceId: scope.workspaceId };
   const pinnedPathId = browserMemoryReady ? readSecureNowPinnedPathId(stickinessScope) : null;
-  const rows = buildSecureNowReturnHomeRows({
+  const builtRows = buildSecureNowReturnHomeRows({
     awaitingVerificationCount: instancesQuery.isError
       ? 0
       : countRemediationInstancesAwaitingVerification(instancesQuery.data ?? []),
@@ -124,6 +132,14 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
         : resolveSecureNowPinnedPathStatus(pinnedPathId, latestReportQuery.data ?? [], previousReportQuery.data ?? []),
     extendDispositionCount: browserMemoryReady ? countSecureNowExtendDispositionsInBrowserCache() : 0,
   });
+  const collectionInput = collectionSetupQuery.collectionInput;
+  const collectionComplete =
+    collectionInput !== null && isSecureNowCollectionSetupComplete(collectionInput);
+  const homeAlignedPrimaryHref =
+    collectionComplete
+      ? resolveSecureNowCollectionReadyNextHref(eligibleSnapshots[0]?.snapshotId ?? null)
+      : CLOUD_CONNECTIONS_PATH;
+  const rows = markSecureNowReturnHomeRecommendedFirst(builtRows, homeAlignedPrimaryHref);
 
   if (rows.length === 0) {
     return (

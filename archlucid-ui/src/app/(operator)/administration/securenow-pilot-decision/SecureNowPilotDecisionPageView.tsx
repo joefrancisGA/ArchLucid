@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -18,6 +19,9 @@ import {
   SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
+  SECURENOW_PILOT_DECISION_EXTEND_ROI_HREF,
+  SECURENOW_PILOT_DECISION_EXTEND_ROI_LEAD,
+  SECURENOW_PILOT_DECISION_EXTEND_ROI_LINK_LABEL,
   SECURENOW_PILOT_DECISION_GUARDRAIL,
   SECURENOW_PILOT_DECISION_HEADING,
   SECURENOW_PILOT_DECISION_LEAD,
@@ -181,6 +185,20 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
               rationale={savedDisposition.rationale}
               handoffTestId="securenow-pilot-decision-pilot-stop-itsm-handoff"
             />
+          ) : null}
+          {outcome === "Extend" || savedDisposition?.outcome === "Extend" ? (
+            <div className="space-y-2" data-testid="securenow-pilot-decision-extend-roi">
+              <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PILOT_DECISION_EXTEND_ROI_LEAD}</p>
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                <Link className={OPERATOR_LINK.inline} href={SECURENOW_PILOT_DECISION_EXTEND_ROI_HREF}>
+                  {SECURENOW_PILOT_DECISION_EXTEND_ROI_LINK_LABEL}
+                </Link>
+              </p>
+              <SecureNowInvestigationEffortSyntheticExamplePanel
+                testId="securenow-pilot-decision-synthetic-roi"
+                headingId="securenow-pilot-decision-synthetic-roi-heading"
+              />
+            </div>
           ) : null}
           <p className={OPERATOR_TYPOGRAPHY.helper}>A saved disposition does not clear beta NO_GO.</p>
         </section>

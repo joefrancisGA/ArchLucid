@@ -250,6 +250,29 @@ export function buildSecureNowReturnHomeRows(
   return rows;
 }
 
+export function markSecureNowReturnHomeRecommendedFirst(
+  rows: readonly SecureNowHomeDestinationRow[],
+  primaryHref: string | null,
+): readonly SecureNowHomeDestinationRow[] {
+  const trimmedPrimary = primaryHref?.trim() ?? "";
+
+  if (trimmedPrimary.length === 0) {
+    return rows;
+  }
+
+  let marked = false;
+
+  return rows.map((row) => {
+    if (!marked && row.href === trimmedPrimary) {
+      marked = true;
+
+      return { ...row, recommendedFirst: true };
+    }
+
+    return { ...row, recommendedFirst: false };
+  });
+}
+
 function pinnedPathSummary(pathId: string, status: SecureNowPinnedPathStatus): string {
   if (status === "unchanged") {
     return `${pathId} is still on the latest capture.`;

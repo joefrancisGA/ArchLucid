@@ -1,5 +1,7 @@
 import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-doc-href";
 
+export const SECURENOW_INVESTIGATION_EFFORT_PATH = "/administration/securenow-investigation-effort" as const;
+
 export const SECURENOW_INVESTIGATION_EFFORT_HEADING =
   "Investigation effort" as const;
 

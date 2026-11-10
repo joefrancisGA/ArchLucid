@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
@@ -62,6 +63,7 @@ export function OperatorHomeSecureNowCollectionSetupSection(): React.JSX.Element
       aria-labelledby="operator-home-collection-setup-heading"
     >
       <SecureNowCollectionSetupStatusSection testIdPrefix="operator-home" sectionId="operator-home-collection-setup" />
+      <SecureNowBetaSkuContentsSection showQuoteLink />
     </section>
   );
 }

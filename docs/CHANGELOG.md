@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 2: sealed-package honesty, Extend ROI, SN-EVAL row
+
+**Outcome.** Pilot decision Extend shows the synthetic ROI worksheet and links Investigation effort. Ranked-path empty adds a synthetic walkthrough when collection is ready. Return-home marks the row that matches collection next step. Path inspect links the ROI worksheet from Path rank. Reviews /new states that intake is not yet sealed. ArchLucid first-review guide and operator Home eval-empty show procurement trust and sample-versus-sealed checklist. SecureNow Home shows beta SKU contents while collection is incomplete. Procurement map adds SN-EVAL acceptance.
+
+**Surfaces.** Pilot decision, remediation factory empty, return home, path inspect, reviews /new, first-review guide, operator Home, procurement map.
+
 ## 2026-11-10 - Score lift top-10: collection next step, sample checklist, ROI on sponsor path
 
 **Outcome.** After collection is ready, SecureNow names one next step toward ranked paths or Changes and drift. Return-home rows say do this next. Path inspect names simulator versus Real completion and honest blank ranking copy. The sponsor path includes the synthetic ROI walkthrough. The first-review guide lists what the sample shows versus a sealed tenant review. Procurement map adds the custom pack order row.

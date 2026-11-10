@@ -4,6 +4,7 @@ import { writeSecureNowPilotDisposition } from "@/lib/product-line/securenow-pil
 
 import {
   buildSecureNowReturnHomeRows,
+  markSecureNowReturnHomeRecommendedFirst,
   countRemediationInstancesAwaitingVerification,
   countSecureNowExtendDispositionsInBrowserCache,
   formatSecureNowCapturePathDeltaCounts,
@@ -139,5 +140,22 @@ describe("securenow stickiness", () => {
         summary: "Snapshot snap-1. This is not a usage claim. Do this next: reopen this capture.",
       },
     ]);
+  });
+
+  it("marks the row that matches Home collection next step as recommended first", () => {
+    const rows = buildSecureNowReturnHomeRows({
+      awaitingVerificationCount: 0,
+      addedCount: 0,
+      goneCount: 0,
+      latestSnapshotId: "snap-9",
+      lastOpenedSnapshotId: null,
+      pinnedPathId: null,
+      pinnedPathStatus: null,
+      extendDispositionCount: 0,
+    });
+
+    const marked = markSecureNowReturnHomeRecommendedFirst(rows, "/infrastructure/snapshots-drift?snapshotId=snap-9");
+
+    expect(marked[0]?.recommendedFirst).toBe(true);
   });
 });

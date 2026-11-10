@@ -62,11 +62,13 @@ import {
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_INSPECT_RANK_LOADING,
+  SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
+import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   OPERATOR_QUERY_GC_MS,
   OPERATOR_QUERY_STALE_MS,
@@ -309,6 +311,12 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         Dimension prose below expands the reader sentence. The composite key is ordering only.
+      </p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-rank-roi-worksheet">
+        <Link className={OPERATOR_LINK.inline} href={SECURENOW_INVESTIGATION_EFFORT_PATH}>
+          {SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL}
+        </Link>
+        {" — training numbers only, not tenant ROI."}
       </p>
       <div className="mt-2">
         <SecurityEvidencePathRankReaderDisclosures rank={props.rank} />

@@ -17,6 +17,7 @@ import {
 } from "@/lib/reviews-new-page-resume-hero";
 import { cn } from "@/lib/utils";
 
+import { ArchitectureReviewNewSealedPackageCallout } from "./ArchitectureReviewNewSealedPackageCallout";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
 import {
@@ -71,6 +72,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         >
           {showBuyerChromeInShell ? <ReviewsNewBuyerChrome /> : null}
           {!onPathTab ? <ReviewsNewWizardResumeStrip /> : null}
+          {!onPathTab ? <ArchitectureReviewNewSealedPackageCallout /> : null}
           {props.children}
           {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
         </div>
