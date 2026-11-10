@@ -329,7 +329,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Anti-patterns (harness `#26`–`#32`):** no **`FinalizeLifecycleAsync`**; no **`CreateFinalizedRunAsync(variable)`** on fixtures; no literal **`Idempotency-Key`** headers; no **`PostExecuteWithPinsAsync`** on fixtures; no duplicated **`Skip.If`** literals (use **`HarnessSkipReasons`**); no **`ReadJsonForTestAsync`** for problem bodies.
+**Anti-patterns (harness `#26`–`#32`):** no **`FinalizeLifecycleAsync`**; no **`CreateFinalizedRunAsync(variable)`** on fixtures; no literal **`Idempotency-Key`** headers; no direct **`Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync`** on fixtures (use **`ExecuteForTestAsync`**); no duplicated **`Skip.If`** literals (use **`HarnessSkipReasons`**); no **`ReadJsonForTestAsync`** for problem bodies.
 
 **ReadFromJson burn-down order (allowlist):** `ArchitectureControllerTests` → concurrency support → `LearningControllerTests` / `ProductLearningControllerTests` → `EvolutionController*` → `PolicyPacksIntegrationTests` → `FinalizeConflictSqlIntegrationTests`.
 
