@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -27,15 +26,14 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFact
     [SkippableFact]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
-        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-VERIFY-DRIFT-001");
-        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(runId, replayRunId);
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-VERIFY-DRIFT-001");
+        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
 
         HttpResponseMessage getResponse = await Client.GetAsync(
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}");
-        await getResponse.EnsureSuccessForTestAsync();
-        ComparisonRecordResponseDto? dto =
-            await getResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
-        string payloadJson = dto!.Record.PayloadJson;
+        ComparisonRecordResponseDto dto =
+            await getResponse.ReadJsonForTestAsync<ComparisonRecordResponseDto>(JsonOptions);
+        string payloadJson = dto.Record.PayloadJson;
         payloadJson.Should().NotBeNullOrWhiteSpace();
 
         JsonNode node = JsonNode.Parse(payloadJson)!;

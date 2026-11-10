@@ -13,8 +13,8 @@ public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task ReplayComparison_RecreatesPersistedEndToEndComparisonAsMarkdown()
     {
-        (string runId, string replayRunId) = await Replay.CommitAndReplayAsync("REQ-COMP-REPLAY-001");
-        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(runId, replayRunId);
+        CommittedReplayPair pair = await Replay.CommitAndReplayAsync("REQ-COMP-REPLAY-001");
+        string comparisonRecordId = await Replay.PersistEndToEndComparisonAsync(pair.RunId, pair.ReplayRunId);
 
         HttpResponseMessage replayComparisonResponse = await PostComparisonReplayAsync(comparisonRecordId);
 
