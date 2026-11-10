@@ -35,7 +35,7 @@ public sealed class AuthorityReadsControllerIntegrationTests(ArchLucidApiFactory
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        MvcProblemDetails? problem = await response.ReadJsonForTestAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
         problem!.Type.Should().Be(ProblemTypes.RunNotFound);
     }

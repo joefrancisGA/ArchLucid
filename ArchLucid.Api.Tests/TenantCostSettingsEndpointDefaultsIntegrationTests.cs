@@ -24,7 +24,7 @@ public sealed class TenantCostSettingsEndpointDefaultsIntegrationTests(ArchLucid
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         TenantCostSettingsGetResponse? body =
-            await response.Content.ReadFromJsonAsync<TenantCostSettingsGetResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.IsTenantConfigured.Should().BeFalse();

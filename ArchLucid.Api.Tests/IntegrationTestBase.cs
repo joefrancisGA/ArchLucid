@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -40,6 +41,15 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             Converters = { new EvalCorpusFindingSeverityJsonConverter(), new JsonStringEnumConverter(null) }
         };
+
+    /// <summary>API JSON options with relaxed escaping (provenance / embedded JSON in Problem Details).</summary>
+    public static JsonSerializerOptions CreateRelaxedEscapingJsonOptions()
+    {
+        JsonSerializerOptions options = CreateApiJsonOptions();
+        options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+
+        return options;
+    }
 
     /// <summary>Golden-path helpers for comparison replay tests using this fixture's client and factory.</summary>
     protected ReplaySession Replay => ReplaySession.From(Factory, Client, JsonOptions);

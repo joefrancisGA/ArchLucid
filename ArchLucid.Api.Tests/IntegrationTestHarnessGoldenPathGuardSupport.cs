@@ -79,6 +79,17 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"private\s+static\s+readonly\s+JsonSerializerOptions\s+\w+\s*=\s*new\s*\(\s*JsonSerializerDefaults\.Web\s*\)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex FinalizedRunTupleRegex = new(
+        @"\(string\s+\w+\s*,\s*(?:string\s+\w+|_)\s*\)\s*=\s*await\s+Create(?:Finalized|Committed)RunAsync\s*\(",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ReadFromJsonAsyncRegex = new(
+        @"\.Content\.ReadFromJsonAsync\s*<",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>Sum of unique allowlisted harness source files across all guard sets (growth ratchet).</summary>
+    internal const int MaxHarnessAllowlistedSourceFiles = 42;
+
     private static readonly HashSet<string> LifecycleSupportExclusions = new(StringComparer.Ordinal)
     {
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
@@ -125,10 +136,37 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> HandRolledJsonOptionsAllowlist = new(StringComparer.Ordinal)
     {
-        nameof(ArchitectureProvenanceExplanationEndpointTests) + ".cs",
+        // harness-allowlist: fixture loader uses isolated serializer settings.
         nameof(FixtureLoader) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> UnbootstrappedCreateClientAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: specialty auth factories — migrate via AdminApiKeyIntegrationTestBase over time.
+        "AuthorizationBoundaryTests.cs",
+        nameof(CommitRunRequiresCommitPermissionTests) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+    };
+
+    private static readonly HashSet<string> ReadFromJsonAsyncAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: burn-down large controller / concurrency suites (slice 6+).
+        nameof(ArchitectureControllerTests) + ".cs",
+        nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
+        nameof(ArchLucidHttpResponseIntegrationTestExtensions) + ".cs",
+        nameof(EvolutionControllerFlowTests) + ".cs",
+        nameof(EvolutionControllerQueryTests) + ".cs",
+        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
+        nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
+        nameof(LearningControllerTests) + ".cs",
+        nameof(PageBundleEndpointsTests) + ".cs",
+        nameof(PolicyPacksIntegrationTests) + ".cs",
+        nameof(ProductLearningControllerTests) + ".cs",
+        "SecurityCommittedRunSeed.cs",
     };
 
     internal static List<string> ScanRawFinalizeUrls()
@@ -281,6 +319,110 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         return violations;
     }
 
+    internal static int CountTotalAllowlistedHarnessFiles()
+    {
+        HashSet<string> union = new(StringComparer.Ordinal);
+
+        AddAllowlistFileNames(union, HandRolledJsonOptionsAllowlist);
+        AddAllowlistFileNames(union, UnbootstrappedCreateClientAllowlist);
+        AddAllowlistFileNames(union, ReadFromJsonAsyncAllowlist);
+        AddAllowlistFileNames(union, EndToEndCompareSummaryAllowlist);
+        AddAllowlistFileNames(union, EndToEndCompareExportAllowlist);
+        AddAllowlistFileNames(union, EnsureSuccessAllowlist);
+        AddAllowlistFileNames(union, PostExecuteUnlessAllowlist);
+
+        return union.Count;
+    }
+
+    internal static List<string> ScanFinalizedRunTupleDeconstruction()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!FinalizedRunTupleRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanReadFromJsonAsyncInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (ReadFromJsonAsyncAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!ReadFromJsonAsyncRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanUnbootstrappedCreateClientInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (UnbootstrappedCreateClientAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!RequiresSqlClientBootstrapHarness(content))
+                continue;
+
+            if (!content.Contains("factory.CreateClient()", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains("IntegrationTestSqlClientBootstrap", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal))
+                continue;
+
+            if (content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    private static bool RequiresSqlClientBootstrapHarness(string content) =>
+        content.Contains("PostArchitectureRequestForTestAsync", StringComparison.Ordinal)
+        || content.Contains("PostFinalizeForTestAsync", StringComparison.Ordinal)
+        || content.Contains("CommitAndReplayAsync", StringComparison.Ordinal)
+        || content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal)
+        || content.Contains(": IntegrationTestBase", StringComparison.Ordinal);
+
     private static bool IsHarnessTestSource(string content) =>
         content.Contains("PostArchitectureRequestForTestAsync", StringComparison.Ordinal)
         || content.Contains("IntegrationTestIsolatedSqlScope", StringComparison.Ordinal)
@@ -319,6 +461,12 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         }
 
         return violations;
+    }
+
+    private static void AddAllowlistFileNames(HashSet<string> union, HashSet<string> allowlist)
+    {
+        foreach (string fileName in allowlist)
+            union.Add(fileName);
     }
 
     private static List<string> ScanFileAllowlistViolations(HashSet<string> allowlist, Regex regex)

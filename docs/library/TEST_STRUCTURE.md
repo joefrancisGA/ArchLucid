@@ -270,29 +270,41 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**. Subclasses can call **`CreateFinalizedRunAsync`** (returns **`FinalizedRun`**), **`FinalizeRunAsync`**, and **`PostExecuteWithPinsAsync`** instead of hand-rolling lifecycle URLs.
-- **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (`CreateArchitectureRequestMessage`, `PostGreenfieldArchitectureRequestForTestAsync`, `PostExecuteForTestAsync`, `PostFinalizeForTestAsync`, `CreateFinalizedRunForTestAsync`, …).
-- **ReplaySession** (Api.Tests) — comparison-replay golden path (`CreateFinalizedAsync`, `CommitAndReplayAsync`, `PersistEndToEndComparisonAsync`, …). Prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**; do not add parallel comparison fixtures.
+**Two front doors (SQL lifecycle tests):**
+
+1. **`IntegrationTestBase` + `ArchLucidApiFactory`** — class fixture; `InitializeAsync` uses **`IntegrationTestSqlClientBootstrap`**.
+2. **`IntegrationTestIsolatedSqlScope.RunAsync`** — one-off factory/client when a class fixture is unnecessary.
+
+Specialty auth, marketing, or multi-tenant security tests may use other factories; see **`AdminApiKeyIntegrationTestBase`** and **`IntegrationTestTenantIsolationClients`**.
+
+- **IntegrationTestBase** — `HttpClient`, `JsonOptions` (`CreateApiJsonOptions` / `CreateRelaxedEscapingJsonOptions`), `JsonContent`. Use **`CreateFinalizedRunAsync`** → **`FinalizedRun`** (not tuple deconstruction).
+- **IntegrationTestRunLifecycleSupport** — canonical routes and helpers (listed in the helper table; guarded by **`IntegrationTestHarnessDocumentationGuardSupport`**).
+- **ReplaySession** — `OpenCommittedPairAsync` / `CommitAndReplayAsync` → **`CommittedReplayPair`**; prefer **`IntegrationTestBase.Replay`** or **`ReplaySession.OpenAsync`**.
 
 ### Api integration harness — which helper?
 
 | Goal | Use |
 |------|-----|
-| Standard intake POST (factory body or object) | `PostArchitectureRequestForTestAsync` or `CreateArchitectureRunForTestAsync` |
-| JWT, custom body, or idempotency header on intake | `CreateArchitectureRequestMessage` → `SendAsync` |
-| Greenfield SQL with transient 503 retry + unique idempotency key | `PostGreenfieldArchitectureRequestForTestAsync` |
-| Run through execute (and optional finalize) for most lifecycle tests | `CreateFinalizedRunAsync` / `CreateFinalizedRunForTestAsync` → **`FinalizedRun`** |
-| Comparison / replay scenarios | `ReplaySession` via **`IntegrationTestBase.Replay`** (`CommitAndReplayAsync` → assign **`CommittedReplayPair`**; use **`pair.RunId`** / **`pair.ReplayRunId`**, not anonymous tuples) |
+| Parallel-safe request id | **`TestRequestIds.ForScenario`** |
+| Standard intake POST (factory body or object) | **`PostArchitectureRequestForTestAsync`** or **`CreateArchitectureRunForTestAsync`** |
+| JWT, custom body, or idempotency header on intake | **`CreateArchitectureRequestMessage`** → `SendAsync` |
+| Greenfield SQL with transient 503 retry + unique idempotency key | **`PostGreenfieldArchitectureRequestForTestAsync`** |
+| Execute / finalize / replay routes | **`ExecuteReviewRelativeUrl`**, **`FinalizeReviewRelativeUrl`**, **`ReplayReviewRelativeUrl`**, **`ComparisonReplayRelativeUrl`**, **`ArchitectureRequestRelativeUrl`**, **`EndToEndCompareSummaryRelativeUrl`**, **`EndToEndCompareExportMarkdownRelativeUrl`**, **`EndToEndCompareExportDocxRelativeUrl`**, **`EndToEndCompareExportFileRelativeUrl`**, **`PostExecuteForTestAsync`**, **`PostExecuteAndEnsureArchitectureVersionPinForTestAsync`**, **`PostFinalizeForTestAsync`**, **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
+| Run through execute + finalize | **`CreateFinalizedRunAsync`** / **`CreateFinalizedRunForTestAsync`** / **`CreateRunExecuteAndFinalizeForTestAsync`** → **`FinalizedRun`** |
+| Comparison / replay arrange | **`OpenCommittedPairAsync`** → **`CommittedReplayPair`**; **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
 | SQL integration client (bounded + scope headers + workspace pin) | **`IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync`** |
-| Per-test isolated SQL factory (no class fixture) | **`IntegrationTestIsolatedSqlScope.RunAsync`** (uses bootstrap internally) |
-| Isolated SQL + comparison replay setup | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
-| Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** → **`PersistedComparison`** / **`PostEndToEndCompareSummaryForTestAsync`** |
-| End-to-end compare export (markdown, docx, file) | **`GetEndToEndCompareExport*ForTestAsync`** / **`EndToEndCompareExport*RelativeUrl`** |
-| Deserialize JSON after HTTP success | **`ReadJsonForTestAsync`** on **`HttpResponseMessage`** |
-| JSON body outside `IntegrationTestBase.JsonContent` | **`IntegrationTestHttpContent.CreateJson`** with **`IntegrationTestBase.CreateApiJsonOptions()`** (required in harness-tagged tests; guard-enforced) |
-| Assert HTTP success with CI-friendly logs | `EnsureSuccessForTestAsync` (not `EnsureSuccessStatusCode`) |
+| Per-test isolated SQL factory | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
+| Isolated SQL + replay | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
+| Persist or query end-to-end compare summary | **`PostPersistEndToEndComparisonForTestAsync`** → **`PersistedComparison`**; **`PostEndToEndCompareSummaryForTestAsync`** |
+| End-to-end compare export (markdown, docx, file, ranged file) | **`GetEndToEndCompareExportMarkdownForTestAsync`**, **`GetEndToEndCompareExportDocxForTestAsync`**, **`GetEndToEndCompareExportFileForTestAsync`**, **`CreateEndToEndCompareExportFileRangeGetRequestForTest`** |
+| JSON after HTTP success | **`ReadJsonForTestAsync`** (not `Content.ReadFromJsonAsync` in harness-tagged tests) |
+| RFC 9457 negative paths | **`AssertProblemForTestAsync`** |
+| JSON body for requests | **`IntegrationTestHttpContent.CreateJson`** + **`CreateApiJsonOptions()`** |
+| Assert HTTP success with CI-friendly logs | **`EnsureSuccessForTestAsync`** |
+| Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
+| Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, twelve facts) centralizes harness golden-path rules (lifecycle URLs, intake POSTs, end-to-end compare summary/export URLs, `CommittedReplayPair`, `CreateApiJsonOptions`, execute-before-finalize pin refresh, greenfield intake dedupe, `EnsureSuccessForTestAsync`).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, seventeen facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for fact titles. Allowlist growth is capped by fact **#16**.
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

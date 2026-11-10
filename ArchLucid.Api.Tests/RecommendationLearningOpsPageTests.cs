@@ -20,7 +20,7 @@ public sealed class RecommendationLearningOpsPageTests(ArchLucidApiFactory facto
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         RecommendationLearningOpsPageResponse? body =
-            await response.Content.ReadFromJsonAsync<RecommendationLearningOpsPageResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<RecommendationLearningOpsPageResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body!.Status.Should().NotBeNull();

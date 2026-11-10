@@ -19,7 +19,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-PIN-001"));
 
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created!.Run!.RunId!;
 
@@ -28,13 +28,13 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
             new StringContent("{}", Encoding.UTF8, "application/json"));
 
         firstPin.StatusCode.Should().Be(HttpStatusCode.OK);
-        PinRunResponse? firstPayload = await firstPin.Content.ReadFromJsonAsync<PinRunResponse>(JsonOptions);
+        PinRunResponse? firstPayload = await firstPin.ReadJsonForTestAsync<PinRunResponse>(JsonOptions);
         firstPayload.Should().NotBeNull();
         firstPayload!.IsPinned.Should().BeTrue();
 
         HttpResponseMessage summaryAfterPin = await Client.GetAsync($"/v1/authority/reviews/{runId}/summary");
         await summaryAfterPin.EnsureSuccessForTestAsync();
-        RunSummaryResponse? summary = await summaryAfterPin.Content.ReadFromJsonAsync<RunSummaryResponse>(JsonOptions);
+        RunSummaryResponse? summary = await summaryAfterPin.ReadJsonForTestAsync<RunSummaryResponse>(JsonOptions);
         summary.Should().NotBeNull();
         summary!.IsPinned.Should().BeTrue();
 
@@ -43,7 +43,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
             JsonContent(new { isPinned = false }));
 
         unpin.StatusCode.Should().Be(HttpStatusCode.OK);
-        PinRunResponse? unpinPayload = await unpin.Content.ReadFromJsonAsync<PinRunResponse>(JsonOptions);
+        PinRunResponse? unpinPayload = await unpin.ReadJsonForTestAsync<PinRunResponse>(JsonOptions);
         unpinPayload.Should().NotBeNull();
         unpinPayload!.IsPinned.Should().BeFalse();
     }

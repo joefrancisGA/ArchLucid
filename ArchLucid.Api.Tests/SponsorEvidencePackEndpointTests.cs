@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -20,7 +20,7 @@ public sealed class SponsorEvidencePackEndpointTests(ArchLucidApiFactory factory
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         SponsorEvidencePackResponse? pack =
-            await response.Content.ReadFromJsonAsync<SponsorEvidencePackResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<SponsorEvidencePackResponse>(JsonOptions);
 
         pack.Should().NotBeNull();
         pack.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);

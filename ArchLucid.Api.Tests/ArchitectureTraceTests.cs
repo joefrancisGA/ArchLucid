@@ -25,7 +25,7 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         AgentExecutionTraceResponse? payload =
-            await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
+            await tracesResponse.ReadJsonForTestAsync<AgentExecutionTraceResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Traces.Should().NotBeEmpty();
         payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.TraceId));

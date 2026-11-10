@@ -48,7 +48,7 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         FindingInsightSignalStatusResponse? status =
-            await getResponse.Content.ReadFromJsonAsync<FindingInsightSignalStatusResponse>(JsonOptions);
+            await getResponse.ReadJsonForTestAsync<FindingInsightSignalStatusResponse>(JsonOptions);
 
         status.Should().NotBeNull();
         status!.Kinds.Should().Contain(FindingInsightSignalKind.DidNotThinkOfThat);
@@ -69,10 +69,10 @@ public sealed class FindingInsightSignalEndpointTests(ArchLucidApiFactory factor
         first.StatusCode.Should().Be(HttpStatusCode.NoContent);
         second.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        FindingInsightSignalStatusResponse? status = await (
-            await Client.GetAsync(url)).Content.ReadFromJsonAsync<FindingInsightSignalStatusResponse>(JsonOptions);
+        FindingInsightSignalStatusResponse status = await (
+            await Client.GetAsync(url)).ReadJsonForTestAsync<FindingInsightSignalStatusResponse>(JsonOptions);
 
-        status!.Kinds.Count(kind => kind == FindingInsightSignalKind.DidNotThinkOfThat).Should().Be(1);
+        status.Kinds.Count(kind => kind == FindingInsightSignalKind.DidNotThinkOfThat).Should().Be(1);
     }
 
     [SkippableFact]

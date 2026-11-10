@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twelve facts).
+///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, seventeen facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -90,5 +90,46 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     {
         IntegrationTestHarnessGoldenPathGuardSupport.ScanHandRolledJsonOptionsInHarnessTests().Should().BeEmpty(
             "use IntegrationTestBase.CreateApiJsonOptions() for lifecycle and replay harness tests (allowlist only for special encoders).");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_use_factory_CreateClient_without_sql_bootstrap()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanUnbootstrappedCreateClientInHarnessTests().Should().BeEmpty(
+            "use IntegrationTestSqlClientBootstrap, IntegrationTestIsolatedSqlScope.RunAsync, or IntegrationTestBase instead of factory.CreateClient() for lifecycle harness tests.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_destructure_CreateFinalizedRunAsync_or_CreateCommittedRunAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanFinalizedRunTupleDeconstruction().Should().BeEmpty(
+            "assign CreateFinalizedRunAsync / CreateCommittedRunAsync to FinalizedRun and use .RunId / .ManifestVersion.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_use_Content_ReadFromJsonAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanReadFromJsonAsyncInHarnessTests().Should().BeEmpty(
+            "use HttpResponseMessage.ReadJsonForTestAsync after EnsureSuccessForTestAsync (or rely on ReadJsonForTestAsync for both).");
+    }
+
+    [Fact]
+    public void Harness_golden_path_allowlists_do_not_grow_without_intent()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.CountTotalAllowlistedHarnessFiles().Should()
+            .BeLessThanOrEqualTo(IntegrationTestHarnessGoldenPathGuardSupport.MaxHarnessAllowlistedSourceFiles);
+    }
+
+    [Fact]
+    public void Guard_catalog_lists_seventeen_scanners()
+    {
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(17);
+    }
+
+    [Fact]
+    public void Test_structure_documents_public_lifecycle_harness_helpers()
+    {
+        IntegrationTestHarnessDocumentationGuardSupport.ScanUndocumentedLifecycleHelpers().Should().BeEmpty(
+            "add missing IntegrationTestRunLifecycleSupport helpers to docs/library/TEST_STRUCTURE.md.");
     }
 }

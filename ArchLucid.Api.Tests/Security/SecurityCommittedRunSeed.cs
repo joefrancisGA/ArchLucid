@@ -36,7 +36,7 @@ internal static class SecurityCommittedRunSeed
         ArgumentNullException.ThrowIfNull(factory);
 
         using HttpClient clientA = factory.CreateClient();
-        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+        IntegrationTestTenantIsolationClients.WireDefaultScope(clientA);
 
         string requestId = "REQ-COMMIT-SEC-" + Guid.NewGuid().ToString("N")[..12];
         string idempotencyKey = "sec-committed-run-" + Guid.NewGuid().ToString("N");
@@ -49,11 +49,13 @@ internal static class SecurityCommittedRunSeed
 
         await create.EnsureSuccessForTestAsync();
 
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(
-            ArchitectureRequestConcurrencyTestSupport.JsonOptions,
-            cancellationToken).ConfigureAwait(false);
+        CreateRunResponseDto created = await create
+            .ReadJsonForTestAsync<CreateRunResponseDto>(
+                ArchitectureRequestConcurrencyTestSupport.JsonOptions,
+                cancellationToken)
+            .ConfigureAwait(false);
 
-        string runId = created!.Run.RunId;
+        string runId = created.Run.RunId;
         Guid runGuid = Guid.Parse(runId);
 
         await ArchitectureRequestConcurrencyTestSupport
@@ -62,13 +64,4 @@ internal static class SecurityCommittedRunSeed
         return new Result(runId, runGuid);
     }
 
-    private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)
-    {
-        client.DefaultRequestHeaders.Remove("x-tenant-id");
-        client.DefaultRequestHeaders.Remove("x-workspace-id");
-        client.DefaultRequestHeaders.Remove("x-project-id");
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-tenant-id", tenantId.ToString("D"));
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-workspace-id", workspaceId.ToString("D"));
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-project-id", projectId.ToString("D"));
-    }
 }

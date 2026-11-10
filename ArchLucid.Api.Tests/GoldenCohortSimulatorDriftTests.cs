@@ -150,7 +150,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
             GetRunResponseDto? runPayload =
-                await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+                await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
             runPayload.Should().NotBeNull();
 
             string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);

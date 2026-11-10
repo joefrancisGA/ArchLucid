@@ -45,7 +45,7 @@ public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory facto
 
         await patch.EnsureSuccessForTestAsync();
         ComparisonRecordResponseDto? updated =
-            await patch.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+            await patch.ReadJsonForTestAsync<ComparisonRecordResponseDto>(JsonOptions);
         updated!.Record.Label.Should().Be("incident-99");
         updated.Record.Tags.Should().Contain(["incident", "urgent"]);
 

@@ -25,7 +25,7 @@ public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factor
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         WhyArchLucidSnapshotResponse? snapshot =
-            await response.Content.ReadFromJsonAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
 
         snapshot.Should().NotBeNull();
         snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);

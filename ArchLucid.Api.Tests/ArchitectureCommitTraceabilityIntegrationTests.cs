@@ -34,7 +34,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
@@ -43,7 +43,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         CommitRunResponse? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponse>(JsonOptions);
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponse>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
         IReadOnlyList<DecisionTrace> domainTraces = commitPayload.DecisionTraces

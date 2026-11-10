@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Api.Tests.Security;
 using ArchLucid.Core.Configuration.Summary;
@@ -12,16 +11,12 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
-    : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
+    : AdminApiKeyIntegrationTestBase(factory)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     [SkippableFact]
     public async Task Put_then_get_returns_tenant_override()
     {
-        using HttpClient client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
-        IntegrationTestSqlClientBootstrap.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = CreateAdminClient();
 
         using HttpResponseMessage put = await client.PutAsJsonAsync(
             "/v1/admin/settings/finding-engine-controls",
@@ -33,11 +28,10 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
             });
 
         put.StatusCode.Should().Be(HttpStatusCode.OK);
-        TenantFindingEngineControlsResponse? putBody =
-            await put.Content.ReadFromJsonAsync<TenantFindingEngineControlsResponse>(JsonOptions);
+        TenantFindingEngineControlsResponse putBody =
+            await put.ReadJsonForTestAsync<TenantFindingEngineControlsResponse>(JsonOptions);
 
-        putBody.Should().NotBeNull();
-        putBody!.EffectiveEnableLlmJudge.Should().BeFalse(
+        putBody.EffectiveEnableLlmJudge.Should().BeFalse(
             "integration hosts run AgentExecution in Simulator; tenant overrides do not enable paid LLM judge paths.");
         putBody.EffectiveEnableLlmJudgeForEngineFindings.Should().BeFalse();
         putBody.EffectivePortfolioRecurrenceEnabled.Should().BeTrue();
@@ -45,21 +39,17 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
         putBody.EnableLlmJudgeForEngineFindingsOverridden.Should().BeTrue();
 
         using HttpResponseMessage get = await client.GetAsync("/v1/admin/settings/finding-engine-controls");
-        get.StatusCode.Should().Be(HttpStatusCode.OK);
-        TenantFindingEngineControlsResponse? getBody =
-            await get.Content.ReadFromJsonAsync<TenantFindingEngineControlsResponse>(JsonOptions);
+        TenantFindingEngineControlsResponse getBody =
+            await get.ReadJsonForTestAsync<TenantFindingEngineControlsResponse>(JsonOptions);
 
-        getBody.Should().NotBeNull();
-        getBody!.EffectiveEnableLlmJudge.Should().BeFalse();
+        getBody.EffectiveEnableLlmJudge.Should().BeFalse();
         getBody.EnableLlmJudgeOverridden.Should().BeTrue();
     }
 
     [SkippableFact]
     public async Task Delete_clears_overrides()
     {
-        using HttpClient client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
-        IntegrationTestSqlClientBootstrap.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = CreateAdminClient();
 
         using HttpResponseMessage put = await client.PutAsJsonAsync(
             "/v1/admin/settings/finding-engine-controls",
@@ -73,13 +63,14 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
         await put.EnsureSuccessForTestAsync();
 
         using HttpResponseMessage delete = await client.DeleteAsync("/v1/admin/settings/finding-engine-controls");
-        delete.StatusCode.Should().Be(HttpStatusCode.OK);
-        TenantFindingEngineControlsResponse? body =
-            await delete.Content.ReadFromJsonAsync<TenantFindingEngineControlsResponse>(JsonOptions);
+        delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        body.Should().NotBeNull();
-        body!.EnableLlmJudgeOverridden.Should().BeFalse();
-        body.EnableLlmJudgeForEngineFindingsOverridden.Should().BeFalse();
-        body.PortfolioRecurrenceEnabledOverridden.Should().BeFalse();
+        using HttpResponseMessage get = await client.GetAsync("/v1/admin/settings/finding-engine-controls");
+        TenantFindingEngineControlsResponse getBody =
+            await get.ReadJsonForTestAsync<TenantFindingEngineControlsResponse>(JsonOptions);
+
+        getBody.EnableLlmJudgeOverridden.Should().BeFalse();
+        getBody.EnableLlmJudgeForEngineFindingsOverridden.Should().BeFalse();
+        getBody.PortfolioRecurrenceEnabledOverridden.Should().BeFalse();
     }
 }

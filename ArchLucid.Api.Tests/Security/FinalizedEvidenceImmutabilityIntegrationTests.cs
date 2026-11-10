@@ -24,7 +24,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-IMMUT-001"));
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await PostExecuteWithPinsAsync(runId);
@@ -62,7 +62,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB322-EXEC-IDEM"));
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage firstExecute = await Client.PostExecuteForTestAsync(runId);
@@ -71,7 +71,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
             Skip.If(true, "authority-pipeline complete on create; execute idempotency test not applicable.");
 
         ExecuteRunResponseDto? firstPayload =
-            await firstExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
+            await firstExecute.ReadJsonForTestAsync<ExecuteRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
@@ -85,7 +85,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await getRunResponse.EnsureSuccessForTestAsync();
         GetRunResponseDto? getRunPayload =
-            await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+            await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
         getRunPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
     }
 

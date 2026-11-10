@@ -25,7 +25,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         // Arrange
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-001"));
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using var content = new MultipartFormDataContent();
@@ -85,7 +85,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         // Arrange
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-BULK-002"));
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         using var content = new MultipartFormDataContent();
@@ -102,7 +102,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var problemDetails = await response.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>(JsonOptions);
+        var problemDetails = await response.ReadJsonForTestAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>(JsonOptions);
         problemDetails.Should().NotBeNull();
         problemDetails!.Type.Should().Be(ProblemTypes.EvidenceBulkUploadLimitExceeded);
 

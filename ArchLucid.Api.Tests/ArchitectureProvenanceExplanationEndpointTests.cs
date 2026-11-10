@@ -1,8 +1,5 @@
 using System.Net;
-using System.Net.Http.Json;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -15,87 +12,67 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureProvenanceExplanationEndpointTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
-
-    private static HttpContent SerializeJsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-
-        return new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-    }
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateRelaxedEscapingJsonOptions();
 
     [SkippableFact]
     public async Task GetProvenanceNodeExplanation_singular_run_route_returns_501_problem_details_when_run_exists_in_scope()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, _) =>
+        {
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario("PROV-EXPLAIN")));
 
-        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
-            TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001"));
+            CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            string runId = created.Run.RunId;
 
-        created.Should().NotBeNull();
+            HttpResponseMessage response =
+                await client.GetAsync($"/v1/architecture/review/{runId}/provenance/test-node/explanation");
 
-        string runId = created.Run.RunId;
+            JsonDocument body = await response.AssertProblemForTestAsync(
+                HttpStatusCode.NotImplemented,
+                ProblemTypes.ProvenanceNodeExplanationNotSupported,
+                ProblemErrorCodes.ProvenanceNodeExplanationNotSupported);
 
-        HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/review/{runId}/provenance/test-node/explanation");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
-
-        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-
-        body.RootElement.GetProperty("status").GetInt32().Should().Be(501);
-        body.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.ProvenanceNodeExplanationNotSupported);
-        body.RootElement.GetProperty("title").GetString().Should().Be("Provenance node explanation not supported");
-        body.RootElement.GetProperty("detail").GetString().Should().Contain("/v1/explain/runs/{runId}/aggregate");
-        body.RootElement.GetProperty("errorCode").GetString().Should().Be(ProblemErrorCodes.ProvenanceNodeExplanationNotSupported);
-        body.RootElement.GetProperty("aggregateExplanationPathTemplate").GetString().Should()
-            .Be("/v1/explain/runs/{runId}/aggregate");
+            body.RootElement.GetProperty("title").GetString().Should().Be("Provenance node explanation not supported");
+            body.RootElement.GetProperty("detail").GetString().Should().Contain("/v1/explain/runs/{runId}/aggregate");
+            body.RootElement.GetProperty("aggregateExplanationPathTemplate").GetString().Should()
+                .Be("/v1/explain/runs/{runId}/aggregate");
+        });
     }
 
     [SkippableFact]
     public async Task GetProvenanceNodeExplanation_plural_runs_alias_matches_singular_behavior()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, _) =>
+        {
+            HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
+                TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario("PROV-EXPLAIN-PLURAL")));
 
-        HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
-            TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002"));
+            CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            string runId = created.Run.RunId;
 
-        string runId = created!.Run.RunId;
+            HttpResponseMessage plural =
+                await client.GetAsync(
+                    $"/v1/architecture/reviews/{Uri.EscapeDataString(runId)}/provenance/node-b/explanation");
 
-        HttpResponseMessage plural =
-            await client.GetAsync(
-                $"/v1/architecture/reviews/{Uri.EscapeDataString(runId)}/provenance/node-b/explanation");
-
-        plural.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
-        plural.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+            plural.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
+            plural.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+        });
     }
 
     [SkippableFact]
     public async Task GetProvenanceNodeExplanation_returns_404_when_run_not_in_scope()
     {
-        await using ArchLucidApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        await IntegrationTestIsolatedSqlScope.RunAsync(async (client, _) =>
+        {
+            Guid missingRun = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-        Guid missingRun = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+            HttpResponseMessage response =
+                await client.GetAsync($"/v1/architecture/review/{missingRun:D}/provenance/a-node/explanation");
 
-        HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/review/{missingRun:D}/provenance/a-node/explanation");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        });
     }
 }

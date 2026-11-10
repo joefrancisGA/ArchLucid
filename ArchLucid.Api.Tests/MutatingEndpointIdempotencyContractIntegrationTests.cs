@@ -25,7 +25,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         HttpResponseMessage firstResponse = await Client.SendAsync(first);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         CreateRunResponseDto? firstPayload =
-            await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await firstResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
         using HttpRequestMessage second =
@@ -38,7 +38,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         replayValues.Should().Contain("true");
 
         CreateRunResponseDto? secondPayload =
-            await secondResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await secondResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         secondPayload.Should().NotBeNull();
         secondPayload!.Run.RunId.Should().Be(firstPayload!.Run.RunId);
     }
@@ -48,7 +48,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-COMMIT"));
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
@@ -63,7 +63,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         HttpResponseMessage firstCommitResponse = await Client.SendAsync(firstCommit);
         firstCommitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         CommitRunResponseDto? firstCommitPayload =
-            await firstCommitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await firstCommitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         firstCommitPayload.Should().NotBeNull();
         string firstManifestVersion = firstCommitPayload!.Manifest.Metadata.ManifestVersion;
 
@@ -78,7 +78,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         replayValues.Should().Contain("true");
 
         CommitRunResponseDto? secondCommitPayload =
-            await secondCommitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await secondCommitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         secondCommitPayload.Should().NotBeNull();
         secondCommitPayload!.Manifest.Metadata.ManifestVersion.Should().Be(firstManifestVersion);
     }
@@ -88,14 +88,14 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-TB323-GOV"));
         await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 

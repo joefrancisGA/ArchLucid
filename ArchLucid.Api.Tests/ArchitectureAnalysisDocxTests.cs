@@ -21,7 +21,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-DOCX-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-DOCX-001");
         var request = new
         {
             includeEvidence = true,
@@ -38,7 +38,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -52,7 +52,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-DOCX-ASYNC-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-DOCX-ASYNC-001");
         var request = new
         {
             includeEvidence = true,
@@ -69,12 +69,12 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         };
 
         HttpResponseMessage start = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx/async",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/async",
             JsonContent(request));
 
         start.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        JsonElement payload = await start.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        JsonElement payload = await start.ReadJsonForTestAsync<JsonElement>(JsonOptions);
         payload.TryGetProperty("jobId", out JsonElement jobIdEl).Should().BeTrue();
         string? jobId = jobIdEl.GetString();
         jobId.Should().NotBeNullOrWhiteSpace();
@@ -85,7 +85,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         {
             HttpResponseMessage statusResp = await Client.GetAsync($"/v1/jobs/{jobId}");
             await statusResp.EnsureSuccessForTestAsync();
-            JsonElement status = await statusResp.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+            JsonElement status = await statusResp.ReadJsonForTestAsync<JsonElement>(JsonOptions);
             state = status.GetProperty("state").GetString() ?? state;
 
             if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase) ||

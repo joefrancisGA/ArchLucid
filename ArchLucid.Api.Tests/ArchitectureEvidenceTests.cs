@@ -27,7 +27,7 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
         evidenceResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         AgentEvidencePackageResponse? payload =
-            await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
+            await evidenceResponse.ReadJsonForTestAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Evidence.RunId.Should().Be(runId);
         payload.Evidence.SystemName.Should().Be($"<untrusted_input>{expectedSystemName}</untrusted_input>");

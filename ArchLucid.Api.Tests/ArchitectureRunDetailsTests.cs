@@ -19,14 +19,14 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         const string requestId = "REQ-RUNDETAILS-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        (string runId, _) = await CreateFinalizedRunAsync(requestId);
-        HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
+        HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}");
         await runResponse.EnsureSuccessForTestAsync();
         RunDetailsResponseDto? payload =
-            await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
+            await runResponse.ReadJsonForTestAsync<RunDetailsResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();
-        payload.Run.RunId.Should().Be(runId);
+        payload.Run.RunId.Should().Be(finalized.RunId);
         payload.Tasks.Should().HaveCount(4);
         payload.Results.Should().HaveCount(4);
         payload.Manifest.Should().NotBeNull();
@@ -37,7 +37,7 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.TrustEvidenceCard!.SelfAttestationNotice.Should().NotBeNullOrWhiteSpace();
         payload.TrustEvidenceCard.AuditTrail.Status.Should().NotBeNullOrWhiteSpace();
 
-        Guid authorityRunKey = Guid.Parse(runId);
+        Guid authorityRunKey = Guid.Parse(finalized.RunId);
         HttpResponseMessage authorityDetailResponse =
             await Client.GetAsync($"/v1/authority/reviews/{authorityRunKey:D}");
         await authorityDetailResponse.EnsureSuccessForTestAsync();
@@ -45,11 +45,11 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
             JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());
         authorityDetailDoc.RootElement.GetProperty("executionFlavorBuyerSummary").GetString().Should().NotBeNullOrWhiteSpace();
 
-        HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/roi");
+        HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/roi");
         await roiResponse.EnsureSuccessForTestAsync();
         using JsonDocument doc = JsonDocument.Parse(await roiResponse.Content.ReadAsStringAsync());
 
-        doc.RootElement.GetProperty("runId").GetString().Should().Be(runId);
+        doc.RootElement.GetProperty("finalized.RunId").GetString().Should().Be(finalized.RunId);
         doc.RootElement.GetProperty("estimatedManualHoursSaved").GetDouble().Should().BeGreaterThan(0);
     }
 }

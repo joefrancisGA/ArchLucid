@@ -20,7 +20,7 @@ public sealed class RoiAnalyticsEndpointTests(ArchLucidApiFactory factory) : Int
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         SponsorRoiAggregatesResponse? body =
-            await response.Content.ReadFromJsonAsync<SponsorRoiAggregatesResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<SponsorRoiAggregatesResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.TimeSavedHours.Should().BeGreaterThan(0);

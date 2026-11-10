@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -78,7 +78,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        FindingInspectResponse? body = await response.Content.ReadFromJsonAsync<FindingInspectResponse>(JsonOptions);
+        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 
@@ -110,7 +110,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        FindingInspectResponse? body = await response.Content.ReadFromJsonAsync<FindingInspectResponse>(JsonOptions);
+        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 

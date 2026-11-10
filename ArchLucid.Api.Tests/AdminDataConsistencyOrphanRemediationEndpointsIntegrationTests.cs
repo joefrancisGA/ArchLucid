@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -26,7 +26,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         OrphanGoldenManifestRemediationResultDto? body =
-            await response.Content.ReadFromJsonAsync<OrphanGoldenManifestRemediationResultDto>(JsonOptions);
+            await response.ReadJsonForTestAsync<OrphanGoldenManifestRemediationResultDto>(JsonOptions);
 
         body.Should().NotBeNull();
         body.DryRun.Should().BeTrue();
@@ -44,7 +44,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         OrphanFindingsSnapshotRemediationResultDto? body =
-            await response.Content.ReadFromJsonAsync<OrphanFindingsSnapshotRemediationResultDto>(JsonOptions);
+            await response.ReadJsonForTestAsync<OrphanFindingsSnapshotRemediationResultDto>(JsonOptions);
 
         body.Should().NotBeNull();
         body.DryRun.Should().BeTrue();

@@ -26,7 +26,7 @@ public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory)
         putResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         TenantCostSettingsGetResponse? saved =
-            await putResponse.Content.ReadFromJsonAsync<TenantCostSettingsGetResponse>(JsonOptions);
+            await putResponse.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         saved.Should().NotBeNull();
         saved!.EaDiscountMultiplier.Should().Be(0.85m);
@@ -35,7 +35,7 @@ public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory)
         HttpResponseMessage getResponse = await Client.GetAsync("/v1/tenant/cost-settings");
 
         TenantCostSettingsGetResponse? loaded =
-            await getResponse.Content.ReadFromJsonAsync<TenantCostSettingsGetResponse>(JsonOptions);
+            await getResponse.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         loaded.Should().NotBeNull();
         loaded!.EaDiscountMultiplier.Should().Be(0.85m);
@@ -72,7 +72,7 @@ public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory)
         putResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         TenantCostSettingsGetResponse? saved =
-            await putResponse.Content.ReadFromJsonAsync<TenantCostSettingsGetResponse>(JsonOptions);
+            await putResponse.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         saved.Should().NotBeNull();
         saved.IsTenantConfigured.Should().BeTrue();
@@ -82,7 +82,7 @@ public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory)
         HttpResponseMessage getResponse = await Client.GetAsync("/v1/tenant/cost-settings");
 
         TenantCostSettingsGetResponse? loaded =
-            await getResponse.Content.ReadFromJsonAsync<TenantCostSettingsGetResponse>(JsonOptions);
+            await getResponse.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         loaded.Should().NotBeNull();
         loaded.ArchitectHourlyRateUsd.Should().Be(175m);

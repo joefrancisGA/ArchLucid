@@ -45,7 +45,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
@@ -54,7 +54,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
 
         CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         int manifestTraceIdCount = commitPayload.Manifest.Metadata.DecisionTraceIds.Count;
         string manifestJson = JsonSerializer.Serialize(commitPayload.Manifest, JsonOptions);

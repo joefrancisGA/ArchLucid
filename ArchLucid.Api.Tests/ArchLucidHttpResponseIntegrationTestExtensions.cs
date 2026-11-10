@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -37,5 +38,29 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         payload.Should().NotBeNull();
 
         return payload!;
+    }
+
+    /// <summary>Asserts RFC 9457 Problem+JSON shape for negative integration tests.</summary>
+    public static async Task<JsonDocument> AssertProblemForTestAsync(
+        this HttpResponseMessage response,
+        HttpStatusCode expectedStatus,
+        string? expectedTypeUri = null,
+        string? expectedErrorCode = null)
+    {
+        ArgumentNullException.ThrowIfNull(response);
+
+        response.StatusCode.Should().Be(expectedStatus);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+
+        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        body.RootElement.GetProperty("status").GetInt32().Should().Be((int)expectedStatus);
+
+        if (expectedTypeUri is not null)
+            body.RootElement.GetProperty("type").GetString().Should().Be(expectedTypeUri);
+
+        if (expectedErrorCode is not null)
+            body.RootElement.GetProperty("errorCode").GetString().Should().Be(expectedErrorCode);
+
+        return body;
     }
 }

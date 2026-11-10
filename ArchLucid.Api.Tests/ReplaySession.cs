@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -56,6 +55,10 @@ public sealed class ReplaySession
     public Task<FinalizedRun> CreateFinalizedAsync(string requestId = "REQ-FIXTURE-001") =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
+    /// <summary>Finalize + commit-replay in one call (preferred comparison arrange).</summary>
+    public Task<CommittedReplayPair> OpenCommittedPairAsync(string requestId = "REQ-FIXTURE-001") =>
+        CommitAndReplayAsync(requestId);
+
     public async Task<CommittedReplayPair> CommitAndReplayAsync(string requestId = "REQ-FIXTURE-001")
     {
         FinalizedRun finalized = await CreateFinalizedAsync(requestId).ConfigureAwait(false);
@@ -66,11 +69,10 @@ public sealed class ReplaySession
             runId,
             commitReplay: true,
             manifestVersionOverride: NewReplayCommittedManifestVersion()).ConfigureAwait(false);
-        await replayResponse.EnsureSuccessForTestAsync().ConfigureAwait(false);
-        ReplayRunResponseDto? replayPayload =
-            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions).ConfigureAwait(false);
+        ReplayRunResponseDto replayPayload =
+            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions).ConfigureAwait(false);
 
-        return new CommittedReplayPair(runId, replayPayload!.ReplayRunId);
+        return new CommittedReplayPair(runId, replayPayload.ReplayRunId);
     }
 
     public Task<PersistedComparison> PersistEndToEndComparisonAsync(string leftRunId, string rightRunId) =>
