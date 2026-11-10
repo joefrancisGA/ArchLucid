@@ -5,8 +5,10 @@ import {
   FIRST_REVIEW_OPEN_GATE_STARTER_HEADING,
   FIRST_REVIEW_OPEN_GATE_STARTER_HREF,
   FIRST_REVIEW_OPEN_GATE_STARTER_LEAD,
+  FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW,
 } from "@/lib/architecture/first-review-open-gate-starter-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** One action: open the sample review on the first open gate. Not a tenant-sealed review. */
 export function FirstReviewOpenGateStarter(): React.JSX.Element {
@@ -19,9 +21,21 @@ export function FirstReviewOpenGateStarter(): React.JSX.Element {
       <h2 id="first-review-open-gate-starter-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
         {FIRST_REVIEW_OPEN_GATE_STARTER_HEADING}
       </h2>
-      <p className={OPERATOR_TYPOGRAPHY.body}>{FIRST_REVIEW_OPEN_GATE_STARTER_LEAD}</p>
+      <p id="first-review-open-gate-starter-lead" className={OPERATOR_TYPOGRAPHY.body}>
+        {FIRST_REVIEW_OPEN_GATE_STARTER_LEAD}
+      </p>
+      <p
+        id="first-review-open-gate-starter-not-this-review"
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW}
+      </p>
       <Button asChild type="button" variant="primary" size="sm">
-        <Link href={FIRST_REVIEW_OPEN_GATE_STARTER_HREF} data-testid="first-review-open-gate-starter-link">
+        <Link
+          href={FIRST_REVIEW_OPEN_GATE_STARTER_HREF}
+          data-testid="first-review-open-gate-starter-link"
+          aria-describedby="first-review-open-gate-starter-lead first-review-open-gate-starter-not-this-review"
+        >
           Open sample review
         </Link>
       </Button>

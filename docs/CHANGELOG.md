@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Floor scores follow-up: dynamic first hour, stickiness, first-review a11y
+
+**Outcome.** SecureNow Home Start here follows capture status on the first-hour table (cloud connections or Changes and drift for the latest snapshot). Return-home names the latest capture when Home has not recorded a last-opened snapshot. The first-review open-gate starter adds the not-this-review line and describes the primary CTA for assistive tech. Pricing FAQ link has an explicit accessible name. Home environment context passes stickiness scope into capture delta again.
+
+**Surfaces.** SecureNow Home, first-review guide, `/pricing`, stickiness return rows.
+
 ## 2026-11-10 - Floor scores: accelerator start-here, snapshot on collection, quieter path inspect
 
 **Outcome.** The accelerator index starts on Manual upload or the latest Changes and drift snapshot. Collection setup names the latest snapshot id with a drift link. Path inspect collapses executive metrics and the path report after a path is selected. The first-review checklist sits under the sample starter. The procurement map names guided-pilot acceptance by signed quote.

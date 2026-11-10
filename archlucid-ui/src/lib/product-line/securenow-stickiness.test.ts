@@ -59,13 +59,34 @@ describe("securenow stickiness", () => {
     expect(countSecureNowExtendDispositionsInBrowserCache()).toBe(1);
   });
 
-  it("omits return rows when nothing is unfinished", () => {
+  it("surfaces the latest capture when Home has not recorded a last-opened snapshot", () => {
     expect(
       buildSecureNowReturnHomeRows({
         awaitingVerificationCount: 0,
         addedCount: 0,
         goneCount: 0,
         latestSnapshotId: "snap-1",
+        lastOpenedSnapshotId: null,
+        pinnedPathId: null,
+        pinnedPathStatus: null,
+        extendDispositionCount: 0,
+      }),
+    ).toEqual([
+      {
+        href: "/infrastructure/snapshots-drift?snapshotId=snap-1",
+        label: "Latest capture on this workspace",
+        summary: "Snapshot snap-1. This is not a usage claim.",
+      },
+    ]);
+  });
+
+  it("omits return rows when nothing is unfinished and no capture exists", () => {
+    expect(
+      buildSecureNowReturnHomeRows({
+        awaitingVerificationCount: 0,
+        addedCount: 0,
+        goneCount: 0,
+        latestSnapshotId: null,
         lastOpenedSnapshotId: null,
         pinnedPathId: null,
         pinnedPathStatus: null,
