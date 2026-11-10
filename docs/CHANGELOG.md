@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Capture id, collection checklist, and first-review starter
+
+**Outcome.** A failed snapshot list no longer also says there are no snapshots. Extractor upload returns the snapshot id when ingest created one, and Manual upload shows it. SecureNow collection treats a succeeded inventory snapshot as capture and sends the capture step to Manual upload. The accelerator index links Manual upload and Changes and drift. The first-review guide opens the sample review on the open-gate spine. ArchLucid evaluation orders stay quote-only.
+
+**Surfaces.** Changes and drift empty state, extract upload accepted panel, collection setup, accelerator index, first-review guide.
+
 ## 2026-11-10 - Owner accepts SN-EVAL orders by signed quote
 
 **Outcome.** The owner accepts an SN-EVAL order at the published list price by signed quote, and attests a non-fixture Reader capture exists. The pricing philosophy, controlled-pilot note, SKU card, and quote packet say so. The capture id is not published. SN-ANNUAL, checkout, Stripe, and Marketplace stay unaccepted from a page. Beta remains **NO_GO**. The quote packet still cannot take payment.

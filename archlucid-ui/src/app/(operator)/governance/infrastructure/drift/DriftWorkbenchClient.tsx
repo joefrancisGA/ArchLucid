@@ -180,6 +180,7 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
+import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
@@ -1695,7 +1696,11 @@ export function DriftWorkbenchClient() {
           </section>
         ) : null}
 
-        {!loadingSnapshots && snapshots.length === 0 ? (
+        {shouldShowInfraDriftSnapshotsEmptyState({
+          loadingSnapshots,
+          snapshotCount: snapshots.length,
+          loadError,
+        }) ? (
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY}

@@ -48,6 +48,23 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     expect(showSuccess).not.toHaveBeenCalled();
   });
 
+  it("links a stored snapshot id into Changes and drift for SecureNow", () => {
+    render(
+      <ExtractUploadAcceptedPackagePanel
+        productLineId="security"
+        record={{ ...sampleRecord, snapshotId: "22222222-2222-2222-2222-222222222222" }}
+      />,
+    );
+
+    expect(screen.getByTestId("extract-upload-accepted-snapshot-id")).toHaveTextContent(
+      "22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("extract-upload-accepted-snapshot-link")).toHaveAttribute(
+      "href",
+      "/infrastructure/snapshots-drift?snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+  });
+
   it("shows the accepted time in the selected time zone", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
 

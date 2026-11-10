@@ -36,7 +36,7 @@ public sealed partial class AzureExtractorUploadController
 
         if (result.Succeeded)
 
-            return Accepted(new { packageId = result.PackageId });
+            return Accepted(AzureExtractorUploadAcceptedBody.Create(result));
 
         return MapIngestFailure(result);
     }

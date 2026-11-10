@@ -60,6 +60,6 @@ describe("resolveSecureNowCollectionPrimaryBlocker", () => {
         azureSubscriptionIdsPresent: true,
         hasSuccessfulPull: false,
       })?.recoveryHref,
-    ).toBe("/administration/connection-status");
+    ).toBe("/infrastructure/manual-upload");
   });
 });

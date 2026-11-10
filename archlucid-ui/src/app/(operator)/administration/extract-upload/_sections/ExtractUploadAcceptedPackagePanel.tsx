@@ -25,6 +25,10 @@ import {
   EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
 import { extractUploadAcceptedPackageNextAction } from "@/lib/extract-upload-settings-evidence-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
@@ -49,6 +53,12 @@ export function ExtractUploadAcceptedPackagePanel(
 
   const packageIdDisplay = formatExtractUploadAcceptedPackageId(record.packageId);
   const packageIdCopyable = extractUploadPackageIdIsCopyable(record.packageId);
+  const snapshotId = record.snapshotId?.trim() ?? "";
+  const snapshotHref = snapshotId.length === 0
+    ? null
+    : `${isSecureNowProductLine(props.productLineId ?? "architecture")
+      ? SECURENOW_INFRASTRUCTURE_DRIFT_PATH
+      : GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(snapshotId)}`;
 
   const onCopyPackageId = useCallback(async () => {
     setCopyPackageIdError(null);
@@ -127,6 +137,23 @@ export function ExtractUploadAcceptedPackagePanel(
                 />
               ) : null}
             </div>
+            {snapshotHref !== null ? (
+              <div>
+                <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                  Snapshot id
+                </dt>
+                <dd className={cn("m-0 mt-0.5 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+                  <span className="break-all font-mono" data-testid="extract-upload-accepted-snapshot-id">
+                    {snapshotId}
+                  </span>
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <Link href={snapshotHref} data-testid="extract-upload-accepted-snapshot-link">
+                      Open in Changes and drift
+                    </Link>
+                  </Button>
+                </dd>
+              </div>
+            ) : null}
             <div>
               <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 Accepted
