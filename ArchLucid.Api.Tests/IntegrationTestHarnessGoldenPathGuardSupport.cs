@@ -105,6 +105,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"Skip\.If(?:Not)?\s*\([^,]+,\s*""authority-pipeline complete on create",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex ExplicitArrangeScenarioRegex = new(
+        @"Arrange(?:Finalized|CommittedPair|GovernanceCommitted)Async\s*\(\s*(?:nameof\s*\(|""[^""]+"")",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex TupleReturnTypeRegex = new(
         @"Task<\(\s*string\s+\w+\s*,\s*string\s+\w+\s*\)>",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -602,6 +606,30 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             LifecycleSupportExclusions,
             static content =>
                 IsHarnessTestSource(content) && ReadJsonProblemDetailsRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanExplicitArrangeScenarioArguments()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            if (string.Equals(Path.GetFileName(path), nameof(IntegrationTestBase) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!ExplicitArrangeScenarioRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
     }
 
     internal static List<string> ScanLiteralIdempotencyHeaderValuesInHarnessTests()

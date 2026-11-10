@@ -75,22 +75,12 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         string? jobId = jobIdEl.GetString();
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        // Poll status briefly until succeeded.
-        string state = "Pending";
-        for (int i = 0; i < AsyncDocxJobPollMaxIterations; i++)
-        {
-            HttpResponseMessage statusResp = await Client.GetAsync($"/v1/jobs/{jobId}");
-            await statusResp.EnsureSuccessForTestAsync();
-            JsonElement status = await statusResp.ReadJsonForTestAsync<JsonElement>(JsonOptions);
-            state = status.GetProperty("state").GetString() ?? state;
-
-            if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
-                break;
-
-            await Task.Delay(AsyncDocxJobPollDelay);
-        }
-
+        string state = await IntegrationTestJobPollSupport.PollJobUntilSucceededOrFailedAsync(
+            Client,
+            jobId!,
+            JsonOptions,
+            AsyncDocxJobPollMaxIterations,
+            AsyncDocxJobPollDelay);
         state.Should().Be("Succeeded");
 
         HttpResponseMessage fileResp = await Client.GetAsync($"/v1/jobs/{jobId}/file");

@@ -49,8 +49,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
 
         HttpResponseMessage executeResponse = await client.SendAsync(execute);
 
-        if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
-            Skip.If(true, HarnessSkipReasons.AuthorityPipelineCompleteOnCreatePilot);
+        await HarnessSkipWhen.AuthorityPipelineCompleteOnCreateForPilotAsync(executeResponse);
 
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

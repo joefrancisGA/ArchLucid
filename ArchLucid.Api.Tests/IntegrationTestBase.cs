@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Contracts.Findings;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Api.Tests;
@@ -14,6 +15,10 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Base for API integration tests: provides an <see cref="HttpClient" /> from <see cref="ArchLucidApiFactory" /> and
 ///     JSON helpers aligned with the API’s serializer settings.
+///     Harness cheat sheet — arrange: <see cref="ArrangeFinalizedAsync" /> / <see cref="ArrangeCommittedPairAsync" />;
+///     act: <see cref="Client" />; assert bodies: <see cref="ArchLucidHttpResponseIntegrationTestExtensions.ReadJsonForTestAsync" />,
+///     <see cref="ArchLucidHttpResponseIntegrationTestExtensions.ReadBytesForTestAsync" />,
+///     <see cref="ArchLucidHttpResponseIntegrationTestExtensions.AssertProblemForTestAsync" />.
 /// </summary>
 public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>, IAsyncLifetime
 {
@@ -79,23 +84,29 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task<FinalizedRun> CreateFinalizedRunAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
-    /// <summary>Create → execute → finalize; default scenario is the fixture class name.</summary>
-    protected Task<FinalizedRun> ArrangeFinalizedAsync(
-        string? scenario = null,
-        [CallerMemberName] string testMethod = "") =>
-        HarnessArrange.FinalizedAsync(Client, Factory, JsonOptions, scenario ?? GetType().Name, testMethod);
+    /// <summary>Create → execute → finalize using the fixture class and calling test for <see cref="TestRequestIds.ForScenario" />.</summary>
+    protected Task<FinalizedRun> ArrangeFinalizedAsync([CallerMemberName] string testMethod = "") =>
+        HarnessArrange.FinalizedAsync(Client, Factory, JsonOptions, GetType().Name, testMethod);
 
-    /// <summary>Finalize + commit-replay pair; default scenario is the fixture class name.</summary>
-    protected Task<CommittedReplayPair> ArrangeCommittedPairAsync(
-        string? scenario = null,
-        [CallerMemberName] string testMethod = "") =>
-        Replay.OpenCommittedPairAsync(TestRequestIds.ForScenario(scenario ?? GetType().Name, testMethod));
+    /// <summary>Finalize + commit-replay pair using the fixture class and calling test.</summary>
+    protected Task<CommittedReplayPair> ArrangeCommittedPairAsync([CallerMemberName] string testMethod = "") =>
+        HarnessArrange.CommittedPairAsync(Replay, GetType().Name, testMethod);
 
-    /// <summary>Governance committed run; default scenario is the fixture class name.</summary>
-    protected Task<FinalizedRun> ArrangeGovernanceCommittedAsync(
-        string? scenario = null,
-        [CallerMemberName] string testMethod = "") =>
-        HarnessArrange.GovernanceCommittedAsync(Client, Factory, JsonOptions, scenario ?? GetType().Name, testMethod);
+    /// <summary>Governance committed run using the fixture class and calling test.</summary>
+    protected Task<FinalizedRun> ArrangeGovernanceCommittedAsync([CallerMemberName] string testMethod = "") =>
+        HarnessArrange.GovernanceCommittedAsync(Client, Factory, JsonOptions, GetType().Name, testMethod);
+
+    /// <summary>POST architecture request with caller-aware request id; returns run id and request id.</summary>
+    protected async Task<CreatedRunForTest> CreateRunForTestAsync([CallerMemberName] string testMethod = "")
+    {
+        string requestId = TestRequestIds.ForScenario(GetType().Name, testMethod);
+        HttpResponseMessage createResponse =
+            await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestId));
+        CreateRunResponseDto created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+
+        return new CreatedRunForTest(created.Run.RunId, requestId);
+    }
 
     /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
     protected Task<HttpResponseMessage> PostComparisonReplayAsync(string comparisonRecordId, string format = "markdown") =>

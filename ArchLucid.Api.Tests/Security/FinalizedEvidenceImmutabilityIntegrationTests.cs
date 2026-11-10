@@ -65,8 +65,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
 
         HttpResponseMessage firstExecute = await Client.PostExecuteForTestAsync(runId);
 
-        if (await firstExecute.IsAuthorityPipelineCompleteExecuteConflictAsync())
-            Skip.If(true, HarnessSkipReasons.AuthorityPipelineCompleteOnCreate);
+        await HarnessSkipWhen.AuthorityPipelineCompleteOnCreateAsync(firstExecute);
 
         ExecuteRunResponseDto? firstPayload =
             await firstExecute.ReadJsonForTestAsync<ExecuteRunResponseDto>(JsonOptions);

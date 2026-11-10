@@ -12,7 +12,12 @@ public static class HarnessArrange
         string scenario,
         string testMethod = "",
         CancellationToken cancellationToken = default) =>
-        ArchitectureScenario.FinalizedAsync(client, factory, jsonOptions, scenario, testMethod, cancellationToken);
+        IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(
+            client,
+            factory,
+            jsonOptions,
+            TestRequestIds.ForScenario(scenario, testMethod),
+            cancellationToken);
 
     public static Task<FinalizedRun> GovernanceCommittedAsync(
         HttpClient client,
@@ -21,11 +26,11 @@ public static class HarnessArrange
         string scenario,
         string testMethod = "",
         CancellationToken cancellationToken = default) =>
-        GovernanceScenario.CommittedAsync(client, factory, jsonOptions, scenario, testMethod, cancellationToken);
+        FinalizedAsync(client, factory, jsonOptions, scenario, testMethod, cancellationToken);
 
     public static Task<CommittedReplayPair> CommittedPairAsync(
         ReplaySession replay,
         string scenario,
         string testMethod = "") =>
-        ArchitectureScenario.CommittedPairAsync(replay, scenario, testMethod);
+        replay.OpenCommittedPairAsync(TestRequestIds.ForScenario(scenario, testMethod));
 }
