@@ -24,6 +24,8 @@ import {
   secureNowPathInspectHref,
   writeSecureNowLastOpenedSnapshotId,
 } from "@/lib/product-line/securenow-stickiness";
+import { SECURENOW_COLLECTION_SETUP_API_UNREACHABLE } from "@/lib/product-line/securenow-workspace-api-unreachable-copy";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { fetchRankedSecurityEvidencePaths, fetchSecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -32,6 +34,7 @@ import {
   isSampleWorkspacePresentationScope,
 } from "@/lib/scope-switcher-display";
 import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
+import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import {
   resolveSecureNowHomeCollectionSetupFallbackInput,
@@ -198,6 +201,16 @@ function SecureNowHomeCollectionSetupBlock(props: {
   const setupQuery = useSecureNowCollectionSetupInput({
     snapshotCaptureSucceeded: props.snapshotCaptureSucceeded,
   });
+
+  if (setupQuery.isError) {
+    return (
+      <SecureNowWorkspaceApiUnreachableNotice
+        message={SECURENOW_COLLECTION_SETUP_API_UNREACHABLE}
+        testId="securenow-home-collection-setup-unreachable"
+      />
+    );
+  }
+
   const collectionInput =
     setupQuery.collectionInput
     ?? resolveSecureNowHomeCollectionSetupFallbackInput({
@@ -287,6 +300,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <span>{errorMessage(snapshotsQuery.error)}</span>
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>Check cloud connections</ContextLink>
+        <ContextLink href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</ContextLink>
       </p>
     );
   }

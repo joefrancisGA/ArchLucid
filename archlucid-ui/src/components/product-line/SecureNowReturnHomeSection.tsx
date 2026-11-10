@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { SecureNowHomeDestinationSection } from "@/components/product-line/SecureNowHomeDestinationSection";
+import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { isInfraEvidenceSnapshotCaptureSucceeded } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
@@ -21,6 +22,7 @@ import {
 import { fetchSecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-api";
 import {
   SECURENOW_RETURN_HOME_EMPTY,
+  SECURENOW_RETURN_HOME_API_UNREACHABLE,
   buildSecureNowReturnHomeRows,
   countRemediationInstancesAwaitingVerification,
   countSecureNowExtendDispositionsInBrowserCache,
@@ -84,6 +86,22 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-return-home-status">
           Checking unfinished work…
         </p>
+      </section>
+    );
+  }
+
+  if (snapshotsQuery.isError) {
+    return (
+      <section aria-labelledby="securenow-return-home-heading" data-testid="securenow-return-home-section">
+        <h2 id="securenow-return-home-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {SECURENOW_RETURN_HOME_SECTION_HEADING}
+        </h2>
+        <div className="mt-2">
+          <SecureNowWorkspaceApiUnreachableNotice
+            message={SECURENOW_RETURN_HOME_API_UNREACHABLE}
+            testId="securenow-return-home-unreachable"
+          />
+        </div>
       </section>
     );
   }

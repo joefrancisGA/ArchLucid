@@ -9,6 +9,7 @@ import {
   FIRST_REVIEW_OPEN_GATE_STARTER_HEADING,
   FIRST_REVIEW_OPEN_GATE_STARTER_HREF,
   FIRST_REVIEW_OPEN_GATE_STARTER_LEAD,
+  FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW,
 } from "@/lib/architecture/first-review-open-gate-starter-copy";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { cn } from "@/lib/utils";
@@ -36,12 +37,32 @@ export function FirstReviewOpenGateStarterShortcut(): React.JSX.Element | null {
             </h2>
             <DemoDataBadge />
           </div>
-          <p className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <p
+            id="first-review-open-gate-starter-lead"
+            className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          >
             {FIRST_REVIEW_OPEN_GATE_STARTER_LEAD}
           </p>
+          <p
+            id="first-review-open-gate-starter-not-this-review"
+            className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          >
+            {FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW}
+          </p>
         </div>
-        <Button type="button" variant="outline" size="sm" asChild data-testid="first-review-open-gate-starter-open">
-          <Link href={FIRST_REVIEW_OPEN_GATE_STARTER_HREF}>Open sample open gate</Link>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          asChild
+          data-testid="first-review-open-gate-starter-open"
+        >
+          <Link
+            href={FIRST_REVIEW_OPEN_GATE_STARTER_HREF}
+            aria-describedby="first-review-open-gate-starter-lead first-review-open-gate-starter-not-this-review"
+          >
+            Open sample open gate
+          </Link>
         </Button>
       </div>
     </section>

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Home names an unreachable API and keeps the last snapshot
+
+**Outcome.** SecureNow Home says the workspace API is unreachable and links to System health when collection setup or unfinished work cannot load. The last opened snapshot stays on Home, with its id and a Changes and Drift link, including when it is the latest capture. Path inspect hides the ranked-path list after a path is selected. The first-review sample starter says policy-pack assignment is not this review.
+
+**Surfaces.** SecureNow Home, Changes and Drift, remediation factory, first-review guide.
+
 ## 2026-11-10 - Capture id, collection checklist, and first-review starter
 
 **Outcome.** A failed snapshot list no longer also says there are no snapshots. Extractor upload returns the snapshot id when ingest created one, and Manual upload shows it. SecureNow collection treats a succeeded inventory snapshot as capture and sends the capture step to Manual upload. The accelerator index links Manual upload and Changes and drift. The first-review guide opens the sample review on the open-gate spine. ArchLucid evaluation orders stay quote-only.

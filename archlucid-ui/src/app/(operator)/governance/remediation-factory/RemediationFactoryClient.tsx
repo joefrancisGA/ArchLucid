@@ -804,12 +804,18 @@ export function RemediationFactoryClient() {
       <section className="space-y-3" aria-label={SECURENOW_PATH_RANKED_PATHS_TITLE}>
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
-          <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
-          <RemediationFactoryRankedPathsShortcutHints />
+          {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
+            <>
+              <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
+              <RemediationFactoryRankedPathsShortcutHints />
+            </>
+          )}
         </header>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
-          These filters narrow the path list only. Counts are for paths on this page.
-        </p>
+        {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
+            These filters narrow the path list only. Counts are for paths on this page.
+          </p>
+        )}
         {selectedPathId === null || pathViewFiltersExpanded ? (
           <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
             {PATH_VIEWS.map((view) => (
@@ -862,7 +868,7 @@ export function RemediationFactoryClient() {
               onClick={() => void rankedPathsQuery.refetch()}
             />
           </>
-        ) : (
+        ) : productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
           <>
             {rankedPathsComputedLine !== null ? (
               <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-computed">
