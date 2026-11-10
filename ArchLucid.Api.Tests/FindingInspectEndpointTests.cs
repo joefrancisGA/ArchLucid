@@ -74,11 +74,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
     {
         await EnsureDemoBaselineSeededAsync();
 
-        HttpResponseMessage response = await Client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
+        HttpResponseMessage response = await Client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 
@@ -106,11 +102,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         HttpResponseMessage response =
             await Client.GetAsync(
-                $"/v1/architecture/review/{baselineRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
+                $"/v1/architecture/review/{baselineRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
 
         body.Should().NotBeNull();
 

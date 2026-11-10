@@ -24,11 +24,7 @@ public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : 
 
         HttpResponseMessage response = await Client.PostAsync(
             $"/v1/internal/architecture/runs/{runId}/determinism-check",
-            JsonContent(request));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        DeterminismCheckResponse? payload =
+            JsonContent(request));        DeterminismCheckResponse? payload =
             await response.ReadJsonForTestAsync<DeterminismCheckResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Result.SourceRunId.Should().Be(runId);

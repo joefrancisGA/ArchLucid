@@ -15,11 +15,7 @@ public sealed class RoiAnalyticsEndpointTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetRoiAggregates_returns_ok_with_expected_shape()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/analytics/roi");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        SponsorRoiAggregatesResponse? body =
+        HttpResponseMessage response = await Client.GetAsync("/v1/analytics/roi");        SponsorRoiAggregatesResponse? body =
             await response.ReadJsonForTestAsync<SponsorRoiAggregatesResponse>(JsonOptions);
 
         body.Should().NotBeNull();

@@ -27,6 +27,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(20, "PostReviewReplayAsync outside protocol tests", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanPostReviewReplayAsyncInHarnessTests)),
         new(21, "hardcoded REQ intake ids", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedRequestIdsInHarnessTests)),
         new(22, "allowlist comment markers", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanAllowlistCommentMarkersPresent)),
+        new(23, "PostExecuteForTestAsync without pin refresh on IntegrationTestBase", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanPostExecuteWithoutPinInIntegrationTestBase)),
+        new(24, "HttpStatusCode.OK Should before ReadJsonForTestAsync", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanOkStatusAssertionBeforeReadJson)),
+        new(25, "IntegrationTestIsolatedSqlScope inside IntegrationTestBase", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanIsolatedSqlScopeInsideIntegrationTestBase)),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName);

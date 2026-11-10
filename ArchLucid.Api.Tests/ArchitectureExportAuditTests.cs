@@ -47,11 +47,7 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
 
         exportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");
-
-        historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        RunExportHistoryResponse? payload =
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");        RunExportHistoryResponse? payload =
             await historyResponse.ReadJsonForTestAsync<RunExportHistoryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Exports.Should().NotBeEmpty();

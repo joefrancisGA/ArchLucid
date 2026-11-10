@@ -275,6 +275,19 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 1. **`IntegrationTestBase` + `ArchLucidApiFactory`** — class fixture; `InitializeAsync` uses **`IntegrationTestSqlClientBootstrap`**.
 2. **`IntegrationTestIsolatedSqlScope.RunAsync`** — one-off factory/client when a class fixture is unnecessary.
 
+Do **not** mix (1) and (2) in the same test class — guard fact **#25**.
+
+```mermaid
+flowchart TD
+  A[SQL integration test] --> B{Class fixture?}
+  B -->|yes| C[IntegrationTestBase]
+  B -->|no / concurrency| D[IntegrationTestIsolatedSqlScope.RunAsync]
+  C --> E{Compare or replay?}
+  E -->|yes| F[Replay.OpenCommittedPairAsync + TestRequestIds]
+  E -->|no| G[ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync]
+  D --> H[ReplaySession.OpenAsync]
+```
+
 Specialty auth, marketing, or multi-tenant security tests may use other factories; see **`AdminApiKeyIntegrationTestBase`** and **`IntegrationTestTenantIsolationClients`**.
 
 - **IntegrationTestBase** — `HttpClient`, `JsonOptions` (`CreateApiJsonOptions` / `CreateRelaxedEscapingJsonOptions`), `JsonContent`. Use **`CreateFinalizedRunAsync`** → **`FinalizedRun`** (not tuple deconstruction).
@@ -286,10 +299,13 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Goal | Use |
 |------|-----|
 | Parallel-safe request id | **`TestRequestIds.ForScenario`** |
-| Finalize in one verb (client + factory + JSON) | **`ArchitectureScenario.FinalizedAsync`** / **`IntegrationTestBase.FinalizeLifecycleAsync`** |
+| Finalize in one verb (client + factory + JSON) | **`ArchitectureScenario.FinalizedAsync`** / **`ArrangeFinalizedAsync`** / **`FinalizeLifecycleAsync`** |
 | Committed replay pair from scenario name | **`ArchitectureScenario.CommittedPairAsync`** |
+| Governance committed run arrange | **`GovernanceScenario.CommittedAsync`** / **`ArrangeGovernanceCommittedAsync`** |
 | Governance self-approval problem JSON | **`GovernanceProblemAssertions.AssertGovernanceSelfApprovalAsync`** |
 | Tenant isolation greenfield primer | **`TenantIsolationScenario.WithGreenfieldPrimerAsync`** |
+| Tenant A + tenant B clients | **`TenantIsolationScenario.WithTwoScopedClientsAsync`** |
+| Full ladder wiring smoke | **`HarnessGoldenPathSmokeTests`** (`Suite=Core`) |
 | Standard intake POST (factory body or object) | **`PostArchitectureRequestForTestAsync`** or **`CreateArchitectureRunForTestAsync`** |
 | JWT, custom body, or idempotency header on intake | **`CreateArchitectureRequestMessage`** → `SendAsync` |
 | Greenfield SQL with transient 503 retry + unique idempotency key | **`PostGreenfieldArchitectureRequestForTestAsync`** |
@@ -308,7 +324,9 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, twenty-two facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for fact titles (including **`TestRequestIds`**, redundant **`EnsureSuccessForTestAsync`** before **`ReadJsonForTestAsync`**, and **`PostReviewReplayForTestAsync`** usage). Allowlist growth is capped by **`MaxHarnessAllowlistedSourceFiles`** (guard ratchet, currently **41** unique allowlisted sources).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **twenty-five** facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for fact titles (pin-aware execute, **`ReadJsonForTestAsync`** redundancy, isolated-scope mixing, **`TestRequestIds`**, replay calls). Allowlist growth is capped by **`MaxHarnessAllowlistedSourceFiles`** (guard ratchet, currently **41** unique allowlisted sources).
+
+**Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 

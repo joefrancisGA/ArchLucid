@@ -81,11 +81,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         string rightId = history.Exports[1].ExportRecordId;
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
-            $"/v1/architecture/review/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");
-
-        compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ExportRecordDiffResponse? payload =
+            $"/v1/architecture/review/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");        ExportRecordDiffResponse? payload =
             await compareResponse.ReadJsonForTestAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();

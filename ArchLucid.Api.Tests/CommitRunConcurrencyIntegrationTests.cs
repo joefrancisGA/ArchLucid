@@ -48,10 +48,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
                 string? manifestVersion = null;
 
                 foreach (HttpResponseMessage response in responses)
-                {
-                    response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                    CommitRunResponseDto? payload =
+                {                    CommitRunResponseDto? payload =
                         await response.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
                     payload.Should().NotBeNull();
                     payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();

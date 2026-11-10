@@ -111,10 +111,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
             GovernanceReviewDecisionJsonContent("reviewer1", "Approved"),
             "reviewer1",
-            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-
-        approveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernanceApprovalResponseDto? result =
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");        GovernanceApprovalResponseDto? result =
             await approveResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
         result!.Status.Should().Be("Approved");
         result.ReviewedBy.Should().Be("reviewer1");
@@ -139,10 +136,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/reject",
             GovernanceReviewDecisionJsonContent("reviewer2", "Not ready"),
             "reviewer2",
-            "cccccccc-cccc-cccc-cccc-cccccccccccc");
-
-        rejectResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernanceApprovalResponseDto? result =
+            "cccccccc-cccc-cccc-cccc-cccccccccccc");        GovernanceApprovalResponseDto? result =
             await rejectResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
         result!.Status.Should().Be("Rejected");
     }
@@ -364,10 +358,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             await submitResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage rationaleResponse = await Client.GetAsync(
-            $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/rationale");
-
-        rationaleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        GovernanceRationaleResponseDto? payload =
+            $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/rationale");        GovernanceRationaleResponseDto? payload =
             await rationaleResponse.ReadJsonForTestAsync<GovernanceRationaleResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.ApprovalRequestId.Should().Be(submitted.ApprovalRequestId);

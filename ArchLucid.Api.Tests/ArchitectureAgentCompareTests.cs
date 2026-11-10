@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -20,23 +19,15 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
 
         await PostExecuteWithPinsAsync(runId);
 
-        HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 
-            runId,
-            commitReplay: false,
-            manifestVersionOverride: null);
-
-                ReplayRunResponseDto? replayPayload =
-            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
-        string replayRunId = replayPayload!.ReplayRunId;
+        string replayRunId = await Replay.ReplayWithoutCommitAsync(runId);
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
             $"/v1/architecture/review/compare/agents/summary?leftRunId={runId}&rightRunId={replayRunId}");
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        AgentResultCompareSummaryResponse? payload =
+        AgentResultCompareSummaryResponse payload =
             await compareResponse.ReadJsonForTestAsync<AgentResultCompareSummaryResponse>(JsonOptions);
-        payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
         payload.Summary.Should().Contain("# Agent Result Comparison");
         payload.Diff.LeftRunId.Should().Be(runId);

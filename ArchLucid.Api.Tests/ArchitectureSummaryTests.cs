@@ -23,11 +23,7 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
         FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
 
         HttpResponseMessage summaryResponse =
-            await Client.GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary");
-
-        summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ManifestMarkdownDocumentResponse? summaryPayload =
+            await Client.GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary");        ManifestMarkdownDocumentResponse? summaryPayload =
             await summaryResponse.ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");

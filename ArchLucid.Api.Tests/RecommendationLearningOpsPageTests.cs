@@ -15,11 +15,7 @@ public sealed class RecommendationLearningOpsPageTests(ArchLucidApiFactory facto
     [SkippableFact]
     public async Task GetOpsPage_Default_ReturnsOk_WithStatusAndHistory()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/recommendation-learning/ops-page");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        RecommendationLearningOpsPageResponse? body =
+        HttpResponseMessage response = await Client.GetAsync("/v1/recommendation-learning/ops-page");        RecommendationLearningOpsPageResponse? body =
             await response.ReadJsonForTestAsync<RecommendationLearningOpsPageResponse>(JsonOptions);
 
         body.Should().NotBeNull();

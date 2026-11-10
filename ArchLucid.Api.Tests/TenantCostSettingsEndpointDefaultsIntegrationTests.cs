@@ -19,11 +19,7 @@ public sealed class TenantCostSettingsEndpointDefaultsIntegrationTests(ArchLucid
     [SkippableFact]
     public async Task GetCostSettings_returns_defaults_when_unconfigured()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/tenant/cost-settings");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        TenantCostSettingsGetResponse? body =
+        HttpResponseMessage response = await Client.GetAsync("/v1/tenant/cost-settings");        TenantCostSettingsGetResponse? body =
             await response.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         body.Should().NotBeNull();

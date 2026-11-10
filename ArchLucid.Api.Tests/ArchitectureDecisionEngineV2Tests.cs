@@ -21,10 +21,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
     {
         FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureDecisionEngineV2Tests)));
         await WaitForDecisionNodesAsync(finalized.RunId);
-        HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions");
-        decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        DecisionNodeResponseDto? payload =
+        HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions");        DecisionNodeResponseDto? payload =
             await decisionsResponse.ReadJsonForTestAsync<DecisionNodeResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Decisions.Should().NotBeEmpty();

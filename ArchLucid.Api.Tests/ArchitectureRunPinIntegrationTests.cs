@@ -24,10 +24,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
 
         HttpResponseMessage firstPin = await Client.PatchAsync(
             $"/v1/architecture/review/{runId}/pin",
-            new StringContent("{}", Encoding.UTF8, "application/json"));
-
-        firstPin.StatusCode.Should().Be(HttpStatusCode.OK);
-        PinRunResponse? firstPayload = await firstPin.ReadJsonForTestAsync<PinRunResponse>(JsonOptions);
+            new StringContent("{}", Encoding.UTF8, "application/json"));        PinRunResponse? firstPayload = await firstPin.ReadJsonForTestAsync<PinRunResponse>(JsonOptions);
         firstPayload.Should().NotBeNull();
         firstPayload!.IsPinned.Should().BeTrue();
 
@@ -38,10 +35,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
 
         HttpResponseMessage unpin = await Client.PatchAsync(
             $"/v1/architecture/review/{runId}/pin",
-            JsonContent(new { isPinned = false }));
-
-        unpin.StatusCode.Should().Be(HttpStatusCode.OK);
-        PinRunResponse? unpinPayload = await unpin.ReadJsonForTestAsync<PinRunResponse>(JsonOptions);
+            JsonContent(new { isPinned = false }));        PinRunResponse? unpinPayload = await unpin.ReadJsonForTestAsync<PinRunResponse>(JsonOptions);
         unpinPayload.Should().NotBeNull();
         unpinPayload!.IsPinned.Should().BeFalse();
     }

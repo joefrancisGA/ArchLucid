@@ -38,10 +38,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         string runId = created.Run.RunId;
 
         await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
-        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);
-        commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        CommitRunResponse? commitPayload =
+        HttpResponseMessage commitResponse = await client.PostFinalizeForTestAsync(factory, runId);        CommitRunResponse? commitPayload =
             await commitResponse.ReadJsonForTestAsync<CommitRunResponse>(JsonOptions);
         commitPayload.Should().NotBeNull();
 

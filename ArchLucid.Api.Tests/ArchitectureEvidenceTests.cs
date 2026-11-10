@@ -22,11 +22,7 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
         string runId = await CreateArchitectureRunAsync(requestId);
 
         await PostExecuteWithPinsAsync(runId);
-        HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/evidence");
-
-        evidenceResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        AgentEvidencePackageResponse? payload =
+        HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/evidence");        AgentEvidencePackageResponse? payload =
             await evidenceResponse.ReadJsonForTestAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Evidence.RunId.Should().Be(runId);

@@ -59,9 +59,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         firstCommit.Content = JsonContent(commitBody);
         firstCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
-        HttpResponseMessage firstCommitResponse = await Client.SendAsync(firstCommit);
-        firstCommitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        CommitRunResponseDto? firstCommitPayload =
+        HttpResponseMessage firstCommitResponse = await Client.SendAsync(firstCommit);        CommitRunResponseDto? firstCommitPayload =
             await firstCommitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         firstCommitPayload.Should().NotBeNull();
         string firstManifestVersion = firstCommitPayload!.Manifest.Metadata.ManifestVersion;

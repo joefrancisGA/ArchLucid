@@ -14,11 +14,7 @@ public sealed class PilotInProductScorecardEndpointTests(ArchLucidApiFactory fac
     [SkippableFact]
     public async Task GetInProductScorecard_returns_ok_with_metric_shape()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/scorecard");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        PilotInProductScorecardResponse? body =
+        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/scorecard");        PilotInProductScorecardResponse? body =
             await response.ReadJsonForTestAsync<PilotInProductScorecardResponse>(JsonOptions);
 
         body.Should().NotBeNull();

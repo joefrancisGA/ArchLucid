@@ -21,11 +21,7 @@ public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory)
             EaDiscountPercentage = 15m,
         };
 
-        HttpResponseMessage putResponse = await Client.PutAsJsonAsync("/v1/tenant/cost-settings", put);
-
-        putResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        TenantCostSettingsGetResponse? saved =
+        HttpResponseMessage putResponse = await Client.PutAsJsonAsync("/v1/tenant/cost-settings", put);        TenantCostSettingsGetResponse? saved =
             await putResponse.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         saved.Should().NotBeNull();
@@ -67,11 +63,7 @@ public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory)
             EaDiscountMultiplier = 0.9m,
         };
 
-        HttpResponseMessage putResponse = await Client.PutAsJsonAsync("/v1/tenant/cost-settings", put);
-
-        putResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        TenantCostSettingsGetResponse? saved =
+        HttpResponseMessage putResponse = await Client.PutAsJsonAsync("/v1/tenant/cost-settings", put);        TenantCostSettingsGetResponse? saved =
             await putResponse.ReadJsonForTestAsync<TenantCostSettingsGetResponse>(JsonOptions);
 
         saved.Should().NotBeNull();

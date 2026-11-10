@@ -34,10 +34,7 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
 
         HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/review/{finalized.RunId}/analysis-report/export",
-            JsonContent(request));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ArchitectureAnalysisExportResponse? payload =
+            JsonContent(request));        ArchitectureAnalysisExportResponse? payload =
             await response.ReadJsonForTestAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.RunId.Should().Be(finalized.RunId);

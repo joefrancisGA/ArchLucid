@@ -55,19 +55,13 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage auditStarted = await client.GetAsync(
-            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunStarted)}&runId={runGuid}&take=10");
-
-        auditStarted.StatusCode.Should().Be(HttpStatusCode.OK);
-        AuditEventCursorPage? startedPage = await auditStarted.ReadJsonForTestAsync<AuditEventCursorPage>(
+            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunStarted)}&runId={runGuid}&take=10");        AuditEventCursorPage? startedPage = await auditStarted.ReadJsonForTestAsync<AuditEventCursorPage>(
             JsonOptions);
         startedPage.Should().NotBeNull();
         startedPage.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
 
         HttpResponseMessage auditCompleted = await client.GetAsync(
-            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");
-
-        auditCompleted.StatusCode.Should().Be(HttpStatusCode.OK);
-        AuditEventCursorPage? completedPage = await auditCompleted.ReadJsonForTestAsync<AuditEventCursorPage>(
+            $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");        AuditEventCursorPage? completedPage = await auditCompleted.ReadJsonForTestAsync<AuditEventCursorPage>(
             JsonOptions);
         completedPage.Should().NotBeNull();
         completedPage.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
