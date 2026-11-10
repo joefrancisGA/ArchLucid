@@ -3,7 +3,7 @@ import { securenowInternalDocHref } from "@/lib/product-line/securenow-internal-
 export const SECURENOW_QUOTE_PACKET_HEADING = "Quote packet" as const;
 
 export const SECURENOW_QUOTE_PACKET_LEAD =
-  "SKU identifiers and the quote sequence. Not an approved offer. SecureNow beta remains NO_GO." as const;
+  "SKU identifiers and the quote sequence. The owner accepts SN-EVAL orders at the published price by signed quote. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_QUOTE_PACKET_GUARDRAIL =
   "Published list prices are quote-only. Seller, tax, and payout identity stay in the private price sheet." as const;

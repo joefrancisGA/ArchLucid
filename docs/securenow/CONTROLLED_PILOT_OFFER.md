@@ -2,7 +2,13 @@
 
 # SecureNow — controlled enterprise pilot offer and acceptance plan
 
-> **INTERNAL PROPOSAL / NOT AN APPROVED CUSTOMER OFFER.** Buyer-adaptable commercial planning document, not a release certification, binding quote, deployed capability attestation, or claim of customer results. A synthetic demo is **NOT customer evidence**. SecureNow beta release remains **NO_GO** until all owner-approved staging, identity, security and release gates are completed. Pricing, dates, legal terms, security assurances and scope require human approval.
+> **INTERNAL PROPOSAL / NOT AN APPROVED CUSTOMER OFFER.** Buyer-adaptable commercial planning document, not a release certification, deployed capability attestation, or claim of customer results. A synthetic demo is **NOT customer evidence**. SecureNow beta release remains **NO_GO** until all owner-approved staging, identity, security and release gates are completed. Pricing, dates, legal terms, security assurances and scope require human approval.
+
+## SN-EVAL order the owner accepts
+
+Owner decision 2026-11-10: the owner accepts an **SN-EVAL** order at the published list price in [PRICING_PHILOSOPHY.md](../go-to-market/PRICING_PHILOSOPHY.md) §9, by signed quote. The owner attests a non-fixture Reader capture exists. This document does not name that capture and does not publish its path ids. It is not a customer-result claim.
+
+Still not accepted from a page click: **SN-ANNUAL**, subscription add-ons, extra snapshots, checkout, a Stripe Price, a Partner Center plan, and a beta release **GO**. This document does not take payment.
 
 ## The offer in one minute
 

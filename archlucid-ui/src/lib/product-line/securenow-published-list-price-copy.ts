@@ -8,7 +8,7 @@ export const SECURENOW_PUBLISHED_LIST_PRICE_SECTION_ID = "securenow-published-li
 export const SECURENOW_PUBLISHED_LIST_PRICE_HEADING = "Published list price (quote only)" as const;
 
 export const SECURENOW_PUBLISHED_LIST_PRICE_LEAD =
-  "Orders are by quote only. Not checkout, not a Stripe Price, and not permission to invoice. SecureNow beta remains NO_GO." as const;
+  "The owner accepts SN-EVAL orders at this price by signed quote. This page does not take payment. SN-ANNUAL is not accepted from this page. SecureNow beta remains NO_GO." as const;
 
 export type SecureNowPublishedListPriceRow = {
   readonly id: string;

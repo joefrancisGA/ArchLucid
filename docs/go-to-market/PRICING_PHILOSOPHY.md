@@ -415,7 +415,7 @@ Use this when first deals produce signal about price tolerance. Do not change li
 
 ## 9. SecureNow list price (quote only)
 
-> **Owner approved:** 2026-10-29. **Recorded here:** 2026-11-09 so SecureNow has one fee source. **Public list price:** owner decision 2026-11-09. Orders are by quote only. Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off.
+> **Owner approved:** 2026-10-29. **Recorded here:** 2026-11-09 so SecureNow has one fee source. **Public list price:** owner decision 2026-11-09. **SN-EVAL orders:** owner decision 2026-11-10. The owner accepts an SN-EVAL order at the price in this table by signed quote. The owner attests a non-fixture Reader capture exists. This file does not name that capture. SN-ANNUAL and the add-on rows are not accepted from a page click. Not a Partner Center plan, not a Stripe Price, and not permission to invoice from a page. SecureNow beta remains **NO_GO**. Live billing stays off.
 
 An ArchLucid Team, Professional, or Enterprise payment does not grant SecureNow. Currency is **USD**. Prices exclude sales tax. There is no monthly card price.
 

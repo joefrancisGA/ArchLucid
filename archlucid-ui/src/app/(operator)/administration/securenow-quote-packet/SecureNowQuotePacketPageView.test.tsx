@@ -8,7 +8,7 @@ describe("SecureNowQuotePacketPageView", () => {
     render(<SecureNowQuotePacketPageView />);
 
     expect(screen.getByTestId("securenow-quote-packet-page")).toBeInTheDocument();
-    expect(screen.getByText(/Not an approved offer/)).toBeInTheDocument();
+    expect(screen.getByText(/accepts SN-EVAL orders/)).toBeInTheDocument();
     expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
     expect(screen.getByText("This page cannot authorize commerce.")).toBeInTheDocument();
 

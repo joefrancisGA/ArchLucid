@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Owner accepts SN-EVAL orders by signed quote
+
+**Outcome.** The owner accepts an SN-EVAL order at the published list price by signed quote, and attests a non-fixture Reader capture exists. The pricing philosophy, controlled-pilot note, SKU card, and quote packet say so. The capture id is not published. SN-ANNUAL, checkout, Stripe, and Marketplace stay unaccepted from a page. Beta remains **NO_GO**. The quote packet still cannot take payment.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §9, `CONTROLLED_PILOT_OFFER.md`, published list-price lead, quote packet lead.
+
 ## 2026-11-09 - Floor scores: ROI inputs, collection next step, buyer list prices
 
 **Outcome.** SecureNow investigation effort puts operator inputs first, collapses the synthetic worksheet, and shows scope when capture is missing or succeeded. Collection blockers name one next step (Reader grant, subscription, capture) and link extract-and-upload on the capture step. ArchLucid marketing copy states monthly list prices live on `/pricing` with quote-only checkout.
