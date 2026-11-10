@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Tenancy;
@@ -20,7 +20,7 @@ public sealed class TenantMeasuredRoiEndpointTests(ArchLucidApiFactory factory) 
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         TenantMeasuredRoiResponse? body =
-            await response.Content.ReadFromJsonAsync<TenantMeasuredRoiResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<TenantMeasuredRoiResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.Disclaimer.Should().NotBeNullOrWhiteSpace();

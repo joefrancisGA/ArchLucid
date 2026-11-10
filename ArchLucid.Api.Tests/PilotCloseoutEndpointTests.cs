@@ -32,7 +32,7 @@ public sealed class PilotCloseoutEndpointTests(ArchLucidApiFactory factory) : In
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         Dictionary<string, JsonElement>? body =
-            await response.Content.ReadFromJsonAsync<Dictionary<string, JsonElement>>(JsonOptions);
+            await response.ReadJsonForTestAsync<Dictionary<string, JsonElement>>(JsonOptions);
 
         body.Should().NotBeNull();
         body["closeoutId"].GetGuid().Should().NotBeEmpty();

@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController.ListRecommendations" />
-///     (<c>GET /v1/advisory/runs/{runId}/recommendations</c>).
+///     (<c>GET /v1/advisory/runs/{finalized.RunId}/recommendations</c>).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -28,7 +28,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         AdvisoryRunRecommendationsListResponse? payload =
-            await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
         payload.Should().NotBeNull();
         payload!.Recommendations.Should().BeEmpty();
@@ -37,13 +37,13 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRecommendations_after_commit_before_improvements_returns_ok_empty_array()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-ADV-REC-LIST-001");
-        HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{runId}/recommendations");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-ADV-REC-LIST-001");
+        HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{finalized.RunId}/recommendations");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         AdvisoryRunRecommendationsListResponse? payload =
-            await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
         payload.Should().NotBeNull();
         payload!.Recommendations.Should().BeEmpty();
@@ -52,18 +52,18 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRecommendations_after_improvements_includes_finding_source_evidence_links()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-ADV-REC-LINKS-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-ADV-REC-LINKS-001");
 
         HttpResponseMessage improvementsResponse =
-            await Client.GetAsync($"/v1/advisory/runs/{runId}/improvements");
+            await Client.GetAsync($"/v1/advisory/runs/{finalized.RunId}/improvements");
         await improvementsResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{runId}/recommendations");
+        HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{finalized.RunId}/recommendations");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         AdvisoryRunRecommendationsListResponse? payload =
-            await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
         payload.Should().NotBeNull();
         payload!.Recommendations.Should().NotBeEmpty();

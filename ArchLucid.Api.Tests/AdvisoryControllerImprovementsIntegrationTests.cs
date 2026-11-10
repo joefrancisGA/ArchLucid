@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController" /> improvements path
-///     (<c>GET /v1/advisory/runs/{runId}/improvements</c>) — lowest-covered API surface per coverage gap analysis.
+///     (<c>GET /v1/advisory/runs/{finalized.RunId}/improvements</c>) — lowest-covered API surface per coverage gap analysis.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -33,8 +33,8 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
     [SkippableFact]
     public async Task GetImprovements_compareTo_missing_run_returns_404_run_problem()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-ADV-IMPROVE-001");
-        Guid primaryRunId = Guid.Parse(runId);
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-ADV-IMPROVE-001");
+        Guid primaryRunId = Guid.Parse(finalized.RunId);
 
         Guid missingCompareRunId = Guid.Parse("00000000-0000-0000-0000-00000000aa02");
         string improvementsPath = QueryHelpers.AddQueryString(

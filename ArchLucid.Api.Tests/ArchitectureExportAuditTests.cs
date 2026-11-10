@@ -16,7 +16,7 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
     [SkippableFact]
     public async Task ConsultingDocxExport_PersistsExportHistory()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-EXPORT-AUDIT-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-EXPORT-AUDIT-001");
 
         var request = new
         {
@@ -42,22 +42,22 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
         };
 
         HttpResponseMessage exportResponse = await Client.PostAsJsonAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
             request);
 
         exportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/exports");
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");
 
         historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         RunExportHistoryResponse? payload =
-            await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+            await historyResponse.ReadJsonForTestAsync<RunExportHistoryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Exports.Should().NotBeEmpty();
 
         RunExportRecordDto export = payload.Exports.First();
-        export.RunId.Should().Be(runId);
+        export.RunId.Should().Be(finalized.RunId);
         export.ExportType.Should().Be("analysis-report-consulting-docx");
         export.Format.Should().Be("docx");
         export.TemplateProfile.Should().NotBeNullOrWhiteSpace();

@@ -75,7 +75,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
 
         await commit.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
-            await commit.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await commit.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         HttpResponseMessage manifest = await Client.GetAsync(

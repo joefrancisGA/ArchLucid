@@ -38,7 +38,7 @@ public sealed class FindingVerificationEndpointTests(ArchLucidApiFactory factory
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
         FindingVerificationReportResponse? report =
-            await response.Content.ReadFromJsonAsync<FindingVerificationReportResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<FindingVerificationReportResponse>(JsonOptions);
 
         report.Should().NotBeNull();
         report!.RunId.Should().Be(runId);

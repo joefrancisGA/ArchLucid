@@ -1,8 +1,5 @@
 using System.Net;
-using System.Net.Http.Json;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -15,12 +12,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureProvenanceExplanationEndpointTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateRelaxedEscapingJsonOptions();
 
     [SkippableFact]
     public async Task GetProvenanceNodeExplanation_singular_run_route_returns_501_problem_details_when_run_exists_in_scope()
@@ -28,28 +20,22 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, _) =>
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
-                TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-001"));
+                TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario("PROV-EXPLAIN")));
 
-            await createResponse.EnsureSuccessForTestAsync();
-            CreateRunResponseDto? created =
-                await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-
-            created.Should().NotBeNull();
+            CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
 
             string runId = created.Run.RunId;
 
             HttpResponseMessage response =
                 await client.GetAsync($"/v1/architecture/review/{runId}/provenance/test-node/explanation");
 
-            response.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
+            JsonDocument body = await response.AssertProblemForTestAsync(
+                HttpStatusCode.NotImplemented,
+                ProblemTypes.ProvenanceNodeExplanationNotSupported,
+                ProblemErrorCodes.ProvenanceNodeExplanationNotSupported);
 
-            JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-
-            body.RootElement.GetProperty("status").GetInt32().Should().Be(501);
-            body.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.ProvenanceNodeExplanationNotSupported);
             body.RootElement.GetProperty("title").GetString().Should().Be("Provenance node explanation not supported");
             body.RootElement.GetProperty("detail").GetString().Should().Contain("/v1/explain/runs/{runId}/aggregate");
-            body.RootElement.GetProperty("errorCode").GetString().Should().Be(ProblemErrorCodes.ProvenanceNodeExplanationNotSupported);
             body.RootElement.GetProperty("aggregateExplanationPathTemplate").GetString().Should()
                 .Be("/v1/explain/runs/{runId}/aggregate");
         });
@@ -61,13 +47,11 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, _) =>
         {
             HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(
-                TestRequestFactory.CreateArchitectureRequest("REQ-PROV-EXPLAIN-002"));
+                TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario("PROV-EXPLAIN-PLURAL")));
 
-            await createResponse.EnsureSuccessForTestAsync();
-            CreateRunResponseDto? created =
-                await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
 
-            string runId = created!.Run.RunId;
+            string runId = created.Run.RunId;
 
             HttpResponseMessage plural =
                 await client.GetAsync(

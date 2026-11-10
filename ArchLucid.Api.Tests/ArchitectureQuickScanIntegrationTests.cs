@@ -26,7 +26,7 @@ public sealed class ArchitectureQuickScanIntegrationTests(ArchLucidApiFactory fa
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         ArchitectureQuickScanResponse? body =
-            await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ArchitectureQuickScanResponse>(JsonOptions);
         body.Should().NotBeNull();
         body.Findings.Should().NotBeEmpty();
         body.Findings.Count.Should().BeLessThanOrEqualTo(5);

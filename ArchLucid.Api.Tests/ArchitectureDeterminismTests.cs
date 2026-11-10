@@ -29,7 +29,7 @@ public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         DeterminismCheckResponse? payload =
-            await response.Content.ReadFromJsonAsync<DeterminismCheckResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<DeterminismCheckResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Result.SourceRunId.Should().Be(runId);
         payload.Result.Iterations.Should().Be(3);

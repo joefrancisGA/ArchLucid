@@ -49,7 +49,7 @@ public sealed class InsightDensityNoveltyRatesEndpointTests(ArchLucidApiFactory 
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         EngineInsightNoveltyRatesResponse? payload =
-            await getResponse.Content.ReadFromJsonAsync<EngineInsightNoveltyRatesResponse>(JsonOptions);
+            await getResponse.ReadJsonForTestAsync<EngineInsightNoveltyRatesResponse>(JsonOptions);
 
         payload.Should().NotBeNull();
         payload!.Rows.Should().NotBeEmpty();
@@ -81,7 +81,7 @@ public sealed class InsightDensityNoveltyRatesEndpointTests(ArchLucidApiFactory 
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         EngineInsightNoveltyRatesResponse? payload =
-            await response.Content.ReadFromJsonAsync<EngineInsightNoveltyRatesResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<EngineInsightNoveltyRatesResponse>(JsonOptions);
         payload!.Rows.Should().BeEmpty();
     }
 }

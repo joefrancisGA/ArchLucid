@@ -19,13 +19,13 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CommitRun_PersistsDecisionNodes()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-DECISION-V2-001");
-        await WaitForDecisionNodesAsync(runId);
-        HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-DECISION-V2-001");
+        await WaitForDecisionNodesAsync(finalized.RunId);
+        HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions");
         decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         DecisionNodeResponseDto? payload =
-            await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
+            await decisionsResponse.ReadJsonForTestAsync<DecisionNodeResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Decisions.Should().NotBeEmpty();
         payload.Decisions.Should().Contain(d => d.Topic == "TopologyAcceptance");
@@ -48,7 +48,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
             if (decisionsResponse.IsSuccessStatusCode)
             {
                 DecisionNodeResponseDto? payload =
-                    await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
+                    await decisionsResponse.ReadJsonForTestAsync<DecisionNodeResponseDto>(JsonOptions);
 
                 if (payload is not null && payload.Decisions.Count > 0)
                     return;

@@ -21,7 +21,7 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage commit = await Client.PostFinalizeForTestAsync(Factory, runId);

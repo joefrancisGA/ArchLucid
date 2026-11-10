@@ -72,7 +72,7 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
             response.StatusCode.Should().Be(HttpStatusCode.Created, $"response: {problemBody}");
         }
 
-        CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? payload = await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
         payload.Tasks.Should().NotBeEmpty();

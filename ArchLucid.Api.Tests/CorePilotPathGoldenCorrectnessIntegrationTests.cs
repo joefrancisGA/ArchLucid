@@ -32,7 +32,7 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created!.Run.RunId;
 

@@ -24,7 +24,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        DiagramResponse? diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(JsonOptions);
+        DiagramResponse? diagramPayload = await diagramResponse.ReadJsonForTestAsync<DiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.Format.Should().Be("mermaid");
         diagramPayload.Diagram.Should().Contain("flowchart LR");
@@ -44,7 +44,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ManifestDiagramResponse? diagramPayload =
-            await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
+            await diagramResponse.ReadJsonForTestAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.DiagramType.Should().Be("Mermaid");
         diagramPayload.Content.Should().Contain("flowchart TB");

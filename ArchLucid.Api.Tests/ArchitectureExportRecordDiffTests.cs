@@ -16,7 +16,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-EXPORT-DIFF-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-EXPORT-DIFF-001");
         var executiveRequest = new
         {
             templateProfile = "sponsor",
@@ -64,17 +64,17 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         };
 
         HttpResponseMessage executiveExport = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
             JsonContent(executiveRequest));
         await executiveExport.EnsureSuccessForTestAsync();
         HttpResponseMessage internalExport = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
             JsonContent(internalRequest));
         await internalExport.EnsureSuccessForTestAsync();
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/exports");
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");
         await historyResponse.EnsureSuccessForTestAsync();
         RunExportHistoryResponse? history =
-            await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+            await historyResponse.ReadJsonForTestAsync<RunExportHistoryResponse>(JsonOptions);
         history.Should().NotBeNull();
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
@@ -87,7 +87,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ExportRecordDiffResponse? payload =
-            await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
+            await compareResponse.ReadJsonForTestAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();
     }

@@ -24,7 +24,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         const string requestId = "REQ-AUTH-LIST-UNPAGED-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        (string runId, _) = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
 
@@ -46,7 +46,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         const string requestId = "REQ-AUTH-LIST-PAGED-001";
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        (string runId, _) = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
 
@@ -64,16 +64,16 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsInScope_includes_run_hidden_from_default_project_slug()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-AUTH-LIST-SCOPE-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-AUTH-LIST-SCOPE-001");
 
         HttpResponseMessage defaultSlugResponse =
             await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");
         defaultSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string defaultBody = await defaultSlugResponse.Content.ReadAsStringAsync();
         using JsonDocument defaultDoc = JsonDocument.Parse(defaultBody);
-        Guid createdRunId = Guid.Parse(runId);
+        Guid createdRunId = Guid.Parse(finalized.RunId);
         defaultDoc.RootElement.GetProperty("items").EnumerateArray()
-            .Any(item => Guid.Parse(item.GetProperty("runId").GetString()!) == createdRunId)
+            .Any(item => Guid.Parse(item.GetProperty("finalized.RunId").GetString()!) == createdRunId)
             .Should()
             .BeFalse("create maps SystemName onto the run project slug, not 'default'");
 
@@ -83,7 +83,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         using JsonDocument scopeDoc = JsonDocument.Parse(scopeBody);
         JsonElement scopeRoot = scopeDoc.RootElement;
         scopeRoot.GetProperty("items").EnumerateArray()
-            .Any(item => Guid.Parse(item.GetProperty("runId").GetString()!) == createdRunId)
+            .Any(item => Guid.Parse(item.GetProperty("finalized.RunId").GetString()!) == createdRunId)
             .Should()
             .BeTrue();
         scopeRoot.GetProperty("requestedTake").GetInt32().Should().Be(50);

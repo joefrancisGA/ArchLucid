@@ -21,7 +21,7 @@ public sealed class SponsorRoiSummaryEndpointTests(ArchLucidApiFactory factory) 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         SponsorRoiSummaryResponse? body =
-            await response.Content.ReadFromJsonAsync<SponsorRoiSummaryResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<SponsorRoiSummaryResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.Systems.Should().NotBeNull();

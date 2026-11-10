@@ -37,7 +37,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
         Guid runKey = Guid.Parse(runId);
 

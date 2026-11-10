@@ -29,7 +29,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
 
             await createResponse.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created =
-                await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
 
             await client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(factory, runId);
@@ -53,7 +53,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
                     response.StatusCode.Should().Be(HttpStatusCode.OK);
 
                     CommitRunResponseDto? payload =
-                        await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+                        await response.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
                     payload.Should().NotBeNull();
                     payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 

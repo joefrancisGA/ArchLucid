@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Pilots;
@@ -19,7 +19,7 @@ public sealed class PilotOutcomeSummaryEndpointTests(ArchLucidApiFactory factory
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        PilotScorecardResponse? body = await response.Content.ReadFromJsonAsync<PilotScorecardResponse>(JsonOptions);
+        PilotScorecardResponse? body = await response.ReadJsonForTestAsync<PilotScorecardResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.TenantId.Should().NotBeEmpty();

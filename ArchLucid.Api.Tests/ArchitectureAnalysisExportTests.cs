@@ -16,7 +16,7 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task ExportAnalysisReport_ReturnsMarkdown()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-ANALYSIS-EXPORT-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-ANALYSIS-EXPORT-001");
         var request = new
         {
             includeEvidence = true,
@@ -33,16 +33,16 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report/export",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         ArchitectureAnalysisExportResponse? payload =
-            await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload.RunId.Should().Be(runId);
+        payload.RunId.Should().Be(finalized.RunId);
         payload.Format.Should().Be("markdown");
-        payload.FileName.Should().Be($"analysis_{runId}.md");
+        payload.FileName.Should().Be($"analysis_{finalized.RunId}.md");
         payload.Content.Should().NotBeNullOrWhiteSpace();
 
         string[] lines = payload.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries);

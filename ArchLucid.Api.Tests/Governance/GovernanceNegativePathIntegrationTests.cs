@@ -22,16 +22,16 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Self_approval_returns_governance_self_approval_problem_and_audit_tb297()
     {
-        (string runId, string manifestVersion) = await CreateCommittedRunAsync("REQ-GOV-NEG-SELF-01");
+        FinalizedRun committed = await CreateCommittedRunAsync("REQ-GOV-NEG-SELF-01");
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
-            runId,
-            manifestVersion: manifestVersion,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
         await submit.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
-            await submit.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+            await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
@@ -51,16 +51,16 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     public async Task Reject_after_approve_returns_conflict_tb297()
     {
         // Unique per execution: fixed request ids collide across sharded SQL integration runs.
-        (string runId, string manifestVersion) = await CreateCommittedRunAsync($"REQ-GOV-NEG-REJ-{Guid.NewGuid():N}");
+        FinalizedRun committed = await CreateCommittedRunAsync($"REQ-GOV-NEG-REJ-{Guid.NewGuid():N}");
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
-            runId,
-            manifestVersion: manifestVersion,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
         await submit.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
-            await submit.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+            await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
@@ -83,18 +83,18 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Double_promote_to_prod_with_same_approval_returns_bad_request_tb297()
     {
-        (string runId, string manifestVersion) = await CreateCommittedRunAsync("REQ-GOV-NEG-DBL-01");
+        FinalizedRun committed = await CreateCommittedRunAsync("REQ-GOV-NEG-DBL-01");
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
-            runId,
-            manifestVersion: manifestVersion,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             sourceEnvironment: "test",
             targetEnvironment: "prod",
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
         await submit.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
-            await submit.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+            await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
@@ -106,7 +106,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
         HttpResponseMessage firstPromote = await PostGovernancePromotionAsync(
             submitted.RunId,
             promotedBy: ProdReviewerName,
-            manifestVersion: manifestVersion,
+            manifestVersion: committed.ManifestVersion,
             sourceEnvironment: "test",
             targetEnvironment: "prod",
             approvalRequestId: submitted.ApprovalRequestId,
@@ -119,7 +119,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
         HttpResponseMessage secondPromote = await PostGovernancePromotionAsync(
             submitted.RunId,
             promotedBy: ProdReviewerName,
-            manifestVersion: manifestVersion,
+            manifestVersion: committed.ManifestVersion,
             sourceEnvironment: "test",
             targetEnvironment: "prod",
             approvalRequestId: submitted.ApprovalRequestId,
@@ -133,18 +133,18 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Promote_with_stale_manifest_version_returns_bad_request_tb297()
     {
-        (string runId, string manifestVersion) = await CreateCommittedRunAsync("REQ-GOV-NEG-STALE-01");
+        FinalizedRun committed = await CreateCommittedRunAsync("REQ-GOV-NEG-STALE-01");
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
-            runId,
-            manifestVersion: manifestVersion,
+            committed.RunId,
+            manifestVersion: committed.ManifestVersion,
             sourceEnvironment: "test",
             targetEnvironment: "prod",
             testActorName: GovernanceSubmitterName,
             testActorId: GovernanceSubmitterId);
         await submit.EnsureSuccessForTestAsync();
         GovernanceApprovalResponseDto? submitted =
-            await submit.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+            await submit.ReadJsonForTestAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         HttpResponseMessage approve = await PostJsonAsTestActorAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
@@ -169,12 +169,12 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
 
     private async Task<FinalizedRun> CreateCommittedRunAsync(string requestId)
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun committedRun = await CreateFinalizedRunAsync(requestId);
 
-        finalized.RunId.Should().NotBeNullOrWhiteSpace();
-        finalized.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+        committedRun.RunId.Should().NotBeNullOrWhiteSpace();
+        committedRun.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 
-        return finalized;
+        return committedRun;
     }
 
     private static string ReadProblemType(string body)

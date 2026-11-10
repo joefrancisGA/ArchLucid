@@ -26,7 +26,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ReplayRunResponseDto? payload =
-            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.OriginalRunId.Should().Be(runId);
         payload.ReplayRunId.Should().NotBeNullOrWhiteSpace();
@@ -37,18 +37,18 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [SkippableFact]
     public async Task ReplayRun_WithCommitReplay_CreatesReplayManifest()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-REPLAY-002");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-REPLAY-002");
         const string rightVersion = "v1-replay";
 
         HttpResponseMessage replayResponse = await PostReviewReplayAsync(
-            runId,
+            finalized.RunId,
             commitReplay: true,
             manifestVersionOverride: rightVersion);
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ReplayRunResponseDto? payload =
-            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Manifest.Should().NotBeNull();
         payload.Manifest!.Metadata.ManifestVersion.Should().Be("v1-replay");

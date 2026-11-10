@@ -46,7 +46,7 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFac
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         ComparisonReplayCostEstimateResponse? body =
-            await response.Content.ReadFromJsonAsync<ComparisonReplayCostEstimateResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ComparisonReplayCostEstimateResponse>(JsonOptions);
         body.Should().NotBeNull();
         body.ComparisonRecordId.Should().Be(id);
         body.RelativeCostBand.Should().BeOneOf("low", "medium", "high");

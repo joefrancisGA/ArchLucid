@@ -16,32 +16,32 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
     [SkippableFact]
     public async Task CompareManifestsExport_ReturnsMarkdownExport()
     {
-        (string runId, string leftVersion) = await CreateFinalizedRunAsync("REQ-COMPARE-EXPORT-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-COMPARE-EXPORT-001");
         const string requestedReplayManifestVersion = "v1-replay";
 
         HttpResponseMessage replayResponse = await PostReviewReplayAsync(
-            runId,
+            finalized.RunId,
             commitReplay: true,
             manifestVersionOverride: requestedReplayManifestVersion);
         await replayResponse.EnsureSuccessForTestAsync();
         ReplayRunResponseDto? replayPayload =
-            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+            await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload.Should().NotBeNull();
         replayPayload.Manifest.Should().NotBeNull();
         string rightVersion = replayPayload.Manifest!.Metadata.ManifestVersion;
         rightVersion.Should().Be(requestedReplayManifestVersion);
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/manifest/compare/export?leftVersion={Uri.EscapeDataString(leftVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
+            $"/v1/architecture/manifest/compare/export?leftVersion={Uri.EscapeDataString(finalized.ManifestVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
 
         ManifestCompareExportResponse? payload =
-            await response.Content.ReadFromJsonAsync<ManifestCompareExportResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ManifestCompareExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchLucid Manifest Comparison Export");
-        payload.Content.Should().Contain(leftVersion);
+        payload.Content.Should().Contain(finalized.ManifestVersion);
         payload.Content.Should().Contain(rightVersion);
     }
 }

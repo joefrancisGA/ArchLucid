@@ -296,11 +296,11 @@ public static class IntegrationTestRunLifecycleSupport
             requestId,
             cancellationToken);
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions, cancellationToken);
+        CreateRunResponseDto created = await createResponse
+            .ReadJsonForTestAsync<CreateRunResponseDto>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
 
-        return created!.Run.RunId;
+        return created.Run.RunId;
     }
 
     /// <inheritdoc cref="CreateRunExecuteAndFinalizeForTestAsync" />
@@ -325,11 +325,11 @@ public static class IntegrationTestRunLifecycleSupport
         HttpResponseMessage commitResponse =
             await client.PostFinalizeForTestAsync(factory, runId, cancellationToken: cancellationToken);
 
-        await commitResponse.EnsureSuccessForTestAsync();
-        CommitRunResponseDto? commitPayload =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(jsonOptions, cancellationToken);
+        CommitRunResponseDto commitPayload = await commitResponse
+            .ReadJsonForTestAsync<CommitRunResponseDto>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
 
-        return new FinalizedRun(runId, commitPayload!.Manifest.Metadata.ManifestVersion);
+        return new FinalizedRun(runId, commitPayload.Manifest.Metadata.ManifestVersion);
     }
 
     public static async Task<HttpResponseMessage> PostExecuteForTestAsync(

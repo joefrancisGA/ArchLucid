@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -38,7 +38,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        MvcProblemDetails? problem = await response.ReadJsonForTestAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
         problem.Type.Should().Be(ProblemTypes.RunNotFound);
     }
@@ -53,7 +53,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
 
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        MvcProblemDetails? problem = await response.ReadJsonForTestAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         problem.Detail.Should().Contain("Provenance requires");

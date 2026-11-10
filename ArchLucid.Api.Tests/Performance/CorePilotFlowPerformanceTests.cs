@@ -38,7 +38,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         tCreate.Sw.Stop();
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         tSeed.Sw.Start();
@@ -51,7 +51,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         tCommit.Sw.Stop();
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commit =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
 
@@ -104,7 +104,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}"));
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage seedResponse =
@@ -113,7 +113,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commit =
-            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+            await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
         return (manifestVersion, runId, commit);

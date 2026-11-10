@@ -24,7 +24,7 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         GovernanceEnvironmentComparisonResultDto? payload =
-            await response.Content.ReadFromJsonAsync<GovernanceEnvironmentComparisonResultDto>(JsonOptions);
+            await response.ReadJsonForTestAsync<GovernanceEnvironmentComparisonResultDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.SourceEnvironment.Should().Be("dev");
         payload.TargetEnvironment.Should().Be("test");
@@ -45,18 +45,18 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsOk_AfterCommittedRun()
     {
-        (string runId, string manifestVersion) = await CreateFinalizedRunAsync("REQ-GOV-PREVIEW-01");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-GOV-PREVIEW-01");
 
-        var previewBody = new { runId, manifestVersion, environment = "dev" };
+        var previewBody = new { runId = finalized.RunId, manifestVersion = finalized.ManifestVersion, environment = "dev" };
         HttpResponseMessage previewResponse =
             await Client.PostAsync("/v1/governance-preview/preview", JsonContent(previewBody));
 
         previewResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         GovernancePreviewResultDto? preview =
-            await previewResponse.Content.ReadFromJsonAsync<GovernancePreviewResultDto>(JsonOptions);
+            await previewResponse.ReadJsonForTestAsync<GovernancePreviewResultDto>(JsonOptions);
         preview.Should().NotBeNull();
-        preview.PreviewRunId.Should().Be(runId);
-        preview.PreviewManifestVersion.Should().Be(manifestVersion);
+        preview.PreviewRunId.Should().Be(finalized.RunId);
+        preview.PreviewManifestVersion.Should().Be(finalized.ManifestVersion);
         preview.Environment.Should().Be("dev");
     }
 }

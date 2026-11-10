@@ -33,7 +33,7 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFa
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ConsultingDocxProfileRecommendationResponse? payload =
-            await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Recommendation.RecommendedProfileName.Should().Be("sponsor");
         payload.Recommendation.Reason.Should().NotBeNullOrWhiteSpace();
@@ -60,7 +60,7 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFa
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ConsultingDocxProfileRecommendationResponse? payload =
-            await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Recommendation.RecommendedProfileName.Should().Be("regulated");
     }

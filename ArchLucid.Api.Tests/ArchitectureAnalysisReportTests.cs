@@ -16,7 +16,7 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task AnalysisReport_ReturnsUnifiedReport()
     {
-        (string runId, _) = await CreateFinalizedRunAsync("REQ-ANALYSIS-001");
+        FinalizedRun finalized = await CreateFinalizedRunAsync("REQ-ANALYSIS-001");
         var request = new
         {
             includeEvidence = true,
@@ -33,15 +33,15 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{runId}/analysis-report",
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         ArchitectureAnalysisReportResponse? payload =
-            await response.Content.ReadFromJsonAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload.Report.Run.RunId.Should().Be(runId);
+        payload.Report.Run.RunId.Should().Be(finalized.RunId);
         payload.Report.Evidence.Should().NotBeNull();
         payload.Report.ExecutionTraces.Should().NotBeEmpty();
         payload.Report.Manifest.Should().NotBeNull();
