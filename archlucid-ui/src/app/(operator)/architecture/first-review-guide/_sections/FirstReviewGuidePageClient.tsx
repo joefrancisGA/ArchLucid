@@ -72,6 +72,7 @@ import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
 import { FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 import { ArchLucidBetaSkuContentsSection } from "@/components/product-line/ArchLucidBetaSkuContentsSection";
+import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
 import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
 import { FirstReviewOpenGateStarterShortcut } from "@/components/usability/FirstReviewOpenGateStarterShortcut";
 import { OnboardingSampleReviewShortcut } from "@/components/usability/OnboardingSampleReviewShortcut";
@@ -409,6 +410,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
         {!buyerPolishedShell ? firstReviewGuidePageHeader : null}
         <FirstReviewOpenGateStarter />
         <FirstReviewSampleSealedPackageChecklist />
+        {!buyerPolishedShell ? <ArchLucidProcurementTrustStrip /> : null}
         {firstReviewGuideChecklistBody}
       </div>
 

@@ -44,6 +44,8 @@ export const SECURENOW_PATH_INSPECT_RANK_LOADING = "Loading path rank…" as con
 
 export const SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE = "Path rank unavailable" as const;
 
+export const SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL = "Synthetic ROI worksheet" as const;
+
 export const SECURENOW_PATH_INSPECT_EXPLANATION_TITLE = secureNowTitleCase("Architect explanation");
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_LEAD =

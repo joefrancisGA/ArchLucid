@@ -7,6 +7,7 @@ import { SECURENOW_ARCHITECT_METRICS_SNAPSHOTS_EMPTY } from "@/lib/product-line/
 import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 
 export const REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING =
   "Loading executive remediation metrics for the current workspace scope…" as const;
@@ -34,7 +35,17 @@ export function resolveRemediationFactoryRankedPathsEmptyState(
   collectionSetupComplete: boolean,
 ): EnterpriseCompactEmptyStateProps {
   if (collectionSetupComplete) {
-    return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
+    return {
+      ...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY,
+      actions: [
+        ...(REMEDIATION_FACTORY_RANKED_PATHS_EMPTY.actions ?? []),
+        {
+          label: "Synthetic ROI walkthrough",
+          href: SECURENOW_INVESTIGATION_EFFORT_PATH,
+          variant: "outline",
+        },
+      ],
+    };
   }
 
   return {

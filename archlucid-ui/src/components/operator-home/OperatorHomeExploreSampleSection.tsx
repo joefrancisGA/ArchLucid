@@ -2,6 +2,7 @@
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
+import { FirstReviewSampleSealedPackageChecklist } from "@/components/architecture/FirstReviewSampleSealedPackageChecklist";
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
@@ -80,7 +81,10 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
         </p>
       </div>
       {!reducedProminence ? (
-        <GoldenSponsorPackageWalkthroughPanel compact />
+        <>
+          <FirstReviewSampleSealedPackageChecklist />
+          <GoldenSponsorPackageWalkthroughPanel compact />
+        </>
       ) : (
         <div className={cn("grid gap-3 sm:grid-cols-2", "mt-3", OPERATOR_LAYOUT.inlineGap)}>
           <article className="flex flex-col gap-2" aria-labelledby="operator-home-creation-example-title">
