@@ -134,12 +134,15 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                 25,
                 resolutionPhaseGuard.Token);
         }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        catch (OperationCanceledException ex) when (ct.IsCancellationRequested)
         {
-            // RecordAndReturnOnShardOverload instead of SkipShardOverload: throwing SkipException
-            // after an awaited operation causes vstest to re-queue the test indefinitely.
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
+            // Do not silently pass an idempotency test that never checked the
+            // distinct run IDs or the single persisted authority-run invariant.
+            ArchitectureRequestConcurrencyTestSupport.DisposeAll(responses);
+            throw new TimeoutException(
+                $"Parallel idempotency verification timed out after {hangGuardStopwatch.Elapsed}; " +
+                "no single-run or durable SQL assertion could be completed.",
+                ex);
         }
 
         try
