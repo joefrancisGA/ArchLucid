@@ -23,6 +23,7 @@ export function FirstReviewOpenGateStarterShortcut(): React.JSX.Element | null {
   return (
     <section
       aria-labelledby="first-review-open-gate-starter-heading"
+      aria-describedby="first-review-open-gate-starter-lead first-review-open-gate-starter-not-this-review"
       className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/60 p-4 dark:border-neutral-700 dark:bg-neutral-900/30"
       data-testid="first-review-open-gate-starter-shortcut"
     >

@@ -13,6 +13,9 @@ export const PROCUREMENT_EVIDENCE_MAP_HEADING = "Procurement evidence map" as co
 export const PROCUREMENT_EVIDENCE_MAP_LEAD =
   "What exists today versus what is not published. Links open in-product surfaces — not a CPA attestation." as const;
 
+export const ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LEAD =
+  "The owner accepts a guided-pilot evaluation order at the published list price by signed quote. Monthly tiers, checkout, and Stripe are not accepted from a page. Other rows show what exists versus what is not published." as const;
+
 export const SECURENOW_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceArtifactRow[] = [
   {
     id: "trust-center",
@@ -66,6 +69,13 @@ export const SECURENOW_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
 ];
 
 export const ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceArtifactRow[] = [
+  {
+    id: "guided-pilot-order",
+    label: "Guided-pilot evaluation order",
+    status: "available",
+    href: "/pricing#pricing-quote-request",
+    note: "Accepted by signed quote at the published list price in pricing philosophy section 4.",
+  },
   {
     id: "trust-center",
     label: "Trust Center posture",

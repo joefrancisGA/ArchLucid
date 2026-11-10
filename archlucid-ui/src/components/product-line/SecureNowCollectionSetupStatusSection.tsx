@@ -4,8 +4,10 @@ import Link from "next/link";
 
 import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
+import { SecureNowCollectionLatestSnapshotLine } from "@/components/product-line/SecureNowCollectionLatestSnapshotLine";
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { useSecureNowLatestSucceededSnapshotId } from "@/hooks/use-securenow-latest-succeeded-snapshot-id";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
@@ -33,6 +35,7 @@ export function SecureNowCollectionSetupStatusSection(
     snapshotCaptureSucceeded: null,
     enabled: props.collectionInput === undefined,
   });
+  const latestSnapshotQuery = useSecureNowLatestSucceededSnapshotId();
   const collectionInput = props.collectionInput ?? hookResult.collectionInput;
   const isPending = props.collectionInput === undefined && hookResult.isPending;
   const collectionUnavailable = props.collectionInput === undefined && hookResult.isError;
@@ -76,6 +79,12 @@ export function SecureNowCollectionSetupStatusSection(
       {collectionReady ? (
         <div className="space-y-2" data-testid={`${props.testIdPrefix}-collection-ready`}>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Collection ready.</p>
+          {latestSnapshotQuery.latestSnapshotId !== null ? (
+            <SecureNowCollectionLatestSnapshotLine
+              snapshotId={latestSnapshotQuery.latestSnapshotId}
+              testIdPrefix={props.testIdPrefix}
+            />
+          ) : null}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link
               href={SECURENOW_REMEDIATION_FACTORY_PATH}
@@ -108,6 +117,12 @@ export function SecureNowCollectionSetupStatusSection(
             testIdPrefix={props.testIdPrefix}
             titleHeadingLevel="helper"
           />
+          {latestSnapshotQuery.latestSnapshotId !== null ? (
+            <SecureNowCollectionLatestSnapshotLine
+              snapshotId={latestSnapshotQuery.latestSnapshotId}
+              testIdPrefix={props.testIdPrefix}
+            />
+          ) : null}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <Link
               href={CLOUD_CONNECTIONS_PATH}

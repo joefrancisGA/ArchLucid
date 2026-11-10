@@ -351,6 +351,7 @@ export function RemediationFactoryClient() {
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
   const [simulatorFindingId, setSimulatorFindingId] = useState<string | null>(null);
   const [pathViewFiltersExpanded, setPathViewFiltersExpanded] = useState(false);
+  const [remediationUpperChromeExpanded, setRemediationUpperChromeExpanded] = useState(false);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
@@ -363,6 +364,8 @@ export function RemediationFactoryClient() {
   rankedRef.current = ranked;
   rankedPathsRef.current = rankedPaths;
   const pathView = searchParams.get("pathView") ?? "all";
+  const pathInspectFocusMode =
+    productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0;
   const pathViewCounts = useMemo(
     () => computeRemediationFactoryRankedPathViewCounts(rankedPaths),
     [rankedPaths],
@@ -606,6 +609,16 @@ export function RemediationFactoryClient() {
     });
   }, [productLine, selectedPathId]);
 
+  useEffect(() => {
+    if (!pathInspectFocusMode) {
+      setRemediationUpperChromeExpanded(false);
+      return;
+    }
+
+    setRemediationUpperChromeExpanded(false);
+    setPathViewFiltersExpanded(false);
+  }, [pathInspectFocusMode, selectedPathId]);
+
   const onExplainScore = useCallback(() => {
     const findingId = selectedFindingIdRef.current;
 
@@ -701,57 +714,88 @@ export function RemediationFactoryClient() {
         entries={remediationFactoryPageShortcutsDisclosureEntries()}
       />
 
-      {metricsQuery.isError ? (
-        <>
-          <OperatorErrorRecoveryContract
-            presentation={remediationFactoryExecutiveMetricsErrorRecovery()}
-            testId="remediation-executive-metrics-error-recovery"
-          />
-          <RefreshButton
-            busy={metricsQuery.isFetching}
-            label="Retry executive metrics"
-            data-testid="remediation-executive-metrics-retry"
-            onClick={() => void metricsQuery.refetch()}
-          />
-        </>
-      ) : metricsQuery.data ? (
-        <ExecutiveMetricsGrid metrics={metricsQuery.data} openFindingsHref={openFindingsHref} />
+      {pathInspectFocusMode && !remediationUpperChromeExpanded ? (
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-upper-chrome-collapsed">
+            Executive metrics, snapshot pair, attack-path report, and cut points are collapsed. Step focus is on the
+            selected path below.
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            data-testid="remediation-factory-upper-chrome-expand"
+            onClick={() => setRemediationUpperChromeExpanded(true)}
+          >
+            Show metrics and path report
+          </Button>
+        </div>
       ) : (
-        <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING}</p>
+        <>
+          {metricsQuery.isError ? (
+            <>
+              <OperatorErrorRecoveryContract
+                presentation={remediationFactoryExecutiveMetricsErrorRecovery()}
+                testId="remediation-executive-metrics-error-recovery"
+              />
+              <RefreshButton
+                busy={metricsQuery.isFetching}
+                label="Retry executive metrics"
+                data-testid="remediation-executive-metrics-retry"
+                onClick={() => void metricsQuery.refetch()}
+              />
+            </>
+          ) : metricsQuery.data ? (
+            <ExecutiveMetricsGrid metrics={metricsQuery.data} openFindingsHref={openFindingsHref} />
+          ) : (
+            <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING}</p>
+          )}
+
+          <SecureNowArchitectOutcomeMetricsPanel
+            fromSnapshotId={urlState.fromSnapshotId}
+            toSnapshotId={urlState.toSnapshotId}
+            hasUrlSnapshotPair={urlState.hasSnapshotPair}
+            onSnapshotPairChange={urlState.setSnapshotPair}
+            onQueryStateChange={setOutcomeQueryState}
+            snapshotsEmptyPreset={architectSnapshotsEmptyState}
+          />
+
+          <RemediationFactoryAttackPathReportSection
+            snapshotId={reportSnapshotId}
+            reportQuery={attackPathReportQuery}
+            selectedPathId={selectedPathId}
+            onSelectPath={onSelectPathAndFocusInspect}
+            awaitingRankedSnapshot={
+              urlState.toSnapshotId === null
+              && urlState.fromSnapshotId === null
+              && rankedPathsQuery.isLoading
+            }
+            showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
+          />
+
+          <RemediationFactoryTopCutPointsSection
+            cutPoints={rankedPathsQuery.data?.topCutPoints ?? []}
+            isLoading={rankedPathsQuery.isLoading}
+            isError={rankedPathsQuery.isError}
+            isFetching={rankedPathsQuery.isFetching}
+            isSuccess={rankedPathsQuery.isSuccess}
+            refetch={() => rankedPathsQuery.refetch()}
+            selectedPathId={selectedPathId}
+            onSelectPath={onSelectPathAndFocusInspect}
+          />
+          {pathInspectFocusMode ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              data-testid="remediation-factory-upper-chrome-collapse"
+              onClick={() => setRemediationUpperChromeExpanded(false)}
+            >
+              Collapse metrics and path report
+            </Button>
+          ) : null}
+        </>
       )}
-
-      <SecureNowArchitectOutcomeMetricsPanel
-        fromSnapshotId={urlState.fromSnapshotId}
-        toSnapshotId={urlState.toSnapshotId}
-        hasUrlSnapshotPair={urlState.hasSnapshotPair}
-        onSnapshotPairChange={urlState.setSnapshotPair}
-        onQueryStateChange={setOutcomeQueryState}
-        snapshotsEmptyPreset={architectSnapshotsEmptyState}
-      />
-
-      <RemediationFactoryAttackPathReportSection
-        snapshotId={reportSnapshotId}
-        reportQuery={attackPathReportQuery}
-        selectedPathId={selectedPathId}
-        onSelectPath={onSelectPathAndFocusInspect}
-        awaitingRankedSnapshot={
-          urlState.toSnapshotId === null
-          && urlState.fromSnapshotId === null
-          && rankedPathsQuery.isLoading
-        }
-        showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
-      />
-
-      <RemediationFactoryTopCutPointsSection
-        cutPoints={rankedPathsQuery.data?.topCutPoints ?? []}
-        isLoading={rankedPathsQuery.isLoading}
-        isError={rankedPathsQuery.isError}
-        isFetching={rankedPathsQuery.isFetching}
-        isSuccess={rankedPathsQuery.isSuccess}
-        refetch={() => rankedPathsQuery.refetch()}
-        selectedPathId={selectedPathId}
-        onSelectPath={onSelectPathAndFocusInspect}
-      />
 
       <section className="space-y-3" aria-label="Operator priority table">
         {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (

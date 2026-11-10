@@ -24,7 +24,10 @@ export function ProcurementEvidenceMapSection(props: ProcurementEvidenceMapSecti
         {props.heading ?? PROCUREMENT_EVIDENCE_MAP_HEADING}
       </h2>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{props.lead ?? PROCUREMENT_EVIDENCE_MAP_LEAD}</p>
-      <ul className="m-0 list-none space-y-2 p-0">
+      <ul
+        className="m-0 list-none space-y-2 p-0"
+        aria-labelledby={`${testId}-heading`}
+      >
         {props.rows.map((row) => (
           <li
             key={row.id}
