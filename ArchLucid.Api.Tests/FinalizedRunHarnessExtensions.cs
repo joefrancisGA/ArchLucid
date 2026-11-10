@@ -24,4 +24,22 @@ public static class FinalizedRunHarnessExtensions
         return await response.ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(jsonOptions, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    public static async Task<RunDetailsResponseDto> GetRunDetailsAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await client
+            .GetAsync($"/v1/architecture/review/{finalized.RunId}", cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<RunDetailsResponseDto>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
 }
