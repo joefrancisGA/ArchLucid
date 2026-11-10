@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
+import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -15,6 +16,7 @@ import {
   formatSecureNowCollectionSetupProgressSummary,
   isSecureNowCollectionSetupComplete,
 } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SECURENOW_COLLECTION_SETUP_API_UNREACHABLE } from "@/lib/product-line/securenow-workspace-api-unreachable-copy";
 import { cn } from "@/lib/utils";
 
 export type SecureNowCollectionSetupStatusSectionProps = {
@@ -33,6 +35,16 @@ export function SecureNowCollectionSetupStatusSection(
   });
   const collectionInput = props.collectionInput ?? hookResult.collectionInput;
   const isPending = props.collectionInput === undefined && hookResult.isPending;
+  const collectionUnavailable = props.collectionInput === undefined && hookResult.isError;
+
+  if (collectionUnavailable) {
+    return (
+      <SecureNowWorkspaceApiUnreachableNotice
+        message={SECURENOW_COLLECTION_SETUP_API_UNREACHABLE}
+        testId={`${props.testIdPrefix}-collection-setup-unreachable`}
+      />
+    );
+  }
 
   if (isPending || collectionInput === null) {
     return (

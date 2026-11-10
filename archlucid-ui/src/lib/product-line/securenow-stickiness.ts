@@ -7,6 +7,8 @@ import { SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX } from "@/lib/product-line/s
 export const SECURENOW_RETURN_HOME_EMPTY =
   "Nothing unfinished on this workspace. This is not a usage score." as const;
 
+export { SECURENOW_RETURN_HOME_API_UNREACHABLE } from "@/lib/product-line/securenow-workspace-api-unreachable-copy";
+
 export const SECURENOW_STICKINESS_NOT_USAGE_CLAIM = "This is not a usage claim." as const;
 
 const LAST_OPENED_SNAPSHOT_PREFIX = "securenow-last-opened-snapshot:" as const;
@@ -198,13 +200,24 @@ export function buildSecureNowReturnHomeRows(
     });
   }
 
-  if (
-    input.lastOpenedSnapshotId !== null
-    && input.latestSnapshotId !== null
-    && input.lastOpenedSnapshotId !== input.latestSnapshotId
-  ) {
+  const lastOpenedSnapshotId = input.lastOpenedSnapshotId?.trim() ?? "";
+
+  if (lastOpenedSnapshotId.length > 0) {
     rows.push({
-      href: "/infrastructure/snapshots-drift",
+      href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(lastOpenedSnapshotId)}`,
+      label: "Last opened snapshot",
+      summary: `Snapshot ${lastOpenedSnapshotId}. ${SECURENOW_STICKINESS_NOT_USAGE_CLAIM}`,
+    });
+  }
+
+  if (
+    lastOpenedSnapshotId.length > 0
+    && input.latestSnapshotId !== null
+    && lastOpenedSnapshotId !== input.latestSnapshotId.trim()
+  ) {
+    const latestSnapshotId = input.latestSnapshotId.trim();
+    rows.push({
+      href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(latestSnapshotId)}`,
       label: "New capture since you last opened Home",
       summary: "A newer successful capture is on this workspace. This is not a usage score.",
     });

@@ -360,9 +360,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
 
   const firstReviewGuideChecklistBody = (
     <>
-      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
-
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <FirstReviewOpenGateStarterShortcut /> : null}
+
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
 
       {guide.sealedReviewRecord === null && !buyerPolishedShell ? <ArchLucidBetaSkuContentsSection showQuoteLink /> : null}
 

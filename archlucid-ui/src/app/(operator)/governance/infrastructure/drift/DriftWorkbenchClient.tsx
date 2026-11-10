@@ -41,6 +41,8 @@ import {
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type {
   InfraEvidenceDiffChange,
   InfraEvidenceDiffSummary,
@@ -1419,9 +1421,14 @@ export function DriftWorkbenchClient() {
             description={loadError}
             testId="infra-drift-load-error-panel"
             footer={
-              <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
-                Retry load
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                  Retry load
+                </Button>
+                <Button type="button" size="sm" variant="outline" asChild>
+                  <Link href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</Link>
+                </Button>
+              </div>
             }
           />
         ) : null}

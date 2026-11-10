@@ -66,7 +66,7 @@ describe("securenow stickiness", () => {
         addedCount: 0,
         goneCount: 0,
         latestSnapshotId: "snap-1",
-        lastOpenedSnapshotId: "snap-1",
+        lastOpenedSnapshotId: null,
         pinnedPathId: null,
         pinnedPathStatus: null,
         extendDispositionCount: 0,
@@ -89,8 +89,33 @@ describe("securenow stickiness", () => {
     expect(rows.map((row) => row.label)).toEqual([
       "Awaiting verification",
       "Recent changes",
+      "Last opened snapshot",
       "New capture since you last opened Home",
       "Watched path",
+    ]);
+    expect(rows.find((row) => row.label === "Last opened snapshot")?.href).toBe(
+      "/infrastructure/snapshots-drift?snapshotId=snap-1",
+    );
+  });
+
+  it("keeps the last opened snapshot when it is also the latest capture", () => {
+    const rows = buildSecureNowReturnHomeRows({
+      awaitingVerificationCount: 0,
+      addedCount: 0,
+      goneCount: 0,
+      latestSnapshotId: "snap-1",
+      lastOpenedSnapshotId: "snap-1",
+      pinnedPathId: null,
+      pinnedPathStatus: null,
+      extendDispositionCount: 0,
+    });
+
+    expect(rows).toEqual([
+      {
+        href: "/infrastructure/snapshots-drift?snapshotId=snap-1",
+        label: "Last opened snapshot",
+        summary: "Snapshot snap-1. This is not a usage claim.",
+      },
     ]);
   });
 });

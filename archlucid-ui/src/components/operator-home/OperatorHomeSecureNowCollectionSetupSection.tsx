@@ -4,20 +4,37 @@ import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
+import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SECURENOW_COLLECTION_SETUP_API_UNREACHABLE } from "@/lib/product-line/securenow-workspace-api-unreachable-copy";
 import { cn } from "@/lib/utils";
 
 /** SecureNow collection 3/3 posture on home before the first committed review package. */
 export function OperatorHomeSecureNowCollectionSetupSection(): React.JSX.Element | null {
   const { productLine } = useProductLine();
-  const { collectionInput, isPending } = useSecureNowCollectionSetupInput({
+  const { collectionInput, isPending, isError } = useSecureNowCollectionSetupInput({
     snapshotCaptureSucceeded: null,
   });
 
   if (productLine !== "security") {
     return null;
+  }
+
+  if (isError) {
+    return (
+      <section
+        className="space-y-2"
+        data-testid="operator-home-securenow-collection-setup"
+        aria-labelledby="operator-home-collection-setup-heading"
+      >
+        <SecureNowWorkspaceApiUnreachableNotice
+          message={SECURENOW_COLLECTION_SETUP_API_UNREACHABLE}
+          testId="operator-home-collection-setup-unreachable"
+        />
+      </section>
+    );
   }
 
   if (isPending || collectionInput === null) {

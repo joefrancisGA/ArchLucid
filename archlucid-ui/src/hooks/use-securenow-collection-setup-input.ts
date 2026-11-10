@@ -33,6 +33,7 @@ export function useSecureNowCollectionSetupInput(input: {
 }): {
   readonly collectionInput: SecureNowCollectionMissingInput | null;
   readonly isPending: boolean;
+  readonly isError: boolean;
 } {
   const query = useQuery({
     queryKey: ["securenow", "collection-setup-input", input.snapshotCaptureSucceeded],
@@ -67,11 +68,15 @@ export function useSecureNowCollectionSetupInput(input: {
     retry: false,
   });
 
-  if (query.isPending || query.isError) {
-    return { collectionInput: null, isPending: query.isPending };
+  if (query.isPending) {
+    return { collectionInput: null, isPending: true, isError: false };
   }
 
-  return { collectionInput: query.data ?? null, isPending: false };
+  if (query.isError) {
+    return { collectionInput: null, isPending: false, isError: true };
+  }
+
+  return { collectionInput: query.data ?? null, isPending: false, isError: false };
 }
 
 /** Buyer-safe fallback when cloud connection status has not loaded yet on Home. */

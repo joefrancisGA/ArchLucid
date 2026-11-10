@@ -6,6 +6,9 @@ export const FIRST_REVIEW_OPEN_GATE_STARTER_HEADING = "First-review open gate (s
 export const FIRST_REVIEW_OPEN_GATE_STARTER_LEAD =
   "Open the curated sample review on the first-review spine. Not a customer result." as const;
 
+export const FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW =
+  "Policy-pack assignment is not this review." as const;
+
 export const FIRST_REVIEW_OPEN_GATE_STARTER_PATH = "/architecture/first-review-guide" as const;
 
 /** Sample review with findings tab and primary finding — spine band is in the overview viewport. */
