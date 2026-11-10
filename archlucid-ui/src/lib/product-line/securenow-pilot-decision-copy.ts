@@ -11,6 +11,21 @@ export const SECURENOW_PILOT_DECISION_EXTEND_ROI_LINK_LABEL = "Open investigatio
 
 export const SECURENOW_PILOT_DECISION_EXTEND_ROI_HREF = SECURENOW_INVESTIGATION_EFFORT_PATH;
 
+export const SECURENOW_PILOT_DECISION_PROCEED_COMMERCIAL_LEAD =
+  "Proceed is a human commercial discussion — not billing, not beta GO, and not a countersigned order." as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_QUOTE_HREF = "/administration/securenow-quote-packet" as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_QUOTE_LABEL = "Open quote packet (SN-EVAL)" as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_HREF =
+  "/administration/securenow-reviewer-packet#procurement-index" as const;
+
+export const SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_LABEL = "Reviewer packet procurement index" as const;
+
+export const SECURENOW_PILOT_DECISION_STOP_DRAFT_LEAD =
+  "Stop preserves evidence. Save the disposition to open the draft ITSM handoff — nothing sends automatically." as const;
+
 export const SECURENOW_PILOT_DECISION_HEADING = "Pilot decision preparation" as const;
 
 export const SECURENOW_PILOT_DECISION_LEAD =

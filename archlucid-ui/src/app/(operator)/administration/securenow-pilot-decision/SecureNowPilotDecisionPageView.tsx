@@ -22,6 +22,12 @@ import {
   SECURENOW_PILOT_DECISION_EXTEND_ROI_HREF,
   SECURENOW_PILOT_DECISION_EXTEND_ROI_LEAD,
   SECURENOW_PILOT_DECISION_EXTEND_ROI_LINK_LABEL,
+  SECURENOW_PILOT_DECISION_PROCEED_COMMERCIAL_LEAD,
+  SECURENOW_PILOT_DECISION_PROCEED_QUOTE_HREF,
+  SECURENOW_PILOT_DECISION_PROCEED_QUOTE_LABEL,
+  SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_HREF,
+  SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_LABEL,
+  SECURENOW_PILOT_DECISION_STOP_DRAFT_LEAD,
   SECURENOW_PILOT_DECISION_GUARDRAIL,
   SECURENOW_PILOT_DECISION_HEADING,
   SECURENOW_PILOT_DECISION_LEAD,
@@ -179,12 +185,31 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
               {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
             </p>
           ) : null}
+          {outcome === "Stop" && savedDisposition?.outcome !== "Stop" ? (
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-pilot-decision-stop-draft">
+              {SECURENOW_PILOT_DECISION_STOP_DRAFT_LEAD}
+            </p>
+          ) : null}
           {savedDisposition?.outcome === "Stop" ? (
             <SecureNowPilotStopItsmHandoffBlock
               pathId={pathId}
               rationale={savedDisposition.rationale}
               handoffTestId="securenow-pilot-decision-pilot-stop-itsm-handoff"
             />
+          ) : null}
+          {outcome === "Proceed" || savedDisposition?.outcome === "Proceed" ? (
+            <div className="space-y-2" data-testid="securenow-pilot-decision-proceed-commercial">
+              <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PILOT_DECISION_PROCEED_COMMERCIAL_LEAD}</p>
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                <Link className={OPERATOR_LINK.inline} href={SECURENOW_PILOT_DECISION_PROCEED_QUOTE_HREF}>
+                  {SECURENOW_PILOT_DECISION_PROCEED_QUOTE_LABEL}
+                </Link>
+                {" · "}
+                <Link className={OPERATOR_LINK.inline} href={SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_HREF}>
+                  {SECURENOW_PILOT_DECISION_PROCEED_REVIEWER_LABEL}
+                </Link>
+              </p>
+            </div>
           ) : null}
           {outcome === "Extend" || savedDisposition?.outcome === "Extend" ? (
             <div className="space-y-2" data-testid="securenow-pilot-decision-extend-roi">

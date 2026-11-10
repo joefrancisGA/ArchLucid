@@ -14,6 +14,7 @@ import {
   ReviewsNewPathSwitcherDeferred,
   ReviewsNewSocraticIntakeWizardDeferred,
 } from "./reviews-new-path-switcher-deferred-chunks";
+import { ArchitectureReviewNewSealedPackageCallout } from "./ArchitectureReviewNewSealedPackageCallout";
 import { ReviewsNewWorkingArchitecturePicker } from "./ReviewsNewWorkingArchitecturePicker";
 
 /**
@@ -59,17 +60,34 @@ export function ReviewsNewRouteBody(): React.JSX.Element {
   }
 
   if (shouldResolveWorkingArchitectureStart) {
-    if (!architectureIdentitiesQuery.isLoading && !architectureIdentitiesQuery.isError) {
-      const architectureItems = architectureIdentitiesQuery.data?.items ?? [];
-      const hasStarterPreset = (searchParams?.get("preset")?.trim() ?? "").length > 0;
+    const hasStarterPreset = (searchParams?.get("preset")?.trim() ?? "").length > 0;
+    const architectureItems = architectureIdentitiesQuery.data?.items ?? [];
+    const workingBody =
+      !architectureIdentitiesQuery.isLoading
+      && !architectureIdentitiesQuery.isError
+      && architectureItems.length > 0
+      && !hasStarterPreset
+        ? <ReviewsNewWorkingArchitecturePicker />
+        : <ReviewsNewSocraticIntakeWizardDeferred requiresSystemName />;
 
-      if (architectureItems.length === 0 || hasStarterPreset) {
-        return <ReviewsNewSocraticIntakeWizardDeferred requiresSystemName />;
-      }
-    }
-
-    return <ReviewsNewWorkingArchitecturePicker />;
+    return (
+      <>
+        {evalChrome ? <ArchitectureReviewNewSealedPackageCallout /> : null}
+        {architectureIdentitiesQuery.isLoading ? (
+          <p className="text-al-text-secondary" role="status">
+            Loading architecture list…
+          </p>
+        ) : (
+          workingBody
+        )}
+      </>
+    );
   }
 
-  return <ReviewsNewPathSwitcherDeferred />;
+  return (
+    <>
+      {evalChrome && pathQuery.length > 0 ? <ArchitectureReviewNewSealedPackageCallout /> : null}
+      <ReviewsNewPathSwitcherDeferred />
+    </>
+  );
 }

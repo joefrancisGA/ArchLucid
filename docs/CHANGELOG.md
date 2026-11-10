@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 3: drift next step, shared Home routing, Proceed pilot
+
+**Outcome.** Changes and drift names Path inspect as the next step when collection is ready and a snapshot is selected. Home, return-home, and drift share one next-step resolver. Pilot **Proceed** links quote and reviewer packets; **Stop** names the draft ITSM handoff before save. Priority-queue empty adds synthetic ROI when collection is ready. Procurement map adds **AL-EVAL** acceptance. Buyer-polished first-review and working reviews/new show procurement and sealed-package honesty.
+
+**Surfaces.** snapshots-drift, SecureNow Home return rows, pilot decision, remediation factory empty, procurement map, first-review guide, reviews/new.
+
 ## 2026-11-10 - Score lift round 2: sealed-package honesty, Extend ROI, SN-EVAL row
 
 **Outcome.** Pilot decision Extend shows the synthetic ROI worksheet and links Investigation effort. Ranked-path empty adds a synthetic walkthrough when collection is ready. Return-home marks the row that matches collection next step. Path inspect links the ROI worksheet from Path rank. Reviews /new states that intake is not yet sealed. ArchLucid first-review guide and operator Home eval-empty show procurement trust and sample-versus-sealed checklist. SecureNow Home shows beta SKU contents while collection is incomplete. Procurement map adds SN-EVAL acceptance.

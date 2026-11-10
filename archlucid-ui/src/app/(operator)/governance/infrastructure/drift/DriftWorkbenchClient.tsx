@@ -185,6 +185,7 @@ import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   formatInfraEvidenceDiffLabel,
@@ -1338,6 +1339,10 @@ export function DriftWorkbenchClient() {
             }
           />
         }
+      />
+
+      <SecureNowDriftPostCaptureNextStep
+        selectedSnapshotId={selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId}
       />
 
       <main
