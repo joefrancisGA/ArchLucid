@@ -14,7 +14,8 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetRun_returns_304_when_if_none_match_matches_row_version_etag()
     {
-        string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ConditionalGetOperatorReadsTests)));
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
         HttpResponseMessage first = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await first.EnsureSuccessForTestAsync();
@@ -33,7 +34,8 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetRun_returns_new_etag_after_run_advances_row_version()
     {
-        string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ConditionalGetOperatorReadsTests)));
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
         HttpResponseMessage beforeExecute = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await beforeExecute.EnsureSuccessForTestAsync();

@@ -60,6 +60,7 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         HttpStatusCode expectedStatus,
         string? expectedTypeUri = null,
         string? expectedErrorCode = null,
+        string? detailContains = null,
         [CallerMemberName] string callerMemberName = "")
     {
         ArgumentNullException.ThrowIfNull(response);
@@ -80,6 +81,9 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
 
         if (expectedErrorCode is not null)
             body.RootElement.GetProperty("errorCode").GetString().Should().Be(expectedErrorCode);
+
+        if (detailContains is not null)
+            body.RootElement.GetProperty("detail").GetString().Should().Contain(detailContains);
 
         return body;
     }

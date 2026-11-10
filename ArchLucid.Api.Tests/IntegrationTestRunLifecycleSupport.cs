@@ -357,7 +357,7 @@ public static class IntegrationTestRunLifecycleSupport
             .ReadJsonForTestAsync<CommitRunResponseDto>(jsonOptions, cancellationToken)
             .ConfigureAwait(false);
 
-        return new FinalizedRun(runId, commitPayload.Manifest.Metadata.ManifestVersion);
+        return new FinalizedRun(runId, commitPayload.Manifest.Metadata.ManifestVersion, requestId);
     }
 
     public static async Task<HttpResponseMessage> PostExecuteForTestAsync(

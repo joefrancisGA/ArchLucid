@@ -93,6 +93,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     /// <summary><see cref="ReadFromJsonAsyncAllowlist" /> entry cap (burn-down ratchet).</summary>
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
+    /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 5;
+
     private static readonly Regex DirectPinExecuteOnFixtureRegex = new(
         @"\bClient\.PostExecuteAndEnsureArchitectureVersionPinForTestAsync\s*\(",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -107,6 +110,14 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly Regex ExplicitArrangeScenarioRegex = new(
         @"Arrange(?:Finalized|CommittedPair|GovernanceCommitted)Async\s*\(\s*(?:nameof\s*\(|""[^""]+"")",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RedundantForScenarioNameofRegex = new(
+        @"TestRequestIds\.ForScenario\s*\(\s*nameof\s*\(\s*(\w+)\s*\)\s*\)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex FixtureClassNameRegex = new(
+        @"\b(?:class|record)\s+(\w+)\s*(?:\(|:\s*IntegrationTestBase)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex TupleReturnTypeRegex = new(
@@ -882,6 +893,85 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         }
 
         return violations;
+    }
+
+    private static readonly HashSet<string> RedundantForScenarioNameofAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: controller matrix and concurrency suites need explicit scenario ids.
+        nameof(ArchitectureControllerTests) + ".cs",
+        nameof(ArchitectureRequestDocumentValidationTests) + ".cs",
+        nameof(ArchitectureRunCommitPathParityIntegrationTests) + ".cs",
+        nameof(ArchivalConcurrencyIntegrationTests) + ".cs",
+        nameof(ComparisonPersistConcurrencyIntegrationTests) + ".cs",
+        nameof(CommitRunConcurrencyIntegrationTests) + ".cs",
+        nameof(CreateRunIdempotencyConcurrencyIntegrationTests) + ".cs",
+        nameof(EvidenceBulkUploadIntegrationTests) + ".cs",
+        nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
+        nameof(GovernanceApprovalConcurrencyIntegrationTests) + ".cs",
+        nameof(PolicyPackConcurrencyIntegrationTests) + ".cs",
+        nameof(PolicyPackPublishConcurrencyIntegrationTests) + ".cs",
+        nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",
+        nameof(ArchitectureComparisonReplayTests) + ".cs",
+        nameof(ArchitectureRequestIdempotencyConcurrencyIntegrationTests) + ".cs",
+        nameof(ArchitectureReplayTests) + ".cs",
+        nameof(ArchitectureTests) + ".cs",
+        nameof(MutatingEndpointIdempotencyContractIntegrationTests) + ".cs",
+        nameof(RunStoredEvidenceFilesIntegrationTests) + ".cs",
+        "FinalizedEvidenceImmutabilityIntegrationTests.cs",
+    };
+
+    internal static List<string> ScanRedundantForScenarioNameofOnFixtures()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (RedundantForScenarioNameofAllowlist.Contains(fileName))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            Match classMatch = FixtureClassNameRegex.Match(content);
+
+            if (!classMatch.Success)
+                continue;
+
+            string fixtureClass = classMatch.Groups[1].Value;
+
+            bool redundant = false;
+
+            foreach (Match match in RedundantForScenarioNameofRegex.Matches(content))
+            {
+                if (!string.Equals(match.Groups[1].Value, fixtureClass, StringComparison.Ordinal))
+                    continue;
+
+                redundant = true;
+
+                break;
+            }
+
+            if (!redundant)
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static int CountHarnessGoldenPathSmokeSkippableFacts()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        string path = Path.Combine(repoRoot, "ArchLucid.Api.Tests", nameof(HarnessGoldenPathSmokeTests) + ".cs");
+        string content = File.ReadAllText(path);
+
+        return Regex.Matches(content, @"\[SkippableFact\]").Count;
     }
 
     private static void AddAllowlistFileNames(HashSet<string> union, HashSet<string> allowlist)

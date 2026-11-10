@@ -17,11 +17,8 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task CommitBeforeExecute_Returns409Conflict()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureCommitConflictTests))));
-
-                CreateRunResponseDto? created =
-            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
         HttpResponseMessage commit = await Client.PostFinalizeForTestAsync(Factory, runId);
 

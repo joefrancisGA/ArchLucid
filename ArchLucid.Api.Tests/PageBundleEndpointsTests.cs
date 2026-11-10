@@ -149,10 +149,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailCriticalPageBundle_ReturnsOk_WithSlices()
     {
-        CreatedRunForTest created = await CreateRunForTestAsync();
-        Guid runId = Guid.Parse(created.RunId);
-
-        await ExecuteForTestAsync(runId.ToString("D"));
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        Guid runId = created.RunGuid;
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/critical-page-bundle");
@@ -168,10 +166,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailTimelinesBundle_ReturnsOk_WithSlices()
     {
-        CreatedRunForTest created = await CreateRunForTestAsync();
-        Guid runId = Guid.Parse(created.RunId);
-
-        await ExecuteForTestAsync(runId.ToString("D"));
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        Guid runId = created.RunGuid;
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/timelines-bundle");
@@ -186,10 +182,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetRunDetailWorkspaceContextBundle_ReturnsOk_WithSlices()
     {
-        CreatedRunForTest created = await CreateRunForTestAsync();
-        Guid runId = Guid.Parse(created.RunId);
-
-        await ExecuteForTestAsync(runId.ToString("D"));
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        Guid runId = created.RunGuid;
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/workspace-context-bundle");

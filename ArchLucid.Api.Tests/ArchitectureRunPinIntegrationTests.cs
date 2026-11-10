@@ -16,11 +16,8 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
     [SkippableFact]
     public async Task PinRun_toggle_and_explicit_set_persist_on_summary()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(ArchitectureRunPinIntegrationTests))));
-
-                CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
-        created.Should().NotBeNull();
-        string runId = created!.Run!.RunId!;
+        CreatedRunForTest created = await CreateRunForTestAsync();
+        string runId = created.RunId;
 
         HttpResponseMessage firstPin = await Client.PatchAsync(
             $"/v1/architecture/review/{runId}/pin",
