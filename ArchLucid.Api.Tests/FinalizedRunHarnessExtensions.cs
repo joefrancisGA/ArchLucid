@@ -192,6 +192,27 @@ public static class FinalizedRunHarnessExtensions
             cancellationToken);
     }
 
+    public static async Task<ArchitectureAnalysisExportResponse> PostAnalysisReportMarkdownExportAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await client
+            .PostAsync(
+                $"/v1/architecture/review/{finalized.RunId}/analysis-report/export",
+                HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent(jsonOptions),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<ArchitectureAnalysisExportResponse>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     public static async Task<ArchitectureAnalysisReportResponse> PostAnalysisReportAsync(
         this FinalizedRun finalized,
         HttpClient client,

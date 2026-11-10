@@ -66,4 +66,52 @@ public static class AuthorityHarnessExtensions
         return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    public static Task<HttpResponseMessage> GetAuthorityReviewsInScopeHttpAsync(
+        this HttpClient client,
+        string querySuffix = "take=50",
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/authority/reviews?{querySuffix}", cancellationToken);
+    }
+
+    public static async Task<CursorPagedResponse<RunSummaryResponse>> ReadAuthorityProjectReviewsQueryAsync(
+        this HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        string projectIdSegment,
+        string querySuffix,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+        ArgumentException.ThrowIfNullOrEmpty(projectIdSegment);
+
+        HttpResponseMessage response = await GetAuthorityProjectReviewsHttpAsync(
+                client,
+                projectIdSegment,
+                querySuffix,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public static async Task<CursorPagedResponse<RunSummaryResponse>> ReadAuthorityReviewsInScopeAsync(
+        this HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        int take = 50,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetAuthorityReviewsInScopeHttpAsync(client, $"take={take}", cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
 }

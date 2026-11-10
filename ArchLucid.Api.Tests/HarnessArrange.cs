@@ -19,6 +19,10 @@ public static class HarnessArrange
             TestRequestIds.ForScenario(scenario, testMethod),
             cancellationToken);
 
+    /// <summary>
+    ///     Finalize-only arrange for governance controller tests (submit/approve happen in the test body).
+    ///     Same lifecycle as <see cref="FinalizedAsync" /> until a governance-specific arrange ships.
+    /// </summary>
     public static Task<FinalizedRun> GovernanceCommittedAsync(
         HttpClient client,
         ArchLucidApiFactory factory,

@@ -94,7 +94,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxReadFromJsonAllowlistedSourceFiles = 12;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 9;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 10;
 
     /// <summary>Cap for <see cref="RawArchitectureReviewSubresourceAllowlist" /> (#38 burn-down ratchet).</summary>
     internal const int MaxReviewSubresourceAllowlistedSourceFiles = 12;
@@ -141,6 +141,13 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     /// <summary>Cap for <see cref="RawAuthorityUrlAllowlist" /> (#42 burn-down ratchet).</summary>
     internal const int MaxAuthorityAllowlistedSourceFiles = 10;
+
+    /// <summary>Cap for <see cref="HandRolledJsonDocumentParseAllowlist" /> (#40 burn-down ratchet).</summary>
+    internal const int MaxJsonDocumentAllowlistedSourceFiles = 14;
+
+    private static readonly Regex HardcodedHarnessUnknownRunGuidRegex = new(
+        @"Guid\.Parse\s*\(\s*""0{8}-0{4}-0{4}-0{4}-0{12}""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex RawArchitectureReviewBareGetRegex = new(
         @"\.GetAsync\s*\(\s*\$""/v1/architecture/review/\{[^""/]+\}""",
@@ -1053,8 +1060,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
         // harness-allowlist: conflict matrix hand-rolls review routes by design.
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
-        // harness-allowlist-until: export / pin / evidence specialty GETs (#38 burn-down).
-        nameof(ArchitectureAnalysisExportTests) + ".cs",
+        // harness-allowlist-until: evidence specialty GETs (#38 burn-down).
         nameof(EvidenceBulkUploadIntegrationTests) + ".cs",
         nameof(FindingEvidenceChainEndpointTests) + ".cs",
         nameof(FindingInspectEndpointTests) + ".cs",
@@ -1105,7 +1111,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(FinalizedRunHarnessExtensions) + ".cs",
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
         // harness-allowlist-until: authority route contract matrices (#42 burn-down).
-        nameof(AuthorityQueryControllerListRunsPagedIntegrationTests) + ".cs",
         nameof(AuthorityReadsControllerIntegrationTests) + ".cs",
         nameof(AuthorityQueryControllerAnonymousIntegrationTests) + ".cs",
         nameof(PageBundleEndpointsTests) + ".cs",
@@ -1147,6 +1152,46 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     }
 
     internal static int CountAuthorityAllowlistedSourceFiles() => RawAuthorityUrlAllowlist.Count;
+
+    private static readonly HashSet<string> HardcodedHarnessUnknownRunGuidAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical negative-path GUID literals.
+        nameof(HarnessWellKnownGuids) + ".cs",
+    };
+
+    internal static List<string> ScanHardcodedHarnessUnknownRunGuids()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (HardcodedHarnessUnknownRunGuidAllowlist.Contains(fileName))
+                continue;
+
+            if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!HardcodedHarnessUnknownRunGuidRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
+    }
+
+    internal static int CountJsonDocumentAllowlistedSourceFiles() => HandRolledJsonDocumentParseAllowlist.Count;
 
     private static readonly HashSet<string> RawArchitectureReviewBareGetAllowlist = new(StringComparer.Ordinal)
     {

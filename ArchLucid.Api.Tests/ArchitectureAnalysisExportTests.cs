@@ -1,8 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -17,25 +12,9 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
     public async Task ExportAnalysisReport_ReturnsMarkdown()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        var request = new
-        {
-            includeEvidence = true,
-            includeExecutionTraces = true,
-            includeManifest = true,
-            includeDiagram = true,
-            includeSummary = true,
-            includeDeterminismCheck = false,
-            determinismIterations = 3,
-            includeManifestCompare = false,
-            compareManifestVersion = (string?)null,
-            includeAgentResultCompare = false,
-            compareRunId = (string?)null
-        };
 
-        HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export",
-            JsonContent(request));        ArchitectureAnalysisExportResponse? payload =
-            await response.ReadJsonForTestAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
+        ArchitectureAnalysisExportResponse payload =
+            await finalized.PostAnalysisReportMarkdownExportAsync(Client, JsonOptions);
         payload.Should().NotBeNull();
         payload.RunId.Should().Be(finalized.RunId);
         payload.Format.Should().Be("markdown");
