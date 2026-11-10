@@ -46,8 +46,8 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task Golden_path_unknown_run_summary_returns_problem_details()
     {
-        Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc03");
-        HttpResponseMessage response = await Client.GetAsync($"/v1/authority/reviews/{missing:D}/summary");
+        HttpResponseMessage response =
+            await Client.GetAuthorityReviewSummaryHttpAsync(HarnessWellKnownGuids.UnknownAuthorityRunForSmoke);
 
         await response.AssertProblemForTestAsync(HttpStatusCode.NotFound, ProblemTypes.RunNotFound);
     }
@@ -76,12 +76,8 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?take=20");
-        await response.EnsureSuccessForTestAsync();
-
         CursorPagedResponse<RunSummaryResponse> page =
-            await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+            await finalized.ListAuthorityReviewsForProjectAsync(Client, JsonOptions);
 
         page.Items.Should().Contain(item => item.RunId == finalized.RunGuid);
     }
@@ -106,13 +102,34 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         details.Manifest!.SystemName.Should().Be(finalized.SystemName);
     }
 
+    [SkippableFact]
+    public async Task Golden_path_finalized_run_read_fanout_matches_arrange_identity()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        RunDetailsResponseDto details = await finalized.GetRunDetailsAsync(Client, JsonOptions);
+        ManifestMarkdownDocumentResponse summary = await finalized.GetManifestSummaryAsync(Client, JsonOptions);
+        RunExportHistoryResponse exports = await finalized.GetExportsHistoryAsync(Client, JsonOptions);
+        RunSummaryResponse authoritySummary = await finalized.GetAuthorityRunSummaryAsync(Client, JsonOptions);
+
+        details.Run.RequestId.Should().Be(finalized.RequestId);
+        details.Run.RunId.Should().Be(finalized.RunId);
+        summary.Content.Should().Contain(finalized.SystemName);
+        exports.Exports.Should().NotBeNull();
+        authoritySummary.RunId.Should().Be(finalized.RunGuid);
+
+        CursorPagedResponse<RunSummaryResponse> page =
+            await finalized.ListAuthorityReviewsForProjectAsync(Client, JsonOptions);
+        page.Items.Should().Contain(item => item.RunId == finalized.RunGuid);
+    }
+
     [Theory]
     [InlineData("%20")]
     [InlineData("%09")]
     public async Task Golden_path_list_reviews_whitespace_project_returns_400_problem(string encodedWhitespaceProjectId)
     {
         HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/projects/{encodedWhitespaceProjectId}/reviews");
+            await Client.GetAuthorityProjectReviewsHttpAsync(encodedWhitespaceProjectId, querySuffix: null);
 
         await response.AssertProblemForTestAsync(
             HttpStatusCode.BadRequest,

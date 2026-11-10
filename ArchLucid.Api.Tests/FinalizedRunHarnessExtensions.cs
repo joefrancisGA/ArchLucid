@@ -1,8 +1,10 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Api.Tests;
 
@@ -151,5 +153,130 @@ public static class FinalizedRunHarnessExtensions
 
         return await response.ReadJsonForTestAsync<AuthorityReviewDetailHarnessResponse>(jsonOptions, cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    public static async Task<RunSummaryResponse> GetAuthorityRunSummaryAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await AuthorityHarnessExtensions
+            .GetAuthorityReviewSummaryHttpAsync(client, finalized.RunGuid, cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<RunSummaryResponse>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public static Task<CursorPagedResponse<RunSummaryResponse>> ListAuthorityReviewsForProjectAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        int take = 20,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        return AuthorityHarnessExtensions.ReadAuthorityProjectReviewsAsync(
+            client,
+            jsonOptions,
+            finalized.SystemName,
+            take,
+            cancellationToken);
+    }
+
+    public static async Task<ArchitectureAnalysisReportResponse> PostAnalysisReportAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await client
+            .PostAsync(
+                $"/v1/architecture/review/{finalized.RunId}/analysis-report",
+                HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent(jsonOptions),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<ArchitectureAnalysisReportResponse>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public static Task<HttpResponseMessage> PostAnalysisReportDocxHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        return client.PostAsync(
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx",
+            HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent(jsonOptions),
+            cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> PostAnalysisReportDocxAsyncJobHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        return client.PostAsync(
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/async",
+            HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent(jsonOptions),
+            cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> PostAnalysisReportConsultingDocxHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        object requestBody,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+        ArgumentNullException.ThrowIfNull(requestBody);
+
+        return client.PostAsync(
+            $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
+            IntegrationTestHttpContent.CreateJson(requestBody, jsonOptions),
+            cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetExportRecordDiffHttpAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        string leftExportRecordId,
+        string rightExportRecordId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(leftExportRecordId);
+        ArgumentException.ThrowIfNullOrEmpty(rightExportRecordId);
+
+        return client.GetAsync(
+            $"/v1/architecture/review/exports/compare?leftExportRecordId={leftExportRecordId}&rightExportRecordId={rightExportRecordId}",
+            cancellationToken);
     }
 }
