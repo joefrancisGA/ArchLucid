@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Owner accepts ArchLucid guided-pilot evaluation orders
+
+**Outcome.** The owner accepts a guided-pilot evaluation order at the published list price in pricing philosophy §4 by signed quote. Checkout, Stripe, monthly tiers, design partner, Enterprise evaluation, and custom-pack rows stay unaccepted from a page.
+
+**Surfaces.** `PRICING_PHILOSOPHY.md` §4, `/pricing` sales-led note, beta evaluation contents on pricing and get-started.
+
 ## 2026-11-10 - Home names an unreachable API and keeps the last snapshot
 
 **Outcome.** SecureNow Home says the workspace API is unreachable and links to System health when collection setup or unfinished work cannot load. The last opened snapshot stays on Home, with its id and a Changes and Drift link, including when it is the latest capture. Path inspect hides the ranked-path list after a path is selected. The first-review sample starter says policy-pack assignment is not this review.

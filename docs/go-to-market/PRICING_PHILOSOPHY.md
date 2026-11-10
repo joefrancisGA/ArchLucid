@@ -143,6 +143,8 @@ Host config: `LlmMonthlyTenantDollarBudget` in **`appsettings.SaaS.json`** (Team
 
 **Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion to Professional or Enterprise, making it zero net cost to the buyer who converts **within 90 days of the pilot end date**. After 90 days the credit expires (it is not an indefinite option). Credit is not transferable to Team or Architect SKUs.
 
+**Guided pilot orders:** owner decision 2026-11-10. The owner accepts a guided-pilot evaluation order at the price in this section by signed quote. Self-serve trial, design partner, Enterprise evaluation, monthly Architect / Team / Professional tiers, and custom-pack rows are not accepted from a page click. Not a Stripe Price and not permission to invoice from a page. Checkout stays off.
+
 **Design partner eligibility:** Must be within the first 3 signed design-partner agreements. Sales must confirm the slot before quoting. Commitment deliverables (case study + reference call) are contractual. Design partner **cannot** stack with the §4.1 reference-customer discount — the design-partner term already purchases the reference commitment (see §4.3).
 
 ### 4.1 Reference-customer discount (standardized 2026-04-21)
