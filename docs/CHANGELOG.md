@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 6: working open gate, Path inspect mode, sponsor rehearsal
+
+**Outcome.** Working Home surfaces a one-line browser-local open gate from the last review spine. Path inspect names deterministic rank vs agent explanation mode. Sponsor path without `pathId` still rehearses Proceed / Extend / Stop. jest-axe covers drift post-capture and pricing AL-EVAL.
+
+**Surfaces.** Operator Home (working), Path inspect, sponsor path, accessibility suite.
+
 ## 2026-11-10 - Score lift round 5: return-home walkthrough, procurement anchors, fixture-path-02
 
 **Outcome.** Architecture return-home marks the first-review walkthrough as start here when no open gate is stored. fixture-path-02 links to Path inspect; the accelerator index deep-links scenario walks. Quote packet exposes **#sn-eval**; pricing quote form exposes **#al-eval-acceptance**. jest-axe covers the drift collection panel.

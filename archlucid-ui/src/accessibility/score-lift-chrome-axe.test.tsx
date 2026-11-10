@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureReviewNewSealedPackageCallout } from "@/app/(operator)/architecture/reviews/new/ArchitectureReviewNewSealedPackageCallout";
 import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
+import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
+import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 
@@ -86,6 +88,18 @@ describe("score-lift chrome axe", () => {
 
   it("drift collection panel has no serious axe violations", async () => {
     const { container } = render(<SecureNowDriftSecureNowCollectionPanel selectedSnapshotId="snap-1" />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("drift post-capture next step has no serious axe violations", async () => {
+    const { container } = render(<SecureNowDriftPostCaptureNextStep selectedSnapshotId="snap-1" />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("pricing AL-EVAL anchor has no serious axe violations", async () => {
+    const { container } = render(<MarketingPricingQuotePanel />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

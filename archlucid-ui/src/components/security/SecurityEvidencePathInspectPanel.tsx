@@ -62,6 +62,7 @@ import {
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_INSPECT_RANK_LOADING,
+  SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE,
   SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
@@ -309,6 +310,9 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
           }
         />
       </div>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-rank-mode-discipline">
+        {SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE}
+      </p>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         Dimension prose below expands the reader sentence. The composite key is ordering only.
       </p>
@@ -811,6 +815,14 @@ export function SecurityEvidencePathInspectPanel(props: {
         </div>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
         <SecureNowPathInspectAssignedPacksLine />
+        {resolvedPathId != null && agentExecutionModeLine !== null ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="security-evidence-path-inspect-execution-mode-header"
+          >
+            {agentExecutionModeLine}
+          </p>
+        ) : null}
         {subjectLabel != null ? (
           <p
             className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
