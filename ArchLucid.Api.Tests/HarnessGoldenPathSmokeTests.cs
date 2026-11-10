@@ -123,6 +123,29 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         page.Items.Should().Contain(item => item.RunId == finalized.RunGuid);
     }
 
+    [SkippableFact]
+    public async Task Golden_path_markdown_analysis_export_contains_core_sections()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        ArchitectureAnalysisExportResponse export =
+            await finalized.PostAnalysisReportMarkdownExportAsync(Client, JsonOptions);
+
+        export.RunId.Should().Be(finalized.RunId);
+        export.Content.Should().Contain("## Evidence Package");
+        export.Content.Should().Contain("## Architecture Summary");
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_governance_arrange_exposes_versioned_manifest_and_request_id()
+    {
+        FinalizedRun governance = await ArrangeGovernanceCommittedAsync();
+
+        governance.RequestId.Should().Be(TestRequestIds.ForScenario(GetType().Name));
+        governance.RunId.Should().NotBeNullOrWhiteSpace();
+        governance.ManifestVersion.Should().MatchRegex("^v\\d");
+    }
+
     [Theory]
     [InlineData("%20")]
     [InlineData("%09")]

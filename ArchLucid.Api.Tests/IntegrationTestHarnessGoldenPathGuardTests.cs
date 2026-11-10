@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, forty-three scanner facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, forty-five scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -324,9 +324,25 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_forty_three_scanners()
+    public void JsonDocument_allowlist_does_not_grow_without_intent()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(43);
+        IntegrationTestHarnessGoldenPathGuardSupport.CountJsonDocumentAllowlistedSourceFiles().Should()
+            .BeLessThanOrEqualTo(IntegrationTestHarnessGoldenPathGuardSupport.MaxJsonDocumentAllowlistedSourceFiles);
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_hardcode_unknown_run_guid_literals()
+    {
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedHarnessUnknownRunGuids(),
+            45,
+            "use HarnessWellKnownGuids for stable negative-path authority run ids.");
+    }
+
+    [Fact]
+    public void Guard_catalog_lists_forty_five_scanners()
+    {
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(45);
     }
 
     [Fact]

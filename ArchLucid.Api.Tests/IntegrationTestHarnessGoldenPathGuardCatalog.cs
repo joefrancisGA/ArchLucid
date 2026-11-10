@@ -48,6 +48,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(41, "review subresource allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountReviewSubresourceAllowlistedSourceFiles), "shrink #38 allowlist or add an extension"),
         new(42, "raw authority URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawAuthorityUrlsInHarnessTests), "use AuthorityHarnessExtensions or FinalizedRunHarnessExtensions"),
         new(43, "authority allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountAuthorityAllowlistedSourceFiles), "shrink #42 allowlist or add an extension"),
+        new(44, "JsonDocument allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountJsonDocumentAllowlistedSourceFiles), "shrink #40 allowlist or migrate to ReadJsonForTestAsync / AssertProblemForTestAsync"),
+        new(45, "hardcoded harness unknown run GUID literals", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedHarnessUnknownRunGuids), "use HarnessWellKnownGuids"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

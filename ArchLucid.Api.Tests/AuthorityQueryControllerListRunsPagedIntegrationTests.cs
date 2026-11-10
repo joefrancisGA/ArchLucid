@@ -1,5 +1,3 @@
-using System.Net;
-
 using ArchLucid.Api.Contracts;
 using ArchLucid.Core.Pagination;
 
@@ -21,12 +19,8 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?take=20");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
         CursorPagedResponse<RunSummaryResponse> body =
-            await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+            await finalized.ListAuthorityReviewsForProjectAsync(Client, JsonOptions);
 
         body.Items.Should().NotBeEmpty();
         body.RequestedTake.Should().Be(20);
@@ -37,12 +31,10 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?page=1&pageSize=10");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        CursorPagedResponse<RunSummaryResponse> body =
-            await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+        CursorPagedResponse<RunSummaryResponse> body = await Client.ReadAuthorityProjectReviewsQueryAsync(
+            JsonOptions,
+            Uri.EscapeDataString(finalized.SystemName),
+            "page=1&pageSize=10");
 
         body.Items.Should().NotBeEmpty();
         body.RequestedTake.Should().Be(10);
@@ -53,20 +45,17 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
 
-        HttpResponseMessage defaultSlugResponse =
-            await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");
-        defaultSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        CursorPagedResponse<RunSummaryResponse> defaultPage =
-            await defaultSlugResponse.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+        CursorPagedResponse<RunSummaryResponse> defaultPage = await Client.ReadAuthorityProjectReviewsQueryAsync(
+            JsonOptions,
+            "default",
+            "take=50");
 
         defaultPage.Items.Any(item => item.RunId == finalized.RunGuid)
             .Should()
             .BeFalse("create maps SystemName onto the run project slug, not 'default'");
 
-        HttpResponseMessage scopeResponse = await Client.GetAsync("/v1/authority/reviews?take=50");
-        scopeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         CursorPagedResponse<RunSummaryResponse> scopePage =
-            await scopeResponse.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+            await Client.ReadAuthorityReviewsInScopeAsync(JsonOptions);
 
         scopePage.Items.Any(item => item.RunId == finalized.RunGuid).Should().BeTrue();
         scopePage.RequestedTake.Should().Be(50);
