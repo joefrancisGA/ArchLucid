@@ -6,6 +6,14 @@ import {
 } from "./procurement-evidence-map-copy";
 
 describe("procurement evidence map", () => {
+  it("includes ArchLucid AL-EVAL acceptance anchor", () => {
+    const row = ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS.find((entry) => entry.id === "al-eval-acceptance");
+
+    expect(row?.status).toBe("available");
+    expect(row?.href).toBe("/pricing#pricing-quote-request");
+    expect(row?.note).toMatch(/AL-EVAL/i);
+  });
+
   it("includes ArchLucid custom pack order acceptance", () => {
     const row = ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS.find((entry) => entry.id === "custom-pack-order");
 

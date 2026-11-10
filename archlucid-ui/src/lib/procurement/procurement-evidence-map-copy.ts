@@ -85,6 +85,13 @@ export const ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     note: "Accepted by signed quote at the published list price in pricing philosophy section 4.",
   },
   {
+    id: "al-eval-acceptance",
+    label: "AL-EVAL guided-pilot acceptance",
+    status: "available",
+    href: "/pricing#pricing-quote-request",
+    note: "Quote request anchors AL-EVAL acceptance language — not a countersigned order.",
+  },
+  {
     id: "monthly-tier-order",
     label: "Architect, Team, and Professional orders",
     status: "available",

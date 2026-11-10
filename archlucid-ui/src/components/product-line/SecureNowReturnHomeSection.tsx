@@ -7,9 +7,9 @@ import { SecureNowHomeDestinationSection } from "@/components/product-line/Secur
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
-import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
-import { resolveSecureNowCollectionReadyNextHref } from "@/lib/product-line/securenow-collection-setup-ready-copy";
+import { resolveSecureNowHomePrimaryReturnHref } from "@/lib/product-line/securenow-home-next-step";
+import { fetchRankedSecurityEvidencePaths } from "@/lib/security-evidence-path-api";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { isInfraEvidenceSnapshotCaptureSucceeded } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
@@ -54,6 +54,11 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
   const instancesQuery = useQuery({
     queryKey: ["securenow", "home", "remediation-instances", scope.workspaceId, scope.projectId],
     queryFn: () => fetchRemediationInstances(),
+    retry: false,
+  });
+  const rankedPathsQuery = useQuery({
+    queryKey: ["securenow", "home", "ranked-paths-return", scope.workspaceId, scope.projectId],
+    queryFn: () => fetchRankedSecurityEvidencePaths(1, 1),
     retry: false,
   });
   const eligibleSnapshots = (snapshotsQuery.data?.items ?? []).filter((row) =>
@@ -135,10 +140,12 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
   const collectionInput = collectionSetupQuery.collectionInput;
   const collectionComplete =
     collectionInput !== null && isSecureNowCollectionSetupComplete(collectionInput);
-  const homeAlignedPrimaryHref =
-    collectionComplete
-      ? resolveSecureNowCollectionReadyNextHref(eligibleSnapshots[0]?.snapshotId ?? null)
-      : CLOUD_CONNECTIONS_PATH;
+  const firstRankedPathId = rankedPathsQuery.data?.items[0]?.pathId ?? "";
+  const homeAlignedPrimaryHref = resolveSecureNowHomePrimaryReturnHref({
+    collectionComplete,
+    selectedPathId: "",
+    firstRankedPathId,
+  });
   const rows = markSecureNowReturnHomeRecommendedFirst(builtRows, homeAlignedPrimaryHref);
 
   if (rows.length === 0) {

@@ -40,13 +40,13 @@ import {
   resolveSecureNowHomeCollectionSetupFallbackInput,
   useSecureNowCollectionSetupInput,
 } from "@/hooks/use-securenow-collection-setup-input";
+import { resolveSecureNowHomeEnvironmentNextStep } from "@/lib/product-line/securenow-home-next-step";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
-const CLOUD_CONNECTIONS_HREF = "/integrations/cloud-connections";
+const CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
 const DRIFT_HREF = "/infrastructure/snapshots-drift";
-const RANKED_PATHS_HREF = "/security/remediation-factory";
-const FIRST_HOUR_STOP_HREF = "/administration/securenow-first-hour#stop";
 
 function subscriptionPhrase(snapshots: readonly InfraEvidenceSnapshotSummary[]): string | null {
   const subscriptions = [...new Set(
@@ -317,30 +317,12 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const snapshot = snapshotRows[0] ?? null;
   const selectedPathId = searchParams.get("pathId")?.trim() ?? "";
 
-  const nextStep = (
-    needsCollection: boolean,
-    firstRankedPathId: string,
-  ): { label: string; href: string } => {
-    if (needsCollection) {
-      return { label: "Next: Scope and freshness", href: CLOUD_CONNECTIONS_HREF };
-    }
-
-    if (selectedPathId.length > 0) {
-      return { label: "Next: Stop", href: FIRST_HOUR_STOP_HREF };
-    }
-
-    if (firstRankedPathId.length > 0) {
-      return {
-        label: "Next: One ranked path",
-        href: `${RANKED_PATHS_HREF}?pathId=${encodeURIComponent(firstRankedPathId)}`,
-      };
-    }
-
-    return { label: "Next: One ranked path", href: RANKED_PATHS_HREF };
-  };
-
   if (snapshot === null) {
-    const next = nextStep(true, firstRankedPathId);
+    const next = resolveSecureNowHomeEnvironmentNextStep({
+      needsCollection: true,
+      selectedPathId,
+      firstRankedPathId,
+    });
 
     return (
       <div
@@ -375,7 +357,11 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const gap = collectionGapDescription(snapshot);
   const snapshotCaptureSucceeded =
     snapshot !== null && gap === null && isInfraEvidenceSnapshotCaptureSucceeded(snapshot.captureStatus);
-  const next = nextStep(gap !== null, firstRankedPathId);
+  const next = resolveSecureNowHomeEnvironmentNextStep({
+    needsCollection: gap !== null,
+    selectedPathId,
+    firstRankedPathId,
+  });
   const showCollectionSetup =
     gap !== null
     || snapshot === null

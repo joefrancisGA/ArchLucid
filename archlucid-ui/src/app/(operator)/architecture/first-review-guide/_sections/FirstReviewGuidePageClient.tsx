@@ -452,6 +452,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               )}
             >
               <FirstReviewGuideBuyerChrome />
+              <ArchLucidProcurementTrustStrip />
               {firstReviewGuideWorkspaceGrid}
             </div>
           </div>

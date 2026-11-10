@@ -62,7 +62,17 @@ export function resolveRemediationFactoryPriorityQueueEmptyState(
   collectionSetupComplete: boolean,
 ): EnterpriseCompactEmptyStateProps {
   if (collectionSetupComplete) {
-    return REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY;
+    return {
+      ...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY,
+      actions: [
+        ...(REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY.actions ?? []),
+        {
+          label: "Synthetic ROI walkthrough",
+          href: SECURENOW_INVESTIGATION_EFFORT_PATH,
+          variant: "outline",
+        },
+      ],
+    };
   }
 
   return {

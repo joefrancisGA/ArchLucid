@@ -46,8 +46,11 @@ describe("resolveRemediationFactoryPriorityQueueEmptyState", () => {
     expect(state.actions?.[1]?.href).toBe(REVIEWS_NEW_PATH);
   });
 
-  it("keeps start review primary when collection is complete", () => {
-    expect(resolveRemediationFactoryPriorityQueueEmptyState(true)).toEqual(REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY);
+  it("keeps start review primary when collection is complete and adds synthetic ROI walkthrough", () => {
+    const state = resolveRemediationFactoryPriorityQueueEmptyState(true);
+
+    expect(state.actions?.[0]).toEqual(REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY.actions?.[0]);
+    expect(state.actions?.[1]?.href).toBe(SECURENOW_INVESTIGATION_EFFORT_PATH);
   });
 });
 
