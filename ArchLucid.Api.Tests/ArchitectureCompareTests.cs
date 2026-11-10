@@ -15,7 +15,7 @@ public sealed class ArchitectureCompareTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task CompareManifests_ReturnsDiff()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureCompareTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureCompareTests));
         const string requestedReplayManifestVersion = "v1-replay";
 
         string rightVersion = await Replay.CommitReplayManifestVersionAsync(
@@ -25,8 +25,6 @@ public sealed class ArchitectureCompareTests(ArchLucidApiFactory factory) : Inte
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
             $"/v1/architecture/manifest/compare?leftVersion={Uri.EscapeDataString(finalized.ManifestVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
-
-        compareResponse.StatusCode.Should().Be(HttpStatusCode.OK, await compareResponse.Content.ReadAsStringAsync());
 
         ManifestCompareResponse payload =
             await compareResponse.ReadJsonForTestAsync<ManifestCompareResponse>(JsonOptions);

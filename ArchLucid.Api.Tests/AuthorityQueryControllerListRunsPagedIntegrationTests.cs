@@ -21,10 +21,10 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsByProject_without_page_returns_cursor_paged_envelope()
     {
-        const string requestId = "REQ-AUTH-LIST-UNPAGED-001";
+        string requestId = TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
 
@@ -43,10 +43,10 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsByProject_with_legacy_page_size_clamps_requested_take()
     {
-        const string requestId = "REQ-AUTH-LIST-PAGED-001";
+        string requestId = TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
 
@@ -64,7 +64,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsInScope_includes_run_hidden_from_default_project_slug()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
 
         HttpResponseMessage defaultSlugResponse =
             await Client.GetAsync("/v1/authority/projects/default/reviews?take=50");

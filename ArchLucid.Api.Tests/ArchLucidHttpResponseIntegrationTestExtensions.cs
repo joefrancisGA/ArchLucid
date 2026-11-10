@@ -45,7 +45,8 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         this HttpResponseMessage response,
         HttpStatusCode expectedStatus,
         string? expectedTypeUri = null,
-        string? expectedErrorCode = null)
+        string? expectedErrorCode = null,
+        [CallerMemberName] string callerMemberName = "")
     {
         ArgumentNullException.ThrowIfNull(response);
 
@@ -53,7 +54,7 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         {
             string failureBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             throw new HttpRequestException(
-                $"Expected HTTP {(int)expectedStatus} {expectedStatus} but got {(int)response.StatusCode} {response.StatusCode}. Body: {failureBody}");
+                $"{callerMemberName}: expected HTTP {(int)expectedStatus} {expectedStatus} but got {(int)response.StatusCode} {response.StatusCode}. Body: {failureBody}");
         }
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
 

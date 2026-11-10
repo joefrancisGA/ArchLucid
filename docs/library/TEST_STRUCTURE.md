@@ -283,7 +283,7 @@ flowchart TD
   B -->|yes| C[IntegrationTestBase]
   B -->|no / concurrency| D[IntegrationTestIsolatedSqlScope.RunAsync]
   C --> E{Compare or replay?}
-  E -->|yes| F[Replay.OpenCommittedPairAsync + TestRequestIds]
+  E -->|yes| F[ArrangeCommittedPairAsync]
   E -->|no| G[ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync]
   D --> H[ReplaySession.OpenAsync]
 ```
@@ -299,8 +299,11 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Goal | Use |
 |------|-----|
 | Parallel-safe request id | **`TestRequestIds.ForScenario`** |
-| Finalize in one verb (client + factory + JSON) | **`ArchitectureScenario.FinalizedAsync`** / **`ArrangeFinalizedAsync`** / **`FinalizeLifecycleAsync`** |
-| Committed replay pair from scenario name | **`ArchitectureScenario.CommittedPairAsync`** |
+| Finalize in one verb (client + factory + JSON) | **`ArrangeFinalizedAsync`** / **`ArchitectureScenario.FinalizedAsync`** |
+| Committed replay pair from scenario name | **`ArrangeCommittedPairAsync`** / **`ArchitectureScenario.CommittedPairAsync`** / **`ReplaySession.OpenCommittedPairForScenario`** |
+| Pin-aware execute on `IntegrationTestBase` | **`ExecuteForTestAsync`** → **`PostExecuteWithPinsAsync`** |
+| Stable skip strings (authority complete on create) | **`HarnessSkipReasons`** |
+| Idempotency-Key header value for custom POSTs | **`TestRequestIds.IdempotencyKey`** |
 | Governance committed run arrange | **`GovernanceScenario.CommittedAsync`** / **`ArrangeGovernanceCommittedAsync`** |
 | Governance self-approval problem JSON | **`GovernanceProblemAssertions.AssertGovernanceSelfApprovalAsync`** |
 | Tenant isolation greenfield primer | **`TenantIsolationScenario.WithGreenfieldPrimerAsync`** |
@@ -310,8 +313,8 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | JWT, custom body, or idempotency header on intake | **`CreateArchitectureRequestMessage`** → `SendAsync` |
 | Greenfield SQL with transient 503 retry + unique idempotency key | **`PostGreenfieldArchitectureRequestForTestAsync`** |
 | Execute / finalize / replay routes | **`ExecuteReviewRelativeUrl`**, **`FinalizeReviewRelativeUrl`**, **`ReplayReviewRelativeUrl`**, **`ComparisonReplayRelativeUrl`**, **`ArchitectureRequestRelativeUrl`**, **`EndToEndCompareSummaryRelativeUrl`**, **`EndToEndCompareExportMarkdownRelativeUrl`**, **`EndToEndCompareExportDocxRelativeUrl`**, **`EndToEndCompareExportFileRelativeUrl`**, **`PostExecuteForTestAsync`**, **`PostExecuteAndEnsureArchitectureVersionPinForTestAsync`**, **`PostFinalizeForTestAsync`**, **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
-| Run through execute + finalize | **`CreateFinalizedRunAsync`** / **`CreateFinalizedRunForTestAsync`** / **`CreateRunExecuteAndFinalizeForTestAsync`** → **`FinalizedRun`** |
-| Comparison / replay arrange | **`OpenCommittedPairAsync`** → **`CommittedReplayPair`**; **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
+| Run through execute + finalize (low-level) | **`CreateFinalizedRunForTestAsync`**, **`CreateRunExecuteAndFinalizeForTestAsync`**, **`CreateFinalizedRunAsync(requestId)`** on **`IntegrationTestBase`** — fixtures prefer **`ArrangeFinalizedAsync`** |
+| Comparison / replay arrange | **`ArrangeCommittedPairAsync`** → **`CommittedReplayPair`**; protocol tests may use **`PostReviewReplayForTestAsync`**, **`PostComparisonReplayForTestAsync`** |
 | SQL integration client (bounded + scope headers + workspace pin) | **`IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync`** |
 | Per-test isolated SQL factory | **`IntegrationTestIsolatedSqlScope.RunAsync`** |
 | Isolated SQL + replay | **`IntegrationTestIsolatedSqlScope.RunWithReplayAsync`** |
@@ -324,7 +327,9 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **twenty-five** facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for fact titles (pin-aware execute, **`ReadJsonForTestAsync`** redundancy, isolated-scope mixing, **`TestRequestIds`**, replay calls). Allowlist growth is capped by **`MaxHarnessAllowlistedSourceFiles`** (guard ratchet, currently **41** unique allowlisted sources).
+**Anti-patterns (harness `#26`–`#28`):** do not add **`FinalizeLifecycleAsync`**; do not call **`CreateFinalizedRunAsync(variable)`** from **`IntegrationTestBase`** fixtures (use **`ArrangeFinalizedAsync`** / **`ArrangeGovernanceCommittedAsync`**); do not hand-roll **`Idempotency-Key`** header literals (use **`TestRequestIds.IdempotencyKey`**).
+
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **twenty-eight** scanner facts + catalog/metadata). See **`IntegrationTestHarnessGoldenPathGuardCatalog`** for titles (pin-aware execute, redundant status before **`ReadJsonForTestAsync`**, isolated-scope mixing, **`TestRequestIds`**, replay calls). Allowlist growth is capped by **`MaxHarnessAllowlistedSourceFiles`** (guard ratchet, currently **40** unique allowlisted sources).
 
 **Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
 

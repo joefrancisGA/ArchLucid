@@ -16,7 +16,7 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task ExportAnalysisReport_ReturnsMarkdown()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAnalysisExportTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureAnalysisExportTests));
         var request = new
         {
             includeEvidence = true,

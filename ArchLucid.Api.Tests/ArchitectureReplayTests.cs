@@ -33,7 +33,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [SkippableFact]
     public async Task ReplayRun_WithCommitReplay_CreatesReplayManifest()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureReplayTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureReplayTests));
         const string rightVersion = "v1-replay";
 
         HttpResponseMessage replayResponse = await Client.PostReviewReplayForTestAsync(Factory, 

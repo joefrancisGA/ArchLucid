@@ -16,7 +16,7 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
     [SkippableFact]
     public async Task ConsultingDocxExport_PersistsExportHistory()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureExportAuditTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureExportAuditTests));
 
         var request = new
         {
@@ -45,9 +45,10 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
             $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
             request);
 
-        exportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        await exportResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");        RunExportHistoryResponse? payload =
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");
+        RunExportHistoryResponse? payload =
             await historyResponse.ReadJsonForTestAsync<RunExportHistoryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Exports.Should().NotBeEmpty();

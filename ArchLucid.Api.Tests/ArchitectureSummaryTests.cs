@@ -20,10 +20,11 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
         string requestId = TestRequestIds.ForScenario(nameof(ArchitectureSummaryTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        FinalizedRun finalized = await CreateFinalizedRunAsync(requestId);
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureSummaryTests));
 
         HttpResponseMessage summaryResponse =
-            await Client.GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary");        ManifestMarkdownDocumentResponse? summaryPayload =
+            await Client.GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary");
+        ManifestMarkdownDocumentResponse? summaryPayload =
             await summaryResponse.ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");

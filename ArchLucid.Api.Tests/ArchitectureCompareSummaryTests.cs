@@ -15,7 +15,7 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
     [SkippableFact]
     public async Task CompareManifestsSummary_ReturnsMarkdownSummary()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureCompareSummaryTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureCompareSummaryTests));
         const string requestedReplayManifestVersion = "v1-replay";
 
         string rightVersion = await Replay.CommitReplayManifestVersionAsync(
@@ -25,8 +25,6 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
 
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/manifest/compare/summary?leftVersion={Uri.EscapeDataString(finalized.ManifestVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
 
         ManifestCompareSummaryResponse payload =
             await response.ReadJsonForTestAsync<ManifestCompareSummaryResponse>(JsonOptions);

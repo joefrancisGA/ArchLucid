@@ -17,7 +17,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task ExportRunsEndToEndComparisonMarkdown_ReturnsMarkdown()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonExportTests)));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(ArchitectureEndToEndComparisonExportTests));
 
         EndToEndReplayComparisonExportResponse payload = await (
             await Client.GetEndToEndCompareExportMarkdownForTestAsync(pair))
@@ -29,7 +29,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task ExportRunsEndToEndComparisonDocx_ReturnsDocx()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonExportTests)));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(ArchitectureEndToEndComparisonExportTests));
 
         HttpResponseMessage response =
             await Client.GetEndToEndCompareExportDocxForTestAsync(pair);
@@ -45,7 +45,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
     [SkippableFact]
     public async Task DownloadEndToEndComparisonMarkdown_RangeRequest_Returns206PartialContent()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonExportTests)));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(ArchitectureEndToEndComparisonExportTests));
 
         using HttpRequestMessage req = IntegrationTestRunLifecycleSupport
             .CreateEndToEndCompareExportFileRangeGetRequestForTest(pair, 0, 15);

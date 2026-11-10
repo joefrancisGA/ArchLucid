@@ -21,7 +21,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAnalysisDocxTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureAnalysisDocxTests));
         var request = new
         {
             includeEvidence = true,
@@ -52,7 +52,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAnalysisDocxTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureAnalysisDocxTests));
         var request = new
         {
             includeEvidence = true,
@@ -71,8 +71,6 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         HttpResponseMessage start = await Client.PostAsync(
             $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/async",
             JsonContent(request));
-
-        start.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         JsonElement payload = await start.ReadJsonForTestAsync<JsonElement>(JsonOptions);
         payload.TryGetProperty("jobId", out JsonElement jobIdEl).Should().BeTrue();

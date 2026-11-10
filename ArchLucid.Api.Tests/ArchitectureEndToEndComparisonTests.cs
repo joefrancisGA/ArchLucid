@@ -14,7 +14,7 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory fact
     [SkippableFact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {
-        CommittedReplayPair pair = await Replay.CommitAndReplayAsync(TestRequestIds.ForScenario(nameof(ArchitectureEndToEndComparisonTests)));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(ArchitectureEndToEndComparisonTests));
 
         EndToEndReplayComparisonSummaryResponse payload = await (
             await Client.PostEndToEndCompareSummaryForTestAsync(

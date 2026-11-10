@@ -1,9 +1,7 @@
 using System.Net;
-using System.Net.Http.Json;
+using System.Text.Json;
 
 using FluentAssertions;
-
-using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -36,11 +34,10 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
         Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc01");
         HttpResponseMessage response = await Client.GetAsync($"/v1/authority/reviews/{missing:D}/summary");
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-        MvcProblemDetails? problem = await response.ReadJsonForTestAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.RunNotFound);
+        JsonDocument problem = await response.AssertProblemForTestAsync(
+            HttpStatusCode.NotFound,
+            ProblemTypes.RunNotFound);
+        problem.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.RunNotFound);
     }
 
     [SkippableFact]
@@ -51,11 +48,10 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
 
         HttpResponseMessage response = await Client.GetAsync($"/v1/authority/reviews/{runId:D}/provenance");
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
-
-        MvcProblemDetails? problem = await response.ReadJsonForTestAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("Provenance requires");
+        JsonDocument problem = await response.AssertProblemForTestAsync(
+            HttpStatusCode.UnprocessableEntity,
+            ProblemTypes.ValidationFailed);
+        problem.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.ValidationFailed);
+        problem.RootElement.GetProperty("detail").GetString().Should().Contain("Provenance requires");
     }
 }

@@ -99,10 +99,11 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var problemDetails = await response.ReadJsonForTestAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>(JsonOptions);
-        problemDetails.Should().NotBeNull();
-        problemDetails!.Type.Should().Be(ProblemTypes.EvidenceBulkUploadLimitExceeded);
+        System.Text.Json.JsonDocument problemDetails = await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.EvidenceBulkUploadLimitExceeded);
+        problemDetails.RootElement.GetProperty("type").GetString().Should()
+            .Be(ProblemTypes.EvidenceBulkUploadLimitExceeded);
 
         using var scope = Factory.Services.CreateScope();
         var auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();

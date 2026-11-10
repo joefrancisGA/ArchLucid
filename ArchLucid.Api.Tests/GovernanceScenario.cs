@@ -11,6 +11,7 @@ public static class GovernanceScenario
         ArchLucidApiFactory factory,
         JsonSerializerOptions jsonOptions,
         string scenario,
+        string testMethod = "",
         CancellationToken cancellationToken = default) =>
-        ArchitectureScenario.FinalizedAsync(client, factory, jsonOptions, scenario, cancellationToken);
+        ArchitectureScenario.FinalizedAsync(client, factory, jsonOptions, scenario, testMethod, cancellationToken);
 }
