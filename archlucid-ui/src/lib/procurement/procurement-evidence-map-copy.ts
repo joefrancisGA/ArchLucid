@@ -1,3 +1,5 @@
+import { ARCHLUCID_PROCUREMENT_ORDER_ACCEPTANCE_LEAD } from "@/lib/buyer-copy/archlucid-commercial-order-acceptance-copy";
+
 export type ProcurementEvidenceArtifactStatus = "available" | "not-published";
 
 export type ProcurementEvidenceArtifactRow = {
@@ -13,8 +15,7 @@ export const PROCUREMENT_EVIDENCE_MAP_HEADING = "Procurement evidence map" as co
 export const PROCUREMENT_EVIDENCE_MAP_LEAD =
   "What exists today versus what is not published. Links open in-product surfaces — not a CPA attestation." as const;
 
-export const ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LEAD =
-  "The owner accepts a guided-pilot evaluation order at the published list price by signed quote. Monthly tiers, checkout, and Stripe are not accepted from a page. Other rows show what exists versus what is not published." as const;
+export const ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LEAD = ARCHLUCID_PROCUREMENT_ORDER_ACCEPTANCE_LEAD;
 
 export const SECURENOW_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceArtifactRow[] = [
   {
@@ -75,6 +76,41 @@ export const ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     status: "available",
     href: "/pricing#pricing-quote-request",
     note: "Accepted by signed quote at the published list price in pricing philosophy section 4.",
+  },
+  {
+    id: "monthly-tier-order",
+    label: "Architect, Team, and Professional orders",
+    status: "available",
+    href: "/pricing",
+    note: "Accepted at published list prices in section 5 by signed quote or order form.",
+  },
+  {
+    id: "design-partner-order",
+    label: "Design partner order",
+    status: "available",
+    href: "/pricing#pricing-quote-request",
+    note: "Accepted when a design-partner slot is confirmed, by signed quote at the published terms in section 4.",
+  },
+  {
+    id: "enterprise-evaluation-order",
+    label: "Enterprise evaluation order",
+    status: "available",
+    href: "/pricing#pricing-quote-request",
+    note: "Accepted by signed quote or custom order form.",
+  },
+  {
+    id: "trial-conversion-order",
+    label: "Trial-to-paid conversion",
+    status: "available",
+    href: "/pricing#pricing-quote-request",
+    note: "Accepted by signed quote when converting from self-serve trial to a paid tier.",
+  },
+  {
+    id: "stripe-checkout",
+    label: "Stripe checkout",
+    status: "not-published",
+    href: null,
+    note: "Authorized when engineering publishes Stripe Prices. Until then, quote and order form finalize payment terms.",
   },
   {
     id: "trust-center",

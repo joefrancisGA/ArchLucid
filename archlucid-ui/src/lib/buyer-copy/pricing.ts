@@ -12,9 +12,10 @@ export const BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE =
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
   "Start with one architect, grow into an architecture review practice, and use Enterprise when procurement, SSO, or private deployment is required.";
 
-/** Sales-led posture: no self-serve checkout; quote and order form finalize commercial terms. */
-export const BUYER_SALES_LED_PRICING_NOTE =
-  "ArchLucid is sold through guided evaluation and procurement. The owner accepts a guided-pilot evaluation order at the published list price by signed quote. Monthly list prices are in the tier grid. Checkout, Stripe, and the monthly tiers are not accepted from a page.";
+import { ARCHLUCID_PRICING_SALES_LED_NOTE } from "@/lib/buyer-copy/archlucid-commercial-order-acceptance-copy";
+
+/** Sales-led posture: quote and order form; Stripe checkout when Prices are published. */
+export const BUYER_SALES_LED_PRICING_NOTE = ARCHLUCID_PRICING_SALES_LED_NOTE;
 
 /** @deprecated Use {@link BUYER_SALES_LED_PRICING_NOTE}. */
 export const BUYER_SALES_LED_V1_PRICING_NOTE = BUYER_SALES_LED_PRICING_NOTE;
