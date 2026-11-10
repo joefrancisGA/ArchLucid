@@ -40,6 +40,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(33, "explicit Arrange scenario argument", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanExplicitArrangeScenarioArguments), "use ArrangeFinalizedAsync() with no args"),
         new(34, "redundant ForScenario(nameof(fixture))", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantForScenarioNameofOnFixtures), "use ArrangeFinalizedAsync / CreateRunForTestAsync / RunReadyForExecuteAsync"),
         new(35, "HarnessGoldenPathSmokeTests skippable fact count", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountHarnessGoldenPathSmokeSkippableFacts), "add smoke tests when extending the golden path"),
+        new(36, "raw manifest summary URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawManifestSummaryUrlsInHarnessTests), "use FinalizedRun.GetManifestSummaryAsync"),
+        new(37, "redundant SystemNameForRequest on arrange records", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantSystemNameForRequestOnHarnessRuns), "use FinalizedRun.SystemName / CreatedRunForTest.SystemName"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

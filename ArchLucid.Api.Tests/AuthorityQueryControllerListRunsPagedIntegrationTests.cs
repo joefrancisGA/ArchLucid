@@ -22,10 +22,9 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     public async Task ListRunsByProject_without_page_returns_cursor_paged_envelope()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        string systemName = TestRequestFactory.SystemNameForRequest(finalized.RequestId);
 
         HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
+            await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?take=20");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
@@ -43,10 +42,9 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     public async Task ListRunsByProject_with_legacy_page_size_clamps_requested_take()
     {
         FinalizedRun finalized = await ArrangeFinalizedAsync();
-        string systemName = TestRequestFactory.SystemNameForRequest(finalized.RequestId);
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
+            $"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?page=1&pageSize=10");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
@@ -69,7 +67,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         defaultSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string defaultBody = await defaultSlugResponse.Content.ReadAsStringAsync();
         using JsonDocument defaultDoc = JsonDocument.Parse(defaultBody);
-        Guid createdRunId = Guid.Parse(finalized.RunId);
+        Guid createdRunId = finalized.RunGuid;
         defaultDoc.RootElement.GetProperty("items").EnumerateArray()
             .Any(item => Guid.Parse(item.GetProperty("finalized.RunId").GetString()!) == createdRunId)
             .Should()
