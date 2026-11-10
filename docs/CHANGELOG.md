@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 4: sponsor parity, drift collection, empty-state ROI
+
+**Outcome.** Sponsor path shares Proceed / Extend / Stop rehearsal panels with pilot decision. Drift shows collection setup when incomplete, or Path inspect next step when ready. Simulator and path-inspect select prompts add synthetic ROI when collection is ready. jest-axe covers sealed callout, ArchLucid trust strip, and Proceed rehearsal.
+
+**Surfaces.** sponsor path, pilot decision, snapshots-drift, remediation factory empty states, accessibility suite.
+
 ## 2026-11-10 - Score lift round 3: drift next step, shared Home routing, Proceed pilot
 
 **Outcome.** Changes and drift names Path inspect as the next step when collection is ready and a snapshot is selected. Home, return-home, and drift share one next-step resolver. Pilot **Proceed** links quote and reviewer packets; **Stop** names the draft ITSM handoff before save. Priority-queue empty adds synthetic ROI when collection is ready. Procurement map adds **AL-EVAL** acceptance. Buyer-polished first-review and working reviews/new show procurement and sealed-package honesty.

@@ -89,7 +89,16 @@ export function resolveRemediationFactorySimulatorSelectPrompt(
   collectionSetupComplete: boolean,
 ): EnterpriseCompactEmptyStateProps {
   if (collectionSetupComplete) {
-    return REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT;
+    return {
+      ...REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT,
+      actions: [
+        {
+          label: "Synthetic ROI walkthrough",
+          href: SECURENOW_INVESTIGATION_EFFORT_PATH,
+          variant: "outline",
+        },
+      ],
+    };
   }
 
   return {
@@ -121,7 +130,16 @@ export function resolveRemediationFactoryPathInspectSelectPrompt(
   collectionSetupComplete: boolean,
 ): EnterpriseCompactEmptyStateProps {
   if (collectionSetupComplete) {
-    return REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT;
+    return {
+      ...REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT,
+      actions: [
+        {
+          label: "Synthetic ROI walkthrough",
+          href: SECURENOW_INVESTIGATION_EFFORT_PATH,
+          variant: "outline",
+        },
+      ],
+    };
   }
 
   return {

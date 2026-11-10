@@ -62,8 +62,10 @@ describe("resolveRemediationFactorySimulatorSelectPrompt", () => {
     expect(state.actions?.[0]?.href).toBe(CLOUD_CONNECTIONS_PATH);
   });
 
-  it("keeps the default prompt when collection is complete", () => {
-    expect(resolveRemediationFactorySimulatorSelectPrompt(true)).toEqual(REMEDIATION_FACTORY_SIMULATOR_SELECT_PROMPT);
+  it("adds synthetic ROI walkthrough when collection is complete", () => {
+    const state = resolveRemediationFactorySimulatorSelectPrompt(true);
+
+    expect(state.actions?.[0]?.href).toBe(SECURENOW_INVESTIGATION_EFFORT_PATH);
   });
 });
 
@@ -75,10 +77,10 @@ describe("resolveRemediationFactoryPathInspectSelectPrompt", () => {
     expect(state.actions?.[0]?.href).toBe(CLOUD_CONNECTIONS_PATH);
   });
 
-  it("keeps the default prompt when collection is complete", () => {
-    expect(resolveRemediationFactoryPathInspectSelectPrompt(true)).toEqual(
-      REMEDIATION_FACTORY_PATH_INSPECT_SELECT_PROMPT,
-    );
+  it("adds synthetic ROI walkthrough when collection is complete", () => {
+    const state = resolveRemediationFactoryPathInspectSelectPrompt(true);
+
+    expect(state.actions?.[0]?.href).toBe(SECURENOW_INVESTIGATION_EFFORT_PATH);
   });
 });
 

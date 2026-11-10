@@ -25,11 +25,26 @@ describe("SecureNowSponsorPathPageView", () => {
     persist.mockResolvedValue({ status: "saved", tenantAuditRecorded: true });
   });
 
-  it("shows the synthetic ROI walkthrough beside trust links", () => {
+  it("shows procurement trust strip on the sponsor path", () => {
     render(<SecureNowSponsorPathPageView />);
 
-    expect(screen.getByTestId("securenow-sponsor-path-synthetic-roi")).toBeInTheDocument();
     expect(screen.getByTestId("securenow-procurement-trust-strip")).toBeInTheDocument();
+  });
+
+  it("shows Proceed commercial links when Proceed is selected", () => {
+    render(<SecureNowSponsorPathPageView />);
+
+    fireEvent.change(screen.getByLabelText("Path disposition outcome"), { target: { value: "Proceed" } });
+
+    expect(screen.getByTestId("securenow-sponsor-path-proceed-commercial")).toBeInTheDocument();
+  });
+
+  it("shows synthetic ROI when Extend is selected", () => {
+    render(<SecureNowSponsorPathPageView />);
+
+    fireEvent.change(screen.getByLabelText("Path disposition outcome"), { target: { value: "Extend" } });
+
+    expect(screen.getByTestId("securenow-sponsor-path-synthetic-roi")).toBeInTheDocument();
   });
 
   it("shows tenant audit confirmation after a successful save", async () => {
