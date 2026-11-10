@@ -43,6 +43,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(36, "raw manifest summary URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawManifestSummaryUrlsInHarnessTests), "use FinalizedRun.GetManifestSummaryAsync"),
         new(37, "redundant SystemNameForRequest on arrange records", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantSystemNameForRequestOnHarnessRuns), "use FinalizedRun.SystemName / CreatedRunForTest.SystemName"),
         new(38, "raw architecture review subresource URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawArchitectureReviewSubresourceUrlsInHarnessTests), "use FinalizedRunHarnessExtensions / CreatedRunForTestHarnessExtensions"),
+        new(39, "raw architecture review bare GET", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawArchitectureReviewBareGetUrlsInHarnessTests), "use GetRunDetailsAsync / GetRunHttpAsync"),
+        new(40, "hand-rolled JsonDocument.Parse", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHandRolledJsonDocumentParseInHarnessTests), "use ReadJsonForTestAsync / AssertProblemForTestAsync"),
+        new(41, "review subresource allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountReviewSubresourceAllowlistedSourceFiles), "shrink #38 allowlist or add an extension"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

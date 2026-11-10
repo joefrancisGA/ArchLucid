@@ -1,6 +1,8 @@
 using System.Net;
 
+using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
+using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
 
@@ -67,6 +69,21 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
 
         created.RunGuid.Should().NotBe(Guid.Empty);
         created.RequestId.Should().Be(TestRequestIds.ForScenario(GetType().Name));
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_authority_project_list_includes_committed_run()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        HttpResponseMessage response = await Client.GetAsync(
+            $"/v1/authority/projects/{Uri.EscapeDataString(finalized.SystemName)}/reviews?take=20");
+        await response.EnsureSuccessForTestAsync();
+
+        CursorPagedResponse<RunSummaryResponse> page =
+            await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(JsonOptions);
+
+        page.Items.Should().Contain(item => item.RunId == finalized.RunGuid);
     }
 
     [SkippableFact]

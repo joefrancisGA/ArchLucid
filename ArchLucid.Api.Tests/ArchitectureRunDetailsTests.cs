@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Architecture;
 
@@ -31,12 +29,9 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.TrustEvidenceCard!.SelfAttestationNotice.Should().NotBeNullOrWhiteSpace();
         payload.TrustEvidenceCard.AuditTrail.Status.Should().NotBeNullOrWhiteSpace();
 
-        HttpResponseMessage authorityDetailResponse =
-            await Client.GetAsync($"/v1/authority/reviews/{finalized.RunGuid:D}");
-        await authorityDetailResponse.EnsureSuccessForTestAsync();
-        using JsonDocument authorityDetailDoc =
-            JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());
-        authorityDetailDoc.RootElement.GetProperty("executionFlavorBuyerSummary").GetString().Should().NotBeNullOrWhiteSpace();
+        AuthorityReviewDetailHarnessResponse authorityDetail =
+            await finalized.GetAuthorityReviewDetailAsync(Client, JsonOptions);
+        authorityDetail.ExecutionFlavorBuyerSummary.Should().NotBeNullOrWhiteSpace();
 
         RunRoiScorecardDto roi = await finalized.GetRoiAsync(Client, JsonOptions);
         roi.RunId.Should().Be(finalized.RunId);

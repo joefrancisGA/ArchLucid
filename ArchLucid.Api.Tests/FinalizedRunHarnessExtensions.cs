@@ -116,4 +116,40 @@ public static class FinalizedRunHarnessExtensions
         return await response.ReadJsonForTestAsync<RunRoiScorecardDto>(jsonOptions, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    public static async Task<RunExportHistoryResponse> GetExportsHistoryAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await client
+            .GetAsync($"/v1/architecture/review/{finalized.RunId}/exports", cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<RunExportHistoryResponse>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public static async Task<AuthorityReviewDetailHarnessResponse> GetAuthorityReviewDetailAsync(
+        this FinalizedRun finalized,
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(finalized);
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await client
+            .GetAsync($"/v1/authority/reviews/{finalized.RunGuid:D}", cancellationToken)
+            .ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<AuthorityReviewDetailHarnessResponse>(jsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+    }
 }

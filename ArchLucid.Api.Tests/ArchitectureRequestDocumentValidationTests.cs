@@ -33,16 +33,11 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
 
         HttpResponseMessage response = await Client.PostArchitectureRequestForTestAsync(root);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        string body = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(body);
-
-        JsonElement rootEl = doc.RootElement;
-        bool hasFieldScopedContentTypeError = ValidationProblemAssertions.ContainsDocumentContentTypeFieldError(rootEl);
+        JsonDocument problem = await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest);
+        bool hasFieldScopedContentTypeError =
+            ValidationProblemAssertions.ContainsDocumentContentTypeFieldError(problem.RootElement);
 
         hasFieldScopedContentTypeError.Should().BeTrue(
-            "expected a validation key scoped to documents and content type in problem details; body: {0}",
-            body);
+            "expected a validation key scoped to documents and content type in problem details");
     }
 }

@@ -1,8 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
@@ -27,7 +24,7 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        await AssertProblemDetailsAsync(response, ProblemTypes.RunNotFound);
+        await response.AssertProblemForTestAsync(HttpStatusCode.NotFound, ProblemTypes.RunNotFound);
     }
 
     [SkippableFact]
@@ -46,34 +43,9 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        await AssertProblemDetailsAsync(response, ProblemTypes.RunNotFound, detailSubstring: "Comparison run");
-    }
-
-    /// <summary>
-    ///     Asserts RFC 9457 <c>type</c> from the raw body. Deserializing <c>application/problem+json</c> into
-    ///     <c>Microsoft.AspNetCore.Mvc.ProblemDetails</c> via <c>ReadFromJsonAsync</c> can yield a null or partial
-    ///     <c>Type</c> when <c>extensions</c> do not round-trip cleanly; the wire <c>type</c> string remains authoritative.
-    /// </summary>
-    private static async Task AssertProblemDetailsAsync(
-        HttpResponseMessage response,
-        string expectedTypeUri,
-        string? detailSubstring = null)
-    {
-        string json = await response.Content.ReadAsStringAsync();
-        json.Should().NotBeNullOrWhiteSpace();
-
-        using JsonDocument doc = JsonDocument.Parse(json);
-        JsonElement root = doc.RootElement;
-
-        root.TryGetProperty("type", out JsonElement typeElement).Should().BeTrue($"expected 'type' in body: {json}");
-        typeElement.GetString().Should().Be(expectedTypeUri);
-
-        if (detailSubstring is null)
-            return;
-
-        root.TryGetProperty("detail", out JsonElement detailElement).Should().BeTrue($"expected 'detail' in body: {json}");
-        string? detailText = detailElement.GetString();
-        detailText.Should().NotBeNull();
-        detailText.Should().Contain(detailSubstring);
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.NotFound,
+            ProblemTypes.RunNotFound,
+            detailContains: "Comparison run");
     }
 }

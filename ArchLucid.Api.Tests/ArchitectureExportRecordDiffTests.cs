@@ -71,10 +71,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
             $"/v1/architecture/review/{finalized.RunId}/analysis-report/export/docx/consulting",
             JsonContent(internalRequest));
         await internalExport.EnsureSuccessForTestAsync();
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{finalized.RunId}/exports");
-                RunExportHistoryResponse? history =
-            await historyResponse.ReadJsonForTestAsync<RunExportHistoryResponse>(JsonOptions);
-        history.Should().NotBeNull();
+        RunExportHistoryResponse history = await finalized.GetExportsHistoryAsync(Client, JsonOptions);
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
         string leftId = history.Exports[0].ExportRecordId;
