@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 8: procurement anchors, fixture-path-02 Home, architecture open gate
+
+**Outcome.** Procurement evidence map eval acceptance hrefs share guarded anchors. SecureNow infrastructure Home recommends fixture-path-02 in Path inspect. Working architectures hub shows the browser-local review open gate. Remediation factory buyer-polished test asserts drift and ROI empty-state recovery.
+
+**Surfaces.** Procurement map, infrastructure overview, architecture identities hub, remediation factory, tests.
+
 ## 2026-11-10 - Score lift round 7: walkthrough step, architect empty parity, Real fallback
 
 **Outcome.** First-review guide names the next checklist step when prerequisites are complete (buyer-polished test). Architect snapshot empty states add drift review and synthetic ROI when collection is ready. Path inspect surfaces Real-session fallback discipline. Drift buyer-polished test asserts post-capture next step.
