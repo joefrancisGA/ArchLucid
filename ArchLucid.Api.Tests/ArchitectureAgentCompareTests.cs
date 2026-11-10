@@ -15,9 +15,8 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
     [SkippableFact]
     public async Task CompareAgentResultsSummary_ReturnsMarkdown()
     {
-        string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureAgentCompareTests)));
-
-        await ExecuteForTestAsync(runId);
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        string runId = created.RunId;
 
         string replayRunId = await Replay.ReplayWithoutCommitAsync(runId);
 

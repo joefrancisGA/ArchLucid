@@ -49,4 +49,36 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
 
         await response.AssertProblemForTestAsync(HttpStatusCode.NotFound, ProblemTypes.RunNotFound);
     }
+
+    [SkippableFact]
+    public async Task Golden_path_arrange_exposes_matching_request_id()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        finalized.RequestId.Should().Be(TestRequestIds.ForScenario(GetType().Name));
+        finalized.RunId.Should().NotBeNullOrWhiteSpace();
+        finalized.ManifestVersion.Should().MatchRegex("^v\\d");
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_run_ready_for_execute_exposes_parseable_run_guid()
+    {
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+
+        created.RunGuid.Should().NotBe(Guid.Empty);
+        created.RequestId.Should().Be(TestRequestIds.ForScenario(GetType().Name));
+    }
+
+    [Theory]
+    [InlineData("%20")]
+    [InlineData("%09")]
+    public async Task Golden_path_list_reviews_whitespace_project_returns_400_problem(string encodedWhitespaceProjectId)
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync($"/v1/authority/projects/{encodedWhitespaceProjectId}/reviews");
+
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            detailContains: "projectId");
+    }
 }

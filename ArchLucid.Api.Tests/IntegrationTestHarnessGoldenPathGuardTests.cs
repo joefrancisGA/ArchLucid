@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-three scanner facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, thirty-five scanner facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -240,9 +240,25 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_thirty_three_scanners()
+    public void Api_test_fixtures_do_not_repeat_fixture_class_in_ForScenario_nameof()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(33);
+        IntegrationTestHarnessGoldenPathGuardAssertionSupport.AssertHarnessGuardEmpty(
+            IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantForScenarioNameofOnFixtures(),
+            34,
+            "Arrange and CreateRunForTestAsync already derive scenario ids from the fixture class.");
+    }
+
+    [Fact]
+    public void Harness_golden_path_smoke_tests_expose_enough_skippable_facts()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.CountHarnessGoldenPathSmokeSkippableFacts().Should()
+            .BeGreaterThanOrEqualTo(IntegrationTestHarnessGoldenPathGuardSupport.MinHarnessGoldenPathSmokeSkippableFacts);
+    }
+
+    [Fact]
+    public void Guard_catalog_lists_thirty_five_scanners()
+    {
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(35);
     }
 
     [Fact]

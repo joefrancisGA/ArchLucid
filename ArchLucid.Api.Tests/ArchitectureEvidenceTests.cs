@@ -16,12 +16,9 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {
-        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureEvidenceTests));
-        string expectedSystemName = TestRequestFactory.SystemNameForRequest(requestId);
-
-        string runId = await CreateArchitectureRunAsync(requestId);
-
-        await ExecuteForTestAsync(runId);
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        string expectedSystemName = TestRequestFactory.SystemNameForRequest(created.RequestId);
+        string runId = created.RunId;
         HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/evidence");        AgentEvidencePackageResponse? payload =
             await evidenceResponse.ReadJsonForTestAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();

@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -17,15 +14,11 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestSummary_ReturnsMarkdown()
     {
-        string requestId = TestRequestIds.ForScenario(nameof(ArchitectureSummaryTests));
-        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
-
         FinalizedRun finalized = await ArrangeFinalizedAsync();
+        string systemName = TestRequestFactory.SystemNameForRequest(finalized.RequestId);
 
-        HttpResponseMessage summaryResponse =
-            await Client.GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary");
-        ManifestMarkdownDocumentResponse? summaryPayload =
-            await summaryResponse.ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
+        ManifestMarkdownDocumentResponse summaryPayload =
+            await finalized.GetManifestSummaryAsync(Client, JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");
         summaryPayload.Content.Should().Contain($"# Architecture Summary: {systemName}");

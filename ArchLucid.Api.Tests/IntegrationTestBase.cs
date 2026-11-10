@@ -108,6 +108,15 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
         return new CreatedRunForTest(created.Run.RunId, requestId);
     }
 
+    /// <summary>Intake + pin-aware execute; for tests that stop before finalize.</summary>
+    protected async Task<CreatedRunForTest> RunReadyForExecuteAsync([CallerMemberName] string testMethod = "")
+    {
+        CreatedRunForTest created = await CreateRunForTestAsync(testMethod).ConfigureAwait(false);
+        await ExecuteForTestAsync(created.RunId).ConfigureAwait(false);
+
+        return created;
+    }
+
     /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
     protected Task<HttpResponseMessage> PostComparisonReplayAsync(string comparisonRecordId, string format = "markdown") =>
         Client.PostComparisonReplayForTestAsync(comparisonRecordId, format);

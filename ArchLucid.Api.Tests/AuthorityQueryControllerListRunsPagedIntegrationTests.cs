@@ -21,10 +21,9 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsByProject_without_page_returns_cursor_paged_envelope()
     {
-        string requestId = TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
-        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
-
         FinalizedRun finalized = await ArrangeFinalizedAsync();
+        string systemName = TestRequestFactory.SystemNameForRequest(finalized.RequestId);
+
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?take=20");
 
@@ -43,10 +42,9 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRunsByProject_with_legacy_page_size_clamps_requested_take()
     {
-        string requestId = TestRequestIds.ForScenario(nameof(AuthorityQueryControllerListRunsPagedIntegrationTests));
-        string systemName = TestRequestFactory.SystemNameForRequest(requestId);
-
         FinalizedRun finalized = await ArrangeFinalizedAsync();
+        string systemName = TestRequestFactory.SystemNameForRequest(finalized.RequestId);
+
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/authority/projects/{Uri.EscapeDataString(systemName)}/reviews?page=1&pageSize=10");
 

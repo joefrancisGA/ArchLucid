@@ -17,9 +17,8 @@ public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : 
     [SkippableFact]
     public async Task DeterminismCheck_ReturnsResult()
     {
-        string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureDeterminismTests)));
-
-        await ExecuteForTestAsync(runId);
+        CreatedRunForTest created = await RunReadyForExecuteAsync();
+        string runId = created.RunId;
         var request = new { iterations = 3, executionMode = "Current", commitReplays = false };
 
         HttpResponseMessage response = await Client.PostAsync(

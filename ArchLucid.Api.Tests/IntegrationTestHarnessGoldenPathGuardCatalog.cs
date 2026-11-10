@@ -38,6 +38,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(31, "ReadFromJsonAsync allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountReadFromJsonAllowlistedSourceFiles)),
         new(32, "ReadJsonForTestAsync for ProblemDetails", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanReadJsonForProblemDetailsInHarnessTests), "use AssertProblemForTestAsync"),
         new(33, "explicit Arrange scenario argument", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanExplicitArrangeScenarioArguments), "use ArrangeFinalizedAsync() with no args"),
+        new(34, "redundant ForScenario(nameof(fixture))", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRedundantForScenarioNameofOnFixtures), "use ArrangeFinalizedAsync / CreateRunForTestAsync / RunReadyForExecuteAsync"),
+        new(35, "HarnessGoldenPathSmokeTests skippable fact count", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountHarnessGoldenPathSmokeSkippableFacts), "add smoke tests when extending the golden path"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);
