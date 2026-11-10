@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
