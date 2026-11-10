@@ -18,6 +18,7 @@ import {
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
 import { SecureNowPilotStopItsmHandoffBlock } from "@/components/product-line/SecureNowPilotStopItsmHandoffBlock";
+import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
@@ -178,6 +179,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 </Link>
               </p>
             </section>
+            <SecureNowInvestigationEffortSyntheticExamplePanel testId="securenow-sponsor-path-synthetic-roi" />
             <SecureNowProcurementTrustStrip />
           </>
         )}

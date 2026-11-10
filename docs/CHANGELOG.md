@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift top-10: collection next step, sample checklist, ROI on sponsor path
+
+**Outcome.** After collection is ready, SecureNow names one next step toward ranked paths or Changes and drift. Return-home rows say do this next. Path inspect names simulator versus Real completion and honest blank ranking copy. The sponsor path includes the synthetic ROI walkthrough. The first-review guide lists what the sample shows versus a sealed tenant review. Procurement map adds the custom pack order row.
+
+**Surfaces.** SecureNow collection setup, Home return rows, remediation factory empty state, Path inspect, sponsor path, first-review guide, ArchLucid procurement map.
+
 ## 2026-11-10 - Floor scores follow-up: dynamic first hour, stickiness, first-review a11y
 
 **Outcome.** SecureNow Home Start here follows capture status on the first-hour table (cloud connections or Changes and drift for the latest snapshot). Return-home names the latest capture when Home has not recorded a last-opened snapshot. The first-review open-gate starter adds the not-this-review line and describes the primary CTA for assistive tech. Pricing FAQ link has an explicit accessible name. Home environment context passes stickiness scope into capture delta again.

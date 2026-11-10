@@ -51,6 +51,8 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE,
+  SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
@@ -350,6 +352,7 @@ function PathExplanationSection(props: {
   readonly explanationError: string | null;
   readonly isGenerating: boolean;
   readonly useSimulator: boolean;
+  readonly agentExecutionModeLine: string | null;
   readonly generatedAt: Date | null;
   readonly nextStoredPathRankContext?: string | null;
   readonly onGenerate: () => void;
@@ -380,6 +383,14 @@ function PathExplanationSection(props: {
         <StatusTag kind="neutral" label={explanationTag} />
       </div>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{explanationLead}</p>
+      {props.agentExecutionModeLine !== null ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-explanation-execution-mode"
+        >
+          {props.agentExecutionModeLine}
+        </p>
+      ) : null}
       <Button
         type="button"
         variant="outline"
@@ -677,6 +688,12 @@ export function SecurityEvidencePathInspectPanel(props: {
     mode === "Real" && !isAgentExecutionModeLoading
       ? false
       : true;
+  const agentExecutionModeLine =
+    isAgentExecutionModeLoading || mode === null
+      ? null
+      : useSimulatorForExplanation
+        ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE
+        : SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE;
   const instancesQuery = useQuery({
     queryKey: ["remediation-instances", "by-finding", props.findingId],
     queryFn: () => fetchRemediationInstances({ findingId: props.findingId }),
@@ -961,6 +978,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             explanationError={explanationError}
             isGenerating={isGeneratingExplanation}
             useSimulator={useSimulatorForExplanation}
+            agentExecutionModeLine={agentExecutionModeLine}
             generatedAt={explanationGeneratedAt}
             nextStoredPathRankContext={pathRankQuery.data?.nextStoredPathRankContext ?? null}
             onGenerate={generateExplanation}

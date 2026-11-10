@@ -10,7 +10,6 @@ import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collecti
 import { useSecureNowLatestSucceededSnapshotId } from "@/hooks/use-securenow-latest-succeeded-snapshot-id";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { resolveSecureNowCollectionPrimaryBlocker } from "@/lib/product-line/securenow-collection-setup-checklist";
@@ -19,6 +18,12 @@ import {
   isSecureNowCollectionSetupComplete,
 } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SECURENOW_COLLECTION_SETUP_API_UNREACHABLE } from "@/lib/product-line/securenow-workspace-api-unreachable-copy";
+import {
+  resolveSecureNowCollectionReadyNextHref,
+  resolveSecureNowCollectionReadyNextLinkLabel,
+  SECURENOW_COLLECTION_READY_NEXT_LABEL,
+  SECURENOW_COLLECTION_READY_NEXT_SUMMARY,
+} from "@/lib/product-line/securenow-collection-setup-ready-copy";
 import { cn } from "@/lib/utils";
 
 export type SecureNowCollectionSetupStatusSectionProps = {
@@ -85,21 +90,15 @@ export function SecureNowCollectionSetupStatusSection(
               testIdPrefix={props.testIdPrefix}
             />
           ) : null}
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_READY_NEXT_SUMMARY}</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium">{SECURENOW_COLLECTION_READY_NEXT_LABEL}: </span>
             <Link
-              href={SECURENOW_REMEDIATION_FACTORY_PATH}
+              href={resolveSecureNowCollectionReadyNextHref(latestSnapshotQuery.latestSnapshotId)}
               className={OPERATOR_LINK.inline}
-              data-testid={`${props.testIdPrefix}-collection-ready-path-inspect-link`}
+              data-testid={`${props.testIdPrefix}-collection-ready-next-link`}
             >
-              Open Path inspect
-            </Link>
-            {" · "}
-            <Link
-              href={CLOUD_CONNECTIONS_PATH}
-              className={OPERATOR_LINK.inline}
-              data-testid={`${props.testIdPrefix}-collection-ready-cloud-connections-link`}
-            >
-              Cloud connections
+              {resolveSecureNowCollectionReadyNextLinkLabel(latestSnapshotQuery.latestSnapshotId)}
             </Link>
           </p>
         </div>

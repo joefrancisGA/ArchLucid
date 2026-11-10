@@ -75,7 +75,8 @@ describe("securenow stickiness", () => {
       {
         href: "/infrastructure/snapshots-drift?snapshotId=snap-1",
         label: "Latest capture on this workspace",
-        summary: "Snapshot snap-1. This is not a usage claim.",
+        summary:
+          "Snapshot snap-1. This is not a usage claim. Do this next: open this capture in Changes and drift.",
       },
     ]);
   });
@@ -135,7 +136,7 @@ describe("securenow stickiness", () => {
       {
         href: "/infrastructure/snapshots-drift?snapshotId=snap-1",
         label: "Last opened snapshot",
-        summary: "Snapshot snap-1. This is not a usage claim.",
+        summary: "Snapshot snap-1. This is not a usage claim. Do this next: reopen this capture.",
       },
     ]);
   });

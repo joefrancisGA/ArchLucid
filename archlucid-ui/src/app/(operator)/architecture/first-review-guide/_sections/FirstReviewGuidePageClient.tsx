@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FirstReviewOpenGateStarter } from "@/components/architecture/FirstReviewOpenGateStarter";
+import { FirstReviewSampleSealedPackageChecklist } from "@/components/architecture/FirstReviewSampleSealedPackageChecklist";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -407,6 +408,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
       <div className={OPERATOR_LAYOUT.sectionStack}>
         {!buyerPolishedShell ? firstReviewGuidePageHeader : null}
         <FirstReviewOpenGateStarter />
+        <FirstReviewSampleSealedPackageChecklist />
         {firstReviewGuideChecklistBody}
       </div>
 

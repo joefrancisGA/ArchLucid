@@ -106,6 +106,13 @@ export const ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     note: "Accepted by signed quote when converting from self-serve trial to a paid tier.",
   },
   {
+    id: "custom-pack-order",
+    label: "Custom evaluation or services pack",
+    status: "available",
+    href: "/pricing#pricing-quote-request",
+    note: "Accepted by signed quote or custom order form when scoped. Stripe checkout is not published.",
+  },
+  {
     id: "stripe-checkout",
     label: "Stripe checkout",
     status: "not-published",
