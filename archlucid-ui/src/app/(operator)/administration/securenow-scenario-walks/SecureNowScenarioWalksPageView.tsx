@@ -45,11 +45,13 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
                       {scenario.operatorHandoffLabel}
                     </Link>
                   </p>
-                ) : scenario.id === "fixture-path-02" ? (
+                ) : null}
+                {scenario.id === "fixture-path-02" ? (
                   <p className={OPERATOR_TYPOGRAPHY.body}>
                     <Link
                       className={OPERATOR_LINK.inline}
                       href={`/securenow-sample#${SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID}`}
+                      data-testid="securenow-scenario-walk-sample-fixture-path-02"
                     >
                       Open fixture-path-02 on the public sample
                     </Link>

@@ -60,7 +60,7 @@ export const SECURENOW_SCENARIO_WALKS: readonly SecureNowScenarioWalk[] = [
     buyerJob:
       "Walk a second synthetic ranked path (fixture-path-02) with a different hop pair on the public sample page.",
     honestLabel: "Synthetic fixture. Not a customer result.",
-    operatorHandoffHref: null,
-    operatorHandoffLabel: null,
+    operatorHandoffHref: "/security/remediation-factory?pathId=fixture-path-02",
+    operatorHandoffLabel: "Open fixture-path-02 in product",
   },
 ] as const;

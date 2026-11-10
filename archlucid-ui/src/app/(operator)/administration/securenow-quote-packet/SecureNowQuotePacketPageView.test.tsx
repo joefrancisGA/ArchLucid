@@ -8,12 +8,13 @@ describe("SecureNowQuotePacketPageView", () => {
     render(<SecureNowQuotePacketPageView />);
 
     expect(screen.getByTestId("securenow-quote-packet-page")).toBeInTheDocument();
-    expect(screen.getByText(/accepts SN-EVAL orders/)).toBeInTheDocument();
-    expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-quote-packet-sn-eval")).toBeInTheDocument();
+    expect(screen.getAllByText(/accepts SN-EVAL orders/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/NO_GO/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("This page cannot authorize commerce.")).toBeInTheDocument();
 
     for (const sku of ["SN-EVAL", "SN-ANNUAL", "SN-SUB-ADD", "SN-SNAP-4"]) {
-      expect(screen.getByText(sku)).toBeInTheDocument();
+      expect(screen.getAllByText(sku).length).toBeGreaterThanOrEqual(1);
     }
 
     for (const label of [

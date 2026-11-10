@@ -37,6 +37,15 @@ export function buildSecureNowAcceleratorIndexRows(input: {
       };
     }
 
+    if (row.href === "/administration/securenow-scenario-walks") {
+      return {
+        ...row,
+        href: "/administration/securenow-scenario-walks#fixture-path-02",
+        summary:
+          "Includes fixture-path-02 with an in-product Path inspect handoff. Synthetic — not a customer result.",
+      };
+    }
+
     return { ...row, recommendedFirst: false };
   });
 }

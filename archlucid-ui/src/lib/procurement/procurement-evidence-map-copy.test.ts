@@ -10,7 +10,7 @@ describe("procurement evidence map", () => {
     const row = ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS.find((entry) => entry.id === "al-eval-acceptance");
 
     expect(row?.status).toBe("available");
-    expect(row?.href).toBe("/pricing#pricing-quote-request");
+    expect(row?.href).toBe("/pricing#al-eval-acceptance");
     expect(row?.note).toMatch(/AL-EVAL/i);
   });
 

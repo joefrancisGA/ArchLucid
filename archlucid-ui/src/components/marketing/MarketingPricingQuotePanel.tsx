@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
 } from "@/lib/marketing-custom-policy-pack-authoring";
+import { PRICING_AL_EVAL_ACCEPTANCE_LINE } from "@/lib/marketing/pricing-al-eval-acceptance-copy";
 
 const MAX_MESSAGE_CHARS = 2000;
 const QUOTE_REQUEST_ERROR_MESSAGE = "We couldn't submit your request. Please try again.";
@@ -163,6 +164,13 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       <p className={cn("mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Submit your procurement details and our sales team will follow up within one business day (UTC weekdays) with
         next steps — most teams consolidate requirements over email before workspace provisioning begins.
+      </p>
+      <p
+        id="al-eval-acceptance"
+        data-testid="pricing-al-eval-acceptance"
+        className={cn("mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+      >
+        {PRICING_AL_EVAL_ACCEPTANCE_LINE}
       </p>
       {done ? (
         <p

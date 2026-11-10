@@ -13,6 +13,8 @@ import {
   SECURENOW_QUOTE_PACKET_LINKS,
   SECURENOW_QUOTE_PACKET_SEQUENCE,
   SECURENOW_QUOTE_PACKET_SKUS,
+  SECURENOW_QUOTE_PACKET_SN_EVAL_BODY,
+  SECURENOW_QUOTE_PACKET_SN_EVAL_HEADING,
 } from "@/lib/product-line/securenow-quote-packet-copy";
 
 export function SecureNowQuotePacketPageView(): React.JSX.Element {
@@ -21,6 +23,18 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_QUOTE_PACKET_HEADING} subtitle={SECURENOW_QUOTE_PACKET_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        <section
+          id="sn-eval"
+          aria-labelledby="securenow-quote-packet-sn-eval-heading"
+          className="space-y-2"
+          data-testid="securenow-quote-packet-sn-eval"
+        >
+          <h2 id="securenow-quote-packet-sn-eval-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {SECURENOW_QUOTE_PACKET_SN_EVAL_HEADING}
+          </h2>
+          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_QUOTE_PACKET_SN_EVAL_BODY}</p>
+        </section>
+
         <section aria-labelledby="securenow-quote-packet-skus-heading" className="space-y-2">
           <h2 id="securenow-quote-packet-skus-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             SKU identifiers and meters
