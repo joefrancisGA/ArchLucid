@@ -58,60 +58,48 @@ internal static class IntegrationTestArchitectureVersionPinSupport
         ArchitectureRequest? request = await TryLoadArchitectureRequestAsync(services, header, cancellationToken);
 
         if (request is null)
-            return;
-
-        if (header.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
         {
-            IArchitectureRunCreateIdentityLinkHook? identityLink =
-                services.GetService<IArchitectureRunCreateIdentityLinkHook>();
-
-            if (identityLink is not null)
-            {
-                await identityLink.TryLinkReviewRunArchitectureIdentityAsync(request, runId, cancellationToken);
-                header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
-
-                if (header is null)
-                    return;
-            }
+            throw new InvalidOperationException(
+                $"Run '{runId}' has no resolvable architecture request (ArchitectureRequestId='{header.ArchitectureRequestId}').");
         }
 
-        architectureId = header.ArchitectureId ?? Guid.Empty;
+        await EnsureArchitectureIdentityLinkedForBackfillAsync(services, runId, runGuid, request, cancellationToken);
+
+        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken)
+            ?? throw new InvalidOperationException($"Run '{runId}' was not found after architecture identity link.");
+
+        Guid architectureId = header.ArchitectureId ?? Guid.Empty;
 
         if (architectureId == Guid.Empty)
-            return;
+        {
+            throw new InvalidOperationException($"Run '{runId}' is missing ArchitectureId after identity link backfill.");
+        }
 
         IArchitectureKnowledgeModelAccess knowledgeModelAccess =
             services.GetRequiredService<IArchitectureKnowledgeModelAccess>();
         ArchitectureKnowledgeModel? knowledgeModel = await knowledgeModelAccess
             .GetForRunAsync(DefaultScope, runGuid, cancellationToken);
 
-        bool headerMutated = false;
-
-        if (HasIncompleteCreateTimePinFingerprints(header))
+        if (IsPolicyOrEvidencePinMissing(header))
         {
-            IRunCreatePinOrchestrator? createPinOrchestrator = services.GetService<IRunCreatePinOrchestrator>();
+            IRunCreatePinOrchestrator createPinOrchestrator =
+                services.GetRequiredService<IRunCreatePinOrchestrator>();
 
-            if (createPinOrchestrator is not null)
-            {
-                await createPinOrchestrator
-                    .ApplyCreateTimePinsAsync(header, DefaultScope, request, cancellationToken);
-                headerMutated = true;
-            }
-
-            if (knowledgeModel is not null)
-            {
-                RunHeaderKnowledgeModelContentPin.ApplyToHeader(
-                    header,
-                    knowledgeModel,
-                    knowledgeModel.ModelId ?? header.KnowledgeModelId);
-                headerMutated = true;
-            }
-
-            if (headerMutated)
-                await runRepository.UpdateAsync(header, cancellationToken);
+            await createPinOrchestrator
+                .ApplyCreateTimePinsAsync(header, DefaultScope, request, cancellationToken);
+            await runRepository.UpdateAsync(header, cancellationToken);
+            header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
         }
 
-        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
+        if (HasIncompleteCreateTimePinFingerprints(header) && knowledgeModel is not null)
+        {
+            RunHeaderKnowledgeModelContentPin.ApplyToHeader(
+                header,
+                knowledgeModel,
+                knowledgeModel.ModelId ?? header.KnowledgeModelId);
+            await runRepository.UpdateAsync(header, cancellationToken);
+            header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
+        }
 
         IArchitectureVersionKnowledgeModelPinSync? pinSync =
             services.GetService<IArchitectureVersionKnowledgeModelPinSync>();
@@ -132,10 +120,7 @@ internal static class IntegrationTestArchitectureVersionPinSupport
                 cancellationToken);
         }
 
-        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
-
-        if (header is null)
-            return;
+        header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
 
         knowledgeModel ??= await knowledgeModelAccess.GetForRunAsync(DefaultScope, runGuid, cancellationToken);
 
@@ -146,7 +131,49 @@ internal static class IntegrationTestArchitectureVersionPinSupport
                 knowledgeModel,
                 knowledgeModel.ModelId ?? header.KnowledgeModelId);
             await runRepository.UpdateAsync(header, cancellationToken);
+            header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken) ?? header;
         }
+
+        if (header is not null && HasIncompleteCreateTimePinFingerprints(header))
+        {
+            throw new InvalidOperationException(
+                $"Run '{runId}' still has incomplete create-time pin fingerprints after backfill: {DescribeMissingPins(header)}.");
+        }
+    }
+
+    private static async Task EnsureArchitectureIdentityLinkedForBackfillAsync(
+        IServiceProvider services,
+        string runId,
+        Guid runGuid,
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        IRunRepository runRepository = services.GetRequiredService<IRunRepository>();
+        RunRecord? header = await runRepository.GetByIdAsync(DefaultScope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+        if (header.ArchitectureId is Guid architectureId && architectureId != Guid.Empty)
+            return;
+
+        IArchitectureRunCreateIdentityLinkHook? identityLink =
+            services.GetService<IArchitectureRunCreateIdentityLinkHook>();
+
+        if (identityLink is not null)
+        {
+            await identityLink.TryLinkReviewRunArchitectureIdentityAsync(request, runId, cancellationToken);
+
+            return;
+        }
+
+        IArchitectureIdentityService identityService = services.GetRequiredService<IArchitectureIdentityService>();
+        await identityService.TryEnsureReviewRunLinkedAsync(
+            DefaultScope,
+            runGuid,
+            request,
+            header.KnowledgeModelId,
+            cancellationToken);
     }
 
     private static async Task<ArchitectureRequest?> TryLoadArchitectureRequestAsync(
@@ -163,11 +190,36 @@ internal static class IntegrationTestArchitectureVersionPinSupport
         return await requestRepository.GetByIdAsync(header.ArchitectureRequestId, cancellationToken);
     }
 
+    private static bool IsPolicyOrEvidencePinMissing(RunRecord header)
+    {
+        return header.PinnedPolicyPackIdsHashSha256 is null or { Length: 0 }
+               || header.PinnedEvidencePackagePinsHashSha256 is null or { Length: 0 };
+    }
+
     private static bool HasIncompleteCreateTimePinFingerprints(RunRecord header)
     {
         return header.PinnedPolicyPackIdsHashSha256 is null or { Length: 0 }
                || header.PinnedEvidencePackagePinsHashSha256 is null or { Length: 0 }
                || header.PinnedArchitectureVersionContentHashSha256 is null or { Length: 0 }
                || header.PinnedKnowledgeModelContentHashSha256 is null or { Length: 0 };
+    }
+
+    private static string DescribeMissingPins(RunRecord header)
+    {
+        List<string> missing = [];
+
+        if (header.PinnedPolicyPackIdsHashSha256 is null or { Length: 0 })
+            missing.Add(nameof(RunRecord.PinnedPolicyPackIdsHashSha256));
+
+        if (header.PinnedEvidencePackagePinsHashSha256 is null or { Length: 0 })
+            missing.Add(nameof(RunRecord.PinnedEvidencePackagePinsHashSha256));
+
+        if (header.PinnedArchitectureVersionContentHashSha256 is null or { Length: 0 })
+            missing.Add(nameof(RunRecord.PinnedArchitectureVersionContentHashSha256));
+
+        if (header.PinnedKnowledgeModelContentHashSha256 is null or { Length: 0 })
+            missing.Add(nameof(RunRecord.PinnedKnowledgeModelContentHashSha256));
+
+        return string.Join(", ", missing);
     }
 }
