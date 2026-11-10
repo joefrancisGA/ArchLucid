@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twenty-five facts).
+    ///     Single entry point for Api.Tests harness golden-path source-scan guards (<c>Suite=Core</c>, twenty-eight facts).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class IntegrationTestHarnessGoldenPathGuardTests
@@ -142,10 +142,31 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Harness_tests_do_not_assert_HttpStatusCode_OK_before_ReadJsonForTestAsync()
+    public void Harness_tests_do_not_assert_status_code_before_ReadJsonForTestAsync()
     {
-        IntegrationTestHarnessGoldenPathGuardSupport.ScanOkStatusAssertionBeforeReadJson().Should().BeEmpty(
-            "ReadJsonForTestAsync already asserts success; drop redundant StatusCode.Should().Be(HttpStatusCode.OK) on the line above.");
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanStatusCodeAssertionBeforeReadJson().Should().BeEmpty(
+            "ReadJsonForTestAsync already asserts success; drop redundant StatusCode.Should().Be(...) on the line above.");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_call_FinalizeLifecycleAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanFinalizeLifecycleAsyncUsage().Should().BeEmpty(
+            "use ArrangeFinalizedAsync instead of the removed FinalizeLifecycleAsync synonym.");
+    }
+
+    [Fact]
+    public void IntegrationTestBase_fixtures_use_TestRequestIds_for_CreateFinalizedRunAsync()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateFinalizedRunWithoutTestRequestIdsOnFixtures().Should().BeEmpty(
+            "use ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync instead of CreateFinalizedRunAsync(variable).");
+    }
+
+    [Fact]
+    public void Harness_tests_do_not_use_literal_Idempotency_Key_header_values()
+    {
+        IntegrationTestHarnessGoldenPathGuardSupport.ScanLiteralIdempotencyHeaderValuesInHarnessTests().Should().BeEmpty(
+            "use TestRequestIds.IdempotencyKey(prefix) or CreateArchitectureRequestMessage(body, key).");
     }
 
     [Fact]
@@ -177,9 +198,19 @@ public sealed class IntegrationTestHarnessGoldenPathGuardTests
     }
 
     [Fact]
-    public void Guard_catalog_lists_twenty_five_scanners()
+    public void Guard_catalog_lists_twenty_eight_scanners()
     {
-        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(25);
+        IntegrationTestHarnessGoldenPathGuardCatalog.Facts.Should().HaveCount(28);
+    }
+
+    [Fact]
+    public void Guard_catalog_fact_numbers_are_sequential_and_unique()
+    {
+        IReadOnlyList<IntegrationTestHarnessGoldenPathGuardCatalog.HarnessGuardFact> facts =
+            IntegrationTestHarnessGoldenPathGuardCatalog.Facts;
+
+        facts.Select(static f => f.Number).Should().OnlyHaveUniqueItems().And.BeInAscendingOrder();
+        facts.Last().Number.Should().Be(facts.Count);
     }
 
     [Fact]

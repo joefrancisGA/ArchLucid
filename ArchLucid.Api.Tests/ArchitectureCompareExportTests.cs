@@ -15,7 +15,7 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
     [SkippableFact]
     public async Task CompareManifestsExport_ReturnsMarkdownExport()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureCompareExportTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureCompareExportTests));
         const string requestedReplayManifestVersion = "v1-replay";
 
         string rightVersion = await Replay.CommitReplayManifestVersionAsync(
@@ -25,8 +25,6 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
 
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/manifest/compare/export?leftVersion={Uri.EscapeDataString(finalized.ManifestVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
 
         ManifestCompareExportResponse payload =
             await response.ReadJsonForTestAsync<ManifestCompareExportResponse>(JsonOptions);

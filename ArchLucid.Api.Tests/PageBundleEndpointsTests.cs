@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Runs;
 using ArchLucid.Api.Tests.TestDtos;
@@ -22,13 +21,10 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/roi/sponsor-dashboard-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        SponsorDashboardBundleResponse body =
+            await response.ReadJsonForTestAsync<SponsorDashboardBundleResponse>(JsonOptions);
 
-        SponsorDashboardBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<SponsorDashboardBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.SponsorReport.Should().NotBeNull();
+        body.SponsorReport.Should().NotBeNull();
         body.ComplianceDriftTrend.Should().NotBeNull();
     }
 
@@ -37,13 +33,10 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/policy-packs/page-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPacksPageBundleResponse body =
+            await response.ReadJsonForTestAsync<PolicyPacksPageBundleResponse>(JsonOptions);
 
-        PolicyPacksPageBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<PolicyPacksPageBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.Packs.Should().NotBeNull();
+        body.Packs.Should().NotBeNull();
         body.Effective.Should().NotBeNull();
         body.EffectiveContent.Should().NotBeNull();
     }
@@ -53,13 +46,10 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/integrations/teams/page-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        TeamsIncomingWebhookPageBundleResponse body =
+            await response.ReadJsonForTestAsync<TeamsIncomingWebhookPageBundleResponse>(JsonOptions);
 
-        TeamsIncomingWebhookPageBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<TeamsIncomingWebhookPageBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.Connection.Should().NotBeNull();
+        body.Connection.Should().NotBeNull();
         body.TriggerCatalog.Should().NotBeNull();
     }
 
@@ -68,13 +58,10 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/governance/findings-registers-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        GovernanceFindingsRegistersBundleResponse body =
+            await response.ReadJsonForTestAsync<GovernanceFindingsRegistersBundleResponse>(JsonOptions);
 
-        GovernanceFindingsRegistersBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<GovernanceFindingsRegistersBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.RiskRegister.Should().NotBeNull();
+        body.RiskRegister.Should().NotBeNull();
         body.DecisionRegister.Should().NotBeNull();
     }
 
@@ -83,13 +70,10 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/integrations/itsm/jira/page-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        ItsmProviderIntegrationPageBundleResponse body =
+            await response.ReadJsonForTestAsync<ItsmProviderIntegrationPageBundleResponse>(JsonOptions);
 
-        ItsmProviderIntegrationPageBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<ItsmProviderIntegrationPageBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.Health.Should().NotBeNull();
+        body.Health.Should().NotBeNull();
         body.Settings.Should().NotBeNull();
         body.Connection.Should().NotBeNull();
     }
@@ -108,14 +92,11 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         HttpResponseMessage response =
             await Client.GetAsync("/v1/admin/diagnostics/identity-providers-page-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ArchLucid.Api.Models.Admin.AdminIdentityProvidersPageBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<ArchLucid.Api.Models.Admin.AdminIdentityProvidersPageBundleResponse>(
+        ArchLucid.Api.Models.Admin.AdminIdentityProvidersPageBundleResponse body =
+            await response.ReadJsonForTestAsync<ArchLucid.Api.Models.Admin.AdminIdentityProvidersPageBundleResponse>(
                 JsonOptions);
 
-        body.Should().NotBeNull();
-        body!.IdentityProviderDiagnostics.Should().NotBeNull();
+        body.IdentityProviderDiagnostics.Should().NotBeNull();
         body.AuthConfigurationDiagnostics.Should().NotBeNull();
         body.OidcDiagnostics.Should().NotBeNull();
         body.SamlOperationalHealth.Should().NotBeNull();
@@ -126,13 +107,10 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/governance/setup-guide-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        GovernanceSetupGuideBundleResponse body =
+            await response.ReadJsonForTestAsync<GovernanceSetupGuideBundleResponse>(JsonOptions);
 
-        GovernanceSetupGuideBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<GovernanceSetupGuideBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.EffectivePolicyPacks.Should().NotBeNull();
+        body.EffectivePolicyPacks.Should().NotBeNull();
         body.AlertRoutingSubscriptions.Should().NotBeNull();
     }
 
@@ -141,12 +119,7 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/alerts/inbox/workspace-context");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        AlertsInboxWorkspaceContextResponse? body =
-            await response.Content.ReadFromJsonAsync<AlertsInboxWorkspaceContextResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
+        await response.ReadJsonForTestAsync<AlertsInboxWorkspaceContextResponse>(JsonOptions);
     }
 
     [SkippableFact]
@@ -154,14 +127,11 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/tenant/roi-summary-page-bundle?rollingDays=30");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        ArchLucid.Api.Models.Tenancy.TenantRoiSummaryPageBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<ArchLucid.Api.Models.Tenancy.TenantRoiSummaryPageBundleResponse>(
+        ArchLucid.Api.Models.Tenancy.TenantRoiSummaryPageBundleResponse body =
+            await response.ReadJsonForTestAsync<ArchLucid.Api.Models.Tenancy.TenantRoiSummaryPageBundleResponse>(
                 JsonOptions);
 
-        body.Should().NotBeNull();
-        body!.PilotToDate.Should().NotBeNull();
+        body.PilotToDate.Should().NotBeNull();
         body.RollingWindow.Should().NotBeNull();
         body.PilotToDatePreCommitBlocks.Should().NotBeNull();
         body.RollingWindowPreCommitBlocks.Should().NotBeNull();
@@ -181,23 +151,19 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(PageBundleEndpointsTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runId = Guid.Parse(created!.Run.RunId);
+        CreateRunResponseDto created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        Guid runId = Guid.Parse(created.Run.RunId);
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId.ToString("D"));
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/critical-page-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        RunDetailCriticalPageBundleResponse body =
+            await response.ReadJsonForTestAsync<RunDetailCriticalPageBundleResponse>(JsonOptions);
 
-        RunDetailCriticalPageBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<RunDetailCriticalPageBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.BuyerSummary.Should().NotBeNull();
+        body.BuyerSummary.Should().NotBeNull();
         body.BuyerSummary.Run.RunId.Should().Be(runId);
         body.ProgressSummary.Should().NotBeNull();
     }
@@ -207,23 +173,19 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(PageBundleEndpointsTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runId = Guid.Parse(created!.Run.RunId);
+        CreateRunResponseDto created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        Guid runId = Guid.Parse(created.Run.RunId);
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId.ToString("D"));
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/timelines-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        RunDetailTimelinesBundleResponse body =
+            await response.ReadJsonForTestAsync<RunDetailTimelinesBundleResponse>(JsonOptions);
 
-        RunDetailTimelinesBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<RunDetailTimelinesBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.PipelineTimeline.Should().NotBeNull();
+        body.PipelineTimeline.Should().NotBeNull();
         body.StageTimeline.Should().NotBeNull();
     }
 
@@ -232,22 +194,18 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(PageBundleEndpointsTests))));
 
-        await createResponse.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created =
-            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runId = Guid.Parse(created!.Run.RunId);
+        CreateRunResponseDto created =
+            await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        Guid runId = Guid.Parse(created.Run.RunId);
 
         await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId.ToString("D"));
 
         HttpResponseMessage response =
             await Client.GetAsync($"/v1/authority/reviews/{runId:D}/workspace-context-bundle");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        RunDetailWorkspaceContextBundleResponse body =
+            await response.ReadJsonForTestAsync<RunDetailWorkspaceContextBundleResponse>(JsonOptions);
 
-        RunDetailWorkspaceContextBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<RunDetailWorkspaceContextBundleResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body!.RecentProjectRuns.Should().NotBeNull();
+        body.RecentProjectRuns.Should().NotBeNull();
     }
 }

@@ -59,6 +59,10 @@ public sealed class ReplaySession
     public Task<CommittedReplayPair> OpenCommittedPairAsync(string requestId) =>
         CommitAndReplayAsync(requestId);
 
+    /// <summary><see cref="OpenCommittedPairAsync" /> with <see cref="TestRequestIds.ForScenario" /> from the test class name.</summary>
+    public Task<CommittedReplayPair> OpenCommittedPairForScenario(string scenario) =>
+        OpenCommittedPairAsync(TestRequestIds.ForScenario(scenario));
+
     public async Task<string> ReplayWithoutCommitAsync(string runId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);

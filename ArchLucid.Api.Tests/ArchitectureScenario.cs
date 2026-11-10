@@ -10,16 +10,18 @@ public static class ArchitectureScenario
         ArchLucidApiFactory factory,
         JsonSerializerOptions jsonOptions,
         string scenario,
+        string testMethod = "",
         CancellationToken cancellationToken = default) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(
             client,
             factory,
             jsonOptions,
-            TestRequestIds.ForScenario(scenario),
+            TestRequestIds.ForScenario(scenario, testMethod),
             cancellationToken);
 
     public static Task<CommittedReplayPair> CommittedPairAsync(
         ReplaySession replay,
-        string scenario) =>
-        replay.OpenCommittedPairAsync(TestRequestIds.ForScenario(scenario));
+        string scenario,
+        string testMethod = "") =>
+        replay.OpenCommittedPairAsync(TestRequestIds.ForScenario(scenario, testMethod));
 }

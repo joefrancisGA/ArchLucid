@@ -28,9 +28,12 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(21, "hardcoded REQ intake ids", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanHardcodedRequestIdsInHarnessTests)),
         new(22, "allowlist comment markers", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanAllowlistCommentMarkersPresent)),
         new(23, "PostExecuteForTestAsync without pin refresh on IntegrationTestBase", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanPostExecuteWithoutPinInIntegrationTestBase)),
-        new(24, "HttpStatusCode.OK Should before ReadJsonForTestAsync", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanOkStatusAssertionBeforeReadJson)),
+        new(24, "StatusCode Should before ReadJsonForTestAsync", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanStatusCodeAssertionBeforeReadJson)),
         new(25, "IntegrationTestIsolatedSqlScope inside IntegrationTestBase", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanIsolatedSqlScopeInsideIntegrationTestBase)),
+        new(26, "FinalizeLifecycleAsync synonym", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanFinalizeLifecycleAsyncUsage), "use ArrangeFinalizedAsync"),
+        new(27, "CreateFinalizedRunAsync without TestRequestIds", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateFinalizedRunWithoutTestRequestIdsOnFixtures), "use ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync"),
+        new(28, "literal Idempotency-Key header values", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanLiteralIdempotencyHeaderValuesInHarnessTests), "use TestRequestIds.IdempotencyKey(prefix)"),
     ];
 
-    internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName);
+    internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);
 }

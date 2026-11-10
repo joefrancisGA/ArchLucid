@@ -9,6 +9,10 @@ public static class TestRequestIds
     public static string ForScenario(string scenario, [CallerMemberName] string testMethod = "") =>
         $"REQ-{Sanitize(scenario)}-{Sanitize(testMethod)}";
 
+    /// <summary>Unique idempotency key prefix for parallel SQL intake tests.</summary>
+    public static string IdempotencyKey(string prefix) =>
+        $"{Sanitize(prefix)}-{Guid.NewGuid():N}";
+
     private static string Sanitize(string value)
     {
         if (string.IsNullOrWhiteSpace(value))

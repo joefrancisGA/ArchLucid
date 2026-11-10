@@ -88,7 +88,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Sum of unique allowlisted harness source files across all guard sets (growth ratchet).</summary>
-    internal const int MaxHarnessAllowlistedSourceFiles = 41;
+    internal const int MaxHarnessAllowlistedSourceFiles = 40;
 
     private static readonly Regex TupleReturnTypeRegex = new(
         @"Task<\(\s*string\s+\w+\s*,\s*string\s+\w+\s*\)>",
@@ -106,8 +106,20 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"""(REQ-[A-Z][A-Z0-9-]{4,})""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private static readonly Regex OkStatusBeforeReadJsonRegex = new(
-        @"\.StatusCode\.Should\(\)\.Be\(\s*HttpStatusCode\.OK[^;]*;\s*\r?\n\s*\w+\?\s+\w+\s*=\s*await\s+\w+\.ReadJsonForTestAsync",
+    private static readonly Regex StatusCodeAssertionBeforeReadJsonRegex = new(
+        @"\.StatusCode\.Should\(\)\.Be\([^;]+;\s*\r?\n\s*(?:\w+\?\s+)?\w+.*=.*await\s+\w+\.ReadJsonForTestAsync",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex FinalizeLifecycleAsyncRegex = new(
+        @"\bFinalizeLifecycleAsync\s*\(",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex CreateFinalizedRunCallRegex = new(
+        @"\bCreateFinalizedRunAsync\s*\(\s*([^)\r\n]+)\)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex LiteralIdempotencyHeaderRegex = new(
+        @"(?:TryAddWithoutValidation|Add)\s*\(\s*""Idempotency-Key""\s*,\s*""[^""]+""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex ReviewReplayCallRegex = new(
@@ -234,7 +246,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
         nameof(LearningControllerTests) + ".cs",
-        nameof(PageBundleEndpointsTests) + ".cs",
         nameof(PolicyPacksIntegrationTests) + ".cs",
         nameof(ProductLearningControllerTests) + ".cs",
         "SecurityCommittedRunSeed.cs",
@@ -492,11 +503,74 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         return violations;
     }
 
-    internal static List<string> ScanOkStatusAssertionBeforeReadJson()
+    internal static List<string> ScanStatusCodeAssertionBeforeReadJson()
     {
         return ScanContentViolations(
             LifecycleSupportExclusions,
-            static content => IsHarnessTestSource(content) && OkStatusBeforeReadJsonRegex.IsMatch(content));
+            static content => IsHarnessTestSource(content) && StatusCodeAssertionBeforeReadJsonRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanFinalizeLifecycleAsyncUsage()
+    {
+        return ScanContentViolations(
+            LifecycleSupportExclusions,
+            static content => FinalizeLifecycleAsyncRegex.IsMatch(content));
+    }
+
+    internal static List<string> ScanCreateFinalizedRunWithoutTestRequestIdsOnFixtures()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            if (string.Equals(Path.GetFileName(path), nameof(IntegrationTestBase) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            foreach (Match match in CreateFinalizedRunCallRegex.Matches(content))
+            {
+                string argument = match.Groups[1].Value.Trim();
+
+                if (argument.StartsWith("TestRequestIds.", StringComparison.Ordinal))
+                    continue;
+
+                violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+                break;
+            }
+        }
+
+        return violations;
+    }
+
+    internal static List<string> ScanLiteralIdempotencyHeaderValuesInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (string.Equals(fileName, nameof(ArchitectureControllerTests) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!LiteralIdempotencyHeaderRegex.IsMatch(content))
+                continue;
+
+            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+        }
+
+        return violations;
     }
 
     internal static List<string> ScanPostExecuteWithoutPinInIntegrationTestBase()

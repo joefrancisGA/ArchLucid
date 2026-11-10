@@ -14,8 +14,7 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task Golden_path_intake_through_end_to_end_export_markdown()
     {
-        CommittedReplayPair pair = await Replay.OpenCommittedPairAsync(
-            TestRequestIds.ForScenario(nameof(HarnessGoldenPathSmokeTests)));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(HarnessGoldenPathSmokeTests));
 
         PersistedComparison persisted = await Client.PostPersistEndToEndComparisonForTestAsync(pair.RunId, pair.ReplayRunId);
         persisted.ComparisonRecordId.Should().NotBeNullOrWhiteSpace(); // struct field from PostPersist header

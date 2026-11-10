@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -70,6 +71,9 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task PostExecuteWithPinsAsync(string runId) =>
         Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
 
+    /// <summary>Preferred name for <see cref="PostExecuteWithPinsAsync" /> on fixture tests.</summary>
+    protected Task ExecuteForTestAsync(string runId) => PostExecuteWithPinsAsync(runId);
+
     /// <summary>Finalize with κ pin refresh.</summary>
     protected Task<HttpResponseMessage> FinalizeRunAsync(string runId, HttpContent? body = null) =>
         Client.PostFinalizeForTestAsync(Factory, runId, body);
@@ -78,17 +82,23 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected Task<FinalizedRun> CreateFinalizedRunAsync(string requestId) =>
         IntegrationTestRunLifecycleSupport.CreateFinalizedRunForTestAsync(Client, Factory, JsonOptions, requestId);
 
-    /// <summary>Preferred alias: create → execute → finalize (<see cref="CreateFinalizedRunAsync" />).</summary>
-    protected Task<FinalizedRun> FinalizeLifecycleAsync(string scenario) =>
-        ArchitectureScenario.FinalizedAsync(Client, Factory, JsonOptions, scenario);
+    /// <summary>Create → execute → finalize with a parallel-safe request id from <paramref name="scenario" /> and the calling test.</summary>
+    protected Task<FinalizedRun> ArrangeFinalizedAsync(
+        string scenario,
+        [CallerMemberName] string testMethod = "") =>
+        ArchitectureScenario.FinalizedAsync(Client, Factory, JsonOptions, scenario, testMethod);
 
-    /// <summary>Same as <see cref="FinalizeLifecycleAsync" />; prefer in new tests for readable arrange.</summary>
-    protected Task<FinalizedRun> ArrangeFinalizedAsync(string scenario) =>
-        FinalizeLifecycleAsync(scenario);
+    /// <summary>Finalize + commit-replay pair for comparison / export tests.</summary>
+    protected Task<CommittedReplayPair> ArrangeCommittedPairAsync(
+        string scenario,
+        [CallerMemberName] string testMethod = "") =>
+        Replay.OpenCommittedPairAsync(TestRequestIds.ForScenario(scenario, testMethod));
 
     /// <summary>Governance arrange: finalized (committed) run via <see cref="GovernanceScenario" />.</summary>
-    protected Task<FinalizedRun> ArrangeGovernanceCommittedAsync(string scenario) =>
-        GovernanceScenario.CommittedAsync(Client, Factory, JsonOptions, scenario);
+    protected Task<FinalizedRun> ArrangeGovernanceCommittedAsync(
+        string scenario,
+        [CallerMemberName] string testMethod = "") =>
+        GovernanceScenario.CommittedAsync(Client, Factory, JsonOptions, scenario, testMethod);
 
     /// <summary>POST <c>/v1/architecture/comparisons/{comparisonRecordId}/replay</c>.</summary>
     protected Task<HttpResponseMessage> PostComparisonReplayAsync(string comparisonRecordId, string format = "markdown") =>

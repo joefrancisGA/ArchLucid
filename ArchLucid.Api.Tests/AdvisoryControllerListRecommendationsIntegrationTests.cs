@@ -33,7 +33,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRecommendations_after_commit_before_improvements_returns_ok_empty_array()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(AdvisoryControllerListRecommendationsIntegrationTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AdvisoryControllerListRecommendationsIntegrationTests));
         HttpResponseMessage response = await Client.GetAsync($"/v1/advisory/runs/{finalized.RunId}/recommendations");        AdvisoryRunRecommendationsListResponse? payload =
             await response.ReadJsonForTestAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
@@ -44,7 +44,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
     [SkippableFact]
     public async Task ListRecommendations_after_improvements_includes_finding_source_evidence_links()
     {
-        FinalizedRun finalized = await CreateFinalizedRunAsync(TestRequestIds.ForScenario(nameof(AdvisoryControllerListRecommendationsIntegrationTests)));
+        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(AdvisoryControllerListRecommendationsIntegrationTests));
 
         HttpResponseMessage improvementsResponse =
             await Client.GetAsync($"/v1/advisory/runs/{finalized.RunId}/improvements");

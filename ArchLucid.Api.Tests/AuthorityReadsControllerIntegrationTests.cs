@@ -1,9 +1,7 @@
 using System.Net;
-using System.Net.Http.Json;
+using System.Text.Json;
 
 using FluentAssertions;
-
-using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -33,11 +31,10 @@ public sealed class AuthorityReadsControllerIntegrationTests(ArchLucidApiFactory
         Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc02");
         HttpResponseMessage response = await Client.GetAsync($"/v1/runs/{missing:D}");
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-        MvcProblemDetails? problem = await response.ReadJsonForTestAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.RunNotFound);
+        JsonDocument problem = await response.AssertProblemForTestAsync(
+            HttpStatusCode.NotFound,
+            ProblemTypes.RunNotFound);
+        problem.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.RunNotFound);
     }
 
     [SkippableFact]
