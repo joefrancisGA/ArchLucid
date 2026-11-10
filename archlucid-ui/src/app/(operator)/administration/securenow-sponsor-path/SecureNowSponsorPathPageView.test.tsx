@@ -25,6 +25,13 @@ describe("SecureNowSponsorPathPageView", () => {
     persist.mockResolvedValue({ status: "saved", tenantAuditRecorded: true });
   });
 
+  it("shows the synthetic ROI walkthrough beside trust links", () => {
+    render(<SecureNowSponsorPathPageView />);
+
+    expect(screen.getByTestId("securenow-sponsor-path-synthetic-roi")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-procurement-trust-strip")).toBeInTheDocument();
+  });
+
   it("shows tenant audit confirmation after a successful save", async () => {
     render(<SecureNowSponsorPathPageView />);
 

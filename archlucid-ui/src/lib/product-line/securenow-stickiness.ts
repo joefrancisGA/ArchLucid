@@ -188,7 +188,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: "/security/remediation-instances",
       label: "Awaiting verification",
-      summary: `${input.awaitingVerificationCount} remediation instance${input.awaitingVerificationCount === 1 ? "" : "s"} still lack a later verification capture.`,
+      summary: `${input.awaitingVerificationCount} remediation instance${input.awaitingVerificationCount === 1 ? "" : "s"} still lack a later verification capture. Do this next: open Remediation instances.`,
     });
   }
 
@@ -196,7 +196,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: "/infrastructure/snapshots-drift",
       label: "Recent changes",
-      summary: `${input.addedCount} path id${input.addedCount === 1 ? "" : "s"} added and ${input.goneCount} gone since the previous successful capture.`,
+      summary: `${input.addedCount} path id${input.addedCount === 1 ? "" : "s"} added and ${input.goneCount} gone since the previous successful capture. Do this next: compare captures.`,
     });
   }
 
@@ -207,7 +207,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(latestSnapshotId)}`,
       label: "Latest capture on this workspace",
-      summary: `Snapshot ${latestSnapshotId}. ${SECURENOW_STICKINESS_NOT_USAGE_CLAIM}`,
+      summary: `Snapshot ${latestSnapshotId}. ${SECURENOW_STICKINESS_NOT_USAGE_CLAIM} Do this next: open this capture in Changes and drift.`,
     });
   }
 
@@ -215,7 +215,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(lastOpenedSnapshotId)}`,
       label: "Last opened snapshot",
-      summary: `Snapshot ${lastOpenedSnapshotId}. ${SECURENOW_STICKINESS_NOT_USAGE_CLAIM}`,
+      summary: `Snapshot ${lastOpenedSnapshotId}. ${SECURENOW_STICKINESS_NOT_USAGE_CLAIM} Do this next: reopen this capture.`,
     });
   }
 
@@ -227,7 +227,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: `/infrastructure/snapshots-drift?snapshotId=${encodeURIComponent(latestSnapshotId)}`,
       label: "New capture since you last opened Home",
-      summary: "A newer successful capture is on this workspace. This is not a usage score.",
+      summary: "A newer successful capture is on this workspace. This is not a usage score. Do this next: open the newer capture.",
     });
   }
 
@@ -235,7 +235,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: secureNowPathInspectHref(input.pinnedPathId),
       label: "Watched path",
-      summary: pinnedPathSummary(input.pinnedPathId, input.pinnedPathStatus),
+      summary: `${pinnedPathSummary(input.pinnedPathId, input.pinnedPathStatus)} Do this next: open Path inspect for this path.`,
     });
   }
 
@@ -243,7 +243,7 @@ export function buildSecureNowReturnHomeRows(
     rows.push({
       href: "/administration/securenow-pilot-decision",
       label: "Sponsor follow-up",
-      summary: `${input.extendDispositionCount} Extend disposition${input.extendDispositionCount === 1 ? "" : "s"} in this browser cache. Confirm the follow-up on the pilot decision page.`,
+      summary: `${input.extendDispositionCount} Extend disposition${input.extendDispositionCount === 1 ? "" : "s"} in this browser cache. Do this next: confirm follow-up on the pilot decision page.`,
     });
   }
 

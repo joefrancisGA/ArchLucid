@@ -6,6 +6,14 @@ import {
 } from "./procurement-evidence-map-copy";
 
 describe("procurement evidence map", () => {
+  it("includes ArchLucid custom pack order acceptance", () => {
+    const row = ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS.find((entry) => entry.id === "custom-pack-order");
+
+    expect(row?.status).toBe("available");
+    expect(row?.href).toBe("/pricing#pricing-quote-request");
+    expect(row?.note).toMatch(/signed quote/i);
+  });
+
   it("marks CPA SOC 2 and pen test as not published for both products", () => {
     for (const rows of [SECURENOW_PROCUREMENT_EVIDENCE_ROWS, ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS]) {
       const soc2 = rows.find((row) => row.id === "soc2-cpa");
