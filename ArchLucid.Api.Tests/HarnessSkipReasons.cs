@@ -7,4 +7,7 @@ public static class HarnessSkipReasons
 
     public const string AuthorityPipelineCompleteOnCreate =
         "authority-pipeline complete on create; execute idempotency test not applicable";
+
+    public const string AuthorityPipelineCompleteOnCreatePilot =
+        "authority-pipeline complete on create; pilot execute audit test not applicable";
 }

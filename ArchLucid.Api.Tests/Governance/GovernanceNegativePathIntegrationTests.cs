@@ -22,7 +22,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Self_approval_returns_governance_self_approval_problem_and_audit_tb297()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceNegativePathIntegrationTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -46,7 +46,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Reject_after_approve_returns_conflict_tb297()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceNegativePathIntegrationTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -77,7 +77,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Double_promote_to_prod_with_same_approval_returns_bad_request_tb297()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceNegativePathIntegrationTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -126,7 +126,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     [SkippableFact]
     public async Task Promote_with_stale_manifest_version_returns_bad_request_tb297()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceNegativePathIntegrationTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             committed.RunId,

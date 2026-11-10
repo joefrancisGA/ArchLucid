@@ -20,7 +20,7 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
         string requestId = TestRequestIds.ForScenario(nameof(ArchitectureSummaryTests));
         string systemName = TestRequestFactory.SystemNameForRequest(requestId);
 
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureSummaryTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
         HttpResponseMessage summaryResponse =
             await Client.GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary");

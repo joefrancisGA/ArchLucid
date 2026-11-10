@@ -19,7 +19,7 @@ public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : 
     {
         string runId = await CreateArchitectureRunAsync(TestRequestIds.ForScenario(nameof(ArchitectureDeterminismTests)));
 
-        await PostExecuteWithPinsAsync(runId);
+        await ExecuteForTestAsync(runId);
         var request = new { iterations = 3, executionMode = "Current", commitReplays = false };
 
         HttpResponseMessage response = await Client.PostAsync(

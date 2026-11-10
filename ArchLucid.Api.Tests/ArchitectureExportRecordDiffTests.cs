@@ -16,7 +16,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureExportRecordDiffTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         var executiveRequest = new
         {
             templateProfile = "sponsor",

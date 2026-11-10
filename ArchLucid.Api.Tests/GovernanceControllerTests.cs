@@ -38,7 +38,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task SubmitApprovalRequest_ValidRun_ReturnsOk()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage response =
             await PostGovernanceApprovalRequestAsync(
@@ -86,7 +86,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Approve_ValidRequest_ReturnsOkWithApprovedStatus()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -111,7 +111,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Reject_ValidRequest_ReturnsOkWithRejectedStatus()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -133,7 +133,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Reject_SecondReject_ReturnsConflict()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
             manifestVersion: committed.ManifestVersion,
@@ -161,7 +161,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Promote_ToProd_WithoutApproval_Returns400()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage response = await PostGovernancePromotionAsync(
             committed.RunId,
@@ -176,7 +176,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Promote_ToProd_WithApprovedRequest_ReturnsOk()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         // Same reviewer identity shape as Approve_ValidRequest_ReturnsOkWithApprovedStatus (stable vs DevelopmentBypass defaults on CI).
         const string prodReviewerName = "reviewer1";
@@ -240,7 +240,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Activate_ValidRun_ReturnsOkAndIsActive()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage response =
             await PostGovernanceActivationAsync(
@@ -267,7 +267,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetApprovalRequests_ByRunId_ReturnsRows()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
@@ -287,7 +287,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetPromotions_ByRunId_ReturnsRows()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         // FluentValidation requires PromotedBy on the body; Promote persists promotedBy from GetActor() (default "Developer").
         HttpResponseMessage promoteResponse =
@@ -310,7 +310,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetActivations_ByRunId_ReturnsRows()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
 
         HttpResponseMessage activateResponse =
             await PostGovernanceActivationAsync(
@@ -337,7 +337,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task GetApprovalRequestRationale_AfterSubmit_ReturnsOk()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
             manifestVersion: committed.ManifestVersion,
@@ -357,7 +357,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Approve_SecondApprove_ReturnsConflict()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,
             manifestVersion: committed.ManifestVersion,
@@ -382,7 +382,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task Approve_ParallelDuplicateApproves_FromSameReviewer_HasConsistentOutcome()
     {
-        FinalizedRun committed = await ArrangeGovernanceCommittedAsync(nameof(GovernanceControllerTests));
+        FinalizedRun committed = await ArrangeGovernanceCommittedAsync();
         // Default DevelopmentBypass submitter (same pattern as GovernanceApprovalConcurrencyIntegrationTests).
         HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(
             committed.RunId,

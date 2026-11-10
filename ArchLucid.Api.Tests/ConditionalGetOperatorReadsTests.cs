@@ -39,7 +39,7 @@ public sealed class ConditionalGetOperatorReadsTests(ArchLucidApiFactory factory
         await beforeExecute.EnsureSuccessForTestAsync();
         string etagBefore = beforeExecute.Headers.ETag!.Tag;
 
-        await PostExecuteWithPinsAsync(runId);
+        await ExecuteForTestAsync(runId);
         HttpResponseMessage commitResponse = await FinalizeRunAsync(runId);
         await commitResponse.EnsureSuccessForTestAsync();
 

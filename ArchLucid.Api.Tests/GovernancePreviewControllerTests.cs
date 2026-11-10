@@ -41,7 +41,7 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task Preview_ReturnsOk_AfterCommittedRun()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(GovernancePreviewControllerTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
         var previewBody = new { runId = finalized.RunId, manifestVersion = finalized.ManifestVersion, environment = "dev" };
         HttpResponseMessage previewResponse =

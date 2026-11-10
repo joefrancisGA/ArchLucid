@@ -17,7 +17,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureDiagramTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse =
@@ -33,7 +33,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureDiagramTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
         string manifestVersion = finalized.ManifestVersion;
 
         HttpResponseMessage diagramResponse = await Client.GetAsync(

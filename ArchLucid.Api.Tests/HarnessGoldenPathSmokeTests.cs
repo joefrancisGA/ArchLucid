@@ -14,9 +14,9 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
     [SkippableFact]
     public async Task Golden_path_intake_through_end_to_end_export_markdown()
     {
-        CommittedReplayPair pair = await ArrangeCommittedPairAsync(nameof(HarnessGoldenPathSmokeTests));
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync();
 
-        PersistedComparison persisted = await Client.PostPersistEndToEndComparisonForTestAsync(pair.RunId, pair.ReplayRunId);
+        PersistedComparison persisted = await pair.PersistEndToEndComparisonForTestAsync(Client);
         persisted.ComparisonRecordId.Should().NotBeNullOrWhiteSpace(); // struct field from PostPersist header
 
         EndToEndReplayComparisonExportResponse payload = await (
@@ -24,5 +24,20 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
             .ReadJsonForTestAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
         payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_finalize_governance_and_replay_pair_arrange()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+        finalized.RunId.Should().NotBeNullOrWhiteSpace();
+        finalized.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+
+        FinalizedRun governance = await ArrangeGovernanceCommittedAsync();
+        governance.RunId.Should().NotBeNullOrWhiteSpace();
+
+        CommittedReplayPair pair = await ArrangeCommittedPairAsync();
+        pair.RunId.Should().NotBeNullOrWhiteSpace();
+        pair.ReplayRunId.Should().NotBeNullOrWhiteSpace();
     }
 }

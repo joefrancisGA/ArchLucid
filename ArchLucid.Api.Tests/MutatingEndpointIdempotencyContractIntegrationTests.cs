@@ -50,7 +50,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
                 CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
+        await ExecuteForTestAsync(runId);
 
         string idempotencyKey = "tb323-commit-" + Guid.NewGuid().ToString("N");
         object commitBody = new { notifySponsor = false };
@@ -87,7 +87,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
                 CreateRunResponseDto? created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostExecuteAndEnsureArchitectureVersionPinForTestAsync(Factory, runId);
+        await ExecuteForTestAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
                 CommitRunResponseDto? commitPayload =
             await commitResponse.ReadJsonForTestAsync<CommitRunResponseDto>(JsonOptions);

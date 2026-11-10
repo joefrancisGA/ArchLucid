@@ -16,7 +16,7 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
     [SkippableFact]
     public async Task ConsultingDocxExport_PersistsExportHistory()
     {
-        FinalizedRun finalized = await ArrangeFinalizedAsync(nameof(ArchitectureExportAuditTests));
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
 
         var request = new
         {

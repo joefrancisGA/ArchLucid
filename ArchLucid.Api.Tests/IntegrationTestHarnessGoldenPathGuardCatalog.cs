@@ -33,6 +33,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(26, "FinalizeLifecycleAsync synonym", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanFinalizeLifecycleAsyncUsage), "use ArrangeFinalizedAsync"),
         new(27, "CreateFinalizedRunAsync without TestRequestIds", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanCreateFinalizedRunWithoutTestRequestIdsOnFixtures), "use ArrangeFinalizedAsync / ArrangeGovernanceCommittedAsync"),
         new(28, "literal Idempotency-Key header values", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanLiteralIdempotencyHeaderValuesInHarnessTests), "use TestRequestIds.IdempotencyKey(prefix)"),
+        new(29, "direct pin execute on IntegrationTestBase fixtures", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanDirectPinExecuteOnIntegrationTestBase), "use ExecuteForTestAsync"),
+        new(30, "duplicate harness Skip.If reason literals", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanDuplicateHarnessSkipReasonLiterals), "use HarnessSkipReasons"),
+        new(31, "ReadFromJsonAsync allowlist growth", nameof(IntegrationTestHarnessGoldenPathGuardSupport.CountReadFromJsonAllowlistedSourceFiles)),
+        new(32, "ReadJsonForTestAsync for ProblemDetails", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanReadJsonForProblemDetailsInHarnessTests), "use AssertProblemForTestAsync"),
     ];
 
     internal sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);
