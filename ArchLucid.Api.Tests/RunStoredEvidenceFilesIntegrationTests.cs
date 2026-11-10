@@ -74,16 +74,7 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     {
         CreatedRunForTest createdRun = await CreateRunForTestAsync();
 
-        using HttpClient foreignClient = Factory.CreateClient();
-        foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
-            "x-tenant-id",
-            HarnessWellKnownTenants.ForeignTenantHeaderValue);
-        foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
-            "x-workspace-id",
-            ScopeIds.DefaultWorkspace.ToString("D"));
-        foreignClient.DefaultRequestHeaders.TryAddWithoutValidation(
-            "x-project-id",
-            ScopeIds.DefaultProject.ToString("D"));
+        using HttpClient foreignClient = HarnessDemoBaselineSupport.CreateForeignTenantClient(Factory);
 
         HttpResponseMessage listResponse =
             await foreignClient.GetReviewStoredEvidenceFilesHttpAsync(createdRun.RunGuid);

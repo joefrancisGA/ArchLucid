@@ -48,6 +48,17 @@ public static class RunsHarnessExtensions
         return client.PostAsync($"/v1/runs/{runGuid:D}/findings/{findingId}/insight-signal", content, cancellationToken);
     }
 
+    public static Task<HttpResponseMessage> PostRunFindingVerificationHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        HttpContent? content,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.PostAsync($"/v1/runs/{runGuid:D}/finding-verification", content, cancellationToken);
+    }
+
     public static Task<HttpResponseMessage> GetRunFindingInsightSignalHttpAsync(
         this HttpClient client,
         Guid runGuid,

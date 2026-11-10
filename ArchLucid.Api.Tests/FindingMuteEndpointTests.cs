@@ -1,7 +1,5 @@
 using System.Net;
-using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
@@ -15,31 +13,24 @@ namespace ArchLucid.Api.Tests;
 /// <summary>HTTP coverage for <c>POST /v1/findings/{findingId}/mute</c> (ExecuteAuthority).</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private static string DemoPrimaryFindingId =>
-        $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
-
-    private async Task EnsureDemoBaselineSeededAsync()
-    {
-        using IServiceScope serviceScope = Factory.Services.CreateScope();
-        await serviceScope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
-    }
-
     /// <summary>In-memory storage has no relational <c>FindingRecords</c> rows; mute updates return 404.</summary>
     [SkippableFact]
     public async Task PostMute_when_in_memory_storage_returns_404_even_after_seed()
     {
-        await EnsureDemoBaselineSeededAsync();
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
         FindingMuteRequest body = new()
         {
-            RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
+            RunId = HarnessDemoBaselineSupport.AuthorityRunId,
             Reason = "Integration test mute reason."
         };
 
-        HttpResponseMessage response =
-            await Client.PostAsJsonAsync($"/v1/findings/{DemoPrimaryFindingId}/mute", body, JsonOptions);
+        HttpResponseMessage response = await Client.PostAsync(
+            $"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/mute",
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -48,7 +39,7 @@ public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : Inte
     public async Task PostMute_when_body_missing_returns_400()
     {
         HttpResponseMessage response =
-            await Client.PostAsync($"/v1/findings/{DemoPrimaryFindingId}/mute", null);
+            await Client.PostAsync($"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/mute", null);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -56,20 +47,21 @@ public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : Inte
     [SkippableFact]
     public async Task PostMute_when_role_outside_execute_authority_returns_403()
     {
-        await using NoExecuteAuthorityRoleApiFactory factory = new();
+        await using NoExecuteAuthorityRoleApiFactory restrictedFactory = new();
 
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = restrictedFactory.CreateClient();
 
         WireDefaultSqlIntegrationScopeHeaders(client);
 
         FindingMuteRequest body = new()
         {
-            RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
+            RunId = HarnessDemoBaselineSupport.AuthorityRunId,
             Reason = "Should not persist."
         };
 
-        HttpResponseMessage response =
-            await client.PostAsJsonAsync($"/v1/findings/{DemoPrimaryFindingId}/mute", body, JsonOptions);
+        HttpResponseMessage response = await client.PostAsync(
+            $"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/mute",
+            IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
