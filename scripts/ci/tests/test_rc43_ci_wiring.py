@@ -1,4 +1,4 @@
-"""Fail closed when the sole release-candidate full-CI branch wiring drifts."""
+"""Fail closed when nondeploying release-candidate full-CI wiring drifts."""
 
 from pathlib import Path
 import re
@@ -7,17 +7,20 @@ import unittest
 WORKFLOW = Path(__file__).resolve().parents[3] / ".github" / "workflows" / "ci.yml"
 
 
-class Rc43CiWiringTests(unittest.TestCase):
-    def test_full_non_deploying_ci_pushes_target_rc43_only(self) -> None:
+class ReleaseCandidateCiWiringTests(unittest.TestCase):
+    def test_full_non_deploying_ci_pushes_only_explicit_rc_branches(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43\]$")
+        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44\]$")
+        self.assertNotIn("branches: [master]", workflow)
+        self.assertNotIn("branches: [main]", workflow)
         self.assertNotIn("branches: [RC41]", workflow)
         self.assertNotIn("branches: [RC40]", workflow)
         self.assertNotIn("branches: [RC36]", workflow)
 
-    def test_live_azure_openai_cannot_run_on_rc43(self) -> None:
+    def test_live_azure_openai_cannot_run_on_release_branches(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("github.ref != 'refs/heads/RC43'", workflow)
+        self.assertIn("github.ref != 'refs/heads/RC44'", workflow)
         self.assertNotIn("github.ref != 'refs/heads/RC41'", workflow)
         self.assertNotIn("refs/heads/RC40", workflow)
         self.assertNotIn("refs/heads/RC36", workflow)
@@ -37,7 +40,7 @@ class Rc43CiWiringTests(unittest.TestCase):
         ]
         self.assertEqual(cohorts, list(range(1, 65)))
 
-    def test_rc43_diagnostics_do_not_hide_openapi_failure(self) -> None:
+    def test_release_candidate_diagnostics_do_not_hide_openapi_failure(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
 
         def job_block(job_name: str) -> str:
@@ -53,6 +56,7 @@ class Rc43CiWiringTests(unittest.TestCase):
         self.assertIn("- openapi-contract-snapshot", build)
         self.assertIn("!cancelled()", build)
         self.assertIn("github.ref == 'refs/heads/RC43'", build)
+        self.assertIn("github.ref == 'refs/heads/RC44'", build)
         self.assertIn("needs.openapi-contract-snapshot.result == 'success'", build)
         for prerequisite in (
             "gitleaks",
