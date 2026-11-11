@@ -12,6 +12,7 @@ import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securen
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveSecureNowCollectionPrimaryBlocker } from "@/lib/product-line/securenow-collection-setup-checklist";
 import {
   formatSecureNowCollectionSetupProgressSummary,
@@ -99,6 +100,22 @@ export function SecureNowCollectionSetupStatusSection(
               data-testid={`${props.testIdPrefix}-collection-ready-next-link`}
             >
               {resolveSecureNowCollectionReadyNextLinkLabel(latestSnapshotQuery.latestSnapshotId)}
+            </Link>
+          </p>
+          <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link
+              href={SECURENOW_REMEDIATION_FACTORY_PATH}
+              className={OPERATOR_LINK.inline}
+              data-testid={`${props.testIdPrefix}-collection-ready-path-inspect-link`}
+            >
+              Open Path inspect
+            </Link>
+            <Link
+              href={CLOUD_CONNECTIONS_PATH}
+              className={OPERATOR_LINK.inline}
+              data-testid={`${props.testIdPrefix}-collection-ready-cloud-connections-link`}
+            >
+              Cloud connections
             </Link>
           </p>
         </div>
