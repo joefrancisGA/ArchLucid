@@ -81,7 +81,7 @@ export const SECURENOW_PATH_RANKED_PATHS_LEAD =
   "Deterministic path ranking (SA-09). Select a row to inspect hops, cut points, and rank breakdown." as const;
 
 export const SECURENOW_PATH_RANKED_PATHS_EMPTY =
-  "No ranked path for this scope. A blank ranking is not a clean result. Check capture freshness, then select a row when one appears." as const;
+  "No ranked path for this scope. Open collection, then select a row. A blank ranking is not a clean result. Check capture freshness when rows are still empty." as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE =
   "Configured path explanation uses platform Azure OpenAI in Real agent mode. Simulator mode uses the deterministic fallback." as const;

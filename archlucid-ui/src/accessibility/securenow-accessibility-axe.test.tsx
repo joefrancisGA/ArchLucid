@@ -7,6 +7,7 @@ import { SecureNowComplianceNotesPageView } from "@/app/(operator)/administratio
 import { SecureNowFirstHourPageView } from "@/app/(operator)/administration/securenow-first-hour/SecureNowFirstHourPageView";
 import { SecureNowInvestigationEffortPageView } from "@/app/(operator)/administration/securenow-investigation-effort/SecureNowInvestigationEffortPageView";
 import { SecureNowPilotDecisionPageView } from "@/app/(operator)/administration/securenow-pilot-decision/SecureNowPilotDecisionPageView";
+import { SecureNowQuotePacketPageView } from "@/app/(operator)/administration/securenow-quote-packet/SecureNowQuotePacketPageView";
 import { SecureNowPilotSpinePageView } from "@/app/(operator)/administration/securenow-pilot-spine/SecureNowPilotSpinePageView";
 import { SecureNowReadoutPackPageView } from "@/app/(operator)/administration/securenow-readout-pack/SecureNowReadoutPackPageView";
 import { SecureNowReviewerPacketPageView } from "@/app/(operator)/administration/securenow-reviewer-packet/SecureNowReviewerPacketPageView";
@@ -37,6 +38,7 @@ describe("SecureNow accessibility surfaces — axe", () => {
     ["self-service", <SecureNowSelfServicePageView key="self-service" />],
     ["return reasons", <SecureNowReturnReasonsPageView key="return-reasons" />],
     ["pilot decision", <SecureNowPilotDecisionPageView key="pilot-decision" />],
+    ["quote packet SN-EVAL", <SecureNowQuotePacketPageView key="quote-packet" />],
     ["pilot spine", <SecureNowPilotSpinePageView key="pilot-spine" />],
     ["reviewer packet", <SecureNowReviewerPacketPageView key="reviewer-packet" />],
     ["readout pack", <SecureNowReadoutPackPageView key="readout-pack" />],

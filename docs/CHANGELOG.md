@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 10: ranked empty next step, compare open gate, procurement anchors
+
+**Outcome.** Ranked architect paths empty state tells buyers to open collection then select a row. Buyer-polished compare shows the browser-local review open gate. Quote packet and pricing quote form bind SN-EVAL and AL-EVAL anchors to the procurement evidence map constants. jest-axe covers the quote packet SN-EVAL section.
+
+**Surfaces.** Path inspect copy, compare two reviews, quote packet, pricing quote form, procurement map anchors, accessibility suite.
+
 ## 2026-11-10 - Score lift round 9: Home collection check, reviews open gate, axe
 
 **Outcome.** SecureNow Home and collection errors link the self-service collection check. Working reviews hub shows the browser-local open gate. jest-axe covers investigation effort scope. Procurement guarded-anchor testId contract tightened.

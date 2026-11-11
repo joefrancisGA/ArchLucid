@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import {
+  PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT,
+  PROCUREMENT_SN_EVAL_ANCHOR_TEST_ID,
+} from "@/lib/procurement/procurement-evidence-map-anchors";
+
 import { SecureNowQuotePacketPageView } from "./SecureNowQuotePacketPageView";
 
 describe("SecureNowQuotePacketPageView", () => {
@@ -8,7 +13,10 @@ describe("SecureNowQuotePacketPageView", () => {
     render(<SecureNowQuotePacketPageView />);
 
     expect(screen.getByTestId("securenow-quote-packet-page")).toBeInTheDocument();
-    expect(screen.getByTestId("securenow-quote-packet-sn-eval")).toBeInTheDocument();
+    const snEvalSection = screen.getByTestId(PROCUREMENT_SN_EVAL_ANCHOR_TEST_ID);
+
+    expect(snEvalSection).toBeInTheDocument();
+    expect(snEvalSection).toHaveAttribute("id", PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT);
     expect(screen.getAllByText(/accepts SN-EVAL orders/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/NO_GO/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("This page cannot authorize commerce.")).toBeInTheDocument();
