@@ -38,8 +38,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain("authority lifecycle phase");
@@ -65,8 +63,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -91,8 +87,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await dispositionResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -133,8 +127,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
@@ -148,8 +140,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -178,8 +168,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
@@ -193,8 +181,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -223,8 +209,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
@@ -238,8 +222,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -268,8 +250,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
@@ -283,8 +263,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectBlockingScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -306,8 +284,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -320,8 +296,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectLowConfidenceScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -343,8 +317,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -357,8 +329,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectUnverifiedAssumptionScorecardFindingsAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -380,8 +350,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -394,8 +362,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectCoverageGapScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -418,8 +384,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -432,8 +396,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectUnresolvedHighSeverityScorecardFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -455,8 +417,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -472,8 +432,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         expectedReason.Should().NotBeNull("pinned critical finding and BlockCommitOnCritical pin must block pre-commit gate");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
@@ -497,8 +455,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
         problem.GetProperty("detail").GetString().Should().Be(expectedReason);
@@ -512,8 +468,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
@@ -539,8 +493,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
@@ -554,8 +506,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
@@ -580,8 +530,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -595,8 +543,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
@@ -622,8 +568,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -636,8 +580,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -663,8 +605,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -677,8 +617,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -704,8 +642,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -718,8 +654,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -745,8 +679,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -759,8 +691,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinEvidenceReferentialIntegrityViolationAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -786,8 +716,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -800,8 +728,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeMixedAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -827,8 +753,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -841,8 +765,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinUnsupportedSemanticSupportFindingAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -868,8 +790,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -882,8 +802,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinArchitectureVersionContentHashDriftAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -909,8 +827,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -923,8 +839,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeFallbackAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -950,8 +864,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -964,8 +876,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinPolicyPackPinHashDriftAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -991,8 +901,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -1005,8 +913,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinEvidencePackagePinHashDriftAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -1032,8 +938,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
@@ -1046,8 +950,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinDraftSpawnDocumentHashDriftAsync(Factory, runId);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
@@ -1072,8 +974,6 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
             && block.Code == "create_time_pin_integrity");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-
-        finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
         problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);

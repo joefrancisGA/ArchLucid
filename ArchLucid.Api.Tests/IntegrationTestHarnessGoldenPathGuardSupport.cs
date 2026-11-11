@@ -91,13 +91,13 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxHarnessAllowlistedSourceFiles = 40;
 
     /// <summary><see cref="ReadFromJsonAsyncAllowlist" /> entry cap (burn-down ratchet).</summary>
-    internal const int MaxReadFromJsonAllowlistedSourceFiles = 5;
+    internal const int MaxReadFromJsonAllowlistedSourceFiles = 3;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
     internal const int MinHarnessGoldenPathSmokeSkippableFacts = 11;
 
     /// <summary>Cap for <see cref="RawArchitectureReviewSubresourceAllowlist" /> (#38 burn-down ratchet).</summary>
-    internal const int MaxReviewSubresourceAllowlistedSourceFiles = 12;
+    internal const int MaxReviewSubresourceAllowlistedSourceFiles = 4;
 
     private static readonly Regex DirectPinExecuteOnFixtureRegex = new(
         @"\bClient\.PostExecuteAndEnsureArchitectureVersionPinForTestAsync\s*\(",
@@ -140,7 +140,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Cap for <see cref="RawAuthorityUrlAllowlist" /> (#42 burn-down ratchet).</summary>
-    internal const int MaxAuthorityAllowlistedSourceFiles = 10;
+    internal const int MaxAuthorityAllowlistedSourceFiles = 8;
 
     /// <summary>Cap for <see cref="HandRolledJsonDocumentParseAllowlist" /> (#40 burn-down ratchet).</summary>
     internal const int MaxJsonDocumentAllowlistedSourceFiles = 3;
@@ -332,11 +332,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     private static readonly HashSet<string> ReadFromJsonAsyncAllowlist = new(StringComparer.Ordinal)
     {
         // harness-allowlist: permanent infrastructure and seed helpers (not fixture burn-down).
-        nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
         nameof(ArchLucidHttpResponseIntegrationTestExtensions) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
-        "SecurityCommittedRunSeed.cs",
     };
 
     internal static List<string> ScanRawFinalizeUrls()
