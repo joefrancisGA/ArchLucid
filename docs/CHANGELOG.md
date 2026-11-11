@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 19: Impact Preview selection guard
+
+**Outcome.** Impact Preview now uses the same trimmed selection invariant for its Simulate action and checklist. Blank controlled candidate or baseline values no longer expose an actionable simulation path.
+
+**Surfaces.** Impact Preview setup card and regression tests.
+
 ## 2026-11-11 - Score lift round 18: drift first-capture gate and SKU surface contract
 
 **Outcome.** Buyer-polished drift shows the working review open gate. Its no-snapshot state now distinguishes missing stored evidence from a load failure and links the operator to cloud connections. A cross-surface contract test keeps SecureNow SKU identifiers aligned across the public SKU card and quote packet list-price tables.
