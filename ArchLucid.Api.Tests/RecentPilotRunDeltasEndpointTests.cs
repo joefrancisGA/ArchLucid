@@ -1,6 +1,3 @@
-using System.Net;
-using System.Text.Json;
-
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -25,7 +22,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_DefaultCount_ReturnsOkWithRequestedCountFive()
     {
-        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest());
+        HttpResponseMessage response = await Client.GetRecentPilotRunDeltasHttpAsync();
         RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
@@ -38,7 +35,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_ExplicitCount_RespectedWhenInRange()
     {
-        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest(3));
+        HttpResponseMessage response = await Client.GetRecentPilotRunDeltasHttpAsync(3);
         RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
@@ -48,7 +45,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_ExcessiveCount_ClampedToServerSideMax()
     {
-        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest(9999));
+        HttpResponseMessage response = await Client.GetRecentPilotRunDeltasHttpAsync(9999);
         RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
@@ -59,7 +56,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_ZeroOrNegativeCount_ClampedToOne()
     {
-        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest(-3));
+        HttpResponseMessage response = await Client.GetRecentPilotRunDeltasHttpAsync(-3);
         RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
@@ -67,21 +64,16 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     }
 
     [SkippableFact]
-    public async Task GetRecentDeltas_ResponseEnvelope_HasCamelCaseProperties()
+    public async Task GetRecentDeltas_ResponseEnvelope_BindsTypedContract()
     {
         HttpResponseMessage response = await Client.GetRecentPilotRunDeltasHttpAsync(5);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        RecentPilotRunDeltasResponse body =
+            await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
-        string raw = await response.Content.ReadAsStringAsync();
-
-        using JsonDocument doc = JsonDocument.Parse(raw);
-        JsonElement root = doc.RootElement;
-
-        root.TryGetProperty("items", out _).Should().BeTrue();
-        root.TryGetProperty("requestedCount", out _).Should().BeTrue();
-        root.TryGetProperty("returnedCount", out _).Should().BeTrue();
-        root.TryGetProperty("medianTotalFindings", out _).Should().BeTrue();
-        root.TryGetProperty("medianTimeToCommittedManifestTotalSeconds", out _).Should().BeTrue();
+        body.Items.Should().NotBeNull();
+        body.RequestedCount.Should().Be(5);
+        body.MedianTotalFindings.Should().BeNull();
+        body.MedianTimeToCommittedManifestTotalSeconds.Should().BeNull();
     }
 }

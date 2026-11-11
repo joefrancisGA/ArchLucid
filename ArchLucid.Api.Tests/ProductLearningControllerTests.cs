@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Text.Json;
 
 using ArchLucid.Contracts.ProductLearning;
 
@@ -180,12 +179,12 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report/file?format=json");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
 
-        string text = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(text);
-        doc.RootElement.GetProperty("totalSignalsInScope").GetInt32().Should().Be(0);
-        doc.RootElement.GetProperty("generatedUtc").Should().NotBeNull();
+        ProductLearningTriageReportDocument doc =
+            await response.ReadJsonForTestAsync<ProductLearningTriageReportDocument>(JsonOptions);
+
+        doc.TotalSignalsInScope.Should().Be(0);
+        doc.GeneratedUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(5));
     }
 }

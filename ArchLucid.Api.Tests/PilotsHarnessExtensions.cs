@@ -1,5 +1,3 @@
-using System.Net.Http.Headers;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Canonical GET helpers for <c>/v1/pilots/*</c> demo and marketing snapshots.</summary>
@@ -41,22 +39,6 @@ public static class PilotsHarnessExtensions
         return client.GetAsync("/v1/pilots/scorecard", cancellationToken);
     }
 
-    public static string BuildRecentPilotRunDeltasPath(int? count = null)
-    {
-        if (count is null)
-            return "/v1/pilots/runs/recent-deltas";
-
-        return $"/v1/pilots/runs/recent-deltas?count={count.Value}";
-    }
-
-    public static HttpRequestMessage CreateRecentPilotRunDeltasJsonRequest(int? count = null)
-    {
-        HttpRequestMessage request = new(HttpMethod.Get, BuildRecentPilotRunDeltasPath(count));
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        return request;
-    }
-
     public static Task<HttpResponseMessage> GetRecentPilotRunDeltasHttpAsync(
         this HttpClient client,
         int? count = null,
@@ -64,6 +46,10 @@ public static class PilotsHarnessExtensions
     {
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync(BuildRecentPilotRunDeltasPath(count), cancellationToken);
+        string path = count is null
+            ? "/v1/pilots/runs/recent-deltas"
+            : $"/v1/pilots/runs/recent-deltas?count={count.Value}";
+
+        return client.GetAsync(path, cancellationToken);
     }
 }
