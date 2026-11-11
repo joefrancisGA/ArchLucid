@@ -198,6 +198,22 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(link).toHaveAttribute("href", "/integrations/cloud-connections");
   });
 
+  it("links a partial capture to cloud connections with the gaps description", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot({ captureStatus: "Partial" })],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    renderContext();
+
+    const gap = await screen.findByRole("link", { name: "Inventory capture completed with gaps." });
+
+    expect(gap).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByTestId("securenow-home-setup-step-capture")).toBeInTheDocument();
+  });
+
   it("links a failed capture to cloud connections with the blocked description", async () => {
     snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
       items: [snapshot({ captureStatus: "Failed" })],

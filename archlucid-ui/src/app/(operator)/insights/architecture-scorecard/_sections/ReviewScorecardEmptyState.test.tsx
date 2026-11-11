@@ -25,6 +25,7 @@ import {
 } from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
   REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
+  REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE,
   REVIEW_SCORECARD_EMPTY_DESCRIPTION,
   REVIEW_SCORECARD_EMPTY_HEADING,
   REVIEW_SCORECARD_EMPTY_PREVIEW_ITEMS,
@@ -39,8 +40,13 @@ describe("ReviewScorecardEmptyState", () => {
 
     expect(screen.getByTestId("review-scorecard-empty-state")).toBeInTheDocument();
     expect(screen.getByText(REVIEW_SCORECARD_EMPTY_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(REVIEW_SCORECARD_EMPTY_DESCRIPTION)).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-empty-state")).toHaveTextContent(
+      REVIEW_SCORECARD_EMPTY_DESCRIPTION,
+    );
     expect(screen.getByText(REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE)).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-roi-empty-honesty")).toHaveTextContent(
+      REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE,
+    );
     expect(screen.getByRole("heading", { name: REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE })).toBeInTheDocument();
 
     expect(
