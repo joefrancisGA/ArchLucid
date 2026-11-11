@@ -2,6 +2,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { buildCustomPolicyPackQuoteHref } from "@/lib/marketing-custom-policy-pack-authoring";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  PROCUREMENT_AL_EVAL_ANCHOR_HREF,
+  PROCUREMENT_SN_EVAL_ANCHOR_HREF,
+} from "@/lib/procurement/procurement-evidence-map-anchors";
 
 export const PROCUREMENT_HELP_CANONICAL_PATH = "/help/procurement" as const;
 
@@ -94,5 +98,17 @@ export const PROCUREMENT_HELP_DILIGENCE_SECONDARY_CTAS: readonly ProcurementHelp
     href: PROCUREMENT_HELP_SALES_CONTACT_HREF,
     description: "Sales-led quotes, references, and enterprise packaging.",
     testId: "procurement-help-diligence-sales-contact",
+  },
+  {
+    label: "ArchLucid AL-EVAL acceptance",
+    href: PROCUREMENT_AL_EVAL_ANCHOR_HREF,
+    description: "Quote-only AL-EVAL order acceptance on pricing — not live checkout.",
+    testId: "procurement-help-diligence-al-eval",
+  },
+  {
+    label: "SecureNow SN-EVAL acceptance",
+    href: PROCUREMENT_SN_EVAL_ANCHOR_HREF,
+    description: "Quote-only SN-EVAL order acceptance on the signed-in quote packet — beta remains NO_GO.",
+    testId: "procurement-help-diligence-sn-eval",
   },
 ] as const;

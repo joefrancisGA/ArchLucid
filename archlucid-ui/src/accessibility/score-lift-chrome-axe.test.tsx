@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureReviewNewSealedPackageCallout } from "@/app/(operator)/architecture/reviews/new/ArchitectureReviewNewSealedPackageCallout";
 import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
+import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
@@ -107,6 +108,12 @@ describe("score-lift chrome axe", () => {
 
   it("investigation effort scope line has no serious axe violations", async () => {
     const { container } = render(<SecureNowInvestigationEffortScopeLine />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("procurement help diligence CTAs have no serious axe violations", async () => {
+    const { container } = render(<ProcurementHelpDiligenceCtaSection />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

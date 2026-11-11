@@ -42,6 +42,7 @@ import { ImpactPreviewContinueLastBaselinePairRow } from "./ImpactPreviewContinu
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
+import { ImpactPreviewWorkingOpenGateStrip } from "./ImpactPreviewWorkingOpenGateStrip";
 import { ImpactPreviewNextReviewFooterClient } from "./ImpactPreviewNextReviewFooterClient";
 import { ImpactPreviewLoadFailurePanel } from "./ImpactPreviewLoadFailurePanel";
 import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
@@ -182,6 +183,8 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           void m.loadList();
         }}
       />
+
+      {buyerPolishedShell ? <ImpactPreviewWorkingOpenGateStrip /> : null}
 
       {nestedPolicyEnvelopeEntry && pinnedArchitectureId.length > 0 ? (
         <ImpactPreviewPolicyEnvelopeEntryStrip architectureId={pinnedArchitectureId} />

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 11: impact preview open gate, procurement eval CTAs, axe
+
+**Outcome.** Buyer-polished impact preview shows the browser-local review open gate. Procurement help diligence links AL-EVAL and SN-EVAL acceptance rows to guarded in-product anchors. jest-axe covers the procurement diligence CTA section.
+
+**Surfaces.** impact preview, help procurement, accessibility suite.
+
 ## 2026-11-10 - Score lift round 10: ranked empty next step, compare open gate, procurement anchors
 
 **Outcome.** Ranked architect paths empty state tells buyers to open collection then select a row. Buyer-polished compare shows the browser-local review open gate. Quote packet and pricing quote form bind SN-EVAL and AL-EVAL anchors to the procurement evidence map constants. jest-axe covers the quote packet SN-EVAL section.
