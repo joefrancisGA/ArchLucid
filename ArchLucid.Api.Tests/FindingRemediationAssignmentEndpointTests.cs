@@ -28,8 +28,8 @@ public sealed class FindingRemediationAssignmentEndpointTests(ArchLucidApiFactor
             RemediationDueUtc = DateTimeOffset.UtcNow.AddDays(14)
         };
 
-        HttpResponseMessage response = await Client.PutAsync(
-            $"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/remediation-assignment",
+        HttpResponseMessage response = await Client.PutFindingRemediationAssignmentHttpAsync(
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
             IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -39,7 +39,7 @@ public sealed class FindingRemediationAssignmentEndpointTests(ArchLucidApiFactor
     public async Task PutRemediationAssignment_when_body_missing_returns_400()
     {
         HttpResponseMessage response =
-            await Client.PutAsync($"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/remediation-assignment", null);
+            await Client.PutFindingRemediationAssignmentHttpAsync(HarnessDemoBaselineSupport.DemoPrimaryFindingId, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -59,8 +59,8 @@ public sealed class FindingRemediationAssignmentEndpointTests(ArchLucidApiFactor
             AssignedToUserId = "owner@example.com"
         };
 
-        HttpResponseMessage response = await client.PutAsync(
-            $"/v1/findings/{HarnessDemoBaselineSupport.DemoPrimaryFindingId}/remediation-assignment",
+        HttpResponseMessage response = await client.PutFindingRemediationAssignmentHttpAsync(
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId,
             IntegrationTestHttpContent.CreateJson(body, JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);

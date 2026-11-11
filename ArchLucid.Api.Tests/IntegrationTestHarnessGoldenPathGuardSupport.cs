@@ -165,6 +165,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"(?:\.GetAsync|\.PostAsync)\s*\(\s*\$?""/v1/runs/",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RawFindingScopeUrlRegex = new(
+        @"(?:\.PostAsync|\.PutAsync)\s*\(\s*\$?""/v1/findings/",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex RawArchitectureReviewBareGetRegex = new(
         @"\.GetAsync\s*\(\s*\$""/v1/architecture/review/\{[^""/]+\}""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -256,12 +260,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestRunLifecycleSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
-    };
-
-    private static readonly HashSet<string> ReadJsonAssertionStyleAllowlist = new(StringComparer.Ordinal)
-    {
-        // harness-allowlist: burn-down controller matrix StatusCode/EnsureSuccess before ReadJsonForTestAsync (slice 20).
-        nameof(ArchitectureControllerTests) + ".cs",
     };
 
     private static readonly HashSet<string> EndToEndCompareSummaryAllowlist = new(StringComparer.Ordinal)
@@ -545,7 +543,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (!ReadFromJsonAsyncRegex.IsMatch(content))
                 continue;
 
-            violations.Add(path.Replace(repoRoot + Path.DirectorySeparatorChar, string.Empty, StringComparison.Ordinal));
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, ReadFromJsonAsyncRegex));
         }
 
         return violations;
@@ -560,11 +558,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     internal static List<string> ScanRedundantEnsureSuccessBeforeReadJson()
     {
-        HashSet<string> excluded = new(LifecycleSupportExclusions, StringComparer.Ordinal);
-        excluded.UnionWith(ReadJsonAssertionStyleAllowlist);
-
         return ScanContentViolations(
-            excluded,
+            LifecycleSupportExclusions,
             static content => RedundantEnsureBeforeReadJsonRegex.IsMatch(content));
     }
 
@@ -596,11 +591,8 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     internal static List<string> ScanStatusCodeAssertionBeforeReadJson()
     {
-        HashSet<string> excluded = new(LifecycleSupportExclusions, StringComparer.Ordinal);
-        excluded.UnionWith(ReadJsonAssertionStyleAllowlist);
-
         return ScanContentViolations(
-            excluded,
+            LifecycleSupportExclusions,
             static content => IsHarnessTestSource(content) && StatusCodeAssertionBeforeReadJsonRegex.IsMatch(content));
     }
 
@@ -940,6 +932,18 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         || content.Contains("IntegrationTestRunLifecycleSupport", StringComparison.Ordinal)
         || content.Contains(": IntegrationTestBase", StringComparison.Ordinal)
         || content.Contains("PostFinalizeForTestAsync", StringComparison.Ordinal);
+
+    private static bool IsDemoBaselineHarnessSource(string content) =>
+        content.Contains(
+            "Trait(\"" + HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory + "\", \"" +
+            HarnessGoldenPathGuardConstants.DemoBaselineTraitValue + "\")",
+            StringComparison.Ordinal)
+        || content.Contains(
+            "Trait(" + nameof(HarnessGoldenPathGuardConstants) + "." +
+            nameof(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory) + ", " +
+            nameof(HarnessGoldenPathGuardConstants) + "." +
+            nameof(HarnessGoldenPathGuardConstants.DemoBaselineTraitValue) + ")",
+            StringComparison.Ordinal);
 
     private static bool IsRouteProtocolHarnessSource(string content) =>
         content.Contains(
@@ -1307,6 +1311,48 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
                 continue;
 
             violations.Add(FormatSourceViolationWithLine(repoRoot, path, PrivateDemoBaselineSeedMethodRegex));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> RawFindingScopeUrlAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical finding mute/remediation HTTP helpers and inspect GET routes.
+        nameof(FindingScopeHarnessExtensions) + ".cs",
+        nameof(FindingInspectHarnessExtensions) + ".cs",
+    };
+
+    internal static List<string> ScanRawFindingScopeUrlsInHarnessTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            string fileName = Path.GetFileName(path);
+
+            if (RawFindingScopeUrlAllowlist.Contains(fileName))
+                continue;
+
+            if (string.Equals(fileName, nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))
+                continue;
+
+            if (!IsDemoBaselineHarnessSource(content))
+                continue;
+
+            if (!IsHarnessTestSource(content))
+                continue;
+
+            if (!RawFindingScopeUrlRegex.IsMatch(content))
+                continue;
+
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, RawFindingScopeUrlRegex));
         }
 
         return violations;
