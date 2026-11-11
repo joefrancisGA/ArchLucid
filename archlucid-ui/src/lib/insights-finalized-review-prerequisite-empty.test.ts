@@ -62,8 +62,10 @@ describe("insights-finalized-review-prerequisite-empty (TB-2389)", () => {
     expect(insufficient.actions?.[0]?.href).toBe("/architecture/reviews");
   });
 
-  it("names the open reviews hint on compare, ask, and impact-preview zero-finalized empty", () => {
-    for (const jobId of ["compare", "ask", "impact-preview"] as const) {
+  it("names the open reviews hint on Insights zero-finalized prerequisite empties", () => {
+    const jobsWithHint = ["compare", "ask", "impact-preview", "scorecard", "evidence-graph"] as const;
+
+    for (const jobId of jobsWithHint) {
       const preset = buildInsightsFinalizedReviewPrerequisiteEmpty({ jobId, finalizedCount: 0 });
 
       expect(preset.description).toContain(INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT);

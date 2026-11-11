@@ -47,10 +47,10 @@ export const INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION = {
 const INSIGHTS_JOB_DESCRIPTIONS: Record<InsightsFinalizedReviewJobId, string> = {
   compare: `You need at least two finalized reviews before ArchLucid can compare changes over time. ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
   ask: `Finalize an architecture review before asking questions across workspace evidence. ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
-  scorecard: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
+  scorecard: `${REVIEW_SCORECARD_EMPTY_DESCRIPTION} ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
   "impact-preview": `${IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY} ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
   "evidence-graph":
-    "Select a finalized architecture review to explore evidence links, or start a review to build the graph.",
+    `Select a finalized architecture review to explore evidence links, or start a review to build the graph. ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
 };
 
 const INSIGHTS_JOB_TEST_IDS: Record<InsightsFinalizedReviewJobId, string> = {
