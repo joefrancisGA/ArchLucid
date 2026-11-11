@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 12: first-review open gate, procurement Sources eval links, axe
+
+**Outcome.** Buyer-polished first-review guide shows the browser-local review open gate. Procurement help Sources and diligence share guarded AL-EVAL and SN-EVAL anchor hrefs with copy tests. jest-axe covers first-review buyer chrome orientation.
+
+**Surfaces.** first-review guide, help procurement, accessibility suite.
+
 ## 2026-11-11 - Score lift round 11: impact preview open gate, procurement eval CTAs, axe
 
 **Outcome.** Buyer-polished impact preview shows the browser-local review open gate. Procurement help diligence links AL-EVAL and SN-EVAL acceptance rows to guarded in-product anchors. jest-axe covers the procurement diligence CTA section.

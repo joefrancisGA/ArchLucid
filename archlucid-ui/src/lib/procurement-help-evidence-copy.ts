@@ -49,6 +49,8 @@ export const PROCUREMENT_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "DPA template", href: inAppHelpHref("dpa-template") },
   { label: "Settings Security & Trust", href: "/administration/security-trust" },
+  { label: "ArchLucid AL-EVAL acceptance", href: PROCUREMENT_AL_EVAL_ANCHOR_HREF },
+  { label: "SecureNow SN-EVAL acceptance", href: PROCUREMENT_SN_EVAL_ANCHOR_HREF },
 ] as const;
 
 export type ProcurementHelpDiligenceCta = {

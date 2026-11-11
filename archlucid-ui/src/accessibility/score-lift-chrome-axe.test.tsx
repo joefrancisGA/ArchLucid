@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ArchitectureReviewNewSealedPackageCallout } from "@/app/(operator)/architecture/reviews/new/ArchitectureReviewNewSealedPackageCallout";
 import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
+import { FirstReviewGuideBuyerChrome } from "@/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideBuyerChrome";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
@@ -21,6 +22,20 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
 vi.mock("@/hooks/use-operator-scope-query-key", () => ({
   useOperatorScopeQueryKey: () => ({ tenantId: "t", workspaceId: "w", projectId: "p" }),
 }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => true,
+  useProductionDeskChrome: () => false,
+}));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => true,
+  };
+});
 
 vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
   useSecureNowCollectionSetupInput: () => ({
@@ -114,6 +129,12 @@ describe("score-lift chrome axe", () => {
 
   it("procurement help diligence CTAs have no serious axe violations", async () => {
     const { container } = render(<ProcurementHelpDiligenceCtaSection />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("first-review guide buyer chrome has no serious axe violations", async () => {
+    const { container } = render(<FirstReviewGuideBuyerChrome />);
 
     expect(await axe(container)).toHaveNoViolations();
   });
