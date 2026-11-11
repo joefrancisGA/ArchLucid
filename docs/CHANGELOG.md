@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 20: SecureNow policy assignment route
+
+**Outcome.** Findings scoped to SecureNow now preserve the product-line policy packs hub when operators choose “Assign policy packs”; the link no longer falls back to the generic governance route.
+
+**Surfaces.** SecureNow findings queue, policy-pack assignment handoff, regression test.
+
 ## 2026-11-11 - Score lift round 19: Impact Preview selection guard
 
 **Outcome.** Impact Preview now uses the same trimmed selection invariant for its Simulate action and checklist. Blank controlled candidate or baseline values no longer expose an actionable simulation path.
