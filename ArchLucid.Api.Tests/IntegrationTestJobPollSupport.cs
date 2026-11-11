@@ -13,7 +13,7 @@ public static class IntegrationTestJobPollSupport
         HttpClient client,
         string jobId,
         JsonSerializerOptions jsonOptions,
-        int maxIterations = 25,
+        int maxIterations = HarnessPollDefaults.BackgroundJobDefaultMaxIterations,
         TimeSpan? delayBetween = null,
         CancellationToken cancellationToken = default)
     {
@@ -21,7 +21,7 @@ public static class IntegrationTestJobPollSupport
         ArgumentException.ThrowIfNullOrWhiteSpace(jobId);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        TimeSpan delay = delayBetween ?? TimeSpan.FromMilliseconds(200);
+        TimeSpan delay = delayBetween ?? HarnessPollDefaults.BackgroundJobDefaultDelay;
         string state = "Pending";
 
         for (int i = 0; i < maxIterations; i++)

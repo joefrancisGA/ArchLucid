@@ -12,10 +12,6 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private const int AsyncDocxJobPollMaxIterations = 25;
-
-    private static readonly TimeSpan AsyncDocxJobPollDelay = TimeSpan.FromMilliseconds(200);
-
     [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
@@ -45,8 +41,8 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             Client,
             jobId!,
             JsonOptions,
-            AsyncDocxJobPollMaxIterations,
-            AsyncDocxJobPollDelay);
+            HarnessPollDefaults.BackgroundJobDefaultMaxIterations,
+            HarnessPollDefaults.BackgroundJobDefaultDelay);
         terminalState.Should().Be(BackgroundJobState.Succeeded);
 
         HttpResponseMessage fileResp = await IntegrationTestJobPollSupport.GetJobFileHttpAsync(Client, jobId!);

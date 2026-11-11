@@ -87,4 +87,18 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
 
         return body;
     }
+
+    /// <summary>Deserialize UTF-8 JSON from a stream without hand-rolled <see cref="JsonDocument" /> in tests.</summary>
+    public static async Task<JsonElement> ReadJsonElementForTestAsync(
+        this Stream utf8Json,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(utf8Json);
+
+        JsonElement element = await JsonSerializer
+            .DeserializeAsync<JsonElement>(utf8Json, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        return element;
+    }
 }
