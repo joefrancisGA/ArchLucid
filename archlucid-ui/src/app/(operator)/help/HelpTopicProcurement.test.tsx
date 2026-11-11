@@ -33,6 +33,10 @@ import {
 } from "@/lib/procurement-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
+import {
+  PROCUREMENT_AL_EVAL_ANCHOR_HREF,
+  PROCUREMENT_SN_EVAL_ANCHOR_HREF,
+} from "@/lib/procurement/procurement-evidence-map-anchors";
 
 const PROCUREMENT_SOURCE = "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md";
 
@@ -419,6 +423,14 @@ describe("HelpProcurementGuideView procurement FAQ", () => {
     expect(within(ctaSection).getByRole("link", { name: "Request materials under NDA" })).toHaveAttribute(
       "href",
       "/administration/security-trust",
+    );
+    expect(within(ctaSection).getByTestId("procurement-help-diligence-al-eval")).toHaveAttribute(
+      "href",
+      PROCUREMENT_AL_EVAL_ANCHOR_HREF,
+    );
+    expect(within(ctaSection).getByTestId("procurement-help-diligence-sn-eval")).toHaveAttribute(
+      "href",
+      PROCUREMENT_SN_EVAL_ANCHOR_HREF,
     );
 
     const visible = document.body.textContent ?? "";
