@@ -38,6 +38,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class DemoExplainEndpointTests(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
 {
     [SkippableFact]

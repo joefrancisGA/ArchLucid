@@ -22,17 +22,6 @@ namespace ArchLucid.Api.Tests.Integrations;
 [Trait("Suite", "Core")]
 public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonWeb = new(JsonSerializerDefaults.Web);
-
-    private static StringContent OutboundIssueBody(string provider, string findingId)
-    {
-        string json = JsonSerializer.Serialize(
-            new Dictionary<string, string> { ["provider"] = provider, ["findingId"] = findingId },
-            JsonWeb);
-
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
-
     [SkippableFact]
     public async Task Post_jira_upstream_created_returns_external_key_correlation_and_audit()
     {
@@ -49,9 +38,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -87,9 +76,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
 
@@ -124,9 +113,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
 
@@ -152,9 +141,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
@@ -177,7 +166,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using HttpResponseMessage response =
-            await client.PostAsync("/v1/integrations/itsm/outbound/issues", OutboundIssueBody("Freshdesk", "any"));
+            await client.PostItsmOutboundIssueHttpAsync("Freshdesk", "any");
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
@@ -228,9 +217,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("ServiceNow", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "ServiceNow",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -264,9 +253,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
@@ -290,9 +279,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response = await client.PostAsync(
-            "/v1/integrations/itsm/outbound/issues",
-            OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 

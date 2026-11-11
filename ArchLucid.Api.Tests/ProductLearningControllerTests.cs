@@ -1,12 +1,9 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Contracts.ProductLearning;
 
 using FluentAssertions;
-
-using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -21,12 +18,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/summary");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningDashboardSummaryResponse? body =
-            await response.Content.ReadFromJsonAsync<ProductLearningDashboardSummaryResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningDashboardSummaryResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.SummaryNotes.Should().NotBeEmpty();
         body.TotalSignalsInScope.Should().Be(0);
         body.TopAggregateCount.Should().Be(0);
@@ -37,12 +31,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/dashboard");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningDashboardBundleResponse? body =
-            await response.Content.ReadFromJsonAsync<ProductLearningDashboardBundleResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningDashboardBundleResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body!.Summary.SummaryNotes.Should().NotBeEmpty();
         body.Summary.TotalSignalsInScope.Should().Be(0);
         body.Opportunities.Opportunities.Should().NotBeNull();
@@ -55,12 +46,10 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/summary?since=not-a-date");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("since");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "since");
     }
 
     [SkippableFact]
@@ -69,12 +58,10 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         HttpResponseMessage response =
             await Client.GetAsync("/v1/product-learning/improvement-opportunities?maxOpportunities=999");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("maxOpportunities");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "maxOpportunities");
     }
 
     [SkippableFact]
@@ -83,12 +70,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         HttpResponseMessage response =
             await Client.GetAsync("/v1/product-learning/artifact-outcome-trends?since=2024-01-01T00:00:00Z");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningArtifactOutcomeTrendsResponse? body =
-            await response.Content.ReadFromJsonAsync<ProductLearningArtifactOutcomeTrendsResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningArtifactOutcomeTrendsResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.Trends.Should().NotBeNull();
     }
 
@@ -97,12 +81,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/triage-queue");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningTriageQueueResponse? body =
-            await response.Content.ReadFromJsonAsync<ProductLearningTriageQueueResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningTriageQueueResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.Items.Should().NotBeNull();
     }
 
@@ -111,12 +92,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=json");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningTriageReportDocument? doc =
-            await response.Content.ReadFromJsonAsync<ProductLearningTriageReportDocument>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningTriageReportDocument>(JsonOptions);
 
-        doc.Should().NotBeNull();
         doc.ArtifactOutcomes.Should().NotBeNull();
         doc.TopProblemAreas.Should().NotBeNull();
         doc.TopImprovements.Should().NotBeNull();
@@ -128,12 +106,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=markdown");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningReportExportResponse? body =
-            await response.Content.ReadFromJsonAsync<ProductLearningReportExportResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningReportExportResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.Format.Should().Be("markdown");
         body.Content.Should().Contain("Pilot feedback");
         body.FileName.Should().EndWith(".md");
@@ -164,12 +139,9 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         HttpResponseMessage response =
             await Client.GetAsync("/v1/product-learning/improvement-opportunities?maxOpportunities=1");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         ProductLearningImprovementOpportunitiesResponse? body =
-            await response.Content.ReadFromJsonAsync<ProductLearningImprovementOpportunitiesResponse>(JsonOptions);
+            await response.ReadJsonForTestAsync<ProductLearningImprovementOpportunitiesResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.Opportunities.Count.Should().BeLessThanOrEqualTo(1);
     }
 
@@ -188,12 +160,10 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         HttpResponseMessage response =
             await Client.GetAsync("/v1/product-learning/artifact-outcome-trends?since=not-a-date");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
-        problem.Detail.Should().Contain("since");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            ProblemTypes.ValidationFailed,
+            detailContains: "since");
     }
 
     [SkippableFact]
@@ -202,11 +172,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         HttpResponseMessage response =
             await Client.GetAsync("/v1/product-learning/triage-queue?maxTriageItems=0");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.ValidationFailed);
     }
 
     [SkippableFact]

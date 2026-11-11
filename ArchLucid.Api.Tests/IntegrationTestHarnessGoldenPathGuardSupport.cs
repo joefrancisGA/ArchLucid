@@ -173,6 +173,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         @"\bContosoRetailDemoIdentifiers\b",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex RawItsmOutboundIssueUrlRegex = new(
+        @"""/v1/integrations/itsm/outbound/issues""",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static readonly Regex RawArchitectureReviewBareGetRegex = new(
         @"\.GetAsync\s*\(\s*\$""/v1/architecture/review/\{[^""/]+\}""",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -337,7 +341,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
         nameof(LearningControllerTests) + ".cs",
         nameof(PolicyPacksIntegrationTests) + ".cs",
-        nameof(ProductLearningControllerTests) + ".cs",
         "SecurityCommittedRunSeed.cs",
     };
 
@@ -1429,6 +1432,41 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
                 continue;
 
             violations.Add(FormatSourceViolationWithLine(repoRoot, path, DirectContosoRetailDemoIdentifiersRegex));
+        }
+
+        return violations;
+    }
+
+    private static readonly HashSet<string> RawItsmOutboundIssueUrlAllowlist = new(StringComparer.Ordinal)
+    {
+        // harness-allowlist: canonical ITSM outbound POST route helper.
+        "IntegrationsHarnessExtensions.cs",
+    };
+
+    internal static List<string> ScanRawItsmOutboundIssueUrlsInIntegrationTests()
+    {
+        string repoRoot = IntegrationTestSourceScanSupport.FindRepoRoot();
+        List<string> violations = [];
+
+        foreach (string path in IntegrationTestSourceScanSupport.EnumerateApiTestSources())
+        {
+            if (!path.Contains($"{Path.DirectorySeparatorChar}Integrations{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                continue;
+
+            string fileName = Path.GetFileName(path);
+
+            if (RawItsmOutboundIssueUrlAllowlist.Contains(fileName))
+                continue;
+
+            if (string.Equals(fileName, nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs", StringComparison.Ordinal))
+                continue;
+
+            string content = File.ReadAllText(path);
+
+            if (!RawItsmOutboundIssueUrlRegex.IsMatch(content))
+                continue;
+
+            violations.Add(FormatSourceViolationWithLine(repoRoot, path, RawItsmOutboundIssueUrlRegex));
         }
 
         return violations;

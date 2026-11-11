@@ -56,6 +56,7 @@ public static class IntegrationTestHarnessGoldenPathGuardCatalog
         new(49, "private demo baseline seed helpers", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanPrivateDemoBaselineSeedMethodsInHarnessTests), "use HarnessDemoBaselineSupport.EnsureSeededAsync"),
         new(50, "raw finding scope URLs on demo baseline fixtures", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawFindingScopeUrlsInHarnessTests), "use FindingHarnessExtensions"),
         new(51, "direct ContosoRetailDemoIdentifiers in Api.Tests", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanDirectContosoRetailDemoIdentifiersInApiTests), "use HarnessDemoBaselineSupport"),
+        new(52, "raw ITSM outbound issue URLs", nameof(IntegrationTestHarnessGoldenPathGuardSupport.ScanRawItsmOutboundIssueUrlsInIntegrationTests), "use IntegrationsHarnessExtensions.PostItsmOutboundIssueHttpAsync"),
     ];
 
     public sealed record HarnessGuardFact(int Number, string Title, string ScannerName, string? FixHint = null);

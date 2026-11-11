@@ -29,8 +29,6 @@ namespace ArchLucid.Api.Tests.Integrations;
 [Trait("Suite", "Core")]
 public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonWeb = new(JsonSerializerDefaults.Web);
-
     [SkippableFact]
     public async Task Post_Jira_issues_hits_wire_mock_with_mapper_aligned_payload_and_basic_auth()
     {
@@ -50,8 +48,9 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response =
-            await client.PostAsync("/v1/integrations/itsm/outbound/issues", OutboundIssueBody("Jira", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "Jira",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -133,8 +132,9 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 
         await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-        using HttpResponseMessage response =
-            await client.PostAsync("/v1/integrations/itsm/outbound/issues", OutboundIssueBody("ServiceNow", HarnessDemoBaselineSupport.DemoPrimaryFindingId));
+        using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
+            "ServiceNow",
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -232,12 +232,4 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         return string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim();
     }
 
-    private static StringContent OutboundIssueBody(string provider, string findingId)
-    {
-        string json = JsonSerializer.Serialize(
-            new Dictionary<string, string> { ["provider"] = provider, ["findingId"] = findingId },
-            JsonWeb);
-
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
 }
