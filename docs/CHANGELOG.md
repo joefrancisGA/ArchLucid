@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 14: prerequisite hint parity, policy packs open gate, SN evidence map axe
+
+**Outcome.** Ask and impact-preview zero-finalized empties share the open reviews spine hint with compare. Buyer-polished policy packs hub shows the browser-local review open gate. jest-axe covers the SecureNow procurement evidence map section.
+
+**Surfaces.** compare, ask, impact preview, policy packs hub, accessibility suite.
+
 ## 2026-11-11 - Score lift round 13: procurement evidence map, compare prerequisite hint, axe
 
 **Outcome.** Procurement help Sources links the in-product procurement evidence map. Compare zero-finalized empty names the open reviews spine hint. jest-axe covers the procurement evidence map section.
