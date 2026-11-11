@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Text.Json;
 
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Contracts.ProductLearning;
@@ -149,6 +148,8 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
             await response.ReadJsonForTestAsync<LearningPlanningReportDocument>(JsonOptions);
 
         doc.Summary.ThemeCount.Should().Be(0);
+        doc.Summary.PlanCount.Should().Be(0);
+        doc.GeneratedUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(5));
         doc.Themes.Should().BeEmpty();
         doc.Plans.Should().BeEmpty();
     }
@@ -192,12 +193,12 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=json");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
 
-        string text = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(text);
-        doc.RootElement.GetProperty("summary").GetProperty("themeCount").GetInt32().Should().Be(0);
+        LearningPlanningReportDocument doc =
+            await response.ReadJsonForTestAsync<LearningPlanningReportDocument>(JsonOptions);
+
+        doc.Summary.ThemeCount.Should().Be(0);
     }
 
     [SkippableFact]
@@ -206,22 +207,6 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=yaml");
 
         await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.ValidationFailed);
-    }
-
-    [SkippableFact]
-    public async Task GetPlanningReport_Json_empty_scope_exposes_expected_arrays_and_counts()
-    {
-        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        string text = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(text);
-
-        doc.RootElement.GetProperty("summary").GetProperty("planCount").GetInt32().Should().Be(0);
-        doc.RootElement.GetProperty("themes").GetArrayLength().Should().Be(0);
-        doc.RootElement.GetProperty("plans").GetArrayLength().Should().Be(0);
-        doc.RootElement.TryGetProperty("generatedUtc", out JsonElement _).Should().BeTrue();
     }
 
     [SkippableFact]

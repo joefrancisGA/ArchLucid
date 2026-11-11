@@ -335,7 +335,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
         nameof(ArchLucidHttpResponseIntegrationTestExtensions) + ".cs",
         nameof(EvolutionControllerFlowTests) + ".cs",
-        nameof(EvolutionControllerQueryTests) + ".cs",
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
