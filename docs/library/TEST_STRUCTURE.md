@@ -354,17 +354,17 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Anti-patterns (harness `#26`–`#52`):** see **`IntegrationTestHarnessGoldenPathGuardCatalog.Facts`** (titles + fix hints). Failures: **`IntegrationTestHarnessGoldenPathGuardTests`** with **`path:line`** where applicable. Ratchets: **`#40`** JsonDocument allowlist ≤ **`MaxJsonDocumentAllowlistedSourceFiles`** (**3**); **`#31`** ReadFromJson allowlist ≤ **`MaxReadFromJsonAllowlistedSourceFiles`** (**5**, infrastructure/seed only — see allowlist comment in **`IntegrationTestHarnessGoldenPathGuardSupport`**); **`#38`** subresource ≤ **12**; **`#42`** authority ≤ **10**; smoke **`[SkippableFact]`** ≥ **`MinHarnessGoldenPathSmokeSkippableFacts`** (**11**) — ladder wiring only.
+**Anti-patterns (harness `#26`–`#52`):** see **`IntegrationTestHarnessGoldenPathGuardCatalog.Facts`** (titles + fix hints). Failures: **`IntegrationTestHarnessGoldenPathGuardTests`** with **`path:line`** where applicable. Ratchets: **`#40`** JsonDocument allowlist ≤ **`MaxJsonDocumentAllowlistedSourceFiles`** (**3**); **`#31`** ReadFromJson allowlist ≤ **`MaxReadFromJsonAllowlistedSourceFiles`** (**3**, extension/guard infrastructure only — see allowlist comment in **`IntegrationTestHarnessGoldenPathGuardSupport`**); **`#38`** subresource ≤ **4**; **`#42`** authority ≤ **8**; smoke **`[SkippableFact]`** ≥ **`MinHarnessGoldenPathSmokeSkippableFacts`** (**11**) — ladder wiring only.
 
-**ReadFromJson burn-down (historical):** fixture controllers cleared through slice 27 (`EvolutionControllerFlowTests` among last). Remaining allowlist: concurrency support, extensions, guard sources, SQL conflict suite, security seed.
+**ReadFromJson burn-down (historical):** fixture controllers cleared through slice 27 (`EvolutionControllerFlowTests` among last). Slice 32 cleared the concurrency warmup and stale security seed rows. Remaining allowlist is only the HTTP extension plus two guard sources.
 
 **JsonDocument burn-down (#40 allowlist):** guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only (cap **3** after slice 31). **`FinalizeConflictSqlIntegrationTests`** now uses **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** for typed readiness and **`AssertProblemElementForTestAsync`** for conflict bodies; it no longer needs either the `#40` or `#31` allowlist.
 
-**Review subresource URL burn-down (#38 allowlist):** evidence uploads → findings CSV/inspect → `TraceabilityBundleZipEndpointTests`. **`ArchitectureAnalysisExportTests`** uses **`PostAnalysisReportMarkdownExportAsync`** (removed from allowlist in slice 16).
+**Review subresource URL burn-down (#38 allowlist):** evidence uploads → findings CSV/inspect → `TraceabilityBundleZipEndpointTests`. Current allowlist is the four canonical harness extension files; cap is intentionally equal to the current count. **`ArchitectureAnalysisExportTests`** uses **`PostAnalysisReportMarkdownExportAsync`** (removed from allowlist in slice 16).
 
-**Authority URL burn-down (#42 allowlist):** page-bundle fixtures, replay isolation — migrate to **`AuthorityHarnessExtensions`** before adding allowlist rows. **`AuthorityQueryControllerListRunsPagedIntegrationTests`** migrated in slice 16.
+**Authority URL burn-down (#42 allowlist):** page-bundle fixtures, replay isolation, buyer-audience and controller-contract matrices — migrate to **`AuthorityHarnessExtensions`** before adding allowlist rows. Current allowlist is eight files; cap is intentionally equal to the current count. **`AuthorityQueryControllerListRunsPagedIntegrationTests`** migrated in slice 16.
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **3**; **`#31`** ReadFromJson cap **5**. ITSM uses **`CreateScopedClient`** / **`CreateDemoSeededClientAsync`**; poll tuning via **`HarnessPollDefaults`** (slice 30).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **3**; **`#31`** ReadFromJson cap **3**; **`#38`** cap **4**; **`#42`** cap **8**. ITSM uses **`CreateScopedClient`** / **`CreateDemoSeededClientAsync`**; poll tuning via **`HarnessPollDefaults`** (slice 30).
 
 **Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
 

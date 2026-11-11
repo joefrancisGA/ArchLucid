@@ -495,9 +495,10 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 + ".");
         }
 
-        CreateRunResponseDto? created = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions, cancellationToken);
+        CreateRunResponseDto created =
+            await response.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions, cancellationToken);
 
-        return created!.Run.RunId;
+        return created.Run.RunId;
     }
 
     internal static async Task PostExecuteWithGreenfieldTransientRetryAsync(
