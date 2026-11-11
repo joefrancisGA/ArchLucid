@@ -171,8 +171,6 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             {secureNowHome ? <SecureNowScenarioHomeSection /> : null}
             {secureNowHome ? <SecureNowReviewerHomeSection /> : null}
             {secureNowHome ? <SecureNowSponsorHomeSection /> : null}
-            {!secureNowHome && productLine === "architecture" ? <ArchLucidOpenGateReturnHomeSection /> : null}
-            {!secureNowHome && productLine === "architecture" ? <ArchLucidProcurementEvidenceHomeSection /> : null}
             <SecureNowFindingsHomeSection />
             <SecureNowInfrastructureHomeSection />
             <SecureNowRemediationHomeSection />
@@ -221,6 +219,13 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             </EnterpriseTable>
           </section>
         )}
+
+        {!secureNowHome && productLine === "architecture" ? (
+          <div className="mt-6 space-y-4" data-testid="archlucid-infrastructure-home-sections">
+            <ArchLucidOpenGateReturnHomeSection />
+            <ArchLucidProcurementEvidenceHomeSection />
+          </div>
+        ) : null}
 
         {buyerPolishedShell ? <InfrastructureOverviewClaimOrientationStrip /> : null}
       </main>

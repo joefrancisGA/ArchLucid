@@ -25,8 +25,7 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         CorePilotPathExpectedSemantics expected = LoadExpectedSemantics();
 
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
-            .ConfigureAwait(false);
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory);
 
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(expected.RequestId));
 

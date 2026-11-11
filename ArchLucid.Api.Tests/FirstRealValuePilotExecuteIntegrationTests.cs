@@ -32,8 +32,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
     public async Task ExecuteRun_WithPilotTryRealHeader_emitsFirstRealValueAuditEvents()
     {
         await using ArchLucidApiFactory factory = new();
-        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory)
-            .ConfigureAwait(false);
+        HttpClient client = await IntegrationTestSqlClientBootstrap.CreateSqlIntegrationClientAsync(factory);
 
         HttpResponseMessage createResponse = await client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FirstRealValuePilotExecuteIntegrationTests))));
 
