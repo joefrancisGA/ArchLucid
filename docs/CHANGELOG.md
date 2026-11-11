@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 18: drift first-capture gate and SKU surface contract
+
+**Outcome.** Buyer-polished drift shows the working review open gate. Its no-snapshot state now distinguishes missing stored evidence from a load failure and links the operator to cloud connections. A cross-surface contract test keeps SecureNow SKU identifiers aligned across the public SKU card and quote packet list-price tables.
+
+**Surfaces.** drift workbench, SecureNow public SKU card, SecureNow quote packet, tests.
+
 ## 2026-11-11 - Score lift round 17: reviews/graph open gates, sponsor ROI hint, capture pending
 
 **Outcome.** Buyer-polished reviews/new and evidence graph show the working open gate. Sponsor path surfaces investigation-effort ROI guardrail with link. Home pending capture regression test, list-price section SKU contract test, and jest-axe on scorecard and evidence-graph buyer chrome.

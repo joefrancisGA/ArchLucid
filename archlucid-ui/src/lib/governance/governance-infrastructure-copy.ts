@@ -557,7 +557,7 @@ export function formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDe
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY =
-  "Connect a read-only cloud account and wait for the first inventory capture before comparing drift." as const;
+  "No stored inventory snapshot is available yet. Open cloud connections to configure read-only access; the first successful capture makes drift comparisons available." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION = "Open cloud connections" as const;
 

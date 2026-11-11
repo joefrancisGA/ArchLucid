@@ -222,6 +222,20 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
   });
 
+  it("explains that a first stored capture is required when no snapshots exist", async () => {
+    mockSnapshotItems.splice(0, mockSnapshotItems.length);
+    searchParams = new URLSearchParams();
+    render(<DriftWorkbenchClient />);
+
+    const emptyState = await screen.findByTestId("infra-drift-snapshots-empty-resolved");
+
+    expect(emptyState).toHaveTextContent("No stored inventory snapshot is available yet.");
+    expect(screen.getByRole("link", { name: "Open cloud connections" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
+  });
+
   it("renders snapshot table and export button after selecting an inventory file from the table", async () => {
     searchParams = new URLSearchParams();
     render(<DriftWorkbenchClient />);
