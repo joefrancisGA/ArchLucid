@@ -8,6 +8,7 @@ import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLu
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
+import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 
 expect.extend(toHaveNoViolations);
@@ -100,6 +101,12 @@ describe("score-lift chrome axe", () => {
 
   it("pricing AL-EVAL anchor has no serious axe violations", async () => {
     const { container } = render(<MarketingPricingQuotePanel />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("investigation effort scope line has no serious axe violations", async () => {
+    const { container } = render(<SecureNowInvestigationEffortScopeLine />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

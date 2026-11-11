@@ -22,6 +22,14 @@ describe("procurement evidence map href guard", () => {
     });
   }
 
+  it("keeps fragment and testId paired on guarded anchors", () => {
+    for (const anchor of PROCUREMENT_EVIDENCE_GUARDED_ANCHORS) {
+      expect(anchor.testId.length).toBeGreaterThan(0);
+      expect(anchor.href.endsWith(`#${anchor.fragment}`)).toBe(true);
+      expect(anchor.testId).toContain(anchor.fragment.split("-")[0] ?? "");
+    }
+  });
+
   it("uses guarded anchors for every available href that includes a fragment", () => {
     const guardedHrefs = new Set(PROCUREMENT_EVIDENCE_GUARDED_ANCHORS.map((entry) => entry.href));
 

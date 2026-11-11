@@ -41,6 +41,8 @@ import {
   useSecureNowCollectionSetupInput,
 } from "@/hooks/use-securenow-collection-setup-input";
 import { resolveSecureNowHomeEnvironmentNextStep } from "@/lib/product-line/securenow-home-next-step";
+import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
+import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
 
@@ -218,6 +220,8 @@ function SecureNowHomeCollectionSetupBlock(props: {
       subscriptionLabelPresent: props.subscriptionLabelPresent,
     });
 
+  const collectionComplete = isSecureNowCollectionSetupComplete(collectionInput);
+
   return (
     <div className="space-y-2">
       <SecureNowCollectionPrimaryBlockerLine
@@ -230,6 +234,18 @@ function SecureNowHomeCollectionSetupBlock(props: {
         testIdPrefix="securenow-home"
         suppressRecoveryLink
       />
+      {!collectionComplete ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-collection-check-link-row">
+          Stuck on collection?{" "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}
+            data-testid="securenow-home-collection-check-link"
+          >
+            Collection check
+          </Link>
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -300,6 +316,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <span>{errorMessage(snapshotsQuery.error)}</span>
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>Check cloud connections</ContextLink>
+        <ContextLink href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}>Collection check</ContextLink>
         <ContextLink href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</ContextLink>
       </p>
     );
@@ -333,6 +350,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
         <ContextLink href="/administration/securenow-first-hour">First hour</ContextLink>
+        <ContextLink href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}>Collection check</ContextLink>
         </p>
         <SecureNowHomeCollectionSetupBlock
           snapshotCaptureSucceeded={false}

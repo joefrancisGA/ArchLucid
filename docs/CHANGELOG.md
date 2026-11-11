@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-10 - Score lift round 9: Home collection check, reviews open gate, axe
+
+**Outcome.** SecureNow Home and collection errors link the self-service collection check. Working reviews hub shows the browser-local open gate. jest-axe covers investigation effort scope. Procurement guarded-anchor testId contract tightened.
+
+**Surfaces.** SecureNow Home, cloud connections, reviews hub, investigation effort, procurement map, accessibility suite.
+
 ## 2026-11-10 - Score lift round 8: procurement anchors, fixture-path-02 Home, architecture open gate
 
 **Outcome.** Procurement evidence map eval acceptance hrefs share guarded anchors. SecureNow infrastructure Home recommends fixture-path-02 in Path inspect. Working architectures hub shows the browser-local review open gate. Remediation factory buyer-polished test asserts drift and ROI empty-state recovery.
