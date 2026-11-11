@@ -150,6 +150,19 @@ function Get-LocalApiDotnetRunCommand {
     return ($parts -join ' ')
 }
 
+function Add-LocalRealModeApiEnvironmentLines {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Generic.List[string]] $Lines
+    )
+
+    # http-real only flips AgentExecution mode. Development leaves the quality gate on WarnOnly
+    # and leaves demo seed off, so the spawned window has to set both or the UI still looks like a dry Simulator host.
+    $Lines.Add('$env:ArchLucid__AgentOutput__QualityGate__Mode = ''PilotStrict''')
+    $Lines.Add('$env:Demo__Enabled = ''true''')
+    $Lines.Add('$env:Demo__SeedOnStartup = ''true''')
+}
+
 function Get-LocalApiWindowCommand {
     param(
         [Parameter(Mandatory = $true)]
@@ -157,6 +170,8 @@ function Get-LocalApiWindowCommand {
 
         [ValidateNotNullOrEmpty()]
         [string] $LaunchProfile = 'http',
+
+        [switch] $RealMode,
 
         [ValidateRange(1, 64)]
         [int] $MsBuildMaxCpuCount = 1,
@@ -174,6 +189,10 @@ function Get-LocalApiWindowCommand {
     [System.Collections.Generic.List[string]] $lines = [System.Collections.Generic.List[string]]::new()
     $lines.Add("Set-Location -LiteralPath $quotedRoot")
     $lines.Add('$env:MSBUILDDISABLENODEREUSE = ''1''')
+
+    if ($RealMode) {
+        Add-LocalRealModeApiEnvironmentLines -Lines $lines
+    }
 
     if (-not $SkipBuildServerShutdown) {
         $lines.Add('Write-Host ''Shutting down leftover MSBuild/Roslyn servers...''')
