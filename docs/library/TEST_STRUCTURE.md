@@ -314,7 +314,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Canonical `/v1/runs/…` reads | **`RunsHarnessExtensions`** |
 | Stable negative-path GUIDs | **`HarnessWellKnownGuids`** |
 | Foreign tenant isolation header | **`HarnessWellKnownTenants.ForeignTenantHeaderValue`** |
-| Contoso demo baseline seed + finding id | **`HarnessDemoBaselineSupport`** (`EnsureSeededAsync`, `CreateForeignTenantClient`; `[Trait(Harness, DemoBaseline)]` on demo endpoint fixtures) |
+| Contoso demo baseline seed + finding id | **`HarnessDemoBaselineSupport`** (`EnsureSeededAsync`, `DemoRunId`, `ManifestBaseline`, `AuthorityRunIdCompact`, `DemoPrimaryFindingId`, `CreateForeignTenantClient`; `[Trait(Harness, DemoBaseline)]` on demo endpoint fixtures) |
 | Route-level protocol matrices (exempt from **#38** / **#39** / **#42** / **#47**) | **`[Trait(Harness, RouteProtocol)]`** on the fixture class (`HarnessGoldenPathGuardConstants`) |
 | Analysis report POST body | **`HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent`** |
 | Authority-complete execute skip | **`HarnessSkipWhen.AuthorityPipelineCompleteOnCreateAsync`** |

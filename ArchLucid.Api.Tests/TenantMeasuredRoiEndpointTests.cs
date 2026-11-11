@@ -3,8 +3,6 @@ using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.Routing;
-using ArchLucid.Application.Bootstrap;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -22,7 +20,7 @@ public sealed class TenantMeasuredRoiEndpointTests(ArchLucidApiFactory factory) 
         body.Should().NotBeNull();
         body.Disclaimer.Should().NotBeNullOrWhiteSpace();
         body.Snapshot.Should().NotBeNull();
-        body.Snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        body.Snapshot.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
         body.Snapshot.RunsCreatedTotal.Should().BeGreaterThanOrEqualTo(0);
     }
 }

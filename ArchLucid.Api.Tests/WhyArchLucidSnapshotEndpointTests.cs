@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -24,7 +23,7 @@ public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factor
             await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
 
         snapshot.Should().NotBeNull();
-        snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        snapshot.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
         snapshot.GeneratedUtc.Should().BeCloseTo(TimeProvider.System.GetUtcNow(), TimeSpan.FromMinutes(2));
         snapshot.RunsCreatedTotal.Should().BeGreaterThanOrEqualTo(0);
         snapshot.AuditRowCount.Should().BeGreaterThanOrEqualTo(0);
