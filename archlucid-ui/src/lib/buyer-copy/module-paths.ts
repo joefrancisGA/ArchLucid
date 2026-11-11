@@ -8,6 +8,7 @@
  * `./buyer-copy-module-registry.test.ts` fails when a module is added without registering it here.
  */
 export const BUYER_COPY_MODULE_PATHS = [
+  "src/lib/buyer-copy/archlucid-commercial-order-acceptance-copy.ts",
   "src/lib/buyer-copy/ask.ts",
   "src/lib/buyer-copy/audit.ts",
   "src/lib/buyer-copy/cto-demo.ts",

@@ -14,7 +14,8 @@ internal static class InventoryDiagramIndirectRelationshipApplier
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
-        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        DiagramMode mode)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graph);
@@ -62,7 +63,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(fallbackKey, out DiagramEdge? fallbackEdge))
             {
-                if (ShouldPreserveDirectPlacementEdge(fallbackEdge, ast))
+                if (ShouldPreserveDirectPlacementEdge(fallbackEdge, ast, mode))
                 {
                     continue;
                 }
@@ -78,7 +79,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (directDiagramEdge is not null)
             {
-                if (ShouldPreserveDirectPlacementEdge(directDiagramEdge, ast))
+                if (ShouldPreserveDirectPlacementEdge(directDiagramEdge, ast, mode))
                 {
                     continue;
                 }
@@ -105,8 +106,36 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         }
     }
 
-    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge, DiagramAst ast)
+    private static bool ShouldPreserveDirectPlacementEdge(DiagramEdge edge, DiagramAst ast, DiagramMode mode)
     {
+        // Network frames require cited placement to remain machine-readable after
+        // resolving other indirect NIC-hop descriptions. Preserve only verified
+        // placement sources targeting an actual subnet/VNet node in this mode.
+        // Other modes keep the derived relationship's honest description.
+
+        if (mode == DiagramMode.Network
+            && string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
+            && (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryNicSubnet,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryLayoutVmVnet,
+                    StringComparison.OrdinalIgnoreCase))
+            && ast.Nodes.Any(node =>
+                string.Equals(node.NodeId, edge.ToNodeId, StringComparison.Ordinal)
+                && ((node.ArmResourceType ?? string.Empty).Contains(
+                        "Microsoft.Network/virtualNetworks/subnets",
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(
+                        node.ArmResourceType,
+                        "Microsoft.Network/virtualNetworks",
+                        StringComparison.OrdinalIgnoreCase))))
+        {
+            return true;
+        }
+
         if (!IsDirectSubnetAttachmentEndpoint(edge.FromNodeId, ast))
         {
             return false;

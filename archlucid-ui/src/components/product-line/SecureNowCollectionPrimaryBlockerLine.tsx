@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import {
   resolveSecureNowCollectionPrimaryBlocker,
@@ -32,7 +32,7 @@ export function SecureNowCollectionPrimaryBlockerLine(
     return (
       <div
         className={cn(
-          "space-y-2 rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 dark:border-amber-900 dark:bg-amber-950/30",
+          DESIGN_TOKENS.callout.warn, "space-y-2",
         )}
         data-testid={`${props.testIdPrefix}-collection-you-are-here`}
       >
@@ -56,7 +56,7 @@ export function SecureNowCollectionPrimaryBlockerLine(
   return (
     <p
       className={cn(
-        "m-0 rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 dark:border-amber-900 dark:bg-amber-950/30",
+        "m-0", DESIGN_TOKENS.callout.warn,
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid={`${props.testIdPrefix}-collection-primary-blocker`}

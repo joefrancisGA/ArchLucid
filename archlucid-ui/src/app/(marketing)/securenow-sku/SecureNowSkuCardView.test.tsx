@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -29,7 +29,11 @@ describe("SecureNowSkuCardView", () => {
       "href",
       SECURENOW_BETA_SKU_CONTENTS_QUOTE_HREF,
     );
-    expect(screen.getByText(/SN-EVAL/i)).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("table", { name: "SecureNow SKU identifiers and meters" })).getByRole("cell", {
+        name: "SN-EVAL",
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("securenow-published-list-price")).toBeInTheDocument();
     expect(screen.getByText(/\$8,000/)).toBeInTheDocument();
     expect(screen.getByText(/\$24,000/)).toBeInTheDocument();

@@ -81,7 +81,8 @@ public sealed class PolicyPacksIntegrationTests
                 $"/v1/policy-packs/{packId}/assign",
                 JsonContent(new
                 {
-                    version = "1.0.0"
+                    version = "1.0.0",
+                    isPinned = false
                 }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -142,7 +143,8 @@ public sealed class PolicyPacksIntegrationTests
                 $"/v1/policy-packs/{packId}/assign",
                 JsonContent(new
                 {
-                    version = "1.0.0"
+                    version = "1.0.0",
+                    isPinned = false
                 }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -199,7 +201,8 @@ public sealed class PolicyPacksIntegrationTests
                 $"/v1/policy-packs/{packId}/assign",
                 JsonContent(new
                 {
-                    version = "1.0.0"
+                    version = "1.0.0",
+                    isPinned = false
                 }));
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -249,7 +252,8 @@ public sealed class PolicyPacksIntegrationTests
                 $"/v1/policy-packs/{packId}/assign",
                 JsonContent(new
                 {
-                    version = "1.0.0"
+                    version = "1.0.0",
+                    isPinned = false
                 }));
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -447,7 +451,8 @@ public sealed class PolicyPacksIntegrationTests
                 $"/v1/policy-packs/{packId}/assign",
                 JsonContent(new
                 {
-                    version = "99.0.0"
+                    version = "99.0.0",
+                    isPinned = false
                 }));
 
             assign.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -565,14 +570,16 @@ public sealed class PolicyPacksIntegrationTests
                     $"/v1/policy-packs/{packA!.PolicyPackId}/assign",
                     JsonContent(new
                     {
-                        version = "1.0.0"
+                        version = "1.0.0",
+                        isPinned = false
                     })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB!.PolicyPackId}/assign",
                     JsonContent(new
                     {
-                        version = "1.0.0"
+                        version = "1.0.0",
+                        isPinned = false
                     })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -603,14 +610,16 @@ public sealed class PolicyPacksIntegrationTests
                     $"/v1/policy-packs/{packA}/assign",
                     JsonContent(new
                     {
-                        version = "1.0.0"
+                        version = "1.0.0",
+                        isPinned = false
                     })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB}/assign",
                     JsonContent(new
                     {
-                        version = "1.0.0"
+                        version = "1.0.0",
+                        isPinned = false
                     })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
