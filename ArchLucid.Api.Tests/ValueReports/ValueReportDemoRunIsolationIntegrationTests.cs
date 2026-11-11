@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.Security;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.TestSupport;
@@ -47,8 +46,8 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
             string realRunId = created!.Run.RunId;
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunBaseline);
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunHardened);
+            realRunId.Should().NotBe(HarnessDemoBaselineSupport.DemoRunId);
+            realRunId.Should().NotBe(HarnessDemoBaselineSupport.DemoRunHardened);
 
             await ArchitectureRequestConcurrencyTestSupport.PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(
                 client,
@@ -57,10 +56,10 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
 
             markdown.Should().Contain(realRunId, because: "report must anchor on the committed integration run");
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("D"));
-            markdown.Should().NotContain(ContosoRetailDemoIdentifiers.AuthorityRunHardenedId.ToString("D"));
+            markdown.Should().NotContain(HarnessDemoBaselineSupport.DemoRunId);
+            markdown.Should().NotContain(HarnessDemoBaselineSupport.DemoRunHardened);
+            markdown.Should().NotContain(HarnessDemoBaselineSupport.AuthorityRunId.ToString("D"));
+            markdown.Should().NotContain(HarnessDemoBaselineSupport.AuthorityRunHardenedId.ToString("D"));
         }
         catch (WarmupTimedOutException)
         {

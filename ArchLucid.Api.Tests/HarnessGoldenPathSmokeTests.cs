@@ -3,6 +3,7 @@ using System.Net;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
@@ -65,6 +66,30 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
 
         body.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
         body.RunId.Should().Be(HarnessDemoBaselineSupport.AuthorityRunId);
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_foreign_tenant_finding_inspect_returns_not_found()
+    {
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
+
+        using HttpClient foreignClient = HarnessDemoBaselineSupport.CreateForeignTenantClient(Factory);
+
+        HttpResponseMessage response = await foreignClient.GetFindingInspectHttpAsync(
+            HarnessDemoBaselineSupport.DemoPrimaryFindingId);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_why_archlucid_snapshot_surfaces_demo_run_id()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/why-archlucid-snapshot");
+
+        WhyArchLucidSnapshotResponse? snapshot =
+            await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
+
+        snapshot.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
     }
 
     [SkippableFact]

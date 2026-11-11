@@ -10,11 +10,16 @@ internal static class HarnessDemoBaselineSupport
 {
     internal static Guid AuthorityRunId => ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
 
+    internal static Guid AuthorityRunHardenedId => ContosoRetailDemoIdentifiers.AuthorityRunHardenedId;
+
     /// <summary>Authority run id as compact <c>N</c> format (marketing and demo DTO strings).</summary>
     internal static string AuthorityRunIdCompact => AuthorityRunId.ToString("N");
 
     /// <summary>Canonical demo run key surfaced on pilot/marketing endpoints.</summary>
     internal static string DemoRunId => ContosoRetailDemoIdentifiers.RunBaseline;
+
+    /// <summary>Canonical hardened demo run key (leak-detection in greenfield polls).</summary>
+    internal static string DemoRunHardened => ContosoRetailDemoIdentifiers.RunHardened;
 
     /// <summary>Canonical baseline manifest version string for Contoso demo fixtures.</summary>
     internal static string ManifestBaseline => ContosoRetailDemoIdentifiers.ManifestBaseline;

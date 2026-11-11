@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Audit;
 
@@ -302,10 +301,10 @@ internal static class GreenfieldCommittedRunReadinessPoll
         if (string.IsNullOrEmpty(text))
             return false;
 
-        return text.Contains(ContosoRetailDemoIdentifiers.RunBaseline, StringComparison.Ordinal)
-            || text.Contains(ContosoRetailDemoIdentifiers.RunHardened, StringComparison.Ordinal)
-            || text.Contains(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("D"), StringComparison.Ordinal)
-            || text.Contains(ContosoRetailDemoIdentifiers.AuthorityRunHardenedId.ToString("D"), StringComparison.Ordinal);
+        return text.Contains(HarnessDemoBaselineSupport.DemoRunId, StringComparison.Ordinal)
+            || text.Contains(HarnessDemoBaselineSupport.DemoRunHardened, StringComparison.Ordinal)
+            || text.Contains(HarnessDemoBaselineSupport.AuthorityRunId.ToString("D"), StringComparison.Ordinal)
+            || text.Contains(HarnessDemoBaselineSupport.AuthorityRunHardenedId.ToString("D"), StringComparison.Ordinal);
     }
 
     private sealed class ArchitectureRunDetailProbeDto

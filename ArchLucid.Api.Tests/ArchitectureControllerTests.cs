@@ -340,7 +340,7 @@ public sealed class ArchitectureControllerTests
     {
         await IntegrationTestIsolatedSqlScope.RunAsync(async (client, factory) =>
         {
-            HttpResponseMessage response = await client.GetAsync("/v1/architecture/templates");
+            HttpResponseMessage response = await client.GetArchitectureRequestTemplatesHttpAsync();
 
             List<ArchitectureRequestTemplateSummary>? items =
                 await response.ReadJsonForTestAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);

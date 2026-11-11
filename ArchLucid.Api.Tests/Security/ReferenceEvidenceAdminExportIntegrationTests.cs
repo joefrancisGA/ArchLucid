@@ -2,7 +2,6 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.TestSupport;
 
@@ -40,8 +39,8 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
             string realRunId = created!.Run.RunId;
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunBaseline);
-            realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunHardened);
+            realRunId.Should().NotBe(HarnessDemoBaselineSupport.DemoRunId);
+            realRunId.Should().NotBe(HarnessDemoBaselineSupport.DemoRunHardened);
 
             await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
             await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
@@ -51,8 +50,8 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
                 realRunId);
 
             readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
-            readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
-            readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
+            readmeText.Should().NotContain(HarnessDemoBaselineSupport.DemoRunId);
+            readmeText.Should().NotContain(HarnessDemoBaselineSupport.DemoRunHardened);
 
             HttpResponseMessage export = await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false");
             export.StatusCode.Should().Be(HttpStatusCode.OK);
