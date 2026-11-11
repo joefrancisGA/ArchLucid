@@ -153,7 +153,9 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         Guid runId = created.RunGuid;
 
         HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/reviews/{runId:D}/critical-page-bundle");
+            await Client.GetAuthorityReviewBundleHttpAsync(
+                runId,
+                "critical-page-bundle");
 
         RunDetailCriticalPageBundleResponse body =
             await response.ReadJsonForTestAsync<RunDetailCriticalPageBundleResponse>(JsonOptions);
@@ -170,7 +172,9 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         Guid runId = created.RunGuid;
 
         HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/reviews/{runId:D}/timelines-bundle");
+            await Client.GetAuthorityReviewBundleHttpAsync(
+                runId,
+                "timelines-bundle");
 
         RunDetailTimelinesBundleResponse body =
             await response.ReadJsonForTestAsync<RunDetailTimelinesBundleResponse>(JsonOptions);
@@ -186,7 +190,9 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         Guid runId = created.RunGuid;
 
         HttpResponseMessage response =
-            await Client.GetAsync($"/v1/authority/reviews/{runId:D}/workspace-context-bundle");
+            await Client.GetAuthorityReviewBundleHttpAsync(
+                runId,
+                "workspace-context-bundle");
 
         RunDetailWorkspaceContextBundleResponse body =
             await response.ReadJsonForTestAsync<RunDetailWorkspaceContextBundleResponse>(JsonOptions);

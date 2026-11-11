@@ -91,20 +91,18 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             JsonElement reviewRoot = await Client.GetRunReviewJsonForTestAsync(runId, JsonOptions);
             JsonElement runElement = reviewRoot.GetProperty("run");
+            HarnessRunPinHeader pinHeader =
+                runElement.Deserialize<HarnessRunPinHeader>(JsonOptions)
+                ?? throw new InvalidOperationException("Golden cohort review response did not include a run pin header.");
+            string? pinnedEvidencePackagePinsHashSha256 = pinHeader.PinnedEvidencePackagePinsHashSha256;
+
             RunRecord header = new()
             {
-                PinnedPolicyPackIdsJson = runElement.TryGetProperty("pinnedPolicyPackIdsJson", out JsonElement policyJson)
-                    ? policyJson.GetString()
-                    : null,
-                PinnedEvidencePackagePinsJson = runElement.TryGetProperty("pinnedEvidencePackagePinsJson", out JsonElement evidenceJson)
-                    ? evidenceJson.GetString()
-                    : null,
-                PinnedEvidencePackagePinsHashSha256 = runElement.TryGetProperty(
-                        "pinnedEvidencePackagePinsHashSha256",
-                        out JsonElement evidenceHash)
-                    && evidenceHash.ValueKind == JsonValueKind.String
-                    && !string.IsNullOrWhiteSpace(evidenceHash.GetString())
-                    ? Convert.FromBase64String(evidenceHash.GetString()!)
+                PinnedPolicyPackIdsJson = pinHeader.PinnedPolicyPackIdsJson,
+                PinnedEvidencePackagePinsJson = pinHeader.PinnedEvidencePackagePinsJson,
+                PinnedEvidencePackagePinsHashSha256 =
+                    !string.IsNullOrWhiteSpace(pinnedEvidencePackagePinsHashSha256)
+                    ? Convert.FromBase64String(pinnedEvidencePackagePinsHashSha256)
                     : null,
             };
 

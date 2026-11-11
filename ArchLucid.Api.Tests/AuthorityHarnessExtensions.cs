@@ -125,4 +125,18 @@ public static class AuthorityHarnessExtensions
 
         return client.GetAsync($"/v1/authority/reviews/{runId}", cancellationToken);
     }
+
+    public static Task<HttpResponseMessage> GetAuthorityReviewBundleHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        string bundleSegment,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrWhiteSpace(bundleSegment);
+
+        return client.GetAsync(
+            $"/v1/authority/reviews/{runGuid:D}/{bundleSegment}",
+            cancellationToken);
+    }
 }
