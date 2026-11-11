@@ -20,7 +20,9 @@ public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetWhyArchLucidSnapshot_returns_ok_with_canonical_demo_run_id_and_zero_baseline_counters()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/why-archlucid-snapshot");        WhyArchLucidSnapshotResponse? snapshot =
+        HttpResponseMessage response = await Client.GetWhyArchLucidSnapshotHttpAsync();
+
+        WhyArchLucidSnapshotResponse? snapshot =
             await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
 
         snapshot.Should().NotBeNull();
