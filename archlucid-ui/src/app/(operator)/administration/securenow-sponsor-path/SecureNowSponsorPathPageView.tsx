@@ -23,6 +23,10 @@ import {
   SECURENOW_SPONSOR_PATH_NO_PATH_LEAD,
   SECURENOW_SPONSOR_PATH_NO_PATH_REHEARSAL_HEADING,
 } from "@/lib/product-line/securenow-sponsor-path-no-path-copy";
+import {
+  SECURENOW_INVESTIGATION_EFFORT_PATH,
+  SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT,
+} from "@/lib/product-line/securenow-investigation-effort-copy";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -108,6 +112,12 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
             <p className={OPERATOR_TYPOGRAPHY.body}>
               <Link className={OPERATOR_LINK.inline} href="/security/remediation-factory">
                 Open Path inspect in the remediation factory
+              </Link>
+            </p>
+            <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-investigation-hint">
+              {SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT}{" "}
+              <Link className={OPERATOR_LINK.inline} href={SECURENOW_INVESTIGATION_EFFORT_PATH}>
+                Investigation effort
               </Link>
             </p>
             <section aria-labelledby="securenow-sponsor-path-rehearsal-heading" className="space-y-2">
@@ -212,6 +222,12 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                   href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(pathId)}`}
                 >
                   Open pilot decision record
+                </Link>
+              </p>
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-investigation-hint">
+                {SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT}{" "}
+                <Link className={OPERATOR_LINK.inline} href={SECURENOW_INVESTIGATION_EFFORT_PATH}>
+                  Investigation effort
                 </Link>
               </p>
             </section>

@@ -11,6 +11,9 @@ export const SECURENOW_INVESTIGATION_EFFORT_LEAD =
 export const SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL =
   "This page does not start a timer, calculate ROI, or copy a fee. This page is not a savings claim." as const;
 
+export const SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT =
+  `${SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL} Enter your own inputs on Investigation effort before citing ROI in a sponsor readout.` as const;
+
 export const SECURENOW_INVESTIGATION_EFFORT_SYNTHETIC_EXAMPLE_HEADING =
   "Synthetic worksheet walkthrough" as const;
 

@@ -3,6 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SecureNowSponsorPathPageView } from "@/app/(operator)/administration/securenow-sponsor-path/SecureNowSponsorPathPageView";
 import { SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import {
+  SECURENOW_INVESTIGATION_EFFORT_PATH,
+  SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT,
+} from "@/lib/product-line/securenow-investigation-effort-copy";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("pathId=path-tenant-1"),
@@ -29,6 +33,19 @@ describe("SecureNowSponsorPathPageView", () => {
     render(<SecureNowSponsorPathPageView />);
 
     expect(screen.getByTestId("securenow-procurement-trust-strip")).toBeInTheDocument();
+  });
+
+  it("links investigation effort with ROI guardrail copy", () => {
+    render(<SecureNowSponsorPathPageView />);
+
+    const hint = screen.getByTestId("securenow-sponsor-path-investigation-hint");
+
+    expect(hint).toHaveTextContent(SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT);
+
+    expect(screen.getByRole("link", { name: "Investigation effort" })).toHaveAttribute(
+      "href",
+      SECURENOW_INVESTIGATION_EFFORT_PATH,
+    );
   });
 
   it("shows Proceed commercial links when Proceed is selected", () => {

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 17: reviews/graph open gates, sponsor ROI hint, capture pending
+
+**Outcome.** Buyer-polished reviews/new and evidence graph show the working open gate. Sponsor path surfaces investigation-effort ROI guardrail with link. Home pending capture regression test, list-price section SKU contract test, and jest-axe on scorecard and evidence-graph buyer chrome.
+
+**Surfaces.** reviews/new, evidence graph, sponsor path, SecureNow home, accessibility suite.
+
 ## 2026-11-11 - Score lift round 16: scorecard open gate, partial capture, ROI honesty, axe
 
 **Outcome.** Architecture scorecard buyer shell shows the working open gate. SecureNow Home links partial captures to cloud connections with setup checklist parity. Review scorecard empty states ROI honesty note. List-price copy guard and scorecard empty jest-axe coverage.
