@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 13: procurement evidence map, compare prerequisite hint, axe
+
+**Outcome.** Procurement help Sources links the in-product procurement evidence map. Compare zero-finalized empty names the open reviews spine hint. jest-axe covers the procurement evidence map section.
+
+**Surfaces.** help procurement, compare two reviews, accessibility suite.
+
 ## 2026-11-11 - Score lift round 12: first-review open gate, procurement Sources eval links, axe
 
 **Outcome.** Buyer-polished first-review guide shows the browser-local review open gate. Procurement help Sources and diligence share guarded AL-EVAL and SN-EVAL anchor hrefs with copy tests. jest-axe covers first-review buyer chrome orientation.

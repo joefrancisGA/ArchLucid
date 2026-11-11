@@ -3,6 +3,10 @@ import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secon
 import { buildCustomPolicyPackQuoteHref } from "@/lib/marketing-custom-policy-pack-authoring";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
+  ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_HREF,
+  ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LABEL,
+} from "@/lib/product-line/archlucid-procurement-trust-copy";
+import {
   PROCUREMENT_AL_EVAL_ANCHOR_HREF,
   PROCUREMENT_SN_EVAL_ANCHOR_HREF,
 } from "@/lib/procurement/procurement-evidence-map-anchors";
@@ -51,6 +55,7 @@ export const PROCUREMENT_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Settings Security & Trust", href: "/administration/security-trust" },
   { label: "ArchLucid AL-EVAL acceptance", href: PROCUREMENT_AL_EVAL_ANCHOR_HREF },
   { label: "SecureNow SN-EVAL acceptance", href: PROCUREMENT_SN_EVAL_ANCHOR_HREF },
+  { label: ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LABEL, href: ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_HREF },
 ] as const;
 
 export type ProcurementHelpDiligenceCta = {

@@ -7,6 +7,8 @@ import { ArchitectureReviewNewSealedPackageCallout } from "@/app/(operator)/arch
 import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { FirstReviewGuideBuyerChrome } from "@/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideBuyerChrome";
+import { ProcurementEvidenceMapSection } from "@/components/procurement/ProcurementEvidenceMapSection";
+import { ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS } from "@/lib/procurement/procurement-evidence-map-copy";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
@@ -135,6 +137,12 @@ describe("score-lift chrome axe", () => {
 
   it("first-review guide buyer chrome has no serious axe violations", async () => {
     const { container } = render(<FirstReviewGuideBuyerChrome />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("procurement evidence map section has no serious axe violations", async () => {
+    const { container } = render(<ProcurementEvidenceMapSection rows={ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS} />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

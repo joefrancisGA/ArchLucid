@@ -26,6 +26,9 @@ export type InsightsFinalizedReviewJobId =
 export const INSIGHTS_FINALIZED_REVIEW_PREREQUISITE_TITLE_ZERO =
   "No finalized reviews yet" as const;
 
+export const INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT =
+  "If you left a review open, use Open reviews to return to your last spine visit." as const;
+
 export const INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION = {
   label: "Open reviews",
   href: "/architecture/reviews",
@@ -39,8 +42,7 @@ export const INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION = {
 };
 
 const INSIGHTS_JOB_DESCRIPTIONS: Record<InsightsFinalizedReviewJobId, string> = {
-  compare:
-    "You need at least two finalized reviews before ArchLucid can compare changes over time.",
+  compare: `You need at least two finalized reviews before ArchLucid can compare changes over time. ${INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT}`,
   ask: "Finalize an architecture review before asking questions across workspace evidence.",
   scorecard: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
   "impact-preview": IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
