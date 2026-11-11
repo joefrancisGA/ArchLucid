@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
 
+using ArchLucid.Api.Models.Integrations;
+
 using FluentAssertions;
 
 using WireMock.RequestBuilders;
@@ -16,6 +18,8 @@ namespace ArchLucid.Api.Tests.Integrations;
 [Trait("Suite", "Core")]
 public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
 {
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
+
     [SkippableFact]
     public async Task Probe_health_returns_200_when_jira_and_servicenow_probes_succeed()
     {
@@ -40,11 +44,12 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        string raw = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(raw);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("healthy");
-        doc.RootElement.GetProperty("jira").GetProperty("reachable").GetBoolean().Should().BeTrue();
-        doc.RootElement.GetProperty("serviceNow").GetProperty("reachable").GetBoolean().Should().BeTrue();
+        ItsmIntegrationHealthResponse health =
+            await response.ReadJsonForTestAsync<ItsmIntegrationHealthResponse>(JsonOptions);
+
+        health.Status.Should().Be("healthy");
+        health.Jira.Reachable.Should().BeTrue();
+        health.ServiceNow.Reachable.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -71,10 +76,11 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
 
-        string raw = await response.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(raw);
-        doc.RootElement.GetProperty("status").GetString().Should().Be("unhealthy");
-        doc.RootElement.GetProperty("jira").GetProperty("reachable").GetBoolean().Should().BeFalse();
-        doc.RootElement.GetProperty("serviceNow").GetProperty("reachable").GetBoolean().Should().BeTrue();
+        ItsmIntegrationHealthResponse health =
+            await response.ReadJsonForTestAsync<ItsmIntegrationHealthResponse>(JsonOptions);
+
+        health.Status.Should().Be("unhealthy");
+        health.Jira.Reachable.Should().BeFalse();
+        health.ServiceNow.Reachable.Should().BeTrue();
     }
 }

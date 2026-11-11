@@ -50,9 +50,9 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
 
     private static string GoldenManifestRawFingerprint(string runDetailJson)
     {
-        using JsonDocument document = JsonDocument.Parse(runDetailJson);
+        JsonElement root = JsonSerializer.Deserialize<JsonElement>(runDetailJson);
 
-        if (!document.RootElement.TryGetProperty("goldenManifest", out JsonElement golden))
+        if (!root.TryGetProperty("goldenManifest", out JsonElement golden))
             throw new InvalidOperationException("Response missing goldenManifest (committed run expected).");
 
         byte[] utf8 = Encoding.UTF8.GetBytes(golden.GetRawText());

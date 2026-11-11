@@ -347,17 +347,17 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Admin API-key clients | **`AdminApiKeyIntegrationTestBase.CreateAdminClient`** / **`CreateReaderClient`** |
 | Security primer + scoped clients | **`IntegrationTestTenantIsolationClients`** |
 
-**Anti-patterns (harness `#26`–`#52`):** see **`IntegrationTestHarnessGoldenPathGuardCatalog.Facts`** (titles + fix hints). Failures: **`IntegrationTestHarnessGoldenPathGuardTests`** with **`path:line`** where applicable. Ratchets: **`#40`** JsonDocument allowlist ≤ **`MaxJsonDocumentAllowlistedSourceFiles`** (**9**); **`#31`** ReadFromJson allowlist ≤ **`MaxReadFromJsonAllowlistedSourceFiles`** (**6**, infrastructure/seed only — see allowlist comment in **`IntegrationTestHarnessGoldenPathGuardSupport`**); **`#38`** subresource ≤ **12**; **`#42`** authority ≤ **10**; smoke **`[SkippableFact]`** ≥ **`MinHarnessGoldenPathSmokeSkippableFacts`** (**11**) — ladder wiring only.
+**Anti-patterns (harness `#26`–`#52`):** see **`IntegrationTestHarnessGoldenPathGuardCatalog.Facts`** (titles + fix hints). Failures: **`IntegrationTestHarnessGoldenPathGuardTests`** with **`path:line`** where applicable. Ratchets: **`#40`** JsonDocument allowlist ≤ **`MaxJsonDocumentAllowlistedSourceFiles`** (**6**); **`#31`** ReadFromJson allowlist ≤ **`MaxReadFromJsonAllowlistedSourceFiles`** (**6**, infrastructure/seed only — see allowlist comment in **`IntegrationTestHarnessGoldenPathGuardSupport`**); **`#38`** subresource ≤ **12**; **`#42`** authority ≤ **10**; smoke **`[SkippableFact]`** ≥ **`MinHarnessGoldenPathSmokeSkippableFacts`** (**11**) — ladder wiring only.
 
 **ReadFromJson burn-down (historical):** fixture controllers cleared through slice 27 (`EvolutionControllerFlowTests` among last). Remaining allowlist: concurrency support, extensions, guard sources, SQL conflict suite, security seed.
 
-**JsonDocument burn-down (#40 allowlist):** **`BatchReplayIntegrationTests`**, **`FinalizeConflictSqlIntegrationTests`**, simulator/architecture drift — migrate before adding rows (`EvolutionControllerFlowTests`, `LearningControllerTests`, `PolicyPackRequestValidationTests` cleared slice 27).
+**JsonDocument burn-down (#40 allowlist):** **`BatchReplayIntegrationTests`**, **`FinalizeConflictSqlIntegrationTests`**, **`GoldenCohortSimulatorDriftTests`**, guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only. Slice 28 cleared **`ArchitectureTests`**, **`ReplayCommitOriginalGoldenManifestIsolationIntegrationTests`**, **`SecurityTrustPublicationControllerIntegrationTests`** (typed **`ReadJsonForTestAsync`** / **`JsonElement`** fingerprint). ITSM durable async create uses **`IntegrationTestJobPollSupport`**; WireMock health probe uses **`ItsmIntegrationHealthResponse`**.
 
 **Review subresource URL burn-down (#38 allowlist):** evidence uploads → findings CSV/inspect → `TraceabilityBundleZipEndpointTests`. **`ArchitectureAnalysisExportTests`** uses **`PostAnalysisReportMarkdownExportAsync`** (removed from allowlist in slice 16).
 
 **Authority URL burn-down (#42 allowlist):** page-bundle fixtures, replay isolation — migrate to **`AuthorityHarnessExtensions`** before adding allowlist rows. **`AuthorityQueryControllerListRunsPagedIntegrationTests`** migrated in slice 16.
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **9**; **`#31`** ReadFromJson cap **6**. ITSM integration tests use **`ReadJsonForTestAsync`** / **`AssertProblemForTestAsync`** for outbound issue bodies (slice 27).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **6**; **`#31`** ReadFromJson cap **6**. ITSM integration tests use **`ReadJsonForTestAsync`** / **`AssertProblemForTestAsync`** for outbound issue and health bodies (slices 27–28).
 
 **Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
 
