@@ -95,7 +95,7 @@ public sealed class DemoExplainEndpointTests(ArchLucidApiFactory factory) : ICla
 
         DemoExplainResponse? payload = await response.Content.ReadFromJsonAsync<DemoExplainResponse>();
         payload.Should().NotBeNull();
-        payload.RunId.Should().Be(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"));
+        payload.RunId.Should().Be(HarnessDemoBaselineSupport.AuthorityRunIdCompact);
         payload.IsDemoData.Should().BeTrue();
         payload.RunExplanation.Should().NotBeNull();
         payload.ProvenanceGraph.Should().NotBeNull();
@@ -113,8 +113,8 @@ public sealed class DemoExplainEndpointTests(ArchLucidApiFactory factory) : ICla
             DemoExplainResponse response = new()
             {
                 GeneratedUtc = TimeProvider.System.GetUtcNow(),
-                RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
-                ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
+                RunId = HarnessDemoBaselineSupport.AuthorityRunIdCompact,
+                ManifestVersion = HarnessDemoBaselineSupport.ManifestBaseline,
                 IsDemoData = true,
                 DemoStatusMessage = "demo tenant — replace before publishing",
                 RunExplanation = new RunExplanationSummary

@@ -62,7 +62,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
                 await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
             listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             GovernanceApprovalResponseDto[]? requests =
-                await listResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
+                await listResponse.ReadJsonForTestAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
             requests.Should().ContainSingle(x =>
                 x.ApprovalRequestId == submitted.ApprovalRequestId && x.Status == "Approved");
         }

@@ -1,6 +1,5 @@
 ﻿using System.Net;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Reporting;
 
 using FluentAssertions;
@@ -26,7 +25,7 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
     [Fact]
     public async Task ExportRunFindingsCsv_includes_external_tracking_header_columns()
     {
-        Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
 
         using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(runId);
 

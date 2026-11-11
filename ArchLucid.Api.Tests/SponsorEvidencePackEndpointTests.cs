@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -19,9 +18,9 @@ public sealed class SponsorEvidencePackEndpointTests(ArchLucidApiFactory factory
             await response.ReadJsonForTestAsync<SponsorEvidencePackResponse>(JsonOptions);
 
         pack.Should().NotBeNull();
-        pack.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        pack.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
         pack.ProcessInstrumentation.Should().NotBeNull();
-        pack.ProcessInstrumentation.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        pack.ProcessInstrumentation.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
         pack.ExplainabilityTrace.Should().NotBeNull();
         pack.GovernanceOutcomes.Should().NotBeNull();
         pack.GovernanceOutcomes.PendingApprovalCount.Should().BeGreaterThanOrEqualTo(0);

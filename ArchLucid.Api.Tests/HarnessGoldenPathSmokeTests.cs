@@ -2,6 +2,7 @@ using System.Net;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
@@ -50,6 +51,20 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
             await Client.GetAuthorityReviewSummaryHttpAsync(HarnessWellKnownGuids.UnknownAuthorityRunForSmoke);
 
         await response.AssertProblemForTestAsync(HttpStatusCode.NotFound, ProblemTypes.RunNotFound);
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_demo_baseline_inspect_matches_seeded_finding()
+    {
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
+
+        HttpResponseMessage response =
+            await Client.GetFindingInspectHttpAsync(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
+
+        FindingInspectResponse? body = await response.ReadJsonForTestAsync<FindingInspectResponse>(JsonOptions);
+
+        body.FindingId.Should().Be(HarnessDemoBaselineSupport.DemoPrimaryFindingId);
+        body.RunId.Should().Be(HarnessDemoBaselineSupport.AuthorityRunId);
     }
 
     [SkippableFact]
