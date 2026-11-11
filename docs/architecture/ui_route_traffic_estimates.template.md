@@ -189,13 +189,13 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AMO | `/administration/model-governance` | 0.02% | 0 | 0 | 2 | Admin | No | AI and model policy (Settings/Admin) - ModelGovernanceSettingsPage with PageContextualHelpButton (topic map getting-started; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, execution profile / alias registry. Sibling ADI = ai-usage; ABI = billing; HBX = billing-and-plans help. Model profile controls - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
 | ADN | `/administration/notifications` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | ASC | `/administration/scim-provisioning` | 0.02% | 0 | 0 | 2 | Admin | No | SCIM provisioning (Settings/Admin) - ScimProvisioningSettingsPageClient with PageContextualHelpButton (topic map enterprise-onboarding; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, inbound token issue / verify / revoke. Sibling AID = identity-providers hub; ASS = sso-wizard; AUX = users. Access configuration - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
-| SEX | `/administration/securenow-accelerator-index` | 0.02% | 0 | 0 | 2 | Admin | No | None |
+| SAI | `/administration/securenow-accelerator-index` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | SNA | `/administration/securenow-accessibility` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | DSX | `/administration/securenow-compliance-notes` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | DXX | `/administration/securenow-first-hour` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | AD2 | `/administration/securenow-investigation-effort` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | SNP | `/administration/securenow-pilot-decision` | 0.02% | 0 | 0 | 2 | Admin | No | None |
-| EXX | `/administration/securenow-pilot-spine` | 0.02% | 0 | 0 | 2 | Admin | No | None |
+| SPN | `/administration/securenow-pilot-spine` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | AD3 | `/administration/securenow-quote-packet` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | AD7 | `/administration/securenow-readout-pack` | 0.02% | 0 | 0 | 2 | Admin | No | None |
 | DSE | `/administration/securenow-return-reasons` | 0.02% | 0 | 0 | 2 | Admin | No | None |

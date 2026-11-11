@@ -20,6 +20,9 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    # Keep new SecureNow workbook rows stable without colliding with historical SEX/EXX assertions.
+    "/administration/securenow-accelerator-index": "SAI",
+    "/administration/securenow-pilot-spine": "SPN",
     "/internal/validate-route": "REP",
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
