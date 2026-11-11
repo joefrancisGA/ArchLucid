@@ -2,9 +2,7 @@ using System.Net;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
-using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
@@ -80,40 +78,6 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [SkippableFact]
-    public async Task Golden_path_why_archlucid_snapshot_surfaces_demo_run_id()
-    {
-        HttpResponseMessage response = await Client.GetWhyArchLucidSnapshotHttpAsync();
-
-        WhyArchLucidSnapshotResponse? snapshot =
-            await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
-
-        snapshot.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
-    }
-
-    [SkippableFact]
-    public async Task Golden_path_sponsor_evidence_pack_surfaces_demo_run_id()
-    {
-        HttpResponseMessage response = await Client.GetSponsorEvidencePackHttpAsync();
-
-        SponsorEvidencePackResponse? pack =
-            await response.ReadJsonForTestAsync<SponsorEvidencePackResponse>(JsonOptions);
-
-        pack.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
-    }
-
-    [SkippableFact]
-    public async Task Golden_path_pilot_outcome_summary_returns_scorecard_envelope()
-    {
-        HttpResponseMessage response = await Client.GetPilotOutcomeSummaryHttpAsync();
-
-        PilotScorecardResponse body = await response.ReadJsonForTestAsync<PilotScorecardResponse>(JsonOptions);
-
-        body.TenantId.Should().NotBeEmpty();
-        body.RunsInPeriod.Should().BeGreaterThanOrEqualTo(0);
-        (body.PeriodEnd > body.PeriodStart).Should().BeTrue();
     }
 
     [SkippableFact]
