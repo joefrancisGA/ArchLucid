@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Runs.Orchestration.Create.Hooks;

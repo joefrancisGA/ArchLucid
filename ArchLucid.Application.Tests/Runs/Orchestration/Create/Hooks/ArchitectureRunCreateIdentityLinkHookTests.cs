@@ -8,6 +8,7 @@ using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
