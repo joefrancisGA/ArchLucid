@@ -273,7 +273,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (!isDataArchitectureMode)
         {
             DiagramStoredHiddenPathShortcutApplier.Apply(ast, graph, nodeIdMap);
-            InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
             InventoryDiagramContainerImageRelationshipApplier.Apply(ast);
             InventoryDiagramNodePoolRelationshipApplier.Apply(ast);
             InventoryDiagramNetworkSecurityPerimeterRelationshipApplier.Apply(ast);
