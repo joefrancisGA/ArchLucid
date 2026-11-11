@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Models.Pilots;
 
 using FluentAssertions;
@@ -15,9 +12,9 @@ public sealed class PilotOutcomeSummaryEndpointTests(ArchLucidApiFactory factory
     [SkippableFact]
     public async Task GetOutcomeSummary_returns_ok_with_scorecard_shape()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/outcome-summary");        PilotScorecardResponse? body = await response.ReadJsonForTestAsync<PilotScorecardResponse>(JsonOptions);
+        HttpResponseMessage response = await Client.GetPilotOutcomeSummaryHttpAsync();
+        PilotScorecardResponse body = await response.ReadJsonForTestAsync<PilotScorecardResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.TenantId.Should().NotBeEmpty();
         body.RunsInPeriod.Should().BeGreaterThanOrEqualTo(0);
         body.RunsWithCommittedManifest.Should().BeGreaterThanOrEqualTo(0);

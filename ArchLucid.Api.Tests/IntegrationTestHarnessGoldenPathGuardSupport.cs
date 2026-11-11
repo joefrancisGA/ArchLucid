@@ -91,7 +91,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxHarnessAllowlistedSourceFiles = 40;
 
     /// <summary><see cref="ReadFromJsonAsyncAllowlist" /> entry cap (burn-down ratchet).</summary>
-    internal const int MaxReadFromJsonAllowlistedSourceFiles = 11;
+    internal const int MaxReadFromJsonAllowlistedSourceFiles = 10;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
     internal const int MinHarnessGoldenPathSmokeSkippableFacts = 9;
@@ -339,7 +339,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
-        nameof(LearningControllerTests) + ".cs",
         nameof(PolicyPacksIntegrationTests) + ".cs",
         "SecurityCommittedRunSeed.cs",
     };

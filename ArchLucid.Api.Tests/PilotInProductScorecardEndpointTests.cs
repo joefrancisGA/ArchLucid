@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-
 using ArchLucid.Api.Models.Pilots;
 
 using FluentAssertions;
@@ -14,10 +11,10 @@ public sealed class PilotInProductScorecardEndpointTests(ArchLucidApiFactory fac
     [SkippableFact]
     public async Task GetInProductScorecard_returns_ok_with_metric_shape()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/scorecard");        PilotInProductScorecardResponse? body =
+        HttpResponseMessage response = await Client.GetPilotInProductScorecardHttpAsync();
+        PilotInProductScorecardResponse body =
             await response.ReadJsonForTestAsync<PilotInProductScorecardResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.TenantId.Should().NotBeEmpty();
         body.TotalRunsCommitted.Should().BeGreaterThanOrEqualTo(0);
         body.TotalManifestsCreated.Should().BeGreaterThanOrEqualTo(0);

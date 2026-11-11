@@ -1,6 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Pilots;
@@ -27,13 +25,10 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_DefaultCount_ReturnsOkWithRequestedCountFive()
     {
-        HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest());
+        RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.RequestedCount.Should().Be(5);
         body.ReturnedCount.Should().BeGreaterThanOrEqualTo(0);
         body.Items.Should().NotBeNull();
@@ -43,26 +38,20 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_ExplicitCount_RespectedWhenInRange()
     {
-        HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=3");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest(3));
+        RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.RequestedCount.Should().Be(3);
     }
 
     [SkippableFact]
     public async Task GetRecentDeltas_ExcessiveCount_ClampedToServerSideMax()
     {
-        HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=9999");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest(9999));
+        RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.RequestedCount.Should().BeLessThanOrEqualTo(25);
         body.RequestedCount.Should().BeGreaterThan(5);
     }
@@ -70,20 +59,17 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
     [SkippableFact]
     public async Task GetRecentDeltas_ZeroOrNegativeCount_ClampedToOne()
     {
-        HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=-3");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        HttpResponseMessage response = await Client.SendAsync(request);        RecentPilotRunDeltasResponse? body =
+        HttpResponseMessage response = await Client.SendAsync(PilotsHarnessExtensions.CreateRecentPilotRunDeltasJsonRequest(-3));
+        RecentPilotRunDeltasResponse body =
             await response.ReadJsonForTestAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
-        body.Should().NotBeNull();
         body.RequestedCount.Should().Be(1);
     }
 
     [SkippableFact]
     public async Task GetRecentDeltas_ResponseEnvelope_HasCamelCaseProperties()
     {
-        HttpResponseMessage response = await Client.GetAsync("/v1/pilots/runs/recent-deltas?count=5");
+        HttpResponseMessage response = await Client.GetRecentPilotRunDeltasHttpAsync(5);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
