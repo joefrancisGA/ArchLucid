@@ -13,6 +13,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {

@@ -106,6 +106,15 @@ public static class CreatedRunForTestHarnessExtensions
         return client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}", cancellationToken);
     }
 
+    public static Task<HttpResponseMessage> GetArchitectureRequestTemplatesHttpAsync(
+        this HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync("/v1/architecture/templates", cancellationToken);
+    }
+
     public static HttpRequestMessage CreateRunGetRequest(this CreatedRunForTest created)
     {
         ArgumentNullException.ThrowIfNull(created);
