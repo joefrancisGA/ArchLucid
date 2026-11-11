@@ -106,9 +106,15 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     );
 
     const groupedSections = screen.getByTestId("securenow-grouped-home-sections");
-    const sectionTestIds = Array.from(groupedSections.children).map(
-      (element) => (element as HTMLElement).dataset.testid,
-    );
+    // First-hour Home deliberately wraps its destination section with capture-loading chrome.
+    // Preserve the section-order contract without treating that wrapper as a missing section.
+    const sectionTestIds = Array.from(groupedSections.children).map((element) => {
+      const directTestId = (element as HTMLElement).dataset.testid;
+      return (
+        directTestId ??
+        element.querySelector<HTMLElement>('[data-testid="securenow-first-hour-home-section"]')?.dataset.testid
+      );
+    });
 
     expect(sectionTestIds).toEqual([
       "securenow-home-environment-context",

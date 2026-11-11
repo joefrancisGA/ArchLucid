@@ -1,4 +1,12 @@
 import Link from "next/link";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 
 import { MARKETING_TYPOGRAPHY, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -51,29 +59,27 @@ export function SecureNowPublishedListPriceSection(
         {SECURENOW_PUBLISHED_LIST_PRICE_HEADING}
       </h2>
       <p className={bodyClass}>{SECURENOW_PUBLISHED_LIST_PRICE_LEAD}</p>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left">
-          <caption className="sr-only">SecureNow published list prices</caption>
-          <thead>
-            <tr>
-              <th className="border-b border-border p-2">ID</th>
-              <th className="border-b border-border p-2">What it sells</th>
-              <th className="border-b border-border p-2">Price</th>
-              <th className="border-b border-border p-2">Meter</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SECURENOW_PUBLISHED_LIST_PRICE_ROWS.map((row) => (
-              <tr key={row.id}>
-                <td className="border-b border-border p-2 font-medium">{row.id}</td>
-                <td className="border-b border-border p-2">{row.what}</td>
-                <td className="border-b border-border p-2">{formatPriceForDisplay(row.price)}</td>
-                <td className="border-b border-border p-2">{row.meter}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <EnterpriseTable ariaLabel="SecureNow published list prices">
+        <caption className="sr-only">SecureNow published list prices</caption>
+        <EnterpriseTableHead>
+          <EnterpriseTableRow>
+            <EnterpriseTableHeaderCell>ID</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>What it sells</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Price</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Meter</EnterpriseTableHeaderCell>
+          </EnterpriseTableRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {SECURENOW_PUBLISHED_LIST_PRICE_ROWS.map((row) => (
+            <EnterpriseTableRow key={row.id}>
+              <EnterpriseTableCell className="font-medium">{row.id}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.what}</EnterpriseTableCell>
+              <EnterpriseTableCell>{formatPriceForDisplay(row.price)}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.meter}</EnterpriseTableCell>
+            </EnterpriseTableRow>
+          ))}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
       <p className={cn("m-0", helperClass)} data-testid="securenow-published-list-price-credit">
         {SECURENOW_PUBLISHED_LIST_PRICE_EVALUATION_CREDIT.replace(/\*\*/g, "")}
       </p>
