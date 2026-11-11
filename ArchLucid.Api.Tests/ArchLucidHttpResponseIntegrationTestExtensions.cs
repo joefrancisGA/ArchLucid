@@ -88,6 +88,25 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         return body;
     }
 
+    /// <summary>Assert a Problem Details response and return a detached JSON root for focused field assertions.</summary>
+    public static async Task<JsonElement> AssertProblemElementForTestAsync(
+        this HttpResponseMessage response,
+        HttpStatusCode expectedStatus,
+        string? expectedTypeUri = null,
+        string? expectedErrorCode = null,
+        string? detailContains = null,
+        [CallerMemberName] string callerMemberName = "")
+    {
+        using JsonDocument body = await response.AssertProblemForTestAsync(
+            expectedStatus,
+            expectedTypeUri,
+            expectedErrorCode,
+            detailContains,
+            callerMemberName);
+
+        return body.RootElement.Clone();
+    }
+
     /// <summary>Deserialize UTF-8 JSON from a stream without hand-rolled <see cref="JsonDocument" /> in tests.</summary>
     public static async Task<JsonElement> ReadJsonElementForTestAsync(
         this Stream utf8Json,

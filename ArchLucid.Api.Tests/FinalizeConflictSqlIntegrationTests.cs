@@ -15,8 +15,6 @@ using ArchLucid.Decisioning.CareerArtifacts;
 
 using FluentAssertions;
 
-using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
-
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 
 namespace ArchLucid.Api.Tests;
@@ -33,54 +31,44 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     [SkippableFact]
     public async Task Finalize_before_execute_maps_integrity_conflict_to_409()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-FINALIZE-409-" + Guid.NewGuid().ToString("N")[..8]));
-        await createResponse.EnsureSuccessForTestAsync();
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests))));
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created.Run.RunId;
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("authority lifecycle phase");
-        problem.Detail.Should().Contain("pipeline must be Complete before seal");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("authority lifecycle phase");
+        problem.GetProperty("detail").GetString().Should().Contain("pipeline must be Complete before seal");
     }
 
     [SkippableFact]
     public async Task Get_readiness_before_execute_matches_finalize_integrity_block()
     {
-        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest("REQ-READINESS-409-" + Guid.NewGuid().ToString("N")[..8]));
-        await createResponse.EnsureSuccessForTestAsync();
+        HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(TestRequestIds.ForScenario(nameof(FinalizeConflictSqlIntegrationTests))));
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created.Run.RunId;
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("authority lifecycle phase");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("authority lifecycle phase");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.GetArrayLength().Should().BeGreaterThan(0);
-        blocks[0].GetProperty("layer").GetString().Should().Be("integrity");
-        blocks[0].GetProperty("code").GetString().Should().Be("lifecycle_phase_incomplete");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks[0].Layer.Should().Be("integrity");
+        readiness.Blocks[0].Code.Should().Be("lifecycle_phase_incomplete");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -106,11 +94,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("deferred finding");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("deferred finding");
     }
 
     [SkippableFact]
@@ -132,32 +119,25 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await dispositionResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.FinalizeQualityGateEnabled.Should().BeTrue();
+        readiness.BlockedReasonSummary.Should().Contain("deferred finding");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("finalizeQualityGateEnabled").GetBoolean().Should().BeTrue();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("deferred finding");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.GetArrayLength().Should().BeGreaterThan(0);
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
-            && block.GetProperty("code").GetString() == "scorecard"
-            && block.GetProperty("message").GetString()!.Contains("deferred finding", StringComparison.Ordinal));
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Scorecard
+            && block.Code == "scorecard"
+            && block.Message.Contains("deferred finding", StringComparison.Ordinal));
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -171,11 +151,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("hypothesis");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("hypothesis");
     }
 
     [SkippableFact]
@@ -185,32 +164,25 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectVerifyHypothesisScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.FinalizeQualityGateEnabled.Should().BeTrue();
+        readiness.BlockedReasonSummary.Should().Contain("hypothesis");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("finalizeQualityGateEnabled").GetBoolean().Should().BeTrue();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("hypothesis");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.GetArrayLength().Should().BeGreaterThan(0);
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
-            && block.GetProperty("code").GetString() == "scorecard"
-            && block.GetProperty("message").GetString()!.Contains("hypothesis", StringComparison.Ordinal));
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Scorecard
+            && block.Code == "scorecard"
+            && block.Message.Contains("hypothesis", StringComparison.Ordinal));
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -224,11 +196,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("contradiction");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("contradiction");
     }
 
     [SkippableFact]
@@ -238,32 +209,25 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectContradictionScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.FinalizeQualityGateEnabled.Should().BeTrue();
+        readiness.BlockedReasonSummary.Should().Contain("contradiction");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("finalizeQualityGateEnabled").GetBoolean().Should().BeTrue();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("contradiction");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.GetArrayLength().Should().BeGreaterThan(0);
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
-            && block.GetProperty("code").GetString() == "scorecard"
-            && block.GetProperty("message").GetString()!.Contains("contradiction", StringComparison.Ordinal));
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Scorecard
+            && block.Code == "scorecard"
+            && block.Message.Contains("contradiction", StringComparison.Ordinal));
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -277,11 +241,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("open question");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("open question");
     }
 
     [SkippableFact]
@@ -291,32 +254,25 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectCannotDetermineScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.FinalizeQualityGateEnabled.Should().BeTrue();
+        readiness.BlockedReasonSummary.Should().Contain("open question");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("finalizeQualityGateEnabled").GetBoolean().Should().BeTrue();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("open question");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.GetArrayLength().Should().BeGreaterThan(0);
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Scorecard
-            && block.GetProperty("code").GetString() == "scorecard"
-            && block.GetProperty("message").GetString()!.Contains("open question", StringComparison.Ordinal));
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Scorecard
+            && block.Code == "scorecard"
+            && block.Message.Contains("open question", StringComparison.Ordinal));
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -330,11 +286,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("unresolved blocking");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("unresolved blocking");
     }
 
     [SkippableFact]
@@ -344,23 +299,17 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectBlockingScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("unresolved blocking");
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("unresolved blocking");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -374,11 +323,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("low confidence");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("low confidence");
     }
 
     [SkippableFact]
@@ -388,23 +336,17 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectLowConfidenceScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("low confidence");
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("low confidence");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -418,11 +360,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("unverified assumptions");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("unverified assumptions");
     }
 
     [SkippableFact]
@@ -432,23 +373,17 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnverifiedAssumptionScorecardFindingsAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("unverified assumptions");
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("unverified assumptions");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -462,12 +397,11 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("mandatory requirement");
-        problem.Detail.Should().Contain("design decision");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("mandatory requirement");
+        problem.GetProperty("detail").GetString().Should().Contain("design decision");
     }
 
     [SkippableFact]
@@ -477,23 +411,17 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectCoverageGapScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("mandatory requirement");
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("mandatory requirement");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -507,11 +435,10 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().StartWith(FinalizeQualityGate.BlockedPrefix);
-        problem.Detail.Should().Contain("accepted-risk disposition");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().StartWith(FinalizeQualityGate.BlockedPrefix);
+        problem.GetProperty("detail").GetString().Should().Contain("accepted-risk disposition");
     }
 
     [SkippableFact]
@@ -521,23 +448,17 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectUnresolvedHighSeverityScorecardFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("accepted-risk disposition");
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("accepted-risk disposition");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -554,10 +475,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
-        problem.Detail.Should().Be(expectedReason);
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.GetProperty("detail").GetString().Should().Be(expectedReason);
     }
 
     [SkippableFact]
@@ -570,24 +490,18 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         string? expectedReason = await TryReadPreCommitReadinessBlockReasonAsync(runId);
         expectedReason.Should().NotBeNull("pinned critical finding and BlockCommitOnCritical pin must block pre-commit gate");
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain(expectedReason);
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain(expectedReason);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
-        problem.Detail.Should().Be(expectedReason);
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.GetProperty("detail").GetString().Should().Be(expectedReason);
     }
 
     [SkippableFact]
@@ -601,10 +515,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
-        problem.Detail.Should().Contain("required question");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.GetProperty("detail").GetString().Should().Contain("required question");
     }
 
     [SkippableFact]
@@ -614,29 +527,23 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinSkippedMustTransparencyTrailAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("required question");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("required question");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.CareerArtifact
-            && block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.SkippedMustCode);
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.CareerArtifact
+            && block.Code == CareerArtifactCompletenessValidator.SkippedMustCode);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -650,10 +557,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
-        problem.Detail.Should().Contain("transparency trail");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.GetProperty("detail").GetString().Should().Contain("transparency trail");
     }
 
     [SkippableFact]
@@ -663,27 +569,21 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.ClearIntakeTransparencyTrailAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("transparency trail");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("transparency trail");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.TrailMissingCode);
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Code == CareerArtifactCompletenessValidator.TrailMissingCode);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -698,10 +598,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.GovernancePreCommitBlocked);
-        problem.Detail.Should().Contain("Finding coverage is degraded");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.GovernancePreCommitBlocked);
+        problem.GetProperty("detail").GetString().Should().Contain("Finding coverage is degraded");
     }
 
     [SkippableFact]
@@ -712,27 +611,21 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         await FinalizeConflictSqlIntegrationFixture.PinWorkingDeskModeForDevUserAsync(Factory);
         await FinalizeConflictSqlIntegrationFixture.PinDegradedFindingCoverageAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("Finding coverage is degraded");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("Finding coverage is degraded");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("code").GetString() == CareerArtifactCompletenessValidator.DegradedFindingCoverageCode);
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Code == CareerArtifactCompletenessValidator.DegradedFindingCoverageCode);
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -746,10 +639,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("decision-grade provenance");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("decision-grade provenance");
     }
 
     [SkippableFact]
@@ -759,28 +651,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.InjectDecisionGradeProvenanceViolationAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("decision-grade provenance");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("decision-grade provenance");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "decision_grade_provenance");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "decision_grade_provenance");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -794,10 +680,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("existential assumption");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("existential assumption");
     }
 
     [SkippableFact]
@@ -807,28 +692,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinExistentialAssumptionOnRequestAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("existential assumption");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("existential assumption");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "existential_assumption");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "existential_assumption");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -842,10 +721,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("agent output quality gate rejected");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("agent output quality gate rejected");
     }
 
     [SkippableFact]
@@ -855,28 +733,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinRejectedAgentOutputQualityTraceAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("agent output quality gate rejected");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("agent output quality gate rejected");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "agent_output_quality");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "agent_output_quality");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -890,10 +762,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("finding evidence referential integrity failed");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("finding evidence referential integrity failed");
     }
 
     [SkippableFact]
@@ -903,28 +774,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidenceReferentialIntegrityViolationAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("finding evidence referential integrity failed");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("finding evidence referential integrity failed");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "evidence_referential_integrity");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "evidence_referential_integrity");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -938,10 +803,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("structural execution mode is not decision-grade");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("structural execution mode is not decision-grade");
     }
 
     [SkippableFact]
@@ -951,28 +815,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeMixedAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("structural execution mode is not decision-grade");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("structural execution mode is not decision-grade");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "structural_execution_mode");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "structural_execution_mode");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -986,10 +844,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("Unsupported semantic support under PilotStrict hold");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("Unsupported semantic support under PilotStrict hold");
     }
 
     [SkippableFact]
@@ -999,28 +856,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinUnsupportedSemanticSupportFindingAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("Unsupported semantic support under PilotStrict hold");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("Unsupported semantic support under PilotStrict hold");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "unsupported_semantic_support");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "unsupported_semantic_support");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -1034,10 +885,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("architecture version content hash");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("architecture version content hash");
     }
 
     [SkippableFact]
@@ -1047,28 +897,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinArchitectureVersionContentHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("architecture version content hash");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("architecture version content hash");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "architecture_version_pin");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "architecture_version_pin");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -1082,10 +926,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("structural execution mode is not decision-grade");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("structural execution mode is not decision-grade");
     }
 
     [SkippableFact]
@@ -1095,28 +938,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinStructuralExecutionModeFallbackAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("structural execution mode is not decision-grade");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("structural execution mode is not decision-grade");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "structural_execution_mode");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "structural_execution_mode");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -1130,10 +967,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("policy pack pin");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("policy pack pin");
     }
 
     [SkippableFact]
@@ -1143,28 +979,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinPolicyPackPinHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("policy pack pin");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("policy pack pin");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "create_time_pin_integrity");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "create_time_pin_integrity");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -1178,10 +1008,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("evidence package pin");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("evidence package pin");
     }
 
     [SkippableFact]
@@ -1191,28 +1020,22 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinEvidencePackagePinHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("evidence package pin");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("evidence package pin");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "create_time_pin_integrity");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "create_time_pin_integrity");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     [SkippableFact]
@@ -1226,10 +1049,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.Conflict);
-        problem.Detail.Should().Contain("draft document content changed after spawn");
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain("draft document content changed after spawn");
     }
 
     [SkippableFact]
@@ -1239,46 +1061,34 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
         await FinalizeConflictSqlIntegrationFixture.PinDraftSpawnDocumentHashDriftAsync(Factory, runId);
 
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
+        readiness.ReadyToFinalize.Should().BeFalse();
+        readiness.BlockedReasonSummary.Should().Contain("draft document content changed after spawn");
 
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        root.GetProperty("readyToFinalize").GetBoolean().Should().BeFalse();
-        root.GetProperty("blockedReasonSummary").GetString().Should().Contain("draft document content changed after spawn");
-
-        JsonElement blocks = root.GetProperty("blocks");
-        blocks.EnumerateArray().Should().Contain(block =>
-            block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Integrity
-            && block.GetProperty("code").GetString() == "create_time_pin_integrity");
+        readiness.Blocks.Should().NotBeEmpty();
+        readiness.Blocks.Should().Contain(block =>
+            block.Layer == FinalizeReadinessLayers.Integrity
+            && block.Code == "create_time_pin_integrity");
 
         HttpResponseMessage finalizeResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
 
         finalizeResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
-        MvcProblemDetails? problem = await finalizeResponse.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
-        problem!.Detail.Should().Contain(root.GetProperty("blockedReasonSummary").GetString());
+        JsonElement problem = await finalizeResponse.AssertProblemElementForTestAsync(HttpStatusCode.Conflict);
+        problem.GetProperty("detail").GetString().Should().Contain(readiness.BlockedReasonSummary);
     }
 
     private async Task<string?> TryReadPreCommitReadinessBlockReasonAsync(string runId)
     {
-        HttpResponseMessage readinessResponse = await Client.GetAsync(
-            $"/v1/governance/pre-finalize/readiness/{runId}");
+        FinalizeReadinessResult readiness = await Client.GetFinalizeReadinessAsync(runId, JsonOptions);
 
-        await readinessResponse.EnsureSuccessForTestAsync();
-
-        using JsonDocument document = JsonDocument.Parse(await readinessResponse.Content.ReadAsStringAsync());
-        JsonElement root = document.RootElement;
-
-        foreach (JsonElement block in root.GetProperty("blocks").EnumerateArray())
+        foreach (FinalizeReadinessBlock block in readiness.Blocks)
         {
-            if (block.GetProperty("code").GetString() == "pre_commit_gate"
-                && block.GetProperty("layer").GetString() == FinalizeReadinessLayers.Governance)
+            if (block.Code == "pre_commit_gate"
+                && block.Layer == FinalizeReadinessLayers.Governance)
             {
-                return block.GetProperty("message").GetString();
+                return block.Message;
             }
         }
 
@@ -1289,10 +1099,9 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     {
         HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(TestRequestFactory.CreateArchitectureRequest(requestIdPrefix + Guid.NewGuid().ToString("N")[..8]));
 
-        await createResponse.EnsureSuccessForTestAsync();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
+        CreateRunResponseDto created = await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created.Run.RunId;
 
         await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
 
@@ -1336,12 +1145,11 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
     private async Task<bool> RunHasOpenVerifyHypothesisFindingAsync(string runId)
     {
         HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-        await getRunResponse.EnsureSuccessForTestAsync();
 
-        GetRunResponseDto? runPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+        GetRunResponseDto runPayload = await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
         runPayload.Should().NotBeNull();
 
-        string resultsJson = JsonSerializer.Serialize(runPayload!.Results, JsonOptions);
+        string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);
         List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, JsonOptions);
         typedResults.Should().NotBeNull();
 
