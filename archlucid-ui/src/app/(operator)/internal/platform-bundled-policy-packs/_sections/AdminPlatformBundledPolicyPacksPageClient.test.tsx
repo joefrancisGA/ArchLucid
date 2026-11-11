@@ -7,14 +7,20 @@ import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-
 const nav = vi.hoisted(() => ({ callerAuthorityRank: 3 }));
 
 const policyPacksSearchParams = vi.hoisted(() => ({ current: new URLSearchParams() }));
-const policyPacksRouterReplace = vi.hoisted(() =>
-  vi.fn((href: string) => {
-    const queryIndex = href.indexOf("?");
 
-    policyPacksSearchParams.current =
-      queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
-  }),
-);
+function applyPolicyPacksRouterHref(href: string): void {
+  const queryIndex = href.indexOf("?");
+
+  policyPacksSearchParams.current =
+    queryIndex >= 0 ? new URLSearchParams(href.slice(queryIndex + 1)) : new URLSearchParams();
+
+  // Name-filter debounce compares against window.location.search; keep jsdom in sync with replace().
+  const url = new URL(href, "http://localhost");
+
+  window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+}
+
+const policyPacksRouterReplace = vi.hoisted(() => vi.fn(applyPolicyPacksRouterHref));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");

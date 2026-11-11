@@ -20,6 +20,10 @@ public sealed class JsonBooleanStringReaderPropertyTests
         ("no", false),
         ("enabled", true),
         ("disabled", false),
+        ("1", true),
+        ("0", false),
+        (" 1 ", true),
+        (" 0 ", false),
         (" TRUE ", true),
         (" Off ", false),
     ];
@@ -39,7 +43,12 @@ public sealed class JsonBooleanStringReaderPropertyTests
     {
         string raw = token.Get;
 
+        // Recognized tokens (including numeric forms and trim/case variants)
+        // are covered by the positive examples, not the negative property.
+        bool recognized = Synonyms.Any(synonym =>
+            string.Equals(synonym.Input.Trim(), raw.Trim(), StringComparison.OrdinalIgnoreCase));
+
         bool parsed = JsonBooleanStringReader.TryParseBooleanString(raw, out _);
-        return (!parsed).ToProperty();
+        return (recognized || !parsed).ToProperty();
     }
 }

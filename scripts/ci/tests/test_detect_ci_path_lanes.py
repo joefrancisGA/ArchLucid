@@ -97,22 +97,23 @@ class DetectCiPathLanesTests(unittest.TestCase):
         """RC push uses a branch-scoped group; merge_group never cancels in-progress."""
         workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
-        match = re.search(r"(?m)^  push:\n    branches: \[(RC[1-9][0-9]*)\]$", workflow)
+        match = re.search(r"(?m)^  push:\n    branches: \[([^\]]+)\]$", workflow)
         self.assertIsNotNone(match)
-        rc = match.group(1)
+        branches = {branch.strip() for branch in match.group(1).split(",")}
+        self.assertTrue({"RC43", "RC44"}.issubset(branches))
 
-        # Branch-scoped group isolates RC push CI; PR/dispatch still cancel in-progress.
-        self.assertIn(
-            f"github.event_name == 'push' && github.ref == 'refs/heads/{rc}' "
-            f"&& format('{rc.lower()}-push-{{0}}', github.ref)",
-            concurrency,
-        )
+        # RC43 and RC44 must each use a branch-scoped group so different releases do not collide.
+        self.assertIn("github.event_name == 'push'", concurrency)
+        self.assertIn("github.ref == 'refs/heads/RC43'", concurrency)
+        self.assertIn("github.ref == 'refs/heads/RC44'", concurrency)
+        self.assertIn("format('rc-push-{0}', github.ref)", concurrency)
         self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
         self.assertNotIn("github.sha", concurrency)
-        # RC43 push: cancel-in-progress false so runs finish with success/failure, not cancelled.
+        # Both release-candidate pushes complete rather than being canceled by a second push.
         self.assertIn(
             "cancel-in-progress: ${{ github.event_name != 'merge_group' "
-            f"&& !(github.event_name == 'push' && github.ref == 'refs/heads/{rc}') }}",
+            "&& !(github.event_name == 'push' && "
+            "(github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44')) }}",
             concurrency,
         )
 

@@ -45,9 +45,11 @@ export Persistence__SqlOpenResilience__BaseDelayMilliseconds=500
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1
 # k6 create_run hits the full authority pipeline + sp_getapplock idempotency gate; 300s matches GreenfieldSqlApiFactory.
-export ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds=300
+# Parity with GreenfieldSqlApiFactory (integration create-run can exceed 300s command budget on cold SQL).
+export ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds=600
 export ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds=180000
-export AuthorityPipeline__PipelineTimeout=00:05:00
+# Match private-beta / Playwright API-only hosts (5m was marginal on cold CI SQL during create-run smoke).
+export AuthorityPipeline__PipelineTimeout=00:08:00
 
 nohup dotnet run --no-build -c Release --no-launch-profile --project ArchLucid.Api/ArchLucid.Api.csproj > "${LOG_FILE}" 2>&1 &
 echo $! > "${PID_FILE}"

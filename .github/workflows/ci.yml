@@ -36,10 +36,10 @@ name: CI
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC43-only full regression and coverage on every branch push; no production deployment.
+# RC43/RC44 full regression and coverage on every branch push; no production deployment.
 on:
   push:
-    branches: [RC43]
+    branches: [RC43, RC44]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -60,8 +60,8 @@ on:
 # Reverted 2026-11-08: shared group + cancel-in-progress on every push yielded 0 green RC43 runs.
 # PR/workflow_dispatch keep cancel-in-progress. Batch fix commits when possible (~20–30m).
 concurrency:
-  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC43' && format('rc43-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
-  cancel-in-progress: ${{ github.event_name != 'merge_group' && !(github.event_name == 'push' && github.ref == 'refs/heads/RC43') }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44') && format('rc-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' && !(github.event_name == 'push' && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44')) }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
 # diff does not touch those surfaces (docs/UI-only PRs). Jobs still report success so required checks
@@ -88,16 +88,20 @@ env:
 
 jobs:
   gitleaks:
-    # TEMP (owner 2026-11-07 / RC43 loopci): real gitleaks scan deferred until prod.
-    # Full-history clone + scan was ~10–15m and blocked every downstream job via needs: gitleaks;
-    # keep this job as a fast success so the dependency graph still fans out immediately.
+    # A successful no-op is not secret-scan evidence. Full-history scan is a blocking Tier-0 gate.
     name: "Security: gitleaks (secret scan)"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
-      - name: Skip gitleaks until production gate
-        run: |
-          echo "::notice::Gitleaks scan deferred until prod (RC43 throughput). Re-enable checkout fetch-depth:0 + gacts/gitleaks@v1.3.3 before production."
+      - name: Check out full history for secret detection
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Scan repository history for secrets (blocking)
+        uses: gacts/gitleaks@4fd785dcdaf557fda64e05b0ae033b8f7d82fb81 # v1.3.3, Node 24
+        with:
+          fail-on-error: true
 
   beta-readiness-wiring-guards:
     name: "CI: beta-readiness wiring guards"
@@ -2696,11 +2700,11 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
-    # RC43 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
+    # RC43/RC44 diagnostic branches: blocking — guard failure fails the workflow; jobs that
     # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
     # Critical path: start after gitleaks only so this runs in parallel with OpenAPI + Terraform validate
     # (warn-only docs/IaC/demo jobs must not delay text guards or the corset build).
-    continue-on-error: ${{ github.ref != 'refs/heads/RC43' }}
+    continue-on-error: ${{ github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' }}
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -2779,8 +2783,8 @@ jobs:
         && needs.ci-path-lanes.result == 'success'
         && needs.terraform-validate-private.result == 'success'
         && needs.guards-pre-corset.result == 'success'
-        && (github.ref == 'refs/heads/RC43' || needs.terraform-validate-public-stacks.result == 'success')
-        && (github.ref == 'refs/heads/RC43' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || needs.terraform-validate-public-stacks.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
@@ -2842,7 +2846,7 @@ jobs:
         !cancelled()
         && needs.ci-path-lanes.result == 'success'
         && needs.dotnet-fast-core-build.result == 'success'
-        && (github.ref == 'refs/heads/RC43' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
@@ -4098,7 +4102,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC43' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
