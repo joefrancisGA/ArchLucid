@@ -28,6 +28,9 @@ export const REVIEW_SCORECARD_EMPTY_PREVIEW_ITEMS = [
 export const REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE =
   "Scorecard metrics appear after at least one review is finalized.";
 
+export const REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE =
+  "ROI estimates are not calculated until a review is finalized and sponsor inputs pass validation. Figures in sample mode are illustrative only — not measured savings.";
+
 export const REVIEW_SCORECARD_SAMPLE_QUERY_PARAM = "sample";
 
 export const REVIEW_SCORECARD_SAMPLE_HREF =

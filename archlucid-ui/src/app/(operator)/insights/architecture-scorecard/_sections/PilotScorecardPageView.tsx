@@ -58,6 +58,7 @@ import { useRoiTileCareerHonesty } from "@/hooks/use-roi-tile-career-honesty";
 import { useScorecardKpiCareerHonesty } from "@/hooks/use-scorecard-kpi-career-honesty";
 
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
+import { ScorecardWorkingOpenGateStrip } from "./ScorecardWorkingOpenGateStrip";
 import { PilotScorecardMethodology } from "./PilotScorecardMethodology";
 import { PilotScorecardPrimaryOutcomes } from "./PilotScorecardPrimaryOutcomes";
 import { PilotScorecardRoiPanel } from "./PilotScorecardRoiPanel";
@@ -293,6 +294,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               )
             }
           />
+
+          {buyerPolishedShell ? <ScorecardWorkingOpenGateStrip /> : null}
 
           <ReportSurfaceCanonicalPointerStrip surfaceId="architecture-scorecard" />
 

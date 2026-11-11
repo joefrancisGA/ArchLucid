@@ -7,6 +7,7 @@ import { ArchitectureReviewNewSealedPackageCallout } from "@/app/(operator)/arch
 import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLucidProcurementTrustStrip";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { FirstReviewGuideBuyerChrome } from "@/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideBuyerChrome";
+import { ReviewScorecardEmptyState } from "@/app/(operator)/insights/architecture-scorecard/_sections/ReviewScorecardEmptyState";
 import { ProcurementEvidenceMapSection } from "@/components/procurement/ProcurementEvidenceMapSection";
 import {
   ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS,
@@ -152,6 +153,12 @@ describe("score-lift chrome axe", () => {
 
   it("SecureNow procurement evidence map section has no serious axe violations", async () => {
     const { container } = render(<ProcurementEvidenceMapSection rows={SECURENOW_PROCUREMENT_EVIDENCE_ROWS} />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("review scorecard empty state has no serious axe violations", async () => {
+    const { container } = render(<ReviewScorecardEmptyState />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

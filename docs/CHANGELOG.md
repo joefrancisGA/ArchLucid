@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 16: scorecard open gate, partial capture, ROI honesty, axe
+
+**Outcome.** Architecture scorecard buyer shell shows the working open gate. SecureNow Home links partial captures to cloud connections with setup checklist parity. Review scorecard empty states ROI honesty note. List-price copy guard and scorecard empty jest-axe coverage.
+
+**Surfaces.** architecture scorecard, SecureNow home, published list price copy, accessibility suite.
+
 ## 2026-11-11 - Score lift round 15: insights hint parity, ask open gate, procurement home test
 
 **Outcome.** Scorecard and evidence-graph zero-finalized empties share the open reviews spine hint with other Insights jobs. Buyer-polished ask hub shows the browser-local review open gate. First-review procurement evidence home section test locks guarded AL-EVAL href.

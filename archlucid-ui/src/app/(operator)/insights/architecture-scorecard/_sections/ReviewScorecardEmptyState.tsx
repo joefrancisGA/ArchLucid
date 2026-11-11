@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REVIEW_SCORECARD_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE } from "@/lib/review-scorecard-empty-state";
+import {
+  REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
+  REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE,
+} from "@/lib/review-scorecard-empty-state";
 
 import { ReviewScorecardEmptyStatePreview } from "./ReviewScorecardEmptyStatePreview";
 
@@ -15,6 +18,12 @@ export function ReviewScorecardEmptyState(): React.JSX.Element {
       <ReviewScorecardEmptyStatePreview />
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE}
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="review-scorecard-roi-empty-honesty"
+      >
+        {REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE}
       </p>
     </div>
   );
