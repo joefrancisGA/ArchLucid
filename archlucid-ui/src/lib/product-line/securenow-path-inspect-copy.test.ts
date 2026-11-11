@@ -43,6 +43,7 @@ describe("securenow-path-inspect-copy", () => {
       "This does not change the rank.",
     );
     expect(SECURENOW_PATH_RANKED_PATHS_EMPTY).toContain("blank ranking is not a clean result");
+    expect(SECURENOW_PATH_RANKED_PATHS_EMPTY).toContain("Open collection, then select a row");
   });
 
   it("rejects deny-list language in SecureNow path inspect copy", () => {

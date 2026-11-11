@@ -6,6 +6,10 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT,
+  PROCUREMENT_SN_EVAL_ANCHOR_TEST_ID,
+} from "@/lib/procurement/procurement-evidence-map-anchors";
+import {
   SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT,
   SECURENOW_QUOTE_PACKET_GUARDRAIL,
   SECURENOW_QUOTE_PACKET_HEADING,
@@ -24,10 +28,10 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
 
       <main className="mt-6 max-w-3xl space-y-6">
         <section
-          id="sn-eval"
+          id={PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT}
           aria-labelledby="securenow-quote-packet-sn-eval-heading"
           className="space-y-2"
-          data-testid="securenow-quote-packet-sn-eval"
+          data-testid={PROCUREMENT_SN_EVAL_ANCHOR_TEST_ID}
         >
           <h2 id="securenow-quote-packet-sn-eval-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             {SECURENOW_QUOTE_PACKET_SN_EVAL_HEADING}
