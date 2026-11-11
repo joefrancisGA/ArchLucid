@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Agents;
@@ -55,14 +54,8 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
 
         HttpResponseMessage create = await Client.PostArchitectureRequestForTestAsync(request);
 
-        await create.EnsureSuccessForTestAsync();
-        string body = await create.Content.ReadAsStringAsync();
-
-        string? runId = JsonDocument.Parse(body)
-            .RootElement
-            .GetProperty("run")
-            .GetProperty("runId")
-            .GetString();
+        CreateRunResponseDto? created = await create.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
         runId.Should().NotBeNullOrWhiteSpace();
 

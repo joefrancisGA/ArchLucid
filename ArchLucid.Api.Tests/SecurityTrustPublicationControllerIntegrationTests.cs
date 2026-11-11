@@ -1,7 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Contracts.Trust;
 
 using FluentAssertions;
@@ -37,18 +38,16 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
             "/v1/audit/search?eventType=SecurityAssessmentPublished&take=5&includeDataJson=true");
 
         search.StatusCode.Should().Be(HttpStatusCode.OK);
-        string raw = await search.Content.ReadAsStringAsync();
-        using JsonDocument doc = JsonDocument.Parse(raw);
 
-        JsonElement root = doc.RootElement;
-        JsonElement items = root.GetProperty("items");
-        items.ValueKind.Should().Be(JsonValueKind.Array);
-        items.GetArrayLength().Should().BeGreaterThan(0);
+        CursorPagedResponse<AuditEvent> page =
+            await search.ReadJsonForTestAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
 
-        JsonElement first = items[0];
-        first.GetProperty("eventType").GetString().Should().Be("SecurityAssessmentPublished");
-        first.GetProperty("dataJson").GetString().Should().Contain("2026-Q2");
-        first.GetProperty("dataJson").GetString().Should().Contain("2026-07-29");
+        page.Items.Should().NotBeEmpty();
+
+        AuditEvent first = page.Items[0];
+        first.EventType.Should().Be("SecurityAssessmentPublished");
+        first.DataJson.Should().Contain("2026-Q2");
+        first.DataJson.Should().Contain("2026-07-29");
     }
 
     [SkippableFact]

@@ -290,24 +290,14 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         string jobId = accepted.JobId;
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        BackgroundJobState? terminalState = null;
+        string terminalStateName = await IntegrationTestJobPollSupport.PollJobUntilSucceededOrFailedAsync(
+            client,
+            jobId,
+            JsonOptions,
+            maxIterations: 40,
+            delayBetween: TimeSpan.FromMilliseconds(100));
 
-        for (int attempt = 0; attempt < 40; attempt++)
-        {
-            await Task.Delay(100, CancellationToken.None);
-
-            using HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}");
-
-            BackgroundJobInfo status = await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(JsonOptions);
-
-            if (status.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
-            {
-                terminalState = status.State;
-                break;
-            }
-        }
-
-        terminalState.Should().Be(BackgroundJobState.Succeeded);
+        terminalStateName.Should().Be(nameof(BackgroundJobState.Succeeded));
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =
