@@ -18,6 +18,8 @@ vi.mock("@/lib/navigation/replace-if-href-changed", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
+  usePathname: () => "/governance/policy-packs",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
