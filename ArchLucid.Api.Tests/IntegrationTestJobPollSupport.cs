@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Jobs;
+
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -38,6 +40,29 @@ public static class IntegrationTestJobPollSupport
         }
 
         return state;
+    }
+
+    public static async Task<BackgroundJobState> PollJobUntilTerminalStateAsync(
+        HttpClient client,
+        string jobId,
+        JsonSerializerOptions jsonOptions,
+        int maxIterations = 25,
+        TimeSpan? delayBetween = null,
+        CancellationToken cancellationToken = default)
+    {
+        string state = await PollJobUntilSucceededOrFailedAsync(
+                client,
+                jobId,
+                jsonOptions,
+                maxIterations,
+                delayBetween,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!Enum.TryParse(state, ignoreCase: true, out BackgroundJobState terminal))
+            throw new InvalidOperationException($"Unexpected background job state '{state}'.");
+
+        return terminal;
     }
 
     public static Task<HttpResponseMessage> GetJobFileHttpAsync(

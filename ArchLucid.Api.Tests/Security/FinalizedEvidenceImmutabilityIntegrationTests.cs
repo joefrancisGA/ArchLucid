@@ -1,9 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -30,11 +26,17 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        string fingerprintBefore = await GoldenManifestRawFingerprintAsync(runId);
+        string fingerprintBefore = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
 
         HttpResponseMessage secondCommit = await Client.PostFinalizeForTestAsync(Factory, runId);
         secondCommit.StatusCode.Should().Be(HttpStatusCode.OK);
-        string fingerprintAfterSecondCommit = await GoldenManifestRawFingerprintAsync(runId);
+        string fingerprintAfterSecondCommit = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
         fingerprintAfterSecondCommit.Should().Be(fingerprintBefore);
 
         AgentResult forgedResult = new()
@@ -52,7 +54,10 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
             JsonContent(new { result = forgedResult }));
         submitResponse.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Conflict);
 
-        string fingerprintAfterSubmitAttempt = await GoldenManifestRawFingerprintAsync(runId);
+        string fingerprintAfterSubmitAttempt = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
         fingerprintAfterSubmitAttempt.Should().Be(fingerprintBefore);
     }
 
@@ -85,19 +90,4 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         getRunPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
     }
 
-    private async Task<string> GoldenManifestRawFingerprintAsync(string runId)
-    {
-        HttpResponseMessage detailResponse = await Client.GetAsync($"/v1/authority/reviews/{runId}");
-        await detailResponse.EnsureSuccessForTestAsync();
-        string body = await detailResponse.Content.ReadAsStringAsync();
-
-        using JsonDocument document = JsonDocument.Parse(body);
-
-        if (!document.RootElement.TryGetProperty("goldenManifest", out JsonElement golden))
-            throw new InvalidOperationException("Response missing goldenManifest (committed run expected).");
-
-        byte[] utf8 = Encoding.UTF8.GetBytes(golden.GetRawText());
-
-        return Convert.ToHexString(SHA256.HashData(utf8));
-    }
 }

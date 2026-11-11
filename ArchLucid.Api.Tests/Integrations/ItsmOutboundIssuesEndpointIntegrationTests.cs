@@ -37,10 +37,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
                     Content = new StringContent("{\"id\":\"441\",\"key\":\"DP-900\"}", Encoding.UTF8, "application/json")
                 });
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "Jira",
@@ -75,10 +72,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         factory.OutboundHttp.RespondAsync = (_, _) =>
             Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized));
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "Jira",
@@ -111,10 +105,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             };
         };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "Jira",
@@ -138,10 +129,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             IncludeJiraOutboundHostConfiguration = false
         };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "Jira",
@@ -213,10 +201,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest));
         };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "ServiceNow",
@@ -249,10 +234,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
     {
         await using ItsmOutboundIssuesIntegrationApiFactory factory = new() { NativeItsmCreateEnabled = false };
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "Jira",
@@ -275,10 +257,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
                     Content = new StringContent("{\"id\":\"441\",\"key\":\"DP-901\"}", Encoding.UTF8, "application/json")
                 });
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
+        using HttpClient client = await ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync(factory);
 
         using HttpResponseMessage response = await client.PostItsmOutboundIssueHttpAsync(
             "Jira",
@@ -290,14 +269,14 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         string jobId = accepted.JobId;
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        string terminalStateName = await IntegrationTestJobPollSupport.PollJobUntilSucceededOrFailedAsync(
+        BackgroundJobState terminalState = await IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync(
             client,
             jobId,
             JsonOptions,
             maxIterations: 40,
             delayBetween: TimeSpan.FromMilliseconds(100));
 
-        terminalStateName.Should().Be(nameof(BackgroundJobState.Succeeded));
+        terminalState.Should().Be(BackgroundJobState.Succeeded);
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =

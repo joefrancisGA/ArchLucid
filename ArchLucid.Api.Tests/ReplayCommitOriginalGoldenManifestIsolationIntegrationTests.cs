@@ -1,7 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -23,10 +19,11 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
         string runId = await Replay.CreateAndExecuteAsync(TestRequestIds.ForScenario(nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests)));
         HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
         await commitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");
-        await detailBeforeReplay.EnsureSuccessForTestAsync();
-        string bodyBefore = await detailBeforeReplay.Content.ReadAsStringAsync();
-        string fingerprintBefore = GoldenManifestRawFingerprint(bodyBefore);
+
+        string fingerprintBefore = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
 
         string replayManifestVersion = ReplaySession.NewReplayCommittedManifestVersion();
 
@@ -37,26 +34,14 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
                 ReplayRunResponseDto? replayPayload = await replayResponse.ReadJsonForTestAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload!.ReplayRunId.Should().NotBe(runId);
 
-        HttpResponseMessage detailAfterReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");
-        await detailAfterReplay.EnsureSuccessForTestAsync();
-        string bodyAfter = await detailAfterReplay.Content.ReadAsStringAsync();
-        string fingerprintAfter = GoldenManifestRawFingerprint(bodyAfter);
+        string fingerprintAfter = await HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync(
+            Client,
+            runId,
+            JsonOptions);
 
         fingerprintAfter.Should().Be(fingerprintBefore);
 
-        HttpResponseMessage replayRunDetail = await Client.GetAsync($"/v1/authority/reviews/{replayPayload.ReplayRunId}");
-        replayRunDetail.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    private static string GoldenManifestRawFingerprint(string runDetailJson)
-    {
-        JsonElement root = JsonSerializer.Deserialize<JsonElement>(runDetailJson);
-
-        if (!root.TryGetProperty("goldenManifest", out JsonElement golden))
-            throw new InvalidOperationException("Response missing goldenManifest (committed run expected).");
-
-        byte[] utf8 = Encoding.UTF8.GetBytes(golden.GetRawText());
-
-        return Convert.ToHexString(SHA256.HashData(utf8));
+        HttpResponseMessage replayRunDetail = await Client.GetAuthorityReviewDetailHttpAsync(replayPayload.ReplayRunId);
+        await replayRunDetail.ReadJsonForTestAsync<JsonElement>(JsonOptions);
     }
 }

@@ -143,7 +143,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxAuthorityAllowlistedSourceFiles = 10;
 
     /// <summary>Cap for <see cref="HandRolledJsonDocumentParseAllowlist" /> (#40 burn-down ratchet).</summary>
-    internal const int MaxJsonDocumentAllowlistedSourceFiles = 6;
+    internal const int MaxJsonDocumentAllowlistedSourceFiles = 5;
 
     private static readonly Regex HardcodedHarnessUnknownRunGuidRegex = new(
         @"Guid\.Parse\s*\(\s*""(?:0{8}-0{4}-0{4}-0{4}-0{12}|eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee|dddddddd-dddd-dddd-dddd-dddddddddddd|11111111-1111-1111-1111-111111111111|aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)""",
@@ -1602,7 +1602,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
-        nameof(GoldenCohortSimulatorDriftTests) + ".cs",
         nameof(BatchReplayIntegrationTests) + ".cs",
     };
 
