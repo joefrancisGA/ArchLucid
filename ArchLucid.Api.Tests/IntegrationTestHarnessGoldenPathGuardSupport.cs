@@ -91,10 +91,10 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxHarnessAllowlistedSourceFiles = 40;
 
     /// <summary><see cref="ReadFromJsonAsyncAllowlist" /> entry cap (burn-down ratchet).</summary>
-    internal const int MaxReadFromJsonAllowlistedSourceFiles = 8;
+    internal const int MaxReadFromJsonAllowlistedSourceFiles = 6;
 
     /// <summary>Minimum <c>[SkippableFact]</c> methods on <see cref="HarnessGoldenPathSmokeTests" /> (ratchet).</summary>
-    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 9;
+    internal const int MinHarnessGoldenPathSmokeSkippableFacts = 11;
 
     /// <summary>Cap for <see cref="RawArchitectureReviewSubresourceAllowlist" /> (#38 burn-down ratchet).</summary>
     internal const int MaxReviewSubresourceAllowlistedSourceFiles = 12;
@@ -143,7 +143,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
     internal const int MaxAuthorityAllowlistedSourceFiles = 10;
 
     /// <summary>Cap for <see cref="HandRolledJsonDocumentParseAllowlist" /> (#40 burn-down ratchet).</summary>
-    internal const int MaxJsonDocumentAllowlistedSourceFiles = 12;
+    internal const int MaxJsonDocumentAllowlistedSourceFiles = 9;
 
     private static readonly Regex HardcodedHarnessUnknownRunGuidRegex = new(
         @"Guid\.Parse\s*\(\s*""(?:0{8}-0{4}-0{4}-0{4}-0{12}|eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee|dddddddd-dddd-dddd-dddd-dddddddddddd|11111111-1111-1111-1111-111111111111|aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)""",
@@ -331,10 +331,9 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
 
     private static readonly HashSet<string> ReadFromJsonAsyncAllowlist = new(StringComparer.Ordinal)
     {
-        // harness-allowlist: burn-down large controller / concurrency suites (slice 6+).
+        // harness-allowlist: permanent infrastructure + SQL/seed helpers (not fixture burn-down).
         nameof(ArchitectureRequestConcurrencyTestSupport) + ".cs",
         nameof(ArchLucidHttpResponseIntegrationTestExtensions) + ".cs",
-        nameof(EvolutionControllerFlowTests) + ".cs",
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
@@ -1605,10 +1604,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
         nameof(GoldenCohortSimulatorDriftTests) + ".cs",
         nameof(ArchitectureTests) + ".cs",
-        nameof(EvolutionControllerFlowTests) + ".cs",
-        nameof(LearningControllerTests) + ".cs",
         nameof(BatchReplayIntegrationTests) + ".cs",
-        nameof(PolicyPackRequestValidationTests) + ".cs",
         nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",
         nameof(SecurityTrustPublicationControllerIntegrationTests) + ".cs",
     };

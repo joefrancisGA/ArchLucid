@@ -2,6 +2,8 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Jobs;
@@ -22,6 +24,8 @@ namespace ArchLucid.Api.Tests.Integrations;
 [Trait("Suite", "Core")]
 public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 {
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
+
     [SkippableFact]
     public async Task Post_jira_upstream_created_returns_external_key_correlation_and_audit()
     {
@@ -42,11 +46,11 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             "Jira",
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        CreateItsmOutboundIssueResponse body =
+            await response.ReadJsonForTestAsync<CreateItsmOutboundIssueResponse>(JsonOptions);
 
-        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        body.RootElement.GetProperty("provider").GetString().Should().Be("Jira");
-        body.RootElement.GetProperty("externalKey").GetString().Should().Be("DP-900");
+        body.Provider.Should().Be("Jira");
+        body.ExternalKey.Should().Be("DP-900");
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =
@@ -80,9 +84,8 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             "Jira",
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
+        using JsonDocument problem = await response.AssertProblemForTestAsync(HttpStatusCode.ServiceUnavailable);
 
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         problem.RootElement.GetProperty("detail").GetString().Should().NotBeNullOrWhiteSpace();
         problem.RootElement.GetProperty("provider").GetString().Should().Be("Jira");
         problem.RootElement.TryGetProperty(ProblemCorrelation.ExtensionKey, out JsonElement cid).Should().BeTrue();
@@ -117,10 +120,9 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             "Jira",
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        problem.RootElement.GetProperty("detail").GetString().Should().Contain("timed out");
+        await response.AssertProblemForTestAsync(
+            HttpStatusCode.ServiceUnavailable,
+            detailContains: "timed out");
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)
@@ -145,10 +147,10 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             "Jira",
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using JsonDocument problem = await response.AssertProblemForTestAsync(
+            HttpStatusCode.BadRequest,
+            detailContains: "not configured");
 
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        problem.RootElement.GetProperty("detail").GetString().Should().Contain("not configured");
         problem.RootElement.GetProperty("provider").GetString().Should().Be("Jira");
 
         factory.AuditCapture.Snapshot()
@@ -168,9 +170,8 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         using HttpResponseMessage response =
             await client.PostItsmOutboundIssueHttpAsync("Freshdesk", "any");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using JsonDocument problem = await response.AssertProblemForTestAsync(HttpStatusCode.BadRequest);
 
-        JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         problem.RootElement.GetProperty("provider").GetString().Should().Be("Freshdesk");
         problem.RootElement.GetProperty("findingId").GetString().Should().Be("any");
     }
@@ -221,11 +222,11 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             "ServiceNow",
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        CreateItsmOutboundIssueResponse body =
+            await response.ReadJsonForTestAsync<CreateItsmOutboundIssueResponse>(JsonOptions);
 
-        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        body.RootElement.GetProperty("provider").GetString().Should().Be("ServiceNow");
-        body.RootElement.GetProperty("externalKey").GetString().Should().Be("sn-sys-42");
+        body.Provider.Should().Be("ServiceNow");
+        body.ExternalKey.Should().Be("sn-sys-42");
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =
@@ -285,8 +286,8 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        JsonDocument accepted = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        string jobId = accepted.RootElement.GetProperty("jobId").GetString() ?? string.Empty;
+        AsyncJobResponse accepted = await response.ReadJsonForTestAsync<AsyncJobResponse>(JsonOptions);
+        string jobId = accepted.JobId;
         jobId.Should().NotBeNullOrWhiteSpace();
 
         BackgroundJobState? terminalState = null;
@@ -296,14 +297,12 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             await Task.Delay(100, CancellationToken.None);
 
             using HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}");
-            statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            JsonDocument statusBody = JsonDocument.Parse(await statusResponse.Content.ReadAsStringAsync());
-            string? stateRaw = statusBody.RootElement.GetProperty("state").GetString();
+            BackgroundJobInfo status = await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(JsonOptions);
 
-            if (stateRaw is "Succeeded" or "Failed")
+            if (status.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
             {
-                terminalState = Enum.Parse<BackgroundJobState>(stateRaw, ignoreCase: true);
+                terminalState = status.State;
                 break;
             }
         }
