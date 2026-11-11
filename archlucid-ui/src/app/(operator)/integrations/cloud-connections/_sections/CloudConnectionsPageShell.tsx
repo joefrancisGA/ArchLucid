@@ -30,6 +30,7 @@ import { SecureNowCollectionSetupChecklist } from "@/components/product-line/Sec
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
+import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -45,7 +46,6 @@ import {
 import type { CloudConnectionsPageViewModel } from "./use-cloud-connections-page";
 
 const SECURENOW_FIRST_HOUR_HREF = "/administration/securenow-first-hour" as const;
-const SECURENOW_COLLECTION_SELF_SERVICE_HREF = "/administration/securenow-self-service#collection" as const;
 
 export type CloudConnectionsPageShellProps = CloudConnectionsPageViewModel;
 
@@ -135,7 +135,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           First hour
         </Link>
         <Link
-          href={SECURENOW_COLLECTION_SELF_SERVICE_HREF}
+          href={SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF}
           className={OPERATOR_LINK.inline}
           data-testid="cloud-connections-collection-missing-collection-check-link"
         >

@@ -232,6 +232,10 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "href",
       "/administration/securenow-first-hour",
     );
+    expect(screen.getByTestId("securenow-home-collection-check-link")).toHaveAttribute(
+      "href",
+      "/administration/securenow-self-service#collection",
+    );
     expect(screen.getByRole("link", { name: "Scope and freshness" })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections",
@@ -248,6 +252,10 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(screen.getByRole("link", { name: "Check cloud connections" })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections",
+    );
+    expect(screen.getByRole("link", { name: "Collection check" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-self-service#collection",
     );
   });
 
