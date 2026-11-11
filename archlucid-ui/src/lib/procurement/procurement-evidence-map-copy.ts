@@ -1,4 +1,8 @@
 import { ARCHLUCID_PROCUREMENT_ORDER_ACCEPTANCE_LEAD } from "@/lib/buyer-copy/archlucid-commercial-order-acceptance-copy";
+import {
+  PROCUREMENT_AL_EVAL_ANCHOR_HREF,
+  PROCUREMENT_SN_EVAL_ANCHOR_HREF,
+} from "@/lib/procurement/procurement-evidence-map-anchors";
 
 export type ProcurementEvidenceArtifactStatus = "available" | "not-published";
 
@@ -57,7 +61,7 @@ export const SECURENOW_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     id: "sn-eval-acceptance",
     label: "SN-EVAL controlled pilot acceptance",
     status: "available",
-    href: "/administration/securenow-quote-packet#sn-eval",
+    href: PROCUREMENT_SN_EVAL_ANCHOR_HREF,
     note: "Quote packet anchors SN-EVAL acceptance language — not a countersigned order.",
   },
   {
@@ -88,7 +92,7 @@ export const ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS: readonly ProcurementEvidenceAr
     id: "al-eval-acceptance",
     label: "AL-EVAL guided-pilot acceptance",
     status: "available",
-    href: "/pricing#al-eval-acceptance",
+    href: PROCUREMENT_AL_EVAL_ANCHOR_HREF,
     note: "Quote request anchors AL-EVAL acceptance language — not a countersigned order.",
   },
   {

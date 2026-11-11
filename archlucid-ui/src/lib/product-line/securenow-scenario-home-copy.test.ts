@@ -15,6 +15,11 @@ describe("SecureNow scenario home copy", () => {
       "/security/remediation-factory?pathId=fixture-path-01",
     );
 
+    const fixturePath02 = SECURENOW_SCENARIO_HOME_ROWS.find((row) => row.label.includes("fixture-path-02") || row.href.includes("fixture-path-02"));
+    expect(fixturePath02?.href).toBe("/security/remediation-factory?pathId=fixture-path-02");
+    expect(fixturePath02?.recommendedFirst).toBe(true);
+    expect(fixturePath02?.summary).toMatch(/Path inspect/i);
+
     const copy = [
       SECURENOW_SCENARIO_HOME_SECTION_HEADING,
       SECURENOW_SCENARIO_HOME_SECTION_LEAD,

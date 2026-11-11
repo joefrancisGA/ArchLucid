@@ -4,13 +4,17 @@ import {
   ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS,
   SECURENOW_PROCUREMENT_EVIDENCE_ROWS,
 } from "./procurement-evidence-map-copy";
+import {
+  PROCUREMENT_AL_EVAL_ANCHOR_HREF,
+  PROCUREMENT_SN_EVAL_ANCHOR_HREF,
+} from "./procurement-evidence-map-anchors";
 
 describe("procurement evidence map", () => {
   it("includes ArchLucid AL-EVAL acceptance anchor", () => {
     const row = ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS.find((entry) => entry.id === "al-eval-acceptance");
 
     expect(row?.status).toBe("available");
-    expect(row?.href).toBe("/pricing#al-eval-acceptance");
+    expect(row?.href).toBe(PROCUREMENT_AL_EVAL_ANCHOR_HREF);
     expect(row?.note).toMatch(/AL-EVAL/i);
   });
 
@@ -26,7 +30,7 @@ describe("procurement evidence map", () => {
     const row = SECURENOW_PROCUREMENT_EVIDENCE_ROWS.find((entry) => entry.id === "sn-eval-acceptance");
 
     expect(row?.status).toBe("available");
-    expect(row?.href).toBe("/administration/securenow-quote-packet#sn-eval");
+    expect(row?.href).toBe(PROCUREMENT_SN_EVAL_ANCHOR_HREF);
     expect(row?.note).toMatch(/SN-EVAL/i);
   });
 
