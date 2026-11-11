@@ -112,6 +112,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         // resolving other indirect NIC-hop descriptions. Preserve only verified
         // placement sources targeting an actual subnet/VNet node in this mode.
         // Other modes keep the derived relationship's honest description.
+
         if (mode == DiagramMode.Network
             && string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase)
             && (string.Equals(
