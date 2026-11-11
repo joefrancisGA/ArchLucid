@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCompareInsufficientFinalizedEmpty,
   buildInsightsFinalizedReviewPrerequisiteEmpty,
+  INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT,
   INSIGHTS_FINALIZED_REVIEW_PREREQUISITE_TITLE_ZERO,
 } from "@/lib/insights-finalized-review-prerequisite-empty";
 
@@ -59,5 +60,12 @@ describe("insights-finalized-review-prerequisite-empty (TB-2389)", () => {
 
     expect(insufficient.title).toBe("One finalized review available");
     expect(insufficient.actions?.[0]?.href).toBe("/architecture/reviews");
+  });
+
+  it("names the open reviews hint on compare zero-finalized empty", () => {
+    const preset = buildInsightsFinalizedReviewPrerequisiteEmpty({ jobId: "compare", finalizedCount: 0 });
+
+    expect(preset.description).toContain(INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT);
+    expect(preset.testId).toBe("compare-zero-finalized-empty-state");
   });
 });

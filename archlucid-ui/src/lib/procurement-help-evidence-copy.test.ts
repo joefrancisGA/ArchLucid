@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_HREF,
+  ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LABEL,
+} from "@/lib/product-line/archlucid-procurement-trust-copy";
+
+import {
   PROCUREMENT_HELP_DILIGENCE_SECONDARY_CTAS,
   PROCUREMENT_HELP_SOURCES,
 } from "./procurement-help-evidence-copy";
@@ -16,6 +21,10 @@ describe("procurement-help-evidence-copy", () => {
 
     expect(alEval?.href).toBe(PROCUREMENT_AL_EVAL_ANCHOR_HREF);
     expect(snEval?.href).toBe(PROCUREMENT_SN_EVAL_ANCHOR_HREF);
+
+    const evidenceMap = PROCUREMENT_HELP_SOURCES.find((entry) => entry.label === ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_LABEL);
+
+    expect(evidenceMap?.href).toBe(ARCHLUCID_PROCUREMENT_EVIDENCE_MAP_HREF);
   });
 
   it("keeps diligence secondary CTAs aligned with the same eval anchors", () => {
