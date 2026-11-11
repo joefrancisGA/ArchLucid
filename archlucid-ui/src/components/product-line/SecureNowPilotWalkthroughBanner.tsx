@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_PILOT_SPINE_PATH,
   SECURENOW_PILOT_WALKTHROUGH_BEAT_PARAM,
@@ -35,7 +35,7 @@ export function SecureNowPilotWalkthroughBanner(props: SecureNowPilotWalkthrough
   return (
     <div
       className={cn(
-        "rounded-md border border-amber-200 bg-amber-50/90 p-3 dark:border-amber-900 dark:bg-amber-950/40",
+        DESIGN_TOKENS.callout.warn, "p-3",
       )}
       data-testid="securenow-pilot-walkthrough-banner"
       role="status"
