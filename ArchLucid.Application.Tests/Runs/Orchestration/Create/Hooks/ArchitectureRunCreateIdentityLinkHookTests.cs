@@ -36,55 +36,83 @@ public sealed class ArchitectureRunCreateIdentityLinkHookTests
             Mock.Of<IArchitectureIdentityService>(),
             Mock.Of<IArchitectureVersionService>(),
             Mock.Of<IScopeContextProvider>(),
-            null!);
+            null!,
+            Mock.Of<IArchitectureKnowledgeModelIntakeBuilder>(),
+            Mock.Of<IRunRepository>());
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("architectureKnowledgeModelAccess");
     }
 
     [Fact]
-    public async Task TryLinkReviewRunArchitectureIdentityAsync_pins_version_when_greenfield_identity_is_minted()
+    public async Task TryLinkReviewRunArchitectureIdentityAsync_persists_actual_request_model_when_absent()
     {
-        Guid reviewRunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         Guid architectureId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
         ArchitectureRequest request = GoldenCohortArchitectureRequestFactory.FromCohortItem(
-            new GoldenCohortItem
-            {
-                Id = "gc-001",
-                Title = "Baseline Azure web workload (single region)",
-            });
-
-        Mock<IArchitectureIdentityService> identityService = new();
-        identityService
-            .Setup(s => s.TryEnsureReviewRunLinkedAsync(
-                Scope,
-                reviewRunId,
-                request,
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()))
+            new GoldenCohortItem { Id = "gc-001", Title = "Baseline Azure web workload (single region)" });
+        Mock<IArchitectureIdentityService> identities = new();
+        identities.Setup(x => x.TryEnsureReviewRunLinkedAsync(
+                Scope, runId, request, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId });
-
-        Mock<IArchitectureVersionService> versionService = new();
         Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
-
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(Scope);
+        Mock<IRunRepository> runs = new();
+        runs.Setup(x => x.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+        ArchitectureKnowledgeModel? stored = null;
+        Mock<IArchitectureKnowledgeModelAccess> access = new();
+        access.Setup(x => x.GetForRunAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => stored);
+        access.Setup(x => x.SaveForRunAsync(
+                Scope, runId, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+            .Callback<ScopeContext, Guid, ArchitectureKnowledgeModel, CancellationToken>(
+                (_, _, model, _) => stored = model)
+            .Returns(Task.CompletedTask);
+        Mock<IArchitectureVersionService> versions = new();
         ArchitectureRunCreateIdentityLinkHook sut = new(
-            identityService.Object,
-            versionService.Object,
-            scopeProvider.Object,
-            Mock.Of<IArchitectureKnowledgeModelAccess>());
+            identities.Object, versions.Object, scopeProvider.Object, access.Object,
+            new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System), runs.Object);
 
-        await sut.TryLinkReviewRunArchitectureIdentityAsync(request, reviewRunId.ToString("N"), CancellationToken.None);
+        await sut.TryLinkReviewRunArchitectureIdentityAsync(request, runId.ToString("N"), CancellationToken.None);
 
-        versionService.Verify(
-            s => s.EnsureRunVersionPinnedAsync(
-                Scope,
-                reviewRunId,
-                architectureId,
-                request,
-                null,
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        stored.Should().NotBeNull();
+        stored!.TenantId.Should().Be(Scope.TenantId.ToString("D"));
+        stored.RunId.Should().Be(runId.ToString("N"));
+        stored.Elements.Should().NotBeEmpty("a real create request must anchor intake claims");
+        access.Verify(x => x.SaveForRunAsync(
+                Scope, runId, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        versions.Verify(x => x.EnsureRunVersionPinnedAsync(
+                Scope, runId, architectureId, request, stored, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task TryLinkReviewRunArchitectureIdentityAsync_does_not_replace_missing_pinned_model()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid architectureId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        ArchitectureRequest request = new() { RequestId = "existing-run", SystemName = "Existing system" };
+        Mock<IArchitectureIdentityService> identities = new();
+        identities.Setup(x => x.TryEnsureReviewRunLinkedAsync(
+                Scope, runId, request, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord { ArchitectureId = architectureId });
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(Scope);
+        Mock<IRunRepository> runs = new();
+        runs.Setup(x => x.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, KnowledgeModelId = "missing-model" });
+        Mock<IArchitectureKnowledgeModelAccess> access = new();
+        ArchitectureRunCreateIdentityLinkHook sut = new(
+            identities.Object, Mock.Of<IArchitectureVersionService>(), scopeProvider.Object, access.Object,
+            new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System), runs.Object);
+
+        Func<Task> act = () => sut.TryLinkReviewRunArchitectureIdentityAsync(
+            request, runId.ToString("N"), CancellationToken.None);
+        await act.Should().ThrowAsync<ArchitecturePinningFailedException>()
+            .WithMessage("*missing pinned knowledge-model evidence*");
+        access.Verify(x => x.SaveForRunAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(),
+                It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -137,7 +165,9 @@ public sealed class ArchitectureRunCreateIdentityLinkHookTests
             identityService.Object,
             versionService.Object,
             scopeProvider.Object,
-            knowledgeModelAccess.Object);
+            knowledgeModelAccess.Object,
+            new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System),
+            Mock.Of<IRunRepository>());
 
         await sut.TryLinkReviewRunArchitectureIdentityAsync(request, reviewRunId.ToString("N"), CancellationToken.None);
 
@@ -180,7 +210,9 @@ public sealed class ArchitectureRunCreateIdentityLinkHookTests
             identityService.Object,
             Mock.Of<IArchitectureVersionService>(),
             scopeProvider.Object,
-            Mock.Of<IArchitectureKnowledgeModelAccess>());
+            Mock.Of<IArchitectureKnowledgeModelAccess>(),
+            new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System),
+            Mock.Of<IRunRepository>());
 
         Func<Task> act = () => sut.TryLinkReviewRunArchitectureIdentityAsync(
             request,
@@ -278,7 +310,9 @@ public sealed class ArchitectureRunCreateIdentityLinkHookTests
             identityService.Object,
             versionService,
             scopeProvider.Object,
-            knowledgeModelAccess);
+            knowledgeModelAccess,
+            new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System),
+            runs);
 
         await sut.TryLinkReviewRunArchitectureIdentityAsync(request, runId.ToString("N"), CancellationToken.None);
 
