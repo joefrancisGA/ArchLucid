@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-11 - Score lift round 15: insights hint parity, ask open gate, procurement home test
+
+**Outcome.** Scorecard and evidence-graph zero-finalized empties share the open reviews spine hint with other Insights jobs. Buyer-polished ask hub shows the browser-local review open gate. First-review procurement evidence home section test locks guarded AL-EVAL href.
+
+**Surfaces.** ask, scorecard, evidence graph, first-review procurement map, tests.
+
 ## 2026-11-11 - Score lift round 14: prerequisite hint parity, policy packs open gate, SN evidence map axe
 
 **Outcome.** Ask and impact-preview zero-finalized empties share the open reviews spine hint with compare. Buyer-polished policy packs hub shows the browser-local review open gate. jest-axe covers the SecureNow procurement evidence map section.

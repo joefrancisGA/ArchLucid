@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { AskPageHeaderActions } from "@/app/(operator)/insights/ask-review-questions/_sections/AskPageHeaderActions";
 import { AskSourcesOrientationStrip } from "@/app/(operator)/insights/ask-review-questions/_sections/AskSourcesOrientationStrip";
+import { AskWorkingOpenGateStrip } from "@/app/(operator)/insights/ask-review-questions/_sections/AskWorkingOpenGateStrip";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -152,6 +153,8 @@ export function AskPageContent(props: AskPageContentProps = {}) {
           }
           actions={<AskPageHeaderActions />}
         />
+
+        {buyerPolishedShell ? <AskWorkingOpenGateStrip /> : null}
 
         {showUnscopedWorkingAskEmpty ? <WorkingAskPickArchitectureEmptyState /> : null}
 
