@@ -1,16 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GovernanceFindingsQueueResultsSection } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsSection";
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+
+const productLine = vi.hoisted(() => ({ value: "archlucid" as "archlucid" | "security" }));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/findings",
 }));
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
-  useProductLine: () => ({ productLine: "archlucid" }),
+  useProductLine: () => ({ productLine: productLine.value }),
 }));
 
 vi.mock("@/components/governance/findings/GovernanceFindingsList", () => ({
@@ -122,6 +124,21 @@ function buildProps(
 }
 
 describe("GovernanceFindingsQueueResultsSection", () => {
+  afterEach(() => {
+    productLine.value = "archlucid";
+  });
+
+  it("routes SecureNow policy assignment to the compliance policy packs hub", () => {
+    productLine.value = "security";
+
+    render(<GovernanceFindingsQueueResultsSection {...buildProps()} />);
+
+    expect(screen.getByTestId("policy-pack-assign-from-review-action")).toHaveAttribute(
+      "href",
+      "/compliance/policy-packs?reviewId=run-1",
+    );
+  });
+
   it("renders the policy pack assign strip when review scope is active", () => {
     render(<GovernanceFindingsQueueResultsSection {...buildProps()} />);
 

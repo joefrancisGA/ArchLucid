@@ -14,6 +14,7 @@ import { resolveInhabitedFindingsDocumentPresentation } from "@/lib/inhabit/inha
 import { usePathname } from "next/navigation";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { INSIGHT_DENSITY_GENERIC_THRESHOLD } from "@/lib/governance/governance-findings-density-sort";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +76,7 @@ export function GovernanceFindingsQueueResultsSection(
             <PolicyPackAssignFromReviewStrip
               reviewId={props.scopedRunId}
               reviewTitle={props.scopedRunContextTitle}
+              policyPacksHubPath={policyPacksPathForProductLine(productLine)}
             />
           ) : null}
           {props.continueLastFinding !== null ? (

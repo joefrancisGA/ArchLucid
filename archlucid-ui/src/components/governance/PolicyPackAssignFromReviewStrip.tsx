@@ -8,12 +8,14 @@ import { cn } from "@/lib/utils";
 export type PolicyPackAssignFromReviewStripProps = {
   readonly reviewId: string;
   readonly reviewTitle?: string | null;
+  readonly policyPacksHubPath?: string;
 };
 
 /** Routes operators from a review with policy gaps to policy pack assignment. */
 export function PolicyPackAssignFromReviewStrip(props: PolicyPackAssignFromReviewStripProps): React.JSX.Element {
   const titleTrimmed = props.reviewTitle?.trim() ?? "";
   const reviewLabel = titleTrimmed.length > 0 ? titleTrimmed : props.reviewId;
+  const policyPacksHref = buildPolicyPacksHrefWithReviewId(props.reviewId, props.policyPacksHubPath);
 
   return (
     <section
@@ -35,7 +37,7 @@ export function PolicyPackAssignFromReviewStrip(props: PolicyPackAssignFromRevie
           </p>
         </div>
         <Button type="button" variant="outline" size="sm" asChild data-testid="policy-pack-assign-from-review-action">
-          <Link href={buildPolicyPacksHrefWithReviewId(props.reviewId)}>Assign policy packs</Link>
+          <Link href={policyPacksHref}>Assign policy packs</Link>
         </Button>
       </div>
     </section>
