@@ -114,4 +114,15 @@ public static class AuthorityHarnessExtensions
         return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    public static Task<HttpResponseMessage> GetAuthorityReviewDetailHttpAsync(
+        this HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        return client.GetAsync($"/v1/authority/reviews/{runId}", cancellationToken);
+    }
 }

@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+using ArchLucid.Api.Models;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
@@ -74,31 +75,23 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             HttpResponseMessage createResponse = await Client.PostArchitectureRequestForTestAsync(GoldenCohortArchitectureRequestFactory.FromCohortItem(item));
 
-            string createBody = await createResponse.Content.ReadAsStringAsync();
-            createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
-
             CreateRunResponseDto? created =
-                JsonSerializer.Deserialize<CreateRunResponseDto>(createBody, JsonOptions);
+                await createResponse.ReadJsonForTestAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
 
             string runId = created.Run.RunId;
 
             await ExecuteForTestAsync(runId);
             HttpResponseMessage commitResponse = await Client.PostFinalizeForTestAsync(Factory, runId);
-            await commitResponse.EnsureSuccessForTestAsync();
-            string commitJson = await commitResponse.Content.ReadAsStringAsync();
-            using JsonDocument commitDoc = JsonDocument.Parse(commitJson);
-            JsonElement manifestElement = commitDoc.RootElement.GetProperty("manifest");
-            GoldenManifest? manifest = manifestElement.Deserialize<GoldenManifest>(JsonOptions);
+            CommitRunResponse commitPayload =
+                await commitResponse.ReadJsonForTestAsync<CommitRunResponse>(JsonOptions);
+            GoldenManifest manifest = commitPayload.Manifest;
 
             manifest.Should().NotBeNull();
 
             HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-            await getRunResponse.EnsureSuccessForTestAsync();
-
-            string getRunJson = await getRunResponse.Content.ReadAsStringAsync();
-            using JsonDocument getRunDoc = JsonDocument.Parse(getRunJson);
-            JsonElement runElement = getRunDoc.RootElement.GetProperty("run");
+            JsonElement reviewRoot = await getRunResponse.ReadJsonForTestAsync<JsonElement>(JsonOptions);
+            JsonElement runElement = reviewRoot.GetProperty("run");
             RunRecord header = new()
             {
                 PinnedPolicyPackIdsJson = runElement.TryGetProperty("pinnedPolicyPackIdsJson", out JsonElement policyJson)
@@ -121,36 +114,33 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             IReadOnlyList<CommittedArtifactInventoryFingerprintRow>? inventoryRows = null;
 
-            if (commitDoc.RootElement.TryGetProperty("committedArtifactInventory", out JsonElement inventoryElement)
-                && inventoryElement.ValueKind == JsonValueKind.Array)
+            if (commitPayload.CommittedArtifactInventory.Count > 0)
             {
-                List<Core.Manifest.Sections.CommittedArtifactInventoryEntry> entries = [];
-
-                foreach (JsonElement rowElement in inventoryElement.EnumerateArray())
-                {
-                    entries.Add(
-                        new Core.Manifest.Sections.CommittedArtifactInventoryEntry
-                        {
-                            ArtifactName = rowElement.GetProperty("artifactName").GetString() ?? string.Empty,
-                            ContentType = rowElement.GetProperty("contentType").GetString() ?? string.Empty,
-                            ContentHashSha256 = rowElement.GetProperty("contentHashSha256").GetString() ?? string.Empty,
-                            Producer = rowElement.GetProperty("producer").GetString() ?? string.Empty,
-                            CapturedUtc = rowElement.GetProperty("capturedUtc").GetDateTime(),
-                        });
-                }
+                List<Core.Manifest.Sections.CommittedArtifactInventoryEntry> entries =
+                    commitPayload.CommittedArtifactInventory
+                        .Select(static row =>
+                            new Core.Manifest.Sections.CommittedArtifactInventoryEntry
+                            {
+                                ArtifactName = row.ArtifactName,
+                                ContentType = row.ContentType,
+                                ContentHashSha256 = row.ContentHashSha256,
+                                Producer = row.Producer,
+                                CapturedUtc = row.CapturedUtc,
+                            })
+                        .ToList();
 
                 inventoryRows = CommittedArtifactInventoryFingerprintProjector.FromEntries(entries);
             }
 
             string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(
-                manifest!,
+                manifest,
                 createTimePins,
                 inventoryRows ?? []);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
             GetRunResponseDto? runPayload =
-                await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
+                JsonSerializer.Deserialize<GetRunResponseDto>(reviewRoot.GetRawText(), JsonOptions);
             runPayload.Should().NotBeNull();
 
             string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);
