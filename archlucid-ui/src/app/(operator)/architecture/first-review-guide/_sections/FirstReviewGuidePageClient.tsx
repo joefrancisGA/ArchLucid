@@ -65,6 +65,7 @@ import { formatConversationListDate } from "@/lib/locale-datetime";
 import { resolveFirstReviewGuideWalkthroughNextStep } from "@/lib/first-review-guide-walkthrough-next-step";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
+import { FirstReviewGuideWorkingOpenGateStrip } from "./FirstReviewGuideWorkingOpenGateStrip";
 
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
@@ -452,6 +453,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               )}
             >
               <FirstReviewGuideBuyerChrome />
+              <FirstReviewGuideWorkingOpenGateStrip />
               <ArchLucidProcurementTrustStrip />
               {firstReviewGuideWorkspaceGrid}
             </div>
