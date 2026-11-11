@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { ArchitectureReviewNewSealedPackageCallout } from "./ArchitectureReviewNewSealedPackageCallout";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
+import { ReviewsNewWorkingOpenGateStrip } from "./ReviewsNewWorkingOpenGateStrip";
 import {
   REVIEWS_NEW_FIRST_VIEWPORT_ID,
   REVIEWS_NEW_PRIMARY_CONTENT_ID,
@@ -61,6 +62,8 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         data-testid="reviews-new-primary-content"
       >
         <ReviewsNewPageChrome buyerPolishedShell={buyerPolishedShell} activePath={activePath} />
+
+        {buyerPolishedShell ? <ReviewsNewWorkingOpenGateStrip /> : null}
 
         <div
           id={REVIEWS_NEW_FIRST_VIEWPORT_ID}

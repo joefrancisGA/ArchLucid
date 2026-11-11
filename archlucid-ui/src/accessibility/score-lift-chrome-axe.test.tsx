@@ -8,6 +8,8 @@ import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLu
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { FirstReviewGuideBuyerChrome } from "@/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideBuyerChrome";
 import { ReviewScorecardEmptyState } from "@/app/(operator)/insights/architecture-scorecard/_sections/ReviewScorecardEmptyState";
+import { ArchitectureScorecardBuyerChrome } from "@/app/(operator)/insights/architecture-scorecard/_sections/ArchitectureScorecardBuyerChrome";
+import { GraphPageBuyerChrome } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageBuyerChrome";
 import { ProcurementEvidenceMapSection } from "@/components/procurement/ProcurementEvidenceMapSection";
 import {
   ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS,
@@ -159,6 +161,18 @@ describe("score-lift chrome axe", () => {
 
   it("review scorecard empty state has no serious axe violations", async () => {
     const { container } = render(<ReviewScorecardEmptyState />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("architecture scorecard buyer chrome has no serious axe violations", async () => {
+    const { container } = render(<ArchitectureScorecardBuyerChrome />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("evidence graph buyer chrome has no serious axe violations", async () => {
+    const { container } = render(<GraphPageBuyerChrome />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

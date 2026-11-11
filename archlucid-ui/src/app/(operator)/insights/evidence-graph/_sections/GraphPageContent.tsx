@@ -18,6 +18,7 @@ import { GraphPickReviewBeforeCanvasStrip } from "@/app/(operator)/insights/evid
 import { EvidenceGraphNextReviewFooterClient } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceGraphNextReviewFooterClient";
 import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
 import { GraphPageBuyerChrome } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageBuyerChrome";
+import { GraphWorkingOpenGateStrip } from "@/app/(operator)/insights/evidence-graph/_sections/GraphWorkingOpenGateStrip";
 import { GraphPageHeader } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageHeader";
 import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphArchitectureNoteBanner";
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/insights/evidence-graph/_sections/GraphModeAuxiliaryFields";
@@ -49,6 +50,7 @@ export function GraphPageContent(props: GraphPageContentProps = {}) {
         {EVIDENCE_GRAPH_SKIP_LINK_LABEL}
       </a>
       <GraphPageHeader title={vm.pageTitle} subtitle={vm.pageSubtitle} />
+      {vm.buyerPolishedShell ? <GraphWorkingOpenGateStrip /> : null}
       <div
         id={EVIDENCE_GRAPH_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
