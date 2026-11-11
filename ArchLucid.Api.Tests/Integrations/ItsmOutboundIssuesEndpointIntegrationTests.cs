@@ -152,8 +152,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
     {
         await using ItsmOutboundIssuesIntegrationApiFactory factory = new();
 
-        using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = ItsmIntegrationTestClientSupport.CreateScopedClient(factory);
 
         using HttpResponseMessage response =
             await client.PostItsmOutboundIssueHttpAsync("Freshdesk", "any");
@@ -273,8 +272,8 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             client,
             jobId,
             JsonOptions,
-            maxIterations: 40,
-            delayBetween: TimeSpan.FromMilliseconds(100));
+            maxIterations: HarnessPollDefaults.ItsmDurableCreateMaxIterations,
+            delayBetween: HarnessPollDefaults.ItsmDurableCreateDelay);
 
         terminalState.Should().Be(BackgroundJobState.Succeeded);
 

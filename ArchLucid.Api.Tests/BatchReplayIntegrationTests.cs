@@ -62,8 +62,8 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
         ZipArchiveEntry? manifest = zip.GetEntry(BatchReplayManifestSerializer.ManifestEntryName);
         manifest.Should().NotBeNull();
         await using Stream manifestStream = await manifest.OpenAsync();
-        JsonDocument doc = await JsonDocument.ParseAsync(manifestStream);
-        doc.RootElement.GetProperty("failed").GetArrayLength().Should().BeGreaterThan(0);
-        doc.RootElement.GetProperty("succeeded").GetArrayLength().Should().BeGreaterThan(0);
+        JsonElement manifestRoot = await manifestStream.ReadJsonElementForTestAsync();
+        manifestRoot.GetProperty("failed").GetArrayLength().Should().BeGreaterThan(0);
+        manifestRoot.GetProperty("succeeded").GetArrayLength().Should().BeGreaterThan(0);
     }
 }

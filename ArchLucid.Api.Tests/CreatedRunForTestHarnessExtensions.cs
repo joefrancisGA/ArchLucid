@@ -95,6 +95,21 @@ public static class CreatedRunForTestHarnessExtensions
         return client.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
     }
 
+    public static async Task<JsonElement> GetRunReviewJsonForTestAsync(
+        this HttpClient client,
+        string runId,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrEmpty(runId);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        return await response.ReadJsonForTestAsync<JsonElement>(jsonOptions, cancellationToken).ConfigureAwait(false);
+    }
+
     public static Task<HttpResponseMessage> GetArchitectureManifestHttpAsync(
         this HttpClient client,
         string manifestVersion,

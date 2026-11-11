@@ -35,8 +35,7 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
             .Given(Request.Create().WithPath("/api/now/table/incident").WithParam("sysparm_limit", "1").UsingGet())
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"result":[]}"""));
 
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = ItsmIntegrationTestClientSupport.CreateScopedClient(factory);
 
         using HttpResponseMessage response = await client.PostAsync(
             new Uri("/v1/integrations/itsm/health/probe", UriKind.Relative),
@@ -67,8 +66,7 @@ public sealed class ItsmIntegrationHealthWireMockEndpointIntegrationTests
             .Given(Request.Create().WithPath("/api/now/table/incident").WithParam("sysparm_limit", "1").UsingGet())
             .RespondWith(Response.Create().WithStatusCode((int)HttpStatusCode.OK).WithBody(/*lang=json,strict*/ """{"result":[]}"""));
 
-        HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        using HttpClient client = ItsmIntegrationTestClientSupport.CreateScopedClient(factory);
 
         using HttpResponseMessage response = await client.PostAsync(
             new Uri("/v1/integrations/itsm/health/probe", UriKind.Relative),

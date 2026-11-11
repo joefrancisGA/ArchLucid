@@ -89,8 +89,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             manifest.Should().NotBeNull();
 
-            HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-            JsonElement reviewRoot = await getRunResponse.ReadJsonForTestAsync<JsonElement>(JsonOptions);
+            JsonElement reviewRoot = await Client.GetRunReviewJsonForTestAsync(runId, JsonOptions);
             JsonElement runElement = reviewRoot.GetProperty("run");
             RunRecord header = new()
             {
