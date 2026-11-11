@@ -26,8 +26,11 @@ export type InsightsFinalizedReviewJobId =
 export const INSIGHTS_FINALIZED_REVIEW_PREREQUISITE_TITLE_ZERO =
   "No finalized reviews yet" as const;
 
-export const INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT =
+export const INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT =
   "If you left a review open, use Open reviews to return to your last spine visit." as const;
+
+/** @deprecated Use `INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT`. */
+export const INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT = INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT;
 
 export const INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION = {
   label: "Open reviews",
@@ -42,10 +45,10 @@ export const INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION = {
 };
 
 const INSIGHTS_JOB_DESCRIPTIONS: Record<InsightsFinalizedReviewJobId, string> = {
-  compare: `You need at least two finalized reviews before ArchLucid can compare changes over time. ${INSIGHTS_COMPARE_PREREQUISITE_OPEN_REVIEWS_HINT}`,
-  ask: "Finalize an architecture review before asking questions across workspace evidence.",
+  compare: `You need at least two finalized reviews before ArchLucid can compare changes over time. ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
+  ask: `Finalize an architecture review before asking questions across workspace evidence. ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
   scorecard: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
-  "impact-preview": IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
+  "impact-preview": `${IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY} ${INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}`,
   "evidence-graph":
     "Select a finalized architecture review to explore evidence links, or start a review to build the graph.",
 };

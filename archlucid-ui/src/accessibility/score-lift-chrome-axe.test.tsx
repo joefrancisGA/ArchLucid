@@ -8,7 +8,10 @@ import { ArchLucidProcurementTrustStrip } from "@/components/product-line/ArchLu
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { FirstReviewGuideBuyerChrome } from "@/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideBuyerChrome";
 import { ProcurementEvidenceMapSection } from "@/components/procurement/ProcurementEvidenceMapSection";
-import { ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS } from "@/lib/procurement/procurement-evidence-map-copy";
+import {
+  ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS,
+  SECURENOW_PROCUREMENT_EVIDENCE_ROWS,
+} from "@/lib/procurement/procurement-evidence-map-copy";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { SecureNowDriftPostCaptureNextStep } from "@/components/product-line/SecureNowDriftPostCaptureNextStep";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
@@ -143,6 +146,12 @@ describe("score-lift chrome axe", () => {
 
   it("procurement evidence map section has no serious axe violations", async () => {
     const { container } = render(<ProcurementEvidenceMapSection rows={ARCHLUCID_PROCUREMENT_EVIDENCE_ROWS} />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("SecureNow procurement evidence map section has no serious axe violations", async () => {
+    const { container } = render(<ProcurementEvidenceMapSection rows={SECURENOW_PROCUREMENT_EVIDENCE_ROWS} />);
 
     expect(await axe(container)).toHaveNoViolations();
   });
