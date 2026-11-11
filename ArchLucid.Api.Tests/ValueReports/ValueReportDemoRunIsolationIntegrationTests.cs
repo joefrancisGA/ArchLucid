@@ -46,8 +46,7 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
             string realRunId = created!.Run.RunId;
-            realRunId.Should().NotBe(HarnessDemoBaselineSupport.DemoRunId);
-            realRunId.Should().NotBe(HarnessDemoBaselineSupport.DemoRunHardened);
+            HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
 
             await ArchitectureRequestConcurrencyTestSupport.PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(
                 client,
@@ -56,10 +55,8 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
 
             markdown.Should().Contain(realRunId, because: "report must anchor on the committed integration run");
-            markdown.Should().NotContain(HarnessDemoBaselineSupport.DemoRunId);
-            markdown.Should().NotContain(HarnessDemoBaselineSupport.DemoRunHardened);
-            markdown.Should().NotContain(HarnessDemoBaselineSupport.AuthorityRunId.ToString("D"));
-            markdown.Should().NotContain(HarnessDemoBaselineSupport.AuthorityRunHardenedId.ToString("D"));
+            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(markdown);
+            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseAuthorityRunGuids(markdown);
         }
         catch (WarmupTimedOutException)
         {

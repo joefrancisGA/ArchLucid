@@ -1,6 +1,8 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
@@ -65,5 +67,32 @@ internal static class HarnessDemoBaselineSupport
         client.DefaultRequestHeaders.TryAddWithoutValidation(
             "x-project-id",
             (projectId ?? ScopeIds.DefaultProject).ToString("D"));
+    }
+
+    /// <summary>Greenfield / tenant runs must not reuse canonical showcase run keys.</summary>
+    internal static void AssertRunIdIsNotShowcase(string runId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(runId);
+
+        runId.Should().NotBe(DemoRunId);
+        runId.Should().NotBe(DemoRunHardened);
+    }
+
+    /// <summary>Exported text for real runs must not embed canonical showcase run keys.</summary>
+    internal static void AssertTextExcludesShowcaseRunKeys(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        text.Should().NotContain(DemoRunId);
+        text.Should().NotContain(DemoRunHardened);
+    }
+
+    /// <summary>Exported text must not embed Contoso authority run guids used in marketing/demo fixtures.</summary>
+    internal static void AssertTextExcludesShowcaseAuthorityRunGuids(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        text.Should().NotContain(AuthorityRunId.ToString("D"));
+        text.Should().NotContain(AuthorityRunHardenedId.ToString("D"));
     }
 }
