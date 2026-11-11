@@ -338,7 +338,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(FinalizeConflictSqlIntegrationTests) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardSupport) + ".cs",
         nameof(IntegrationTestHarnessGoldenPathGuardTests) + ".cs",
-        nameof(PolicyPacksIntegrationTests) + ".cs",
         "SecurityCommittedRunSeed.cs",
     };
 
@@ -1607,7 +1606,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(GoldenCohortSimulatorDriftTests) + ".cs",
         nameof(ArchitectureTests) + ".cs",
         nameof(EvolutionControllerFlowTests) + ".cs",
-        nameof(ProductLearningControllerTests) + ".cs",
+        nameof(LearningControllerTests) + ".cs",
         nameof(BatchReplayIntegrationTests) + ".cs",
         nameof(PolicyPackRequestValidationTests) + ".cs",
         nameof(ReplayCommitOriginalGoldenManifestIsolationIntegrationTests) + ".cs",

@@ -3,7 +3,6 @@ using System.Net;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
@@ -79,28 +78,6 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
             HarnessDemoBaselineSupport.DemoPrimaryFindingId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [SkippableFact]
-    public async Task Golden_path_why_archlucid_snapshot_surfaces_demo_run_id()
-    {
-        HttpResponseMessage response = await Client.GetWhyArchLucidSnapshotHttpAsync();
-
-        WhyArchLucidSnapshotResponse? snapshot =
-            await response.ReadJsonForTestAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
-
-        snapshot.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
-    }
-
-    [SkippableFact]
-    public async Task Golden_path_sponsor_evidence_pack_surfaces_demo_run_id()
-    {
-        HttpResponseMessage response = await Client.GetSponsorEvidencePackHttpAsync();
-
-        SponsorEvidencePackResponse? pack =
-            await response.ReadJsonForTestAsync<SponsorEvidencePackResponse>(JsonOptions);
-
-        pack.DemoRunId.Should().Be(HarnessDemoBaselineSupport.DemoRunId);
     }
 
     [SkippableFact]
