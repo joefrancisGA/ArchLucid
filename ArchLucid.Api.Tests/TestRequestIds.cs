@@ -17,6 +17,7 @@ public static class TestRequestIds
     public static string ForScenario(string scenario, [CallerMemberName] string testMethod = "")
     {
         string requestId = $"REQ-{Sanitize(scenario)}-{Sanitize(testMethod)}";
+
         if (requestId.Length <= MaxSystemNameSeedLength)
             return requestId;
 
