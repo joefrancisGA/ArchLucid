@@ -61,12 +61,34 @@ describe("RunDetailFirstReviewSpineBand", () => {
     );
 
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent("Uncommitted review");
+    expect(screen.getByTestId("review-open-gate")).toHaveTextContent(
+      "Next action: Review the package and commit it when ready.",
+    );
     expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package#run-detail-first-review-spine-review-package",
     );
     expect(screen.getByTestId("run-detail-first-review-spine-open-gate-primary")).toHaveTextContent(
       "Open gate: Uncommitted review",
+    );
+  });
+
+  it("shows the stored review snapshot", () => {
+    render(
+      <RunDetailFirstReviewSpineBand
+        runId="run-abc"
+        manifestVersion="v2026.11.12"
+        summary={baseSummary({})}
+        openGateNavigationInput={{
+          findings: [],
+          hasFindingsSnapshot: true,
+          reviewHasGoldenManifest: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-first-review-spine-manifest")).toHaveTextContent(
+      "Review snapshot: v2026.11.12",
     );
   });
 
