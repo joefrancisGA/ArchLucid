@@ -63,7 +63,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         string deltasJson = await deltasResponse.Content.ReadAsStringAsync();
 
         HttpResponseMessage zipResponse =
-            await client.GetAsync($"/v1/architecture/review/{runId}/traceability-bundle.zip");
+            await client.GetReviewTraceabilityBundleZipHttpAsync(Guid.Parse(runId));
         zipResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         byte[] zipBytes = await zipResponse.Content.ReadAsByteArrayAsync();
         IReadOnlyList<string> zipNames = ReadZipEntryNames(zipBytes);

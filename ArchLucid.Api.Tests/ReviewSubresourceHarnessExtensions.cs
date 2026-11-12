@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Models;
+using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Api.Tests;
 
@@ -81,5 +82,77 @@ public static class ReviewSubresourceHarnessExtensions
         return client.GetAsync(
             $"/v1/architecture/review/{runGuid:D}/findings/{findingId}/evidence-chain",
             cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetReviewDecisionsHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{runGuid:D}/decisions", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetReviewRoiHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{runGuid:D}/roi", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetReviewExportsHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return client.GetAsync($"/v1/architecture/review/{runGuid:D}/exports", cancellationToken);
+    }
+
+    public static async Task<DecisionNodeResponseDto> GetReviewDecisionsAsync(
+        this HttpClient client,
+        Guid runGuid,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetReviewDecisionsHttpAsync(client, runGuid, cancellationToken);
+
+        return await response.ReadJsonForTestAsync<DecisionNodeResponseDto>(jsonOptions, cancellationToken);
+    }
+
+    public static async Task<RunRoiScorecardDto> GetReviewRoiAsync(
+        this HttpClient client,
+        Guid runGuid,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetReviewRoiHttpAsync(client, runGuid, cancellationToken);
+
+        return await response.ReadJsonForTestAsync<RunRoiScorecardDto>(jsonOptions, cancellationToken);
+    }
+
+    public static async Task<RunExportHistoryResponse> GetReviewExportsHistoryAsync(
+        this HttpClient client,
+        Guid runGuid,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetReviewExportsHttpAsync(client, runGuid, cancellationToken);
+
+        return await response.ReadJsonForTestAsync<RunExportHistoryResponse>(jsonOptions, cancellationToken);
     }
 }

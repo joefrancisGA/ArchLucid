@@ -38,6 +38,12 @@ public static class IntegrationTestJobPollSupport
         if (latest is null)
             throw new InvalidOperationException($"Job '{jobId}' poll made no status read (maxIterations={maxIterations}).");
 
+        if (latest.State is not (BackgroundJobState.Succeeded or BackgroundJobState.Failed or BackgroundJobState.Canceled))
+        {
+            throw new TimeoutException(
+                $"Job '{jobId}' did not reach a terminal state within {maxIterations} poll(s). Last state: {latest.State}.");
+        }
+
         return latest;
     }
 

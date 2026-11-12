@@ -78,10 +78,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions", cancellationToken);
-
-        return await response.ReadJsonForTestAsync<DecisionNodeResponseDto>(jsonOptions, cancellationToken);
+        return await client.GetReviewDecisionsAsync(finalized.RunGuid, jsonOptions, cancellationToken);
     }
 
     public static async Task<RunRoiScorecardDto> GetRoiAsync(
@@ -94,10 +91,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/roi", cancellationToken);
-
-        return await response.ReadJsonForTestAsync<RunRoiScorecardDto>(jsonOptions, cancellationToken);
+        return await client.GetReviewRoiAsync(finalized.RunGuid, jsonOptions, cancellationToken);
     }
 
     public static async Task<RunExportHistoryResponse> GetExportsHistoryAsync(
@@ -110,10 +104,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/exports", cancellationToken);
-
-        return await response.ReadJsonForTestAsync<RunExportHistoryResponse>(jsonOptions, cancellationToken);
+        return await client.GetReviewExportsHistoryAsync(finalized.RunGuid, jsonOptions, cancellationToken);
     }
 
     public static async Task<AuthorityReviewDetailHarnessResponse> GetAuthorityReviewDetailAsync(
@@ -297,9 +288,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentException.ThrowIfNullOrEmpty(findingId);
 
-        return client.GetAsync(
-            $"/v1/architecture/review/{finalized.RunId}/findings/{findingId}/evidence-chain",
-            cancellationToken);
+        return client.GetReviewFindingEvidenceChainHttpAsync(finalized.RunGuid, findingId, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetStoredEvidenceFilesHttpAsync(

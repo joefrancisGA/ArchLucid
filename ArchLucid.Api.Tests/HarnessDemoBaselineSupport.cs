@@ -35,7 +35,7 @@ internal static class HarnessDemoBaselineSupport
 
         using IServiceScope scope = services.CreateScope();
         IDemoSeedService seed = scope.ServiceProvider.GetRequiredService<IDemoSeedService>();
-        await seed.SeedAsync(cancellationToken).ConfigureAwait(false);
+        await seed.SeedAsync(cancellationToken);
     }
 
     internal static HttpClient CreateForeignTenantClient(
