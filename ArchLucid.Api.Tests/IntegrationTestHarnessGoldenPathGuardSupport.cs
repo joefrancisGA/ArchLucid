@@ -1608,9 +1608,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
             if (path.Contains($"{Path.DirectorySeparatorChar}Security{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
                 continue;
 
-            if (path.Contains($"{Path.DirectorySeparatorChar}Governance{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-                continue;
-
             string content = File.ReadAllText(path);
 
             if (!content.Contains(": IntegrationTestBase", StringComparison.Ordinal))

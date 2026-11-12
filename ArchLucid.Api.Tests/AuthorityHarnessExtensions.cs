@@ -57,14 +57,12 @@ public static class AuthorityHarnessExtensions
         ArgumentException.ThrowIfNullOrEmpty(projectId);
 
         HttpResponseMessage response = await GetAuthorityProjectReviewsHttpAsync(
-                client,
-                Uri.EscapeDataString(projectId),
-                $"take={take}",
-                cancellationToken)
-            .ConfigureAwait(false);
+            client,
+            Uri.EscapeDataString(projectId),
+            $"take={take}",
+            cancellationToken);
 
-        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetAuthorityReviewsInScopeHttpAsync(
@@ -89,14 +87,12 @@ public static class AuthorityHarnessExtensions
         ArgumentException.ThrowIfNullOrEmpty(projectIdSegment);
 
         HttpResponseMessage response = await GetAuthorityProjectReviewsHttpAsync(
-                client,
-                projectIdSegment,
-                querySuffix,
-                cancellationToken)
-            .ConfigureAwait(false);
+            client,
+            projectIdSegment,
+            querySuffix,
+            cancellationToken);
 
-        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken);
     }
 
     public static async Task<CursorPagedResponse<RunSummaryResponse>> ReadAuthorityReviewsInScopeAsync(
@@ -108,11 +104,9 @@ public static class AuthorityHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await GetAuthorityReviewsInScopeHttpAsync(client, $"take={take}", cancellationToken)
-            .ConfigureAwait(false);
+        HttpResponseMessage response = await GetAuthorityReviewsInScopeHttpAsync(client, $"take={take}", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<CursorPagedResponse<RunSummaryResponse>>(jsonOptions, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetAuthorityReviewDetailHttpAsync(
@@ -138,5 +132,35 @@ public static class AuthorityHarnessExtensions
         return client.GetAsync(
             $"/v1/authority/reviews/{runGuid:D}/{bundleSegment}",
             cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetAuthorityReviewCriticalPageBundleHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return GetAuthorityReviewBundleHttpAsync(client, runGuid, "critical-page-bundle", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetAuthorityReviewTimelinesBundleHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return GetAuthorityReviewBundleHttpAsync(client, runGuid, "timelines-bundle", cancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetAuthorityReviewWorkspaceContextBundleHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+
+        return GetAuthorityReviewBundleHttpAsync(client, runGuid, "workspace-context-bundle", cancellationToken);
     }
 }

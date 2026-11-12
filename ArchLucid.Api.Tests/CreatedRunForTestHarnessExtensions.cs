@@ -107,9 +107,9 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentException.ThrowIfNullOrEmpty(runId);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken).ConfigureAwait(false);
+        HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken);
 
-        return await response.ReadJsonForTestAsync<GetRunResponseDto>(jsonOptions, cancellationToken).ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<GetRunResponseDto>(jsonOptions, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetArchitectureManifestHttpAsync(
@@ -165,11 +165,9 @@ public static class CreatedRunForTestHarnessExtensions
             : JsonContent.Create(new { isPinned });
 
         HttpResponseMessage response = await client
-            .PatchAsync($"/v1/architecture/review/{created.RunId}/pin", content, cancellationToken)
-            .ConfigureAwait(false);
+            .PatchAsync($"/v1/architecture/review/{created.RunId}/pin", content, cancellationToken);
 
-        return await response.ReadJsonForTestAsync<PinRunResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<PinRunResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<RunSummaryResponse> GetAuthorityRunSummaryAsync(
@@ -183,11 +181,9 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/authority/reviews/{created.RunGuid:D}/summary", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/authority/reviews/{created.RunGuid:D}/summary", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<RunSummaryResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<RunSummaryResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<AgentEvidencePackageResponse> GetEvidenceAsync(
@@ -201,11 +197,9 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{created.RunId}/evidence", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/architecture/review/{created.RunId}/evidence", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<AgentEvidencePackageResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<AgentEvidencePackageResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<AgentExecutionTraceResponse> GetTracesAsync(
@@ -219,10 +213,8 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{created.RunId}/traces", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/architecture/review/{created.RunId}/traces", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<AgentExecutionTraceResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<AgentExecutionTraceResponse>(jsonOptions, cancellationToken);
     }
 }
