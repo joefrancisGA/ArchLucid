@@ -181,7 +181,7 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/authority/reviews/{created.RunGuid:D}/summary", cancellationToken);
+            .GetAuthorityReviewSummaryHttpAsync(created.RunGuid, cancellationToken);
 
         return await response.ReadJsonForTestAsync<RunSummaryResponse>(jsonOptions, cancellationToken);
     }

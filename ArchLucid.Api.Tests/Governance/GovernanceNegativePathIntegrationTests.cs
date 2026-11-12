@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Audit;
@@ -70,8 +69,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             ProdReviewerOid);
 
         // Reject after approve is a first-wins CAS conflict (GovernanceApprovalReviewConflictException → 409).
-        reject.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        ReadProblemType(await reject.Content.ReadAsStringAsync()).Should().Be(ProblemTypes.Conflict);
+        await reject.AssertProblemElementForTestAsync(HttpStatusCode.Conflict, ProblemTypes.Conflict);
     }
 
     [SkippableFact]
@@ -119,8 +117,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             testActorName: ProdReviewerName,
             testActorId: ProdReviewerOid);
 
-        secondPromote.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        ReadProblemType(await secondPromote.Content.ReadAsStringAsync()).Should().Be(ProblemTypes.BadRequest);
+        await secondPromote.AssertProblemElementForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.BadRequest);
     }
 
     [SkippableFact]
@@ -155,21 +152,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             testActorName: ProdReviewerName,
             testActorId: ProdReviewerOid);
 
-        promote.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        ReadProblemType(await promote.Content.ReadAsStringAsync()).Should().Be(ProblemTypes.BadRequest);
-    }
-
-    private static string ReadProblemType(string body)
-    {
-        JsonElement root = JsonSerializer.Deserialize<JsonElement>(body);
-
-        if (root.TryGetProperty("type", out JsonElement typeProp) && typeProp.ValueKind == JsonValueKind.String)
-            return typeProp.GetString() ?? string.Empty;
-
-        if (root.TryGetProperty("Type", out JsonElement typePascal) && typePascal.ValueKind == JsonValueKind.String)
-            return typePascal.GetString() ?? string.Empty;
-
-        return string.Empty;
+        await promote.AssertProblemElementForTestAsync(HttpStatusCode.BadRequest, ProblemTypes.BadRequest);
     }
 
     private async Task AssertAuditContainsEventTypeAsync(string eventType)

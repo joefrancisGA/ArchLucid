@@ -322,6 +322,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Async job poll | **`IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync`** (terminal: Succeeded, Failed, **Canceled**); defaults in **`HarnessPollDefaults`** |
 | Pre-finalize readiness JSON | **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** |
 | Bare architecture review GET + JSON | **`CreatedRunForTestHarnessExtensions.GetRunReviewForTestAsync`** → **`GetRunResponseDto`** (`Results` is **`List<AgentResult>`**); **`GetRunHttpAsync`** for raw response |
+| Run pin fields for manifest fingerprint tests | **`HarnessRunRecordFactory.FromRunDto`** |
 | ZIP / stream JSON in tests | **`ArchLucidHttpResponseIntegrationTestExtensions.ReadJsonElementForTestAsync`** |
 | ITSM integration scoped client + demo seed | **`ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync`** |
 | ITSM scoped client (headers only) | **`ItsmIntegrationTestClientSupport.CreateScopedClient`** |
@@ -359,7 +360,7 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 
 **ReadFromJson burn-down (historical):** fixture controllers cleared through slice 27 (`EvolutionControllerFlowTests` among last). Slice 32 cleared the concurrency warmup and stale security seed rows. Remaining allowlist is only the HTTP extension plus two guard sources.
 
-**JsonDocument burn-down (#40 allowlist):** guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only (cap **3** after slice 31). **`FinalizeConflictSqlIntegrationTests`** now uses **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** for typed readiness and **`AssertProblemElementForTestAsync`** for conflict bodies; it no longer needs either the `#40` or `#31` allowlist. Slice 34 made the golden-cohort review read one typed **`GetRunResponseDto`** payload. Slice 35 typed **`GetRunResponseDto.Results`** as **`List<AgentResult>`** (no serialize round-trip), dropped the **`Governance/`** folder skip on the `#40` scan after **`GovernanceNegativePathIntegrationTests`** switched to **`JsonSerializer.Deserialize<JsonElement>`**.
+**JsonDocument burn-down (#40 allowlist):** guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only (cap **3** after slice 31). **`FinalizeConflictSqlIntegrationTests`** now uses **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** for typed readiness and **`AssertProblemElementForTestAsync`** for conflict bodies; it no longer needs either the `#40` or `#31` allowlist. Slice 34 made the golden-cohort review read one typed **`GetRunResponseDto`** payload. Slice 35 typed **`GetRunResponseDto.Results`** as **`List<AgentResult>`** (no serialize round-trip), dropped the **`Governance/`** folder skip on the `#40` scan. Slice 36 uses **`AssertProblemElementForTestAsync`** on governance negatives and **`HarnessRunRecordFactory`** for pin mapping; execute/replay wire DTOs type **`Results`** as **`List<AgentResult>`**.
 
 **Review subresource URL burn-down (#38 allowlist):** evidence uploads → findings CSV/inspect → `TraceabilityBundleZipEndpointTests`. Current allowlist is the four canonical harness extension files; cap is intentionally equal to the current count. **`ArchitectureAnalysisExportTests`** uses **`PostAnalysisReportMarkdownExportAsync`** (removed from allowlist in slice 16).
 
