@@ -37,13 +37,13 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         string? jobId = jobIdEl.GetString();
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        BackgroundJobState terminalState = await IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync(
+        BackgroundJobInfo terminal = await IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync(
             Client,
             jobId!,
             JsonOptions,
             HarnessPollDefaults.BackgroundJobDefaultMaxIterations,
             HarnessPollDefaults.BackgroundJobDefaultDelay);
-        terminalState.Should().Be(BackgroundJobState.Succeeded);
+        terminal.State.Should().Be(BackgroundJobState.Succeeded);
 
         HttpResponseMessage fileResp = await IntegrationTestJobPollSupport.GetJobFileHttpAsync(Client, jobId!);
         fileResp.Content.Headers.ContentType!.MediaType
