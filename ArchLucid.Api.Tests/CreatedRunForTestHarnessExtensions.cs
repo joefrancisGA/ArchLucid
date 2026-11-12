@@ -196,10 +196,7 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{created.RunId}/evidence", cancellationToken);
-
-        return await response.ReadJsonForTestAsync<AgentEvidencePackageResponse>(jsonOptions, cancellationToken);
+        return await client.GetReviewEvidenceAsync(created.RunGuid, jsonOptions, cancellationToken);
     }
 
     public static async Task<AgentExecutionTraceResponse> GetTracesAsync(
@@ -212,9 +209,6 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{created.RunId}/traces", cancellationToken);
-
-        return await response.ReadJsonForTestAsync<AgentExecutionTraceResponse>(jsonOptions, cancellationToken);
+        return await client.GetReviewTracesAsync(created.RunGuid, jsonOptions, cancellationToken);
     }
 }

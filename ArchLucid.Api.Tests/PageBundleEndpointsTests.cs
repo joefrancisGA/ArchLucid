@@ -152,11 +152,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         CreatedRunForTest created = await RunReadyForExecuteAsync();
         Guid runId = created.RunGuid;
 
-        HttpResponseMessage response =
-            await Client.GetAuthorityReviewCriticalPageBundleHttpAsync(runId);
-
         RunDetailCriticalPageBundleResponse body =
-            await response.ReadJsonForTestAsync<RunDetailCriticalPageBundleResponse>(JsonOptions);
+            await Client.ReadAuthorityReviewCriticalPageBundleAsync(runId, JsonOptions);
 
         body.BuyerSummary.Should().NotBeNull();
         body.BuyerSummary.Run.RunId.Should().Be(runId);
@@ -169,11 +166,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         CreatedRunForTest created = await RunReadyForExecuteAsync();
         Guid runId = created.RunGuid;
 
-        HttpResponseMessage response =
-            await Client.GetAuthorityReviewTimelinesBundleHttpAsync(runId);
-
         RunDetailTimelinesBundleResponse body =
-            await response.ReadJsonForTestAsync<RunDetailTimelinesBundleResponse>(JsonOptions);
+            await Client.ReadAuthorityReviewTimelinesBundleAsync(runId, JsonOptions);
 
         body.PipelineTimeline.Should().NotBeNull();
         body.StageTimeline.Should().NotBeNull();
@@ -185,11 +179,8 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         CreatedRunForTest created = await RunReadyForExecuteAsync();
         Guid runId = created.RunGuid;
 
-        HttpResponseMessage response =
-            await Client.GetAuthorityReviewWorkspaceContextBundleHttpAsync(runId);
-
         RunDetailWorkspaceContextBundleResponse body =
-            await response.ReadJsonForTestAsync<RunDetailWorkspaceContextBundleResponse>(JsonOptions);
+            await Client.ReadAuthorityReviewWorkspaceContextBundleAsync(runId, JsonOptions);
 
         body.RecentProjectRuns.Should().NotBeNull();
     }

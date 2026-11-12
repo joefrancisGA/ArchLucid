@@ -22,11 +22,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/architecture/manifest/{finalized.ManifestVersion}/summary", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<ManifestMarkdownDocumentResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<RunDetailsResponseDto> GetRunDetailsAsync(
@@ -39,12 +37,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}", cancellationToken)
-            .ConfigureAwait(false);
+        HttpResponseMessage response = await client.GetRunHttpAsync(finalized.RunId, cancellationToken);
 
-        return await response.ReadJsonForTestAsync<RunDetailsResponseDto>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<RunDetailsResponseDto>(jsonOptions, cancellationToken);
     }
 
     public static async Task<AgentEvidencePackageResponse> GetEvidenceAsync(
@@ -57,12 +52,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/evidence", cancellationToken)
-            .ConfigureAwait(false);
-
-        return await response.ReadJsonForTestAsync<AgentEvidencePackageResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await client.GetReviewEvidenceAsync(finalized.RunGuid, jsonOptions, cancellationToken);
     }
 
     public static async Task<AgentExecutionTraceResponse> GetTracesAsync(
@@ -75,12 +65,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/traces", cancellationToken)
-            .ConfigureAwait(false);
-
-        return await response.ReadJsonForTestAsync<AgentExecutionTraceResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await client.GetReviewTracesAsync(finalized.RunGuid, jsonOptions, cancellationToken);
     }
 
     public static async Task<DecisionNodeResponseDto> GetDecisionsAsync(
@@ -94,11 +79,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/architecture/review/{finalized.RunId}/decisions", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<DecisionNodeResponseDto>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<DecisionNodeResponseDto>(jsonOptions, cancellationToken);
     }
 
     public static async Task<RunRoiScorecardDto> GetRoiAsync(
@@ -112,11 +95,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/roi", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/architecture/review/{finalized.RunId}/roi", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<RunRoiScorecardDto>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<RunRoiScorecardDto>(jsonOptions, cancellationToken);
     }
 
     public static async Task<RunExportHistoryResponse> GetExportsHistoryAsync(
@@ -130,11 +111,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/architecture/review/{finalized.RunId}/exports", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/architecture/review/{finalized.RunId}/exports", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<RunExportHistoryResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<RunExportHistoryResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<AuthorityReviewDetailHarnessResponse> GetAuthorityReviewDetailAsync(
@@ -148,11 +127,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAsync($"/v1/authority/reviews/{finalized.RunGuid:D}", cancellationToken)
-            .ConfigureAwait(false);
+            .GetAsync($"/v1/authority/reviews/{finalized.RunGuid:D}", cancellationToken);
 
-        return await response.ReadJsonForTestAsync<AuthorityReviewDetailHarnessResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<AuthorityReviewDetailHarnessResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<RunSummaryResponse> GetAuthorityRunSummaryAsync(
@@ -166,11 +143,9 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await AuthorityHarnessExtensions
-            .GetAuthorityReviewSummaryHttpAsync(client, finalized.RunGuid, cancellationToken)
-            .ConfigureAwait(false);
+            .GetAuthorityReviewSummaryHttpAsync(client, finalized.RunGuid, cancellationToken);
 
-        return await response.ReadJsonForTestAsync<RunSummaryResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<RunSummaryResponse>(jsonOptions, cancellationToken);
     }
 
     public static Task<CursorPagedResponse<RunSummaryResponse>> ListAuthorityReviewsForProjectAsync(
@@ -206,11 +181,9 @@ public static class FinalizedRunHarnessExtensions
             .PostAsync(
                 $"/v1/architecture/review/{finalized.RunId}/analysis-report/export",
                 HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent(jsonOptions),
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
-        return await response.ReadJsonForTestAsync<ArchitectureAnalysisExportResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<ArchitectureAnalysisExportResponse>(jsonOptions, cancellationToken);
     }
 
     public static async Task<ArchitectureAnalysisReportResponse> PostAnalysisReportAsync(
@@ -227,11 +200,9 @@ public static class FinalizedRunHarnessExtensions
             .PostAsync(
                 $"/v1/architecture/review/{finalized.RunId}/analysis-report",
                 HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent(jsonOptions),
-                cancellationToken)
-            .ConfigureAwait(false);
+                cancellationToken);
 
-        return await response.ReadJsonForTestAsync<ArchitectureAnalysisReportResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<ArchitectureAnalysisReportResponse>(jsonOptions, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> PostAnalysisReportDocxHttpAsync(
@@ -302,7 +273,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(finalized);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{finalized.RunId}/findings/export/csv", cancellationToken);
+        return client.GetReviewFindingsExportCsvHttpAsync(finalized.RunGuid, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetTraceabilityBundleZipHttpAsync(
@@ -313,7 +284,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(finalized);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{finalized.RunId}/traceability-bundle.zip", cancellationToken);
+        return client.GetReviewTraceabilityBundleZipHttpAsync(finalized.RunGuid, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetFindingEvidenceChainHttpAsync(
@@ -339,7 +310,7 @@ public static class FinalizedRunHarnessExtensions
         ArgumentNullException.ThrowIfNull(finalized);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{finalized.RunId}/evidence/files", cancellationToken);
+        return client.GetReviewStoredEvidenceFilesHttpAsync(finalized.RunGuid, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> PostEvidenceBulkHttpAsync(
