@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 import {
   SECURENOW_PILOT_SPINE_PATH,
   SECURENOW_PILOT_WALKTHROUGH_BEAT_PARAM,
@@ -44,7 +45,7 @@ export function SecureNowPilotWalkthroughBanner(props: SecureNowPilotWalkthrough
         <span className="font-medium">
           Pilot walkthrough beat {step.beat}/{6} — {step.title}
         </span>
-        . Synthetic fixture. Not a customer result.
+        . {SECURENOW_SAMPLE_FIXTURE_LINE}
       </p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{step.body}</p>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>

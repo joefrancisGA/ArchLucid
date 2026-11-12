@@ -8,6 +8,7 @@ import { SecurityEvidencePathInspectPanel } from "@/components/security/Security
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 import {
   secureNowPilotDispositionStorageKey,
   SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
@@ -161,7 +162,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 Human disposition
               </h2>
               {pathId === "fixture-path-01" ? (
-                <p className={OPERATOR_TYPOGRAPHY.helper}>Synthetic fixture. Not a customer result.</p>
+                <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_SAMPLE_FIXTURE_LINE}</p>
               ) : null}
               <label className="block space-y-1">
                 <span className={OPERATOR_TYPOGRAPHY.helper}>Outcome</span>

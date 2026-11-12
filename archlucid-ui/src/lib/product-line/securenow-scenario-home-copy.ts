@@ -1,4 +1,5 @@
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 
 export const SECURENOW_SCENARIO_HOME_SECTION_HEADING = "Fixture walks" as const;
 
@@ -9,33 +10,33 @@ export const SECURENOW_SCENARIO_HOME_ROWS: readonly SecureNowHomeDestinationRow[
   {
     href: "/security/remediation-factory?pathId=fixture-path-01",
     label: "Standing privilege path",
-    summary: "Synthetic fixture. Not a customer result. Open fixture-path-01 and read the cited hops.",
+    summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} Open fixture-path-01 and read the cited hops.`,
   },
   {
     href: "/integrations/cloud-connections",
     label: "Collection gap",
-    summary: "Synthetic fixture. Not a customer result. A missing capture is not a clean bill of health.",
+    summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} A missing capture is not a clean bill of health.`,
   },
   {
     href: "/security/remediation-factory?pathId=fixture-path-02",
     label: "Second ranked path (start here)",
     summary:
-      "Synthetic fixture. Not a customer result. Open fixture-path-02 in Path inspect, or compare on the public sample.",
+      `${SECURENOW_SAMPLE_FIXTURE_LINE} Open fixture-path-02 in Path inspect, or compare on the public sample.`,
     recommendedFirst: true,
   },
   {
     href: "/security/remediation-factory?pathId=fixture-path-01#cut-points",
     label: "Advisory cut only",
-    summary: "Synthetic fixture. Not a customer result. SecureNow recommends and does not change Azure.",
+    summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} SecureNow recommends and does not change Azure.`,
   },
   {
     href: "/administration/securenow-first-hour#stop",
     label: "Not verified",
-    summary: "Synthetic fixture. Not a customer result. Missing evidence stays not verified.",
+    summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} Missing evidence stays not verified.`,
   },
   {
     href: "/administration/securenow-scenario-walks#contributor-role-between-snapshots",
     label: "Contributor between captures",
-    summary: "Synthetic fixture. Not a customer result. A unit fixture is not a sponsor demo.",
+    summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} A unit fixture is not a sponsor demo.`,
   },
 ] as const;

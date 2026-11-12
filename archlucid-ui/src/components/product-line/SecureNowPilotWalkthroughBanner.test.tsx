@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
+
 import { SecureNowPilotWalkthroughBanner } from "./SecureNowPilotWalkthroughBanner";
 
 vi.mock("next/navigation", () => ({
@@ -16,6 +18,9 @@ describe("SecureNowPilotWalkthroughBanner", () => {
 
     expect(screen.getByTestId("securenow-pilot-walkthrough-banner")).toHaveTextContent(
       /Beat 2\/6 — One ranked path/i,
+    );
+    expect(screen.getByTestId("securenow-pilot-walkthrough-banner")).toHaveTextContent(
+      SECURENOW_SAMPLE_FIXTURE_LINE,
     );
     expect(screen.getByRole("link", { name: /Back to pilot checklist/i })).toHaveAttribute(
       "href",
