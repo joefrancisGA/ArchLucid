@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 31: SecureNow help, home, and route recognition findings paths
+
+**Outcome.** Getting started (SecureNow), improvement-planning and troubleshooting help, sponsor honesty panels, governance overview, operator home next step, first-review support, scorecard drill-down, working findings instruments, shell header search, and route view explanations now preserve `/compliance/findings` (and policy packs where applicable) on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Help guides, home and overview CTAs, scorecard metrics, header search eligibility, route contract tests.
+
 ## 2026-11-12 - Score lift round 30: SecureNow setup, standards, and vocabulary findings routes
 
 **Outcome.** Governance setup, standards and rules, assigned-to-me, recurrence schedules, evidence trace, signed-record artifacts, contextual help drawer, and alerts/decision/exceptions vocabulary rails now preserve `/compliance/findings` (and policy packs where applicable) on SecureNow. Architecture defaults remain unchanged.

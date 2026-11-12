@@ -16,7 +16,8 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY } from "@/lib/buyer-copy/onboarding";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
 import {
   listIncompleteWizardSignals,
@@ -58,6 +59,8 @@ export function OperatorHomeRecommendedNextCard(
   props: OperatorHomeRecommendedNextCardProps,
 ): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
   const { isWorkingMode } = useWorkspaceMode();
   const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
@@ -162,7 +165,7 @@ export function OperatorHomeRecommendedNextCard(
           data-testid="operator-home-recommended-next-disposition"
         >
           {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
-          <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.optional}>
+          <Link href={findingsHref} className={OPERATOR_LINK.optional}>
             Open findings queue
           </Link>
         </p>

@@ -1,6 +1,7 @@
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
 export type ResolveWorkingFindingsInstrumentHrefInput = {
@@ -9,6 +10,7 @@ export type ResolveWorkingFindingsInstrumentHrefInput = {
   readonly filter?: RiskRegisterFilter;
   readonly isWorkingMode: boolean;
   readonly basePath?: string;
+  readonly productLine?: ProductLineId;
 };
 
 /** ADR 0098 / SG-019 — nested architecture findings when parent known on Working. */
@@ -38,6 +40,6 @@ export function resolveWorkingFindingsInstrumentHref(
   return buildGovernanceFindingsQueueHref({
     runId,
     filter: input.filter,
-    basePath: input.basePath ?? GOVERNANCE_FINDINGS_PATH,
+    basePath: input.basePath ?? findingsPathForProductLine(input.productLine ?? "architecture"),
   });
 }

@@ -33,6 +33,11 @@ import { resolveRecurrenceSchedulesOrientationSources } from "@/lib/recurrence-s
 import { resolveSignedRecordArtifactOrientationSources } from "@/lib/signed-record-artifact-evidence-copy";
 import { resolveStandardsRulesOrientationSources } from "@/lib/standards-rules-evidence-copy";
 import { buildAlertsFindingsVocabulary } from "@/lib/vocabulary/alerts-findings-vocabulary";
+import { resolveGettingStartedHelpWorkflowStepsForProductLine } from "@/lib/getting-started-help-guide-content";
+import { resolveImprovementPlanningHelpOutputTileItems } from "@/lib/improvement-planning-help-guide-content";
+import { resolveReviewScorecardFindingsHref } from "@/lib/pilot-scorecard-present";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
+import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -125,6 +130,15 @@ describe("operator hub findings routes product line", () => {
       GOVERNANCE_FINDINGS_PATH,
     );
     expect(buildAlertsFindingsVocabulary("architecture").findingsLink.href).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(resolveReviewScorecardFindingsHref("architecture")).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(
+      resolveWorkingFindingsInstrumentHref({ isWorkingMode: false, productLine: "architecture" }),
+    ).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(
+      resolveImprovementPlanningHelpOutputTileItems("architecture").find((item) => item.label === "Findings triage")
+        ?.href,
+    ).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(isGovernanceFindingsQueueHeaderSearchPath(GOVERNANCE_FINDINGS_PATH)).toBe(true);
   });
 
   it("routes SecureNow operator surfaces to compliance findings and policy hubs", () => {
@@ -186,6 +200,18 @@ describe("operator hub findings routes product line", () => {
     expect(
       resolveGovernanceSetupOrientationSources("security").find((s) => s.label === "Policy packs")?.href,
     ).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(resolveReviewScorecardFindingsHref("security")).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolveWorkingFindingsInstrumentHref({ isWorkingMode: false, productLine: "security" }),
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolveImprovementPlanningHelpOutputTileItems("security").find((item) => item.label === "Findings triage")?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolveGettingStartedHelpWorkflowStepsForProductLine(false, "security").find((step) => step.stepNumber === 3)
+        ?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(isGovernanceFindingsQueueHeaderSearchPath(SECURENOW_FINDINGS_PATH)).toBe(true);
 
     const findingsTile = resolveAdvisoryScansHelpTileItems("security").find((item) => item.label === "Findings triage");
     expect(findingsTile?.href).toBe(SECURENOW_FINDINGS_PATH);

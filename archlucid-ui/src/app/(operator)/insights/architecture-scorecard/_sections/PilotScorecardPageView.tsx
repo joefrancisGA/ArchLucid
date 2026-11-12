@@ -9,6 +9,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -92,6 +93,7 @@ function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveR
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
   const sampleMode = isReviewScorecardSampleMode(searchParams);
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
@@ -159,6 +161,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     ? buildReviewScorecardOperationalMetrics(displayData, {
         workingMode: isWorkingMode,
         lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+        productLine,
       })
     : [];
   const methodologyLines =

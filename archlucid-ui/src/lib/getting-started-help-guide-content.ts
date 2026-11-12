@@ -18,6 +18,9 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
@@ -645,8 +648,8 @@ export const SECURENOW_GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   FIND --> TRIAGE --> REM --> WB`;
 
 export const SECURENOW_GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [
-  { label: "Assigned to me", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH },
-  { label: "Open policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
+  { label: "Assigned to me", href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH },
+  { label: "Open policy packs", href: SECURENOW_POLICY_PACKS_PATH },
   { label: "Azure connections", href: "/integrations/cloud-connections" },
   { label: "Resource explorer", href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH },
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
@@ -666,7 +669,7 @@ export const SECURENOW_GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStar
     title: "Assign ARC-AMPE policy packs",
     description: "Assign the bundled Architecture Themes pack and tune priority floors for cloud evidence scans.",
     expectedOutputs: "Effective rules ready for the active workspace scope.",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
     ctaLabel: "Open policy packs",
   },
   {
@@ -674,7 +677,7 @@ export const SECURENOW_GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStar
     title: "Triage findings",
     description: "Review open findings raised against connected inventory and assign remediation owners.",
     expectedOutputs: "Prioritized findings with owners and evidence links.",
-    href: GOVERNANCE_FINDINGS_PATH,
+    href: SECURENOW_FINDINGS_PATH,
     ctaLabel: "Open findings queue",
   },
   {
@@ -682,7 +685,7 @@ export const SECURENOW_GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStar
     title: "Work assigned findings",
     description: "Open your assigned-to-me lane or remediation factory to continue remediation work.",
     expectedOutputs: "Assigned findings progressing through remediation.",
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
     ctaLabel: "Open assigned to me",
   },
   {
@@ -705,13 +708,13 @@ export const SECURENOW_GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingS
   {
     title: "Assign policy packs",
     description: "Assign ARC-AMPE packs and tune priority floors for cloud evidence scans.",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
     ctaLabel: "Open policy packs",
   },
   {
     title: "Triage assigned findings",
     description: "Open findings assigned to you for remediation and follow-up.",
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
     ctaLabel: "Open assigned to me",
   },
   {
@@ -732,13 +735,13 @@ export const SECURENOW_GETTING_STARTED_HELP_PRIMARY_ACTIONS: readonly GettingSta
   {
     title: "Policy packs",
     description: "Assign ARC-AMPE packs before expecting inventory-backed findings.",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
     ctaLabel: "Open policy packs",
   },
   {
     title: "Assigned to me",
     description: "Continue findings assigned to you for remediation work.",
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
     ctaLabel: "Open assigned to me",
   },
 ] as const;
