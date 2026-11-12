@@ -19,6 +19,8 @@ import {
   buildReviewDetailFindingsTabHref,
 } from "@/lib/metric-count-presentation";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { ExternalPeerPairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ReviewPackageGovernanceFindingsSurfaceId =
@@ -68,8 +70,9 @@ export function buildReviewPackageGovernanceFindingsPairwiseRail(
     readonly architectureId: string;
     readonly isWorkingMode: boolean;
   },
+  productLine: ProductLineId = "architecture",
 ): ExternalPeerPairwiseVocabularyRailModel<ReviewPackageGovernanceFindingsSurfaceId> {
-  const model = buildReviewPackageGovernanceFindingsVocabulary(runId, workingInstrument);
+  const model = buildReviewPackageGovernanceFindingsVocabulary(runId, workingInstrument, productLine);
 
   return {
     heading: model.heading,
@@ -87,6 +90,7 @@ export function buildReviewPackageGovernanceFindingsVocabulary(
     readonly architectureId: string;
     readonly isWorkingMode: boolean;
   },
+  productLine: ProductLineId = "architecture",
 ): ReviewPackageGovernanceFindingsVocabularyModel {
   const trimmed = runId?.trim() ?? "";
 
@@ -113,8 +117,12 @@ export function buildReviewPackageGovernanceFindingsVocabulary(
             runId: trimmed,
             filter: "all",
             isWorkingMode: workingInstrument?.isWorkingMode === true,
+            basePath: findingsPathForProductLine(productLine),
           })
-        : buildGovernanceFindingsQueueHref({ filter: "open" }),
+        : buildGovernanceFindingsQueueHref({
+            filter: "open",
+            basePath: findingsPathForProductLine(productLine),
+          }),
     whenToUse:
       trimmed.length > 0
         ? "Disposition risks and assign owners for this review in the workspace register."

@@ -9,7 +9,10 @@ import {
   buildItsmConnectorsFindingTicketVocabulary,
   resolveItsmConnectorsFindingTicketPeerLink,
 } from "@/lib/vocabulary/itsm-connectors-finding-ticket-vocabulary";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 
 describe("itsm-connectors-finding-ticket-vocabulary (TB-2310)", () => {
@@ -32,6 +35,15 @@ describe("itsm-connectors-finding-ticket-vocabulary (TB-2310)", () => {
 
     expect(resolveItsmConnectorsFindingTicketPeerLink("finding-ticket-linkage")).toEqual(
       ITSM_CONNECTORS_FINDING_TICKET_CONNECTORS_LINK,
+    );
+  });
+
+  it("uses the SecureNow findings queue for security product-line handoffs", () => {
+    expect(buildItsmConnectorsFindingTicketVocabulary("security").findingTicketLinkageLink.href).toBe(
+      SECURENOW_FINDINGS_PATH,
+    );
+    expect(resolveItsmConnectorsFindingTicketPeerLink("itsm-connectors", "security").href).toBe(
+      SECURENOW_FINDINGS_PATH,
     );
   });
 });

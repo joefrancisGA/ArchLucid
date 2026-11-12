@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 26: SecureNow findings handoff continuity
+
+**Outcome.** SecureNow findings help, help-search findings actions, ITSM finding-ticket vocabulary, and review-package findings vocabulary now preserve `/compliance/findings` and `/compliance/policy-packs` instead of falling back to governance routes. Architecture defaults remain unchanged.
+
+**Surfaces.** SecureNow help Sources, help-search catalog, ITSM vocabulary rail, review-package findings rail, route contract tests.
+
 ## 2026-11-12 - Score lift round 25: SecureNow vocabulary and committed pack handoffs
 
 **Outcome.** Product-line-aware vocabulary rails now keep SecureNow Policy packs, Standards and rules, setup, pattern-library, and pack-detail links in the `/compliance` namespace. Compare-two-reviews committed policy-pack links also preserve the active policy-pack hub instead of falling back to governance.

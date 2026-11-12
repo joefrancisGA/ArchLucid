@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   buildGovernanceFindingsQueueHref,
   buildReviewDetailFindingsTabHref,
@@ -56,6 +59,16 @@ describe("review-package-governance-findings-vocabulary (TB-2386)", () => {
     expect(
       resolveReviewPackageGovernanceFindingsPeerLink("governance-findings-queue", scopedModel),
     ).toEqual(scopedModel.reviewPackageFindingsLink);
+  });
+
+  it("uses the SecureNow findings namespace for security product-line links", () => {
+    const model = buildReviewPackageGovernanceFindingsVocabulary(
+      "run-1",
+      undefined,
+      "security",
+    );
+
+    expect(model.governanceFindingsLink.href).toBe(`${SECURENOW_FINDINGS_PATH}?runId=run-1`);
   });
 
   it("pairs metric-count nouns with rail labels for home drill-down", () => {
