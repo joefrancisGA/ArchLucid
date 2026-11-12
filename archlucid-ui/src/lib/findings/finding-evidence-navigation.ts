@@ -1,7 +1,8 @@
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
@@ -82,6 +83,7 @@ export type ResolveFindingsQueueNavHrefInput = {
   readonly findingsQueueRunId?: string | null;
   readonly architectureId?: string | null;
   readonly isWorkingMode?: boolean;
+  readonly productLine?: ProductLineId;
 };
 
 /** Back navigation from finding detail or evidence trace to the scoped findings instrument. */
@@ -95,6 +97,8 @@ export function resolveFindingsQueueNavHref(
   const queueRunId = (normalizedInput.findingsQueueRunId ?? "").trim();
   const architectureId = normalizedInput.architectureId?.trim() ?? "";
   const isWorkingMode = normalizedInput.isWorkingMode === true;
+  const productLine = normalizedInput.productLine ?? "architecture";
+  const findingsQueueBasePath = findingsPathForProductLine(productLine);
 
   if (isWorkingMode && architectureId.length > 0) {
     return resolveWorkingFindingsInstrumentHref({
@@ -106,10 +110,14 @@ export function resolveFindingsQueueNavHref(
   }
 
   if (queueRunId.length === 0) {
-    return GOVERNANCE_FINDINGS_PATH;
+    return findingsQueueBasePath;
   }
 
-  return buildGovernanceFindingsQueueHref({ runId: queueRunId, filter: "all" });
+  return buildGovernanceFindingsQueueHref({
+    runId: queueRunId,
+    filter: "all",
+    basePath: findingsQueueBasePath,
+  });
 }
 
 /** Buyer-facing drill-down into the provenance chain for a finding (#7). */

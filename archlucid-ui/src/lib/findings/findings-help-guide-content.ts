@@ -6,7 +6,9 @@ import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_RESOLUTION_PATH,
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
@@ -26,7 +28,7 @@ export const FINDINGS_HELP_OVERVIEW =
 export const FINDINGS_HELP_PRIMARY_ACTIONS = {
   openFindings: {
     label: "Open findings",
-    href: "/governance/findings",
+    href: GOVERNANCE_FINDINGS_PATH,
   },
   searchEvidence: {
     label: "Search review evidence",
@@ -385,7 +387,10 @@ export const SECURENOW_FINDINGS_HELP_PROVENANCE_NON_CLAIM =
   "Provenance labeling describes how a finding was produced and whether evidence is attached. It does not claim accuracy rates, production validation, or that AI-generated findings are independently verified. Operators remain accountable for disposition decisions.";
 
 export const SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS = {
-  openFindings: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings,
+  openFindings: {
+    label: "Open findings",
+    href: SECURENOW_FINDINGS_PATH,
+  },
   openAssignedToMe: {
     label: "Open assigned to me",
     href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
@@ -430,7 +435,7 @@ export function findingsHelpEvidenceActions(productLineId: ProductLineId = "arch
     {
       label: "Browse standards and rules",
       description: "See the policy or standard that produced the finding.",
-      href: GOVERNANCE_RESOLUTION_PATH,
+      href: SECURENOW_STANDARDS_AND_RULES_PATH,
     },
     {
       label: "Open resource explorer",

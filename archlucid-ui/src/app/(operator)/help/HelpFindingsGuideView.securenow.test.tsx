@@ -49,6 +49,7 @@ import { HelpFindingsGuideView } from "@/app/(operator)/help/_sections/HelpFindi
 import {
   SECURENOW_FINDINGS_HELP_OVERVIEW,
   SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE,
+  SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/findings/findings-help-guide-content";
 import {
   FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID,
@@ -70,6 +71,9 @@ describe("HelpFindingsGuideView SecureNow shell", () => {
     expect(screen.getByText(SECURENOW_FINDINGS_HELP_OVERVIEW)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Open assigned to me" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Open policy packs" }).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("link", { name: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label })[0],
+    ).toHaveAttribute("href", SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href);
     expect(screen.queryByRole("link", { name: "Search review evidence" })).toBeNull();
     expect(screen.queryByRole("link", { name: /decision register/i })).toBeNull();
     expect(screen.queryByText(/architecture concern identified during a review/i)).toBeNull();

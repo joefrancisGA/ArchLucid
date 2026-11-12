@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 27: SecureNow finding detail and help queue routes
+
+**Outcome.** Finding detail Sources, findings queue back navigation, and SecureNow findings help primary/evidence actions now preserve `/compliance/findings` and `/compliance/standards-and-rules` instead of defaulting to governance paths. Architecture defaults remain unchanged.
+
+**Surfaces.** Finding detail orientation strip, evidence trace back nav, findings help guide content, route contract tests.
+
 ## 2026-11-12 - Score lift round 26: SecureNow findings handoff continuity
 
 **Outcome.** SecureNow findings help, help-search findings actions, ITSM finding-ticket vocabulary, and review-package findings vocabulary now preserve `/compliance/findings` and `/compliance/policy-packs` instead of falling back to governance routes. Architecture defaults remain unchanged.

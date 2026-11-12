@@ -72,6 +72,24 @@ describe("finding-evidence-navigation", () => {
     ).toBe("/governance/findings?runId=run-abc");
   });
 
+  it("uses compliance findings queue for SecureNow when run id is absent", () => {
+    expect(
+      resolveFindingsQueueNavHref({
+        findingsQueueRunId: "",
+        productLine: "security",
+      }),
+    ).toBe("/compliance/findings");
+  });
+
+  it("scopes governance queue href to compliance when SecureNow and run id is present", () => {
+    expect(
+      resolveFindingsQueueNavHref({
+        findingsQueueRunId: "run-abc",
+        productLine: "security",
+      }),
+    ).toBe("/compliance/findings?runId=run-abc");
+  });
+
   it("SG-028: nested finding detail and evidence trace when architecture id is known", () => {
     expect(
       getFindingDetailHref("run-1", "finding-9", { architectureId: "arch-desk" }),
