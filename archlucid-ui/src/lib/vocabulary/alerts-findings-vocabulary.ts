@@ -18,6 +18,8 @@ import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AlertsFindingsSurfaceId = "alerts-inbox" | "findings-queue";
@@ -59,20 +61,30 @@ export const ALERTS_FINDINGS_FINDINGS_LINK: AlertsFindingsLink = {
   whenToUse: "Disposition risks, assign owners, and clear open approval items.",
 };
 
-/** Pairwise model for Alerts inbox ↔ Findings queue (fixed governance routes). */
-export function buildAlertsFindingsPairwiseRail(): PairwiseVocabularyRailModel<AlertsFindingsSurfaceId> {
+function alertsFindingsQueueLinkForProductLine(
+  productLine: ProductLineId = "architecture",
+): AlertsFindingsLink {
+  return { ...ALERTS_FINDINGS_FINDINGS_LINK, href: findingsPathForProductLine(productLine) };
+}
+
+/** Pairwise model for Alerts inbox ↔ Findings queue. */
+export function buildAlertsFindingsPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<AlertsFindingsSurfaceId> {
   return {
     heading: ALERTS_FINDINGS_HEADING,
     whyTwo: ALERTS_FINDINGS_WHY_TWO,
     compactLine: ALERTS_FINDINGS_COMPACT_LINE,
     currentLink: ALERTS_FINDINGS_ALERTS_LINK,
-    peerLink: ALERTS_FINDINGS_FINDINGS_LINK,
+    peerLink: alertsFindingsQueueLinkForProductLine(productLine),
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAlertsFindingsVocabulary(): AlertsFindingsVocabularyModel {
-  const rail = buildAlertsFindingsPairwiseRail();
+export function buildAlertsFindingsVocabulary(
+  productLine: ProductLineId = "architecture",
+): AlertsFindingsVocabularyModel {
+  const rail = buildAlertsFindingsPairwiseRail(productLine);
 
   return {
     heading: rail.heading,
@@ -86,9 +98,10 @@ export function buildAlertsFindingsVocabulary(): AlertsFindingsVocabularyModel {
 /** Peer deep-link for the surface you are not currently on. */
 export function resolveAlertsFindingsPeerLink(
   currentSurfaceId: AlertsFindingsSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): AlertsFindingsLink {
   if (currentSurfaceId === "alerts-inbox") {
-    return ALERTS_FINDINGS_FINDINGS_LINK;
+    return alertsFindingsQueueLinkForProductLine(productLine);
   }
 
   return ALERTS_FINDINGS_ALERTS_LINK;

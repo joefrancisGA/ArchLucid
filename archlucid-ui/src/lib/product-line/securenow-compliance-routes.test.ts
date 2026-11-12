@@ -59,7 +59,7 @@ describe("securenow-compliance-routes", () => {
     const hubSources = [
       { label: "Findings tab", href: GOVERNANCE_FINDINGS_PATH },
       { label: "Standards and rules", href: GOVERNANCE_STANDARDS_AND_RULES_PATH },
-      { label: "Policy pack library", href: GOVERNANCE_POLICY_PACKS_PATH },
+      { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
       { label: "Audit", href: "/governance/audit" },
     ] as const;
 

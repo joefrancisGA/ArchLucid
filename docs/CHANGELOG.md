@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 30: SecureNow setup, standards, and vocabulary findings routes
+
+**Outcome.** Governance setup, standards and rules, assigned-to-me, recurrence schedules, evidence trace, signed-record artifacts, contextual help drawer, and alerts/decision/exceptions vocabulary rails now preserve `/compliance/findings` (and policy packs where applicable) on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Hub and help orientation strips, vocabulary peer links, route contract tests.
+
 ## 2026-11-12 - Score lift round 29: SecureNow governance and review hub findings routes
 
 **Outcome.** Decision register, risk exceptions, operator home, reviews hub and workspace, architecture intelligence, digests, search evidence, policy packs hub, signed records, planning, decisions-needed tiles, approval banner, and related Sources now preserve `/compliance/findings` (and policy hubs where applicable) on SecureNow. Architecture defaults remain unchanged.

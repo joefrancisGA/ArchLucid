@@ -24,6 +24,15 @@ import { resolveRiskExceptionsOrientationSources } from "@/lib/risk-exceptions-e
 import { resolveSearchReviewEvidenceHelpSources } from "@/lib/search-review-evidence-help-evidence-copy";
 import { resolveSearchReviewEvidenceSources } from "@/lib/search-review-evidence-evidence-copy";
 import { resolveSignedRecordOrientationSources } from "@/lib/signed-record-evidence-copy";
+import { resolveContextualHelpDrawerSources } from "@/lib/contextual-help-drawer-evidence-copy";
+import { buildEvidenceTraceSources } from "@/lib/evidence-trace-evidence-copy";
+import { resolveGovernanceAssignedToMeOrientationSources } from "@/lib/governance/governance-assigned-to-me-evidence-copy";
+import { resolveGovernanceSetupOrientationSources } from "@/lib/governance/governance-setup-evidence-copy";
+import { resolveRecurrenceSchedulesHelpSources } from "@/lib/recurrence-schedules-help-evidence-copy";
+import { resolveRecurrenceSchedulesOrientationSources } from "@/lib/recurrence-schedules-evidence-copy";
+import { resolveSignedRecordArtifactOrientationSources } from "@/lib/signed-record-artifact-evidence-copy";
+import { resolveStandardsRulesOrientationSources } from "@/lib/standards-rules-evidence-copy";
+import { buildAlertsFindingsVocabulary } from "@/lib/vocabulary/alerts-findings-vocabulary";
 import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -97,6 +106,25 @@ describe("operator hub findings routes product line", () => {
     );
     expect(findingsHrefFromSources(resolveSignedRecordOrientationSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
     expect(findingsHrefFromSources(resolvePlanningSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveGovernanceSetupOrientationSources("architecture"))).toBe(
+      GOVERNANCE_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveStandardsRulesOrientationSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveGovernanceAssignedToMeOrientationSources("architecture"))).toBe(
+      GOVERNANCE_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveRecurrenceSchedulesOrientationSources("architecture"))).toBe(
+      GOVERNANCE_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveRecurrenceSchedulesHelpSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveSignedRecordArtifactOrientationSources("architecture"))).toBe(
+      GOVERNANCE_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveContextualHelpDrawerSources("architecture"))).toBe(GOVERNANCE_FINDINGS_PATH);
+    expect(findingsHrefFromSources(buildEvidenceTraceSources("run-1", "finding-1", "architecture"))).toBe(
+      GOVERNANCE_FINDINGS_PATH,
+    );
+    expect(buildAlertsFindingsVocabulary("architecture").findingsLink.href).toBe(GOVERNANCE_FINDINGS_PATH);
   });
 
   it("routes SecureNow operator surfaces to compliance findings and policy hubs", () => {
@@ -138,6 +166,26 @@ describe("operator hub findings routes product line", () => {
     expect(findingsHrefFromSources(resolvePolicyPacksHubOrientationSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
     expect(findingsHrefFromSources(resolveSignedRecordOrientationSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
     expect(findingsHrefFromSources(resolvePlanningSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveGovernanceSetupOrientationSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveStandardsRulesOrientationSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveGovernanceAssignedToMeOrientationSources("security"))).toBe(
+      SECURENOW_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveRecurrenceSchedulesOrientationSources("security"))).toBe(
+      SECURENOW_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveRecurrenceSchedulesHelpSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
+    expect(findingsHrefFromSources(resolveSignedRecordArtifactOrientationSources("security"))).toBe(
+      SECURENOW_FINDINGS_PATH,
+    );
+    expect(findingsHrefFromSources(resolveContextualHelpDrawerSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
+    expect(findingsHrefFromSources(buildEvidenceTraceSources("run-1", "finding-1", "security"))).toBe(
+      SECURENOW_FINDINGS_PATH,
+    );
+    expect(buildAlertsFindingsVocabulary("security").findingsLink.href).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolveGovernanceSetupOrientationSources("security").find((s) => s.label === "Policy packs")?.href,
+    ).toBe(SECURENOW_POLICY_PACKS_PATH);
 
     const findingsTile = resolveAdvisoryScansHelpTileItems("security").find((item) => item.label === "Findings triage");
     expect(findingsTile?.href).toBe(SECURENOW_FINDINGS_PATH);

@@ -17,6 +17,8 @@ import {
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type RiskExceptionsFindingsSurfaceId = "risk-exceptions" | "findings-queue";
@@ -59,20 +61,30 @@ export const RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK: RiskExceptionsFindingsLink 
   whenToUse: "Resolve findings, assign owners, and clear open approval items.",
 };
 
-/** Pairwise model for Risk exceptions ↔ Findings queue (fixed governance routes). */
-export function buildRiskExceptionsFindingsPairwiseRail(): PairwiseVocabularyRailModel<RiskExceptionsFindingsSurfaceId> {
+function riskExceptionsFindingsQueueLinkForProductLine(
+  productLine: ProductLineId = "architecture",
+): RiskExceptionsFindingsLink {
+  return { ...RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK, href: findingsPathForProductLine(productLine) };
+}
+
+/** Pairwise model for Risk exceptions ↔ Findings queue. */
+export function buildRiskExceptionsFindingsPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<RiskExceptionsFindingsSurfaceId> {
   return {
     heading: RISK_EXCEPTIONS_FINDINGS_HEADING,
     whyTwo: RISK_EXCEPTIONS_FINDINGS_WHY_TWO,
     compactLine: RISK_EXCEPTIONS_FINDINGS_COMPACT_LINE,
     currentLink: RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK,
-    peerLink: RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK,
+    peerLink: riskExceptionsFindingsQueueLinkForProductLine(productLine),
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildRiskExceptionsFindingsVocabulary(): RiskExceptionsFindingsVocabularyModel {
-  const rail = buildRiskExceptionsFindingsPairwiseRail();
+export function buildRiskExceptionsFindingsVocabulary(
+  productLine: ProductLineId = "architecture",
+): RiskExceptionsFindingsVocabularyModel {
+  const rail = buildRiskExceptionsFindingsPairwiseRail(productLine);
 
   return {
     heading: rail.heading,
@@ -86,9 +98,10 @@ export function buildRiskExceptionsFindingsVocabulary(): RiskExceptionsFindingsV
 /** Peer deep-link for the surface you are not currently on. */
 export function resolveRiskExceptionsFindingsPeerLink(
   currentSurfaceId: RiskExceptionsFindingsSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): RiskExceptionsFindingsLink {
   if (currentSurfaceId === "risk-exceptions") {
-    return RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK;
+    return riskExceptionsFindingsQueueLinkForProductLine(productLine);
   }
 
   return RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK;

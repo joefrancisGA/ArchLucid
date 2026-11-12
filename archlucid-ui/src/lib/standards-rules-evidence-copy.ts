@@ -9,6 +9,8 @@ import {
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapHubPolicyAndFindingsEvidenceSources } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Workbook path for GRS standards-and-rules hub. */
 export const STANDARDS_RULES_CANONICAL_PATH = GOVERNANCE_STANDARDS_AND_RULES_PATH;
@@ -42,3 +44,9 @@ const STANDARDS_RULES_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([STAND
 export const STANDARDS_RULES_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = STANDARDS_RULES_SOURCES.filter(
   (source) => !STANDARDS_RULES_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveStandardsRulesOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapHubPolicyAndFindingsEvidenceSources(STANDARDS_RULES_ORIENTATION_SOURCES, productLine);
+}
