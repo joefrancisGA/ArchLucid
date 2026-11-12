@@ -78,11 +78,10 @@ public static class RunsHarnessExtensions
     {
         ArgumentNullException.ThrowIfNull(client);
 
-        HttpResponseMessage response = await GetRunsListHttpAsync(client, $"take={take}", cancellationToken)
-            .ConfigureAwait(false);
+        HttpResponseMessage response = await GetRunsListHttpAsync(client, $"take={take}", cancellationToken);
 
         await response.EnsureSuccessForTestAsync();
 
-        return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 }

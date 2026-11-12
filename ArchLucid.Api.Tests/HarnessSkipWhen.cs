@@ -8,7 +8,7 @@ public static class HarnessSkipWhen
     {
         ArgumentNullException.ThrowIfNull(executeResponse);
 
-        if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync().ConfigureAwait(false))
+        if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             Skip.If(true, HarnessSkipReasons.AuthorityPipelineCompleteOnCreate);
     }
 
@@ -17,7 +17,7 @@ public static class HarnessSkipWhen
     {
         ArgumentNullException.ThrowIfNull(executeResponse);
 
-        if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync().ConfigureAwait(false))
+        if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             Skip.If(true, HarnessSkipReasons.AuthorityPipelineCompleteOnCreatePilot);
     }
 }

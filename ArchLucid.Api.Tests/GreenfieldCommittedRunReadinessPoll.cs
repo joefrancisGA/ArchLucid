@@ -1,8 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Audit;
 
@@ -14,11 +12,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class GreenfieldCommittedRunReadinessPoll
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
+    private static readonly JsonSerializerOptions JsonOptions = IntegrationTestBase.CreateApiJsonOptions();
 
     internal static Task WaitUntilCommittedRunDetailReadableAsync(
         HttpClient client,

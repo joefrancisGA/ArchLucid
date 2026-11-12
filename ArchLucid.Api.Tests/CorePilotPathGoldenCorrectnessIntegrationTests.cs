@@ -84,7 +84,7 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         severityTotal.Should().BeGreaterThanOrEqualTo(expected.MinimumFindingsBySeverityTotal);
 
         HttpResponseMessage zipResponse =
-            await client.GetAsync($"/v1/architecture/review/{runId}/traceability-bundle.zip");
+            await client.GetReviewTraceabilityBundleZipHttpAsync(Guid.Parse(runId));
         zipResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         IReadOnlyList<string> zipNames = ReadZipEntryNames(await zipResponse.Content.ReadAsByteArrayAsync());
 
