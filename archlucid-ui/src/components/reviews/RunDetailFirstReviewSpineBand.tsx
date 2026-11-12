@@ -60,6 +60,29 @@ function gateOutcomeStatusKind(
   return "needs-attention";
 }
 
+function resolveOpenGateNextActionLabel(
+  openGateLabel: string | null,
+  reviewTab: FirstReviewSpineBandSummary["openGateReviewTab"],
+): string | null {
+  if (openGateLabel === null || reviewTab === null) {
+    return null;
+  }
+
+  if (openGateLabel === "Uncited finding") {
+    return "Review the finding citation and record its disposition.";
+  }
+
+  if (openGateLabel === "Open disposition") {
+    return "Record a disposition for the finding.";
+  }
+
+  if (reviewTab === "findings") {
+    return "Review the findings and resolve the open gate.";
+  }
+
+  return "Review the package and commit it when ready.";
+}
+
 /** Unified first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBandProps): ReactElement {
   const { summary } = props;
@@ -130,6 +153,11 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
     openGateHref !== null
     && hasOpenGateNavigationInput
     && props.openGateNavigationInput?.hasFindingsSnapshot !== false;
+  const openGateNextActionLabel = resolveOpenGateNextActionLabel(
+    summary.openGateLabel,
+    summary.openGateReviewTab,
+  );
+  const trimmedManifestVersion = props.manifestVersion?.trim() ?? "";
 
   useEffect(() => {
     const trimmedRunId = props.runId?.trim() ?? "";
@@ -224,7 +252,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             Open gate: {summary.openGateLabel}.{" "}
             {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
               openGateLinkEnabled ? (
-                "Use the button below to open the gate."
+                `Next action: ${openGateNextActionLabel ?? "Use the button below to open the gate."}`
               ) : hasOpenGateNavigationInput && props.openGateNavigationInput?.hasFindingsSnapshot === false ? (
                 "Findings snapshot was not stored — open gate link withheld."
               ) : (
@@ -236,6 +264,15 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           </>
         )}
       </p>
+
+      {props.isSample !== true && props.manifestVersion !== undefined ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-first-review-spine-manifest"
+        >
+          Review snapshot: {trimmedManifestVersion.length > 0 ? trimmedManifestVersion : "Version was not stored."}
+        </p>
+      ) : null}
 
       {openGateLinkEnabled && openGateHref !== null ? (
         <div className="mt-2 flex flex-wrap gap-2">
