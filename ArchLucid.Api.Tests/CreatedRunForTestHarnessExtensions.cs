@@ -4,6 +4,8 @@ using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Tests.TestDtos;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Read helpers for runs produced by <see cref="CreateRunForTestAsync" /> / <see cref="RunReadyForExecuteAsync" />.</summary>
@@ -95,7 +97,7 @@ public static class CreatedRunForTestHarnessExtensions
         return client.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
     }
 
-    public static async Task<JsonElement> GetRunReviewJsonForTestAsync(
+    public static async Task<GetRunResponseDto> GetRunReviewForTestAsync(
         this HttpClient client,
         string runId,
         JsonSerializerOptions jsonOptions,
@@ -107,7 +109,7 @@ public static class CreatedRunForTestHarnessExtensions
 
         HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken).ConfigureAwait(false);
 
-        return await response.ReadJsonForTestAsync<JsonElement>(jsonOptions, cancellationToken).ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<GetRunResponseDto>(jsonOptions, cancellationToken).ConfigureAwait(false);
     }
 
     public static Task<HttpResponseMessage> GetArchitectureManifestHttpAsync(

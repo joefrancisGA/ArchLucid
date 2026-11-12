@@ -89,17 +89,13 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             manifest.Should().NotBeNull();
 
-            JsonElement reviewRoot = await Client.GetRunReviewJsonForTestAsync(runId, JsonOptions);
-            JsonElement runElement = reviewRoot.GetProperty("run");
-            HarnessRunPinHeader pinHeader =
-                runElement.Deserialize<HarnessRunPinHeader>(JsonOptions)
-                ?? throw new InvalidOperationException("Golden cohort review response did not include a run pin header.");
-            string? pinnedEvidencePackagePinsHashSha256 = pinHeader.PinnedEvidencePackagePinsHashSha256;
+            GetRunResponseDto runPayload = await Client.GetRunReviewForTestAsync(runId, JsonOptions);
+            string? pinnedEvidencePackagePinsHashSha256 = runPayload.Run.PinnedEvidencePackagePinsHashSha256;
 
             RunRecord header = new()
             {
-                PinnedPolicyPackIdsJson = pinHeader.PinnedPolicyPackIdsJson,
-                PinnedEvidencePackagePinsJson = pinHeader.PinnedEvidencePackagePinsJson,
+                PinnedPolicyPackIdsJson = runPayload.Run.PinnedPolicyPackIdsJson,
+                PinnedEvidencePackagePinsJson = runPayload.Run.PinnedEvidencePackagePinsJson,
                 PinnedEvidencePackagePinsHashSha256 =
                     !string.IsNullOrWhiteSpace(pinnedEvidencePackagePinsHashSha256)
                     ? Convert.FromBase64String(pinnedEvidencePackagePinsHashSha256)
@@ -135,10 +131,6 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 inventoryRows ?? []);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
-
-            GetRunResponseDto? runPayload =
-                JsonSerializer.Deserialize<GetRunResponseDto>(reviewRoot.GetRawText(), JsonOptions);
-            runPayload.Should().NotBeNull();
 
             string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);
             List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, JsonOptions);
