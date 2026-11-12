@@ -2,14 +2,12 @@ using System.Text.Json;
 
 using ArchLucid.Application.Jobs;
 
-using FluentAssertions;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Poll async job status endpoints in integration tests.</summary>
 public static class IntegrationTestJobPollSupport
 {
-    private static async Task<string> PollJobUntilSucceededOrFailedAsync(
+    public static async Task<BackgroundJobState> PollJobUntilTerminalStateAsync(
         HttpClient client,
         string jobId,
         JsonSerializerOptions jsonOptions,
@@ -22,47 +20,24 @@ public static class IntegrationTestJobPollSupport
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         TimeSpan delay = delayBetween ?? HarnessPollDefaults.BackgroundJobDefaultDelay;
-        string state = "Pending";
+        BackgroundJobState state = BackgroundJobState.Pending;
 
         for (int i = 0; i < maxIterations; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            HttpResponseMessage statusResp = await client.GetAsync($"/v1/jobs/{jobId}", cancellationToken).ConfigureAwait(false);
-            JsonElement status = await statusResp.ReadJsonForTestAsync<JsonElement>(jsonOptions, cancellationToken).ConfigureAwait(false);
-            state = status.GetProperty("state").GetString() ?? state;
+            HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}", cancellationToken);
+            BackgroundJobInfo status =
+                await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(jsonOptions, cancellationToken);
+            state = status.State;
 
-            if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
+            if (state is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
                 return state;
 
-            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(delay, cancellationToken);
         }
 
         return state;
-    }
-
-    public static async Task<BackgroundJobState> PollJobUntilTerminalStateAsync(
-        HttpClient client,
-        string jobId,
-        JsonSerializerOptions jsonOptions,
-        int maxIterations = 25,
-        TimeSpan? delayBetween = null,
-        CancellationToken cancellationToken = default)
-    {
-        string state = await PollJobUntilSucceededOrFailedAsync(
-                client,
-                jobId,
-                jsonOptions,
-                maxIterations,
-                delayBetween,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!Enum.TryParse(state, ignoreCase: true, out BackgroundJobState terminal))
-            throw new InvalidOperationException($"Unexpected background job state '{state}'.");
-
-        return terminal;
     }
 
     public static Task<HttpResponseMessage> GetJobFileHttpAsync(

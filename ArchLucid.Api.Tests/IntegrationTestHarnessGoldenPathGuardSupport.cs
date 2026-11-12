@@ -140,7 +140,7 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Cap for <see cref="RawAuthorityUrlAllowlist" /> (#42 burn-down ratchet).</summary>
-    internal const int MaxAuthorityAllowlistedSourceFiles = 5;
+    internal const int MaxAuthorityAllowlistedSourceFiles = 3;
 
     /// <summary>Cap for <see cref="HandRolledJsonDocumentParseAllowlist" /> (#40 burn-down ratchet).</summary>
     internal const int MaxJsonDocumentAllowlistedSourceFiles = 3;
@@ -1198,9 +1198,6 @@ internal static class IntegrationTestHarnessGoldenPathGuardSupport
         nameof(AuthorityHarnessExtensions) + ".cs",
         nameof(FinalizedRunHarnessExtensions) + ".cs",
         nameof(CreatedRunForTestHarnessExtensions) + ".cs",
-        // harness-allowlist-until: authority route contract matrices (#42 burn-down).
-        nameof(AuthorityQueryControllerAnonymousIntegrationTests) + ".cs",
-        nameof(GenuinelyUntestedControllersIntegrationTests) + ".cs",
     };
 
     internal static List<string> ScanRawAuthorityUrlsInHarnessTests()
