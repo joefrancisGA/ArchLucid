@@ -76,7 +76,11 @@ describe("first-review-spine-band", () => {
         openDecisionGradeDispositionCount: 2,
         reviewHasGoldenManifest: false,
       }),
-    ).toEqual({ label: "Uncited finding", reviewTab: "findings" });
+    ).toEqual({
+      label: "Uncited finding",
+      reviewTab: "findings",
+      nextAction: "Review the finding citation and record its disposition.",
+    });
   });
 
   it("resolveFirstReviewOpenGate names uncommitted review when manifest is absent", () => {
@@ -86,7 +90,11 @@ describe("first-review-spine-band", () => {
         openDecisionGradeDispositionCount: 0,
         reviewHasGoldenManifest: false,
       }),
-    ).toEqual({ label: "Uncommitted review", reviewTab: "review-package" });
+    ).toEqual({
+      label: "Uncommitted review",
+      reviewTab: "review-package",
+      nextAction: "Review the package and commit it when ready.",
+    });
   });
 
   it("resolveRunDetailVisitDefaultReviewTab returns findings when uncited findings remain", () => {
@@ -166,7 +174,7 @@ describe("first-review-spine-band", () => {
         reviewHasGoldenManifest: false,
       }),
     ).toBe(
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
@@ -226,7 +234,7 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe(
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=dg-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=dg-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
@@ -248,7 +256,7 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe(
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-dg#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-dg&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
