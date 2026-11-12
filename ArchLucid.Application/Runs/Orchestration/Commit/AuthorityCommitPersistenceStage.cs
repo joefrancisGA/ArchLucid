@@ -122,9 +122,15 @@ public sealed class AuthorityCommitPersistenceStage(
 
             if (runRecord.ArtifactBundleId is Guid)
             {
+                // Pipeline artifacts are stored against the execution manifest, which
+                // can differ from the new manifest materialized during commit.
+                Guid pipelineManifestId = runRecord.GoldenManifestId
+                    ?? throw new ConflictException(
+                        $"Run '{runId}' has an artifact bundle but no pipeline manifest anchor.");
+
                 preloadedArtifactBundle = await _artifactBundleRepository.GetByManifestIdAsync(
                     scope,
-                    materialization.ManifestModel.ManifestId,
+                    pipelineManifestId,
                     loadArtifactBodies: true,
                     cancellationToken);
             }
