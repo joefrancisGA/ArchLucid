@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Models.Runs;
 using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Api.Tests;
@@ -162,5 +163,56 @@ public static class AuthorityHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
 
         return GetAuthorityReviewBundleHttpAsync(client, runGuid, "workspace-context-bundle", cancellationToken);
+    }
+
+    public static async Task<RunDetailCriticalPageBundleResponse> ReadAuthorityReviewCriticalPageBundleAsync(
+        this HttpClient client,
+        Guid runGuid,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetAuthorityReviewCriticalPageBundleHttpAsync(
+            client,
+            runGuid,
+            cancellationToken);
+
+        return await response.ReadJsonForTestAsync<RunDetailCriticalPageBundleResponse>(jsonOptions, cancellationToken);
+    }
+
+    public static async Task<RunDetailTimelinesBundleResponse> ReadAuthorityReviewTimelinesBundleAsync(
+        this HttpClient client,
+        Guid runGuid,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetAuthorityReviewTimelinesBundleHttpAsync(
+            client,
+            runGuid,
+            cancellationToken);
+
+        return await response.ReadJsonForTestAsync<RunDetailTimelinesBundleResponse>(jsonOptions, cancellationToken);
+    }
+
+    public static async Task<RunDetailWorkspaceContextBundleResponse> ReadAuthorityReviewWorkspaceContextBundleAsync(
+        this HttpClient client,
+        Guid runGuid,
+        JsonSerializerOptions jsonOptions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(jsonOptions);
+
+        HttpResponseMessage response = await GetAuthorityReviewWorkspaceContextBundleHttpAsync(
+            client,
+            runGuid,
+            cancellationToken);
+
+        return await response.ReadJsonForTestAsync<RunDetailWorkspaceContextBundleResponse>(jsonOptions, cancellationToken);
     }
 }

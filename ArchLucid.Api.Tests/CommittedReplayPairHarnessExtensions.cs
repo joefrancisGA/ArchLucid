@@ -23,9 +23,8 @@ public static class CommittedReplayPairHarnessExtensions
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response =
-            await client.GetEndToEndCompareExportMarkdownForTestAsync(pair, cancellationToken).ConfigureAwait(false);
+            await client.GetEndToEndCompareExportMarkdownForTestAsync(pair, cancellationToken);
 
-        return await response.ReadJsonForTestAsync<EndToEndReplayComparisonExportResponse>(jsonOptions, cancellationToken)
-            .ConfigureAwait(false);
+        return await response.ReadJsonForTestAsync<EndToEndReplayComparisonExportResponse>(jsonOptions, cancellationToken);
     }
 }

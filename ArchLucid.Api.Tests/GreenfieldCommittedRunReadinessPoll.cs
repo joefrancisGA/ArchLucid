@@ -28,7 +28,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return WaitUntilAsync(
             async ct =>
             {
-                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", ct);
+                using HttpResponseMessage response = await client.GetRunHttpAsync(runId, ct);
 
                 if (!response.IsSuccessStatusCode)
                     return false;
@@ -53,7 +53,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
+        using HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
             return false;
@@ -77,7 +77,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return WaitUntilAsync(
             async ct =>
             {
-                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", ct);
+                using HttpResponseMessage response = await client.GetRunHttpAsync(runId, ct);
 
                 if (!response.IsSuccessStatusCode)
                     return false;
@@ -122,8 +122,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
 
         bounded.CancelAfter(TimeSpan.FromSeconds(30));
 
-        using HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/review/{runId}", bounded.Token);
+        using HttpResponseMessage response = await client.GetRunHttpAsync(runId, bounded.Token);
 
         string body = await response.Content.ReadAsStringAsync(bounded.Token);
 
