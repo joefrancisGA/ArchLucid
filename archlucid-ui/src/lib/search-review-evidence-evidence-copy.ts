@@ -2,6 +2,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const SEARCH_REVIEW_EVIDENCE_CANONICAL_PATH = SEARCH_REVIEW_EVIDENCE_PATH;
 
@@ -24,3 +26,9 @@ export const SEARCH_REVIEW_EVIDENCE_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
  { label: "Findings help", href: inAppHelpHref("findings") },
 ] as const;
+
+export function resolveSearchReviewEvidenceSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(SEARCH_REVIEW_EVIDENCE_SOURCES, productLine);
+}

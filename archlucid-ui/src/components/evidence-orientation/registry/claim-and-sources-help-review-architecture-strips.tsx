@@ -49,8 +49,8 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE,
-  ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
   ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO,
+  resolveArchitectureIntelligenceHelpSources,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
@@ -59,8 +59,8 @@ import {
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE,
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE,
-  SEARCH_REVIEW_EVIDENCE_HELP_SOURCES,
   SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO,
+  resolveSearchReviewEvidenceHelpSources,
 } from "@/lib/search-review-evidence-help-evidence-copy";
 import {
   SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID,
@@ -115,7 +115,11 @@ export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function SearchReviewEvidenceHelpEvidenceOrientationStrip(
+  props: { readonly productLineId?: ProductLineId } = {},
+): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-search-review-evidence"
@@ -124,14 +128,18 @@ export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.El
       claimHeadingId={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID}
       sourcesTitle={SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO}
-      sources={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES}
+      sources={resolveSearchReviewEvidenceHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
 
-export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(
+  props: { readonly productLineId?: ProductLineId } = {},
+): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-architecture-intelligence"
@@ -140,7 +148,7 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
       claimHeadingId={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID}
       sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO}
-      sources={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES}
+      sources={resolveArchitectureIntelligenceHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
     />
   );

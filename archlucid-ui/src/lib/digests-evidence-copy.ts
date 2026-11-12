@@ -2,6 +2,8 @@ import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const DIGESTS_SOURCES_INTRO =
@@ -18,3 +20,9 @@ export const DIGESTS_SOURCES: readonly EvidenceSourceLink[] = [
 ] as const;
 
 export const DIGESTS_CANONICAL_PATH = DIGESTS_HUB_PATH;
+
+export function resolveDigestsSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(DIGESTS_SOURCES, productLine);
+}

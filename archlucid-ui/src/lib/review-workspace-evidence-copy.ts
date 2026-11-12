@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveWorkingReviewsInboxParentLink } from "@/lib/resolve-working-evidence-parent-link";
 import type { PageHelpTopic } from "@/lib/usability/page-help-topic-rows";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const REVIEW_WORKSPACE_HELP_TOPIC_LABEL = "Review workspace" as const;
 
@@ -67,10 +69,12 @@ export const REVIEW_WORKSPACE_SOURCES_INTRO =
 export function buildReviewWorkspaceSources(
   runId: string,
   architectureId?: string | null,
-  options?: { readonly workingMode?: boolean },
+  options?: { readonly workingMode?: boolean; readonly productLine?: ProductLineId },
 ): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
   const workingMode = options?.workingMode === true;
+  const productLine = options?.productLine ?? "architecture";
+  const findingsQueueHref = findingsPathForProductLine(productLine);
   const reviewsParent = resolveWorkingReviewsInboxParentLink(workingMode);
   const evidenceHref =
     trimmed.length > 0
@@ -79,14 +83,14 @@ export function buildReviewWorkspaceSources(
   const findingsHref =
     trimmed.length > 0
       ? `${resolveArchitectureReviewHref(trimmed, architectureId)}?reviewTab=findings`
-      : GOVERNANCE_FINDINGS_PATH;
+      : findingsQueueHref;
 
   return [
     { label: reviewsParent.label, href: reviewsParent.href },
     { label: "Start a review", href: REVIEWS_NEW_PATH },
     { label: "Evidence graph", href: evidenceHref },
     { label: "Findings tab", href: findingsHref },
-    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Findings queue", href: findingsQueueHref },
     { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
     { label: "Architecture packages help", href: inAppHelpHref("review-packages") },
   ] as const;

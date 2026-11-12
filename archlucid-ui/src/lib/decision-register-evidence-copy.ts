@@ -6,6 +6,8 @@ import {
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_DECISION_REGISTER_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const DECISION_REGISTER_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.governanceFindings;
 
@@ -59,3 +61,9 @@ export const DECISION_REGISTER_ORIENTATION_SOURCES: readonly EvidenceSourceLinkW
   );
 
 export const DECISION_REGISTER_CANONICAL_PATH = GOVERNANCE_DECISION_REGISTER_PATH;
+
+export function resolveDecisionRegisterOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLinkWithWhen[] {
+  return remapEvidenceSourceFindingsQueueHref(DECISION_REGISTER_ORIENTATION_SOURCES, productLine);
+}

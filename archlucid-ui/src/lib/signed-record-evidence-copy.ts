@@ -10,6 +10,8 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Alias kept for call sites that name the signed-record Sources row type explicitly. */
 export type SignedRecordSourceLink = EvidenceSourceLink;
@@ -43,3 +45,9 @@ const SIGNED_RECORD_DETAIL_PATH_PREFIX = `${SIGNED_RECORDS_LIST_PATH}/` as const
 export const SIGNED_RECORD_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = SIGNED_RECORD_SOURCES.filter(
   (source) => !source.href.startsWith(SIGNED_RECORD_DETAIL_PATH_PREFIX),
 );
+
+export function resolveSignedRecordOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(SIGNED_RECORD_ORIENTATION_SOURCES, productLine);
+}

@@ -1,6 +1,8 @@
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 import {
   SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE,
@@ -45,3 +47,9 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_SOURCES: readonly EvidenceOrientationLi
     when: "Read findings guidance when queue workflow is the follow-up",
   },
 ] as const;
+
+export function resolveSearchReviewEvidenceHelpSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceOrientationLink[] {
+  return remapEvidenceSourceFindingsQueueHref(SEARCH_REVIEW_EVIDENCE_HELP_SOURCES, productLine);
+}

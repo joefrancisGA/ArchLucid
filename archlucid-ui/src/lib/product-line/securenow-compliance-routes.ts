@@ -14,13 +14,46 @@ import {
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
-const FINDINGS_QUEUE_EVIDENCE_LABELS = new Set<string>(["Findings", "Findings queue"]);
+const FINDINGS_QUEUE_EVIDENCE_LABELS = new Set<string>([
+  "Findings",
+  "Findings queue",
+  "Findings tab",
+]);
 
-/** Rewrites findings queue Source links for the active product line (architecture defaults unchanged). */
-export function remapEvidenceSourceFindingsQueueHref(
-  sources: readonly EvidenceSourceLink[],
+/** Remaps findings, standards, and policy-pack library links on hub Sources strips. */
+export function remapHubPolicyAndFindingsEvidenceSources<T extends EvidenceSourceLink>(
+  sources: readonly T[],
   productLine: ProductLineId,
-): readonly EvidenceSourceLink[] {
+): readonly T[] {
+  if (productLine === "architecture") {
+    return sources;
+  }
+
+  const findingsHref = findingsPathForProductLine(productLine);
+  const standardsHref = standardsAndRulesPathForProductLine(productLine);
+  const packsHref = policyPacksPathForProductLine(productLine);
+
+  return sources.map((source) => {
+    if (FINDINGS_QUEUE_EVIDENCE_LABELS.has(source.label)) {
+      return { ...source, href: findingsHref };
+    }
+
+    if (source.label === "Standards & rules" || source.label === "Standards and rules") {
+      return { ...source, href: standardsHref };
+    }
+
+    if (source.label === "Policy pack library") {
+      return { ...source, href: packsHref };
+    }
+
+    return source;
+  });
+}
+
+export function remapEvidenceSourceFindingsQueueHref<T extends EvidenceSourceLink>(
+  sources: readonly T[],
+  productLine: ProductLineId,
+): readonly T[] {
   if (productLine === "architecture") {
     return sources;
   }
