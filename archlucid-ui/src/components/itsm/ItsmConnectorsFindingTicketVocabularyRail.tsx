@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
   buildItsmConnectorsFindingTicketPairwiseRail,
@@ -20,6 +21,7 @@ export type ItsmConnectorsFindingTicketVocabularyRailProps = {
 export function ItsmConnectorsFindingTicketVocabularyRail(
   props: ItsmConnectorsFindingTicketVocabularyRailProps,
 ): JSX.Element {
+  const { productLine } = useProductLine();
   const pairwiseModel =
     props.model !== undefined
       ? {
@@ -29,7 +31,7 @@ export function ItsmConnectorsFindingTicketVocabularyRail(
           currentLink: props.model.itsmConnectorsLink,
           peerLink: props.model.findingTicketLinkageLink,
         }
-      : buildItsmConnectorsFindingTicketPairwiseRail();
+      : buildItsmConnectorsFindingTicketPairwiseRail(productLine);
 
   return (
     <PairwiseVocabularyRailFromModel

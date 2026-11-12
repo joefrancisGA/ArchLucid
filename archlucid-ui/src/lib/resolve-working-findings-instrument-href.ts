@@ -1,5 +1,6 @@
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
 export type ResolveWorkingFindingsInstrumentHrefInput = {
@@ -7,6 +8,7 @@ export type ResolveWorkingFindingsInstrumentHrefInput = {
   readonly runId?: string | null;
   readonly filter?: RiskRegisterFilter;
   readonly isWorkingMode: boolean;
+  readonly basePath?: string;
 };
 
 /** ADR 0098 / SG-019 — nested architecture findings when parent known on Working. */
@@ -33,5 +35,9 @@ export function resolveWorkingFindingsInstrumentHref(
     return query.length > 0 ? `${base}?${query}` : base;
   }
 
-  return buildGovernanceFindingsQueueHref({ runId, filter: input.filter });
+  return buildGovernanceFindingsQueueHref({
+    runId,
+    filter: input.filter,
+    basePath: input.basePath ?? GOVERNANCE_FINDINGS_PATH,
+  });
 }

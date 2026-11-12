@@ -2,6 +2,8 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
@@ -326,7 +328,7 @@ export const SECURITY_START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Assigned to me",
     description: "Your personal remediation queue for findings assigned to you.",
     keywords: ["assigned to me", "my findings", "remediation queue", "personal queue"],
-    action: { kind: "route", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
+    action: { kind: "route", href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
   },
   {
     id: "authentication-sign-in",
@@ -343,7 +345,7 @@ export const SECURITY_FINDINGS_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Findings",
     description: "Track accepted risks, owners, exceptions, and follow-up.",
     keywords: ["risk", "register", "exceptions", "accepted risk", "findings queue"],
-    action: { kind: "route", href: GOVERNANCE_FINDINGS_PATH, helpSlug: null },
+    action: { kind: "route", href: SECURENOW_FINDINGS_PATH, helpSlug: null },
   },
   {
     id: "infra-remediation-workbench",

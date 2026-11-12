@@ -16,6 +16,10 @@ import {
   splitHelpSearchPanelDoThisNow,
 } from "@/lib/help/help-search-panel-catalog";
 import { localizeHelpSearchPanelTopics } from "@/lib/help/help-product-copy";
+import {
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 
 describe("help-search-panel-catalog", () => {
   it("uses slash-canonical cloud connection help hrefs (TB-748)", () => {
@@ -283,6 +287,10 @@ describe("help-search-panel-catalog", () => {
     expect(topicIds).toContain("assigned-to-me-findings");
     expect(topicIds).toContain("connect-azure");
 
+    expect(
+      securityTopics.find((topic) => topic.id === "assigned-to-me-findings")?.action.href,
+    ).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH);
+
     const startHereGroup = listHelpSearchPanelGroups(false, "security").find(
       (group) => group.id === "start-here",
     );
@@ -298,6 +306,9 @@ describe("help-search-panel-catalog", () => {
       "authentication-sign-in",
     ]);
     expect(findingsWorkGroup?.heading).toBe("Findings and remediation");
+    expect(
+      findingsWorkGroup?.topics.find((topic) => topic.id === "risk-register")?.action.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
     expect(
       listHelpSearchPanelGroups(false, "security").find((group) => group.id === "governance")?.heading,
     ).toBe("Compliance");

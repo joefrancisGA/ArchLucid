@@ -132,6 +132,7 @@ export function formatMetricCountHeadline(presentation: MetricCountPresentation)
 export function buildGovernanceFindingsQueueHref(input?: {
   readonly runId?: string | null;
   readonly filter?: RiskRegisterFilter;
+  readonly basePath?: string;
 }): string {
   const params = new URLSearchParams();
 
@@ -145,7 +146,9 @@ export function buildGovernanceFindingsQueueHref(input?: {
 
   const query = params.toString();
 
-  return query.length > 0 ? `/governance/findings?${query}` : "/governance/findings";
+  const basePath = input?.basePath?.trim() || "/governance/findings";
+
+  return query.length > 0 ? `${basePath}?${query}` : basePath;
 }
 
 export function buildReviewDetailFindingsTabHref(runId: string): string {

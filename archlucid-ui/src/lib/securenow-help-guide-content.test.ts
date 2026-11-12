@@ -54,6 +54,10 @@ import { localizeHelpSearchPanelTopic } from "@/lib/help/help-product-copy";
 import { START_HERE_TOPICS } from "@/lib/help/help-search-panel-catalog-topics";
 import { policyPacksHelpDiagramSource } from "@/lib/policy/policy-packs-help-guide-content";
 import {
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
   standardsRulesHelpHowToReadSteps,
   standardsRulesHelpOverview,
   standardsRulesHelpPageSubtitle,
@@ -129,9 +133,11 @@ describe("SecureNow help guide content", () => {
 
   it("uses SecureNow findings claim, sources, anatomy, and roles without architecture-review language", () => {
     expect(resolveFindingsHelpClaimDiscipline("security")).not.toContain("finalized architecture review");
-    expect(resolveFindingsHelpSources("security").some((source) => source.label === "Search review evidence")).toBe(
-      false,
-    );
+    const sources = resolveFindingsHelpSources("security");
+
+    expect(sources.some((source) => source.label === "Search review evidence")).toBe(false);
+    expect(sources.find((source) => source.label === "Findings")?.href).toBe(SECURENOW_FINDINGS_PATH);
+    expect(sources.find((source) => source.label === "Policy packs")?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
     expect(findingsHelpAnatomyFields("security").find((field) => field.label === "Severity")?.description).not.toContain(
       "for the review",
     );
