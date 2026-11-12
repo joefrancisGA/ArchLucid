@@ -14,10 +14,12 @@ public static class WordDocumentBuilder
 
     private static string Sanitize(string? text)
     {
-        return text?.Replace("\r\n", " ", StringComparison.Ordinal)
-                   .Replace('\n', ' ')
-                   .Replace('\r', ' ')
-               ?? string.Empty;
+        // Preserve the display-only whitespace normalization, but remove XML-invalid
+        // control characters and spoofing marks before constructing OpenXml Text nodes.
+        return LlmArtifactFreeTextSanitizer.Sanitize(text)
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\n', ' ')
+            .Replace('\r', ' ');
     }
 
     private static string SanitizeTableCellText(string? text)
