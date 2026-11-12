@@ -2,14 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { enrichRunsListWithStaticDemoFallback } from "@/lib/operator/operator-runs-list-with-demo-fallback";
-import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import { resolveNextRunsListRow } from "@/lib/resolve-next-runs-list-row";
 import type { RunSummary } from "@/types/authority";
 
@@ -22,7 +21,7 @@ export type PolicyPacksNextReviewFooterClientProps = {
 export function PolicyPacksNextReviewFooterClient(
   props: PolicyPacksNextReviewFooterClientProps,
 ): React.JSX.Element | null {
-  const { productLine } = useProductLine();
+  const policyPacksHubPath = usePolicyPacksHubPath();
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
 
   const loadRuns = useCallback(async () => {
@@ -63,9 +62,9 @@ export function PolicyPacksNextReviewFooterClient(
     return {
       runId: target.runId,
       reviewTitle,
-      href: policyPacksNextReviewHref(target.runId, policyPacksPathForProductLine(productLine)),
+      href: policyPacksNextReviewHref(target.runId, policyPacksHubPath),
     };
-  }, [productLine, props.runId, runs]);
+  }, [policyPacksHubPath, props.runId, runs]);
 
   if (nextReview === null) {
     return null;
