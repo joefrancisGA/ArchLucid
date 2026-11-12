@@ -35,7 +35,9 @@ describe("SecureNowSkuCardView", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("securenow-published-list-price")).toBeInTheDocument();
-    expect(screen.getByText(/\$8,000/)).toBeInTheDocument();
-    expect(screen.getByText(/\$24,000/)).toBeInTheDocument();
+    const listPrices = within(screen.getByRole("table", { name: "SecureNow published list prices" }));
+
+    expect(listPrices.getByText(/\$8,000/)).toBeInTheDocument();
+    expect(listPrices.getByText(/\$24,000/)).toBeInTheDocument();
   });
 });

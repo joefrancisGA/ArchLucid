@@ -166,7 +166,7 @@ describe("first-review-spine-band", () => {
         reviewHasGoldenManifest: false,
       }),
     ).toBe(
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
@@ -226,7 +226,7 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe(
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=dg-1#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=dg-1&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 
@@ -248,7 +248,7 @@ describe("first-review-spine-band", () => {
         hasFindingsSnapshot: true,
       }),
     ).toBe(
-      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-dg#run-detail-first-review-spine-findings",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=top-dg&workbenchFocus=findings#run-detail-first-review-spine-findings",
     );
   });
 

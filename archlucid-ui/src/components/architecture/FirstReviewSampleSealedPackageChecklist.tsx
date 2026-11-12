@@ -28,7 +28,7 @@ export function FirstReviewSampleSealedPackageChecklist(): React.JSX.Element {
           <li key={item}>{item}</li>
         ))}
       </ul>
-      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>Not yet your sealed review</p>
+      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>Sample only — not a sealed tenant review</p>
       <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
         {FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_NOT_YET.map((item) => (
           <li key={item}>{item}</li>
