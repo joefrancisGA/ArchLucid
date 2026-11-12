@@ -123,13 +123,10 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
                 defaultPolicyPackCloudBaselineApplicator,
                 scopeContextProvider,
                 NullLogger<ArchitectureRunCreatePolicyBaselineHook>.Instance),
-            new ArchitectureRunCreateIdentityLinkHook(
-                architectureIdentityService,
-                Mock.Of<IArchitectureVersionService>(),
-                scopeContextProvider,
-                Mock.Of<IArchitectureKnowledgeModelAccess>(),
-                new ArchitectureKnowledgeModelIntakeBuilder(resolvedTimeProvider),
-                runRepository),
+            // These orchestration tests use a mocked coordinator without a persisted run header
+            // or knowledge model. The real fail-closed identity/pinning hook is exercised in
+            // ArchitectureRunCreateIdentityLinkHookTests; isolate it at this unit-test boundary.
+            Mock.Of<IArchitectureRunCreateIdentityLinkHook>(),
             scopeContextProvider);
 
         return new ArchitectureRunCreateOrchestrator(
