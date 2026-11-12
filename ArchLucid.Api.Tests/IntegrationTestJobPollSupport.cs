@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>Poll async job status endpoints in integration tests.</summary>
 public static class IntegrationTestJobPollSupport
 {
-    public static async Task<string> PollJobUntilSucceededOrFailedAsync(
+    private static async Task<string> PollJobUntilSucceededOrFailedAsync(
         HttpClient client,
         string jobId,
         JsonSerializerOptions jsonOptions,
