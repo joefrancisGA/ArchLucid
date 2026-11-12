@@ -18,6 +18,7 @@ import {
   isStandardsAndRulesRoutePath,
   policyPacksHubPathFromPathname,
   policyPacksPathForProductLine,
+  resolvePolicyPacksHubPath,
   standardsAndRulesPathForProductLine,
 } from "@/lib/product-line/securenow-compliance-routes";
 
@@ -50,5 +51,13 @@ describe("securenow-compliance-routes", () => {
     expect(policyPacksHubPathFromPathname(`${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`)).toBe(
       GOVERNANCE_POLICY_PACKS_PATH,
     );
+  });
+
+  it("resolves policy packs hub from pathname on pack routes and product line elsewhere", () => {
+    expect(resolvePolicyPacksHubPath(`${SECURENOW_POLICY_PACKS_PATH}/pack-1`, "architecture")).toBe(
+      SECURENOW_POLICY_PACKS_PATH,
+    );
+    expect(resolvePolicyPacksHubPath("/insights/compare-two-reviews", "security")).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(resolvePolicyPacksHubPath("/insights/compare-two-reviews", "architecture")).toBe(GOVERNANCE_POLICY_PACKS_PATH);
   });
 });

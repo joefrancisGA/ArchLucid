@@ -113,3 +113,15 @@ export function policyPacksHubPathFromPathname(pathname: string | null | undefin
 
   return GOVERNANCE_POLICY_PACKS_PATH;
 }
+
+/** Policy packs hub for client handoffs: pathname wins on pack routes; otherwise product line. */
+export function resolvePolicyPacksHubPath(
+  pathname: string | null | undefined,
+  productLine: ProductLineId,
+): string {
+  if (isPolicyPacksRoutePath(pathname)) {
+    return policyPacksHubPathFromPathname(pathname);
+  }
+
+  return policyPacksPathForProductLine(productLine);
+}

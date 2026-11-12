@@ -22,7 +22,7 @@ import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackI
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import type { components } from "@/lib/openapi-schemas";
 import {
@@ -99,7 +99,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     [pathname, scopedReviewId, searchParams],
   );
   const requiresReviewPick = props.onPickReview !== undefined;
-  const policyPacksHubPath = policyPacksPathForProductLine(productLine);
+  const policyPacksHubPath = usePolicyPacksHubPath();
   const previewClearScopeHref = buildPolicyPacksHrefWithReviewId("", policyPacksHubPath);
   const initialPackComparison = useMemo(
     () =>

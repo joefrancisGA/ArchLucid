@@ -1,37 +1,30 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  buildPolicyPacksHrefWithReviewId,
-  buildPolicyPacksImpactPreviewHref,
-  resolveCompareGovernancePackImpactHandoff,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  buildPolicyPacksHrefWithReviewIdForProductLine,
+  buildPolicyPacksImpactPreviewHrefForProductLine,
 } from "@/lib/policy-packs-review-handoff";
 
-describe("buildPolicyPacksHrefWithReviewId", () => {
-  it("appends reviewId query param for policy pack assignment handoff", () => {
-    expect(buildPolicyPacksHrefWithReviewId("run-123")).toBe("/governance/policy-packs?reviewId=run-123");
-  });
-
-  it("returns the SecureNow hub when clearing review scope", () => {
-    expect(buildPolicyPacksHrefWithReviewId("", "/compliance/policy-packs")).toBe("/compliance/policy-packs");
-  });
-});
-
-describe("buildPolicyPacksImpactPreviewHref", () => {
-  it("includes packAId and packBId when provided", () => {
+describe("policy-packs-review-handoff product line helpers", () => {
+  it("builds SecureNow compliance policy pack handoffs from product line", () => {
+    expect(buildPolicyPacksHrefWithReviewIdForProductLine("rev-1", "security")).toBe(
+      `${SECURENOW_POLICY_PACKS_PATH}?reviewId=rev-1`,
+    );
     expect(
-      buildPolicyPacksImpactPreviewHref({
-        reviewId: "run-123",
-        packAId: "pack-a",
-        packBId: "pack-b",
-      }),
-    ).toBe("/governance/policy-packs?reviewId=run-123&packAId=pack-a&packBId=pack-b");
-  });
-
-  it("builds compare handoff from baseline and target pack ids", () => {
-    expect(
-      buildPolicyPacksImpactPreviewHref(
-        resolveCompareGovernancePackImpactHandoff("run-target", "pack-a", "pack-b"),
+      buildPolicyPacksImpactPreviewHrefForProductLine(
+        { reviewId: "rev-1", packAId: "a", packBId: "b" },
+        "security",
       ),
-    ).toBe("/governance/policy-packs?reviewId=run-target&packAId=pack-a&packBId=pack-b");
+    ).toBe(`${SECURENOW_POLICY_PACKS_PATH}?reviewId=rev-1&packAId=a&packBId=b`);
+  });
+
+  it("builds architecture governance policy pack handoffs from product line", () => {
+    expect(buildPolicyPacksHrefWithReviewIdForProductLine("rev-1", "architecture")).toBe(
+      `${GOVERNANCE_POLICY_PACKS_PATH}?reviewId=rev-1`,
+    );
   });
 });

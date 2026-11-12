@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 24: standards next-review hub and policy packs hub resolver
+
+**Outcome.** The standards-and-rules next-review footer now preserves the SecureNow `/compliance/standards-and-rules` hub. Client policy-pack handoffs share `resolvePolicyPacksHubPath` / `usePolicyPacksHubPath` and product-line review-handoff helpers so links stay on the correct namespace.
+
+**Surfaces.** Standards next-review footer, policy packs next-review footer, impact preview panel, compliance route and handoff tests.
+
 ## 2026-11-12 - Score lift round 23: SecureNow policy impact handoffs
 
 **Outcome.** Standards-and-rules and compare-two-reviews policy impact preview links now preserve the SecureNow `/compliance/policy-packs` hub instead of defaulting to governance.

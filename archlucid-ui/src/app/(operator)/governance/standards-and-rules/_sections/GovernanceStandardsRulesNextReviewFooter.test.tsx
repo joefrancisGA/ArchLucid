@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+
 import {
   GovernanceStandardsRulesNextReviewFooter,
   standardsRulesNextReviewHref,
@@ -10,6 +12,9 @@ describe("GovernanceStandardsRulesNextReviewFooter", () => {
   it("builds the next review standards href from run id", () => {
     expect(standardsRulesNextReviewHref("run-2")).toBe("/governance/standards-and-rules?runId=run-2");
     expect(standardsRulesNextReviewHref("run 2")).toBe("/governance/standards-and-rules?runId=run%202");
+    expect(standardsRulesNextReviewHref("run-2", SECURENOW_STANDARDS_AND_RULES_PATH)).toBe(
+      "/compliance/standards-and-rules?runId=run-2",
+    );
   });
 
   it("renders next review standards link", () => {

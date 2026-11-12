@@ -36,6 +36,9 @@ export function GovernanceStandardsRulesNextReviewFooter(
   );
 }
 
-export function standardsRulesNextReviewHref(runId: string): string {
-  return `${GOVERNANCE_STANDARDS_AND_RULES_PATH}?runId=${encodeURIComponent(runId)}`;
+export function standardsRulesNextReviewHref(
+  runId: string,
+  hubPath: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
+): string {
+  return `${hubPath}?runId=${encodeURIComponent(runId)}`;
 }
