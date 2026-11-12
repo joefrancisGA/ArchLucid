@@ -1,3 +1,5 @@
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
+
 export const SECURENOW_SCENARIO_WALKS_HEADING = "Fixture walks" as const;
 
 export const SECURENOW_SCENARIO_WALKS_LEAD =
@@ -59,7 +61,7 @@ export const SECURENOW_SCENARIO_WALKS: readonly SecureNowScenarioWalk[] = [
     id: "fixture-path-02",
     buyerJob:
       "Walk a second synthetic ranked path (fixture-path-02) with a different hop pair on the public sample page.",
-    honestLabel: "Synthetic fixture. Not a customer result.",
+    honestLabel: SECURENOW_SAMPLE_FIXTURE_LINE,
     operatorHandoffHref: "/security/remediation-factory?pathId=fixture-path-02",
     operatorHandoffLabel: "Open fixture-path-02 in product",
   },

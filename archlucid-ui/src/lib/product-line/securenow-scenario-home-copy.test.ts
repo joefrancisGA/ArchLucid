@@ -5,6 +5,7 @@ import {
   SECURENOW_SCENARIO_HOME_SECTION_HEADING,
   SECURENOW_SCENARIO_HOME_SECTION_LEAD,
 } from "./securenow-scenario-home-copy";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 
 describe("SecureNow scenario home copy", () => {
   it("offers six fixture walks without customer claims", () => {
@@ -28,6 +29,10 @@ describe("SecureNow scenario home copy", () => {
 
     expect(copy).not.toMatch(/\$/);
     expect(copy).toMatch(/customer outcome/);
-    expect(copy.match(/Synthetic fixture/g)).toHaveLength(6);
+    expect(
+      SECURENOW_SCENARIO_HOME_ROWS.every((row) =>
+        row.summary.startsWith(`${SECURENOW_SAMPLE_FIXTURE_LINE} `),
+      ),
+    ).toBe(true);
   });
 });
