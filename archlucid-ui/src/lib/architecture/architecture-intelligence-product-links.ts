@@ -1,4 +1,6 @@
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type ArchitectureIntelligenceProductLinks = {
   readonly reviewHref: string;
@@ -9,6 +11,7 @@ export type ArchitectureIntelligenceProductLinks = {
 /** Product surfaces to open after ArchitectureIntelligence publish for a run. */
 export function buildArchitectureIntelligenceProductLinks(
   runId: string | null | undefined,
+  productLine: ProductLineId = "architecture",
 ): ArchitectureIntelligenceProductLinks | null {
   const trimmed = runId?.trim() ?? "";
 
@@ -18,9 +21,11 @@ export function buildArchitectureIntelligenceProductLinks(
 
   const encoded = encodeURIComponent(trimmed);
 
+  const findingsBasePath = findingsPathForProductLine(productLine);
+
   return {
     reviewHref: resolveScopedInsightOpenReviewHrefWithDeskContinuity(trimmed),
-    findingsHref: `/governance/findings?runId=${encoded}`,
+    findingsHref: `${findingsBasePath}?runId=${encoded}`,
     advisoryHref: `/governance/advisory-scans?runId=${encoded}`,
   };
 }

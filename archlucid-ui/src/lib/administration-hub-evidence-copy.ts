@@ -1,5 +1,7 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const ADMINISTRATION_HUB_CLAIM_DISCIPLINE =
   "Settings is the launcher for workspace, identity, billing, security, and support configuration — not a full audit export. Open System health, Audit, or a finalized review record when you need operational or export-ready records.";
@@ -16,3 +18,9 @@ export const ADMINISTRATION_HUB_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
 ] as const;
+
+export function resolveAdministrationHubSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(ADMINISTRATION_HUB_SOURCES, productLine);
+}

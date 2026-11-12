@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 28: SecureNow operator hub findings handoffs
+
+**Outcome.** Settings, alerts, approval, audit, ask-review, advisory-scans, and Azure Boards setup Sources now preserve `/compliance/findings` (and alerts help policy hubs use compliance paths) when the SecureNow product line is active. Architecture defaults remain unchanged.
+
+**Surfaces.** Administration and alerts inbox Sources, approval queue and lineage, audit trail, ask-review Sources, architecture intelligence round-trip, Core Pilot whats-next, help alerts/advisory tiles, route contract tests.
+
 ## 2026-11-12 - Score lift round 27: SecureNow finding detail and help queue routes
 
 **Outcome.** Finding detail Sources, findings queue back navigation, and SecureNow findings help primary/evidence actions now preserve `/compliance/findings` and `/compliance/standards-and-rules` instead of defaulting to governance paths. Architecture defaults remain unchanged.

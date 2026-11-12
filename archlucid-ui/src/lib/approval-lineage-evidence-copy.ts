@@ -2,6 +2,8 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDI
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Workbook path pattern for GAI (dynamic approval id). */
 export const APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN =
@@ -43,11 +45,23 @@ export const APPROVAL_LINEAGE_BUYER_OVERVIEW =
 
 export const APPROVAL_LINEAGE_WORKSPACE_TEST_ID = "approval-lineage-workspace" as const;
 
+function buildApprovalLineageSources(findingsHref: string): readonly EvidenceSourceLink[] {
+  return [
+    { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+    { label: "Findings", href: findingsHref },
+    { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
+    { label: "Approval help", href: inAppHelpHref("governance-approval") },
+    { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
+  ] as const;
+}
+
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
-export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
-  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
-  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Approval help", href: inAppHelpHref("governance-approval") },
-  { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
-] as const;
+export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = buildApprovalLineageSources(
+  GOVERNANCE_FINDINGS_PATH,
+);
+
+export function resolveApprovalLineageSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return buildApprovalLineageSources(findingsPathForProductLine(productLine));
+}

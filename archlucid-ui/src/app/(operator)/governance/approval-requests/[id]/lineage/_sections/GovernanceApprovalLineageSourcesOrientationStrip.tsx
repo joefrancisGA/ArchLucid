@@ -1,14 +1,19 @@
+"use client";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   APPROVAL_LINEAGE_FOLLOW_UPS_TITLE,
   APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID,
-  APPROVAL_LINEAGE_SOURCES,
   APPROVAL_LINEAGE_SOURCES_INTRO,
+  resolveApprovalLineageSources,
 } from "@/lib/approval-lineage-evidence-copy";
 
 /** Sources-only follow-ups for `/governance/approval-requests/[id]/lineage` buyer-polished shell (GAI). */
 export function GovernanceApprovalLineageSourcesOrientationStrip(): React.JSX.Element {
+  const { productLine } = useProductLine();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="approval-lineage"
@@ -16,7 +21,7 @@ export function GovernanceApprovalLineageSourcesOrientationStrip(): React.JSX.El
       sourcesTestId="approval-lineage-sources"
       sourcesTitle={APPROVAL_LINEAGE_FOLLOW_UPS_TITLE}
       sourcesIntro={APPROVAL_LINEAGE_SOURCES_INTRO}
-      sources={APPROVAL_LINEAGE_SOURCES}
+      sources={resolveApprovalLineageSources(productLine)}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary

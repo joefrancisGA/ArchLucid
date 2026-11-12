@@ -7,6 +7,8 @@ import {
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const APPROVAL_QUEUE_CLAIM_DISCIPLINE =
   "This approval queue records submit / approve / reject decisions for architecture reviews in the current workspace — workflow only, not a full audit export. Open Audit or the linked review for the complete record.";
@@ -18,14 +20,26 @@ export const APPROVAL_QUEUE_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
 );
 
 
+function buildApprovalQueueSources(findingsHref: string): readonly EvidenceSourceLink[] {
+  return [
+    { label: "Findings", href: findingsHref },
+    { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
+    { label: "Workspace health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
+    { label: "Approval help", href: inAppHelpHref("governance-approval") },
+    { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
+  ] as const;
+}
+
 /** Operator Sources — no self-href to the approval queue. */
-export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
-  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Workspace health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
-  { label: "Approval help", href: inAppHelpHref("governance-approval") },
-  { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
-] as const;
+export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = buildApprovalQueueSources(
+  GOVERNANCE_FINDINGS_PATH,
+);
+
+export function resolveApprovalQueueSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return buildApprovalQueueSources(findingsPathForProductLine(productLine));
+}
 
 export const APPROVAL_QUEUE_CANONICAL_PATH = GOVERNANCE_APPROVAL_QUEUE_PATH;
 
