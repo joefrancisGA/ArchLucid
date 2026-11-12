@@ -47,7 +47,7 @@ public static class ReviewSubresourceHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client.GetAsync(
+        using HttpResponseMessage response = await client.GetAsync(
             $"/v1/architecture/review/{runGuid:D}/evidence",
             cancellationToken);
 
@@ -63,7 +63,7 @@ public static class ReviewSubresourceHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await client.GetAsync(
+        using HttpResponseMessage response = await client.GetAsync(
             $"/v1/architecture/review/{runGuid:D}/traces",
             cancellationToken);
 
@@ -137,7 +137,7 @@ public static class ReviewSubresourceHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await GetReviewDecisionsHttpAsync(client, runGuid, cancellationToken);
+        using HttpResponseMessage response = await GetReviewDecisionsHttpAsync(client, runGuid, cancellationToken);
 
         return await response.ReadJsonForTestAsync<DecisionNodeResponseDto>(jsonOptions, cancellationToken);
     }
@@ -151,7 +151,7 @@ public static class ReviewSubresourceHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await GetReviewRoiHttpAsync(client, runGuid, cancellationToken);
+        using HttpResponseMessage response = await GetReviewRoiHttpAsync(client, runGuid, cancellationToken);
 
         return await response.ReadJsonForTestAsync<RunRoiScorecardDto>(jsonOptions, cancellationToken);
     }
@@ -165,7 +165,7 @@ public static class ReviewSubresourceHarnessExtensions
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
-        HttpResponseMessage response = await GetReviewExportsHttpAsync(client, runGuid, cancellationToken);
+        using HttpResponseMessage response = await GetReviewExportsHttpAsync(client, runGuid, cancellationToken);
 
         return await response.ReadJsonForTestAsync<RunExportHistoryResponse>(jsonOptions, cancellationToken);
     }

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Audit;
@@ -27,8 +26,8 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 if (!response.IsSuccessStatusCode)
                     return false;
 
-                GetRunResponseDto? detail =
-                    await response.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions, ct);
+                GetRunResponseDto detail =
+                    await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, ct);
 
                 return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
             },
@@ -52,8 +51,8 @@ internal static class GreenfieldCommittedRunReadinessPoll
         if (!response.IsSuccessStatusCode)
             return false;
 
-        GetRunResponseDto? detail =
-            await response.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions, cancellationToken);
+        GetRunResponseDto detail =
+            await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, cancellationToken);
 
         return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
     }
@@ -76,8 +75,8 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 if (!response.IsSuccessStatusCode)
                     return false;
 
-                GetRunResponseDto? detail =
-                    await response.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions, ct);
+                GetRunResponseDto detail =
+                    await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, ct);
 
                 if (detail?.Run is null)
                     return false;

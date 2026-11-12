@@ -19,14 +19,21 @@ public static class IntegrationTestJobPollSupport
         ArgumentException.ThrowIfNullOrWhiteSpace(jobId);
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
+        if (maxIterations <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxIterations), "The poll must perform at least one status read.");
+
         TimeSpan delay = delayBetween ?? HarnessPollDefaults.BackgroundJobDefaultDelay;
+
+        if (delay < TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(delayBetween), "The poll delay cannot be negative.");
+
         BackgroundJobInfo? latest = null;
 
         for (int i = 0; i < maxIterations; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}", cancellationToken);
+            HttpResponseMessage statusResponse = await GetJobStatusHttpAsync(client, jobId, cancellationToken);
             latest = await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(jsonOptions, cancellationToken);
 
             if (latest.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed or BackgroundJobState.Canceled)
@@ -70,6 +77,42 @@ public static class IntegrationTestJobPollSupport
         }
 
         return terminal;
+    }
+
+    public static async Task<BackgroundJobInfo> PollJobUntilFailedAsync(
+        HttpClient client,
+        string jobId,
+        JsonSerializerOptions jsonOptions,
+        int maxIterations = HarnessPollDefaults.BackgroundJobDefaultMaxIterations,
+        TimeSpan? delayBetween = null,
+        CancellationToken cancellationToken = default)
+    {
+        BackgroundJobInfo terminal = await PollJobUntilTerminalStateAsync(
+            client,
+            jobId,
+            jsonOptions,
+            maxIterations,
+            delayBetween,
+            cancellationToken);
+
+        if (terminal.State != BackgroundJobState.Failed)
+        {
+            throw new InvalidOperationException(
+                $"Job '{jobId}' reached {terminal.State} instead of Failed. Error: {terminal.Error ?? "(none)"}.");
+        }
+
+        return terminal;
+    }
+
+    public static Task<HttpResponseMessage> GetJobStatusHttpAsync(
+        HttpClient client,
+        string jobId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrWhiteSpace(jobId);
+
+        return client.GetAsync($"/v1/jobs/{jobId}", cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetJobFileHttpAsync(

@@ -33,8 +33,8 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
         ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(options);
 
-        await response.EnsureSuccessForTestAsync().ConfigureAwait(false);
-        T? payload = await response.Content.ReadFromJsonAsync<T>(options, cancellationToken).ConfigureAwait(false);
+        await response.EnsureSuccessForTestAsync();
+        T? payload = await response.Content.ReadFromJsonAsync<T>(options, cancellationToken);
         payload.Should().NotBeNull();
 
         return payload!;
@@ -47,8 +47,8 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        await response.EnsureSuccessForTestAsync(callerMemberName).ConfigureAwait(false);
-        byte[] bytes = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        await response.EnsureSuccessForTestAsync(callerMemberName);
+        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
         bytes.Length.Should().BeGreaterThan(0);
 
         return bytes;
@@ -67,13 +67,13 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
 
         if (response.StatusCode != expectedStatus)
         {
-            string failureBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            string failureBody = await response.Content.ReadAsStringAsync();
             throw new HttpRequestException(
                 $"{callerMemberName}: expected HTTP {(int)expectedStatus} {expectedStatus} but got {(int)response.StatusCode} {response.StatusCode}. Body: {failureBody}");
         }
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
 
-        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         body.RootElement.GetProperty("status").GetInt32().Should().Be((int)expectedStatus);
 
         if (expectedTypeUri is not null)
@@ -114,9 +114,9 @@ public static class ArchLucidHttpResponseIntegrationTestExtensions
     {
         ArgumentNullException.ThrowIfNull(utf8Json);
 
-        JsonElement element = await JsonSerializer
-            .DeserializeAsync<JsonElement>(utf8Json, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        JsonElement element = await JsonSerializer.DeserializeAsync<JsonElement>(
+            utf8Json,
+            cancellationToken: cancellationToken);
 
         return element;
     }
