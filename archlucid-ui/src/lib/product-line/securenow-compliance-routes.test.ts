@@ -19,6 +19,7 @@ import {
   policyPacksHubPathFromPathname,
   policyPacksPathForProductLine,
   remapEvidenceSourceFindingsQueueHref,
+  remapHubPolicyAndFindingsEvidenceSources,
   resolvePolicyPacksHubPath,
   standardsAndRulesPathForProductLine,
 } from "@/lib/product-line/securenow-compliance-routes";
@@ -52,6 +53,23 @@ describe("securenow-compliance-routes", () => {
     expect(policyPacksHubPathFromPathname(`${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`)).toBe(
       GOVERNANCE_POLICY_PACKS_PATH,
     );
+  });
+
+  it("remaps hub policy, standards, and findings Source labels for SecureNow", () => {
+    const hubSources = [
+      { label: "Findings tab", href: GOVERNANCE_FINDINGS_PATH },
+      { label: "Standards and rules", href: GOVERNANCE_STANDARDS_AND_RULES_PATH },
+      { label: "Policy pack library", href: GOVERNANCE_POLICY_PACKS_PATH },
+      { label: "Audit", href: "/governance/audit" },
+    ] as const;
+
+    expect(remapHubPolicyAndFindingsEvidenceSources(hubSources, "architecture")).toBe(hubSources);
+    const remapped = remapHubPolicyAndFindingsEvidenceSources(hubSources, "security");
+
+    expect(remapped[0]?.href).toBe(SECURENOW_FINDINGS_PATH);
+    expect(remapped[1]?.href).toBe(SECURENOW_STANDARDS_AND_RULES_PATH);
+    expect(remapped[2]?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(remapped[3]?.href).toBe("/governance/audit");
   });
 
   it("remaps findings queue Source labels for SecureNow", () => {

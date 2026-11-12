@@ -2,6 +2,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { PLANNING_PATH, PLANNING_PLAN_DETAIL_PATH_PREFIX } from "@/lib/planning-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const PLANNING_PLAN_DETAIL_PAGE_TITLE = "Improvement plan" as const;
 
@@ -43,13 +45,25 @@ export const PLANNING_PLAN_DETAIL_SOURCES_INTRO =
   "Return to Improvement planning for themes and peer plans, or open reviews and findings when this plan needs execution follow-up.";
 
 
-/** Operator Sources — no self-href to plan detail routes. */
-export const PLANNING_PLAN_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
+function buildPlanningPlanDetailSources(findingsHref: string): readonly EvidenceSourceLink[] {
+  return [
   { label: "Improvement planning", href: PLANNING_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings", href: findingsHref },
   { label: "Product learning", href: "/internal/product-learning" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
-] as const;
+  ] as const;
+}
+
+/** Operator Sources — no self-href to plan detail routes. */
+export const PLANNING_PLAN_DETAIL_SOURCES: readonly EvidenceSourceLink[] = buildPlanningPlanDetailSources(
+  GOVERNANCE_FINDINGS_PATH,
+);
+
+export function resolvePlanningPlanDetailSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return buildPlanningPlanDetailSources(findingsPathForProductLine(productLine));
+}
 
 export { PLANNING_PLAN_DETAIL_PATH_PREFIX };

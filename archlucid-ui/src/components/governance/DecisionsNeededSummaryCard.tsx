@@ -5,8 +5,12 @@ import Link from "next/link";
 
 import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent } from "@/components/ui/card";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 
 export type DecisionsNeededTile = {
   key: string;
@@ -16,7 +20,12 @@ export type DecisionsNeededTile = {
   cautionAccent?: boolean;
 };
 
-export function buildDecisionsNeededTiles(summary: GovernanceDecisionsNeededSummary): DecisionsNeededTile[] {
+export function buildDecisionsNeededTiles(
+  summary: GovernanceDecisionsNeededSummary,
+  productLine: ProductLineId = "architecture",
+): DecisionsNeededTile[] {
+  const findingsBase = findingsPathForProductLine(productLine);
+
   return [
     {
       key: "pendingApprovals",
@@ -28,19 +37,19 @@ export function buildDecisionsNeededTiles(summary: GovernanceDecisionsNeededSumm
       key: "staleRisks",
       label: "Stale risks",
       count: summary.staleRisks,
-      href: "/governance/findings?filter=stale",
+      href: buildGovernanceFindingsQueueHref({ filter: "stale", basePath: findingsBase }),
     },
     {
       key: "unownedHighSeverityRisks",
       label: "Unowned High risks",
       count: summary.unownedHighSeverityRisks,
-      href: "/governance/findings",
+      href: findingsBase,
     },
     {
       key: "findingsAwaitingEvidence",
       label: "Awaiting evidence",
       count: summary.findingsAwaitingEvidence,
-      href: "/governance/findings",
+      href: findingsBase,
     },
     {
       key: "waiversExpiringWithin14Days",
@@ -53,7 +62,7 @@ export function buildDecisionsNeededTiles(summary: GovernanceDecisionsNeededSumm
       key: "deferredFindingsDue",
       label: "Deferred items due",
       count: summary.deferredFindingsDue,
-      href: "/governance/findings",
+      href: findingsBase,
     },
   ];
 }
@@ -65,7 +74,8 @@ export type DecisionsNeededSummaryCardProps = {
 /** Six-tile KPI strip for approval decisions-needed summary (TB-223). */
 export function DecisionsNeededSummaryCard(props: DecisionsNeededSummaryCardProps) {
   const { summary } = props;
-  const tiles = buildDecisionsNeededTiles(summary);
+  const { productLine } = useProductLine();
+  const tiles = buildDecisionsNeededTiles(summary, productLine);
 
   if (summary.totalDecisionItems === 0) {
     return (

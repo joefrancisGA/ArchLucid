@@ -10,6 +10,8 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const RISK_EXCEPTIONS_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.governanceFindings;
 
@@ -40,3 +42,9 @@ const RISK_EXCEPTIONS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([GOVER
 export const RISK_EXCEPTIONS_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = RISK_EXCEPTIONS_SOURCES.filter(
   (source) => !RISK_EXCEPTIONS_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveRiskExceptionsOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(RISK_EXCEPTIONS_ORIENTATION_SOURCES, productLine);
+}

@@ -16,9 +16,9 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
   ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
-  ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
   ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_INTELLIGENCE_HELP_HOW_TO_READ_STEPS,
   ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -31,6 +31,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_HELPER,
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,
   architectureIntelligenceHelpPageSubtitle,
+  resolveArchitectureIntelligenceHelpFeatureItems,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -71,6 +72,8 @@ export function HelpArchitectureIntelligenceGuideView(
   props: HelpArchitectureIntelligenceGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
+  const productLineId = resolveProductLineIdFromEnv();
+  const featureItems = resolveArchitectureIntelligenceHelpFeatureItems(productLineId);
   const buyerPolishedShell = resolveProductionEvalChromeForServer();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-architecture-intelligence",
@@ -131,7 +134,7 @@ export function HelpArchitectureIntelligenceGuideView(
           className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
           data-testid="help-architecture-intelligence-feature-items"
         >
-          {ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS.map((item) => (
+          {featureItems.map((item) => (
             <div key={item.label}>
               <dt className="font-medium text-al-text-primary">
                 <Link className={OPERATOR_LINK.nav} href={item.href}>

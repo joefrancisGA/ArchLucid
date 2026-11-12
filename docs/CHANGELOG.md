@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 29: SecureNow governance and review hub findings routes
+
+**Outcome.** Decision register, risk exceptions, operator home, reviews hub and workspace, architecture intelligence, digests, search evidence, policy packs hub, signed records, planning, decisions-needed tiles, approval banner, and related Sources now preserve `/compliance/findings` (and policy hubs where applicable) on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Governance and review hub orientation strips, stickiness KPI tiles, approval status banner, route contract tests.
+
 ## 2026-11-12 - Score lift round 28: SecureNow operator hub findings handoffs
 
 **Outcome.** Settings, alerts, approval, audit, ask-review, advisory-scans, and Azure Boards setup Sources now preserve `/compliance/findings` (and alerts help policy hubs use compliance paths) when the SecureNow product line is active. Architecture defaults remain unchanged.

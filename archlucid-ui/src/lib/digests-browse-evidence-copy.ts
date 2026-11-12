@@ -10,6 +10,8 @@ import {
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const DIGESTS_BROWSE_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.digestsSchedule;
@@ -40,3 +42,9 @@ export const DIGESTS_BROWSE_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
   DIGESTS_BROWSE_SOURCES.filter(
     (source) => !DIGESTS_BROWSE_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
   );
+
+export function resolveDigestsBrowseOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(DIGESTS_BROWSE_ORIENTATION_SOURCES, productLine);
+}

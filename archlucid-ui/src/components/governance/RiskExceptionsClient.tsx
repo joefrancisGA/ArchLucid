@@ -11,7 +11,9 @@ import { RiskExceptionsBuyerChrome } from "@/app/(operator)/governance/exception
 import { RiskExceptionsLoadFailure } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadFailure";
 import { RiskExceptionsLoadingSkeleton } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadingSkeleton";
 import { riskExceptionsPageSubtitle } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 import {
   GOVERNANCE_RISK_EXCEPTIONS_BUYER_START_HERE_HELPER,
@@ -56,6 +58,8 @@ import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-g
 
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
+  const { productLine } = useProductLine();
+  const findingsQueueHref = findingsPathForProductLine(productLine);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     scopedRunId,
@@ -198,7 +202,7 @@ export default function RiskExceptionsClient() {
             title={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TITLE : RISK_EXCEPTIONS_EMPTY_TITLE}
             description={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_BODY : RISK_EXCEPTIONS_EMPTY_BODY}
             actions={[
-              { label: "Open findings", href: "/governance/findings", variant: "primary" },
+              { label: "Open findings", href: findingsQueueHref, variant: "primary" },
               {
                 label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open approval",
                 href: "/governance/approval-queue",
