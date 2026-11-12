@@ -11,7 +11,9 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { components } from "@/lib/openapi-schemas";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 import { resolvePolicyPackScopedOpenReviewHref } from "@/lib/policy-pack-scoped-open-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -95,10 +97,14 @@ export function PolicyRuleAuthoringWizardTestPanel(
     onPickReview,
   } = props;
 
+  const { productLine } = useProductLine();
   const scopedReviewIdTrimmed = scopedReviewId.trim();
   const scopedReviewFilterActive = scopedReviewIdTrimmed.length > 0;
   const requiresReviewPick = onPickReview !== undefined;
-  const testClearScopeHref = buildPolicyPacksHrefWithReviewId("");
+  const testClearScopeHref = buildPolicyPacksHrefWithReviewId(
+    "",
+    policyPacksPathForProductLine(productLine),
+  );
 
   return (
     <div

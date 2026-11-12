@@ -10,6 +10,10 @@ describe("buildPolicyPacksHrefWithReviewId", () => {
   it("appends reviewId query param for policy pack assignment handoff", () => {
     expect(buildPolicyPacksHrefWithReviewId("run-123")).toBe("/governance/policy-packs?reviewId=run-123");
   });
+
+  it("returns the SecureNow hub when clearing review scope", () => {
+    expect(buildPolicyPacksHrefWithReviewId("", "/compliance/policy-packs")).toBe("/compliance/policy-packs");
+  });
 });
 
 describe("buildPolicyPacksImpactPreviewHref", () => {

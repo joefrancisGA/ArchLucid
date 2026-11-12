@@ -22,6 +22,7 @@ import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackI
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { isSecureNowDemoChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
 import type { components } from "@/lib/openapi-schemas";
 import {
@@ -98,7 +99,8 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     [pathname, scopedReviewId, searchParams],
   );
   const requiresReviewPick = props.onPickReview !== undefined;
-  const previewClearScopeHref = buildPolicyPacksHrefWithReviewId("");
+  const policyPacksHubPath = policyPacksPathForProductLine(productLine);
+  const previewClearScopeHref = buildPolicyPacksHrefWithReviewId("", policyPacksHubPath);
   const initialPackComparison = useMemo(
     () =>
       resolveInitialPackComparisonIds(
@@ -189,15 +191,18 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
   const syncPackComparisonToUrl = useCallback(
     (nextPackAId: string, nextPackBId: string) => {
       commitHrefIfChanged(
-        buildPolicyPacksImpactPreviewHref({
-          reviewId: scopedReviewId,
-          packAId: nextPackAId,
-          packBId: nextPackBId,
-        }),
+        buildPolicyPacksImpactPreviewHref(
+          {
+            reviewId: scopedReviewId,
+            packAId: nextPackAId,
+            packBId: nextPackBId,
+          },
+          policyPacksHubPath,
+        ),
         { notify: false },
       );
     },
-    [scopedReviewId],
+    [policyPacksHubPath, scopedReviewId],
   );
 
   const baselineSummary = baselineResult !== null ? summarizePolicyImpactGateResult("allow", baselineResult) : null;
