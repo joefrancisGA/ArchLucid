@@ -38,7 +38,7 @@ import { ReviewsHubContinueReviewStrip } from "./ReviewsHubContinueReviewStrip";
 import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
 import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
 import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
-import { ReviewsHubWorkingOpenGateStrip } from "./ReviewsHubWorkingOpenGateStrip";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
@@ -93,7 +93,7 @@ export function RunsPageView(props: Props) {
           )}
         >
         <ReviewsHubBuyerChrome />
-        <ReviewsHubWorkingOpenGateStrip />
+        <OperatorHomeWorkingOpenGateStrip />
 
         {hubLoadOk ? (
           <>

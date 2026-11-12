@@ -212,7 +212,7 @@ import {
   DriftChangesTableHead,
 } from "./DriftChangesTableHead";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
-import { DriftWorkingOpenGateStrip } from "./DriftWorkingOpenGateStrip";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
 import { DriftSnapshotsTable } from "./DriftSnapshotsTable";
 
@@ -1341,7 +1341,7 @@ export function DriftWorkbenchClient() {
         }
       />
 
-      {buyerPolishedShell ? <DriftWorkingOpenGateStrip /> : null}
+      {buyerPolishedShell ? <OperatorHomeWorkingOpenGateStrip /> : null}
 
       <SecureNowDriftSecureNowCollectionPanel
         selectedSnapshotId={selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId}
