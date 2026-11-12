@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 23: SecureNow policy impact handoffs
+
+**Outcome.** Standards-and-rules and compare-two-reviews policy impact preview links now preserve the SecureNow `/compliance/policy-packs` hub instead of defaulting to governance.
+
+**Surfaces.** Standards and rules scoped banner, compare governance diff panel, regression tests.
+
 ## 2026-11-12 - Score lift round 22: SecureNow policy clear-scope routes
 
 **Outcome.** Policy impact preview, visual builder, and rule wizard “Clear review scope” links now preserve the SecureNow `/compliance/policy-packs` hub instead of falling back to governance. Impact preview pack-comparison URL sync uses the same hub.

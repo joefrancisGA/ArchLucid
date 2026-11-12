@@ -43,6 +43,7 @@ import {
 } from "@/lib/governance-standards-rules-page-copy";
 import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH, SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { formatGovernanceResolutionResultsSummaryLabel } from "@/lib/governance/governance-resolution-results-label";
 import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
@@ -126,7 +127,10 @@ export function GovernanceResolutionPageView(props: Props) {
       {" · "}
       <Link
         className={OPERATOR_BODY_INLINE_LINK_CLASS}
-        href={buildPolicyPacksImpactPreviewHref({ reviewId: rows.scopedRunId })}
+        href={buildPolicyPacksImpactPreviewHref(
+          { reviewId: rows.scopedRunId },
+          policyPacksPathForProductLine(productLine),
+        )}
         data-testid="standards-and-rules-policy-impact-preview-handoff"
       >
         Preview policy pack impact
