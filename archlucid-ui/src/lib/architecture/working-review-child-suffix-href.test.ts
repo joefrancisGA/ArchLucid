@@ -22,7 +22,7 @@ describe("resolveWorkingReviewChildSuffixHref", () => {
   it("uses desk continuity resolver when explicit architecture is absent", async () => {
     const { resolveGlobalSearchDeskArchitectureId } = await import("@/lib/global-search-desk-architecture-id");
 
-    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValueOnce("arch-continuity");
+    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValue("arch-continuity");
 
     expect(resolveWorkingReviewChildSuffixHref("run-1", "provenance")).toBe(
       "/architecture/architectures/arch-continuity/reviews/run-1/provenance",

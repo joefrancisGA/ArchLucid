@@ -16,7 +16,12 @@ public sealed class AuditEvidenceFreshnessGateTests
     [Fact]
     public async Task TryEvaluateControlForCurrentAssessmentAsync_stale_item_returns_insufficient()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
         Guid auditEvidenceSnapshotId = Guid.NewGuid();
         Guid frameworkId = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
@@ -24,7 +29,7 @@ public sealed class AuditEvidenceFreshnessGateTests
         Guid inventorySnapshotId = Guid.NewGuid();
 
         InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new();
-        await snapshotRepository.InsertSnapshotAsync(new AuditEvidenceSnapshotPersistRequest
+        await snapshotRepository.InsertSnapshotInScopeAsync(scope.ToProjectScopeKey(), new AuditEvidenceSnapshotPersistRequest
         {
             Header = new AuditEvidenceSnapshotHeaderRecord
             {
@@ -87,7 +92,13 @@ public sealed class AuditEvidenceFreshnessGateTests
     [Fact]
     public async Task ListHistoricalItemsAsync_returns_stale_row_with_label()
     {
-        Guid tenantId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Guid tenantId = scope.TenantId;
         Guid auditEvidenceSnapshotId = Guid.NewGuid();
 
         InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new();
@@ -133,17 +144,59 @@ public sealed class AuditEvidenceFreshnessGateTests
 
         IReadOnlyList<AuditEvidenceSnapshotItemRecord> items =
             await freshnessService.ListHistoricalItemsAsync(
-                new ScopeContext
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
-                },
+                scope,
                 auditEvidenceSnapshotId);
 
         items.Should().ContainSingle();
         items[0].FreshnessStatus.Should().Be(AuditEvidenceFreshnessStatus.Stale);
         items[0].Summary.Should().Be("historical stale evidence");
+    }
+
+    [Fact]
+    public async Task ListHistoricalItemsAsync_does_not_return_a_foreign_project_snapshot()
+    {
+        ScopeContext ownerScope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        ScopeContext foreignScope = new()
+        {
+            TenantId = ownerScope.TenantId,
+            WorkspaceId = ownerScope.WorkspaceId,
+            ProjectId = Guid.NewGuid(),
+        };
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryAuditEvidenceSnapshotRepository repository = new();
+        await repository.InsertSnapshotInScopeAsync(ownerScope.ToProjectScopeKey(), new AuditEvidenceSnapshotPersistRequest
+        {
+            Header = new AuditEvidenceSnapshotHeaderRecord
+            {
+                AuditEvidenceSnapshotId = snapshotId,
+                AssessmentId = Guid.NewGuid(),
+                TenantId = ownerScope.TenantId,
+            },
+            Items =
+            [
+                new AuditEvidenceSnapshotItemRecord
+                {
+                    EvidenceRowId = Guid.NewGuid(),
+                    AuditEvidenceSnapshotId = snapshotId,
+                    RequirementId = Guid.NewGuid(),
+                    TenantId = ownerScope.TenantId,
+                },
+            ],
+        });
+
+        AuditEvidenceFreshnessService service = new(
+            repository,
+            new InMemoryAuditEvidenceRequirementRepository(Guid.NewGuid(), ownerScope.TenantId, Guid.NewGuid(), Guid.NewGuid()),
+            new InMemoryAuditAssessmentRepository(),
+            NullLogger<AuditEvidenceFreshnessService>.Instance);
+
+        (await service.ListHistoricalItemsAsync(ownerScope, snapshotId)).Should().ContainSingle();
+        (await service.ListHistoricalItemsAsync(foreignScope, snapshotId)).Should().BeEmpty();
     }
 
     private static IAzureInventorySnapshotRepository MockInventoryRepository(Guid inventorySnapshotId) =>
@@ -153,6 +206,26 @@ public sealed class AuditEvidenceFreshnessGateTests
     {
         private readonly Dictionary<Guid, AuditEvidenceSnapshotHeaderRecord> _headers = new();
         private readonly Dictionary<Guid, List<AuditEvidenceSnapshotItemRecord>> _items = new();
+        private readonly Dictionary<Guid, ProjectScopeKey> _snapshotScopes = new();
+
+        public Task InsertSnapshotInScopeAsync(
+            ProjectScopeKey scope,
+            AuditEvidenceSnapshotPersistRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            if (request.Header.TenantId != scope.TenantId
+                || request.Items.Any(item => item.TenantId != scope.TenantId))
+            {
+                throw new InvalidOperationException("Audit evidence fixture tenant does not match project scope.");
+            }
+
+            _snapshotScopes[request.Header.AuditEvidenceSnapshotId] = scope;
+            return InsertSnapshotAsync(request, cancellationToken);
+        }
+
+        private bool MatchesScope(ProjectScopeKey scope, Guid auditEvidenceSnapshotId) =>
+            _snapshotScopes.TryGetValue(auditEvidenceSnapshotId, out ProjectScopeKey? insertedScope)
+            && insertedScope.Matches(scope.TenantId, scope.WorkspaceId, scope.ProjectId);
 
         public Task InsertSnapshotAsync(AuditEvidenceSnapshotPersistRequest request, CancellationToken cancellationToken = default)
         {
@@ -173,6 +246,37 @@ public sealed class AuditEvidenceFreshnessGateTests
             }
 
             return Task.FromResult<AuditEvidenceSnapshotHeaderRecord?>(null);
+        }
+
+        public Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+        {
+            AuditEvidenceSnapshotHeaderRecord? header = null;
+            if (MatchesScope(scope, auditEvidenceSnapshotId)
+                && _headers.TryGetValue(auditEvidenceSnapshotId, out AuditEvidenceSnapshotHeaderRecord? storedHeader)
+                && storedHeader.TenantId == scope.TenantId)
+            {
+                header = storedHeader;
+            }
+
+            return Task.FromResult(header);
+        }
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+        {
+            if (!MatchesScope(scope, auditEvidenceSnapshotId)
+                || !_items.TryGetValue(auditEvidenceSnapshotId, out List<AuditEvidenceSnapshotItemRecord>? items))
+            {
+                return Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotItemRecord>>([]);
+            }
+
+            return Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotItemRecord>>(
+                items.Where(item => item.TenantId == scope.TenantId).ToList());
         }
 
         public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsAsync(
@@ -357,6 +461,17 @@ public sealed class AuditEvidenceFreshnessGateTests
 
     private sealed class CapturingEvaluationRepository : IAuditControlEvaluationRepository
     {
+        public Task InsertInScopeAsync(
+            ProjectScopeKey scope,
+            AuditControlEvaluationPersistRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            if (request.Evaluation.TenantId != scope.TenantId)
+                throw new InvalidOperationException("Audit evaluation fixture tenant does not match project scope.");
+
+            return InsertAsync(request, cancellationToken);
+        }
+
         public Task InsertAsync(AuditControlEvaluationPersistRequest request, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 

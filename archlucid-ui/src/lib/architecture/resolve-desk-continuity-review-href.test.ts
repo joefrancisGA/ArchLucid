@@ -20,7 +20,7 @@ describe("resolveDeskContinuityReviewHref", () => {
   it("uses desk continuity for provenance child routes", async () => {
     const { resolveGlobalSearchDeskArchitectureId } = await import("@/lib/global-search-desk-architecture-id");
 
-    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValueOnce("arch-continuity");
+    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValue("arch-continuity");
 
     expect(resolveDeskContinuityProvenanceHref("run-1")).toBe(
       "/architecture/architectures/arch-continuity/reviews/run-1/provenance",
