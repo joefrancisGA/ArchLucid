@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 22: SecureNow policy clear-scope routes
+
+**Outcome.** Policy impact preview, visual builder, and rule wizard “Clear review scope” links now preserve the SecureNow `/compliance/policy-packs` hub instead of falling back to governance. Impact preview pack-comparison URL sync uses the same hub.
+
+**Surfaces.** Policy packs authoring and impact preview, regression tests.
+
 ## 2026-11-12 - Score lift round 21: SecureNow next-review policy route
 
 **Outcome.** The policy-packs next-review footer now preserves the active product-line hub, so SecureNow operators remain on `/compliance/policy-packs` when continuing to another review.
