@@ -254,6 +254,7 @@ public sealed class AuditEvidenceFreshnessGateTests
             CancellationToken cancellationToken = default)
         {
             AuditEvidenceSnapshotHeaderRecord? header = null;
+
             if (MatchesScope(scope, auditEvidenceSnapshotId)
                 && _headers.TryGetValue(auditEvidenceSnapshotId, out AuditEvidenceSnapshotHeaderRecord? storedHeader)
                 && storedHeader.TenantId == scope.TenantId)
