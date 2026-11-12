@@ -102,7 +102,7 @@ public sealed class AuditEvidenceFreshnessGateTests
         Guid auditEvidenceSnapshotId = Guid.NewGuid();
 
         InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new();
-        await snapshotRepository.InsertSnapshotAsync(new AuditEvidenceSnapshotPersistRequest
+        await snapshotRepository.InsertSnapshotInScopeAsync(scope.ToProjectScopeKey(), new AuditEvidenceSnapshotPersistRequest
         {
             Header = new AuditEvidenceSnapshotHeaderRecord
             {
