@@ -1,6 +1,11 @@
+import {
+  isFirstReviewOpenGateLabel,
+  type FirstReviewOpenGateLabel,
+} from "@/lib/reviews/first-review-spine-band";
+
 export type ArchLucidOpenGateReturnRecord = {
   readonly runId: string;
-  readonly openGateLabel: string;
+  readonly openGateLabel: FirstReviewOpenGateLabel;
   readonly href: string;
   readonly recordedAtUtc: string;
   readonly findingId?: string | null;
@@ -24,22 +29,9 @@ export function readArchLucidOpenGateReturnRecord(workspaceId: string): ArchLuci
   }
 
   try {
-    const parsed = JSON.parse(raw) as ArchLucidOpenGateReturnRecord;
+    const parsed: unknown = JSON.parse(raw);
 
-    if (
-      typeof parsed.runId !== "string"
-      || typeof parsed.openGateLabel !== "string"
-      || typeof parsed.href !== "string"
-      || typeof parsed.recordedAtUtc !== "string"
-    ) {
-      return null;
-    }
-
-    if (
-      parsed.findingId !== undefined
-      && parsed.findingId !== null
-      && typeof parsed.findingId !== "string"
-    ) {
+    if (!isArchLucidOpenGateReturnRecord(parsed)) {
       return null;
     }
 
@@ -47,6 +39,29 @@ export function readArchLucidOpenGateReturnRecord(workspaceId: string): ArchLuci
   } catch {
     return null;
   }
+}
+
+function isArchLucidOpenGateReturnRecord(value: unknown): value is ArchLucidOpenGateReturnRecord {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  if (
+    typeof candidate.runId !== "string"
+    || !isFirstReviewOpenGateLabel(candidate.openGateLabel)
+    || typeof candidate.href !== "string"
+    || typeof candidate.recordedAtUtc !== "string"
+  ) {
+    return false;
+  }
+
+  return (
+    candidate.findingId === undefined
+    || candidate.findingId === null
+    || typeof candidate.findingId === "string"
+  );
 }
 
 export function writeArchLucidOpenGateReturnRecord(

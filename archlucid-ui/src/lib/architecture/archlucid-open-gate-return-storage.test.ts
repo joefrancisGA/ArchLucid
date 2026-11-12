@@ -13,7 +13,7 @@ describe("archlucid-open-gate-return-storage", () => {
   it("round-trips finding id and recorded time", () => {
     writeArchLucidOpenGateReturnRecord("workspace-1", {
       runId: "run-1",
-      openGateLabel: "Record disposition",
+      openGateLabel: "Open disposition",
       href: "/architecture/reviews/run-1?reviewTab=findings",
       recordedAtUtc: "2026-11-09T12:00:00.000Z",
       findingId: "finding-9",
@@ -24,5 +24,19 @@ describe("archlucid-open-gate-return-storage", () => {
       findingId: "finding-9",
       recordedAtUtc: "2026-11-09T12:00:00.000Z",
     });
+  });
+
+  it("discards stale records whose gate label is not a review gate", () => {
+    window.localStorage.setItem(
+      "archlucid-open-gate-return:workspace-1",
+      JSON.stringify({
+        runId: "run-1",
+        openGateLabel: "Record disposition",
+        href: "/architecture/reviews/run-1?reviewTab=findings",
+        recordedAtUtc: "2026-11-09T12:00:00.000Z",
+      }),
+    );
+
+    expect(readArchLucidOpenGateReturnRecord("workspace-1")).toBeNull();
   });
 });

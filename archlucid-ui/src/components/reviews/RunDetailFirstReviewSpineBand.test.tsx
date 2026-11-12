@@ -37,6 +37,7 @@ function baseSummary(overrides: Partial<FirstReviewSpineBandSummary>): FirstRevi
     topFindingId: null,
     topFindingPolicyMapped: false,
     openGateLabel: null,
+    openGateNextAction: null,
     openGateHref: null,
     openGateReviewTab: null,
     ...overrides,
@@ -50,6 +51,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
         runId="run-abc"
         summary={baseSummary({
           openGateLabel: "Uncommitted review",
+          openGateNextAction: "Review the package and commit it when ready.",
           openGateReviewTab: "review-package",
         })}
         openGateNavigationInput={{
@@ -120,6 +122,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
         architectureId="architecture-identity-001"
         summary={baseSummary({
           openGateLabel: "Uncommitted review",
+          openGateNextAction: "Review the package and commit it when ready.",
           openGateReviewTab: "review-package",
         })}
         openGateNavigationInput={{
@@ -167,6 +170,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
         runId="run-abc"
         summary={baseSummary({
           openGateLabel: "Uncited finding",
+          openGateNextAction: "Review the finding citation and record its disposition.",
           openGateReviewTab: "findings",
         })}
       />,
