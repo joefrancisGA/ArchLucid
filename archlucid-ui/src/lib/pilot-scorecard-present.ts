@@ -8,6 +8,8 @@ import {
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 
@@ -49,7 +51,12 @@ export function resolveReviewScorecardFinalizedHref(
 export type BuildReviewScorecardOperationalMetricsOptions = {
   readonly workingMode?: boolean;
   readonly lastOpenArchitectureId?: string | null;
+  readonly productLine?: ProductLineId;
 };
+
+export function resolveReviewScorecardFindingsHref(productLine: ProductLineId = "architecture"): string {
+  return findingsPathForProductLine(productLine);
+}
 export const REVIEW_SCORECARD_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
 export const REVIEW_SCORECARD_FINDINGS_HREF = GOVERNANCE_FINDINGS_PATH;
 export const REVIEW_SCORECARD_AUDIT_HREF = GOVERNANCE_AUDIT_PATH;
@@ -228,6 +235,7 @@ export function buildReviewScorecardOperationalMetrics(
     workingMode: options?.workingMode === true,
     lastOpenArchitectureId: options?.lastOpenArchitectureId,
   });
+  const findingsHref = resolveReviewScorecardFindingsHref(options?.productLine ?? "architecture");
   const reviewActivity = hasReviewActivity(data);
   const committed = resolveCountMetricDisplay(
     data.totalRunsCommitted,
@@ -268,7 +276,7 @@ export function buildReviewScorecardOperationalMetrics(
       empty: affirmed.empty,
       metricState: affirmed.state,
       useKpiEmphasis: affirmed.useKpiEmphasis,
-      href: REVIEW_SCORECARD_FINDINGS_HREF,
+      href: findingsHref,
       drillDownLabel: "View findings register",
       methodologyKey: "totalFindingsResolved",
       sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "totalFindingsResolved"),

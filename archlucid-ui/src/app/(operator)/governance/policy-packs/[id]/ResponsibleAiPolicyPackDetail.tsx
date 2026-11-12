@@ -14,7 +14,10 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import { POLICY_PACK_DETAIL_KEYBOARD_AFFORDANCE } from "@/lib/policy/policy-pack-detail-page-copy";
 import {
@@ -203,8 +206,8 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const { productLine } = useProductLine();
   const buyerPolishedShell = useProductionEvalChrome();
-  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
-  const findingsHref = props.findingsHref ?? GOVERNANCE_FINDINGS_PATH;
+  const packsHubHref = props.packsHubHref ?? policyPacksPathForProductLine(productLine);
+  const findingsHref = props.findingsHref ?? findingsPathForProductLine(productLine);
   const showCrossProductActions = productLine !== "security";
   const primaryActionLabel = isEnabled
     ? RESPONSIBLE_AI_ACTION_MANAGE_WORKSPACE_ASSIGNMENT

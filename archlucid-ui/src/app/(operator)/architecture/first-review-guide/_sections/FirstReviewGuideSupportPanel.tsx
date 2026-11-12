@@ -22,7 +22,11 @@ import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from 
 import { EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF } from "@/lib/core-pilot-help-ia-dual";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
-import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { resolveFirstReviewGuideOutcomeLinks } from "@/lib/first-review-guide-state";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -35,6 +39,9 @@ type FirstReviewGuideSupportPanelProps = {
 };
 
 export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstReviewGuideSupportPanelProps) {
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
+  const policyPacksHref = policyPacksPathForProductLine(productLine);
   const outcomeLinks = sealedRunId !== null ? resolveFirstReviewGuideOutcomeLinks(sealedRunId) : null;
   const hasSealedRecord = sealedRunId !== null;
 
@@ -109,7 +116,7 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
           data-testid="first-review-guide-disposition-next-action"
         >
           {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
-          <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.inline}>
+          <Link href={findingsHref} className={OPERATOR_LINK.inline}>
             Open findings queue
           </Link>
         </p>
@@ -118,7 +125,7 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
           data-testid="first-review-guide-policy-pack-cta"
         >
           {FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY}{" "}
-          <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
+          <Link href={policyPacksHref} className={OPERATOR_LINK.inline}>
             Review policy pack assignments
           </Link>
         </p>
@@ -144,7 +151,7 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
             <Link href="/administration/baseline">Configure ROI baseline</Link>
           </Button>
           <Button asChild size="sm" variant="outline">
-            <Link href={GOVERNANCE_POLICY_PACKS_PATH}>Open policy packs</Link>
+            <Link href={policyPacksHref}>Open policy packs</Link>
           </Button>
         </div>
       </section>

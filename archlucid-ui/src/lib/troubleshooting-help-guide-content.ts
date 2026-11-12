@@ -8,15 +8,19 @@ import {
   SECURENOW_TROUBLESHOOTING_DECISION_TREE_STEPS,
 } from "@/lib/product-line/securenow-troubleshooting-help-guide-content";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING,
   TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
 } from "@/lib/troubleshooting-help-evidence-copy";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_HREF,
@@ -442,7 +446,7 @@ export function troubleshootingCommonIssues(productLineId: ProductLineId = "arch
           ...issue,
           nextSteps: [
             { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
-            { label: "Open findings queue", href: GOVERNANCE_FINDINGS_PATH },
+            { label: "Open findings queue", href: SECURENOW_FINDINGS_PATH },
             ...supportEscalationLinks(),
           ],
         };
@@ -454,9 +458,9 @@ export function troubleshootingCommonIssues(productLineId: ProductLineId = "arch
           tryFirst: "Open the findings queue and confirm pack scans completed against connected inventory.",
           ifStillBlocked: "Compare findings with resource explorer and audit lineage exports.",
           nextSteps: [
-            { label: "Open findings queue", href: GOVERNANCE_FINDINGS_PATH },
-            { label: "Open extract and upload", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
-            { label: "Open policy packs", href: "/governance/policy-packs" },
+            { label: "Open findings queue", href: SECURENOW_FINDINGS_PATH },
+            { label: "Open extract and upload", href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
+            { label: "Open policy packs", href: SECURENOW_POLICY_PACKS_PATH },
           ],
         };
       }

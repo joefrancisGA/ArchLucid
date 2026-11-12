@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import {
   FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY,
@@ -9,7 +12,10 @@ import {
 import { CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE } from "@/lib/core-pilot-help-guide-content";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
-import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { cn } from "@/lib/utils";
 
 export type SponsorSendPathHonestyPanelProps = {
@@ -26,6 +32,10 @@ export function SponsorSendPathHonestyPanel({
   testIdPrefix = "sponsor-send-path",
   title = CORE_PILOT_HELP_SPONSOR_HONESTY_TITLE,
 }: SponsorSendPathHonestyPanelProps): React.JSX.Element {
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
+  const policyPacksHref = policyPacksPathForProductLine(productLine);
+
   return (
     <div
       className={cn(
@@ -40,13 +50,13 @@ export function SponsorSendPathHonestyPanel({
       </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${testIdPrefix}-disposition-next-action`}>
         {FIRST_REVIEW_GUIDE_DISPOSITION_BEFORE_SPONSOR_COPY}{" "}
-        <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.inline}>
+        <Link href={findingsHref} className={OPERATOR_LINK.inline}>
           Open findings queue
         </Link>
       </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${testIdPrefix}-policy-pack-cta`}>
         {FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY}{" "}
-        <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
+        <Link href={policyPacksHref} className={OPERATOR_LINK.inline}>
           Review policy pack assignments
         </Link>
       </p>
