@@ -16,6 +16,11 @@ import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
+import {
+  policyPacksPathForProductLine,
+  standardsAndRulesPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PolicyPacksStandardsSurfaceId = "policy-packs" | "standards-and-rules";
@@ -57,20 +62,30 @@ export const POLICY_PACKS_STANDARDS_STANDARDS_LINK: PolicyPacksStandardsLink = {
   whenToUse: "Read the effective standards and rules after pack resolution.",
 };
 
-/** Pairwise model for Policy packs ↔ Standards and rules (fixed routes). */
-export function buildPolicyPacksStandardsPairwiseRail(): PairwiseVocabularyRailModel<PolicyPacksStandardsSurfaceId> {
+/** Pairwise model for Policy packs ↔ Standards and rules. */
+export function buildPolicyPacksStandardsPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<PolicyPacksStandardsSurfaceId> {
   return {
     heading: POLICY_PACKS_STANDARDS_HEADING,
     whyTwo: POLICY_PACKS_STANDARDS_WHY_TWO,
     compactLine: POLICY_PACKS_STANDARDS_COMPACT_LINE,
-    currentLink: POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK,
-    peerLink: POLICY_PACKS_STANDARDS_STANDARDS_LINK,
+    currentLink: {
+      ...POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK,
+      href: policyPacksPathForProductLine(productLine),
+    },
+    peerLink: {
+      ...POLICY_PACKS_STANDARDS_STANDARDS_LINK,
+      href: standardsAndRulesPathForProductLine(productLine),
+    },
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPolicyPacksStandardsVocabulary(): PolicyPacksStandardsVocabularyModel {
-  const rail = buildPolicyPacksStandardsPairwiseRail();
+export function buildPolicyPacksStandardsVocabulary(
+  productLine: ProductLineId = "architecture",
+): PolicyPacksStandardsVocabularyModel {
+  const rail = buildPolicyPacksStandardsPairwiseRail(productLine);
 
   return {
     heading: rail.heading,

@@ -13,6 +13,8 @@
 
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PatternLibraryPolicyPacksSurfaceId = "pattern-library" | "policy-packs";
@@ -55,20 +57,27 @@ export const PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK: PatternLibraryPolicyPacksL
   whenToUse: "Author, inspect, and activate enforceable policy rule sets.",
 };
 
-/** Pairwise model for Pattern library ↔ Policy packs (fixed routes). */
-export function buildPatternLibraryPolicyPacksPairwiseRail(): PairwiseVocabularyRailModel<PatternLibraryPolicyPacksSurfaceId> {
+/** Pairwise model for Pattern library ↔ Policy packs. */
+export function buildPatternLibraryPolicyPacksPairwiseRail(
+  productLine: ProductLineId = "architecture",
+): PairwiseVocabularyRailModel<PatternLibraryPolicyPacksSurfaceId> {
   return {
     heading: PATTERN_LIBRARY_POLICY_PACKS_HEADING,
     whyTwo: PATTERN_LIBRARY_POLICY_PACKS_WHY_TWO,
     compactLine: PATTERN_LIBRARY_POLICY_PACKS_COMPACT_LINE,
     currentLink: PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK,
-    peerLink: PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK,
+    peerLink: {
+      ...PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK,
+      href: policyPacksPathForProductLine(productLine),
+    },
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPatternLibraryPolicyPacksVocabulary(): PatternLibraryPolicyPacksVocabularyModel {
-  const rail = buildPatternLibraryPolicyPacksPairwiseRail();
+export function buildPatternLibraryPolicyPacksVocabulary(
+  productLine: ProductLineId = "architecture",
+): PatternLibraryPolicyPacksVocabularyModel {
+  const rail = buildPatternLibraryPolicyPacksPairwiseRail(productLine);
 
   return {
     heading: rail.heading,

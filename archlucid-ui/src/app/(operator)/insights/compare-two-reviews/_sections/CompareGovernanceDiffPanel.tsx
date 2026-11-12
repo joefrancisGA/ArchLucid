@@ -61,6 +61,7 @@ function renderAtCommitSnapshot(
   label: string,
   manifest: CompareManifestGovernanceSnapshot,
   testIdPrefix: string,
+  policyPacksHubPath?: string,
 ): ReactElement {
   const snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null = manifest.atCommit;
 
@@ -85,7 +86,11 @@ function renderAtCommitSnapshot(
         data-testid={`${testIdPrefix}-empty-at-commit`}
       >
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
-        <PolicyAtCommitScopeSummary snapshot={snapshot} testIdPrefix={`${testIdPrefix}-scope`} />
+        <PolicyAtCommitScopeSummary
+          snapshot={snapshot}
+          testIdPrefix={`${testIdPrefix}-scope`}
+          policyPacksHubPath={policyPacksHubPath}
+        />
       </div>
     );
   }
@@ -97,7 +102,11 @@ function renderAtCommitSnapshot(
     >
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
       <div className="mt-2">
-        <PolicyAtCommitScopeSummary snapshot={snapshot} testIdPrefix={`${testIdPrefix}-scope`} />
+        <PolicyAtCommitScopeSummary
+          snapshot={snapshot}
+          testIdPrefix={`${testIdPrefix}-scope`}
+          policyPacksHubPath={policyPacksHubPath}
+        />
       </div>
     </div>
   );
@@ -233,8 +242,18 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
       )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="compare-governance-at-commit-section">
-        {renderAtCommitSnapshot("Baseline policy at commit", view.baselineManifest, "compare-governance-baseline")}
-        {renderAtCommitSnapshot("Updated policy at commit", view.targetManifest, "compare-governance-target")}
+        {renderAtCommitSnapshot(
+          "Baseline policy at commit",
+          view.baselineManifest,
+          "compare-governance-baseline",
+          props.policyPacksHubPath,
+        )}
+        {renderAtCommitSnapshot(
+          "Updated policy at commit",
+          view.targetManifest,
+          "compare-governance-target",
+          props.policyPacksHubPath,
+        )}
       </div>
 
       {view.currentEffective !== null ? (
