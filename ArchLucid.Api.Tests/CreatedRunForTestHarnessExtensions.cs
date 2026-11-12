@@ -19,7 +19,7 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(created);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{created.RunId}/findings/export/csv", cancellationToken);
+        return client.GetReviewFindingsExportCsvHttpAsync(created.RunGuid, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetTraceabilityBundleZipHttpAsync(
@@ -30,7 +30,7 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(created);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{created.RunId}/traceability-bundle.zip", cancellationToken);
+        return client.GetReviewTraceabilityBundleZipHttpAsync(created.RunGuid, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetStoredEvidenceFilesHttpAsync(
@@ -41,7 +41,7 @@ public static class CreatedRunForTestHarnessExtensions
         ArgumentNullException.ThrowIfNull(created);
         ArgumentNullException.ThrowIfNull(client);
 
-        return client.GetAsync($"/v1/architecture/review/{created.RunId}/evidence/files", cancellationToken);
+        return client.GetReviewStoredEvidenceFilesHttpAsync(created.RunGuid, cancellationToken);
     }
 
     public static Task<HttpResponseMessage> GetStoredEvidenceFileHttpAsync(

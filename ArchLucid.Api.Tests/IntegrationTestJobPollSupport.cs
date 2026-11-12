@@ -7,7 +7,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>Poll async job status endpoints in integration tests.</summary>
 public static class IntegrationTestJobPollSupport
 {
-    public static async Task<BackgroundJobState> PollJobUntilTerminalStateAsync(
+    public static async Task<BackgroundJobInfo> PollJobUntilTerminalStateAsync(
         HttpClient client,
         string jobId,
         JsonSerializerOptions jsonOptions,
@@ -20,24 +20,25 @@ public static class IntegrationTestJobPollSupport
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         TimeSpan delay = delayBetween ?? HarnessPollDefaults.BackgroundJobDefaultDelay;
-        BackgroundJobState state = BackgroundJobState.Pending;
+        BackgroundJobInfo? latest = null;
 
         for (int i = 0; i < maxIterations; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             HttpResponseMessage statusResponse = await client.GetAsync($"/v1/jobs/{jobId}", cancellationToken);
-            BackgroundJobInfo status =
-                await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(jsonOptions, cancellationToken);
-            state = status.State;
+            latest = await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(jsonOptions, cancellationToken);
 
-            if (state is BackgroundJobState.Succeeded or BackgroundJobState.Failed or BackgroundJobState.Canceled)
-                return state;
+            if (latest.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed or BackgroundJobState.Canceled)
+                return latest;
 
             await Task.Delay(delay, cancellationToken);
         }
 
-        return state;
+        if (latest is null)
+            throw new InvalidOperationException($"Job '{jobId}' poll made no status read (maxIterations={maxIterations}).");
+
+        return latest;
     }
 
     public static Task<HttpResponseMessage> GetJobFileHttpAsync(

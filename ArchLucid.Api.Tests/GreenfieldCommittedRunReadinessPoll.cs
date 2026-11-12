@@ -33,8 +33,8 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 if (!response.IsSuccessStatusCode)
                     return false;
 
-                ArchitectureRunDetailProbeDto? detail =
-                    await response.Content.ReadFromJsonAsync<ArchitectureRunDetailProbeDto>(JsonOptions, ct);
+                GetRunResponseDto? detail =
+                    await response.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions, ct);
 
                 return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
             },
@@ -58,8 +58,8 @@ internal static class GreenfieldCommittedRunReadinessPoll
         if (!response.IsSuccessStatusCode)
             return false;
 
-        ArchitectureRunDetailProbeDto? detail =
-            await response.Content.ReadFromJsonAsync<ArchitectureRunDetailProbeDto>(JsonOptions, cancellationToken);
+        GetRunResponseDto? detail =
+            await response.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions, cancellationToken);
 
         return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
     }
@@ -82,8 +82,8 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 if (!response.IsSuccessStatusCode)
                     return false;
 
-                ArchitectureRunExecuteReadinessProbeDto? detail =
-                    await response.Content.ReadFromJsonAsync<ArchitectureRunExecuteReadinessProbeDto>(JsonOptions, ct);
+                GetRunResponseDto? detail =
+                    await response.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions, ct);
 
                 if (detail?.Run is null)
                     return false;
@@ -127,8 +127,9 @@ internal static class GreenfieldCommittedRunReadinessPoll
 
         string body = await response.Content.ReadAsStringAsync(bounded.Token);
 
-        ArchitectureRunExecuteReadinessProbeDto? detail =
-            await response.Content.ReadFromJsonAsync<ArchitectureRunExecuteReadinessProbeDto>(JsonOptions, bounded.Token);
+        GetRunResponseDto? detail = string.IsNullOrWhiteSpace(body)
+            ? null
+            : JsonSerializer.Deserialize<GetRunResponseDto>(body, JsonOptions);
 
         int resultsCount = detail?.Results?.Count ?? 0;
         string status = detail?.Run?.Status ?? "(null run)";
@@ -307,27 +308,4 @@ internal static class GreenfieldCommittedRunReadinessPoll
             || text.Contains(HarnessDemoBaselineSupport.AuthorityRunHardenedId.ToString("D"), StringComparison.Ordinal);
     }
 
-    private sealed class ArchitectureRunDetailProbeDto
-    {
-        public RunDto? Run
-        {
-            get;
-            set;
-        }
-    }
-
-    private sealed class ArchitectureRunExecuteReadinessProbeDto
-    {
-        public RunDto? Run
-        {
-            get;
-            set;
-        }
-
-        public List<object>? Results
-        {
-            get;
-            set;
-        }
-    }
 }

@@ -84,10 +84,8 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
             null);
         (await secondExecute.IsAuthorityPipelineCompleteExecuteConflictAsync()).Should().BeTrue();
 
-        HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-                GetRunResponseDto? getRunPayload =
-            await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
-        getRunPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
+        GetRunResponseDto getRunPayload = await Client.GetRunReviewForTestAsync(runId, JsonOptions);
+        getRunPayload.Results.Should().HaveCount(firstPayload!.Results.Count);
     }
 
 }
