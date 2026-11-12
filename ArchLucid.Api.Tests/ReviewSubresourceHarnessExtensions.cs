@@ -84,6 +84,20 @@ public static class ReviewSubresourceHarnessExtensions
             cancellationToken);
     }
 
+    public static Task<HttpResponseMessage> GetReviewProvenanceExplanationHttpAsync(
+        this HttpClient client,
+        Guid runGuid,
+        string nodeId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentException.ThrowIfNullOrWhiteSpace(nodeId);
+
+        return client.GetAsync(
+            $"/v1/architecture/review/{runGuid:D}/provenance/{Uri.EscapeDataString(nodeId)}/explanation",
+            cancellationToken);
+    }
+
     public static Task<HttpResponseMessage> GetReviewDecisionsHttpAsync(
         this HttpClient client,
         Guid runGuid,

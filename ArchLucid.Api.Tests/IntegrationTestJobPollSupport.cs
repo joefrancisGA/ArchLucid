@@ -47,6 +47,31 @@ public static class IntegrationTestJobPollSupport
         return latest;
     }
 
+    public static async Task<BackgroundJobInfo> PollJobUntilSucceededAsync(
+        HttpClient client,
+        string jobId,
+        JsonSerializerOptions jsonOptions,
+        int maxIterations = HarnessPollDefaults.BackgroundJobDefaultMaxIterations,
+        TimeSpan? delayBetween = null,
+        CancellationToken cancellationToken = default)
+    {
+        BackgroundJobInfo terminal = await PollJobUntilTerminalStateAsync(
+            client,
+            jobId,
+            jsonOptions,
+            maxIterations,
+            delayBetween,
+            cancellationToken);
+
+        if (terminal.State != BackgroundJobState.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"Job '{jobId}' reached {terminal.State} instead of Succeeded. Error: {terminal.Error ?? "(none)"}.");
+        }
+
+        return terminal;
+    }
+
     public static Task<HttpResponseMessage> GetJobFileHttpAsync(
         HttpClient client,
         string jobId,

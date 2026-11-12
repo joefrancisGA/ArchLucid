@@ -6,13 +6,13 @@ namespace ArchLucid.Api.Tests;
 /// <summary>Thin wrappers over <see cref="ArchLucidHttpResponseIntegrationTestExtensions.AssertProblemForTestAsync" />.</summary>
 public static class HarnessProblemAssertions
 {
-    public static Task<JsonDocument> AssertRunNotFoundAsync(
+    public static Task<JsonElement> AssertRunNotFoundAsync(
         this HttpResponseMessage response,
         string? problemType = null) =>
-        response.AssertProblemForTestAsync(HttpStatusCode.NotFound, problemType ?? ProblemTypes.RunNotFound);
+        response.AssertProblemElementForTestAsync(HttpStatusCode.NotFound, problemType ?? ProblemTypes.RunNotFound);
 
-    public static Task<JsonDocument> AssertBadRequestDetailContainsAsync(
+    public static Task<JsonElement> AssertBadRequestDetailContainsAsync(
         this HttpResponseMessage response,
         string detailContains) =>
-        response.AssertProblemForTestAsync(HttpStatusCode.BadRequest, detailContains: detailContains);
+        response.AssertProblemElementForTestAsync(HttpStatusCode.BadRequest, detailContains: detailContains);
 }

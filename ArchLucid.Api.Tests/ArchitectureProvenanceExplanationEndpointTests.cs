@@ -26,17 +26,18 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
 
             string runId = created.Run.RunId;
 
-            HttpResponseMessage response =
-                await client.GetAsync($"/v1/architecture/review/{runId}/provenance/test-node/explanation");
+            HttpResponseMessage response = await client.GetReviewProvenanceExplanationHttpAsync(
+                Guid.Parse(runId),
+                "test-node");
 
-            JsonDocument body = await response.AssertProblemForTestAsync(
+            JsonElement body = await response.AssertProblemElementForTestAsync(
                 HttpStatusCode.NotImplemented,
                 ProblemTypes.ProvenanceNodeExplanationNotSupported,
                 ProblemErrorCodes.ProvenanceNodeExplanationNotSupported);
 
-            body.RootElement.GetProperty("title").GetString().Should().Be("Provenance node explanation not supported");
-            body.RootElement.GetProperty("detail").GetString().Should().Contain("/v1/explain/runs/{runId}/aggregate");
-            body.RootElement.GetProperty("aggregateExplanationPathTemplate").GetString().Should()
+            body.GetProperty("title").GetString().Should().Be("Provenance node explanation not supported");
+            body.GetProperty("detail").GetString().Should().Contain("/v1/explain/runs/{runId}/aggregate");
+            body.GetProperty("aggregateExplanationPathTemplate").GetString().Should()
                 .Be("/v1/explain/runs/{runId}/aggregate");
         });
     }
@@ -69,8 +70,9 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         {
             Guid missingRun = HarnessWellKnownGuids.UnknownRunForStoredEvidenceFiles;
 
-            HttpResponseMessage response =
-                await client.GetAsync($"/v1/architecture/review/{missingRun:D}/provenance/a-node/explanation");
+            HttpResponseMessage response = await client.GetReviewProvenanceExplanationHttpAsync(
+                missingRun,
+                "a-node");
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         });
