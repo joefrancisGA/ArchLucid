@@ -4,7 +4,8 @@ import {
 } from "@/lib/architecture/lib-open-review-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const EVIDENCE_TRACE_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace" as const;
@@ -29,14 +30,16 @@ export const EVIDENCE_TRACE_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
 export function buildEvidenceTraceSources(
   runId: string,
   findingId: string,
+  productLine: ProductLineId = "architecture",
 ): readonly EvidenceSourceLink[] {
   const trimmedRunId = runId.trim();
   const trimmedFindingId = findingId.trim();
+  const findingsQueueHref = findingsPathForProductLine(productLine);
 
   return [
     { label: "Finding detail", href: resolveLibFindingDetailHref(trimmedRunId, trimmedFindingId) },
     { label: "Review provenance", href: resolveLibReviewProvenanceHref(trimmedRunId) },
-    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Findings queue", href: findingsQueueHref },
     { label: "Findings help", href: inAppHelpHref("findings") },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   ] as const;

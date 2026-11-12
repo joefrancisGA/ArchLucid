@@ -42,7 +42,7 @@ export function remapHubPolicyAndFindingsEvidenceSources<T extends EvidenceSourc
       return { ...source, href: standardsHref };
     }
 
-    if (source.label === "Policy pack library") {
+    if (source.label === "Policy pack library" || source.label === "Policy packs") {
       return { ...source, href: packsHref };
     }
 

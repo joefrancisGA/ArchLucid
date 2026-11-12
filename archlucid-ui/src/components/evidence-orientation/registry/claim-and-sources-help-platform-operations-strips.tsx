@@ -83,9 +83,10 @@ import {
   RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
   RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
   RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE,
-  RECURRENCE_SCHEDULES_HELP_SOURCES,
   RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO,
+  resolveRecurrenceSchedulesHelpSources,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID } from "@/lib/recurrence-schedules-help-guide-content";
 import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
@@ -160,8 +161,10 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
 }
 
 export function RecurrenceSchedulesHelpEvidenceOrientationStrip(
-  props: { readonly readingBodyClassName?: string } = {},
+  props: { readonly readingBodyClassName?: string; readonly productLineId?: ProductLineId } = {},
 ): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-recurrence-schedules"
@@ -170,7 +173,7 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(
       claimHeadingId={RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID}
       sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
-      sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
+      sources={resolveRecurrenceSchedulesHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

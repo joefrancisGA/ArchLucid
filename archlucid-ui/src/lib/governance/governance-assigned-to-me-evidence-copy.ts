@@ -11,6 +11,9 @@ import {
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { governanceAssignedToMeOrientationSourcesForProductLine } from "@/lib/product-line/securenow-governance-assigned-to-me-evidence-copy";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE =
   "Assigned to me is your personal remediation queue — not the full findings register or an audit export. Open a finding for evidence detail, or use Audit when you need export-ready records.";
@@ -41,3 +44,15 @@ export const GOVERNANCE_ASSIGNED_TO_ME_ORIENTATION_SOURCES: readonly EvidenceSou
   GOVERNANCE_ASSIGNED_TO_ME_SOURCES.filter(
     (source) => !GOVERNANCE_ASSIGNED_TO_ME_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
   );
+
+export function resolveGovernanceAssignedToMeOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  const secureNowSources = governanceAssignedToMeOrientationSourcesForProductLine(productLine);
+
+  if (secureNowSources.length > 0) {
+    return secureNowSources;
+  }
+
+  return remapEvidenceSourceFindingsQueueHref(GOVERNANCE_ASSIGNED_TO_ME_ORIENTATION_SOURCES, productLine);
+}

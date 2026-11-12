@@ -4,6 +4,7 @@ import {
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   HUB_SECONDARY_FOLLOW_UPS_TITLES,
@@ -46,7 +47,10 @@ export function buildGovernanceFindingsSources(
   ] as const;
 }
 
-const GOVERNANCE_FINDINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([GOVERNANCE_FINDINGS_PATH]);
+const GOVERNANCE_FINDINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  GOVERNANCE_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
+]);
 
 /** Operator orientation Sources — excludes self-href to `/governance/findings` (GFN). */
 export function buildGovernanceFindingsOrientationSources(
