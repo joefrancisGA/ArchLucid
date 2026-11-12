@@ -18,6 +18,7 @@ import {
   isStandardsAndRulesRoutePath,
   policyPacksHubPathFromPathname,
   policyPacksPathForProductLine,
+  remapEvidenceSourceFindingsQueueHref,
   resolvePolicyPacksHubPath,
   standardsAndRulesPathForProductLine,
 } from "@/lib/product-line/securenow-compliance-routes";
@@ -51,6 +52,16 @@ describe("securenow-compliance-routes", () => {
     expect(policyPacksHubPathFromPathname(`${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`)).toBe(
       GOVERNANCE_POLICY_PACKS_PATH,
     );
+  });
+
+  it("remaps findings queue Source labels for SecureNow", () => {
+    const sources = [
+      { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+      { label: "Audit", href: "/governance/audit" },
+    ] as const;
+
+    expect(remapEvidenceSourceFindingsQueueHref(sources, "architecture")).toBe(sources);
+    expect(remapEvidenceSourceFindingsQueueHref(sources, "security")[0]?.href).toBe(SECURENOW_FINDINGS_PATH);
   });
 
   it("resolves policy packs hub from pathname on pack routes and product line elsewhere", () => {

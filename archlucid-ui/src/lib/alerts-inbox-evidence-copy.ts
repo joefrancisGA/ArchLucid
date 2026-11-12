@@ -5,6 +5,8 @@ import {
   hubSecondaryFollowUpsIntro,
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapEvidenceSourceFindingsQueueHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export const ALERTS_INBOX_CLAIM_HEADING = "What the alert inbox is not";
 
@@ -33,3 +35,17 @@ const ALERTS_INBOX_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([GOVERNAN
 export const ALERTS_INBOX_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = ALERTS_INBOX_SOURCES.filter(
   (source) => !ALERTS_INBOX_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
 );
+
+export function resolveAlertsInboxSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return remapEvidenceSourceFindingsQueueHref(ALERTS_INBOX_SOURCES, productLine);
+}
+
+export function resolveAlertsInboxOrientationSources(
+  productLine: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return resolveAlertsInboxSources(productLine).filter(
+    (source) => !ALERTS_INBOX_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );
+}

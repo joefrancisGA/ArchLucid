@@ -11,7 +11,30 @@ import {
   SECURENOW_STANDARDS_AND_RULES_PATH,
   pathMatchesRoutePrefix,
 } from "@/lib/governance/governance-route-paths";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
+const FINDINGS_QUEUE_EVIDENCE_LABELS = new Set<string>(["Findings", "Findings queue"]);
+
+/** Rewrites findings queue Source links for the active product line (architecture defaults unchanged). */
+export function remapEvidenceSourceFindingsQueueHref(
+  sources: readonly EvidenceSourceLink[],
+  productLine: ProductLineId,
+): readonly EvidenceSourceLink[] {
+  if (productLine === "architecture") {
+    return sources;
+  }
+
+  const findingsHref = findingsPathForProductLine(productLine);
+
+  return sources.map((source) => {
+    if (!FINDINGS_QUEUE_EVIDENCE_LABELS.has(source.label)) {
+      return source;
+    }
+
+    return { ...source, href: findingsHref };
+  });
+}
 
 function barePathname(pathname: string | null | undefined): string | null {
   if (pathname === null || pathname === undefined) {

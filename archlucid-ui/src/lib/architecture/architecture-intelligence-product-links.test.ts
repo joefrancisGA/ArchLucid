@@ -18,6 +18,9 @@ describe("buildArchitectureIntelligenceProductLinks", () => {
       findingsHref: "/governance/findings?runId=run-abc",
       advisoryHref: "/governance/advisory-scans?runId=run-abc",
     });
+    expect(buildArchitectureIntelligenceProductLinks("run-abc", "security")?.findingsHref).toBe(
+      "/compliance/findings?runId=run-abc",
+    );
   });
 });
 

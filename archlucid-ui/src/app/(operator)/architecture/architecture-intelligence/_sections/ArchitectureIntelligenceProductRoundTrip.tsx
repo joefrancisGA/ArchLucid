@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildArchitectureIntelligenceProductLinks } from "@/lib/architecture/architecture-intelligence-product-links";
@@ -17,7 +20,8 @@ export type ArchitectureIntelligenceProductRoundTripProps = {
 export function ArchitectureIntelligenceProductRoundTrip(
   props: ArchitectureIntelligenceProductRoundTripProps,
 ): ReactElement | null {
-  const links = buildArchitectureIntelligenceProductLinks(props.runId);
+  const { productLine } = useProductLine();
+  const links = buildArchitectureIntelligenceProductLinks(props.runId, productLine);
 
   if (links === null) {
     return null;

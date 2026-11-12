@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpAlertsGuideHeroClient } from "@/app/(operator)/help/_sections/HelpAlertsGuideHeroClient";
+import { HelpAlertsRelatedConceptsGrid } from "@/app/(operator)/help/_sections/HelpAlertsRelatedConceptsGrid";
 import { HelpAlertsHeaderActions } from "@/app/(operator)/help/_sections/HelpAlertsHeaderActions";
 import { HelpAlertsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAlertsSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -19,7 +20,6 @@ import {
   ALERTS_HELP_OVERVIEW,
   ALERTS_HELP_PAGE_SUBTITLE,
   ALERTS_HELP_PAGE_TITLE,
-  ALERTS_HELP_RELATED_CONCEPTS,
   ALERTS_HELP_RESOLUTION_STEPS,
   ALERTS_HELP_TRIGGER_INTRO,
   ALERTS_HELP_TRIGGER_ITEMS,
@@ -160,23 +160,7 @@ function HelpAlertsGuideBody(props: { readonly readingBodyClass: string }): Reac
         className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
       >
         <HelpSectionHeading id="related-governance-concepts">Related approval concepts</HelpSectionHeading>
-        <div className="grid gap-3" data-testid="help-alerts-related-concepts">
-          {ALERTS_HELP_RELATED_CONCEPTS.map((concept) => (
-            <div
-              key={concept.title}
-              className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
-            >
-              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{concept.title}</h3>
-              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{concept.description}</p>
-              <Link
-                className={cn("mt-2 inline-block text-sm underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-                href={concept.href}
-              >
-                {concept.linkLabel}
-              </Link>
-            </div>
-          ))}
-        </div>
+        <HelpAlertsRelatedConceptsGrid />
       </section>
     </>
   );

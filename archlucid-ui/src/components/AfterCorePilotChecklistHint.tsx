@@ -4,7 +4,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
@@ -16,7 +16,9 @@ import {
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
   readAfterCorePilotWhatsNextDismissed,
 } from "@/lib/core-pilot-checklist-storage";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 import {
@@ -31,39 +33,53 @@ type Suggestion = {
   sidebarNote: string;
 };
 
-const suggestions: Suggestion[] = [
-  {
-    title: "Compare two reviews",
-    href: "/insights/compare-two-reviews",
-    description: "Structured architecture snapshot diff between a baseline review and a target review when you need to know what changed.",
-    sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if a group is collapsed.`,
-  },
-  {
-    title: "Explore the architecture graph",
-    href: "/insights/evidence-graph",
-    description: "Provenance or architecture graph for a review ID when a list view is not enough.",
-    sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if Insights is collapsed.`,
-  },
-  {
-    title: "Set up approval alerts",
-    href: "/governance/alert-rules",
-    description: "Inbox, routing, and rules on one hu — une when architecture-risk signals need action.",
-    sidebarNote:
-      "Alerts is under Governance (sidebar). Open Alerts, then use the Rules tab for configuration.",
-  },
-  {
-    title: "Review policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
-    description: "Versions, effective content, and how policy rules attach to your scope.",
-    sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
-  },
-];
+function buildAfterCorePilotWhatsNextSuggestions(policyPacksHref: string): Suggestion[] {
+  return [
+    {
+      title: "Compare two reviews",
+      href: "/insights/compare-two-reviews",
+      description: "Structured architecture snapshot diff between a baseline review and a target review when you need to know what changed.",
+      sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if a group is collapsed.`,
+    },
+    {
+      title: "Explore the architecture graph",
+      href: "/insights/evidence-graph",
+      description: "Provenance or architecture graph for a review ID when a list view is not enough.",
+      sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if Insights is collapsed.`,
+    },
+    {
+      title: "Set up approval alerts",
+      href: "/governance/alert-rules",
+      description: "Inbox, routing, and rules on one hu — une when architecture-risk signals need action.",
+      sidebarNote:
+        "Alerts is under Governance (sidebar). Open Alerts, then use the Rules tab for configuration.",
+    },
+    {
+      title: "Review policy packs",
+      href: policyPacksHref,
+      description: "Versions, effective content, and how policy rules attach to your scope.",
+      sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
+    },
+  ];
+}
+
+const afterCorePilotWhatsNextSuggestionsArchitecture = buildAfterCorePilotWhatsNextSuggestions(
+  GOVERNANCE_POLICY_PACKS_PATH,
+);
 
 /**
  * After the Core Pilot checklist is complete, optional “what’s next” suggestions (not a second checklist)
  * with dismissal persisted in localStorage. Does not change sidebar toggle — nly explains them.
  */
 export function AfterCorePilotChecklistHint() {
+  const { productLine } = useProductLine();
+  const suggestions = useMemo(
+    () =>
+      productLine === "architecture"
+        ? afterCorePilotWhatsNextSuggestionsArchitecture
+        : buildAfterCorePilotWhatsNextSuggestions(policyPacksPathForProductLine(productLine)),
+    [productLine],
+  );
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();

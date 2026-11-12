@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpAdvisoryScansRelatedGovernanceTiles } from "@/app/(operator)/help/_sections/HelpAdvisoryScansRelatedGovernanceTiles";
 import { HelpAdvisoryScansSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAdvisoryScansSourcesOrientationStrip";
 import { HelpAdvisoryScansTroubleshootingList } from "@/app/(operator)/help/_sections/HelpAdvisoryScansTroubleshootingList";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -42,7 +43,6 @@ import {
   ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE_TAIL,
   ADVISORY_SCANS_HELP_SUMMARY_METRICS,
   ADVISORY_SCANS_HELP_SUMMARY_SECTION_TITLE,
-  ADVISORY_SCANS_HELP_TILE_ITEMS,
   ADVISORY_SCANS_HELP_TROUBLESHOOTING_HEADING_ID,
   ADVISORY_SCANS_HELP_TROUBLESHOOTING_TITLE,
   ADVISORY_SCANS_HELP_WHAT_SHOWS_HEADING_ID,
@@ -323,19 +323,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
             <HelpSectionHeading id={ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID}>
               {ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE}
             </HelpSectionHeading>
-            <ul
-              className={cn("m-0 list-none space-y-2 p-0", HELP_PAGE_LAYOUT.readingBody)}
-              data-testid="help-advisory-scans-tile-items"
-            >
-              {ADVISORY_SCANS_HELP_TILE_ITEMS.map((item) => (
-                <li key={item.label} className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
-                  <Link className={cn("font-medium", OPERATOR_LINK.nav)} href={item.href}>
-                    {item.label}
-                  </Link>
-                  <p className="m-0 mt-1 text-al-text-secondary">{item.detail}</p>
-                </li>
-              ))}
-            </ul>
+            <HelpAdvisoryScansRelatedGovernanceTiles />
           </section>
 
           <section
