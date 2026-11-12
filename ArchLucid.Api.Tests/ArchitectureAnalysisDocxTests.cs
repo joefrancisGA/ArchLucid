@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Application.Jobs;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -37,13 +35,12 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         string? jobId = jobIdEl.GetString();
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        BackgroundJobInfo terminal = await IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync(
+        await IntegrationTestJobPollSupport.PollJobUntilSucceededAsync(
             Client,
             jobId!,
             JsonOptions,
             HarnessPollDefaults.BackgroundJobDefaultMaxIterations,
             HarnessPollDefaults.BackgroundJobDefaultDelay);
-        terminal.State.Should().Be(BackgroundJobState.Succeeded);
 
         HttpResponseMessage fileResp = await IntegrationTestJobPollSupport.GetJobFileHttpAsync(Client, jobId!);
         fileResp.Content.Headers.ContentType!.MediaType

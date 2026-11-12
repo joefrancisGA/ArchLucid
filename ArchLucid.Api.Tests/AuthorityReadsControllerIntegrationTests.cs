@@ -28,8 +28,8 @@ public sealed class AuthorityReadsControllerIntegrationTests(ArchLucidApiFactory
     {
         HttpResponseMessage response = await Client.GetRunDetailHttpAsync(HarnessWellKnownGuids.UnknownCanonicalRunDetail);
 
-        JsonDocument problem = await response.AssertRunNotFoundAsync();
-        problem.RootElement.GetProperty("type").GetString().Should().Be(ProblemTypes.RunNotFound);
+        JsonElement problem = await response.AssertRunNotFoundAsync();
+        problem.GetProperty("type").GetString().Should().Be(ProblemTypes.RunNotFound);
     }
 
     [SkippableFact]

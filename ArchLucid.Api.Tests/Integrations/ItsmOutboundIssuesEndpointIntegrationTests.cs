@@ -268,14 +268,12 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
         string jobId = accepted.JobId;
         jobId.Should().NotBeNullOrWhiteSpace();
 
-        BackgroundJobInfo terminal = await IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync(
+        await IntegrationTestJobPollSupport.PollJobUntilSucceededAsync(
             client,
             jobId,
             JsonOptions,
             maxIterations: HarnessPollDefaults.ItsmDurableCreateMaxIterations,
             delayBetween: HarnessPollDefaults.ItsmDurableCreateDelay);
-
-        terminal.State.Should().Be(BackgroundJobState.Succeeded);
 
         using IServiceScope scope = factory.Services.CreateScope();
         IItsmFindingCorrelationRepository correlations =

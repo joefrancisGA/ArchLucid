@@ -1,8 +1,10 @@
 using System.Net;
+using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
@@ -116,17 +118,37 @@ public sealed class HarnessGoldenPathSmokeTests(ArchLucidApiFactory factory) : I
         RunDetailsResponseDto details = await finalized.GetRunDetailsAsync(Client, JsonOptions);
         ManifestMarkdownDocumentResponse summary = await finalized.GetManifestSummaryAsync(Client, JsonOptions);
         RunExportHistoryResponse exports = await finalized.GetExportsHistoryAsync(Client, JsonOptions);
+        DecisionNodeResponseDto decisions = await finalized.GetDecisionsAsync(Client, JsonOptions);
+        RunRoiScorecardDto roi = await finalized.GetRoiAsync(Client, JsonOptions);
         RunSummaryResponse authoritySummary = await finalized.GetAuthorityRunSummaryAsync(Client, JsonOptions);
 
         details.Run.RequestId.Should().Be(finalized.RequestId);
         details.Run.RunId.Should().Be(finalized.RunId);
         summary.Content.Should().Contain(finalized.SystemName);
         exports.Exports.Should().NotBeNull();
+        decisions.Should().NotBeNull();
+        roi.Should().NotBeNull();
         authoritySummary.RunId.Should().Be(finalized.RunGuid);
 
         CursorPagedResponse<RunSummaryResponse> page =
             await finalized.ListAuthorityReviewsForProjectAsync(Client, JsonOptions);
         page.Items.Should().Contain(item => item.RunId == finalized.RunGuid);
+    }
+
+    [SkippableFact]
+    public async Task Golden_path_provenance_explanation_helper_preserves_problem_contract()
+    {
+        FinalizedRun finalized = await ArrangeFinalizedAsync();
+
+        HttpResponseMessage response = await Client.GetReviewProvenanceExplanationHttpAsync(
+            finalized.RunGuid,
+            "test-node");
+
+        JsonElement problem = await response.AssertProblemElementForTestAsync(
+            HttpStatusCode.NotImplemented,
+            ProblemTypes.ProvenanceNodeExplanationNotSupported);
+
+        problem.GetProperty("title").GetString().Should().Be("Provenance node explanation not supported");
     }
 
     [SkippableFact]
