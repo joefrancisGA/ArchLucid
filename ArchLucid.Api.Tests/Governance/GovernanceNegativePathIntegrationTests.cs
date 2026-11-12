@@ -161,8 +161,7 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
 
     private static string ReadProblemType(string body)
     {
-        using JsonDocument doc = JsonDocument.Parse(body);
-        JsonElement root = doc.RootElement;
+        JsonElement root = JsonSerializer.Deserialize<JsonElement>(body);
 
         if (root.TryGetProperty("type", out JsonElement typeProp) && typeProp.ValueKind == JsonValueKind.String)
             return typeProp.GetString() ?? string.Empty;

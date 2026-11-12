@@ -1049,14 +1049,12 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
         GetRunResponseDto runPayload = await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
         runPayload.Should().NotBeNull();
 
-        string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);
-        List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, JsonOptions);
-        typedResults.Should().NotBeNull();
+        runPayload.Results.Should().NotBeEmpty();
 
         IReadOnlyDictionary<string, Disposition> latestDispositions =
             await LoadLatestDispositionsFromCsvAsync(runId);
 
-        foreach (AgentResult result in typedResults!)
+        foreach (AgentResult result in runPayload.Results)
         {
             if (result.Findings is null || result.Findings.Count == 0)
                 continue;

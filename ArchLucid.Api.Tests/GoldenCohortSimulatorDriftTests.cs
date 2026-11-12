@@ -132,13 +132,10 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
-            string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);
-            List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, JsonOptions);
-
-            typedResults.Should().NotBeNull();
+            runPayload.Results.Should().NotBeEmpty();
 
             SortedSet<string> actualCategories =
-                GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults);
+                GoldenCohortFindingCategoryAggregator.DistinctCategories(runPayload.Results);
             SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
             foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))

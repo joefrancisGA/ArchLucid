@@ -319,14 +319,14 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 | Route-level protocol matrices (exempt from **#38** / **#39** / **#42** / **#47**) | **`[Trait(Harness, RouteProtocol)]`** on the fixture class (`HarnessGoldenPathGuardConstants`) |
 | Analysis report POST body | **`HarnessAnalysisReportRequestFactory.CreateDefaultJsonContent`** |
 | Authority-complete execute skip | **`HarnessSkipWhen.AuthorityPipelineCompleteOnCreateAsync`** |
-| Async job poll | **`IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync`**; defaults in **`HarnessPollDefaults`** |
+| Async job poll | **`IntegrationTestJobPollSupport.PollJobUntilTerminalStateAsync`** (terminal: Succeeded, Failed, **Canceled**); defaults in **`HarnessPollDefaults`** |
 | Pre-finalize readiness JSON | **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** |
-| Bare architecture review GET + JSON | **`CreatedRunForTestHarnessExtensions.GetRunReviewJsonForTestAsync`** / **`GetRunHttpAsync`** |
+| Bare architecture review GET + JSON | **`CreatedRunForTestHarnessExtensions.GetRunReviewForTestAsync`** → **`GetRunResponseDto`** (`Results` is **`List<AgentResult>`**); **`GetRunHttpAsync`** for raw response |
 | ZIP / stream JSON in tests | **`ArchLucidHttpResponseIntegrationTestExtensions.ReadJsonElementForTestAsync`** |
 | ITSM integration scoped client + demo seed | **`ItsmIntegrationTestClientSupport.CreateDemoSeededClientAsync`** |
 | ITSM scoped client (headers only) | **`ItsmIntegrationTestClientSupport.CreateScopedClient`** |
 | Authority review detail GET | **`AuthorityHarnessExtensions.GetAuthorityReviewDetailHttpAsync`** |
-| Authority review bundle GET | **`AuthorityHarnessExtensions.GetAuthorityReviewBundleHttpAsync`** |
+| Authority review bundle GET | **`AuthorityHarnessExtensions.GetAuthorityReviewBundleHttpAsync`**; page bundles: **`GetAuthorityReviewCriticalPageBundleHttpAsync`**, **`GetAuthorityReviewTimelinesBundleHttpAsync`**, **`GetAuthorityReviewWorkspaceContextBundleHttpAsync`** |
 | Wire `goldenManifest` SHA-256 fingerprint | **`HarnessAuthorityGoldenManifestFingerprintSupport.GetWireGoldenManifestSha256HexAsync`** |
 | Pin-aware execute on `IntegrationTestBase` | **`ExecuteForTestAsync`** only (not `PostExecuteWithPinsAsync`) |
 | Stable skip strings (authority complete on create) | **`HarnessSkipReasons`** |
@@ -359,13 +359,13 @@ Specialty auth, marketing, or multi-tenant security tests may use other factorie
 
 **ReadFromJson burn-down (historical):** fixture controllers cleared through slice 27 (`EvolutionControllerFlowTests` among last). Slice 32 cleared the concurrency warmup and stale security seed rows. Remaining allowlist is only the HTTP extension plus two guard sources.
 
-**JsonDocument burn-down (#40 allowlist):** guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only (cap **3** after slice 31). **`FinalizeConflictSqlIntegrationTests`** now uses **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** for typed readiness and **`AssertProblemElementForTestAsync`** for conflict bodies; it no longer needs either the `#40` or `#31` allowlist. Slice 34 made the golden-cohort review read one typed **`GetRunResponseDto`** payload.
+**JsonDocument burn-down (#40 allowlist):** guard sources + **`ArchLucidHttpResponseIntegrationTestExtensions`** only (cap **3** after slice 31). **`FinalizeConflictSqlIntegrationTests`** now uses **`FinalizeReadinessHarnessExtensions.GetFinalizeReadinessAsync`** for typed readiness and **`AssertProblemElementForTestAsync`** for conflict bodies; it no longer needs either the `#40` or `#31` allowlist. Slice 34 made the golden-cohort review read one typed **`GetRunResponseDto`** payload. Slice 35 typed **`GetRunResponseDto.Results`** as **`List<AgentResult>`** (no serialize round-trip), dropped the **`Governance/`** folder skip on the `#40` scan after **`GovernanceNegativePathIntegrationTests`** switched to **`JsonSerializer.Deserialize<JsonElement>`**.
 
 **Review subresource URL burn-down (#38 allowlist):** evidence uploads → findings CSV/inspect → `TraceabilityBundleZipEndpointTests`. Current allowlist is the four canonical harness extension files; cap is intentionally equal to the current count. **`ArchitectureAnalysisExportTests`** uses **`PostAnalysisReportMarkdownExportAsync`** (removed from allowlist in slice 16).
 
 **Authority URL burn-down (#42 allowlist):** the three canonical authority helper files remain; migrate new route URLs to **`AuthorityHarnessExtensions`** before adding allowlist rows. Slice 33 removed stale replay/buyer/page-bundle rows; slice 34 removed two non-harness controller-matrix rows. Current allowlist is three files; cap is intentionally equal to the current count. **`AuthorityQueryControllerListRunsPagedIntegrationTests`** migrated in slice 16.
 
-**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **3**; **`#31`** ReadFromJson cap **3**; **`#38`** cap **4**; **`#42`** cap **3**. ITSM uses **`CreateScopedClient`** / **`CreateDemoSeededClientAsync`**; job polling deserializes **`BackgroundJobInfo`** directly; tuning lives in **`HarnessPollDefaults`** (slice 34).
+**Source-scan guards** — `IntegrationTestHarnessGoldenPathGuardTests` (`Suite=Core`, **fifty-two** catalog facts). **`#40`** JsonDocument cap **3**; **`#31`** ReadFromJson cap **3**; **`#38`** cap **4**; **`#42`** cap **3**. ITSM uses **`CreateScopedClient`** / **`CreateDemoSeededClientAsync`**; job polling deserializes **`BackgroundJobInfo`** directly and treats **Canceled** as terminal; tuning lives in **`HarnessPollDefaults`** (slice 34–35).
 
 **Fast harness CI slice:** `dotnet test ArchLucid.Api.Tests --filter Suite=Core`
 

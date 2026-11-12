@@ -18,10 +18,9 @@ public static class HarnessAuthorityGoldenManifestFingerprintSupport
         ArgumentNullException.ThrowIfNull(jsonOptions);
 
         HttpResponseMessage response = await client
-            .GetAuthorityReviewDetailHttpAsync(runId, cancellationToken)
-            .ConfigureAwait(false);
+            .GetAuthorityReviewDetailHttpAsync(runId, cancellationToken);
 
-        JsonElement root = await response.ReadJsonForTestAsync<JsonElement>(jsonOptions, cancellationToken).ConfigureAwait(false);
+        JsonElement root = await response.ReadJsonForTestAsync<JsonElement>(jsonOptions, cancellationToken);
 
         return ComputeWireGoldenManifestSha256Hex(root);
     }

@@ -31,7 +31,7 @@ public static class IntegrationTestJobPollSupport
                 await statusResponse.ReadJsonForTestAsync<BackgroundJobInfo>(jsonOptions, cancellationToken);
             state = status.State;
 
-            if (state is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
+            if (state is BackgroundJobState.Succeeded or BackgroundJobState.Failed or BackgroundJobState.Canceled)
                 return state;
 
             await Task.Delay(delay, cancellationToken);
