@@ -14,7 +14,7 @@ import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundary
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
-import { CompareWorkingOpenGateStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareWorkingOpenGateStrip";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { CompareNextReviewFooterClient } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNextReviewFooterClient";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
@@ -152,7 +152,7 @@ export function CompareForm(props: CompareFormProps = {}) {
         claimDisciplineTestId={buyerPolished ? COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
         actions={<ComparePageHeaderActions buyerPolished={buyerPolished} />}
       />
-      {buyerPolished ? <CompareWorkingOpenGateStrip /> : null}
+      {buyerPolished ? <OperatorHomeWorkingOpenGateStrip /> : null}
       {!buyerPolished ? (
         <OperatorRelatedSurfacesDisclosure testId="compare-related-surfaces-disclosure">
           <ValidateCompareVocabularyRail currentSurfaceId="compare" />

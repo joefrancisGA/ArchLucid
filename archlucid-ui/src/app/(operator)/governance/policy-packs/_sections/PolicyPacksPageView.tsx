@@ -27,7 +27,7 @@ import {
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
 import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
-import { PolicyPacksWorkingOpenGateStrip } from "./PolicyPacksWorkingOpenGateStrip";
+import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
 import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
 import { PolicyPacksNextReviewFooterClient } from "./PolicyPacksNextReviewFooterClient";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
@@ -377,7 +377,7 @@ export function PolicyPacksPageView(props: Props) {
         >
           {GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER}
         </p>
-        <PolicyPacksWorkingOpenGateStrip />
+        <OperatorHomeWorkingOpenGateStrip />
       </div>
 
       {m.loading ? <PolicyPacksLoadingSkeleton /> : null}
