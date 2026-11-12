@@ -27,6 +27,7 @@ export type CompareGovernanceDiffPanelProps = {
   readonly baselineCloudMismatchDetail?: string | null;
   readonly targetCloudMismatchDetail?: string | null;
   readonly targetRunId?: string | null;
+  readonly policyPacksHubPath?: string;
 };
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
@@ -156,6 +157,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
                   view.baselineManifest.ruleSetId,
                 view.targetManifest.atCommit?.packAssignments[0]?.policyPackId ?? view.targetManifest.ruleSetId,
               ),
+              props.policyPacksHubPath,
             )}
           >
             Open pack impact preview for this comparison

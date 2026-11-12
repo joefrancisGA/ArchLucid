@@ -234,4 +234,42 @@ describe("CompareGovernanceDiffPanel", () => {
 
     expect(screen.getByText(/Baseline value was not stored\. → Updated value was stored empty\./)).toBeInTheDocument();
   });
+
+  it("keeps pack impact preview on the SecureNow policy packs hub", () => {
+    const view = {
+      ...buildCompareGovernanceDiffView({
+        baselineManifest: parseCompareManifestGovernanceSnapshot({
+          ruleSetId: "pack-a",
+          ruleSetVersion: "1.0.0",
+        }),
+        targetManifest: parseCompareManifestGovernanceSnapshot({
+          ruleSetId: "pack-b",
+          ruleSetVersion: "2.0.0",
+        }),
+        currentEffective: null,
+      }),
+      manifestRuleSetChanges: [
+        {
+          field: "ruleSetId",
+          baselineValue: "pack-a",
+          targetValue: "pack-b",
+        },
+      ],
+    };
+
+    render(
+      <CompareGovernanceDiffPanel
+        view={view}
+        loading={false}
+        softFailureMessage={null}
+        targetRunId="run-target"
+        policyPacksHubPath="/compliance/policy-packs"
+      />,
+    );
+
+    expect(screen.getByTestId("compare-governance-impact-preview-link").querySelector("a")).toHaveAttribute(
+      "href",
+      "/compliance/policy-packs?reviewId=run-target&packAId=pack-a&packBId=pack-b",
+    );
+  });
 });
