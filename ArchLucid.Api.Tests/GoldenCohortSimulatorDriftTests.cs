@@ -90,17 +90,8 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             manifest.Should().NotBeNull();
 
             GetRunResponseDto runPayload = await Client.GetRunReviewForTestAsync(runId, JsonOptions);
-            string? pinnedEvidencePackagePinsHashSha256 = runPayload.Run.PinnedEvidencePackagePinsHashSha256;
 
-            RunRecord header = new()
-            {
-                PinnedPolicyPackIdsJson = runPayload.Run.PinnedPolicyPackIdsJson,
-                PinnedEvidencePackagePinsJson = runPayload.Run.PinnedEvidencePackagePinsJson,
-                PinnedEvidencePackagePinsHashSha256 =
-                    !string.IsNullOrWhiteSpace(pinnedEvidencePackagePinsHashSha256)
-                    ? Convert.FromBase64String(pinnedEvidencePackagePinsHashSha256)
-                    : null,
-            };
+            RunRecord header = HarnessRunRecordFactory.FromRunDto(runPayload.Run);
 
             GoldenManifestCreateTimePinCommitment? createTimePins =
                 RunHeaderCreateTimePinCommitmentFactory.TryFromRunHeader(header);

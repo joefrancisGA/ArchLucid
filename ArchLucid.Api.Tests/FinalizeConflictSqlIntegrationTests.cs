@@ -1044,10 +1044,7 @@ public sealed class FinalizeConflictSqlIntegrationTests(FinalizeConflictSqlInteg
 
     private async Task<bool> RunHasOpenVerifyHypothesisFindingAsync(string runId)
     {
-        HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
-
-        GetRunResponseDto runPayload = await getRunResponse.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions);
-        runPayload.Should().NotBeNull();
+        GetRunResponseDto runPayload = await Client.GetRunReviewForTestAsync(runId, JsonOptions);
 
         runPayload.Results.Should().NotBeEmpty();
 

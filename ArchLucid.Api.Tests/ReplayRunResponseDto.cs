@@ -1,4 +1,5 @@
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Api.Tests;
 
@@ -22,7 +23,7 @@ public sealed class ReplayRunResponseDto
         set;
     } = string.Empty;
 
-    public List<object> Results
+    public List<AgentResult> Results
     {
         get;
         set;

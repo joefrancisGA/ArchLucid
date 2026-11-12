@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Agents;
+
 namespace ArchLucid.Api.Tests.TestDtos;
 
 public sealed class ExecuteRunResponseDto
@@ -8,7 +10,7 @@ public sealed class ExecuteRunResponseDto
         set;
     } = string.Empty;
 
-    public List<object> Results
+    public List<AgentResult> Results
     {
         get;
         set;
