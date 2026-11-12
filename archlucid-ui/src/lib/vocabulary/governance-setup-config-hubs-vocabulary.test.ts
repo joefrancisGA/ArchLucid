@@ -12,6 +12,10 @@ import {
   resolveGovernanceSetupConfigHubsPeerLinks,
 } from "@/lib/vocabulary/governance-setup-config-hubs-vocabulary";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import {
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
 
 describe("governance-setup-config-hubs-vocabulary (TB-2297)", () => {
   it("explains setup guide vs live config hubs", () => {
@@ -40,5 +44,15 @@ describe("governance-setup-config-hubs-vocabulary (TB-2297)", () => {
       GOVERNANCE_SETUP_CONFIG_HUBS_POLICY_PACKS_LINK,
       GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK,
     ]);
+  });
+
+  it("uses SecureNow compliance hubs for product-line setup links", () => {
+    const model = buildGovernanceSetupConfigHubsVocabulary("security");
+
+    expect(model.policyPacksLink.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(model.standardsLink.href).toBe(SECURENOW_STANDARDS_AND_RULES_PATH);
+    expect(resolveGovernanceSetupConfigHubsPeerLinks("setup", "security")).toContainEqual(
+      model.policyPacksLink,
+    );
   });
 });

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 25: SecureNow vocabulary and committed pack handoffs
+
+**Outcome.** Product-line-aware vocabulary rails now keep SecureNow Policy packs, Standards and rules, setup, pattern-library, and pack-detail links in the `/compliance` namespace. Compare-two-reviews committed policy-pack links also preserve the active policy-pack hub instead of falling back to governance.
+
+**Surfaces.** Governance vocabulary rails, policy pack detail vocabulary, compare committed policy scope, route contract tests.
+
 ## 2026-11-12 - Score lift round 24: standards next-review hub and policy packs hub resolver
 
 **Outcome.** The standards-and-rules next-review footer now preserves the SecureNow `/compliance/standards-and-rules` hub. Client policy-pack handoffs share `resolvePolicyPacksHubPath` / `usePolicyPacksHubPath` and product-line review-handoff helpers so links stay on the correct namespace.
