@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 21: SecureNow next-review policy route
+
+**Outcome.** The policy-packs next-review footer now preserves the active product-line hub, so SecureNow operators remain on `/compliance/policy-packs` when continuing to another review.
+
+**Surfaces.** Policy-packs next-review footer, SecureNow compliance route, regression tests.
+
 ## 2026-11-11 - Score lift round 20: SecureNow policy assignment route
 
 **Outcome.** Findings scoped to SecureNow now preserve the product-line policy packs hub when operators choose “Assign policy packs”; the link no longer falls back to the generic governance route.
