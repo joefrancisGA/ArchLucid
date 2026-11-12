@@ -3,6 +3,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[reviewId]/findings/[findingId]" as const;
@@ -18,7 +20,7 @@ export const FINDING_DETAIL_SOURCES_INTRO =
 
 export const FINDING_DETAIL_FOLLOW_UPS_TITLE = "Where to go next";
 
-/** Static Sources when run/finding ids are unavailable. */
+/** Static Sources when run/finding ids are unavailable (architecture default). */
 export const FINDING_DETAIL_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
   { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Findings help", href: inAppHelpHref("findings") },
@@ -28,11 +30,14 @@ export const FINDING_DETAIL_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
 export function buildFindingDetailSources(
   runId: string,
   findingId: string,
+  productLine: ProductLineId = "architecture",
 ): readonly EvidenceSourceLink[] {
+  const findingsQueueHref = findingsPathForProductLine(productLine);
+
   return [
     { label: "Evidence trace", href: getFindingEvidenceTraceHref(runId, findingId) },
     { label: "Review provenance", href: resolveLibReviewProvenanceHref(runId) },
-    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Findings queue", href: findingsQueueHref },
     { label: "Findings help", href: inAppHelpHref("findings") },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   ] as const;
@@ -42,10 +47,11 @@ export function buildFindingDetailSources(
 export function buildFindingDetailOrientationSources(
   runId: string,
   findingId: string,
+  productLine: ProductLineId = "architecture",
 ): readonly EvidenceSourceLink[] {
   const evidenceTraceHref = getFindingEvidenceTraceHref(runId, findingId);
 
-  return buildFindingDetailSources(runId, findingId).filter(
+  return buildFindingDetailSources(runId, findingId, productLine).filter(
     (source) => source.href !== evidenceTraceHref,
   );
 }
