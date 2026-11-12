@@ -127,7 +127,9 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
                 architectureIdentityService,
                 Mock.Of<IArchitectureVersionService>(),
                 scopeContextProvider,
-                Mock.Of<IArchitectureKnowledgeModelAccess>()),
+                Mock.Of<IArchitectureKnowledgeModelAccess>(),
+                new ArchitectureKnowledgeModelIntakeBuilder(resolvedTimeProvider),
+                runRepository),
             scopeContextProvider);
 
         return new ArchitectureRunCreateOrchestrator(
