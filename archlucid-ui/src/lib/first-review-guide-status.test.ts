@@ -40,7 +40,7 @@ describe("first-review-guide-status Working hrefs (SY-18)", () => {
       `${architectureNestedReviewPath(architectureId, "run-123")}?reviewTab=findings`,
     );
     expect(steps[5]?.actionHref).toBe(
-      `${architectureNestedReviewPath(architectureId, "run-123")}#finalize-review`,
+      `${architectureNestedReviewPath(architectureId, "run-123")}?reviewTab=overview#finalize-review`,
     );
   });
 
