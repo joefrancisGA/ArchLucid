@@ -44,6 +44,12 @@ import {
   resolveSearchReviewEvidenceHelpFindingsHref,
   resolveSearchReviewEvidenceHelpPrecondition,
 } from "@/lib/search-review-evidence-help-guide-content";
+import { resolveFocusedPilotShowcaseFindingsHref } from "@/lib/standards-rules-focused-pilot-showcase";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { resolveRecurrenceSchedulesRiskRegisterHref } from "@/lib/recurrence-schedules-copy";
+import { policyPackDetailPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { governanceFindingsQueueNextReviewHref } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooter";
+import { resolveRiskRegisterCsvExportBasename } from "@/lib/architecture/architecture-risk-register-csv";
 import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { buildCommandPaletteCuratedTasks } from "@/lib/command-palette-curated-tasks";
 import { resolveGovernanceApprovalHelpPrimaryActions } from "@/lib/governance/governance-approval-help-guide-content";
@@ -330,5 +336,17 @@ describe("operator hub findings routes product line", () => {
     );
     expect(resolveSearchReviewEvidenceHelpFindingsHref("security")).toBe(SECURENOW_FINDINGS_PATH);
     expect(resolveSearchReviewEvidenceHelpPrecondition("security")).not.toContain("architecture review");
+
+    expect(resolveRecurrenceSchedulesRiskRegisterHref("security")).toBe(SECURENOW_FINDINGS_PATH);
+    expect(resolveFocusedPilotShowcaseFindingsHref("security")).toBe(
+      `${SECURENOW_FINDINGS_PATH}?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    );
+    expect(policyPackDetailPathForProductLine("security", "pack-1")).toBe(
+      `${SECURENOW_POLICY_PACKS_PATH}/pack-1`,
+    );
+    expect(governanceFindingsQueueNextReviewHref("run-abc", undefined, "security")).toBe(
+      `${SECURENOW_FINDINGS_PATH}?runId=run-abc`,
+    );
+    expect(resolveRiskRegisterCsvExportBasename("security")).toBe("compliance-findings-register");
   });
 });

@@ -1,5 +1,18 @@
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
+
+export const ARCHITECTURE_RISK_REGISTER_CSV_EXPORT_BASENAME = "architecture-risk-register" as const;
+
+export const COMPLIANCE_FINDINGS_REGISTER_CSV_EXPORT_BASENAME = "compliance-findings-register" as const;
+
+export function resolveRiskRegisterCsvExportBasename(productLine: ProductLineId = "architecture"): string {
+  if (productLine === "security") {
+    return COMPLIANCE_FINDINGS_REGISTER_CSV_EXPORT_BASENAME;
+  }
+
+  return ARCHITECTURE_RISK_REGISTER_CSV_EXPORT_BASENAME;
+}
 
 export const ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
 

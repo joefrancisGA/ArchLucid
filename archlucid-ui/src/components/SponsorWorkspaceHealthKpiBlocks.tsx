@@ -13,8 +13,11 @@ import {
   formatHours,
   HOURS_PER_PRECOMMIT_BLOCK,
 } from "@/lib/roi-assumptions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { executiveWorkspaceHealthKpiTitle } from "@/lib/sponsor-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { AUDIT_TRAIL_LABEL } from "@/lib/usability/canonical-product-terms";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
@@ -24,6 +27,14 @@ import {
 import { cn } from "@/lib/utils";
 
 import type { SponsorWorkspaceHealthKpiViewModel } from "./use-sponsor-workspace-health-dashboard";
+
+function sponsorHighCriticalFindingsLinkLabel(buyerPolishedShell: boolean, productLine: ProductLineId): string {
+  if (productLine === "security") {
+    return buyerPolishedShell ? "Open findings queue" : "Compliance findings queue";
+  }
+
+  return buyerPolishedShell ? "Open risk register" : "Architecture risk register";
+}
 
 export type SponsorWorkspaceHealthKpiBlocksProps = {
   readonly buyerPolishedShell: boolean;
@@ -36,6 +47,8 @@ export function SponsorWorkspaceHealthKpiBlocks({
   callerRank,
   viewModel,
 }: SponsorWorkspaceHealthKpiBlocksProps) {
+  const { productLine } = useProductLine();
+  const findingsQueueHref = findingsPathForProductLine(productLine);
   const {
     blocked30d,
     warned30d,
@@ -104,8 +117,8 @@ export function SponsorWorkspaceHealthKpiBlocks({
               {finiteIntegerCountDisplay(highCritical90)}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link href="/governance/findings" className={OPERATOR_LINK.nav}>
-                {buyerPolishedShell ? "Open risk register" : "Architecture risk register"}
+              <Link href={findingsQueueHref} className={OPERATOR_LINK.nav}>
+                {sponsorHighCriticalFindingsLinkLabel(buyerPolishedShell, productLine)}
               </Link>
             </p>
           </CardContent>
