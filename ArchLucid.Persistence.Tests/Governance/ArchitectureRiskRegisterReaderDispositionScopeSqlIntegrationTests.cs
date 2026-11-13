@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -34,6 +35,18 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
         Guid inScopeSnapshotId = Guid.NewGuid();
         Guid inScopeRecordId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        // FindingsSnapshots has foreign keys to the run/context/graph chain.
+        // Seed the parents before exercising project-scoped disposition isolation.
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection, tenantId, workspaceId, inScopeProjectId,
+            runId, contextSnapshotId, "risk-register-disposition-scope", CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertGraphSnapshotHeaderAsync(
+            connection, tenantId, workspaceId, inScopeProjectId,
+            graphSnapshotId, contextSnapshotId, runId, DateTime.UtcNow,
+            "[]", "[]", "[]", CancellationToken.None);
 
         await connection.ExecuteAsync(
             """
@@ -72,8 +85,8 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
                 InScopeRecordId = inScopeRecordId,
                 SharedFindingId = sharedFindingId,
                 RunId = runId,
-                ContextSnapshotId = Guid.NewGuid(),
-                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
             });
 
         ArchitectureRiskRegisterReader registerReader = new(factory);
