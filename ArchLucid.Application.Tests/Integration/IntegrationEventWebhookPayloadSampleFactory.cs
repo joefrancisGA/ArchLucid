@@ -29,6 +29,8 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
                 IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.AuthorityRunQualityGateRejectedV1),
             "findings-high-severity-captured.v1.schema.json" =>
                 IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.FindingsHighSeverityCapturedV1),
+            "finding-verification-completed.v1.schema.json" =>
+                IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.FindingVerificationCompletedV1),
             "manifest-finalized.v1.schema.json" => CreateManifestFinalized(),
             "governance-approval-submitted.v1.schema.json" => CreateGovernanceApprovalSubmitted(),
             "governance-approval-approved.v1.schema.json" => CreateGovernanceApprovalApproved(),
