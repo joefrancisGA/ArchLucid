@@ -5,4 +5,6 @@ namespace ArchLucid.Application.Tests;
 /// while a renderer is active. Keeps their assertions enabled under fast-core CI.
 /// </summary>
 [CollectionDefinition("PdfRendering", DisableParallelization = true)]
-public sealed class PdfRenderingCollection;
+public sealed class PdfRenderingCollection
+{
+}
