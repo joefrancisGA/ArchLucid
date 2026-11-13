@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -83,5 +84,48 @@ public sealed class RunOperatorGovernanceDispositionServiceAuditTests
 
         (await act.Should().ThrowAsync<DurableAuditWriteFailedException>())
             .Which.OperationLabel.Should().Contain(runId.ToString("N"));
+    }
+
+    [Fact]
+    public async Task RecordAsync_WhenCommittedManifestMissing_DoesNotWriteDispositionOrAudit()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<IRunRepository> runRepository = new();
+        Mock<IAuditService> auditService = new();
+
+        RunOperatorGovernanceDispositionService sut = new(
+            runRepository.Object,
+            auditService.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            NullLogger<RunOperatorGovernanceDispositionService>.Instance);
+
+        RecordRunOperatorGovernanceDispositionRequest request = new()
+        {
+            Decision = RunOperatorGovernanceDecision.Approved,
+            Rationale = "no unsealed decisions",
+        };
+
+        Func<Task> act = () => sut.RecordAsync(runId, request, scope, "operator-1", false, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<ConflictException>())
+            .WithMessage("*committed golden manifest is missing*");
+
+        runRepository.Verify(r => r.TrySetOperatorGovernanceDispositionAsync(
+            It.IsAny<ScopeContext>(),
+            It.IsAny<Guid>(),
+            It.IsAny<string>(),
+            It.IsAny<string?>(),
+            It.IsAny<string>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+        auditService.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
