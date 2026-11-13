@@ -4,8 +4,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { policyPackDetailPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 
@@ -13,6 +14,7 @@ import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
  * Surfaces query-string intent from {@link PostCommitRetentionRail} next-cycle dialog — lineage attachment remains API-owned.
  */
 export function NewReviewIntentCallout() {
+  const { productLine } = useProductLine();
   const searchParams = useSearchParams();
   const intent: string = searchParams.get("intent")?.trim() ?? "";
   const cloneFrom: string = searchParams.get("cloneFromRunId")?.trim() ?? "";
@@ -33,7 +35,7 @@ export function NewReviewIntentCallout() {
         <span className="font-semibold">{policyPackLine}</span>. The wizard still records which pack is attached when
         you submit — confirm the pack is enabled in your workspace —{" "}
         <Link
-          href={`${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(policyPackId)}`}
+          href={policyPackDetailPathForProductLine(productLine, policyPackId)}
           className={OPERATOR_LINK.nav}
         >
           open pack detail

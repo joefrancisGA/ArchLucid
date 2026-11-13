@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 35: SecureNow sponsor, setup, help discovery, and policy-pack detail paths
+
+**Outcome.** Sponsor workspace health KPIs, first-review optional setup, new-review pack intent, recurrence schedules, focused-pilot showcase seeds, policy-pack page header, healthcare pack detail defaults, help topic routes, help search recommendations, findings queue next-review links, and risk-register export basenames now follow `/compliance/findings` and `/compliance/policy-packs` on SecureNow. Alt+G registry description is product-line neutral. Architecture defaults remain unchanged.
+
+**Surfaces.** Sponsor dashboard, first-review guide, reviews new intake, help panel, policy packs hub, route contract tests.
+
 ## 2026-11-13 - Score lift round 34: SecureNow working findings, invitee home, and search-help paths
 
 **Outcome.** Working-mode Alt+G and architecture-desk Findings, review findings metrics, and the review/queue vocabulary rail stay on `/compliance/findings` for SecureNow even when an architecture is open. Invitee home orientation, the repeat-review help loop, and search-review-evidence next links and precondition copy follow the same product line. Architecture nested findings remain the Working default.

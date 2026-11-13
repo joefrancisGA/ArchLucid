@@ -160,7 +160,12 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["governance", "compliance", "pack", "conflicts", "precedence"],
     summary: "Policy packs bundle rules and defaults; assign scope and inspect merged policy rules.",
     docPath: "docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md",
-    routes: ["/governance/policy-packs", "/governance/standards-and-rules"],
+    routes: [
+      "/governance/policy-packs",
+      "/governance/standards-and-rules",
+      "/compliance/policy-packs",
+      "/compliance/standards-and-rules",
+    ],
   },
   {
     id: "system-health",

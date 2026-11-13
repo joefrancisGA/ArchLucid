@@ -19,7 +19,12 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveHealthcareClaimsPolicyRuleRows } from "@/lib/policy/healthcare-claims-policy-pack-rules";
 import {
@@ -78,8 +83,9 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null): string {
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const buyerPolishedShell = useProductionEvalChrome();
-  const packsHubHref = props.packsHubHref ?? GOVERNANCE_POLICY_PACKS_PATH;
-  const findingsHref = props.findingsHref ?? "/governance/findings";
+  const { productLine } = useProductLine();
+  const packsHubHref = props.packsHubHref ?? policyPacksPathForProductLine(productLine);
+  const findingsHref = props.findingsHref ?? findingsPathForProductLine(productLine);
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const provenanceLabel = resolvePackProvenanceLabel(packRecord);

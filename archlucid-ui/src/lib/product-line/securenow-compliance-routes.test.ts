@@ -16,6 +16,7 @@ import {
   isFindingsRoutePath,
   isPolicyPacksRoutePath,
   isStandardsAndRulesRoutePath,
+  policyPackDetailPathForProductLine,
   policyPacksHubPathFromPathname,
   policyPacksPathForProductLine,
   remapEvidenceSourceFindingsQueueHref,
@@ -88,5 +89,14 @@ describe("securenow-compliance-routes", () => {
     );
     expect(resolvePolicyPacksHubPath("/insights/compare-two-reviews", "security")).toBe(SECURENOW_POLICY_PACKS_PATH);
     expect(resolvePolicyPacksHubPath("/insights/compare-two-reviews", "architecture")).toBe(GOVERNANCE_POLICY_PACKS_PATH);
+  });
+
+  it("builds policy pack detail paths per product line", () => {
+    expect(policyPackDetailPathForProductLine("security", "pack-1")).toBe(
+      `${SECURENOW_POLICY_PACKS_PATH}/pack-1`,
+    );
+    expect(policyPackDetailPathForProductLine("architecture", "pack-1")).toBe(
+      `${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`,
+    );
   });
 });

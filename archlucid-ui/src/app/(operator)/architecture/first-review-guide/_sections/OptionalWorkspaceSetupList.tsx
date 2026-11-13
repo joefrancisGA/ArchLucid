@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -17,7 +18,8 @@ import { FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY } from "@/lib/buyer/buyer-polish-c
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { Button } from "@/components/ui/button";
 
 type OptionalWorkspaceSetupRow = {
@@ -30,7 +32,10 @@ type OptionalWorkspaceSetupRow = {
   readonly actionLabel: string;
 };
 
-function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): OptionalWorkspaceSetupRow[] {
+function resolveOptionalWorkspaceSetupRows(
+  context: FinishSetupWizardContext,
+  productLine: ProductLineId,
+): OptionalWorkspaceSetupRow[] {
   const deployment = resolveFinishSetupWizardDeploymentOptions();
   const rows: OptionalWorkspaceSetupRow[] = [
     {
@@ -73,7 +78,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
     benefit: "Choose which packed standards drive findings and the pre-commit gate.",
     statusLabel: "Draft",
     statusKind: "draft",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: policyPacksPathForProductLine(productLine),
     actionLabel: "Review policy packs",
   });
 
@@ -92,13 +97,14 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
 
 export function OptionalWorkspaceSetupList(): React.JSX.Element | null {
   const { phase, context } = useFinishSetupReadinessContext();
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
 
   if (phase === "loading" || context === null) {
     return null;
   }
 
-  const rows = resolveOptionalWorkspaceSetupRows(context);
+  const rows = resolveOptionalWorkspaceSetupRows(context, productLine);
 
   return (
     <div className="space-y-3" data-testid="optional-workspace-setup-panel">

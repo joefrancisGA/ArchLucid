@@ -88,6 +88,13 @@ export function policyPacksPathForProductLine(productLine: ProductLineId): strin
   return GOVERNANCE_POLICY_PACKS_PATH;
 }
 
+/** Product-line canonical operator route for a policy pack detail page. */
+export function policyPackDetailPathForProductLine(productLine: ProductLineId, policyPackId: string): string {
+  const trimmedId = policyPackId.trim();
+
+  return `${policyPacksPathForProductLine(productLine)}/${encodeURIComponent(trimmedId)}`;
+}
+
 /** Product-line canonical operator route for standards and rules. */
 export function standardsAndRulesPathForProductLine(productLine: ProductLineId): string {
   if (productLine === "security") {
