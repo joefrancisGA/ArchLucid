@@ -1,6 +1,8 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+
+import { useFindingsQueuePath } from "@/lib/product-line/use-findings-queue-path";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
@@ -35,7 +37,7 @@ export function useGovernanceFindingTriageWithCursor(
   searchParams: ReadonlyURLSearchParams,
 ) {
   const router = useRouter();
-  const pathname = usePathname() ?? "/governance/findings";
+  const pathname = useFindingsQueuePath();
   const focusedFindingParam = searchParams.get("focusedFinding");
   const triage = useGovernanceFindingTriage(displayedRows);
   const { openForRow, activeRow, open, close } = triage;

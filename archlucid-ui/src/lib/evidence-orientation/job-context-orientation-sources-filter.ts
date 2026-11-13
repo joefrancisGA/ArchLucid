@@ -66,13 +66,17 @@ function scoreLinkForJobContext(link: EvidenceOrientationLink, jobKind: JobConte
       return 100;
     }
 
-    if (href.startsWith("/governance/findings") || href.startsWith("/help/findings")) {
+    if (
+      href.startsWith("/governance/findings")
+      || href.startsWith("/compliance/findings")
+      || href.startsWith("/help/findings")
+    ) {
       return 85;
     }
   }
 
   if (jobKind === "governance") {
-    if (href.startsWith("/governance") || href.startsWith("/help/alerts")) {
+    if (href.startsWith("/governance") || href.startsWith("/compliance") || href.startsWith("/help/alerts")) {
       return 100;
     }
   }

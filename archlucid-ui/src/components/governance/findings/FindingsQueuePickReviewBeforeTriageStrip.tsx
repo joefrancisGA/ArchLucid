@@ -4,7 +4,9 @@ import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { useFindingsQueuePath } from "@/lib/product-line/use-findings-queue-path";
 import {
   findingsQueueScopeDisclosureHrefFromSearch,
   parseFindingsQueueScopeOpenFromSearch,
@@ -47,7 +49,7 @@ export function FindingsQueueScopeDisclosure(
   props: FindingsQueueScopeDisclosureProps,
 ): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname() ?? "/governance/findings";
+  const pathname = useFindingsQueuePath();
   const searchParams = useSearchParams();
   const findingsQueueScopeOpenParam = searchParams.get("findingsQueueScopeOpen");
   const [open, setOpenState] = useState(() =>

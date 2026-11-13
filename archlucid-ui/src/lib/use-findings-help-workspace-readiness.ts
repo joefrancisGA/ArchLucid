@@ -23,6 +23,9 @@ import {
   buildGovernanceFindingsQueueHref,
   workspaceOpenFindingsPresentation,
 } from "@/lib/metric-count-presentation";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type FindingsHelpWorkspaceReadinessMetric = {
   readonly label: string;
@@ -44,24 +47,34 @@ export type FindingsHelpWorkspaceReadinessSnapshot = {
   readonly reload: () => void;
 };
 
-const INITIAL_METRIC: FindingsHelpWorkspaceReadinessMetric = {
-  label: "",
-  valueLabel: "…",
-  statusKind: "neutral",
-  href: "/governance/findings",
-};
+function initialReadinessMetricHref(productLine: ProductLineId): string {
+  return findingsPathForProductLine(productLine);
+}
 
-const INITIAL_SNAPSHOT: Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload"> = {
-  loading: true,
-  loadFailed: false,
-  loadForbidden: false,
-  openFindings: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.openFindings },
-  criticalAndError: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.criticalAndError },
-  awaitingDecision: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.awaitingDecision },
-  recentlyResolved: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.recentlyResolved },
-  workspaceScopeLabel: null,
-  loadedAtUtc: null,
-};
+function buildInitialMetric(productLine: ProductLineId): FindingsHelpWorkspaceReadinessMetric {
+  return {
+    label: "",
+    valueLabel: "…",
+    statusKind: "neutral",
+    href: initialReadinessMetricHref(productLine),
+  };
+}
+
+function buildInitialSnapshot(productLine: ProductLineId): Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload"> {
+  const metric = buildInitialMetric(productLine);
+
+  return {
+    loading: true,
+    loadFailed: false,
+    loadForbidden: false,
+    openFindings: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.openFindings },
+    criticalAndError: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.criticalAndError },
+    awaitingDecision: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.awaitingDecision },
+    recentlyResolved: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.recentlyResolved },
+    workspaceScopeLabel: null,
+    loadedAtUtc: null,
+  };
+}
 
 function formatMetricCountValue(count: number): string {
   return String(count);
@@ -101,7 +114,10 @@ function buildReadinessMetric(
   };
 }
 
-function summarizeFindingsRows(rows: readonly GovernanceFindingQueueRow[]): Omit<
+function summarizeFindingsRows(
+  rows: readonly GovernanceFindingQueueRow[],
+  productLine: ProductLineId,
+): Omit<
   FindingsHelpWorkspaceReadinessSnapshot,
   "loading" | "loadFailed" | "loadForbidden" | "workspaceScopeLabel" | "loadedAtUtc" | "reload"
 > {
@@ -110,38 +126,39 @@ function summarizeFindingsRows(rows: readonly GovernanceFindingQueueRow[]): Omit
   const criticalErrorCount = countMatchingFilter(rows, "critical-error", nowMs);
   const awaitingCount = countMatchingFilter(rows, "needs-decision", nowMs);
   const recentCount = countMatchingFilter(rows, "remediated-recent", nowMs);
+  const queueBasePath = findingsPathForProductLine(productLine);
 
   return {
     openFindings: buildReadinessMetric(
       FINDINGS_HELP_READINESS_LABELS.openFindings,
       openCount,
-      workspaceOpenFindingsPresentation(openCount).href,
+      workspaceOpenFindingsPresentation(openCount, productLine).href,
     ),
     criticalAndError: buildReadinessMetric(
       FINDINGS_HELP_READINESS_LABELS.criticalAndError,
       criticalErrorCount,
-      buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
+      buildGovernanceFindingsQueueHref({ filter: "critical-error", basePath: queueBasePath }),
     ),
     awaitingDecision: buildReadinessMetric(
       FINDINGS_HELP_READINESS_LABELS.awaitingDecision,
       awaitingCount,
-      buildGovernanceFindingsQueueHref({ filter: "needs-decision" }),
+      buildGovernanceFindingsQueueHref({ filter: "needs-decision", basePath: queueBasePath }),
     ),
     recentlyResolved: buildReadinessMetric(
       FINDINGS_HELP_READINESS_LABELS.recentlyResolved,
       recentCount,
-      buildGovernanceFindingsQueueHref({ filter: "remediated-recent" }),
+      buildGovernanceFindingsQueueHref({ filter: "remediated-recent", basePath: queueBasePath }),
       false,
     ),
   };
 }
 
-function unavailableMetric(label: string): FindingsHelpWorkspaceReadinessMetric {
+function unavailableMetric(label: string, productLine: ProductLineId): FindingsHelpWorkspaceReadinessMetric {
   return {
     label,
     valueLabel: "Unavailable",
     statusKind: "blocked",
-    href: "/governance/findings",
+    href: findingsPathForProductLine(productLine),
   };
 }
 
@@ -150,8 +167,9 @@ function isAuthorizationFailure(error: unknown): boolean {
 }
 
 export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadinessSnapshot {
-  const [snapshot, setSnapshot] = useState<Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload">>(
-    INITIAL_SNAPSHOT,
+  const { productLine } = useProductLine();
+  const [snapshot, setSnapshot] = useState<Omit<FindingsHelpWorkspaceReadinessSnapshot, "reload">>(() =>
+    buildInitialSnapshot(productLine),
   );
   // Vitest tears down jsdom before late governance-register fetches settle — skip setState then.
   const mountedRef = useRef(true);
@@ -183,7 +201,7 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
         ...riskRegisterRows(riskRegister.entries ?? []),
         ...decisionRegisterRows(decisionRegister.decisions ?? []),
       ]);
-      const summary = summarizeFindingsRows(rows);
+      const summary = summarizeFindingsRows(rows, productLine);
 
       if (!mountedRef.current) {
         return;
@@ -203,14 +221,16 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
       }
 
       if (isAuthorizationFailure(error)) {
+        const metric = buildInitialMetric(productLine);
+
         setSnapshot({
           loading: false,
           loadFailed: false,
           loadForbidden: true,
-          openFindings: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.openFindings },
-          criticalAndError: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.criticalAndError },
-          awaitingDecision: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.awaitingDecision },
-          recentlyResolved: { ...INITIAL_METRIC, label: FINDINGS_HELP_READINESS_LABELS.recentlyResolved },
+          openFindings: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.openFindings },
+          criticalAndError: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.criticalAndError },
+          awaitingDecision: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.awaitingDecision },
+          recentlyResolved: { ...metric, label: FINDINGS_HELP_READINESS_LABELS.recentlyResolved },
           workspaceScopeLabel: null,
           loadedAtUtc: null,
         });
@@ -222,15 +242,15 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
         loading: false,
         loadFailed: true,
         loadForbidden: false,
-        openFindings: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.openFindings),
-        criticalAndError: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.criticalAndError),
-        awaitingDecision: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.awaitingDecision),
-        recentlyResolved: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.recentlyResolved),
+        openFindings: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.openFindings, productLine),
+        criticalAndError: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.criticalAndError, productLine),
+        awaitingDecision: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.awaitingDecision, productLine),
+        recentlyResolved: unavailableMetric(FINDINGS_HELP_READINESS_LABELS.recentlyResolved, productLine),
         workspaceScopeLabel: null,
         loadedAtUtc: new Date().toISOString(),
       });
     }
-  }, []);
+  }, [productLine]);
 
   useEffect(() => {
     void load();

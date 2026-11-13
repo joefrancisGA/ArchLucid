@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { persistGovernanceFindingsReturnHref } from "@/lib/governance/governance-findings-return-state";
+import { isFindingsRoutePath } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Persists the current governance findings queue URL (including query filters) for continue navigation. */
 export function GovernanceFindingsReturnStateTracker() {
@@ -12,7 +13,7 @@ export function GovernanceFindingsReturnStateTracker() {
 
   useEffect(() => {
     if (
-      !pathname.startsWith("/governance/findings")
+      !isFindingsRoutePath(pathname)
       && !/^\/architecture\/architectures\/[^/]+\/findings(\/|$)/.test(pathname)
     ) {
       return;

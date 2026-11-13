@@ -2,6 +2,8 @@
 
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapHubPolicyAndFindingsEvidenceSources } from "@/lib/product-line/securenow-compliance-routes";
 import { APPROVAL_GATE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
@@ -48,6 +50,12 @@ export const SPONSOR_WORKSPACE_HEALTH_SOURCES: readonly SponsorWorkspaceHealthSo
   { label: "Approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
+
+export function resolveSponsorWorkspaceHealthSources(
+  productLine: ProductLineId,
+): readonly SponsorWorkspaceHealthSourceLink[] {
+  return remapHubPolicyAndFindingsEvidenceSources(SPONSOR_WORKSPACE_HEALTH_SOURCES, productLine);
+}
 
 export type SponsorWorkspaceHealthKpiKey =
   | "preCommitOutcomes"
