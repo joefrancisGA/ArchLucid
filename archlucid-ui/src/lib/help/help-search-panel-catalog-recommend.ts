@@ -37,6 +37,7 @@ export const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; re
   { prefix: "/governance/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/compliance/findings", topicIds: ["risk-register", "findings", "governance-workflow"] },
   { prefix: "/compliance/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
+  { prefix: "/compliance/standards-and-rules", topicIds: ["standards-rules-help", "policy-packs", "governance-workflow"] },
   { prefix: "/compliance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/architecture/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/architecture/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },

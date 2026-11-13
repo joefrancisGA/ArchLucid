@@ -6,6 +6,8 @@ import {
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapHubPolicyAndFindingsEvidenceSources } from "@/lib/product-line/securenow-compliance-routes";
 import { GOVERNANCE_APPROVAL_HOW_IT_WORKS_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
 
 export const GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH = "/help/governance-approval" as const;
@@ -34,3 +36,7 @@ export const GOVERNANCE_APPROVAL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Standards & rules", href: GOVERNANCE_STANDARDS_AND_RULES_PATH },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
 ] as const;
+
+export function resolveGovernanceApprovalHelpSources(productLine: ProductLineId): readonly EvidenceSourceLink[] {
+  return remapHubPolicyAndFindingsEvidenceSources(GOVERNANCE_APPROVAL_HELP_SOURCES, productLine);
+}

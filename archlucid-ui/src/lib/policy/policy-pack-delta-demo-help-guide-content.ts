@@ -7,6 +7,12 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+  standardsAndRulesPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 
 export const POLICY_PACK_DELTA_DEMO_HELP_PAGE_TITLE = "Policy-pack delta demo";
 
@@ -87,6 +93,48 @@ export const POLICY_PACK_DELTA_DEMO_HELP_SOURCES: readonly PolicyPackDeltaDemoHe
   { label: "Approval", href: inAppHelpHref("governance-approval") },
   { label: "Understanding alerts", href: inAppHelpHref("alerts") },
 ] as const;
+
+export function resolvePolicyPackDeltaDemoHelpSources(
+  productLine: ProductLineId,
+): readonly PolicyPackDeltaDemoHelpSourceLink[] {
+  const findingsHref = findingsPathForProductLine(productLine);
+  const packsHref = policyPacksPathForProductLine(productLine);
+  const standardsHref = standardsAndRulesPathForProductLine(productLine);
+
+  return POLICY_PACK_DELTA_DEMO_HELP_SOURCES.map((source) => {
+    if (source.label === "Policy packs") {
+      return { ...source, href: packsHref };
+    }
+
+    if (source.label === "Standards and rules") {
+      return { ...source, href: standardsHref };
+    }
+
+    if (source.label === "Findings queue") {
+      return { ...source, href: findingsHref };
+    }
+
+    return source;
+  });
+}
+
+export function resolvePolicyPackDeltaDemoHelpPrimaryActions(productLine: ProductLineId): {
+  readonly openPolicyPacks: { readonly label: string; readonly href: string };
+  readonly openStandardsAndRules: { readonly label: string; readonly href: string };
+  readonly openAuditTrail: { readonly label: string; readonly href: string };
+} {
+  return {
+    ...POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
+    openPolicyPacks: {
+      ...POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS.openPolicyPacks,
+      href: policyPacksPathForProductLine(productLine),
+    },
+    openStandardsAndRules: {
+      ...POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS.openStandardsAndRules,
+      href: standardsAndRulesPathForProductLine(productLine),
+    },
+  };
+}
 
 export const POLICY_PACK_DELTA_DEMO_HELP_TOPIC_LABEL = "Policy-pack delta demo" as const;
 

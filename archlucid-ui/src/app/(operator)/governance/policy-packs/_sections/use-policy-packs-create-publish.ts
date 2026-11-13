@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -28,7 +28,7 @@ import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@
 import { isBundledPlatformDefaultPackType } from "@/lib/policy/policy-pack-type-label";
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
 import type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import {
   parsePolicyPackCompareVersionIdFromSearch,
   parsePolicyPackVersionDiffOpenFromSearch,
@@ -42,7 +42,7 @@ import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link"
 
 export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const router = useRouter();
-  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const pathname = usePolicyPacksHubPath();
   const searchParams = useSearchParams();
   const livelihoodReturnPath =
     searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;

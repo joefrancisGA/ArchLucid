@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 36 (batch 1): SecureNow help panel, recent views, and policy-pack hub paths
+
+**Outcome.** Help search panel route actions, page-help compliance prefixes, Home recent-view labels, policy-pack authoring URL fallbacks, create-home orientation Sources, approval-help Sources, and policy-pack delta demo Sources now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow (assigned-to-me uses `/security/assigned-to-me`). Architecture defaults remain unchanged.
+
+**Surfaces.** Help drawer, contextual page help, operator Home resume, policy packs hub authoring, architecture create-home orientation, route contract tests.
+
 ## 2026-11-13 - Score lift round 35: SecureNow sponsor, setup, help discovery, and policy-pack detail paths
 
 **Outcome.** Sponsor workspace health KPIs, first-review optional setup, new-review pack intent, recurrence schedules, focused-pilot showcase seeds, policy-pack page header, healthcare pack detail defaults, help topic routes, help search recommendations, findings queue next-review links, and risk-register export basenames now follow `/compliance/findings` and `/compliance/policy-packs` on SecureNow. Alt+G registry description is product-line neutral. Architecture defaults remain unchanged.

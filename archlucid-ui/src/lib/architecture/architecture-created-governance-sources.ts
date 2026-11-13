@@ -1,6 +1,8 @@
+import { remapArchitectureCreatedOrientationSources } from "@/lib/architecture/architecture-created-orientation-source-links";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type ArchitectureCreatedGovernanceSourceLink = {
   readonly label: string;
@@ -17,6 +19,12 @@ export const ARCHITECTURE_CREATED_GOVERNANCE_SOURCES: readonly ArchitectureCreat
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Compare two reviews", href: COMPARE_TWO_REVIEWS_PATH },
 ] as const;
+
+export function resolveArchitectureCreatedGovernanceSources(
+  productLine: ProductLineId,
+): readonly ArchitectureCreatedGovernanceSourceLink[] {
+  return remapArchitectureCreatedOrientationSources(ARCHITECTURE_CREATED_GOVERNANCE_SOURCES, productLine);
+}
 
 export const ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO =
   "Use these follow-ups when create-home Governance readiness turns into findings triage, evidence search, or post-finalize approval workflow.";
