@@ -369,11 +369,13 @@ function Invoke-ReleaseSmokeShipGateEvidence {
     try {
         Write-Host ''
         Write-Host '--- Ship-gate evidence (archlucid pilot ship-gate-evidence) ---' -ForegroundColor DarkGray
-        dotnet run --project $CliProj -- pilot ship-gate-evidence `
+        # Out-Host keeps CLI logs visible without polluting the function's return pipeline
+        # (assignment would otherwise capture Object[] and break [bool] -RanShipGateEvidence).
+        & dotnet run --project $CliProj -- pilot ship-gate-evidence `
             --run-id $RunId `
             --json-out $jsonOut `
             --markdown-out $mdOut `
-            --skip-claim-lint
+            --skip-claim-lint 2>&1 | Out-Host
 
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Ship-gate evidence CLI exited $LASTEXITCODE (artifact may be partial)." -ForegroundColor Yellow
@@ -393,7 +395,8 @@ function Invoke-ReleaseSmokeShipGateEvidence {
 
     $schemaScript = Join-Path $PSScriptRoot 'ci/assert_ship_gate_evidence_schema.py'
     if ((Test-Path -LiteralPath $jsonOut) -and (Test-Path -LiteralPath $schemaScript)) {
-        python3 $schemaScript $jsonOut
+        & python3 $schemaScript $jsonOut 2>&1 | Out-Host
+
         if ($LASTEXITCODE -ne 0) {
             Write-Host 'Ship-gate evidence schema validation failed.' -ForegroundColor Yellow
             return $false
@@ -1355,13 +1358,16 @@ ORDER BY CreatedUtc DESC;
 
     Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$runLivePlaywrightEffective -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
 
-    $shipGateEvidenceRan = $false
+    [bool] $shipGateEvidenceRan = $false
     if (-not [string]::IsNullOrWhiteSpace($ResultOut)) {
-        $shipGateEvidenceRan = Invoke-ReleaseSmokeShipGateEvidence `
-            -RunId $runId `
-            -ApiBaseUrl $ApiBaseUrl `
-            -RepoRoot $root `
-            -CliProj $cliProj
+        # Select -Last 1 in case a callee still leaks pipeline objects before return.
+        $shipGateEvidenceRan = [bool]@(
+            Invoke-ReleaseSmokeShipGateEvidence `
+                -RunId $runId `
+                -ApiBaseUrl $ApiBaseUrl `
+                -RepoRoot $root `
+                -CliProj $cliProj
+        )[-1]
     }
 
     Write-ReleaseSmokeEvidenceSummary -ExitMode Complete `
