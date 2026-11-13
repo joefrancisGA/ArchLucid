@@ -1,12 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { resolveWorkingReviewChildSuffixHref } from "@/lib/architecture/working-review-child-suffix-href";
 
-vi.mock("@/lib/global-search-desk-architecture-id", () => ({
-  resolveGlobalSearchDeskArchitectureId: vi.fn(() => null),
-}));
-
 describe("resolveWorkingReviewChildSuffixHref", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
   it("uses nested review base for print when architecture id is explicit", () => {
     expect(
       resolveWorkingReviewChildSuffixHref("run-1", "print", { architectureId: "arch-desk" }),
@@ -14,18 +15,16 @@ describe("resolveWorkingReviewChildSuffixHref", () => {
   });
 
   it("falls back to peer print path when architecture is unknown", () => {
-    expect(resolveWorkingReviewChildSuffixHref("run-peer", "print")).toBe(
-      "/architecture/reviews/run-peer/print",
-    );
+    expect(
+      resolveWorkingReviewChildSuffixHref("run-peer", "print", { pathname: "/architecture/reviews/run-peer" }),
+    ).toBe("/architecture/reviews/run-peer/print");
   });
 
-  it("uses desk continuity resolver when explicit architecture is absent", async () => {
-    const { resolveGlobalSearchDeskArchitectureId } = await import("@/lib/global-search-desk-architecture-id");
-
-    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValue("arch-continuity");
-
-    expect(resolveWorkingReviewChildSuffixHref("run-1", "provenance")).toBe(
-      "/architecture/architectures/arch-continuity/reviews/run-1/provenance",
-    );
+  it("uses pathname desk continuity when explicit architecture is absent", () => {
+    expect(
+      resolveWorkingReviewChildSuffixHref("run-1", "provenance", {
+        pathname: "/architecture/architectures/arch-continuity/reviews/run-1",
+      }),
+    ).toBe("/architecture/architectures/arch-continuity/reviews/run-1/provenance");
   });
 });
