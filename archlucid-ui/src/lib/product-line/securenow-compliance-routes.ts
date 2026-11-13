@@ -3,9 +3,11 @@ import {
   SECURENOW_AUDIT_EVIDENCE_PATH,
 } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_STANDARDS_AND_RULES_PATH,
@@ -102,6 +104,44 @@ export function findingsPathForProductLine(productLine: ProductLineId): string {
   }
 
   return GOVERNANCE_FINDINGS_PATH;
+}
+
+/** Product-line canonical operator route for assigned-to-me findings. */
+export function assignedToMeFindingsPathForProductLine(productLine: ProductLineId): string {
+  if (productLine === "security") {
+    return SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH;
+  }
+
+  return GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH;
+}
+
+/** Preserves query strings when remapping governance hub paths for SecureNow. */
+export function remapGovernanceOperatorHref(href: string, productLine: ProductLineId): string {
+  if (productLine === "architecture") {
+    return href;
+  }
+
+  const queryIndex = href.indexOf("?");
+  const path = queryIndex >= 0 ? href.slice(0, queryIndex) : href;
+  const querySuffix = queryIndex >= 0 ? href.slice(queryIndex) : "";
+
+  if (path === GOVERNANCE_FINDINGS_PATH) {
+    return `${findingsPathForProductLine(productLine)}${querySuffix}`;
+  }
+
+  if (path === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+    return `${assignedToMeFindingsPathForProductLine(productLine)}${querySuffix}`;
+  }
+
+  if (path === GOVERNANCE_POLICY_PACKS_PATH) {
+    return `${policyPacksPathForProductLine(productLine)}${querySuffix}`;
+  }
+
+  if (path === GOVERNANCE_STANDARDS_AND_RULES_PATH) {
+    return `${standardsAndRulesPathForProductLine(productLine)}${querySuffix}`;
+  }
+
+  return href;
 }
 
 /** Product-line canonical operator route for audit evidence lookup. */

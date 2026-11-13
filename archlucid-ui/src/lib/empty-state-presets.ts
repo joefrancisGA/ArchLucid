@@ -12,6 +12,8 @@ import {
   governanceWorkflowIdleGettingStartedOperator,
   governanceWorkflowIdleGettingStartedReader,
 } from "@/lib/governance/governance-workflow-empty-guidance";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 
 /** Honest qualifier for claims-intake sample CTAs — Azure reference architecture with fabricated data (TB-778). */
 export const AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL = "Explore sample review (Azure reference)";
@@ -128,6 +130,38 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
 };
 
 /** Idle state when the principal is below Execute: inspection-first copy (mutations stay API-gated). */
+function remapEmptyStateActions(
+  preset: EmptyStateProps,
+  productLine: ProductLineId,
+): EmptyStateProps {
+  if (productLine === "architecture" || preset.actions === undefined) {
+    return preset;
+  }
+
+  return {
+    ...preset,
+    actions: preset.actions.map((action) => ({
+      ...action,
+      href: remapGovernanceOperatorHref(action.href, productLine),
+    })),
+    secondaryAction:
+      preset.secondaryAction === undefined
+        ? undefined
+        : {
+            ...preset.secondaryAction,
+            href: remapGovernanceOperatorHref(preset.secondaryAction.href, productLine),
+          },
+  };
+}
+
+export function resolveGovernanceWorkflowIdleEmptyState(productLine: ProductLineId): EmptyStateProps {
+  return remapEmptyStateActions(GOVERNANCE_WORKFLOW_IDLE, productLine);
+}
+
+export function resolveGovernanceWorkflowIdleReaderEmptyState(productLine: ProductLineId): EmptyStateProps {
+  return remapEmptyStateActions(GOVERNANCE_WORKFLOW_IDLE_READER, productLine);
+}
+
 export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   icon: Shield,
   title: "Inspect review-scoped workflow",

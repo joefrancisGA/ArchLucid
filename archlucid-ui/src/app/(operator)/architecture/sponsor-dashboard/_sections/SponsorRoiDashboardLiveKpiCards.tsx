@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -13,7 +14,9 @@ import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribing
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
-import { SPONSOR_KPI_DRILL_THROUGH } from "@/lib/sponsor-kpi-drill-through-hrefs";
+import { resolveSponsorKpiDrillThrough } from "@/lib/sponsor-kpi-drill-through-hrefs";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
@@ -66,6 +69,9 @@ export function SponsorRoiDashboardLiveKpiCards({
   loading: loadingProp,
   variant = "full",
 }: SponsorRoiDashboardLiveKpiCardsProps = {}) {
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
+  const sponsorKpiDrillThrough = useMemo(() => resolveSponsorKpiDrillThrough(productLine), [productLine]);
   const v = BUYER_SPONSOR_SUMMARY_VOCABULARY;
   const executiveDetails = variant === "sponsor-details";
   const suppressZeroFootnote = executiveDetails;
@@ -181,7 +187,7 @@ export function SponsorRoiDashboardLiveKpiCards({
         </CardHeader>
         <CardContent>
           <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.resolvedFindings30d}
+            href={sponsorKpiDrillThrough.resolvedFindings30d}
             testId="kpi-tile-resolved-30d-link"
           >
             <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
@@ -225,7 +231,7 @@ export function SponsorRoiDashboardLiveKpiCards({
           </CardTitle>
           <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.staleArchitectureRisksMetric.description}{" "}
-            <Link href="/governance/findings" className="underline">
+            <Link href={findingsHref} className="underline">
               Findings
             </Link>
           </CardDescription>
@@ -254,7 +260,7 @@ export function SponsorRoiDashboardLiveKpiCards({
           </CardTitle>
           <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.decisionsNeededMetric.description}{" "}
-            <Link href="/governance/findings" className="underline">
+            <Link href={findingsHref} className="underline">
               Findings
             </Link>
           </CardDescription>
@@ -311,7 +317,7 @@ export function SponsorRoiDashboardLiveKpiCards({
         </CardHeader>
         <CardContent>
           <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.findingsRemediated30d}
+            href={sponsorKpiDrillThrough.findingsRemediated30d}
             testId="kpi-tile-remediated-30d-link"
           >
             <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
@@ -339,7 +345,7 @@ export function SponsorRoiDashboardLiveKpiCards({
         </CardHeader>
         <CardContent>
           <KpiTileDrillThroughLink
-            href={SPONSOR_KPI_DRILL_THROUGH.costEvidenceFreshness}
+            href={sponsorKpiDrillThrough.costEvidenceFreshness}
             testId="kpi-tile-cost-evidence-freshness-link"
           >
             <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">

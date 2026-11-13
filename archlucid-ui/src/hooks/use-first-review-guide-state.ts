@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
@@ -95,6 +96,7 @@ function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
 
 export function useFirstReviewGuideState(): FirstReviewGuideViewState {
   const canExecute = useOperateCapability();
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
   const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const commitQuery = useCorePilotCommitContextQuery();
@@ -204,7 +206,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       steps: resolveFirstReviewGuideSteps(stateInput),
       headerActions: resolveFirstReviewGuideHeaderActions(stateInput),
       requiredBlockers: resolveFirstReviewGuideRequiredBlockers(stateInput),
-      onePrerequisite: resolveFirstReviewGuideOnePrerequisite(prerequisiteInput),
+      onePrerequisite: resolveFirstReviewGuideOnePrerequisite(prerequisiteInput, productLine),
       canExecute,
       readyToFinalize,
       latestRunHref:
@@ -230,6 +232,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
     policyPackSelectionQuery.data,
     policyPackSelectionQuery.isError,
     policyPackSelectionQuery.isPending,
+    productLine,
     sampleQuery.data,
     sampleQuery.isError,
     sampleQuery.isPending,

@@ -37,7 +37,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE,
   GOVERNANCE_APPROVAL_HELP_PAGE_TITLE,
   GOVERNANCE_APPROVAL_HELP_PREREQUISITES,
-  GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS,
+  resolveGovernanceApprovalHelpPrimaryActions,
   GOVERNANCE_APPROVAL_HELP_ROLES,
   GOVERNANCE_APPROVAL_HELP_STATUS_PHASES,
   GOVERNANCE_APPROVAL_HELP_STATUS_ROWS,
@@ -58,6 +58,7 @@ import {
 } from "@/lib/governance/governance-approval-help-page-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 
 type HelpGovernanceApprovalGuideViewProps = {
@@ -177,7 +178,11 @@ function TroubleshootingList(): React.ReactElement {
   return <HelpGovernanceApprovalTroubleshootingList />;
 }
 
-function GovernanceApprovalActionPanel(): React.ReactElement {
+function GovernanceApprovalActionPanel(props: {
+  readonly primaryActions: ReturnType<typeof resolveGovernanceApprovalHelpPrimaryActions>;
+}): React.ReactElement {
+  const { primaryActions } = props;
+
   return (
     <section
       className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -192,20 +197,20 @@ function GovernanceApprovalActionPanel(): React.ReactElement {
       </h2>
       <div className="flex flex-wrap items-center gap-2">
         <Button asChild size="sm" variant="primary">
-          <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.href}>
-            {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openWorkflow.label}
+          <Link href={primaryActions.openWorkflow.href}>
+            {primaryActions.openWorkflow.label}
           </Link>
         </Button>
         <Button asChild size="sm" variant="outline">
-          <Link href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openDashboard.href}>
-            {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openDashboard.label}
+          <Link href={primaryActions.openDashboard.href}>
+            {primaryActions.openDashboard.label}
           </Link>
         </Button>
         <Link
-          href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.href}
+          href={primaryActions.openFindings.href}
           className={OPERATOR_BODY_INLINE_LINK_CLASS}
         >
-          {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
+          {primaryActions.openFindings.label}
         </Link>
       </div>
     </section>
@@ -215,6 +220,8 @@ function GovernanceApprovalActionPanel(): React.ReactElement {
 /** Buyer-safe approval orientation for `/help/governance-approval`. */
 export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGuideViewProps): React.ReactElement {
   void props.entry;
+  const productLineId = resolveProductLineIdFromEnv();
+  const governanceApprovalHelpPrimaryActions = resolveGovernanceApprovalHelpPrimaryActions(productLineId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-governance-approval",
@@ -267,11 +274,11 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
-            <GovernanceApprovalActionPanel />
+            <GovernanceApprovalActionPanel primaryActions={governanceApprovalHelpPrimaryActions} />
           </div>
         ) : (
           <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-            <GovernanceApprovalActionPanel />
+            <GovernanceApprovalActionPanel primaryActions={governanceApprovalHelpPrimaryActions} />
           </div>
         )}
 

@@ -1,6 +1,7 @@
 import type { PageContextualHelpAction, PageContextualHelpEntry } from "@/lib/contextual-help/types";
 import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 
 function localizeAction(
   action: PageContextualHelpAction | undefined,
@@ -13,6 +14,7 @@ function localizeAction(
   return {
     ...action,
     label: localizeProductCopy(productLineId, action.label),
+    href: remapGovernanceOperatorHref(action.href, productLineId),
   };
 }
 

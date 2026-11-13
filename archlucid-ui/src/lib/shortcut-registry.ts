@@ -10,6 +10,11 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 
 import { ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  findingsPathForProductLine,
+  policyPacksPathForProductLine,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
 import { REMEDIATION_FACTORY_PAGE_SHORTCUTS } from "@/lib/remediation-factory/remediation-factory-page-shortcuts";
 
@@ -131,11 +136,27 @@ export function findShortcutByKey(combo: string): ShortcutEntry | undefined {
   return SHORTCUTS.find((entry) => normalizeCombo(entry.key) === needle);
 }
 
+/** Product-line navigation target for registry entries that map to findings or policy packs. */
+export function resolveRegistryShortcutRoute(entry: ShortcutEntry, productLine: ProductLineId): string {
+  const key = normalizeCombo(entry.key);
+
+  if (key === "alt+g") {
+    return findingsPathForProductLine(productLine);
+  }
+
+  if (key === "alt+p") {
+    return policyPacksPathForProductLine(productLine);
+  }
+
+  return entry.route ?? "";
+}
+
 /** Help overlay and keyboard map descriptions — Working Alt+N is the architecture draft editor, not the wizard. */
 export function resolveShortcutDescription(
   entry: ShortcutEntry,
   workingMode: boolean,
   onReviewPage = false,
+  productLine: ProductLineId = "architecture",
 ): string {
   if (normalizeCombo(entry.key) === "alt+n") {
     return workingMode ? WORKING_ALT_N_SHORTCUT_DESCRIPTION : GUIDED_ALT_N_SHORTCUT_DESCRIPTION;
@@ -164,7 +185,15 @@ export function resolveShortcutDescription(
   }
 
   if (normalizeCombo(entry.key) === "alt+g" && workingMode) {
+    if (productLine === "security") {
+      return "Open compliance findings queue";
+    }
+
     return "Open findings on the architecture desk — last-open architecture or portfolio";
+  }
+
+  if (normalizeCombo(entry.key) === "alt+g" && productLine === "security") {
+    return "Open compliance findings queue";
   }
 
   return entry.description;

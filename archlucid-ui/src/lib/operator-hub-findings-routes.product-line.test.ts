@@ -38,6 +38,14 @@ import { resolveImprovementPlanningHelpOutputTileItems } from "@/lib/improvement
 import { resolveReviewScorecardFindingsHref } from "@/lib/pilot-scorecard-present";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
+import { buildCommandPaletteCuratedTasks } from "@/lib/command-palette-curated-tasks";
+import { resolveGovernanceApprovalHelpPrimaryActions } from "@/lib/governance/governance-approval-help-guide-content";
+import { resolveHelpDocsStaticEntries } from "@/lib/help/help-docs-static-entries";
+import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-queue-rows";
+import { localizePageContextualHelpEntry } from "@/lib/contextual-help/localize-page-contextual-help-entry";
+import { resolveRegistryShortcutRoute, SHORTCUTS } from "@/lib/shortcut-registry";
+import { resolveSponsorKpiDrillThrough } from "@/lib/sponsor/sponsor-kpi-drill-through-hrefs";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -224,5 +232,31 @@ describe("operator hub findings routes product line", () => {
     expect(standardsConcept?.href).toBe(SECURENOW_STANDARDS_AND_RULES_PATH);
     expect(policyConcept?.href).not.toBe(GOVERNANCE_POLICY_PACKS_PATH);
     expect(standardsConcept?.href).not.toBe(GOVERNANCE_RESOLUTION_PATH);
+
+    const findingsShortcut = SHORTCUTS.find((entry) => entry.key === "alt+g");
+    expect(findingsShortcut).toBeDefined();
+    expect(resolveRegistryShortcutRoute(findingsShortcut!, "security")).toBe(SECURENOW_FINDINGS_PATH);
+
+    const policyPaletteTask = buildCommandPaletteCuratedTasks("security").find((task) => task.label === "Policy packs");
+    expect(policyPaletteTask?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+
+    expect(resolveGovernanceApprovalHelpPrimaryActions("security").openFindings.href).toBe(SECURENOW_FINDINGS_PATH);
+
+    const helpFindingsEntry = resolveHelpDocsStaticEntries("security").find((entry) => entry.title === "Findings queue");
+    expect(helpFindingsEntry?.url).toBe(SECURENOW_FINDINGS_PATH);
+
+    const approvalQueueHelp = localizePageContextualHelpEntry(
+      APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS[0]!.entry,
+      "security",
+    );
+    expect(approvalQueueHelp.whatToDoNextAction?.href).toBe(SECURENOW_FINDINGS_PATH);
+
+    expect(
+      remapGovernanceOperatorHref("/governance/findings?filter=open", "security"),
+    ).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
+
+    expect(resolveSponsorKpiDrillThrough("security").decisionsNeeded).toBe(
+      `${SECURENOW_FINDINGS_PATH}?filter=needs-decision`,
+    );
   });
 });
