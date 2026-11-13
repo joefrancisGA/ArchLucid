@@ -55,6 +55,11 @@ import { resolveGovernanceApprovalHelpSources } from "@/lib/governance/governanc
 import { collectHelpSearchPanelTopics } from "@/lib/help/help-search-panel-catalog-topics";
 import { recentViewLabelFromPathname } from "@/lib/operator/operator-recent-views";
 import { resolvePolicyPackDeltaDemoHelpSources } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
+import { pageContextualHintForPathname } from "@/lib/page-contextual-hints";
+import { readGovernanceFindingsReturnHref } from "@/lib/governance/governance-findings-return-state";
+import { resolveRunDetailActivityPreCommitSources } from "@/lib/runs/run-detail-activity-sources";
+import { resolveSponsorWorkspaceHealthSources } from "@/lib/sponsor/sponsor-workspace-health-page-copy";
+import { buildBuyerCommandPaletteCuratedTasks } from "@/lib/command-palette-buyer-curated-tasks";
 import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { buildCommandPaletteCuratedTasks } from "@/lib/command-palette-curated-tasks";
 import { resolveGovernanceApprovalHelpPrimaryActions } from "@/lib/governance/governance-approval-help-guide-content";
@@ -375,5 +380,17 @@ describe("operator hub findings routes product line", () => {
     expect(
       resolveArchitectureCreatedFindingsSources("security").find((source) => source.label === "Findings queue")?.href,
     ).toBe(SECURENOW_FINDINGS_PATH);
+
+    expect(pageContextualHintForPathname(SECURENOW_FINDINGS_PATH)?.id).toBe("compliance-findings");
+    expect(
+      resolveRunDetailActivityPreCommitSources("security").find((source) => source.label === "Findings queue")?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolveSponsorWorkspaceHealthSources("security").find((source) => source.label === "Findings")?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      buildBuyerCommandPaletteCuratedTasks("security").find((task) => task.label === "Findings")?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(readGovernanceFindingsReturnHref("security")).toBe(SECURENOW_FINDINGS_PATH);
   });
 });

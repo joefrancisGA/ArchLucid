@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 37 (batch 2): SecureNow queue chrome, help readiness, and orientation Sources
+
+**Outcome.** Findings queue URL fallbacks, return-state persistence, page contextual hints, job-context orientation scoring, findings help readiness metrics, run-detail activity Sources, and sponsor workspace health Sources now preserve `/compliance/findings` on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Findings queue scope/triage URL sync, return-state tracker, header hints, help findings readiness, review activity Sources, route contract tests.
+
 ## 2026-11-13 - Score lift round 36 (batch 1): SecureNow help panel, recent views, and policy-pack hub paths
 
 **Outcome.** Help search panel route actions, page-help compliance prefixes, Home recent-view labels, policy-pack authoring URL fallbacks, create-home orientation Sources, approval-help Sources, and policy-pack delta demo Sources now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow (assigned-to-me uses `/security/assigned-to-me`). Architecture defaults remain unchanged.

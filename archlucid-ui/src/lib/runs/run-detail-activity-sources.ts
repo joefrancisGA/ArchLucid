@@ -1,4 +1,6 @@
+import { remapArchitectureCreatedOrientationSources } from "@/lib/architecture/architecture-created-orientation-source-links";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type RunDetailActivitySourceLink = {
   readonly label: string;
@@ -17,6 +19,12 @@ export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES: readonly RunDetailActivityS
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Approval help", href: inAppHelpHref("governance-approval") },
 ] as const;
+
+export function resolveRunDetailActivityPreCommitSources(
+  productLine: ProductLineId,
+): readonly RunDetailActivitySourceLink[] {
+  return remapArchitectureCreatedOrientationSources(RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES, productLine);
+}
 
 export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES_INTRO =
   "Use these follow-ups when create-home Activity progress turns into findings triage, evidence search, or export readiness.";

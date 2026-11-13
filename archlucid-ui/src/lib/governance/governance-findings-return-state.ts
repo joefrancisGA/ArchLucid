@@ -1,5 +1,8 @@
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import {
+  findingsPathForProductLine,
+  remapGovernanceOperatorHref,
+} from "@/lib/product-line/securenow-compliance-routes";
 
 const GOVERNANCE_FINDINGS_RETURN_HREF_KEY = "archlucid_governance_findings_return_href_v1";
 
@@ -43,7 +46,7 @@ export function readGovernanceFindingsReturnHref(
     const raw = window.localStorage.getItem(GOVERNANCE_FINDINGS_RETURN_HREF_KEY)?.trim();
 
     if (raw !== undefined && raw.length > 0 && isPersistableFindingsReturnHref(raw)) {
-      return raw;
+      return remapGovernanceOperatorHref(raw, productLine);
     }
   } catch {
     /* private mode */
