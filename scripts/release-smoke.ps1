@@ -29,6 +29,14 @@ $root = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'OperatorDiagnostics.ps1')
 . (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 
+# Cloud Agent / some hosts set OTEL_SDK_DISABLED=true. That makes Sdk.CreateTracerProviderBuilder().Build()
+# return NoopTracerProvider (no Sampler), so Core ObservabilityTraceSamplingConfiguratorTests fail closed.
+# Clear for this process and the temporary API child so Gate 1 smoke and Core suite stay honest.
+if ($env:OTEL_SDK_DISABLED -eq 'true') {
+    Write-Host 'Clearing OTEL_SDK_DISABLED=true for release-smoke (OpenTelemetry SDK must be active for Core sampler tests + API traces).' -ForegroundColor DarkYellow
+    Remove-Item Env:\OTEL_SDK_DISABLED -ErrorAction SilentlyContinue
+}
+
 $releaseSmokeAuthHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
 $runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql' -or $Profile -eq 'ReleaseCandidate')

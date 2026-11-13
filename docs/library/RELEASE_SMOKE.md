@@ -244,6 +244,7 @@ Deterministic behavior is unchanged: same step order, same filters, same timeout
 ## Troubleshooting
 
 - **API exits before ready:** wrong SQL string, migrations failing, or port in use — watch for a separate console if you run API manually; the smoke script starts a **hidden** `dotnet run` (stdout not shown). Re-run with **`-SkipE2E`** and start the API yourself to read logs, or temporarily change the script to use a visible window for debugging.
+- **`OTEL_SDK_DISABLED=true`:** some Cloud Agent images set this; OpenTelemetry then returns **NoopTracerProvider** and Core **`ObservabilityTraceSamplingConfiguratorTests`** fail. **`release-smoke.ps1`** clears the variable for its process (and the temporary API). Unset it manually when running those tests outside the smoke script.
 - **Gate 1 create fails:** API must be **`Development`** with **`ArchLucid__StorageProvider=Sql`** (script sets both). Confirm the SQL catalog exists and create brief is ≥100 characters of architecture context.
 - **Zero artifacts:** synthesis or persistence regression — check API logs for the smoke **`RunId`**.
 - **Config lint failure (Step 2):** inspect `artifacts/release-readiness/config-lint-production-like-hosted-pilot.md` for blocking rows; fix RC baseline fixture or validate deployed config with the same profile before signoff.
