@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Progress } from "@/components/ui/progress";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import {
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
@@ -135,7 +136,7 @@ function indicatorClassForTone(tone: LlmBudgetUtilizationTone): string {
 
 function formatUsd(value: number | null): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
-    return "Amount not returned";
+    return AMOUNT_NOT_RETURNED;
   }
 
   return `$${value.toFixed(2)}`;
