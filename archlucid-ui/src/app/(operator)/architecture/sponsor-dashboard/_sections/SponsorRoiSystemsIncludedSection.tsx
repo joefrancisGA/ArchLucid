@@ -35,7 +35,8 @@ export function SponsorRoiSystemsIncludedSection(
     return null;
   }
 
-  const summaryLine = `${summary.systems.length} system${summary.systems.length === 1 ? "" : "s"} — per-row savings do not sum to the headline.`;
+  const systemCountLabel = `${summary.systems.length} system${summary.systems.length === 1 ? "" : "s"}`;
+  const summaryLine = `${systemCountLabel}. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`;
 
   return (
     <CollapsibleSection
@@ -49,9 +50,6 @@ export function SponsorRoiSystemsIncludedSection(
       <div className="space-y-3 pt-2">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {resolveSponsorSystemRowScopeLabel(summary)}
-        </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-systems-included-non-summing">
-          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
         <SecureNowSponsorRoiCollectionScopeHonestyLine testId="exec-roi-systems-included-collection-honesty" />
 

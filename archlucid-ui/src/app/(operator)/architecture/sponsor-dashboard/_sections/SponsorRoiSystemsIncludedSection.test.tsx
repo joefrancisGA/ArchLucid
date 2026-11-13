@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
@@ -41,6 +42,7 @@ describe("SponsorRoiSystemsIncludedSection", () => {
     );
 
     expect(screen.getByTestId("exec-roi-systems-included-section")).toBeInTheDocument();
+    expect(screen.getByText(`2 systems. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`)).toBeInTheDocument();
     fireEvent.click(screen.getByText("Systems included (per-system detail)"));
 
     expect(screen.getByText("Billing API")).toBeInTheDocument();

@@ -5,6 +5,7 @@ import {
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 export type CorePilotStepBase = {
@@ -75,7 +76,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody:
       "Open the sponsor ROI summary on the dashboard — confirm evidence freshness and disposition-aware headline scope.",
     detail:
-      "Portfolio ROI uses the latest finalized architecture review per system. Per-system rows do not sum to the headline — see the proof status strip for scope labels.",
+      `Portfolio ROI uses the latest finalized architecture review per system. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE} See the proof status strip for scope labels.`,
     primaryHref: SPONSOR_DASHBOARD_HREF,
     primaryLabel: "Open ROI dashboard",
   },
