@@ -1,0 +1,34 @@
+import { describe, expect, it, vi } from "vitest";
+
+import { fetchSecurityEvidencePathDetail } from "@/lib/security-evidence-path-api";
+import { proxyJsonGet } from "@/lib/proxy-json-client";
+
+vi.mock("@/lib/proxy-json-client", () => ({
+  proxyJsonGet: vi.fn(),
+  proxyJsonPost: vi.fn(),
+}));
+
+describe("security-evidence-path-api", () => {
+  it("returns normalized stored hop labels", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValue({
+      pathId: "path-1",
+      hops: [
+        {
+          fromNodeLabel: "  reader-role  ",
+          toNodeLabel: "\tstorage-account\n",
+          edgeType: "  CAN_READ ",
+          provenanceKind: "ObservedFact",
+          hopConfidenceBand: "Confirmed",
+        },
+      ],
+    });
+
+    const detail = await fetchSecurityEvidencePathDetail("path-1");
+
+    expect(detail?.hops[0]).toMatchObject({
+      fromNodeLabel: "reader-role",
+      toNodeLabel: "storage-account",
+      edgeType: "CAN_READ",
+    });
+  });
+});

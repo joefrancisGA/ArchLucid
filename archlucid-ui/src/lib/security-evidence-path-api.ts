@@ -31,11 +31,13 @@ function finiteNumberOrNull(value: unknown): number | null {
 }
 
 function mapStoredLabel(value: unknown, omissionLabel: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
+  if (typeof value !== "string") {
     return omissionLabel;
   }
 
-  return value;
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : omissionLabel;
 }
 
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
