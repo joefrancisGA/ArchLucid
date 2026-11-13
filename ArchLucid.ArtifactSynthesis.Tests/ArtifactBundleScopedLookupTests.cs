@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.Core.Scoping;
 
