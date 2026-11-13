@@ -102,7 +102,7 @@ public sealed class AuditEvidenceFreshnessGateTests
         Guid auditEvidenceSnapshotId = Guid.NewGuid();
 
         InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new();
-        await snapshotRepository.InsertSnapshotAsync(new AuditEvidenceSnapshotPersistRequest
+        await snapshotRepository.InsertSnapshotInScopeAsync(scope.ToProjectScopeKey(), new AuditEvidenceSnapshotPersistRequest
         {
             Header = new AuditEvidenceSnapshotHeaderRecord
             {
@@ -254,6 +254,7 @@ public sealed class AuditEvidenceFreshnessGateTests
             CancellationToken cancellationToken = default)
         {
             AuditEvidenceSnapshotHeaderRecord? header = null;
+
             if (MatchesScope(scope, auditEvidenceSnapshotId)
                 && _headers.TryGetValue(auditEvidenceSnapshotId, out AuditEvidenceSnapshotHeaderRecord? storedHeader)
                 && storedHeader.TenantId == scope.TenantId)
