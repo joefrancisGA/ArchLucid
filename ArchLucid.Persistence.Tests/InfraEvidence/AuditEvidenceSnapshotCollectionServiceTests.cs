@@ -146,6 +146,22 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
 
         baselineSnapshots.Should().ContainSingle();
         baselineSnapshots[0].AuditEvidenceSnapshotId.Should().Be(snapshotId);
+
+        // A matching tenant and assessment id must not permit a different project
+        // to read this baseline or its evidence snapshot.
+        ScopeContext otherProject = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = Guid.NewGuid(),
+        };
+        IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> crossProject =
+            await queryService.ListSnapshotsAsync(
+                otherProject,
+                assessmentId,
+                AuditEvidenceReadMode.Baseline,
+                "period-open");
+        crossProject.Should().BeEmpty();
     }
 
     internal sealed class InMemoryAuditAssessmentRepository : IAuditAssessmentRepository
