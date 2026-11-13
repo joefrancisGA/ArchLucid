@@ -63,6 +63,13 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     description: "Findings queue cannot load.",
   },
   {
+    id: "compliance-findings-queue-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/compliance/findings",
+    componentPath: "app/(operator)/governance/findings",
+    description: "SecureNow findings queue cannot load.",
+  },
+  {
     id: "review-commit-export-page-failure",
     kind: "review-commit-export-fatal",
     routePattern: "/architecture/reviews/[reviewId]",

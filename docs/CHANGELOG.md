@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 38 (batch 3): SecureNow readiness, report-problem, and workspace health Sources
+
+**Outcome.** Compliance findings routes participate in report-problem registry, route readiness tiers, demo-mode nav allowlist, shell header search labels, troubleshooting issue CTAs, and workspace health evidence Sources on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Report Problem registry, route readiness, header search chrome, troubleshooting help, workspace health page, route contract tests.
+
 ## 2026-11-13 - Score lift round 37 (batch 2): SecureNow queue chrome, help readiness, and orientation Sources
 
 **Outcome.** Findings queue URL fallbacks, return-state persistence, page contextual hints, job-context orientation scoring, findings help readiness metrics, run-detail activity Sources, and sponsor workspace health Sources now preserve `/compliance/findings` on SecureNow. Architecture defaults remain unchanged.
