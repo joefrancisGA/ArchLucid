@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -143,6 +144,56 @@ public sealed partial class SqlRunRepository
         }
 
         run.RowVersion = newStamp;
+    }
+
+    /// <inheritdoc />
+    public async Task MarkAuthorityPipelineCommittedAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid goldenManifestId,
+        DateTime completedUtc,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Run id is required.", nameof(runId));
+
+        if (goldenManifestId == Guid.Empty)
+            throw new ArgumentException("Golden manifest id is required.", nameof(goldenManifestId));
+
+        object args = new
+        {
+            RunId = runId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            CompletedUtc = completedUtc,
+            GoldenManifestId = goldenManifestId,
+        };
+
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    RunRepositorySql.MarkAuthorityPipelineCommitted,
+                    args,
+                    transaction,
+                    cancellationToken: ct)).ConfigureAwait(false);
+
+            return;
+        }
+
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(
+            new CommandDefinition(
+                RunRepositorySql.MarkAuthorityPipelineCommitted,
+                args,
+                cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />

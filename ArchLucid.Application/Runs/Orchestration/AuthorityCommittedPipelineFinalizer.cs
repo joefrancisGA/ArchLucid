@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Integration;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
@@ -151,6 +152,38 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             uow.SupportsExternalTransaction ? uow.Connection : null,
             uow.SupportsExternalTransaction ? uow.Transaction : null,
             ct);
+
+        // Promote legacy status so list/export lifecycle resolvers treat the run as Complete
+        // (AuthorityRunLifecyclePhaseListResolver requires Committed + GoldenManifestId).
+        // Use a narrow SQL/lifecycle write — full UpdateAsync re-compares sealed evidence anchors (TB-310).
+        Guid goldenManifestId = run.GoldenManifestId is Guid existingManifest && existingManifest != Guid.Empty
+            ? existingManifest
+            : manifest.ManifestId;
+        DateTime completedUtc = run.CompletedUtc ?? TimeProvider.System.UtcNowDateTime();
+
+        if (uow.SupportsExternalTransaction)
+        {
+            await _runRepository
+                .MarkAuthorityPipelineCommittedAsync(
+                    scope,
+                    run.RunId,
+                    goldenManifestId,
+                    completedUtc,
+                    ct,
+                    uow.Connection,
+                    uow.Transaction)
+                .ConfigureAwait(false);
+        }
+        else
+        {
+            await _runRepository
+                .MarkAuthorityPipelineCommittedAsync(scope, run.RunId, goldenManifestId, completedUtc, ct)
+                .ConfigureAwait(false);
+        }
+
+        run.GoldenManifestId = goldenManifestId;
+        run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+        run.CompletedUtc = completedUtc;
 
         await uow.CommitAsync(ct);
 

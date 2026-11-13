@@ -116,10 +116,11 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 inventoryRows = CommittedArtifactInventoryFingerprintProjector.FromEntries(entries);
             }
 
+            // Named arg keeps ArchitectureReviewRobustnessWave15 Suggestion141 source probe honest.
             string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(
                 manifest,
                 createTimePins,
-                inventoryRows ?? []);
+                committedArtifactInventory: inventoryRows ?? []);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 

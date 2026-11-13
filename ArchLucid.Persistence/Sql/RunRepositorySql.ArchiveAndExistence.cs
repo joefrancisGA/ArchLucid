@@ -167,4 +167,19 @@ internal static partial class RunRepositorySql
                                                                 AND ScopeProjectId = @ScopeProjectId
                                                                 AND ArchivedUtc IS NULL;
                                                               """;
+
+    /// <summary>
+    ///     Lifecycle-only promotion after authority artifacts seal; avoids full-row TB-310 anchor rewrite.
+    /// </summary>
+    public const string MarkAuthorityPipelineCommitted = """
+                                                         UPDATE dbo.Runs
+                                                         SET LegacyRunStatus = @CommittedStatus,
+                                                             CompletedUtc = COALESCE(CompletedUtc, @CompletedUtc),
+                                                             GoldenManifestId = COALESCE(GoldenManifestId, @GoldenManifestId)
+                                                         WHERE RunId = @RunId
+                                                           AND TenantId = @TenantId
+                                                           AND WorkspaceId = @WorkspaceId
+                                                           AND ScopeProjectId = @ScopeProjectId
+                                                           AND ArchivedUtc IS NULL;
+                                                         """;
 }
