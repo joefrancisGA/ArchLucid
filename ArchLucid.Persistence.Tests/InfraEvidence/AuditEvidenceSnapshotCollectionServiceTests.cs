@@ -86,7 +86,12 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
     [Fact]
     public async Task ListSnapshotsAsync_baseline_mode_returns_named_snapshot_only()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
         Guid assessmentId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
 

@@ -80,6 +80,15 @@ internal static class DraftRequestServiceTestFactory
                 CreateSilentForceOverwriteAudit()),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
+        // These tests exercise draft admission/orchestration, not the request validator itself.
+        // Return a real successful validation result rather than Moq's null default.
+        Mock<IValidator<ArchitectureRequest>> requestValidator = new();
+        requestValidator
+            .Setup(validator => validator.ValidateAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
         DraftAdmissionService admissionService = new(
             repository,
             crudService,
@@ -92,7 +101,7 @@ internal static class DraftRequestServiceTestFactory
             feasibilityVerdictBuilder,
             workspaceSystemNameCollisionGuard,
             resolvedRunRepository,
-            Mock.Of<IValidator<ArchitectureRequest>>());
+            requestValidator.Object);
 
         DraftBranchingService branchingService = new(
             repository,

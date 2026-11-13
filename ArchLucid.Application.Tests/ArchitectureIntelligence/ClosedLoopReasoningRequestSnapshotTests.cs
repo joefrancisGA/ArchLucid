@@ -121,7 +121,9 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
 
         ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(mixed);
 
-        snapshot.DeclaredPriorities.Should().Equal("cost", "Security");
+        // Display priorities retain encounter order (trade-off precedence), even when
+        // cache identity normalizes their case.
+        snapshot.DeclaredPriorities.Should().Equal("Security", "cost");
         ReviewCacheManifestBuilder.Build(snapshot).DeclaredPrioritiesHash
             .Should().Be(ReviewCacheManifestBuilder.Build(canonical).DeclaredPrioritiesHash);
     }
