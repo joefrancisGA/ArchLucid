@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { fetchSecurityEvidencePathDetail } from "@/lib/security-evidence-path-api";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
 
 vi.mock("@/lib/proxy-json-client", () => ({
   proxyJsonGet: vi.fn(),
@@ -30,5 +31,22 @@ describe("security-evidence-path-api", () => {
       toNodeLabel: "storage-account",
       edgeType: "CAN_READ",
     });
+  });
+
+  it("uses the canonical omission label when edge type is missing", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValue({
+      pathId: "path-1",
+      hops: [
+        {
+          fromNodeLabel: "reader-role",
+          toNodeLabel: "storage-account",
+          edgeType: "   ",
+        },
+      ],
+    });
+
+    const detail = await fetchSecurityEvidencePathDetail("path-1");
+
+    expect(detail?.hops[0]?.edgeType).toBe(SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED);
   });
 });

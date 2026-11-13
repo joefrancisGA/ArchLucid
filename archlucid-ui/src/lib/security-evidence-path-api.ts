@@ -15,6 +15,7 @@ import type {
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
+import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
 
 const FINDINGS_PATH = "/api/proxy/v1/operational-security/findings";
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
@@ -45,7 +46,7 @@ function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
     hopOrdinal: finiteNumberOrNull(raw.hopOrdinal),
     fromNodeLabel: mapStoredLabel(raw.fromNodeLabel, "Hop source was not stored."),
     toNodeLabel: mapStoredLabel(raw.toNodeLabel, "Hop destination was not stored."),
-    edgeType: mapStoredLabel(raw.edgeType, "Relationship type was not stored"),
+    edgeType: mapStoredLabel(raw.edgeType, SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED),
     provenanceKind: String(raw.provenanceKind ?? ""),
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     inferenceSource: raw.inferenceSource != null ? String(raw.inferenceSource) : null,
@@ -57,7 +58,7 @@ function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
 function mapWeakestHop(raw: Record<string, unknown>): SecurityEvidencePathWeakestHop {
   return {
     hopOrdinal: finiteNumberOrNull(raw.hopOrdinal),
-    edgeType: mapStoredLabel(raw.edgeType, "Relationship type was not stored"),
+    edgeType: mapStoredLabel(raw.edgeType, SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED),
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     provenanceKind: String(raw.provenanceKind ?? ""),
     reason: String(raw.reason ?? ""),

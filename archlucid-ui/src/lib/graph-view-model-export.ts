@@ -1,9 +1,10 @@
 import type { GraphEdgeVm, GraphNodeVm, GraphViewModel } from "@/types/graph";
+import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
 
 export const GRAPH_VIEW_MODEL_EXPORT_NODE_LABEL_NOT_STORED = "Node label was not stored." as const;
 
 export const GRAPH_VIEW_MODEL_EXPORT_RELATIONSHIP_TYPE_NOT_STORED =
-  "Relationship type was not stored." as const;
+  SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
 
 /** Live canvas export — not the sealed review record at finalize. */
 export const GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER =

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Diagrams;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -10,7 +11,7 @@ internal static class SecurityEvidencePathHopRelationshipLabel
     {
         if (string.IsNullOrWhiteSpace(edgeType))
         {
-            return "Relationship type was not stored";
+            return ManifestDiagramHonestyCopy.RelationshipTypeNotStored;
         }
 
         string normalized = edgeType.Trim();
