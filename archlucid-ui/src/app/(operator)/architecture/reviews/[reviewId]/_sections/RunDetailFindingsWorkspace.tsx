@@ -35,6 +35,7 @@ import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRu
 import { WorkingCareerRehearsalChooser } from "@/components/governance/WorkingCareerRehearsalChooser";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
@@ -119,6 +120,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const urlClassificationBand = parseReviewFindingsClassificationBandFromSearch(
     searchParams.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
@@ -349,7 +351,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       : null;
   const metricPresentation = createHomeSurface
     ? architectureAssessmentFindingsPresentation(props.runId, triageVisibleCount)
-    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount, workingInstrument);
+    : reviewFindingsGovernanceQueuePresentation(props.runId, triageVisibleCount, workingInstrument, productLine);
 
   const metricCountEl = (
     <div className="mb-3" data-testid="run-detail-findings-metric-count">

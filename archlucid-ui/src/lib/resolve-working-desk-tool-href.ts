@@ -11,6 +11,8 @@ import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { evidenceGraphHref, EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { GOVERNANCE_FINDINGS_PATH, SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { governanceFindingsArchitectureScopeHrefFromSearch } from "@/lib/governance/governance-findings-architecture-scope";
 import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
 import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
@@ -26,6 +28,8 @@ export type ResolveWorkingDeskToolHrefInput = {
   readonly lastOpenReviewId?: string | null;
   /** SN-027 — when no open package run, pre-fill nested Compare base from desk continuity. */
   readonly compareBaseRunId?: string | null;
+  /** SecureNow Working Alt+G opens the compliance findings queue instead of nested architecture findings. */
+  readonly productLine?: ProductLineId;
 };
 
 function trimmedId(value: string | null | undefined): string | null {
@@ -67,6 +71,14 @@ export function resolveWorkingDeskToolHref(input: ResolveWorkingDeskToolHrefInpu
       return resolveSystemNotJobWorkingGraphPortfolioHref();
     }
 
+    if (input.tool === "findings" && input.productLine === "security") {
+      return resolveWorkingFindingsInstrumentHref({
+        architectureId: null,
+        isWorkingMode: true,
+        productLine: "security",
+      });
+    }
+
     return ARCHITECTURES_LIST_PATH;
   }
 
@@ -98,6 +110,15 @@ export function resolveWorkingDeskToolHref(input: ResolveWorkingDeskToolHrefInpu
 
       return architectureNestedGraphPath(architectureId);
     case "findings":
+      if (input.productLine === "security") {
+        return resolveWorkingFindingsInstrumentHref({
+          architectureId,
+          runId: openPackageRunId,
+          isWorkingMode: true,
+          productLine: "security",
+        });
+      }
+
       return governanceFindingsArchitectureScopeHrefFromSearch(
         "",
         architectureId,

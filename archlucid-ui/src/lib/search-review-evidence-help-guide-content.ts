@@ -51,7 +51,20 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_ASK_HREF = "/insights/ask-review-questi
 export const SEARCH_REVIEW_EVIDENCE_HELP_FINDINGS_HREF = "/governance/findings";
 
 export function resolveSearchReviewEvidenceHelpFindingsHref(productLine: ProductLineId): string {
+  if (productLine === "architecture") {
+    return SEARCH_REVIEW_EVIDENCE_HELP_FINDINGS_HREF;
+  }
+
   return findingsPathForProductLine(productLine);
+}
+
+/** SecureNow must not tell operators they need an architecture review before search works. */
+export function resolveSearchReviewEvidenceHelpPrecondition(productLine: ProductLineId): string {
+  if (productLine === "security") {
+    return "Requires at least one finalized review in this workspace.";
+  }
+
+  return SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION;
 }
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_SECTION_ID = "what-search-review-evidence-indexes" as const;

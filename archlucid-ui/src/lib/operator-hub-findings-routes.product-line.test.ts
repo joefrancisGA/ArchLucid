@@ -36,7 +36,14 @@ import { buildAlertsFindingsVocabulary } from "@/lib/vocabulary/alerts-findings-
 import { resolveGettingStartedHelpWorkflowStepsForProductLine } from "@/lib/getting-started-help-guide-content";
 import { resolveImprovementPlanningHelpOutputTileItems } from "@/lib/improvement-planning-help-guide-content";
 import { resolveReviewScorecardFindingsHref } from "@/lib/pilot-scorecard-present";
+import { resolveWorkingDeskToolHref } from "@/lib/resolve-working-desk-tool-href";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
+import { resolveInviteeHomeOrientationCopy } from "@/lib/invitee-first-orientation";
+import { repeatReviewLoopHelpLoopSteps } from "@/lib/repeat-review-loop-help-loop-steps";
+import {
+  resolveSearchReviewEvidenceHelpFindingsHref,
+  resolveSearchReviewEvidenceHelpPrecondition,
+} from "@/lib/search-review-evidence-help-guide-content";
 import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { buildCommandPaletteCuratedTasks } from "@/lib/command-palette-curated-tasks";
 import { resolveGovernanceApprovalHelpPrimaryActions } from "@/lib/governance/governance-approval-help-guide-content";
@@ -47,7 +54,10 @@ import { resolveRegistryShortcutRoute, SHORTCUTS } from "@/lib/shortcut-registry
 import { resolveSponsorKpiDrillThrough } from "@/lib/sponsor/sponsor-kpi-drill-through-hrefs";
 import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 import { buildStaticFindPageSearchIndex } from "@/lib/find-page-search-index";
-import { workspaceOpenFindingsPresentation } from "@/lib/metric-count-presentation";
+import {
+  reviewFindingsGovernanceQueuePresentation,
+  workspaceOpenFindingsPresentation,
+} from "@/lib/metric-count-presentation";
 import {
   resolveReviewsHubSummaryFindingsHref,
   resolveReviewsHubSummaryOpenRisksHref,
@@ -290,5 +300,35 @@ describe("operator hub findings routes product line", () => {
     expect(settingsPolicyPack?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
 
     expect(resolveStandardsRulesEmptyCompact("security").actions[0]?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+
+    expect(
+      resolveWorkingFindingsInstrumentHref({
+        isWorkingMode: true,
+        architectureId: "arch-1",
+        runId: "run-abc",
+        productLine: "security",
+      }),
+    ).toBe(`${SECURENOW_FINDINGS_PATH}?runId=run-abc`);
+    expect(
+      resolveWorkingDeskToolHref({
+        tool: "findings",
+        lastOpenArchitectureId: "arch-1",
+        productLine: "security",
+      }),
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      reviewFindingsGovernanceQueuePresentation(
+        "run-abc",
+        2,
+        { architectureId: "arch-1", isWorkingMode: true },
+        "security",
+      ).href,
+    ).toBe(`${SECURENOW_FINDINGS_PATH}?runId=run-abc`);
+    expect(resolveInviteeHomeOrientationCopy("security").findingsCtaHref).toBe(SECURENOW_FINDINGS_PATH);
+    expect(repeatReviewLoopHelpLoopSteps("security").find((step) => step.stepNumber === 4)?.href).toBe(
+      SECURENOW_POLICY_PACKS_PATH,
+    );
+    expect(resolveSearchReviewEvidenceHelpFindingsHref("security")).toBe(SECURENOW_FINDINGS_PATH);
+    expect(resolveSearchReviewEvidenceHelpPrecondition("security")).not.toContain("architecture review");
   });
 });

@@ -19,8 +19,11 @@ export function resolveWorkingFindingsInstrumentHref(
 ): string {
   const architectureId = input.architectureId?.trim() ?? "";
   const runId = input.runId?.trim() ?? "";
+  const productLine = input.productLine ?? "architecture";
 
-  if (input.isWorkingMode && architectureId.length > 0) {
+  // SecureNow findings live on the compliance queue. Nested architecture findings stay the Working desk for Architecture.
+
+  if (input.isWorkingMode && architectureId.length > 0 && productLine !== "security") {
     const params = new URLSearchParams();
 
     if (runId.length > 0) {
@@ -40,6 +43,6 @@ export function resolveWorkingFindingsInstrumentHref(
   return buildGovernanceFindingsQueueHref({
     runId,
     filter: input.filter,
-    basePath: input.basePath ?? findingsPathForProductLine(input.productLine ?? "architecture"),
+    basePath: input.basePath ?? findingsPathForProductLine(productLine),
   });
 }
