@@ -21,6 +21,17 @@ export const SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED = "Hop order was not st
 
 export const SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED = "Hop evidence was not stored." as const;
 
+export const SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED = "Pattern was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED = "Weakest-hop reason was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_BLAST_RADIUS_NOT_STORED = "Blast radius was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED =
+  "Blast radius prose was not stored." as const;
+
+export const SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED = "Recommended change was not stored." as const;
+
 export function securityEvidencePathHopNodeName(label: string): string {
   const trimmed = label.trim();
 
