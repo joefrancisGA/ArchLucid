@@ -111,7 +111,7 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             CreatedUtc = DateTime.UtcNow,
         });
 
-        await snapshotRepository.InsertSnapshotAsync(new AuditEvidenceSnapshotPersistRequest
+        await snapshotRepository.InsertSnapshotInScopeAsync(scope.ToProjectScopeKey(), new AuditEvidenceSnapshotPersistRequest
         {
             Header = new AuditEvidenceSnapshotHeaderRecord
             {
@@ -126,7 +126,7 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             Items = [],
         });
 
-        await snapshotRepository.InsertBaselineAsync(new AuditEvidenceBaselineRecord
+        await snapshotRepository.InsertBaselineInScopeAsync(scope.ToProjectScopeKey(), new AuditEvidenceBaselineRecord
         {
             BaselineId = Guid.NewGuid(),
             AssessmentId = assessmentId,
@@ -146,6 +146,22 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
 
         baselineSnapshots.Should().ContainSingle();
         baselineSnapshots[0].AuditEvidenceSnapshotId.Should().Be(snapshotId);
+
+        // A matching tenant and assessment id must not permit a different project
+        // to read this baseline or its evidence snapshot.
+        ScopeContext otherProject = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = Guid.NewGuid(),
+        };
+        IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> crossProject =
+            await queryService.ListSnapshotsAsync(
+                otherProject,
+                assessmentId,
+                AuditEvidenceReadMode.Baseline,
+                "period-open");
+        crossProject.Should().BeEmpty();
     }
 
     internal sealed class InMemoryAuditAssessmentRepository : IAuditAssessmentRepository
@@ -408,7 +424,20 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
     {
         private readonly Dictionary<Guid, AuditEvidenceSnapshotHeaderRecord> _headers = new();
         private readonly Dictionary<Guid, List<AuditEvidenceSnapshotItemRecord>> _items = new();
+        private readonly Dictionary<Guid, ProjectScopeKey> _snapshotScopes = new();
         private readonly List<AuditEvidenceBaselineRecord> _baselines = [];
+
+        public Task InsertSnapshotInScopeAsync(
+            ProjectScopeKey scope,
+            AuditEvidenceSnapshotPersistRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            if (request.Header.TenantId != scope.TenantId)
+                throw new InvalidOperationException("Snapshot tenant does not match the project scope.");
+
+            _snapshotScopes[request.Header.AuditEvidenceSnapshotId] = scope;
+            return InsertSnapshotAsync(request, cancellationToken);
+        }
 
         public Task InsertSnapshotAsync(AuditEvidenceSnapshotPersistRequest request, CancellationToken cancellationToken = default)
         {
@@ -429,6 +458,20 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             }
 
             return Task.FromResult<AuditEvidenceSnapshotHeaderRecord?>(null);
+        }
+
+        public Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default)
+        {
+            if (!_snapshotScopes.TryGetValue(auditEvidenceSnapshotId, out ProjectScopeKey? storedScope)
+                || storedScope != scope)
+            {
+                return Task.FromResult<AuditEvidenceSnapshotHeaderRecord?>(null);
+            }
+
+            return TryGetHeaderAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
         }
 
         public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsAsync(
@@ -459,6 +502,37 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
         {
             _baselines.Add(baseline);
             return Task.CompletedTask;
+        }
+
+        public Task InsertBaselineInScopeAsync(
+            ProjectScopeKey scope,
+            AuditEvidenceBaselineRecord baseline,
+            CancellationToken cancellationToken = default)
+        {
+            if (baseline.TenantId != scope.TenantId
+                || !_snapshotScopes.TryGetValue(baseline.AuditEvidenceSnapshotId, out ProjectScopeKey? storedScope)
+                || storedScope != scope)
+            {
+                throw new InvalidOperationException("Baseline snapshot does not belong to the project scope.");
+            }
+
+            return InsertBaselineAsync(baseline, cancellationToken);
+        }
+
+        public Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameInScopeAsync(
+            ProjectScopeKey scope,
+            Guid assessmentId,
+            string baselineName,
+            CancellationToken cancellationToken = default)
+        {
+            AuditEvidenceBaselineRecord? baseline = _baselines.FirstOrDefault(row =>
+                row.TenantId == scope.TenantId
+                && row.AssessmentId == assessmentId
+                && string.Equals(row.Name, baselineName, StringComparison.Ordinal)
+                && _snapshotScopes.TryGetValue(row.AuditEvidenceSnapshotId, out ProjectScopeKey? storedScope)
+                && storedScope == scope);
+
+            return Task.FromResult(baseline);
         }
 
         public Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameAsync(

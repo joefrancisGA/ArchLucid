@@ -50,7 +50,6 @@ public sealed class PostCommitProjectionEnqueuerTests
         [
             PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
             PostCommitProjectionWorkTypes.ReviewCompletedEvent,
-            PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
             PostCommitProjectionWorkTypes.FindingPriorityRerank,
             PostCommitProjectionWorkTypes.SampleRunPurgeForTenant
         ]);
