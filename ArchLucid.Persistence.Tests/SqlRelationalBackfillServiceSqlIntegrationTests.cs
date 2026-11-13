@@ -194,7 +194,9 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 {
                     RunId = runId,
                     ProjectId = "proj-quarantine",
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    // Backfill advances a persistent CreatedUtc keyset cursor across tests on this shared SQL catalog.
+                    // Ensure the deliberately invalid row remains visible to the first quarantine pass.
+                    CreatedUtc = await NextContextSnapshotBackfillCreatedUtcAsync(connection, CancellationToken.None),
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId,
