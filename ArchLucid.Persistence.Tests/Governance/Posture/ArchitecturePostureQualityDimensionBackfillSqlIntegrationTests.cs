@@ -1,5 +1,7 @@
 using Dapper;
 
+using ArchLucid.Persistence.Tests.Support;
+
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
@@ -35,6 +37,18 @@ public sealed class ArchitecturePostureQualityDimensionBackfillSqlIntegrationTes
         Guid projectId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
         Guid recordId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        // Seed valid FK parents so this test isolates the category backfill.
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection, tenantId, workspaceId, projectId,
+            runId, contextSnapshotId, "posture-quality-backfill", CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertGraphSnapshotHeaderAsync(
+            connection, tenantId, workspaceId, projectId,
+            graphSnapshotId, contextSnapshotId, runId, DateTime.UtcNow,
+            "[]", "[]", "[]", CancellationToken.None);
 
         await connection.ExecuteAsync(
             """
@@ -62,9 +76,9 @@ public sealed class ArchitecturePostureQualityDimensionBackfillSqlIntegrationTes
                 TenantId = tenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
-                RunId = Guid.NewGuid(),
-                ContextSnapshotId = Guid.NewGuid(),
-                GraphSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
                 RecordId = recordId,
             });
 
