@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import { writeCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
 import {
   governanceFindingDetailKeyboardActivate,
@@ -15,9 +15,8 @@ import {
 import { resolveFirstReviewSpineOpenGateSectionId } from "@/lib/reviews/first-review-spine-band";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
-vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => null),
-}));
+beforeEach(() => writeCachedLastOpenArchitectureId(null));
+afterEach(() => writeCachedLastOpenArchitectureId(null));
 
 function queueRow(overrides: Partial<GovernanceFindingQueueRow>): GovernanceFindingQueueRow {
   return {
@@ -127,7 +126,7 @@ describe("governance queue review landing URL", () => {
   });
 
   it("uses nested review base when desk continuity cache is set", () => {
-    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-queue-disposition");
+    writeCachedLastOpenArchitectureId("architecture-queue-disposition");
 
     const href = governanceFindingQueueFindingsWorkspaceHref("run-1", "finding-9");
     const url = new URL(href, "https://example.test");
@@ -179,7 +178,7 @@ describe("governanceFindingManifestRecordHref", () => {
   });
 
   it("uses scoped review open when manifest is absent", () => {
-    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-manifest-fallback");
+    writeCachedLastOpenArchitectureId("architecture-manifest-fallback");
 
     expect(governanceFindingManifestRecordHref("run-9", "")).toBe(
       "/architecture/architectures/architecture-manifest-fallback/reviews/run-9",
