@@ -107,11 +107,16 @@ describe("resolveCompareUpdatedReviewOpenHref", () => {
         latestDisposition: null,
       },
     ];
-    const grounding = comparePairGroundingForRuns("run-a", "run-b", resolveComparePairPrimaryFindingIds(lifecycleRecords));
+    const grounding = comparePairGroundingForRuns("run-a", "run-b", {
+      ...resolveComparePairPrimaryFindingIds(lifecycleRecords),
+      architectureId: "architecture-identity-001",
+    });
     const bannerHref = resolveCompareUpdatedReviewOpenHref("run-b", "architecture-identity-001", lifecycleRecords);
 
     expect(bannerHref).toBe(grounding.updated?.links[0]?.href);
-    expect(bannerHref).toContain("findingId=finding-updated");
+    expect(bannerHref).toBe(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-b&focusedFinding=finding-updated",
+    );
   });
 
   it("falls back to working nested open when no updated finding is correlated", () => {
@@ -138,6 +143,6 @@ describe("resolveCompareUpdatedReviewOpenHref", () => {
 
     expect(
       resolveCompareUpdatedReviewOpenHref("run-b", "architecture-identity-001", lifecycleRecords),
-    ).toContain("findingId=finding-updated");
+    ).toContain("focusedFinding=finding-updated");
   });
 });
