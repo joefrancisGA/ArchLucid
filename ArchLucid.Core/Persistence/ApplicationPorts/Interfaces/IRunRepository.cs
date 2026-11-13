@@ -202,6 +202,20 @@ public interface IRunRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
+    ///     Narrow lifecycle write after the authority pipeline seals a golden manifest: sets
+    ///     <see cref="ArchitectureRunStatus.Committed" /> and <see cref="RunRecord.CompletedUtc" /> without
+    ///     rewriting TB-310 evidence-anchor columns (full <see cref="UpdateAsync" /> would re-compare anchors).
+    /// </summary>
+    Task MarkAuthorityPipelineCommittedAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid goldenManifestId,
+        DateTime completedUtc,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
+
+    /// <summary>
     ///     Sets <see cref="RunRecord.ArchivedUtc" /> for runs with <c>CreatedUtc</c> strictly before
     ///     <paramref name="cutoffUtc" />
     ///     that are not yet archived. Returns the count and scope keys for each archived row (for cache eviction).

@@ -210,6 +210,29 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
     }
 
     /// <inheritdoc />
+    public async Task MarkAuthorityPipelineCommittedAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid goldenManifestId,
+        DateTime completedUtc,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        await _inner.MarkAuthorityPipelineCommittedAsync(
+            scope,
+            runId,
+            goldenManifestId,
+            completedUtc,
+            ct,
+            connection,
+            transaction);
+
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
+        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
+    }
+
+    /// <inheritdoc />
     public async Task<bool> TrySetOperatorGovernanceDispositionAsync(
         ScopeContext scope,
         Guid runId,

@@ -76,12 +76,81 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
             CancellationToken.None);
 
         completed.RunId.Should().Be(runId);
+        completed.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Committed));
+        completed.GoldenManifestId.Should().Be(manifestId);
         authorityQuery.Verify(
             query => query.GetRunDetailForManifestCompareAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+        uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task FinalizeAsync_persists_committed_legacy_status_before_unit_of_work_commit()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.Parse("8cef4ce2-f677-44d6-998b-9fc9bfed4b10");
+        Guid contextSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111112");
+        Guid findingsSnapshotId = Guid.Parse("22222222-2222-2222-2222-222222222223");
+        Guid decisionTraceId = Guid.Parse("33333333-3333-3333-3333-333333333334");
+        Guid manifestId = Guid.Parse("44444444-4444-4444-4444-444444444445");
+        RunRecord run = CreateRun(runId, scope);
+        run.GoldenManifestId = manifestId;
+        run.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
+        ManifestDocument manifest = CreateManifest(
+            scope,
+            runId,
+            contextSnapshotId,
+            findingsSnapshotId,
+            decisionTraceId,
+            manifestId);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(repo => repo.MarkAuthorityPipelineCommittedAsync(
+                scope,
+                runId,
+                manifestId,
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
+        runRepo
+            .Setup(repo => repo.ListByProjectAsync(
+                scope,
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            new Mock<IAuthorityQueryService>().Object,
+            runRepo.Object);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+
+        await sut.FinalizeAsync(
+            run,
+            CreateContextSnapshot(runId, contextSnapshotId),
+            CreateFindingsSnapshot(runId, contextSnapshotId, findingsSnapshotId),
+            manifest,
+            CreateTrace(scope, runId, decisionTraceId),
+            scope,
+            uow.Object,
+            CancellationToken.None);
+
+        runRepo.Verify(
+            repo => repo.MarkAuthorityPipelineCommittedAsync(
+                scope,
+                runId,
+                manifestId,
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null),
+            Times.Once);
         uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -158,6 +227,16 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        runRepo
+            .Setup(repo => repo.MarkAuthorityPipelineCommittedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .Returns(Task.CompletedTask);
 
         return runRepo.Object;
     }
