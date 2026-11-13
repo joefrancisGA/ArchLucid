@@ -1,9 +1,11 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -38,6 +40,27 @@ public sealed class RunOperatorGovernanceDispositionServiceAuditTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
+        // Satisfy the sealed-manifest authority gate so this test reaches the durable audit retry path.
+        string sealedHash = new('a', 64);
+        ManifestDocument goldenManifest = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            ManifestHash = sealedHash,
+        };
+
+        Mock<IAuthorityQueryService> authorityQueryService = new();
+        authorityQueryService
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { Run = run, GoldenManifest = goldenManifest });
+
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(h => h.ComputeHash(goldenManifest))
+            .Returns(sealedHash);
+
         Mock<IAuditService> auditService = new();
         auditService
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
@@ -46,8 +69,8 @@ public sealed class RunOperatorGovernanceDispositionServiceAuditTests
         RunOperatorGovernanceDispositionService sut = new(
             runRepository.Object,
             auditService.Object,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            authorityQueryService.Object,
+            manifestHashService.Object,
             NullLogger<RunOperatorGovernanceDispositionService>.Instance);
 
         RecordRunOperatorGovernanceDispositionRequest request = new()
