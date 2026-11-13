@@ -20,24 +20,25 @@ import {
   REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH,
 } from "./remediation-factory-top-cut-points-copy";
 
-const REMEDIATION_FACTORY_CUT_ENDPOINT_NOT_STORED = "Cut endpoint was not stored.";
-
 const REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED = "Suggested pattern was not stored.";
 
 function formatCutPointHeadline(cutPoint: SecurityEvidencePathCutPoint): string {
-  const fromStored =
-    cutPoint.fromNodeLabel != null && cutPoint.fromNodeLabel.trim().length > 0;
-  const toStored = cutPoint.toNodeLabel != null && cutPoint.toNodeLabel.trim().length > 0;
+  const fromLabel = cutPoint.fromNodeLabel?.trim() ?? "";
+  const toLabel = cutPoint.toNodeLabel?.trim() ?? "";
 
-  if (fromStored && toStored) {
-    return `${cutPoint.cutKind} · ${cutPoint.fromNodeLabel!.trim()} → ${cutPoint.toNodeLabel!.trim()}`;
+  if (fromLabel.length === 0 && toLabel.length === 0) {
+    return `${cutPoint.cutKind} · Cut endpoints were not stored.`;
   }
 
-  if (!fromStored || !toStored) {
-    return `${cutPoint.cutKind} · ${REMEDIATION_FACTORY_CUT_ENDPOINT_NOT_STORED}`;
+  if (fromLabel.length === 0) {
+    return `${cutPoint.cutKind} · Source endpoint was not stored → ${toLabel}`;
   }
 
-  return cutPoint.cutKind;
+  if (toLabel.length === 0) {
+    return `${cutPoint.cutKind} · ${fromLabel} → Destination endpoint was not stored`;
+  }
+
+  return `${cutPoint.cutKind} · ${fromLabel} → ${toLabel}`;
 }
 
 function firstCollapsedPathId(cutPoint: SecurityEvidencePathCutPoint): string | null {

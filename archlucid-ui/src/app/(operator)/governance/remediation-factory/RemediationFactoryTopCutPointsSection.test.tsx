@@ -42,6 +42,9 @@ describe("RemediationFactoryTopCutPointsSection", () => {
 
     expect(screen.getByTestId("remediation-factory-top-cut-points")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-top-cut-point-1")).toHaveTextContent("mi-worker");
+    expect(screen.getByTestId("remediation-factory-top-cut-point-1")).toHaveTextContent(
+      "Destination endpoint was not stored",
+    );
     expect(screen.getByRole("link", { name: "network.restrict-public" })).toHaveAttribute(
       "href",
       "/insights/patterns/network.restrict-public",
@@ -49,6 +52,25 @@ describe("RemediationFactoryTopCutPointsSection", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
     expect(onSelectPath).toHaveBeenCalledWith("11111111-1111-1111-1111-111111111111");
+  });
+
+  it("keeps the destination endpoint when the source endpoint is missing", () => {
+    render(
+      <RemediationFactoryTopCutPointsSection
+        cutPoints={[baseCutPoint({ fromNodeLabel: null, toNodeLabel: "storage-account" })]}
+        isLoading={false}
+        isError={false}
+        isFetching={false}
+        isSuccess={true}
+        refetch={vi.fn()}
+        selectedPathId={null}
+        onSelectPath={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("remediation-factory-top-cut-point-1")).toHaveTextContent(
+      "Source endpoint was not stored → storage-account",
+    );
   });
 
   it("shows empty state when no cut points", () => {
