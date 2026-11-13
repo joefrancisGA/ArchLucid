@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countArchitectureDraftsReadyForReview } from "@/lib/architecture/architecture-draft-ready-for-review";
@@ -117,6 +118,7 @@ function renderMetricSeparator(index: number): React.JSX.Element | null {
 
 /** Compact workspace posture row on `/architecture/reviews` — emphasizes non-zero counts. */
 export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JSX.Element {
+  const { productLine } = useProductLine();
   const { summary } = props;
   const draftEntries = useArchitectureDraftRegistryEntries();
   const draftsReady = countArchitectureDraftsReadyForReview(draftEntries);
@@ -150,7 +152,7 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
     metrics.push({
       kind: "self-describing",
       testId: "reviews-hub-summary-findings",
-      presentation: reviewsHubOpenFindingsPresentation(summary.findings),
+      presentation: reviewsHubOpenFindingsPresentation(summary.findings, productLine),
     });
   }
 
@@ -158,7 +160,7 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
     metrics.push({
       kind: "self-describing",
       testId: "reviews-hub-summary-open-risks",
-      presentation: reviewsHubOpenRisksPresentation(summary.openRisks),
+      presentation: reviewsHubOpenRisksPresentation(summary.openRisks, productLine),
     });
   }
 

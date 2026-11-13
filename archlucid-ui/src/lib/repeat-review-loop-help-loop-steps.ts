@@ -1,5 +1,7 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS } from "@/lib/repeat-review-loop-help-guide-content";
 
 export type RepeatReviewLoopHelpLoopStep = {
@@ -59,6 +61,20 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
   },
 ] as const;
 
-export function repeatReviewLoopHelpLoopSteps(): readonly RepeatReviewLoopHelpLoopStep[] {
-  return REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS;
+export function repeatReviewLoopHelpLoopSteps(
+  productLine: ProductLineId = "architecture",
+): readonly RepeatReviewLoopHelpLoopStep[] {
+  return resolveRepeatReviewLoopHelpLoopSteps(productLine);
+}
+
+export function resolveRepeatReviewLoopHelpLoopSteps(
+  productLine: ProductLineId,
+): readonly RepeatReviewLoopHelpLoopStep[] {
+  const policyPacksHref = policyPacksPathForProductLine(productLine);
+
+  return REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS.map((step) =>
+    step.stepNumber === 4 && step.href === GOVERNANCE_POLICY_PACKS_PATH
+      ? { ...step, href: policyPacksHref }
+      : step,
+  );
 }

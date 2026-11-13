@@ -9,6 +9,8 @@ import {
   matchesRiskRegisterFilter,
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 
 /** Canonical home-surface noun for committed review records (P2-14). */
@@ -220,13 +222,19 @@ export function reviewFindingsGovernanceQueuePresentation(
   };
 }
 
-export function workspaceOpenFindingsPresentation(count: number): MetricCountPresentation {
+export function workspaceOpenFindingsPresentation(
+  count: number,
+  productLine: ProductLineId = "architecture",
+): MetricCountPresentation {
   return {
     count,
     noun: count === 1 ? "open finding" : "open findings",
     dimensions: [{ kind: "governance-filter", filter: "open" }],
     supplementalScopeLabels: ["this workspace", "open"],
-    href: buildGovernanceFindingsQueueHref({ filter: "open" }),
+    href: buildGovernanceFindingsQueueHref({
+      filter: "open",
+      basePath: findingsPathForProductLine(productLine),
+    }),
   };
 }
 
@@ -279,8 +287,10 @@ export function governanceRegisterMetricPresentation(input: {
   readonly noun: string;
   readonly filter: RiskRegisterFilter;
   readonly runId?: string | null;
+  readonly productLine?: ProductLineId;
 }): MetricCountPresentation {
   const scopedRunId = input.runId?.trim() ?? "";
+  const productLine = input.productLine ?? "architecture";
 
   return {
     count: input.count,
@@ -292,6 +302,7 @@ export function governanceRegisterMetricPresentation(input: {
     href: buildGovernanceFindingsQueueHref({
       runId: scopedRunId.length > 0 ? scopedRunId : null,
       filter: input.filter,
+      basePath: findingsPathForProductLine(productLine),
     }),
   };
 }

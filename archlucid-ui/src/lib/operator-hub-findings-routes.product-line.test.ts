@@ -46,6 +46,16 @@ import { localizePageContextualHelpEntry } from "@/lib/contextual-help/localize-
 import { resolveRegistryShortcutRoute, SHORTCUTS } from "@/lib/shortcut-registry";
 import { resolveSponsorKpiDrillThrough } from "@/lib/sponsor/sponsor-kpi-drill-through-hrefs";
 import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
+import { buildStaticFindPageSearchIndex } from "@/lib/find-page-search-index";
+import { workspaceOpenFindingsPresentation } from "@/lib/metric-count-presentation";
+import {
+  resolveReviewsHubSummaryFindingsHref,
+  resolveReviewsHubSummaryOpenRisksHref,
+} from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-summary-destinations";
+import { resolveDigestsHelpContentItems } from "@/lib/digests-help-guide-content";
+import { resolveStandardsRulesHelpTableItems } from "@/lib/standards-rules-help-guide-content";
+import { buildSettingsMasterSections } from "@/app/(operator)/administration/_sections/settings-master-catalog";
+import { resolveStandardsRulesEmptyCompact } from "@/lib/enterprise-compact-empty-state-presets-governance";
 import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -258,5 +268,27 @@ describe("operator hub findings routes product line", () => {
     expect(resolveSponsorKpiDrillThrough("security").decisionsNeeded).toBe(
       `${SECURENOW_FINDINGS_PATH}?filter=needs-decision`,
     );
+
+    expect(resolveReviewsHubSummaryFindingsHref("security")).toBe(SECURENOW_FINDINGS_PATH);
+    expect(resolveReviewsHubSummaryOpenRisksHref("security")).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
+    expect(workspaceOpenFindingsPresentation(3, "security").href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
+
+    const findIndexPolicyPack = buildStaticFindPageSearchIndex("security").find(
+      (entry) => entry.label === "Policy packs",
+    );
+    expect(findIndexPolicyPack?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+
+    const digestFindings = resolveDigestsHelpContentItems("security").find((item) => item.label === "Findings summary");
+    expect(digestFindings?.href).toBe(SECURENOW_FINDINGS_PATH);
+
+    const standardsPacks = resolveStandardsRulesHelpTableItems("security").find((item) => item.label === "Policy packs");
+    expect(standardsPacks?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+
+    const settingsPolicyPack = buildSettingsMasterSections("security")
+      .flatMap((section) => section.destinations)
+      .find((destination) => destination.id === "policy-packs-hub");
+    expect(settingsPolicyPack?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
+
+    expect(resolveStandardsRulesEmptyCompact("security").actions[0]?.href).toBe(SECURENOW_POLICY_PACKS_PATH);
   });
 });

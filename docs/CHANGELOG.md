@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 33: SecureNow metrics, find-index, help tables, and settings catalog paths
+
+**Outcome.** Find-a-page curated index, reviews hub summary metrics, findings return-state persistence, working-desk bare-route guards, governance quickstart and policy breakdown CTAs, standards empty state, digests/standards/repeat-review help tables, and settings master catalog destinations now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow. Architecture defaults remain unchanged.
+
+**Surfaces.** Reviews hub, header search index, help guides, settings catalog, compact empty states, route contract tests.
+
 ## 2026-11-12 - Score lift round 32: SecureNow shortcuts, palette, and global navigation findings paths
 
 **Outcome.** Keyboard shortcuts, command palette tasks, help doc index fallbacks, contextual-help actions, sponsor KPI drill-through, approval lineage and sponsor dashboard links, home ROI strip, global search policy-pack hits, and related globals now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow via `remapGovernanceOperatorHref`. Architecture defaults remain unchanged.

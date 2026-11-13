@@ -10,7 +10,7 @@ import {
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { evidenceGraphHref, EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH, SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceFindingsArchitectureScopeHrefFromSearch } from "@/lib/governance/governance-findings-architecture-scope";
 import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity-preference";
 import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
@@ -122,7 +122,7 @@ export function isBarePeerInsightsToolPath(pathname: string, tool: WorkingDeskTo
     case "graph":
       return path === EVIDENCE_GRAPH_PATH;
     case "findings":
-      return path === GOVERNANCE_FINDINGS_PATH;
+      return path === GOVERNANCE_FINDINGS_PATH || path === SECURENOW_FINDINGS_PATH;
     default: {
       const exhaustive: never = tool;
 

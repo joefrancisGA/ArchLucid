@@ -7,7 +7,10 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+"use client";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
 import { POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 
@@ -52,14 +55,15 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
   props: ReviewDetailPolicyPackFindingsBreakdownProps,
 ): ReactElement | null {
   const { groups, className, manifestRuleSetId, mappedFindingCount, unmappedFindingCount } = props;
+  const { productLine } = useProductLine();
+  const policyPacksHubHref = policyPacksPathForProductLine(productLine);
 
   if (groups.length === 0) {
     return null;
   }
-
   const manifestPackHref = resolveReviewDetailPolicyPackHref(manifestRuleSetId);
   const simulateHref =
-    manifestRuleSetId?.trim().length ? policyPacksEditHref(manifestRuleSetId.trim()) : GOVERNANCE_POLICY_PACKS_PATH;
+    manifestRuleSetId?.trim().length ? policyPacksEditHref(manifestRuleSetId.trim()) : policyPacksHubHref;
 
   return (
     <section
