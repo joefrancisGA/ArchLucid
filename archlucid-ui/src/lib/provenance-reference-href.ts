@@ -6,6 +6,8 @@ import {
   resolveScopedReviewPath,
   type ResolveDeskAwareReviewOpenHrefOptions,
 } from "@/lib/architecture/review-url-state-pathname";
+import { policyPackDetailPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
 const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,6 +28,7 @@ export type ProvenanceReferenceHrefContext = {
   readonly pathname?: string | null;
   readonly requestId?: string | null;
   readonly draftRegistryEntries?: ResolveDeskAwareReviewOpenHrefOptions["draftRegistryEntries"];
+  readonly productLine?: ProductLineId;
 };
 
 function nodeHref(
@@ -35,6 +38,7 @@ function nodeHref(
   manifestId: string | null,
   context?: ProvenanceReferenceHrefContext,
 ): string | null {
+  const productLine = context?.productLine ?? "architecture";
   const deskOptions: ResolveDeskAwareReviewOpenHrefOptions = {
     requestId: context?.requestId,
     draftRegistryEntries: context?.draftRegistryEntries,
@@ -54,13 +58,13 @@ function nodeHref(
       );
 
     case "PolicyPack":
-      return `/governance/policy-packs/${encodeURIComponent(node.referenceId)}`;
+      return policyPackDetailPathForProductLine(productLine, node.referenceId);
 
     case "DecisionRule": {
       const packNode = nodes.find((candidate) => candidate.type === "PolicyPack");
 
       if (packNode !== undefined) {
-        return `/governance/policy-packs/${encodeURIComponent(packNode.referenceId)}`;
+        return policyPackDetailPathForProductLine(productLine, packNode.referenceId);
       }
 
       return null;

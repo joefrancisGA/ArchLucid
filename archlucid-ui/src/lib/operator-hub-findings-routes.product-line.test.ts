@@ -47,7 +47,6 @@ import {
 import { resolveFocusedPilotShowcaseFindingsHref } from "@/lib/standards-rules-focused-pilot-showcase";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { resolveRecurrenceSchedulesRiskRegisterHref } from "@/lib/recurrence-schedules-copy";
-import { policyPackDetailPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { governanceFindingsQueueNextReviewHref } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooter";
 import { resolveArchitectureCreatedFindingsSources } from "@/lib/architecture/architecture-created-findings-sources";
 import { resolveRiskRegisterCsvExportBasename } from "@/lib/architecture/architecture-risk-register-csv";
@@ -72,7 +71,17 @@ import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/appro
 import { localizePageContextualHelpEntry } from "@/lib/contextual-help/localize-page-contextual-help-entry";
 import { resolveRegistryShortcutRoute, SHORTCUTS } from "@/lib/shortcut-registry";
 import { resolveSponsorKpiDrillThrough } from "@/lib/sponsor/sponsor-kpi-drill-through-hrefs";
-import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
+import {
+  findingsPathForProductLine,
+  policyPackDetailPathForProductLine,
+  remapGovernanceOperatorHref,
+} from "@/lib/product-line/securenow-compliance-routes";
+import { buildDecisionRegisterEmptyTeaching } from "@/lib/decision-register-empty-teaching";
+import { pathnameShowsContextualHelpFab } from "@/lib/page-contextual-help-fab-paths";
+import { provenanceReferenceHref } from "@/lib/provenance-reference-href";
+import { buildPatternLibraryPolicyPacksVocabulary } from "@/lib/vocabulary/pattern-library-policy-packs-vocabulary";
+import { resolvePatternLibraryPolicyPacksHubPath } from "@/lib/pattern-library-policy-guidance-copy";
+import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 import { buildStaticFindPageSearchIndex } from "@/lib/find-page-search-index";
 import {
   reviewFindingsGovernanceQueuePresentation,
@@ -407,5 +416,24 @@ describe("operator hub findings routes product line", () => {
     expect(
       troubleshootingCommonIssues("security").find((issue) => issue.id === "findings-count-wrong")?.nextSteps?.[0]?.href,
     ).toBe(SECURENOW_FINDINGS_PATH);
+
+    expect(pathnameShowsContextualHelpFab(`${SECURENOW_POLICY_PACKS_PATH}/healthcare-claims`)).toBe(true);
+    expect(resolvePatternLibraryPolicyPacksHubPath("security")).toBe(SECURENOW_POLICY_PACKS_PATH);
+    expect(buildPatternLibraryPolicyPacksVocabulary("security").policyPacksLink.href).toBe(
+      SECURENOW_POLICY_PACKS_PATH,
+    );
+    expect(
+      buildDecisionRegisterEmptyTeaching({ productLine: "security" }).actions.find(
+        (action) => action.id === "triage-findings",
+      )?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+
+    const policyPackNodes: ArchitectureLinkageNode[] = [
+      { id: "n-pack", type: "PolicyPack", referenceId: "pack-1", name: "Pack" },
+    ];
+    expect(
+      provenanceReferenceHref("run-1", "pack-1", policyPackNodes, { productLine: "security" }),
+    ).toBe(policyPackDetailPathForProductLine("security", "pack-1"));
+    expect(findingsPathForProductLine("security")).toBe(SECURENOW_FINDINGS_PATH);
   });
 });

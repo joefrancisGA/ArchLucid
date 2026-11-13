@@ -91,9 +91,13 @@ export function buildPatternLibraryPolicyPacksVocabulary(
 /** Peer deep-link for the surface you are not currently on. */
 export function resolvePatternLibraryPolicyPacksPeerLink(
   currentSurfaceId: PatternLibraryPolicyPacksSurfaceId,
+  productLine: ProductLineId = "architecture",
 ): PatternLibraryPolicyPacksLink {
   if (currentSurfaceId === "pattern-library") {
-    return PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK;
+    return {
+      ...PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK,
+      href: policyPacksPathForProductLine(productLine),
+    };
   }
 
   return PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK;

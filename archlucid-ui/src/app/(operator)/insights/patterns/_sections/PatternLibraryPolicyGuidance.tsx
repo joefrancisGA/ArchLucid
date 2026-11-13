@@ -1,10 +1,13 @@
+"use client";
+
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   PATTERN_LIBRARY_POLICY_PACKS_GUIDANCE_LEAD,
   PATTERN_LIBRARY_POLICY_PACKS_HUB_LINK_LABEL,
-  PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH,
   PATTERN_LIBRARY_POLICY_RULES_GUIDANCE_LEAD,
+  resolvePatternLibraryPolicyPacksHubPath,
 } from "@/lib/pattern-library-policy-guidance-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -28,12 +31,17 @@ export function PatternLibraryRelatedPolicyRules(props: PatternLibraryRelatedPol
 
 type PatternLibraryRelatedPolicyPacksProps = {
   readonly packs: readonly string[];
+  readonly policyPacksHubHref?: string;
 };
 
 export function PatternLibraryRelatedPolicyPacks(props: PatternLibraryRelatedPolicyPacksProps): React.JSX.Element | null {
   if (props.packs.length === 0) {
     return null;
   }
+
+  const { productLine } = useProductLine();
+  const policyPacksHubHref =
+    props.policyPacksHubHref ?? resolvePatternLibraryPolicyPacksHubPath(productLine);
 
   return (
     <div className="space-y-2" data-testid="pattern-library-policy-packs-guidance">
@@ -43,7 +51,7 @@ export function PatternLibraryRelatedPolicyPacks(props: PatternLibraryRelatedPol
         {props.packs.join(" · ")}
       </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href={PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH} className={OPERATOR_LINK.inline}>
+        <Link href={policyPacksHubHref} className={OPERATOR_LINK.inline}>
           {PATTERN_LIBRARY_POLICY_PACKS_HUB_LINK_LABEL}
         </Link>
       </p>

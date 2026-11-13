@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -31,13 +32,14 @@ export function ProvenanceReferenceLink(props: {
   readonly requestId?: string | null;
 }) {
   const { runId, referenceId, nodes, pathname, requestId } = props;
+  const { productLine } = useProductLine();
   const raw = referenceId?.trim() ?? "";
 
   if (raw.length === 0) {
     return <>Reference was not stored.</>;
   }
 
-  const href = provenanceReferenceHref(runId, raw, nodes, { pathname, requestId });
+  const href = provenanceReferenceHref(runId, raw, nodes, { pathname, requestId, productLine });
   const label = resolveReferenceLabel(raw, nodes);
 
   if (href === null) {

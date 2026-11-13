@@ -4,6 +4,7 @@ import type { JSX } from "react";
 
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
@@ -28,11 +29,13 @@ export function DecisionRegisterEmptyTeaching(
   props: DecisionRegisterEmptyTeachingProps,
 ): JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const model =
     props.model ??
     buildDecisionRegisterEmptyTeaching({
       workingMode: isWorkingMode,
       lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+      productLine,
     });
   const actions =
     model.actions === null || model.actions === undefined
