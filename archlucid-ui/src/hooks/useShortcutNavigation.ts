@@ -78,6 +78,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
               lastOpenArchitectureId,
               pathname,
               lastOpenReviewId: deskContinuity.lastOpenReviewId,
+              productLine,
             });
           }
         } else if (entry.key === "alt+c") {

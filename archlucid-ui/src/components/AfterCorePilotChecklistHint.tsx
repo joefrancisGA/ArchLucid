@@ -50,7 +50,7 @@ function buildAfterCorePilotWhatsNextSuggestions(policyPacksHref: string): Sugge
     {
       title: "Set up approval alerts",
       href: "/governance/alert-rules",
-      description: "Inbox, routing, and rules on one hu — une when architecture-risk signals need action.",
+      description: "Inbox, routing, and rules on one hub — use when architecture-risk signals need action.",
       sidebarNote:
         "Alerts is under Governance (sidebar). Open Alerts, then use the Rules tab for configuration.",
     },
@@ -69,7 +69,7 @@ const afterCorePilotWhatsNextSuggestionsArchitecture = buildAfterCorePilotWhatsN
 
 /**
  * After the Core Pilot checklist is complete, optional “what’s next” suggestions (not a second checklist)
- * with dismissal persisted in localStorage. Does not change sidebar toggle — nly explains them.
+ * with dismissal persisted in localStorage. Does not change sidebar toggle — only explains them.
  */
 export function AfterCorePilotChecklistHint() {
   const { productLine } = useProductLine();

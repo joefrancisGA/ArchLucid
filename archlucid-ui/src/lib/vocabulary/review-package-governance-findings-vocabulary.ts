@@ -118,6 +118,7 @@ export function buildReviewPackageGovernanceFindingsVocabulary(
             filter: "all",
             isWorkingMode: workingInstrument?.isWorkingMode === true,
             basePath: findingsPathForProductLine(productLine),
+            productLine,
           })
         : buildGovernanceFindingsQueueHref({
             filter: "open",

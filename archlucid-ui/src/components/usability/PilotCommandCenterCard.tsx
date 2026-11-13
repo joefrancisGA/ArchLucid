@@ -19,6 +19,7 @@ import { OperatorHomeLifecycleAlternativesDisclosure } from "@/components/operat
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
@@ -91,6 +92,7 @@ type PilotCommandCenterCardProps = {
 export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}): React.JSX.Element {
   const cardTestId = props.embedded === true ? "pilot-command-center-card-embedded" : "pilot-command-center-card";
   const { isInviteeReviewer } = useInviteeReviewerContext();
+  const { productLine } = useProductLine();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const workspaceActivity = useOperatorHomeWorkspaceActivity();
   const draftEntries = useArchitectureDraftRegistryEntries();
@@ -356,7 +358,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       {workspacePhase === "eval-empty" && !isWorkingMode ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
           {isInviteeReviewer ? (
-            <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy()} />
+            <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy(productLine)} />
           ) : null}
           <OperatorHomeLifecycleAlternativesDisclosure emphasizedPath={emphasizedPath} />
         </div>

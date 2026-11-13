@@ -206,6 +206,7 @@ export function reviewFindingsGovernanceQueuePresentation(
     readonly architectureId: string;
     readonly isWorkingMode: boolean;
   },
+  productLine: ProductLineId = "architecture",
 ): MetricCountPresentation {
   const trimmedRunId = runId.trim();
 
@@ -218,6 +219,7 @@ export function reviewFindingsGovernanceQueuePresentation(
       runId: trimmedRunId,
       filter: "all",
       isWorkingMode: workingInstrument?.isWorkingMode === true,
+      productLine,
     }),
   };
 }

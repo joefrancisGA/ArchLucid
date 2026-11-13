@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 34: SecureNow working findings, invitee home, and search-help paths
+
+**Outcome.** Working-mode Alt+G and architecture-desk Findings, review findings metrics, and the review/queue vocabulary rail stay on `/compliance/findings` for SecureNow even when an architecture is open. Invitee home orientation, the repeat-review help loop, and search-review-evidence next links and precondition copy follow the same product line. Architecture nested findings remain the Working default.
+
+**Surfaces.** Shortcuts, architecture desk command bar, review findings workspace, invitee home, repeat-review help, search-review-evidence help, route contract tests.
+
 ## 2026-11-13 - Score lift round 33: SecureNow metrics, find-index, help tables, and settings catalog paths
 
 **Outcome.** Find-a-page curated index, reviews hub summary metrics, findings return-state persistence, working-desk bare-route guards, governance quickstart and policy breakdown CTAs, standards empty state, digests/standards/repeat-review help tables, and settings master catalog destinations now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow. Architecture defaults remain unchanged.
