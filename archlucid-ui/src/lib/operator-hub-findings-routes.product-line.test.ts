@@ -60,6 +60,10 @@ import { readGovernanceFindingsReturnHref } from "@/lib/governance/governance-fi
 import { resolveRunDetailActivityPreCommitSources } from "@/lib/runs/run-detail-activity-sources";
 import { resolveSponsorWorkspaceHealthSources } from "@/lib/sponsor/sponsor-workspace-health-page-copy";
 import { buildBuyerCommandPaletteCuratedTasks } from "@/lib/command-palette-buyer-curated-tasks";
+import { reportProblemSurfacesForPathname } from "@/lib/report-problem-surfaces";
+import { operatorRouteReadiness } from "@/lib/route-readiness";
+import { resolveShellHeaderSearchLabel } from "@/lib/shell-header-search-label";
+import { troubleshootingCommonIssues } from "@/lib/troubleshooting-help-guide-content";
 import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { buildCommandPaletteCuratedTasks } from "@/lib/command-palette-curated-tasks";
 import { resolveGovernanceApprovalHelpPrimaryActions } from "@/lib/governance/governance-approval-help-guide-content";
@@ -392,5 +396,16 @@ describe("operator hub findings routes product line", () => {
       buildBuyerCommandPaletteCuratedTasks("security").find((task) => task.label === "Findings")?.href,
     ).toBe(SECURENOW_FINDINGS_PATH);
     expect(readGovernanceFindingsReturnHref("security")).toBe(SECURENOW_FINDINGS_PATH);
+
+    expect(
+      reportProblemSurfacesForPathname(SECURENOW_FINDINGS_PATH).some(
+        (surface) => surface.id === "compliance-findings-queue-hard-failure",
+      ),
+    ).toBe(true);
+    expect(operatorRouteReadiness(SECURENOW_FINDINGS_PATH)).toBe("advanced-only");
+    expect(resolveShellHeaderSearchLabel(SECURENOW_FINDINGS_PATH, "architecture")).toBe("Filter findings");
+    expect(
+      troubleshootingCommonIssues("security").find((issue) => issue.id === "findings-count-wrong")?.nextSteps?.[0]?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
   });
 });

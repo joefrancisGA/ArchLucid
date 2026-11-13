@@ -8,6 +8,7 @@ import {
   SECURENOW_TROUBLESHOOTING_DECISION_TREE_STEPS,
 } from "@/lib/product-line/securenow-troubleshooting-help-guide-content";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -492,10 +493,27 @@ export function troubleshootingCommonIssues(productLineId: ProductLineId = "arch
         };
       }
 
-      return issue;
+      return remapTroubleshootingIssueGovernanceHrefs(issue, productLineId);
     });
 
   return [...sharedIssues, ...SECURENOW_TROUBLESHOOTING_ADDITIONAL_ISSUES];
+}
+
+function remapTroubleshootingIssueGovernanceHrefs(
+  issue: TroubleshootingIssue,
+  productLineId: ProductLineId,
+): TroubleshootingIssue {
+  if (productLineId === "architecture" || issue.nextSteps === undefined) {
+    return issue;
+  }
+
+  return {
+    ...issue,
+    nextSteps: issue.nextSteps.map((step) => ({
+      ...step,
+      href: remapGovernanceOperatorHref(step.href, productLineId),
+    })),
+  };
 }
 
 export const TROUBLESHOOTING_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [

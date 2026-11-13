@@ -417,13 +417,17 @@ export function GovernanceAssignedToMeEvidenceOrientationStrip(
   );
 }
 
-export function WorkspaceHealthEvidenceOrientationStrip(): React.JSX.Element {
+export function WorkspaceHealthEvidenceOrientationStrip(
+  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? SPONSOR_WORKSPACE_HEALTH_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="workspace-health"
       sourcesTitle={SPONSOR_WORKSPACE_HEALTH_FOLLOW_UPS_TITLE}
       sourcesIntro={SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO}
-      sources={SPONSOR_WORKSPACE_HEALTH_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
     />
   );
