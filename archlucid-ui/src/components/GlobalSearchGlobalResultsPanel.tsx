@@ -5,7 +5,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { RunSummary } from "@/types/authority";
@@ -24,6 +25,8 @@ function globalSearchRunLabel(run: {
 }
 
 export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsPanelProps) {
+  const { productLine } = useProductLine();
+  const policyPacksHubHref = policyPacksPathForProductLine(productLine);
   const { controller } = props;
   const { inputId, query, searchResults, closePanel, navigateToRun, navigateToFinding } = controller;
   const {
@@ -193,7 +196,7 @@ export function GlobalSearchGlobalResultsPanel(props: GlobalSearchGlobalResultsP
             {results?.policyPacks?.map((pack) => (
               <li key={pack.policyPackId ?? "unknown-pack"}>
                 <Link
-                  href={`${GOVERNANCE_POLICY_PACKS_PATH}?packId=${encodeURIComponent(pack.policyPackId ?? "")}`}
+                  href={`${policyPacksHubHref}?packId=${encodeURIComponent(pack.policyPackId ?? "")}`}
                   className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                   onClick={() => closePanel()}
                 >

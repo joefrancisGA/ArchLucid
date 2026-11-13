@@ -6,6 +6,8 @@ import {
 } from "@/lib/search-review-evidence-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/search-review-evidence-help-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE = "Search review evidence";
 
@@ -47,6 +49,10 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_EVIDENCE_GRAPH_HREF = "/insights/eviden
 export const SEARCH_REVIEW_EVIDENCE_HELP_ASK_HREF = "/insights/ask-review-questions";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_FINDINGS_HREF = "/governance/findings";
+
+export function resolveSearchReviewEvidenceHelpFindingsHref(productLine: ProductLineId): string {
+  return findingsPathForProductLine(productLine);
+}
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_SECTION_ID = "what-search-review-evidence-indexes" as const;
 

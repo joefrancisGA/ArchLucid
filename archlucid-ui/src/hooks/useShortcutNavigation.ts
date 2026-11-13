@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { SHORTCUTS, resolveShortcutDescription } from "@/lib/shortcut-registry";
+import { SHORTCUTS, resolveRegistryShortcutRoute, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
@@ -56,7 +56,9 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
-        if (!isPathAllowedForProductLine(entry.route, productLine, { assignmentOverrides })) {
+        const registryRoute = resolveRegistryShortcutRoute(entry, productLine);
+
+        if (!isPathAllowedForProductLine(registryRoute, productLine, { assignmentOverrides })) {
           continue;
         }
 
@@ -65,7 +67,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
             ? workingCreateStartHref
             : workingMode && entry.key === "alt+r"
               ? workingAltRHref
-              : entry.route;
+              : resolveRegistryShortcutRoute(entry, productLine);
 
         if (workingMode) {
           const deskTool = workingDeskToolFromShortcutKey(entry.key);
@@ -90,7 +92,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           handler: () => {
             router.push(route);
           },
-          description: resolveShortcutDescription(entry, workingMode, openPackageRunId !== null),
+          description: resolveShortcutDescription(entry, workingMode, openPackageRunId !== null, productLine),
         };
       } else if (isHelpShortcutKey(entry.key)) {
         next[entry.key] = {

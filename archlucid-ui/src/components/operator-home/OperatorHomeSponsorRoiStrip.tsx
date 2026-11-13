@@ -19,7 +19,8 @@ import {
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveSponsorHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
   buildSponsorServerSavingsSummary,
@@ -29,6 +30,8 @@ import { formatUsd } from "@/lib/roi-assumptions";
 
 /** Compact sponsor ROI story on Overview after the first committed review. */
 export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const summaryQuery = useSponsorRoiSummaryQuery({ enabled: hasCommittedArchitectureReview });
 
@@ -163,7 +166,7 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
         data-testid="operator-home-disposition-next-action"
       >
         Record dispositions on decision-grade findings before sponsor send.{" "}
-        <Link href={GOVERNANCE_FINDINGS_PATH} className={OPERATOR_LINK.optional}>
+        <Link href={findingsHref} className={OPERATOR_LINK.optional}>
           Open findings queue
         </Link>
       </p>

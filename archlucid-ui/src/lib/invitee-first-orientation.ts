@@ -1,5 +1,7 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type InviteeOrientationContext = {
   readonly isInviteeReviewer: boolean;
@@ -52,11 +54,11 @@ export function resolveInviteeFirstOrientationCopy(input: {
   };
 }
 
-export function resolveInviteeHomeOrientationCopy(): InviteeFirstOrientationCopy {
+export function resolveInviteeHomeOrientationCopy(productLine: ProductLineId = "architecture"): InviteeFirstOrientationCopy {
   return {
     jobSentence:
       "Your job is to read findings, record dispositions, and add comments — not to run intake or start new reviews.",
-    findingsCtaHref: "/governance/findings",
+    findingsCtaHref: findingsPathForProductLine(productLine),
     findingsCtaLabel: "Open findings queue",
   };
 }

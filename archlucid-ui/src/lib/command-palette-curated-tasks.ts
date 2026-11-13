@@ -18,6 +18,8 @@ import {
   FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
 } from "@/lib/first-review-guide-route";
 import { getRouteTitle } from "@/lib/route-titles";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 
 export type CuratedPaletteTask = {
   label: string;
@@ -77,13 +79,19 @@ const CURATED_PALETTE_TASK_SOURCES: readonly CuratedPaletteTaskSource[] = [
   },
 ];
 
-function toCuratedPaletteTask(source: CuratedPaletteTaskSource): CuratedPaletteTask {
+function toCuratedPaletteTask(source: CuratedPaletteTaskSource, productLine: ProductLineId): CuratedPaletteTask {
+  const href = remapGovernanceOperatorHref(source.href, productLine);
+
   return {
-    label: source.sectionLabel ?? getRouteTitle(source.href),
-    href: source.href,
+    label: source.sectionLabel ?? getRouteTitle(href),
+    href,
     searchValue: source.searchValue,
   };
 }
 
-export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] =
-  CURATED_PALETTE_TASK_SOURCES.map(toCuratedPaletteTask);
+/** Architecture-default export for parity guards; operator palette should use {@link buildCommandPaletteCuratedTasks}. */
+export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = buildCommandPaletteCuratedTasks("architecture");
+
+export function buildCommandPaletteCuratedTasks(productLine: ProductLineId): CuratedPaletteTask[] {
+  return CURATED_PALETTE_TASK_SOURCES.map((source) => toCuratedPaletteTask(source, productLine));
+}

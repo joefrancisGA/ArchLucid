@@ -11,6 +11,8 @@ import {
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Resolve outcomes";
 
@@ -36,6 +38,18 @@ export const GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS = {
     href: "/governance/findings",
   },
 } as const;
+
+export function resolveGovernanceApprovalHelpPrimaryActions(
+  productLine: ProductLineId,
+): typeof GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS {
+  return {
+    ...GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS,
+    openFindings: {
+      ...GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings,
+      href: findingsPathForProductLine(productLine),
+    },
+  } as typeof GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS;
+}
 
 /** TB-1250 / TB-1387: buyer Governance help must not deep-link eng API contracts. */
 export const GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS = {

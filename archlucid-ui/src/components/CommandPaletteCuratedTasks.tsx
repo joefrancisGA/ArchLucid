@@ -2,8 +2,11 @@ import { useMemo } from "react";
 
 import { CommandGroup, CommandItem } from "@/components/ui/command";
 import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
-import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
-import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  buildBuyerCommandPaletteCuratedTasks,
+} from "@/lib/command-palette-buyer-curated-tasks";
+import { buildCommandPaletteCuratedTasks, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 
 function curatedPaletteVisibilityHref(href: string): string {
   return commandPaletteNavVisibilityHref(href);
@@ -20,13 +23,17 @@ export function CommandPaletteCuratedTasks({
   auditRunId: string | null;
   onNavigate: (href: string) => void;
 }) {
+  const { productLine } = useProductLine();
+
   const curated = useMemo(() => {
     if (buyerPolishedShell) {
-      return [...BUYER_COMMAND_PALETTE_CURATED_TASKS];
+      return [...buildBuyerCommandPaletteCuratedTasks(productLine)];
     }
 
-    return COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(curatedPaletteVisibilityHref(task.href)));
-  }, [buyerPolishedShell, visibleHrefs]);
+    return buildCommandPaletteCuratedTasks(productLine).filter((task) =>
+      visibleHrefs.has(curatedPaletteVisibilityHref(task.href)),
+    );
+  }, [buyerPolishedShell, productLine, visibleHrefs]);
 
   if (curated.length === 0) {
     return null;

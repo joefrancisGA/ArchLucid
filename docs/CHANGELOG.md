@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-12 - Score lift round 32: SecureNow shortcuts, palette, and global navigation findings paths
+
+**Outcome.** Keyboard shortcuts, command palette tasks, help doc index fallbacks, contextual-help actions, sponsor KPI drill-through, approval lineage and sponsor dashboard links, home ROI strip, global search policy-pack hits, and related globals now preserve `/compliance/findings` and `/compliance/policy-packs` on SecureNow via `remapGovernanceOperatorHref`. Architecture defaults remain unchanged.
+
+**Surfaces.** Shortcuts, Ctrl+K, help hub, contextual help, sponsor dashboard, empty-state resolvers, route contract tests.
+
 ## 2026-11-12 - Score lift round 31: SecureNow help, home, and route recognition findings paths
 
 **Outcome.** Getting started (SecureNow), improvement-planning and troubleshooting help, sponsor honesty panels, governance overview, operator home next step, first-review support, scorecard drill-down, working findings instruments, shell header search, and route view explanations now preserve `/compliance/findings` (and policy packs where applicable) on SecureNow. Architecture defaults remain unchanged.

@@ -7,7 +7,8 @@ import {
   resolveFinishSetupWizardDeploymentOptions,
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 import type { FirstReviewGuideStateInput } from "./first-review-guide-status";
 
@@ -26,6 +27,7 @@ export type FirstReviewGuidePrerequisiteInput = {
 
 export function resolveFirstReviewGuideOnePrerequisite(
   input: FirstReviewGuidePrerequisiteInput,
+  productLine: ProductLineId = "architecture",
 ): FirstReviewGuideRequiredBlocker | null {
   if (input.samplePackageSelected === null || input.policyPackAssigned === null) {
     return null;
@@ -46,7 +48,7 @@ export function resolveFirstReviewGuideOnePrerequisite(
       id: "policy-pack",
       title: "Policy pack",
       description: FIRST_REVIEW_GUIDE_POLICY_PACK_ASSIGNMENT_COPY,
-      href: GOVERNANCE_POLICY_PACKS_PATH,
+      href: policyPacksPathForProductLine(productLine),
       actionLabel: "Review policy pack assignments",
     };
   }

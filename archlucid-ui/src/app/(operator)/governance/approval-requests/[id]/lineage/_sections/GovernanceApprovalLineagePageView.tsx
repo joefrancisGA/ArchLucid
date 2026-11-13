@@ -25,6 +25,8 @@ import {
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import { GovernanceApprovalLineageBuyerChrome } from "./GovernanceApprovalLineageBuyerChrome";
@@ -41,6 +43,8 @@ export function GovernanceApprovalLineagePageView({
   model,
   findingsQueueRunId = null,
 }: GovernanceApprovalLineagePageViewProps) {
+  const { productLine } = useProductLine();
+  const findingsHref = findingsPathForProductLine(productLine);
   const { buyerPolishedShell, data, failure, load, loading, nextDemo } = model;
 
   if (failure !== null && resolveApiLoadFailurePresentation(failure) !== "error") {
@@ -74,7 +78,7 @@ export function GovernanceApprovalLineagePageView({
               ? "Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore the findings queue or a completed sample review instead."
               : "Lineage detail is not available for this approval in the guided review experience yet, or the service returned no linkage. Explore the findings queue or a completed sample review instead."
           }
-          learnMoreHref="/governance/findings"
+          learnMoreHref={findingsHref}
           learnMoreLabel="Findings"
         />
         <div className="flex flex-wrap gap-2">
@@ -97,7 +101,7 @@ export function GovernanceApprovalLineagePageView({
             Retry
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/governance/findings">Findings</Link>
+            <Link href={findingsHref}>Findings</Link>
           </Button>
         </div>
         {model.blockedReason !== null ? (
