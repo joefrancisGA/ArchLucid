@@ -12,6 +12,9 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
@@ -48,7 +51,10 @@ export const PUBLIC_DEMO_THIN_SHELL_OMIT_NAV_HREFS = new Set<string>([
   "/governance/alerts",
   "/governance/alert-rules",
   "/governance/policy-packs",
+  SECURENOW_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
   "/governance/audit",
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   "/governance/setup",

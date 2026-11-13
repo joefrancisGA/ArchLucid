@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { provenanceReferenceHref } from "@/lib/provenance-reference-href";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
@@ -62,5 +63,18 @@ describe("provenanceReferenceHref", () => {
 
   it("returns null for empty references", () => {
     expect(provenanceReferenceHref("customer-intake-modernization", null, nodes)).toBeNull();
+  });
+
+  it("links policy pack nodes to compliance hub paths on SecureNow", () => {
+    const policyPackNodes: ArchitectureLinkageNode[] = [
+      ...nodes,
+      { id: "n-pack", type: "PolicyPack", referenceId: "arc-ampe-baseline", name: "ARC-AMPE baseline" },
+    ];
+
+    expect(
+      provenanceReferenceHref("customer-intake-modernization", "arc-ampe-baseline", policyPackNodes, {
+        productLine: "security",
+      }),
+    ).toBe(`${SECURENOW_POLICY_PACKS_PATH}/arc-ampe-baseline`);
   });
 });

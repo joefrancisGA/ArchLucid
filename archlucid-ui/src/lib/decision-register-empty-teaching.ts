@@ -17,6 +17,8 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 export type DecisionRegisterEmptyTeachingActionId =
   | "triage-findings"
@@ -69,13 +71,23 @@ export const DECISION_REGISTER_EMPTY_TEACHING_OPEN_REVIEWS_ACTION: DecisionRegis
 export type BuildDecisionRegisterEmptyTeachingInput = {
   readonly workingMode?: boolean;
   readonly lastOpenArchitectureId?: string | null;
+  readonly productLine?: ProductLineId;
 };
+
+function decisionRegisterFindingsAction(productLine: ProductLineId): DecisionRegisterEmptyTeachingAction {
+  return {
+    ...DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+    href: findingsPathForProductLine(productLine),
+  };
+}
 
 /** Full empty-teaching model (title, body, honesty, and next-step links). */
 export function buildDecisionRegisterEmptyTeaching(
   input?: BuildDecisionRegisterEmptyTeachingInput,
 ): DecisionRegisterEmptyTeachingModel {
   const workingMode = input?.workingMode === true;
+  const productLine = input?.productLine ?? "architecture";
+  const findingsAction = decisionRegisterFindingsAction(productLine);
 
   if (workingMode) {
     const lastOpenArchitectureId = input?.lastOpenArchitectureId?.trim() ?? "";
@@ -89,7 +101,7 @@ export function buildDecisionRegisterEmptyTeaching(
       body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
       honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
       actions: [
-        DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+        findingsAction,
         {
           id: "start-review",
           label: START_REVIEW_LABEL,
@@ -109,7 +121,7 @@ export function buildDecisionRegisterEmptyTeaching(
     body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
     honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
     actions: [
-      DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+      findingsAction,
       DECISION_REGISTER_EMPTY_TEACHING_START_REVIEW_ACTION,
       DECISION_REGISTER_EMPTY_TEACHING_OPEN_REVIEWS_ACTION,
     ],

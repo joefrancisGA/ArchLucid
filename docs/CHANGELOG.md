@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 39 (batch 4): SecureNow contextual help, provenance, and empty-teaching paths
+
+**Outcome.** Compliance policy-pack routes show contextual-help FAB affordances, public-demo nav omissions treat SecureNow compliance hubs like governance peers, decision-register empty teaching and pattern-library pack guidance link to `/compliance/findings` and `/compliance/policy-packs`, and provenance policy-pack references honor product line. Architecture defaults remain unchanged.
+
+**Surfaces.** Contextual help FAB, demo nav shell preset, decision register empty state, pattern library policy guidance, provenance reference links, route contract tests.
+
 ## 2026-11-13 - Score lift round 38 (batch 3): SecureNow readiness, report-problem, and workspace health Sources
 
 **Outcome.** Compliance findings routes participate in report-problem registry, route readiness tiers, demo-mode nav allowlist, shell header search labels, troubleshooting issue CTAs, and workspace health evidence Sources on SecureNow. Architecture defaults remain unchanged.
