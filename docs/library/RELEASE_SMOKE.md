@@ -248,7 +248,8 @@ Deterministic behavior is unchanged: same step order, same filters, same timeout
 - **Gate 1 create fails:** API must be **`Development`** with **`ArchLucid__StorageProvider=Sql`** (script sets both). Confirm the SQL catalog exists and create brief is ≥100 characters of architecture context.
 - **Zero artifacts:** synthesis or persistence regression — check API logs for the smoke **`RunId`**.
 - **Config lint failure (Step 2):** inspect `artifacts/release-readiness/config-lint-production-like-hosted-pilot.md` for blocking rows; fix RC baseline fixture or validate deployed config with the same profile before signoff.
-- **Outbox timeout (Step 9):** ensure `ArchLucid.Api` was compiled correctly and Microsoft.Data.SqlClient.dll is present, or check background worker logs for processing/dead-lettering failure.
+- **SQL scalar helper (artifact count / outbox):** Gate 1 uses **`tools/ArchLucid.SqlScalar`** (not `Add-Type` of `Microsoft.Data.SqlClient` into pwsh — that fails on Linux Cloud Agents). Build with `dotnet build tools/ArchLucid.SqlScalar/ArchLucid.SqlScalar.csproj -c Release` if the helper is missing.
+- **Outbox timeout (Step 8):** ensure the temporary API hosted worker is running, then re-check `dbo.RunExportBlobPushOutbox` for the smoke **`RunId`**.
 - **Playwright fails:** ensure browsers are installed (**`npx playwright install`** in **`archlucid-ui`**) and port **3000** is free for the test **`webServer`**.
 
 More: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md), [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md).

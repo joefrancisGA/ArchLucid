@@ -116,6 +116,39 @@ function Get-ResolvedReleaseSmokeSqlConnectionString {
     return ''
 }
 
+# pwsh cannot Add-Type load net10 Microsoft.Data.SqlClient on Linux (System.Runtime 9/10 mismatch).
+# tools/ArchLucid.SqlScalar runs under dotnet and prints one scalar to stdout.
+function Invoke-ReleaseSmokeSqlScalar {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $ConnectionString,
+        [Parameter(Mandatory = $true)][string] $Sql
+    )
+
+    $proj = Join-Path $RepoRoot 'tools/ArchLucid.SqlScalar/ArchLucid.SqlScalar.csproj'
+    $dll = Join-Path $RepoRoot 'tools/ArchLucid.SqlScalar/bin/Release/net10.0/ArchLucid.SqlScalar.dll'
+
+    if (-not (Test-Path -LiteralPath $dll)) {
+        & dotnet build $proj -c Release --nologo -v q
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "dotnet build tools/ArchLucid.SqlScalar failed (exit $LASTEXITCODE)."
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $dll)) {
+        throw "ArchLucid.SqlScalar.dll missing after build: $dll"
+    }
+
+    $raw = & dotnet exec $dll $ConnectionString $Sql 2>&1
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "ArchLucid.SqlScalar failed (exit $LASTEXITCODE): $raw"
+    }
+
+    return ([string]$raw).Trim()
+}
+
 if ($runLiveUiSqlProfile -and (-not $SkipE2E)) {
     $csPrecheck = Get-ResolvedReleaseSmokeSqlConnectionString -FromParam $SqlConnectionString
 
@@ -1155,33 +1188,25 @@ try
     }
 
     # Career export honesty may 409 list/download without asserted intake; Gate 1 counts durable bundle rows.
-    $binDirRelease = Join-Path $root 'ArchLucid.Api\bin\Release\net10.0\Microsoft.Data.SqlClient.dll'
-    $binDirDebug = Join-Path $root 'ArchLucid.Api\bin\Debug\net10.0\Microsoft.Data.SqlClient.dll'
-    $sqlDllPathForArtifacts = if (Test-Path $binDirRelease) { $binDirRelease } else { $binDirDebug }
-
-    if (-not (Test-Path $sqlDllPathForArtifacts)) {
-        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingSqlDll' `
-            -Details @("Cannot find Microsoft.Data.SqlClient.dll to count ArtifactBundleArtifacts.") `
-            -NextSteps @('Ensure ArchLucid.Api is built before running smoke.')
-        exit 1
-    }
-
-    Add-Type -Path $sqlDllPathForArtifacts
-    $artifactCount = 0
-    $sqlConnArtifacts = New-Object Microsoft.Data.SqlClient.SqlConnection $cs
-    $sqlConnArtifacts.Open()
-    try {
-        $sqlCmdArtifacts = $sqlConnArtifacts.CreateCommand()
-        $sqlCmdArtifacts.CommandText = @'
+    $bundleGuid = [guid]$artifactBundleId
+    $artifactCountSql = @"
 SELECT COUNT(1)
 FROM dbo.ArtifactBundleArtifacts
-WHERE BundleId = @BundleId;
-'@
-        $null = $sqlCmdArtifacts.Parameters.AddWithValue('@BundleId', [guid]$artifactBundleId)
-        $artifactCount = [int]$sqlCmdArtifacts.ExecuteScalar()
+WHERE BundleId = '$($bundleGuid.ToString('D'))';
+"@
+
+    try {
+        $artifactCountRaw = Invoke-ReleaseSmokeSqlScalar -RepoRoot $root -ConnectionString $cs -Sql $artifactCountSql
+        $artifactCount = [int]$artifactCountRaw
     }
-    finally {
-        $sqlConnArtifacts.Close()
+    catch {
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingSqlDll' `
+            -Details @("Failed to count ArtifactBundleArtifacts via tools/ArchLucid.SqlScalar: $($_.Exception.Message)") `
+            -NextSteps @(
+            'dotnet build tools/ArchLucid.SqlScalar/ArchLucid.SqlScalar.csproj -c Release',
+            'Ensure ARCHLUCID_SMOKE_SQL reaches the same catalog the API used'
+        )
+        exit 1
     }
 
     if ($artifactCount -lt 1) {
@@ -1221,52 +1246,52 @@ WHERE BundleId = @BundleId;
     }
 
     Write-Host 'Polling dbo.RunExportBlobPushOutbox for dead-letter outcome...'
-    $binDirRelease = Join-Path $root 'ArchLucid.Api\bin\Release\net10.0\Microsoft.Data.SqlClient.dll'
-    $binDirDebug = Join-Path $root 'ArchLucid.Api\bin\Debug\net10.0\Microsoft.Data.SqlClient.dll'
-    $sqlDllPath = if (Test-Path $binDirRelease) { $binDirRelease } else { $binDirDebug }
-    
-    if (-not (Test-Path $sqlDllPath)) {
-        Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'MissingSqlDll' `
-            -Details @("Cannot find Microsoft.Data.SqlClient.dll to verify outbox row.") `
-            -NextSteps @('Ensure ArchLucid.Api is built before running smoke.')
-        exit 1
-    }
-    
-    Add-Type -Path $sqlDllPath
-    
-    $sqlConn = New-Object Microsoft.Data.SqlClient.SqlConnection $cs
-    $sqlConn.Open()
-    try {
-        $sqlCmd = $sqlConn.CreateCommand()
-        $foundDeadLetter = $false
-        for ($i = 0; $i -lt 15; $i++) {
-            $sqlCmd.CommandText = "SELECT TOP 1 ProcessedUtc, DeadLetteredUtc, AttemptCount, LastAttemptError FROM dbo.RunExportBlobPushOutbox WHERE RunId = '$runId' ORDER BY CreatedUtc DESC"
-            $reader = $sqlCmd.ExecuteReader()
-            if ($reader.Read()) {
-                if ($reader.IsDBNull(1)) { $deadLettered = $null } else { $deadLettered = $reader.GetDateTime(1) }
-                $attempts = $reader.GetInt32(2)
-                if ($reader.IsDBNull(3)) { $lastErr = $null } else { $lastErr = $reader.GetString(3) }
+    $runGuidForOutbox = [guid]$runId
+    $outboxDeadLetterSql = @"
+SELECT TOP 1
+  CONCAT(
+    CONVERT(varchar(33), DeadLetteredUtc, 126),
+    '|',
+    CONVERT(varchar(11), AttemptCount),
+    '|',
+    ISNULL(LastAttemptError, ''))
+FROM dbo.RunExportBlobPushOutbox
+WHERE RunId = '$($runGuidForOutbox.ToString('D'))'
+ORDER BY CreatedUtc DESC;
+"@
+    $foundDeadLetter = $false
 
-                if ($null -ne $deadLettered) {
-                    $foundDeadLetter = $true
-                    Write-Host "Smoke OK: Export push dead-lettered as expected. (Attempts: $attempts, Error: $lastErr)" -ForegroundColor Green
-                    $reader.Close()
-                    break
-                }
+    try {
+        for ($i = 0; $i -lt 15; $i++) {
+            $outboxRaw = Invoke-ReleaseSmokeSqlScalar -RepoRoot $root -ConnectionString $cs -Sql $outboxDeadLetterSql
+
+            if (-not [string]::IsNullOrWhiteSpace($outboxRaw) -and -not $outboxRaw.StartsWith('|')) {
+                $parts = $outboxRaw.Split('|', 3)
+                $attempts = if ($parts.Length -gt 1) { $parts[1] } else { '?' }
+                $lastErr = if ($parts.Length -gt 2) { $parts[2] } else { '' }
+                $foundDeadLetter = $true
+                Write-Host "Smoke OK: Export push dead-lettered as expected. (Attempts: $attempts, Error: $lastErr)" -ForegroundColor Green
+                break
             }
-            $reader.Close()
+
             Start-Sleep -Seconds 1
         }
-
-        if (-not $foundDeadLetter) {
-            Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'OutboxProcessingTimeout' `
-                -Details @("Outbox row for Run $runId did not reach DeadLetteredUtc within 15 seconds.") `
-                -NextSteps @('Check if worker loop is healthy', 'Verify HostedService logs')
-            exit 1
-        }
     }
-    finally {
-        $sqlConn.Close()
+    catch {
+        Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'MissingSqlDll' `
+            -Details @("Failed to poll RunExportBlobPushOutbox via tools/ArchLucid.SqlScalar: $($_.Exception.Message)") `
+            -NextSteps @(
+            'dotnet build tools/ArchLucid.SqlScalar/ArchLucid.SqlScalar.csproj -c Release',
+            'Ensure ARCHLUCID_SMOKE_SQL reaches the same catalog the API used'
+        )
+        exit 1
+    }
+
+    if (-not $foundDeadLetter) {
+        Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'OutboxProcessingTimeout' `
+            -Details @("Outbox row for Run $runId did not reach DeadLetteredUtc within 15 seconds.") `
+            -NextSteps @('Check if worker loop is healthy', 'Verify HostedService logs')
+        exit 1
     }
 
     Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$runLivePlaywrightEffective -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
