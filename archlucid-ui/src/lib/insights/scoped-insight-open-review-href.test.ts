@@ -11,6 +11,17 @@ describe("resolveScopedInsightOpenReviewHref", () => {
     expect(href).toContain("reviewTab=findings");
   });
 
+  it("keeps a cited finding on the known Working architecture desk", () => {
+    expect(
+      resolveScopedInsightOpenReviewHref("run-a", {
+        primaryFindingId: "finding-1",
+        architectureId: "architecture-identity-001",
+      }),
+    ).toBe(
+      "/architecture/architectures/architecture-identity-001/findings?runId=run-a&focusedFinding=finding-1",
+    );
+  });
+
   it("uses working review open when no finding is cited", () => {
     expect(resolveScopedInsightOpenReviewHref("run-42", { architectureId: "architecture-identity-001" })).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/run-42",
