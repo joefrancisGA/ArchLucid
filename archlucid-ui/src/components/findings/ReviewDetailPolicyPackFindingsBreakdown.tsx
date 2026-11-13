@@ -1,18 +1,18 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
-"use client";
-
-import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
-import { POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {
   readonly groups: readonly PolicyPackFindingGroup[];
