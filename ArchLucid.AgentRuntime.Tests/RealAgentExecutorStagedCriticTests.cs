@@ -263,54 +263,78 @@ public sealed class RealAgentExecutorStagedCriticTests
     }
 
     [SkippableFact]
-    public async Task StagedCriticOverlapEnabled_true_reduces_wall_clock_versus_serial_when_critic_is_slower()
+    public async Task StagedCriticOverlapEnabled_true_starts_critic_while_phase1_is_blocked_but_serial_waits()
     {
-        IAgentHandler topo = new SignalAfterDelayHandler(AgentType.Topology, 50, static () => { });
-        IAgentHandler comp = new SignalAfterDelayHandler(AgentType.Compliance, 50, static () => { });
-        IAgentHandler slowCritic = new SignalAfterDelayHandler(AgentType.Critic, 200, static () => { });
+        // Wall-clock comparisons between separate runs are unstable under CI CPU contention.
+        // Prove the causal concurrency contract instead: an overlapping Critic starts
+        // before we release the phase-1 handlers, while a serial Critic cannot.
+        await VerifyCriticStartOrderingAsync(overlapEnabled: true);
+        await VerifyCriticStartOrderingAsync(overlapEnabled: false);
+    }
 
-        RealAgentExecutor overlapSut = CreateSut(
+    private static async Task VerifyCriticStartOrderingAsync(bool overlapEnabled)
+    {
+        TaskCompletionSource releasePhase1 = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource bothPhase1Started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource criticStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int phase1StartedCount = 0;
+
+        void OnPhase1Started()
+        {
+            if (Interlocked.Increment(ref phase1StartedCount) == 2)
+                bothPhase1Started.TrySetResult();
+        }
+
+        IAgentHandler topo = new GatedStartHandler(AgentType.Topology, releasePhase1.Task, OnPhase1Started);
+        IAgentHandler comp = new GatedStartHandler(AgentType.Compliance, releasePhase1.Task, OnPhase1Started);
+        IAgentHandler critic = new GatedStartHandler(AgentType.Critic, Task.CompletedTask, () => criticStarted.TrySetResult());
+
+        RealAgentExecutor sut = CreateSut(
             Options.Create(new StagedCriticAgentOptions
             {
                 StagedCriticEnabled = true,
-                StagedCriticOverlapEnabled = true,
+                StagedCriticOverlapEnabled = overlapEnabled,
             }),
             new AgentOutputQualityGateOptions { Mode = AgentOutputQualityGateMode.WarnOnly },
             topo,
             comp,
-            slowCritic);
+            critic);
 
-        RealAgentExecutor serialSut = CreateSut(
-            Options.Create(new StagedCriticAgentOptions
+        using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(10));
+        string runId = Guid.NewGuid().ToString("N");
+        AgentEvidencePackage evidence = new();
+        Task<IReadOnlyList<AgentResult>> execution = sut.ExecuteAsync(
+            runId,
+            MinimalRequest(),
+            evidence,
+            CreateStandardBatchTasks(),
+            timeout.Token);
+
+        try
+        {
+            await bothPhase1Started.Task.WaitAsync(timeout.Token);
+
+            if (overlapEnabled)
             {
-                StagedCriticEnabled = true,
-                StagedCriticOverlapEnabled = false,
-            }),
-            new AgentOutputQualityGateOptions { Mode = AgentOutputQualityGateMode.WarnOnly },
-            topo,
-            comp,
-            slowCritic);
+                // A regression to serial execution times out here while phase 1 is gated.
+                await criticStarted.Task.WaitAsync(timeout.Token);
+                evidence.Notes.Should().Contain(n =>
+                    EvidenceNoteTypes.StagedCriticOverlapApplied.Equals(n.NoteType, StringComparison.Ordinal));
+            }
+            else
+            {
+                criticStarted.Task.IsCompleted.Should().BeFalse();
+                evidence.Notes.Should().NotContain(n =>
+                    EvidenceNoteTypes.StagedCriticOverlapApplied.Equals(n.NoteType, StringComparison.Ordinal));
+            }
+        }
+        finally
+        {
+            releasePhase1.TrySetResult();
+        }
 
-        ArchitectureRequest request = MinimalRequest();
-        Stopwatch overlapWatch = Stopwatch.StartNew();
-        await overlapSut.ExecuteAsync(
-            Guid.NewGuid().ToString("N"),
-            request,
-            new AgentEvidencePackage(),
-            CreateStandardBatchTasks(),
-            CancellationToken.None);
-        overlapWatch.Stop();
-
-        Stopwatch serialWatch = Stopwatch.StartNew();
-        await serialSut.ExecuteAsync(
-            Guid.NewGuid().ToString("N"),
-            request,
-            new AgentEvidencePackage(),
-            CreateStandardBatchTasks(),
-            CancellationToken.None);
-        serialWatch.Stop();
-
-        overlapWatch.ElapsedMilliseconds.Should().BeLessThan(serialWatch.ElapsedMilliseconds);
+        await execution.WaitAsync(timeout.Token);
+        await criticStarted.Task.WaitAsync(timeout.Token);
     }
 
     [Fact]
@@ -654,6 +678,34 @@ public sealed class RealAgentExecutorStagedCriticTests
                 TenantId = ScopeIds.DefaultTenant,
                 WorkspaceId = ScopeIds.DefaultWorkspace,
                 ProjectId = ScopeIds.DefaultProject
+            };
+        }
+    }
+
+    private sealed class GatedStartHandler(AgentType agentType, Task release, Action onStart) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public async Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            onStart();
+            await release.WaitAsync(cancellationToken);
+
+            return new AgentResult
+            {
+                RunId = runId,
+                TaskId = task.TaskId,
+                AgentType = agentType,
+                ResultId = $"res-{task.TaskId}",
+                Claims = [],
+                EvidenceRefs = []
             };
         }
     }
