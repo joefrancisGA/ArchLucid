@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
@@ -25,6 +26,9 @@ describe("core-pilot-steps", () => {
 
     expect(hrefs).toContain("/administration/extract-upload");
     expect(hrefs).toContain(SPONSOR_DASHBOARD_HREF);
+    expect(CORE_PILOT_STEPS.find((step) => step.primaryHref === SPONSOR_DASHBOARD_HREF)?.detail).toContain(
+      SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE,
+    );
     expect(
       CORE_PILOT_STEPS.some(
         (step) =>

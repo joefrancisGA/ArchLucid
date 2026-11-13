@@ -6,6 +6,7 @@ import { LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_SAFETY_HEADING_ID } from "
 import { LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_PATH } from "@/lib/livelihood-grade-no-help-route";
 import { LIVELIHOOD_GRADE_NO_SEMANTIC_NOT_COMMIT_GATE_LINE } from "@/lib/livelihood-grade-no-semantic-not-commit-gate";
 import { EXTRACTION_FIDELITY_GATE_MESSAGE } from "@/lib/review-quality/finalize-quality-scorecard";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_SLUG = "extraction-fidelity" as const;
@@ -32,7 +33,7 @@ export const LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_SAFETY_STATUS_TAG =
   "Source inspect required" as const;
 
 export const LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_APPLICABILITY_WORKING =
-  "Working Architecture seats run extraction fidelity and structural provenance gates on Career finalize, export, and sponsor package paths. Portfolio headline savings stay disposition-aware and deduplicated by FindingId — per-system rows do not sum to the headline." as const;
+  `Working Architecture seats run extraction fidelity and structural provenance gates on Career finalize, export, and sponsor package paths. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}` as const;
 
 export const LIVELIHOOD_GRADE_NO_HELP_EXTRACTION_FIDELITY_APPLICABILITY_GUIDED =
   "Guided, demo, and trial seats may show teaching chrome and sample scope. Extraction honesty rules still apply when you move to Working — do not treat practice labeling as sponsor proof." as const;

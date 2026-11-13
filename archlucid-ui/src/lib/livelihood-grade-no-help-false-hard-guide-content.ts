@@ -7,6 +7,7 @@ import { SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD } from "@/lib/feasibility/format-f
 import { LIVELIHOOD_GRADE_NO_ADR_0093_RELATIVE_PATH } from "@/lib/livelihood-grade-no-adr-inventory";
 import { LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE } from "@/lib/livelihood-grade-no-desk-false-hard-copy";
 import { LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_SAFETY_HEADING_ID } from "@/lib/livelihood-grade-no-help-false-hard-evidence-copy";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_PATH } from "@/lib/livelihood-grade-no-help-route";
 import {
   LIVELIHOOD_GRADE_NO_HARD_INFEASIBLE_INVENTORY_DOC_PATH,
@@ -46,7 +47,7 @@ export const LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_SAFETY_BODY =
 export const LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_SAFETY_STATUS_TAG = "Citation required on export" as const;
 
 export const LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_APPLICABILITY_WORKING =
-  "Working Architecture seats run feasibility citation gates on Record (career) finalize, export, decision receipt, and sponsor package paths. Portfolio headline savings stay disposition-aware and deduplicated by FindingId — per-system rows do not sum to the headline." as const;
+  `Working Architecture seats run feasibility citation gates on Record (career) finalize, export, decision receipt, and sponsor package paths. ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}` as const;
 
 export const LIVELIHOOD_GRADE_NO_HELP_FALSE_HARD_APPLICABILITY_GUIDED =
   "Guided, demo, and trial seats may show teaching chrome and sample scope. Feasibility honesty rules still apply when you move to Working — do not treat practice labeling as sponsor proof." as const;
