@@ -15,6 +15,7 @@ import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdow
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveSponsorSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
@@ -70,7 +71,7 @@ export function SponsorRoiSystemsIncludedSection(
             {summary.systems.map((system) => {
               const savingsDisplay =
                 system.estimatedUsdSavings === null || system.estimatedUsdSavings === undefined
-                  ? "Amount not returned"
+                  ? AMOUNT_NOT_RETURNED
                   : presentSponsorEstimatedSavings(system.estimatedUsdSavings, {
                       loading: false,
                       summary,

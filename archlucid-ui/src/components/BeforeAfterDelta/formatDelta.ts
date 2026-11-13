@@ -4,12 +4,14 @@
  * directly from the variant specs without importing React.
  */
 
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
+
 const SECONDS_PER_HOUR = 3600;
 
 /** USD savings from findings snapshot — whole dollars or em-dash when unknown. */
 export function formatUsd(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "Amount not returned";
-  if (!Number.isFinite(value)) return "Amount not returned";
+  if (value === null || value === undefined) return AMOUNT_NOT_RETURNED;
+  if (!Number.isFinite(value)) return AMOUNT_NOT_RETURNED;
 
   return new Intl.NumberFormat(undefined, {
     style: "currency",
