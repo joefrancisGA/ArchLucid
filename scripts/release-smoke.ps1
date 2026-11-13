@@ -412,8 +412,8 @@ function Write-ReleaseSmokeEvidenceSummary {
     }
 
     if ($RanApiCliArtifacts) {
-        Write-Host ('  - Temporary ArchLucid.Api (Release, http profile) backed by tenant SQL resolved from ARCHLUCID_SMOKE_SQL / -SqlConnectionString / ConnectionStrings__ArchLucid (no secrets echoed here)')
-        Write-Host ('  - GET /health/ready + /health/live; CLI new + run --quick against ' + $ApiBaseUrlEvidence)
+        Write-Host ('  - Temporary ArchLucid.Api (Release, StorageProvider=Sql) backed by tenant SQL from ARCHLUCID_SMOKE_SQL / -SqlConnectionString / ConnectionStrings__ArchLucid')
+        Write-Host ('  - GET /health/ready + /health/live; CLI new + HTTP Gate 1 create→commit against ' + $ApiBaseUrlEvidence)
         Write-Host '  - Manifest + synthesized artifacts via HTTP (at least one descriptor)'
     }
 
@@ -855,26 +855,50 @@ try
         exit 1
     }
 
-    Write-OperatorPhaseHeader -Title 'Start API (Release), wait for /health/ready, CLI quick run' -Step 6 -Total 8
+    Write-OperatorPhaseHeader -Title 'Start API (Release), wait for /health/ready, Gate 1 HTTP create→commit' -Step 6 -Total 8
     $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("archlucid-smoke-" + (Get-Date -Format 'yyyyMMddHHmmss'))
     New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
     $env:ConnectionStrings__ArchLucid = $cs
     $env:ASPNETCORE_ENVIRONMENT = 'Development'
     $env:AgentExecution__Mode = 'Simulator'
+    # Development appsettings default StorageProvider=InMemory; Gate 1 requires durable SQL.
+    $env:ArchLucid__StorageProvider = 'Sql'
+    $env:ArchLucidAuth__AllowTestActorHeaders = 'true'
+    $env:DataConsistency__InitialDelaySeconds = '0'
+    $env:HostLeaderElection__Enabled = 'false'
+    $env:ArchLucid__ControllerReadPathWarmup__Enabled = 'false'
+    $env:Demo__Enabled = 'false'
+    $env:Demo__SeedOnStartup = 'false'
 
     if ([bool]$AuthorityPipelineDtfSmoke.IsPresent)
     {
         $env:ArchLucid__AuthorityPipeline__OrchestratorBackend = 'DurableTask'
     }
 
-    $apiProc = Start-Process -FilePath 'dotnet' -ArgumentList @(
-        'run',
-        '--project', $apiProj,
-        '-c', 'Release',
-        '--no-build',
-        '--launch-profile', 'http'
-    ) -WorkingDirectory $root -PassThru -WindowStyle Hidden
+    # -WindowStyle is Windows-only; Linux/macOS pwsh rejects it (Cloud Agent Gate 1 path).
+    $apiStdoutLog = Join-Path $tempRoot 'api-stdout.log'
+    $apiStderrLog = Join-Path $tempRoot 'api-stderr.log'
+    $apiStartArgs = @{
+        FilePath               = 'dotnet'
+        ArgumentList           = @(
+            'run',
+            '--project', $apiProj,
+            '-c', 'Release',
+            '--no-build',
+            '--launch-profile', 'http'
+        )
+        WorkingDirectory       = $root
+        PassThru               = $true
+        RedirectStandardOutput = $apiStdoutLog
+        RedirectStandardError  = $apiStderrLog
+    }
+
+    if ($IsWindows) {
+        $apiStartArgs['WindowStyle'] = 'Hidden'
+    }
+
+    $apiProc = Start-Process @apiStartArgs
 
     if ($null -eq $apiProc)
     {
@@ -960,97 +984,209 @@ try
     }
 
     $env:ARCHLUCID_API_URL = $ApiBaseUrl
-    Push-Location $projDir
-    try
-    {
-        dotnet run --project $cliProj -- run --quick
-        if ($LASTEXITCODE -ne 0) {
-            Write-OperatorFailureTriage -Stage '6/8 CLI run --quick' -Category 'CliRunFailure' `
-                -Details @('run --quick failed — stderr above often includes HTTP status and Next: hints.') `
-                -NextSteps @(
-                'Confirm API still up and ARCHLUCID_API_URL matches smoke API',
-                'API must see Development environment for seed (script sets ASPNETCORE_ENVIRONMENT=Development for child API)',
+
+    # Gate 1 witness: Guided workspace + create (≥100-char architecture brief). SQL StorageProvider
+    # runs the authority pipeline inline to a committed golden manifest (CLI `run --quick` removed).
+    $briefPath = Join-Path $projDir 'inputs/brief.md'
+    if (-not (Test-Path $briefPath)) {
+        Write-OperatorFailureTriage -Stage '6/8 Gate 1 create' -Category 'ScaffoldLayoutMissing' `
+            -Details @("Expected brief at $briefPath after archlucid new.") `
+            -NextSteps @('Re-run CLI new', 'Inspect scaffolded ArchLucidSmokeRc layout')
+        exit 1
+    }
+
+    # Evidence floor is ≥100 chars; Architectures.DisplayName is nvarchar(200) and currently
+    # mirrors description on identity link — keep the create description in that window.
+    $briefContent = @(
+        'Design an Azure App Service + SQL portal with private endpoints, managed identity,',
+        'Key Vault, App Insights, Service Bus, and Blob Storage for internal document workflows.'
+    ) -join ' '
+    Set-Content -LiteralPath $briefPath -Value $briefContent -Encoding utf8
+
+    $createBody = @{
+        requestId            = [guid]::NewGuid().ToString('N')
+        systemName           = ('ArchLucidSmokeRc-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+        description          = $briefContent
+        environment          = 'dev'
+        cloudProvider        = 'Azure'
+        constraints          = @('Private endpoints required', 'Use managed identity', 'release-smoke Gate 1')
+        requiredCapabilities = @('web', 'sql', 'Managed Identity')
+        assumptions          = @('Internal enterprise usage', 'Moderate query volume')
+    } | ConvertTo-Json -Depth 6
+
+    $createParams = @{
+        Uri         = ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/request')
+        Method      = 'Post'
+        ContentType = 'application/json'
+        Body        = $createBody
+    }
+
+    if ($releaseSmokeAuthHeaders.Count -gt 0) {
+        $createParams.Headers = $releaseSmokeAuthHeaders
+    }
+
+    try {
+        $createJson = Invoke-RestMethod @createParams
+    }
+    catch {
+        Write-OperatorFailureTriage -Stage '6/8 Gate 1 create' -Category 'CreateRunFailure' `
+            -Details @("POST /v1/architecture/request failed: $($_.Exception.Message)") `
+            -NextSteps @(
+                'Confirm ArchLucid__StorageProvider=Sql and SQL catalog exists',
+                'API logs often include TB-310 / κ drift if header seals race finalize',
                 'dotnet run --project ArchLucid.Cli -- doctor'
             )
-            exit $LASTEXITCODE
-        }
-    }
-    finally
-    {
-        Pop-Location
-    }
-
-    $summaryPath = Join-Path (Join-Path $projDir 'outputs') 'run-summary.json'
-    if (-not (Test-Path $summaryPath)) {
-        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingRunSummary' `
-            -Details @("Expected outputs\run-summary.json at $summaryPath") `
-            -NextSteps @('Re-run run --quick with API logging visible', 'Check CLI Next: hints from step 5')
         exit 1
     }
 
-    $summary = Get-Content $summaryPath -Raw | ConvertFrom-Json
-    $runId = $summary.runId
+    $runId = [string]$createJson.run.runId
     if ([string]::IsNullOrWhiteSpace($runId)) {
-        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'InvalidRunSummary' `
-            -Details @('run-summary.json exists but runId is empty.') `
-            -NextSteps @('Inspect run-summary.json', 'Re-run CLI run --quick')
+        Write-OperatorFailureTriage -Stage '6/8 Gate 1 create' -Category 'CreateRunFailure' `
+            -Details @('Create response missing run.runId.') `
+            -NextSteps @('Inspect create JSON', 'Confirm API contract for POST /v1/architecture/request')
         exit 1
     }
+
+    $outputsDir = Join-Path $projDir 'outputs'
+    New-Item -ItemType Directory -Path $outputsDir -Force | Out-Null
+    $summaryPath = Join-Path $outputsDir 'run-summary.json'
+    $summaryObject = [ordered]@{
+        runId       = $runId
+        requestId   = [string]$createJson.run.requestId
+        status      = [string]$createJson.run.status
+        createdUtc  = [string]$createJson.run.createdUtc
+        apiBaseUrl  = $ApiBaseUrl.TrimEnd('/')
+        gate1Path   = 'http-create-commit'
+    }
+    ($summaryObject | ConvertTo-Json -Depth 6) | Set-Content -LiteralPath $summaryPath -Encoding utf8
 
     Write-OperatorPhaseHeader -Title "Verify manifest + synthesized artifacts (run $runId)" -Step 7 -Total 8
 
-    $artifactGetParams = @{
-        Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/run/' + $runId)
+    $runGetParams = @{
+        Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/review/' + $runId)
         Method = 'Get'
     }
 
     if ($releaseSmokeAuthHeaders.Count -gt 0) {
-        $artifactGetParams.Headers = $releaseSmokeAuthHeaders
+        $runGetParams.Headers = $releaseSmokeAuthHeaders
     }
 
-    $runJson = Invoke-RestMethod @artifactGetParams
-    $manifestId = $runJson.run.goldenManifestId
-    if ([string]::IsNullOrWhiteSpace($manifestId)) {
+    try {
+        $runJson = Invoke-RestMethod @runGetParams
+    }
+    catch {
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'RunGetFailure' `
+            -Details @("GET /v1/architecture/review/$runId failed: $($_.Exception.Message)") `
+            -NextSteps @('Confirm create completed under Sql storage', 'Inspect API logs for this runId')
+        exit 1
+    }
+
+    $runStatus = [string]$runJson.run.status
+    $manifestId = [string]$runJson.run.goldenManifestId
+    $artifactBundleId = [string]$runJson.run.artifactBundleId
+
+    if ([string]::IsNullOrWhiteSpace($manifestId) -and $runStatus -eq 'ReadyForCommit') {
+        $finalizeParams = @{
+            Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/review/' + $runId + '/finalize')
+            Method = 'Post'
+        }
+
+        if ($releaseSmokeAuthHeaders.Count -gt 0) {
+            $finalizeParams.Headers = $releaseSmokeAuthHeaders
+        }
+
+        try {
+            Invoke-RestMethod @finalizeParams | Out-Null
+            $runJson = Invoke-RestMethod @runGetParams
+            $manifestId = [string]$runJson.run.goldenManifestId
+            $runStatus = [string]$runJson.run.status
+            $artifactBundleId = [string]$runJson.run.artifactBundleId
+        }
+        catch {
+            Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'FinalizeFailure' `
+                -Details @("POST finalize for ReadyForCommit run $runId failed: $($_.Exception.Message)") `
+                -NextSteps @('Inspect κ drift / sealed-hash / TB-310 errors in API logs')
+            exit 1
+        }
+    }
+
+    if ($runStatus -ne 'Committed' -or [string]::IsNullOrWhiteSpace($manifestId)) {
         Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingGoldenManifest' `
-            -Details @("Run $runId has no goldenManifestId in GET /v1/architecture/run/{runId}.") `
+            -Details @("Run $runId status=$runStatus manifest=$manifestId — expected Committed with goldenManifestId.") `
             -NextSteps @(
-            'Check API logs for commit/persistence errors for this runId',
-            'Verify SQL persistence and Development seed path'
+            'Confirm Sql StorageProvider and authority pipeline completed',
+            'Inspect API logs for this runId (TB-310 / MarkAuthorityPipelineCommitted)'
         )
         exit 1
     }
 
+    if ([string]::IsNullOrWhiteSpace($artifactBundleId)) {
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'NoSynthesizedArtifacts' `
+            -Details @("Run $runId is Committed but artifactBundleId is empty.") `
+            -NextSteps @('Authority artifacts stage may have failed — search API logs for this runId')
+        exit 1
+    }
+
     try {
-        $manifestGetParams = @{
-            Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/artifacts/manifests/' + $manifestId)
+        $summaryGetParams = @{
+            Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/authority/signed-review-records/' + $manifestId + '/summary')
             Method = 'Get'
         }
 
         if ($releaseSmokeAuthHeaders.Count -gt 0) {
-            $manifestGetParams.Headers = $releaseSmokeAuthHeaders
+            $summaryGetParams.Headers = $releaseSmokeAuthHeaders
         }
 
-        $artifacts = Invoke-RestMethod @manifestGetParams
+        $null = Invoke-RestMethod @summaryGetParams
     }
     catch {
         Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'ArtifactsApiFailure' `
-            -Details @("GET /v1/artifacts/manifests/$manifestId failed: $($_.Exception.Message)") `
-            -NextSteps @('curl or browser the same URL with API up', 'Check run and manifest IDs in API logs')
+            -Details @("GET /v1/authority/signed-review-records/$manifestId/summary failed: $($_.Exception.Message)") `
+            -NextSteps @('Confirm golden manifest row exists', 'Check run and manifest IDs in API logs')
         exit 1
     }
 
-    $artifactCount = @($artifacts).Count
+    # Career export honesty may 409 list/download without asserted intake; Gate 1 counts durable bundle rows.
+    $binDirRelease = Join-Path $root 'ArchLucid.Api\bin\Release\net10.0\Microsoft.Data.SqlClient.dll'
+    $binDirDebug = Join-Path $root 'ArchLucid.Api\bin\Debug\net10.0\Microsoft.Data.SqlClient.dll'
+    $sqlDllPathForArtifacts = if (Test-Path $binDirRelease) { $binDirRelease } else { $binDirDebug }
+
+    if (-not (Test-Path $sqlDllPathForArtifacts)) {
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingSqlDll' `
+            -Details @("Cannot find Microsoft.Data.SqlClient.dll to count ArtifactBundleArtifacts.") `
+            -NextSteps @('Ensure ArchLucid.Api is built before running smoke.')
+        exit 1
+    }
+
+    Add-Type -Path $sqlDllPathForArtifacts
+    $artifactCount = 0
+    $sqlConnArtifacts = New-Object Microsoft.Data.SqlClient.SqlConnection $cs
+    $sqlConnArtifacts.Open()
+    try {
+        $sqlCmdArtifacts = $sqlConnArtifacts.CreateCommand()
+        $sqlCmdArtifacts.CommandText = @'
+SELECT COUNT(1)
+FROM dbo.ArtifactBundleArtifacts
+WHERE BundleId = @BundleId;
+'@
+        $null = $sqlCmdArtifacts.Parameters.AddWithValue('@BundleId', [guid]$artifactBundleId)
+        $artifactCount = [int]$sqlCmdArtifacts.ExecuteScalar()
+    }
+    finally {
+        $sqlConnArtifacts.Close()
+    }
+
     if ($artifactCount -lt 1) {
         Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'NoSynthesizedArtifacts' `
-            -Details @("Manifest $manifestId returned $artifactCount artifact(s); expected >= 1.") `
+            -Details @("Bundle $artifactBundleId has $artifactCount ArtifactBundleArtifacts row(s); expected >= 1.") `
             -NextSteps @(
-            'Synthesis or persistence regression — search API logs for this manifestId',
+            'Synthesis or persistence regression — search API logs for this runId/bundleId',
             'docs/library/RELEASE_SMOKE.md — Zero artifacts'
         )
         exit 1
     }
 
-    Write-Host "Smoke OK: $artifactCount artifact(s) listed for manifest $manifestId." -ForegroundColor Green
+    Write-Host "Smoke OK: status=Committed manifest=$manifestId bundle=$artifactBundleId artifactRows=$artifactCount." -ForegroundColor Green
 
     Write-OperatorPhaseHeader -Title "Verify durable run-export outbox (run $runId)" -Step 8 -Total 8
 
