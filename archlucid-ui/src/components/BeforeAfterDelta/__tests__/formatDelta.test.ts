@@ -76,6 +76,7 @@ describe("formatPerRunFindingsLine", () => {
     expect(formatPerRunFindingsLine(4)).toBe("4 findings");
     expect(formatPerRunFindingsLine(null)).toBe("Finding count was not stored.");
     expect(formatPerRunFindingsLine(Number.NaN)).toBe("Finding count was not stored.");
+    expect(formatPerRunFindingsLine(-1)).toBe("Finding count was not stored.");
   });
 });
 

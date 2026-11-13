@@ -15,20 +15,32 @@ import type {
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
-import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
+import {
+  SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+} from "@/lib/security-evidence-path-types";
 
 const FINDINGS_PATH = "/api/proxy/v1/operational-security/findings";
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
 
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
+function parseFiniteNumber(value: unknown): number | null {
+  if (value == null) {
+    return null;
+  }
+
   const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function finiteNumberOrDefault(value: unknown, fallback: number): number {
+  const parsed = parseFiniteNumber(value);
+
+  return parsed ?? fallback;
 }
 
 function finiteNumberOrNull(value: unknown): number | null {
-  if (value == null) return null;
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return parseFiniteNumber(value);
 }
 
 function mapStoredLabel(value: unknown, omissionLabel: string): string {
@@ -50,7 +62,7 @@ function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
     provenanceKind: String(raw.provenanceKind ?? ""),
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     inferenceSource: raw.inferenceSource != null ? String(raw.inferenceSource) : null,
-    evidenceReference: String(raw.evidenceReference ?? ""),
+    evidenceReference: mapStoredLabel(raw.evidenceReference, SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED),
     cloudResourceId: raw.cloudResourceId != null ? String(raw.cloudResourceId) : null,
   };
 }
@@ -244,11 +256,11 @@ function mapUnevaluatedGroup(raw: Record<string, unknown>): SecurityEvidencePath
   return {
     reasonCode: String(raw.reasonCode ?? ""),
     whyText: String(raw.whyText ?? ""),
-    pathCount: raw.pathCount == null ? null : finiteNumberOrNull(raw.pathCount),
+    pathCount: finiteNumberOrNull(raw.pathCount),
     pathIds: pathIdsRaw.map((item) => String(item)),
     engineName: raw.engineName != null ? String(raw.engineName) : null,
-    limitValue: raw.limitValue == null ? null : finiteNumberOrNull(raw.limitValue),
-    pathsEmitted: raw.pathsEmitted == null ? null : finiteNumberOrNull(raw.pathsEmitted),
+    limitValue: finiteNumberOrNull(raw.limitValue),
+    pathsEmitted: finiteNumberOrNull(raw.pathsEmitted),
   };
 }
 

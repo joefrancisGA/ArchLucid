@@ -103,7 +103,7 @@ export function formatPerRunFindingsLine(totalFindings: unknown): string {
 
   const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
 
-  if (!Number.isFinite(numeric)) {
+  if (!Number.isFinite(numeric) || numeric < 0) {
     return "Finding count was not stored.";
   }
 

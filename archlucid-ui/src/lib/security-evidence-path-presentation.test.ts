@@ -3,17 +3,29 @@ import { describe, expect, it } from "vitest";
 import {
   explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathHopOrdinalDisplay,
   formatSecurityEvidencePathKindLabel,
   formatSecurityEvidencePathRelationshipLabel,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
+  securityEvidencePathStoredText,
 } from "@/lib/security-evidence-path-presentation";
 import {
+  SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED,
   SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
   securityEvidencePathHopNodeName,
 } from "@/lib/security-evidence-path-types";
 
 describe("security-evidence-path-presentation", () => {
+  it("formats hop ordinals and trims stored omission text", () => {
+    expect(formatSecurityEvidencePathHopOrdinalDisplay(2)).toBe("2");
+    expect(formatSecurityEvidencePathHopOrdinalDisplay(null)).toBe(SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED);
+    expect(securityEvidencePathStoredText("  proposed  ", "Proposed change was not stored.")).toBe("proposed");
+    expect(securityEvidencePathStoredText("   ", "Blast radius was not stored.")).toBe(
+      "Blast radius was not stored.",
+    );
+  });
+
   it("formats provenance and confidence band labels in sentence case", () => {
     expect(formatSecurityEvidenceProvenanceKindLabel("ObservedFact")).toBe(
       "Read from collected evidence. Not observed traffic by itself.",
