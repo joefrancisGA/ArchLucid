@@ -1,10 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 
 import { POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import {
   POLICY_PACKS_PACK_A_ID_QUERY_PARAM,
   POLICY_PACKS_PACK_B_ID_QUERY_PARAM,
@@ -19,7 +19,7 @@ export type { PolicyPacksAuthoringDeps } from "./policy-packs-authoring-deps";
 
 export function usePolicyPacksAuthoring(deps: PolicyPacksAuthoringDeps) {
   const router = useRouter();
-  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const pathname = usePolicyPacksHubPath();
   const searchParams = useSearchParams();
   const ruleIdFromUrl = searchParams.get(POLICY_RULE_ID_QUERY_PARAM)?.trim() ?? "";
   const pickedReviewId = searchParams.get(POLICY_PACKS_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";

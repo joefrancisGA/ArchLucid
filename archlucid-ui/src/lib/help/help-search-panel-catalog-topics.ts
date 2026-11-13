@@ -13,6 +13,7 @@ import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 import { isHelpSearchTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 import type { HelpSearchPanelGroup, HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
@@ -655,7 +656,7 @@ export const SECURITY_SITUATION_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Triage assigned findings",
     description: "Work your remediation queue and record disposition on assigned findings.",
     keywords: ["assigned to me", "remediation", "findings", "disposition", "queue"],
-    action: { kind: "route", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
+    action: { kind: "route", href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
   },
 ];
 
@@ -767,6 +768,23 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "live data": ["first-login-workspace"],
 };
 
+function localizeHelpSearchPanelTopicRoute(
+  topic: HelpSearchPanelTopic,
+  productLineId: ProductLineId,
+): HelpSearchPanelTopic {
+  if (productLineId === "architecture" || topic.action.kind !== "route") {
+    return topic;
+  }
+
+  return {
+    ...topic,
+    action: {
+      ...topic.action,
+      href: remapGovernanceOperatorHref(topic.action.href, productLineId),
+    },
+  };
+}
+
 export function collectHelpSearchPanelTopics(
   isAdmin: boolean,
   productLineId: ProductLineId = "architecture",
@@ -779,18 +797,24 @@ export function collectHelpSearchPanelTopics(
         continue;
       }
 
-      topics.push(topic);
+      topics.push(localizeHelpSearchPanelTopicRoute(topic, productLineId));
     }
   }
 
   if (productLineId === "security") {
-    topics.push(...SECURITY_SITUATION_TOPICS);
+    for (const topic of SECURITY_SITUATION_TOPICS) {
+      topics.push(localizeHelpSearchPanelTopicRoute(topic, productLineId));
+    }
   } else {
-    topics.push(...SITUATION_TOPICS);
+    for (const topic of SITUATION_TOPICS) {
+      topics.push(localizeHelpSearchPanelTopicRoute(topic, productLineId));
+    }
   }
 
   if (isAdmin) {
-    topics.push(...ADVANCED_ADMIN_TOPICS);
+    for (const topic of ADVANCED_ADMIN_TOPICS) {
+      topics.push(localizeHelpSearchPanelTopicRoute(topic, productLineId));
+    }
   }
 
   return topics.filter((topic) => !isHelpSearchTopicExcludedForProductLine(topic.id, productLineId));

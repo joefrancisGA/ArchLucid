@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -18,7 +18,7 @@ import type {
   PolicyPackContentDocument,
 } from "@/types/policy-packs";
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import {
   parsePolicyPacksTabFromSearch,
@@ -32,7 +32,7 @@ import { usePolicyPacksWorkspaceSelection } from "./use-policy-packs-workspace-s
 
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
   const router = useRouter();
-  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const pathname = usePolicyPacksHubPath();
   const searchParams = useSearchParams();
   const packIdFromUrl = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const pageTabFromUrl = parsePolicyPacksTabFromSearch(searchParams.get(POLICY_PACKS_TAB_QUERY_PARAM));

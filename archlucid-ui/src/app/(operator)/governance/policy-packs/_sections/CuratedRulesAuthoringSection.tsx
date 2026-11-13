@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -71,7 +73,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
     highlightRuleId,
   } = props;
   const router = useRouter();
-  const pathname = usePathname() ?? "/governance/policy-packs";
+  const pathname = usePolicyPacksHubPath();
   const searchParams = useSearchParams();
   const curatedRuleEditParam = searchParams.get("curatedRuleEdit");
   const [dialogOpen, setDialogOpenState] = useState(false);

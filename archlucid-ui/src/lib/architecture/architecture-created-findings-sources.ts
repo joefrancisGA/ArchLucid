@@ -1,5 +1,7 @@
+import { remapArchitectureCreatedOrientationSources } from "@/lib/architecture/architecture-created-orientation-source-links";
 import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type ArchitectureCreatedFindingsSourceLink = {
   readonly label: string;
@@ -17,6 +19,12 @@ export const ARCHITECTURE_CREATED_FINDINGS_SOURCES: readonly ArchitectureCreated
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Approval help", href: inAppHelpHref("governance-approval") },
 ] as const;
+
+export function resolveArchitectureCreatedFindingsSources(
+  productLine: ProductLineId,
+): readonly ArchitectureCreatedFindingsSourceLink[] {
+  return remapArchitectureCreatedOrientationSources(ARCHITECTURE_CREATED_FINDINGS_SOURCES, productLine);
+}
 
 export const ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO =
   "Use these follow-ups when create-home Findings triage turns into the findings queue, evidence search, or export readiness.";

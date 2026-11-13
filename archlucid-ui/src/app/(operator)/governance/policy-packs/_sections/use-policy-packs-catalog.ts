@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -8,7 +8,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createPolicyPack, getPolicyPackCatalogEntry, listPolicyPackCatalog } from "@/lib/api";
 import { showSuccess } from "@/lib/toast";
 import type { PolicyPack, PolicyPackCatalogListItem } from "@/types/policy-packs";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { usePolicyPacksHubPath } from "@/lib/product-line/use-policy-packs-hub-path";
 import {
   parsePolicyPackCatalogEntryFromSearch,
   policyPackCatalogEntryHrefFromSearch,
@@ -38,7 +38,7 @@ export type PolicyPacksCatalogSlice = {
 
 export function usePolicyPacksCatalog(controls: PolicyPacksCatalogControls): PolicyPacksCatalogSlice {
   const router = useRouter();
-  const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
+  const pathname = usePolicyPacksHubPath();
   const searchParams = useSearchParams();
   const urlCatalogEntryId = parsePolicyPackCatalogEntryFromSearch(
     searchParams.get(POLICY_PACK_CATALOG_ENTRY_PARAM),

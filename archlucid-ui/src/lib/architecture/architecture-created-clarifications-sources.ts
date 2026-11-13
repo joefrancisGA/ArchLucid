@@ -1,4 +1,6 @@
+import { remapArchitectureCreatedOrientationSources } from "@/lib/architecture/architecture-created-orientation-source-links";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type ArchitectureCreatedClarificationsSourceLink = {
   readonly label: string;
@@ -18,6 +20,12 @@ export const ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES: readonly ArchitectureC
     { label: "Start review (guided questions)", href: "/architecture/reviews/new?path=guided-intake" },
     { label: "Approval help", href: inAppHelpHref("governance-approval") },
   ] as const;
+
+export function resolveArchitectureCreatedClarificationsSources(
+  productLine: ProductLineId,
+): readonly ArchitectureCreatedClarificationsSourceLink[] {
+  return remapArchitectureCreatedOrientationSources(ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES, productLine);
+}
 
 export const ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO =
   "Use these follow-ups when create-home Clarifications gaps turn into evidence capture, findings triage, or another guided-questions pass.";

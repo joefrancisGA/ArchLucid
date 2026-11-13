@@ -49,7 +49,12 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { resolveRecurrenceSchedulesRiskRegisterHref } from "@/lib/recurrence-schedules-copy";
 import { policyPackDetailPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { governanceFindingsQueueNextReviewHref } from "@/components/governance/findings/GovernanceFindingsQueueNextReviewFooter";
+import { resolveArchitectureCreatedFindingsSources } from "@/lib/architecture/architecture-created-findings-sources";
 import { resolveRiskRegisterCsvExportBasename } from "@/lib/architecture/architecture-risk-register-csv";
+import { resolveGovernanceApprovalHelpSources } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { collectHelpSearchPanelTopics } from "@/lib/help/help-search-panel-catalog-topics";
+import { recentViewLabelFromPathname } from "@/lib/operator/operator-recent-views";
+import { resolvePolicyPackDeltaDemoHelpSources } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
 import { isGovernanceFindingsQueueHeaderSearchPath } from "@/lib/shell-header-route-local-search";
 import { buildCommandPaletteCuratedTasks } from "@/lib/command-palette-curated-tasks";
 import { resolveGovernanceApprovalHelpPrimaryActions } from "@/lib/governance/governance-approval-help-guide-content";
@@ -76,6 +81,7 @@ import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_RESOLUTION_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_STANDARDS_AND_RULES_PATH,
@@ -348,5 +354,26 @@ describe("operator hub findings routes product line", () => {
       `${SECURENOW_FINDINGS_PATH}?runId=run-abc`,
     );
     expect(resolveRiskRegisterCsvExportBasename("security")).toBe("compliance-findings-register");
+
+    const helpFindingsTopic = collectHelpSearchPanelTopics(false, "security").find(
+      (topic) => topic.id === "risk-register",
+    );
+    expect(helpFindingsTopic?.action.kind === "route" && helpFindingsTopic.action.href).toBe(SECURENOW_FINDINGS_PATH);
+
+    const helpAssignedTopic = collectHelpSearchPanelTopics(false, "security").find(
+      (topic) => topic.id === "triage-assigned-findings",
+    );
+    expect(
+      helpAssignedTopic?.action.kind === "route" && helpAssignedTopic.action.href,
+    ).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH);
+
+    expect(recentViewLabelFromPathname(SECURENOW_FINDINGS_PATH)).toBe("Findings");
+    expect(findingsHrefFromSources(resolveGovernanceApprovalHelpSources("security"))).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolvePolicyPackDeltaDemoHelpSources("security").find((source) => source.label === "Findings queue")?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
+    expect(
+      resolveArchitectureCreatedFindingsSources("security").find((source) => source.label === "Findings queue")?.href,
+    ).toBe(SECURENOW_FINDINGS_PATH);
   });
 });
