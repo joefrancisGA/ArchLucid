@@ -152,6 +152,40 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.SourceDecisionIds.Should().Equal("sd-1");
         loaded.Trace.Notes.Should().Equal("Synthesis complete.");
         loaded.Trace.TraceId.Should().Be(synthTraceId);
+
+        ArtifactBundle? byPinnedBundleId = await repository.GetByBundleIdInScopeAsync(
+            scope, bundleId, loadArtifactBodies: true, CancellationToken.None);
+        byPinnedBundleId.Should().NotBeNull();
+        byPinnedBundleId!.RunId.Should().Be(runId);
+        byPinnedBundleId.Artifacts.Should().ContainSingle();
+        byPinnedBundleId.Artifacts[0].Content.Should().Be("Plain text body â€” not JSON-encoded.");
+
+        ScopeContext foreignProject = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = Guid.NewGuid()
+        };
+        (await repository.GetByBundleIdInScopeAsync(
+            foreignProject, bundleId, loadArtifactBodies: true, CancellationToken.None)).Should().BeNull();
+
+        ScopeContext foreignWorkspace = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = ProjectId
+        };
+        (await repository.GetByBundleIdInScopeAsync(
+            foreignWorkspace, bundleId, loadArtifactBodies: true, CancellationToken.None)).Should().BeNull();
+
+        ScopeContext foreignTenant = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
+        (await repository.GetByBundleIdInScopeAsync(
+            foreignTenant, bundleId, loadArtifactBodies: true, CancellationToken.None)).Should().BeNull();
     }
 
     [SkippableFact]

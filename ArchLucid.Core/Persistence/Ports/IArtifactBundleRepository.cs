@@ -44,6 +44,17 @@ public interface IArtifactBundleRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Returns a bundle by its recorded primary-key identity, constrained to the caller's
+    ///     tenant, workspace and project. A foreign-scope bundle must be returned as null.
+    ///     Commit recovery uses this when the pipeline manifest differs from the committed manifest.
+    /// </summary>
+    Task<ArtifactBundle?> GetByBundleIdInScopeAsync(
+        ScopeContext scope,
+        Guid bundleId,
+        bool loadArtifactBodies,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns a single artifact (with body) from the bundle associated with <paramref name="manifestId" />,
     ///     or <see langword="null" /> when the bundle or artifact does not exist in scope. Implementations should
     ///     avoid hydrating sibling artifact bodies (single-download hot path).
