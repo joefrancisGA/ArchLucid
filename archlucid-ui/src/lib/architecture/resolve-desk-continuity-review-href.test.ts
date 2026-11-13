@@ -1,14 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   resolveDeskContinuityFindingInspectHref,
   resolveDeskContinuityProvenanceHref,
   resolveDeskContinuityReviewOpenHref,
 } from "@/lib/architecture/resolve-desk-continuity-review-href";
-
-vi.mock("@/lib/global-search-desk-architecture-id", () => ({
-  resolveGlobalSearchDeskArchitectureId: vi.fn(() => null),
-}));
 
 describe("resolveDeskContinuityReviewHref", () => {
   it("opens nested review when architecture id is explicit", () => {
@@ -17,14 +13,12 @@ describe("resolveDeskContinuityReviewHref", () => {
     ).toBe("/architecture/architectures/arch-desk/reviews/run-1");
   });
 
-  it("uses desk continuity for provenance child routes", async () => {
-    const { resolveGlobalSearchDeskArchitectureId } = await import("@/lib/global-search-desk-architecture-id");
-
-    vi.mocked(resolveGlobalSearchDeskArchitectureId).mockReturnValue("arch-continuity");
-
-    expect(resolveDeskContinuityProvenanceHref("run-1")).toBe(
-      "/architecture/architectures/arch-continuity/reviews/run-1/provenance",
-    );
+  it("uses pathname desk continuity for provenance child routes", () => {
+    expect(
+      resolveDeskContinuityProvenanceHref("run-1", {
+        pathname: "/architecture/architectures/arch-continuity/reviews/run-1",
+      }),
+    ).toBe("/architecture/architectures/arch-continuity/reviews/run-1/provenance");
   });
 
   it("routes finding inspect through nested workspace when continuity is known", () => {
