@@ -1,6 +1,11 @@
+"use client";
+
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { STANDARDS_RULES_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { resolveStandardsRulesEmptyCompact } from "@/lib/enterprise-compact-empty-state-presets-governance";
 
 export function StandardsRulesEmptyState() {
-  return <EnterpriseCompactEmptyState {...STANDARDS_RULES_EMPTY_COMPACT} />;
+  const { productLine } = useProductLine();
+
+  return <EnterpriseCompactEmptyState {...resolveStandardsRulesEmptyCompact(productLine)} />;
 }

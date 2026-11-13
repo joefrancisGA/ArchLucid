@@ -1,8 +1,9 @@
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
-import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
+import { buildCommandPaletteCuratedTasks, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 import { flattenNavLinks } from "@/lib/nav-config";
 import { resolveNavLinkPresentation } from "@/lib/operator/operator-nav-labels";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { remapGovernanceOperatorHref } from "@/lib/product-line/securenow-compliance-routes";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import type { GuidedPaletteLockedDestination } from "@/lib/usability/guided-palette-locked-destinations";
@@ -80,12 +81,13 @@ function buildNavFindPageSearchEntries(productLine: ProductLineId): readonly Fin
 
   return flattenNavLinks().map((link) => {
     const presentation = resolveNavLinkPresentation(link, false, false, false, productLine);
+    const href = remapGovernanceOperatorHref(link.href, productLine);
 
     return {
-      id: `nav:${link.href}`,
+      id: `nav:${href}`,
       label: presentation.label,
-      href: link.href,
-      searchValue: `${presentation.label} ${link.label} ${link.href}`,
+      href,
+      searchValue: `${presentation.label} ${link.label} ${href}`,
       source: "nav" as const,
     };
   });
@@ -95,7 +97,7 @@ function buildNavFindPageSearchEntries(productLine: ProductLineId): readonly Fin
 export function buildStaticFindPageSearchIndex(productLineId: ProductLineId = resolveProductLineIdFromEnv()): readonly FindPageSearchEntry[] {
   const nav: FindPageSearchEntry[] = [...buildNavFindPageSearchEntries(productLineId)];
 
-  const curated: FindPageSearchEntry[] = COMMAND_PALETTE_CURATED_TASKS.map((task) => ({
+  const curated: FindPageSearchEntry[] = buildCommandPaletteCuratedTasks(productLineId).map((task) => ({
     id: `curated:${task.href}`,
     label: task.label,
     href: task.href,
@@ -103,13 +105,17 @@ export function buildStaticFindPageSearchIndex(productLineId: ProductLineId = re
     source: "curated",
   }));
 
-  const actions: FindPageSearchEntry[] = COMMAND_PALETTE_ACTIONS.map((action) => ({
-    id: `action:${action.id}`,
-    label: action.label,
-    href: action.href,
-    searchValue: action.searchValue,
-    source: "action",
-  }));
+  const actions: FindPageSearchEntry[] = COMMAND_PALETTE_ACTIONS.map((action) => {
+    const href = remapGovernanceOperatorHref(action.href, productLineId);
+
+    return {
+      id: `action:${action.id}`,
+      label: action.label,
+      href,
+      searchValue: action.searchValue,
+      source: "action" as const,
+    };
+  });
 
   return dedupeFindPageEntriesByHref([...nav, ...curated, ...actions]);
 }

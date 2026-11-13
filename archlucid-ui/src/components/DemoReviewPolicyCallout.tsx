@@ -3,7 +3,10 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+"use client";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME } from "@/lib/operator/operator-demo-review";
 
 export type DemoReviewPolicyCalloutProps = {
@@ -12,6 +15,8 @@ export type DemoReviewPolicyCalloutProps = {
 
 /** Compact banner on operator demo review detail — surfaces the governing policy pack. */
 export function DemoReviewPolicyCallout(props: DemoReviewPolicyCalloutProps): React.JSX.Element {
+  const { productLine } = useProductLine();
+  const policyPacksHref = policyPacksPathForProductLine(productLine);
   const policyPackName =
     props.policyPackName !== null &&
     props.policyPackName !== undefined &&
@@ -39,7 +44,7 @@ export function DemoReviewPolicyCallout(props: DemoReviewPolicyCalloutProps): Re
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind="ready" label={`Pack: ${policyPackName}`} />
           <Link
-            href={GOVERNANCE_POLICY_PACKS_PATH}
+            href={policyPacksHref}
             className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             View policy packs

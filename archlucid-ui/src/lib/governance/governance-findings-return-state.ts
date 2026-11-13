@@ -1,7 +1,10 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+
 const GOVERNANCE_FINDINGS_RETURN_HREF_KEY = "archlucid_governance_findings_return_href_v1";
 
 function isPersistableFindingsReturnHref(href: string): boolean {
-  if (href.startsWith("/governance/findings")) {
+  if (href.startsWith("/governance/findings") || href.startsWith("/compliance/findings")) {
     return true;
   }
 
@@ -27,9 +30,13 @@ export function persistGovernanceFindingsReturnHref(href: string): void {
   }
 }
 
-export function readGovernanceFindingsReturnHref(): string {
+export function readGovernanceFindingsReturnHref(
+  productLine: ProductLineId = "architecture",
+): string {
+  const defaultHref = findingsPathForProductLine(productLine);
+
   if (typeof window === "undefined") {
-    return "/governance/findings";
+    return defaultHref;
   }
 
   try {
@@ -42,5 +49,5 @@ export function readGovernanceFindingsReturnHref(): string {
     /* private mode */
   }
 
-  return "/governance/findings";
+  return defaultHref;
 }

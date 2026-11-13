@@ -28,7 +28,7 @@ import {
   STANDARDS_RULES_HELP_PRIMARY_ACTION,
   STANDARDS_RULES_HELP_PRIMARY_CONTENT_ID,
   STANDARDS_RULES_HELP_SKIP_LINK_LABEL,
-  STANDARDS_RULES_HELP_TABLE_ITEMS,
+  resolveStandardsRulesHelpTableItems,
   standardsRulesHelpHowToReadSteps,
   standardsRulesHelpOverview,
   standardsRulesHelpPageSubtitle,
@@ -131,7 +131,7 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
               className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-standards-rules-table-items"
             >
-              {STANDARDS_RULES_HELP_TABLE_ITEMS.map((item) => (
+              {resolveStandardsRulesHelpTableItems(productLineId).map((item) => (
                 <div key={item.label}>
                   <dt className="font-medium text-al-text-primary">
                     <Link className={OPERATOR_LINK.nav} href={item.href}>

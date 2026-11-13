@@ -4,12 +4,21 @@ import {
 } from "@/lib/first-review-guide-route";
 
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 
 import { reviewsHubInventoryFilterHref } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-inventory-filters";
 
 /** Deep-links for clickable operator-home workspace metrics. */
 
 export const OPERATOR_HOME_OPEN_FINDINGS_HREF = buildGovernanceFindingsQueueHref({ filter: "open" });
+
+export function resolveOperatorHomeOpenFindingsHref(productLine: ProductLineId): string {
+  return buildGovernanceFindingsQueueHref({
+    filter: "open",
+    basePath: findingsPathForProductLine(productLine),
+  });
+}
 
 /** Home query param that pre-filters Recent reviews to packages with approval warnings. */
 export const OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM = "warnings";
