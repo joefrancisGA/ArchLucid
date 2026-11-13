@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
@@ -75,7 +76,7 @@ describe("SponsorRoiSystemsIncludedSection", () => {
 
     fireEvent.click(screen.getByText("Systems included (per-system detail)"));
 
-    expect(screen.getByTestId("exec-roi-system-savings-run-legacy-003")).toHaveTextContent("Amount not returned");
+    expect(screen.getByTestId("exec-roi-system-savings-run-legacy-003")).toHaveTextContent(AMOUNT_NOT_RETURNED);
   });
 
   it("returns null when no systems are included", () => {

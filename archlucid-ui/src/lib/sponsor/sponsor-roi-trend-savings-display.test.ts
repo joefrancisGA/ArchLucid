@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { mapSponsorRoiTrendSavingsChartPoints } from "@/lib/sponsor/sponsor-roi-trend-savings-display";
 
 describe("mapSponsorRoiTrendSavingsChartPoints", () => {
@@ -36,7 +37,7 @@ describe("mapSponsorRoiTrendSavingsChartPoints", () => {
     );
 
     expect(points[0]?.totalEstimatedUsdSavings).toBeNull();
-    expect(points[0]?.savingsTooltipSuffix).toBe("Amount not returned");
+    expect(points[0]?.savingsTooltipSuffix).toBe(AMOUNT_NOT_RETURNED);
   });
 
   it("does not coerce omitted total savings to zero when run mix is known", () => {
@@ -54,6 +55,6 @@ describe("mapSponsorRoiTrendSavingsChartPoints", () => {
     );
 
     expect(points[0]?.totalEstimatedUsdSavings).toBeNull();
-    expect(points[0]?.savingsTooltipSuffix).toBe("Amount not returned");
+    expect(points[0]?.savingsTooltipSuffix).toBe(AMOUNT_NOT_RETURNED);
   });
 });

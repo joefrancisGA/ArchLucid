@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { useSponsorRoiEnvironmentSavingsQuery } from "@/hooks/use-sponsor-roi-environment-savings-query";
+import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -29,7 +30,7 @@ function formatEnvironmentSavingsUsd(value: unknown): string {
   const amount = finiteEnvironmentSavingsUsd(value);
 
   if (amount === null) {
-    return "Amount not returned";
+    return AMOUNT_NOT_RETURNED;
   }
 
   return `$${Math.round(amount).toLocaleString()}`;
