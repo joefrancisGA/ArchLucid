@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  COUNT_NOT_RETURNED,
+  HOURS_NOT_RETURNED,
+} from "@/lib/amount-display-copy";
+import {
   formatFindings,
   formatHours,
   hasMeaningfulSidebarDeltaMedians,
@@ -16,11 +20,11 @@ describe("formatHours", () => {
   });
 
   it("returns explicit not-returned copy for null/undefined/non-finite/negative", () => {
-    expect(formatHours(null)).toBe("Hours not returned");
-    expect(formatHours(undefined)).toBe("Hours not returned");
-    expect(formatHours(Number.NaN)).toBe("Hours not returned");
-    expect(formatHours(Number.POSITIVE_INFINITY)).toBe("Hours not returned");
-    expect(formatHours(-1)).toBe("Hours not returned");
+    expect(formatHours(null)).toBe(HOURS_NOT_RETURNED);
+    expect(formatHours(undefined)).toBe(HOURS_NOT_RETURNED);
+    expect(formatHours(Number.NaN)).toBe(HOURS_NOT_RETURNED);
+    expect(formatHours(Number.POSITIVE_INFINITY)).toBe(HOURS_NOT_RETURNED);
+    expect(formatHours(-1)).toBe(HOURS_NOT_RETURNED);
   });
 });
 
@@ -32,9 +36,9 @@ describe("formatFindings", () => {
   });
 
   it("returns explicit not-returned copy for null/undefined/non-finite", () => {
-    expect(formatFindings(null)).toBe("Count not returned");
-    expect(formatFindings(undefined)).toBe("Count not returned");
-    expect(formatFindings(Number.NaN)).toBe("Count not returned");
+    expect(formatFindings(null)).toBe(COUNT_NOT_RETURNED);
+    expect(formatFindings(undefined)).toBe(COUNT_NOT_RETURNED);
+    expect(formatFindings(Number.NaN)).toBe(COUNT_NOT_RETURNED);
   });
 });
 

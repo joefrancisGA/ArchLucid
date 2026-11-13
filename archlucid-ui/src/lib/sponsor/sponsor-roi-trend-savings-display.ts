@@ -1,5 +1,8 @@
 import { resolveExecutiveTrendSavingsUsd } from "@/lib/execution-mode-honesty";
-import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
+import {
+  AMOUNT_NOT_RETURNED,
+  RUN_MIX_NOT_RETURNED,
+} from "@/lib/amount-display-copy";
 import type { SponsorRoiHistoryPoint } from "@/lib/sponsor-roi-query-fetch";
 
 import { finiteSponsorRoiHistoryCount } from "@/lib/sponsor/sponsor-roi-trend-history-point-display";
@@ -35,7 +38,7 @@ export function mapSponsorRoiTrendSavingsChartPoints(
       return {
         snapshotUtc: point.snapshotUtc,
         totalEstimatedUsdSavings,
-        savingsTooltipSuffix: "Run mix not returned",
+        savingsTooltipSuffix: RUN_MIX_NOT_RETURNED,
       };
     }
 
