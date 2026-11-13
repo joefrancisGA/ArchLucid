@@ -14,6 +14,9 @@ export const SECURITY_EVIDENCE_PATH_NODE_NAME_NOT_STORED = "Node name was not st
 
 export const SECURITY_EVIDENCE_PATH_NODE_NAME_STORED_EMPTY = "Node name was stored empty." as const;
 
+export const SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED =
+  "Relationship type was not stored." as const;
+
 export function securityEvidencePathHopNodeName(label: string): string {
   const trimmed = label.trim();
 

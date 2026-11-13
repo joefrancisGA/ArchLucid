@@ -1,4 +1,7 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+} from "@/lib/security-evidence-path-types";
 
 const PATH_CONFIDENCE_BAND_LABELS: Readonly<Record<string, string>> = {
   Confirmed: "Confirmed",
@@ -92,13 +95,20 @@ const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
   if (edgeType === null || edgeType === undefined) {
-    return "Relationship type was not stored";
+    return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
   }
 
   const trimmed = edgeType.trim();
 
   if (trimmed.length === 0) {
     return "Relationship type was stored empty.";
+  }
+
+  if (
+    trimmed === SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED
+    || trimmed === "Relationship type was not stored"
+  ) {
+    return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
   }
 
   const mapped = PATH_RELATIONSHIP_LABELS[trimmed];

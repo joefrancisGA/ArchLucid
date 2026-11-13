@@ -8,7 +8,10 @@ import {
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
-import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
+import {
+  SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+  securityEvidencePathHopNodeName,
+} from "@/lib/security-evidence-path-types";
 
 describe("security-evidence-path-presentation", () => {
   it("formats provenance and confidence band labels in sentence case", () => {
@@ -93,7 +96,12 @@ describe("security-evidence-path-presentation", () => {
       "Role allows read. This is not observed use.",
     );
     expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("Relationship type was stored empty.");
-    expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe("Relationship type was not stored");
+    expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe(
+      SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+    );
+    expect(formatSecurityEvidencePathRelationshipLabel("Relationship type was not stored")).toBe(
+      SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+    );
   });
 
   it("leads hop labels with the trailing resource name", () => {

@@ -9,6 +9,7 @@ import {
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
 } from "@/lib/product-line/securenow-path-inspect-copy";
+import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
 
 vi.mock("@/hooks/use-operational-security-finding-detail-query", () => ({
   useOperationalSecurityFindingDetailQuery: vi.fn(),
@@ -395,7 +396,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
             hopOrdinal: 2,
             fromNodeLabel: "Hop source was not stored.",
             toNodeLabel: "Hop destination was not stored.",
-            edgeType: "Relationship type was not stored",
+            edgeType: SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
             provenanceKind: "DerivedFact",
             hopConfidenceBand: "Possible",
             inferenceSource: "tag:owner",
