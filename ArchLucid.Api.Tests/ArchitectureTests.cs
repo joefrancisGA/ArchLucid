@@ -27,7 +27,8 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         {
             requestId = TestRequestIds.ForScenario(nameof(ArchitectureTests)),
             description = "Test architecture",
-            systemName = "TestSystem",
+            // Each test creates a fresh review name within the shared integration workspace.
+            systemName = $"TestSystem-{Guid.NewGuid():N}",
             environment = "dev",
             cloudProvider = 1
         };
@@ -48,7 +49,8 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         {
             requestId = TestRequestIds.ForScenario(nameof(ArchitectureTests)),
             description = "Test architecture",
-            systemName = "TestSystem",
+            // Each test creates a fresh review name within the shared integration workspace.
+            systemName = $"TestSystem-{Guid.NewGuid():N}",
             environment = "dev",
             cloudProvider = 1
         };
