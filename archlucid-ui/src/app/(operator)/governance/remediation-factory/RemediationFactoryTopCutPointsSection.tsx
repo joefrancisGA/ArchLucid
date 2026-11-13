@@ -7,20 +7,20 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
-import { SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE } from "@/lib/product-line/securenow-path-inspect-copy";
+import { remediationFactoryTopCutPointsErrorRecovery } from "@/lib/remediation-factory/remediation-factory-error-recovery";
 import type { SecurityEvidencePathCutPoint } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
+import { RemediationFactoryBorderedSection } from "./RemediationFactoryBorderedSection";
 import {
   REMEDIATION_FACTORY_TOP_CUT_POINTS_EMPTY,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_LOADING,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_PATTERN_PREFIX,
+  REMEDIATION_FACTORY_TOP_CUT_POINTS_SUGGESTED_PATTERN_NOT_STORED,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH,
 } from "./remediation-factory-top-cut-points-copy";
-
-const REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED = "Suggested pattern was not stored.";
 
 function formatCutPointHeadline(cutPoint: SecurityEvidencePathCutPoint): string {
   const fromLabel = cutPoint.fromNodeLabel?.trim() ?? "";
@@ -63,31 +63,23 @@ export function RemediationFactoryTopCutPointsSection(props: {
 }) {
   if (props.isLoading) {
     return (
-      <section
-        className="space-y-3 rounded border border-border p-4"
-        aria-label={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
-        data-testid="remediation-factory-top-cut-points"
+      <RemediationFactoryBorderedSection
+        title={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
+        testId="remediation-factory-top-cut-points"
       >
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_LOADING}</p>
-      </section>
+      </RemediationFactoryBorderedSection>
     );
   }
 
   if (props.isError) {
     return (
-      <section
-        className="space-y-3 rounded border border-border p-4"
-        aria-label={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
-        data-testid="remediation-factory-top-cut-points"
+      <RemediationFactoryBorderedSection
+        title={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
+        testId="remediation-factory-top-cut-points"
       >
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
         <OperatorErrorRecoveryContract
-          presentation={{
-            whatFailed: "Top cut points did not load.",
-            whatIsIntact: "The priority queue and ranked paths on this page are unchanged.",
-            nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
-          }}
+          presentation={remediationFactoryTopCutPointsErrorRecovery()}
           testId="remediation-top-cut-points-error-recovery"
         />
         <RefreshButton
@@ -95,7 +87,7 @@ export function RemediationFactoryTopCutPointsSection(props: {
           label="Refresh cut points"
           onClick={() => void props.refetch()}
         />
-      </section>
+      </RemediationFactoryBorderedSection>
     );
   }
 
@@ -104,19 +96,17 @@ export function RemediationFactoryTopCutPointsSection(props: {
   }
 
   return (
-    <section
-      className="space-y-3 rounded border border-border p-4"
-      aria-label={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
-      data-testid="remediation-factory-top-cut-points"
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
+    <RemediationFactoryBorderedSection
+      title={REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}
+      testId="remediation-factory-top-cut-points"
+      headerAside={
         <RefreshButton
           busy={props.isFetching}
           label="Refresh cut points"
           onClick={() => void props.refetch()}
         />
-      </div>
+      }
+    >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD}</p>
 
       {props.cutPoints.length === 0 ? (
@@ -154,7 +144,7 @@ export function RemediationFactoryTopCutPointsSection(props: {
                       </Link>
                     </>
                   ) : (
-                    REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED
+                    REMEDIATION_FACTORY_TOP_CUT_POINTS_SUGGESTED_PATTERN_NOT_STORED
                   )}
                 </p>
                 {highlightPathId != null ? (
@@ -174,6 +164,6 @@ export function RemediationFactoryTopCutPointsSection(props: {
           })}
         </ol>
       )}
-    </section>
+    </RemediationFactoryBorderedSection>
   );
 }

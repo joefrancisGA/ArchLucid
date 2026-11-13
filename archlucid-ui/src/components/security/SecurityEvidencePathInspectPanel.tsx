@@ -87,7 +87,12 @@ import {
   securityEvidencePathConfidenceBandStatusKind,
   securityEvidencePathStoredText,
 } from "@/lib/security-evidence-path-presentation";
-import { SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED } from "@/lib/security-evidence-path-types";
+import { securityEvidencePathNonBlankLines } from "@/lib/security-evidence-path-text";
+import {
+  SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
+} from "@/lib/security-evidence-path-types";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import {
@@ -450,12 +455,21 @@ function PathExplanationSection(props: {
           ruleVersion={props.explanation.simulatorLabel}
           generatedAt={props.generatedAt}
           targetLabel={props.targetLabel}
-          body={[
+          body={securityEvidencePathNonBlankLines([
             props.explanation.executiveSummary,
             ...props.explanation.businessImpactHypotheses,
-            props.explanation.proposedRemediation.recommendedChange.trim().length > 0
-              ? `Recommended change: ${props.explanation.proposedRemediation.recommendedChange}`
-              : "Recommended change was not stored.",
+            (() => {
+              const recommendedChange = securityEvidencePathStoredText(
+                props.explanation.proposedRemediation.recommendedChange,
+                SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
+              );
+
+              if (recommendedChange === SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED) {
+                return recommendedChange;
+              }
+
+              return `Recommended change: ${recommendedChange}`;
+            })(),
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
               : "Cited evidence was not stored.",
@@ -464,9 +478,7 @@ function PathExplanationSection(props: {
               : "",
             showRankContextInExplanation ? rankContext : "",
             props.explanation.modelOutputRejection?.trim() ?? "",
-          ]
-            .filter((line) => line.trim().length > 0)
-            .join("\n\n")}
+          ]).join("\n\n")}
           auditTrailRecorded={isModelExplanation}
           testId="security-evidence-path-explanation-output"
         />
@@ -1107,7 +1119,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                       {cutPoint.suggestedPatternKey != null && cutPoint.suggestedPatternKey.trim().length > 0
                         ? `Pattern: ${cutPoint.suggestedPatternKey}`
-                        : "Pattern was not stored."}
+                        : SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED}
                     </p>
                   </li>
                 ))}
