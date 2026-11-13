@@ -81,7 +81,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
         DiagramEdge? contains = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => edge.Label != null && edge.Label.Contains(
+            .SingleOrDefault(edge => edge.Label is not null && edge.Label.Contains(
                 DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel,
                 StringComparison.OrdinalIgnoreCase));
         contains.Should().NotBeNull();
