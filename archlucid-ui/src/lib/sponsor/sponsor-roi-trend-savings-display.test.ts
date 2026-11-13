@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { AMOUNT_NOT_RETURNED } from "@/lib/amount-display-copy";
+import {
+  AMOUNT_NOT_RETURNED,
+  RUN_MIX_NOT_RETURNED,
+} from "@/lib/amount-display-copy";
 import { mapSponsorRoiTrendSavingsChartPoints } from "@/lib/sponsor/sponsor-roi-trend-savings-display";
 
 describe("mapSponsorRoiTrendSavingsChartPoints", () => {
@@ -19,7 +22,7 @@ describe("mapSponsorRoiTrendSavingsChartPoints", () => {
     );
 
     expect(points[0]?.totalEstimatedUsdSavings).toBe(500);
-    expect(points[0]?.savingsTooltipSuffix).toBe("Run mix not returned");
+    expect(points[0]?.savingsTooltipSuffix).toBe(RUN_MIX_NOT_RETURNED);
   });
 
   it("does not coerce omitted real-mode savings to zero in buyer-polished mode", () => {
