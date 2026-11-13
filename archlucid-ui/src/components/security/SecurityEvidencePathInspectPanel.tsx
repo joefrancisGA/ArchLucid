@@ -67,6 +67,7 @@ import {
   SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
+  SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -877,7 +878,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             presentation={{
               whatFailed: "Path inspect did not load.",
               whatIsIntact: "The snapshot selection stays on this page.",
-              nextStep: "Retry the load. This does not change Azure.",
+              nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
             }}
             testId="security-evidence-path-inspect-error-recovery"
           />
@@ -903,7 +904,7 @@ export function SecurityEvidencePathInspectPanel(props: {
           presentation={{
             whatFailed: "Path inspect did not load.",
             whatIsIntact: "The snapshot selection stays on this page.",
-            nextStep: "Retry the load. This does not change Azure.",
+              nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
           }}
           testId="security-evidence-path-inspect-empty-error-recovery"
         />
@@ -990,7 +991,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                 presentation={{
                   whatFailed: "Path inspect did not load.",
                   whatIsIntact: "The snapshot selection stays on this page.",
-                  nextStep: "Retry the load. This does not change Azure.",
+                  nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
                 }}
                 testId="security-evidence-path-rank-error-recovery"
               />

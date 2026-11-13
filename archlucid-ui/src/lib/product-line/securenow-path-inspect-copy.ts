@@ -12,6 +12,9 @@ export const SECURENOW_PATH_INSPECT_LOADING = "Loading path inspect…" as const
 
 export const SECURENOW_PATH_INSPECT_ERROR = "Path inspect unavailable" as const;
 
+export const SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE =
+  "Retry the load. This does not change Azure." as const;
+
 export const SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE = secureNowTitleCase("Weakest hop");
 
 export const SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE = secureNowTitleCase("Architect path summary");

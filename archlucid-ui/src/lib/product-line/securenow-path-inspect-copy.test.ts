@@ -5,6 +5,7 @@ import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
   SECURENOW_PATH_INSPECT_PANEL_TITLE,
+  SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
@@ -33,6 +34,12 @@ describe("securenow-path-inspect-copy", () => {
 
   it("keeps the no-path finding sentence exact", () => {
     expect(SECURENOW_PATH_INSPECT_EMPTY_NO_PATH).toBe("This finding does not cite a path.");
+  });
+
+  it("keeps retry recovery advisory and non-mutating", () => {
+    expect(SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE).toBe(
+      "Retry the load. This does not change Azure.",
+    );
   });
 
   it("keeps explanations and empty ranked paths honest about the rank", () => {

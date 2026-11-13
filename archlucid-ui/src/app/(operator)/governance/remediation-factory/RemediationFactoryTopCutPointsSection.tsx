@@ -7,6 +7,7 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE } from "@/lib/product-line/securenow-path-inspect-copy";
 import type { SecurityEvidencePathCutPoint } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +85,7 @@ export function RemediationFactoryTopCutPointsSection(props: {
           presentation={{
             whatFailed: "Top cut points did not load.",
             whatIsIntact: "The priority queue and ranked paths on this page are unchanged.",
-            nextStep: "Retry the load. This does not change Azure.",
+            nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
           }}
           testId="remediation-top-cut-points-error-recovery"
         />

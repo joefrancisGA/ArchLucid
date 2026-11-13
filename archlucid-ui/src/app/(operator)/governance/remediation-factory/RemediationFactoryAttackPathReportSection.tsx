@@ -13,6 +13,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE } from "@/lib/product-line/securenow-path-inspect-copy";
 import type { SecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
@@ -87,7 +88,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
             presentation={{
               whatFailed: "Attack path report did not load.",
               whatIsIntact: "The snapshot selection and ranked path table stay on this page.",
-              nextStep: "Retry the load. This does not change Azure.",
+              nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
             }}
             testId="attack-path-report-error-recovery"
           />
