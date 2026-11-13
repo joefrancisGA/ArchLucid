@@ -15,6 +15,7 @@ namespace ArchLucid.Application.Tests.Analysis;
 /// <summary>
 /// PDF/DOCX export parity with markdown/HTML: detailed appendices and interpretation-notes fallback.
 /// </summary>
+[Collection("PdfRendering")]
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class EndToEndReplayComparisonPdfAndDocxParityTests

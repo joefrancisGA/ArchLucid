@@ -6,6 +6,7 @@ using UglyToad.PdfPig;
 
 namespace ArchLucid.Application.Tests.Pilots;
 
+[Collection("PdfRendering")]
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ProductDocumentationPdfBuilderTests
