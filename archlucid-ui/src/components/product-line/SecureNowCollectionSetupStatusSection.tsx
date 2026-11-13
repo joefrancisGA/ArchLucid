@@ -25,6 +25,7 @@ import {
   SECURENOW_COLLECTION_READY_NEXT_LABEL,
   SECURENOW_COLLECTION_READY_NEXT_SUMMARY,
 } from "@/lib/product-line/securenow-collection-setup-ready-copy";
+import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/securenow-second-capture-delta-copy";
 import { cn } from "@/lib/utils";
 
 export type SecureNowCollectionSetupStatusSectionProps = {
@@ -90,6 +91,14 @@ export function SecureNowCollectionSetupStatusSection(
               snapshotId={latestSnapshotQuery.latestSnapshotId}
               testIdPrefix={props.testIdPrefix}
             />
+          ) : null}
+          {latestSnapshotQuery.succeededSnapshotCountOnFirstPage < 2 ? (
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid={`${props.testIdPrefix}-collection-second-capture-honesty`}
+            >
+              {SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE}
+            </p>
           ) : null}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_READY_NEXT_SUMMARY}</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

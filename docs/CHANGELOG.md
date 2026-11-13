@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-13 - Score lift round 40 (batch 5): SecureNow queue open-gate, path inspect honesty, and compliance hard-failure surfaces
+
+**Outcome.** SecureNow findings queue header adds open-gate filters, assigned-pack and WK-21 honesty strips, compliance breadcrumb handoff to policy packs, path inspect stored-rank discipline, remediation and infrastructure Reader-scope hints, collection second-capture honesty, synthetic fixture labels, attack-path diagram empty discipline, hosted SaaS OpenAI getting-started copy, compliance hub report-problem entries, and PilotStrict evidence anchors for compliance and critic tasks. Architecture defaults remain unchanged.
+
+**Surfaces.** Findings queue chrome, path inspect, remediation factory, infrastructure overview, operator home collection, help getting started, report-problem registry, agent output quality gate tests, route contract tests.
+
 ## 2026-11-13 - Score lift round 39 (batch 4): SecureNow contextual help, provenance, and empty-teaching paths
 
 **Outcome.** Compliance policy-pack routes show contextual-help FAB affordances, public-demo nav omissions treat SecureNow compliance hubs like governance peers, decision-register empty teaching and pattern-library pack guidance link to `/compliance/findings` and `/compliance/policy-packs`, and provenance policy-pack references honor product line. Architecture defaults remain unchanged.

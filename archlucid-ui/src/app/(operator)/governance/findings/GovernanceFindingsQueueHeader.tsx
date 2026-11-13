@@ -1,11 +1,16 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
 import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findings/GovernanceFindingsQueueBreadcrumb";
+import { SecureNowFindingsQueueAssignedPacksLine } from "@/components/governance/findings/SecureNowFindingsQueueAssignedPacksLine";
+import { SecureNowFindingsQueueOpenGateStrip } from "@/components/governance/findings/SecureNowFindingsQueueOpenGateStrip";
+import { SecureNowFindingsWk21HonestyStrip } from "@/components/governance/findings/SecureNowFindingsWk21HonestyStrip";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -39,6 +44,7 @@ import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/governance/governance-findings-queue-path-inspect-page-shortcuts";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { resolveSecureNowFindingsQueueOpenGate } from "@/lib/product-line/securenow-findings-queue-open-gate";
 import { FINDINGS_PAGE_SHORTCUTS } from "@/lib/shortcut-registry";
 
 export type GovernanceFindingsQueueHeaderProps = {
@@ -121,6 +127,25 @@ export function GovernanceFindingsQueueHeader({
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";
   const secureNowProductLine = isSecureNowProductLine(productLine);
+  const secureNowFindingsOpenGate = useMemo(
+    () =>
+      secureNowProductLine
+        ? resolveSecureNowFindingsQueueOpenGate(productLine, {
+            isAssignedToMe,
+            pendingOwner: registerSummary.pendingOwner,
+            openRisks: registerSummary.openRisks,
+            overdueReview: registerSummary.overdueReview,
+          })
+        : null,
+    [
+      secureNowProductLine,
+      productLine,
+      isAssignedToMe,
+      registerSummary.pendingOwner,
+      registerSummary.openRisks,
+      registerSummary.overdueReview,
+    ],
+  );
   const findingsDeskShortcutEntries = [
     ...FINDINGS_PAGE_SHORTCUTS.filter(
       (entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key),
@@ -168,7 +193,7 @@ export function GovernanceFindingsQueueHeader({
           isAssignedToMe ? (
             <GovernanceFindingsAssignedToMeBreadcrumb />
           ) : buyerPolishedShell ? (
-            <GovernanceFindingsQueueBreadcrumb />
+            <GovernanceFindingsQueueBreadcrumb productLine={productLine} />
           ) : undefined
         }
         statusBadge={assignedToMeStatusBadge}
@@ -261,6 +286,15 @@ export function GovernanceFindingsQueueHeader({
           )
         }
       />
+      {secureNowProductLine && !isAssignedToMe ? (
+        <div className="mt-2 space-y-1">
+          <SecureNowFindingsQueueAssignedPacksLine />
+          <SecureNowFindingsWk21HonestyStrip />
+          {secureNowFindingsOpenGate !== null ? (
+            <SecureNowFindingsQueueOpenGateStrip openGate={secureNowFindingsOpenGate} />
+          ) : null}
+        </div>
+      ) : null}
       {showFindingsDeskShortcutRow ? (
         <p
           className={cn("m-0 mt-2 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
