@@ -10,6 +10,8 @@ import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -1422,22 +1424,29 @@ export function DriftWorkbenchClient() {
         ) : null}
 
         {loadError != null ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-drift-load-error-panel"
-            footer={
-              <div className="flex flex-wrap items-center gap-2">
-                <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
-                  Retry load
-                </Button>
-                <Button type="button" size="sm" variant="outline" asChild>
-                  <Link href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</Link>
-                </Button>
-              </div>
-            }
-          />
+          <div className="space-y-2" data-testid="infra-drift-load-error-panel">
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title={GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE}
+              description={loadError}
+              testId="infra-drift-load-error-empty"
+              footer={
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                    Retry load
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" asChild>
+                    <Link href={ADMINISTRATION_SYSTEM_HEALTH_PATH}>System health</Link>
+                  </Button>
+                </div>
+              }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: loadError,
+              })}
+            />
+          </div>
         ) : null}
 
         <section

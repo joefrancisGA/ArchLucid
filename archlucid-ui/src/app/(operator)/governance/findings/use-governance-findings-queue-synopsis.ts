@@ -180,7 +180,7 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
         displayedRows,
         scopedRunFilterActive ? scopedRunId : null,
         inhabitedFindingsInspectHrefOptions,
-        { allowRecentWithoutLoadedRow: isAssignedToMe },
+        { allowRecentWithoutLoadedRow: isAssignedToMe && displayedRows.length > 0 },
       ),
     [displayedRows, inhabitedFindingsInspectHrefOptions, isAssignedToMe, scopedRunFilterActive, scopedRunId],
   );

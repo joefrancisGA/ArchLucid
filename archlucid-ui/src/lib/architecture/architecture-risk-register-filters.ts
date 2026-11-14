@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { isGovernanceFindingOpenRisk } from "@/lib/governance/governance-finding-open-risk";
 
 import { GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL } from "./architecture-risk-register-copy";
 
@@ -25,7 +26,7 @@ export const RISK_REGISTER_FILTER_LABELS: Record<RiskRegisterFilter, string> = {
   "accepted-risk": "Accepted risk",
   "exception-granted": "Exception granted",
   "expiring-soon": "Expiring soon",
-  "no-owner": "Owner was not stored",
+  "no-owner": "No owner assigned",
   "overdue-review": "Overdue review",
   "high-severity": "High severity",
   "critical-error": "Critical and error",
@@ -155,21 +156,7 @@ function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean
 }
 
 function isOpenRisk(row: GovernanceFindingQueueRow): boolean {
-  if (!isFindingRow(row)) {
-    return false;
-  }
-
-  const normalized = row.status.toLowerCase();
-
-  if (normalized.includes("recorded")) {
-    return false;
-  }
-
-  if (normalized.includes("closed") || normalized.includes("resolved")) {
-    return false;
-  }
-
-  return true;
+  return isGovernanceFindingOpenRisk(row);
 }
 
 function isAcceptedRisk(row: GovernanceFindingQueueRow): boolean {

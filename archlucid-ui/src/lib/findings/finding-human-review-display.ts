@@ -1,35 +1,16 @@
+import {
+  humanReviewStatusDisplay,
+  normalizeFindingHumanReviewStatus,
+} from "@/lib/quick-decision-severity-labels";
+
 /** Maps OpenAPI FindingHumanReviewStatus integers to operator-facing labels (TB-063). */
 export function formatFindingHumanReviewStatusLabel(
   status: number | string | null | undefined,
   options?: { readonly stored?: boolean },
 ): string {
-  if (options?.stored === false) {
-    return "Human review status was not stored";
-  }
+  const normalized = normalizeFindingHumanReviewStatus(status);
 
-  const numeric =
-    typeof status === "number"
-      ? status
-      : typeof status === "string" && /^-?\d+$/.test(status.trim())
-        ? Number.parseInt(status.trim(), 10)
-        : Number.NaN;
-
-  switch (numeric) {
-    case 0:
-      return "No human review required";
-    case 1:
-      return "Human review pending";
-    case 2:
-      return "Human review approved";
-    case 3:
-      return "Human review rejected";
-    case 4:
-      return "Human review overridden";
-    default:
-      return status === null || status === undefined || (typeof status === "string" && status.trim().length === 0)
-        ? "Human review status was not stored"
-        : `Human review status ${String(status)} has no reviewer label.`;
-  }
+  return humanReviewStatusDisplay(normalized, options).label;
 }
 
 /** TB-987: ITSM inbound queue state is last-writer and separate from append-only disposition trail (TB-986). */

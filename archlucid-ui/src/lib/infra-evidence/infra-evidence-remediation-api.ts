@@ -1,3 +1,4 @@
+import { finiteNonNegativeNumberOrDefault } from "@/lib/parse-finite-number";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { remediationInstanceMutationBlockedReason } from "@/lib/infra-evidence/remediation-instance-mutation-blocked-reason";
@@ -34,20 +35,40 @@ function finiteNumberOrNull(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function mapTrimmedString(value: unknown, fallback = ""): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : fallback;
+}
+
+function mapOptionalTrimmedString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
   return {
-    instanceId: typeof raw.instanceId === "string" ? raw.instanceId : "",
-    findingId: typeof raw.findingId === "string" ? raw.findingId : "",
-    patternKey: typeof raw.patternKey === "string" ? raw.patternKey : "",
-    status: (typeof raw.status === "string" ? raw.status : "Classified") as RemediationInstanceSummary["status"],
-    automationLevel: typeof raw.automationLevel === "string" ? raw.automationLevel : "",
-    cloudResourceId: typeof raw.cloudResourceId === "string" ? raw.cloudResourceId : null,
-    waveId: typeof raw.waveId === "string" ? raw.waveId : null,
-    preflightSnapshotId: typeof raw.preflightSnapshotId === "string" ? raw.preflightSnapshotId : null,
-    executionSnapshotId: typeof raw.executionSnapshotId === "string" ? raw.executionSnapshotId : null,
-    verificationSnapshotId: typeof raw.verificationSnapshotId === "string" ? raw.verificationSnapshotId : null,
-    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
-    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
+    instanceId: mapTrimmedString(raw.instanceId),
+    findingId: mapTrimmedString(raw.findingId),
+    patternKey: mapTrimmedString(raw.patternKey),
+    status: (mapTrimmedString(raw.status, "Classified")) as RemediationInstanceSummary["status"],
+    automationLevel: mapTrimmedString(raw.automationLevel),
+    cloudResourceId: mapOptionalTrimmedString(raw.cloudResourceId),
+    waveId: mapOptionalTrimmedString(raw.waveId),
+    preflightSnapshotId: mapOptionalTrimmedString(raw.preflightSnapshotId),
+    executionSnapshotId: mapOptionalTrimmedString(raw.executionSnapshotId),
+    verificationSnapshotId: mapOptionalTrimmedString(raw.verificationSnapshotId),
+    createdUtc: mapTrimmedString(raw.createdUtc),
+    updatedUtc: mapTrimmedString(raw.updatedUtc),
   };
 }
 
@@ -187,11 +208,11 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
 
   return {
     factoryMetrics: {
-      openFindings: finiteNumberOrDefault(metricsRaw.openFindings, 0),
+      openFindings: finiteNonNegativeNumberOrDefault(metricsRaw.openFindings, 0),
       criticalExposureCount: finiteNumberOrNull(metricsRaw.criticalExposureCount),
-      remediatedThisWeek: finiteNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
-      verificationFailureCount: finiteNumberOrDefault(metricsRaw.verificationFailureCount, 0),
-      businessBlockedCount: finiteNumberOrDefault(metricsRaw.businessBlockedCount, 0),
+      remediatedThisWeek: finiteNonNegativeNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
+      verificationFailureCount: finiteNonNegativeNumberOrDefault(metricsRaw.verificationFailureCount, 0),
+      businessBlockedCount: finiteNonNegativeNumberOrDefault(metricsRaw.businessBlockedCount, 0),
     },
     openInstancesByStatus: (raw.openInstancesByStatus as Record<string, number>) ?? {},
     waves: Array.isArray(raw.waves)
@@ -202,8 +223,8 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
             waveId: typeof row.waveId === "string" ? row.waveId : "",
             name: typeof row.name === "string" ? row.name : "",
             status: typeof row.status === "string" ? row.status : "",
-            memberCount: finiteNumberOrDefault(row.memberCount, 0),
-            targetSize: row.targetSize == null ? null : finiteNumberOrDefault(row.targetSize, 0),
+            memberCount: finiteNonNegativeNumberOrDefault(row.memberCount, 0),
+            targetSize: row.targetSize == null ? null : finiteNonNegativeNumberOrDefault(row.targetSize, 0),
           };
         })
       : [],

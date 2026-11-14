@@ -229,7 +229,10 @@ export function GovernanceFindingsQueueHeader({
                 testId="architecture-risk-register-summary-open"
                 presentation={governanceRegisterMetricPresentation({
                   count: isPositiveFiniteCount(registerSummary.openRisks) ? registerSummary.openRisks : 0,
-                  noun: registerSummary.openRisks === 1 ? "open finding" : "open findings",
+                  noun:
+                    isPositiveFiniteCount(registerSummary.openRisks) && registerSummary.openRisks === 1
+                      ? "open finding"
+                      : "open findings",
                   filter: "open",
                   runId: scopedRunId,
                   productLine,

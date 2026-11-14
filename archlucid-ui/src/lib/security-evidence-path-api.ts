@@ -1,5 +1,9 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
-import { finiteNumberOrDefault, parseFiniteNumber } from "@/lib/parse-finite-number";
+import {
+  finiteNonNegativeNumberOrDefault,
+  finiteNumberOrDefault,
+  parseFiniteNumber,
+} from "@/lib/parse-finite-number";
 import type {
   OperationalSecurityFindingDetail,
   SecurityEvidencePathAttackPathReport,
@@ -73,8 +77,23 @@ function mapStoredStringList(values: ReadonlyArray<unknown>): string[] {
 
 function mapStoredIdList(values: ReadonlyArray<unknown>): string[] {
   return values
-    .map((item) => String(item).trim())
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
     .filter((item) => item.length > 0);
+}
+
+function mapResponsePathId(value: unknown, fallback: string): string | null {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+
+    if (trimmed.length > 0) {
+      return trimmed;
+    }
+  }
+
+  const fallbackTrimmed = fallback.trim();
+
+  return fallbackTrimmed.length > 0 ? fallbackTrimmed : null;
 }
 
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
@@ -175,14 +194,14 @@ function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint
   return {
     cutPointId: mapStoredLabel(raw.cutPointId, "Cut point id was not stored."),
     cutKind: mapStoredLabel(raw.cutKind, SECURITY_EVIDENCE_PATH_CUT_KIND_NOT_STORED),
-    cutOrder: finiteNumberOrDefault(raw.cutOrder, 0),
+    cutOrder: finiteNonNegativeNumberOrDefault(raw.cutOrder, 0),
     fromNodeLabel: mapOptionalTrimmedString(raw.fromNodeLabel),
     toNodeLabel: mapOptionalTrimmedString(raw.toNodeLabel),
     edgeType: mapOptionalTrimmedString(raw.edgeType),
     explanationSummary: mapStoredLabel(raw.explanationSummary, "Cut point summary was not stored."),
     suggestedPatternKey: mapOptionalTrimmedString(raw.suggestedPatternKey),
     operationalCostClass: mapStoredLabel(raw.operationalCostClass, "Operational cost class was not stored."),
-    pathsCollapsedCount: finiteNumberOrDefault(raw.pathsCollapsedCount, 0),
+    pathsCollapsedCount: finiteNonNegativeNumberOrDefault(raw.pathsCollapsedCount, 0),
     leverageScore: finiteNumberOrNull(leverageRaw),
     collapsedPathIds: mapStoredIdList(collapsedPathIdsRaw),
   };
@@ -298,9 +317,9 @@ export async function fetchOperationalSecurityFindingDetail(
   }
 
   return {
-    findingId: String(findingRaw.findingId ?? findingId),
-    pathId: findingRaw.pathId != null ? String(findingRaw.pathId) : null,
-    title: findingRaw.title != null ? String(findingRaw.title) : null,
+    findingId: mapStoredLabel(findingRaw.findingId, findingId.trim()),
+    pathId: mapOptionalTrimmedString(findingRaw.pathId),
+    title: mapOptionalTrimmedString(findingRaw.title),
   };
 }
 
@@ -308,11 +327,11 @@ function mapUnevaluatedGroup(raw: Record<string, unknown>): SecurityEvidencePath
   const pathIdsRaw = Array.isArray(raw.pathIds) ? raw.pathIds : [];
 
   return {
-    reasonCode: String(raw.reasonCode ?? ""),
-    whyText: String(raw.whyText ?? ""),
+    reasonCode: mapStoredLabel(raw.reasonCode, "Unevaluated reason was not stored."),
+    whyText: mapStoredLabel(raw.whyText, "Unevaluated explanation was not stored."),
     pathCount: finiteNumberOrNull(raw.pathCount),
     pathIds: mapStoredIdList(pathIdsRaw),
-    engineName: raw.engineName != null ? String(raw.engineName) : null,
+    engineName: mapOptionalTrimmedString(raw.engineName),
     limitValue: finiteNumberOrNull(raw.limitValue),
     pathsEmitted: finiteNumberOrNull(raw.pathsEmitted),
   };
@@ -329,7 +348,12 @@ export async function fetchSecurityEvidencePathAttackPathReport(
 
   const query = new URLSearchParams({ snapshotId: trimmed });
   const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/report?${query.toString()}`);
-  const mappedSnapshotId = String(raw.snapshotId ?? trimmed).trim();
+
+  if (raw.succeeded === false) {
+    return null;
+  }
+
+  const mappedSnapshotId = mapOptionalTrimmedString(raw.snapshotId) ?? trimmed;
 
   if (mappedSnapshotId.length === 0) {
     return null;
@@ -365,9 +389,9 @@ export async function fetchRankedSecurityEvidencePaths(
     items: itemsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapRankSummary),
-    totalCount: finiteNumberOrDefault(raw.totalCount, 0),
-    page: finiteNumberOrDefault(raw.page, page),
-    pageSize: finiteNumberOrDefault(raw.pageSize, pageSize),
+    totalCount: finiteNonNegativeNumberOrDefault(raw.totalCount, 0),
+    page: finiteNonNegativeNumberOrDefault(raw.page, page),
+    pageSize: finiteNonNegativeNumberOrDefault(raw.pageSize, pageSize),
     topCutPoints: topCutPointsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapCutPoint),
@@ -376,9 +400,9 @@ export async function fetchRankedSecurityEvidencePaths(
 
 export async function fetchSecurityEvidencePathRank(pathId: string): Promise<SecurityEvidencePathRankDetail | null> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${pathId.trim()}/rank`);
-  const mappedPathId = String(raw.pathId ?? pathId).trim();
+  const mappedPathId = mapResponsePathId(raw.pathId, pathId);
 
-  if (mappedPathId.length === 0) {
+  if (mappedPathId == null) {
     return null;
   }
 
@@ -401,16 +425,16 @@ export async function buildSecurityEvidencePathExplanation(
 
   return {
     succeeded: raw.succeeded === true,
-    errorMessage: raw.errorMessage != null ? String(raw.errorMessage) : null,
+    errorMessage: mapOptionalTrimmedString(raw.errorMessage),
     explanation: explanationRaw == null ? null : mapExplanation(explanationRaw),
   };
 }
 
 export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<SecurityEvidencePathDetail | null> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${pathId.trim()}`);
-  const mappedPathId = String(raw.pathId ?? pathId).trim();
+  const mappedPathId = mapResponsePathId(raw.pathId, pathId);
 
-  if (mappedPathId.length === 0) {
+  if (mappedPathId == null) {
     return null;
   }
 

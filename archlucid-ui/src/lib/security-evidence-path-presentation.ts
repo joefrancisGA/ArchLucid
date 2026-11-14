@@ -14,6 +14,21 @@ export function securityEvidencePathStoredText(
   return trimmed.length > 0 ? trimmed : omissionLabel;
 }
 
+export function isSecurityEvidenceStoredFieldOmission(value: string): boolean {
+  const trimmed = value.trim();
+
+  return trimmed.endsWith(" was not stored.") || trimmed.endsWith(" was not stored");
+}
+
+/** Reader-facing rank order — numeric when stored, otherwise one omission label. */
+export function formatSecurityEvidencePathRankOrderDisplay(rankOrder: number | null | undefined): string {
+  if (rankOrder === null || rankOrder === undefined || !Number.isFinite(rankOrder)) {
+    return "Rank was not stored.";
+  }
+
+  return String(rankOrder);
+}
+
 /** Reader-facing hop order cell — numeric when stored, otherwise one omission label. */
 export function formatSecurityEvidencePathHopOrdinalDisplay(hopOrdinal: number | null | undefined): string {
   if (hopOrdinal === null || hopOrdinal === undefined) {
@@ -85,6 +100,14 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
   }
 
   return "Path kind was not recognized.";
+}
+
+export function securityEvidencePathConfidenceBandCode(band: string): string {
+  return band.trim();
+}
+
+export function isInsufficientEvidencePathConfidenceBand(band: string): boolean {
+  return securityEvidencePathConfidenceBandCode(band) === "InsufficientEvidence";
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {

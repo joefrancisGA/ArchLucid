@@ -85,6 +85,8 @@ import {
   formatSecurityEvidencePathHopOrdinalDisplay,
   formatSecurityEvidencePathKindLabel,
   formatSecurityEvidencePathRelationshipLabel,
+  isSecurityEvidenceStoredFieldOmission,
+  securityEvidencePathConfidenceBandCode,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
   securityEvidencePathStoredText,
@@ -143,7 +145,7 @@ function PathHopsTable(props: {
       return null;
     }
 
-    return `Stored confidence band is ${label}. An observed flow was not stored.`;
+    return `${label} An observed flow was not stored.`;
   };
 
   return (
@@ -472,7 +474,7 @@ function PathExplanationSection(props: {
         <OperatorAdvisorySimulatorProvenanceBlock
           title={SECURENOW_PATH_INSPECT_EXPLANATION_TITLE}
           simulatorTag={explanationTag}
-          ruleVersion={props.explanation.simulatorLabel}
+          ruleVersion={null}
           generatedAt={props.generatedAt}
           targetLabel={props.targetLabel}
           body={securityEvidencePathNonBlankLines([
@@ -497,7 +499,7 @@ function PathExplanationSection(props: {
               ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${citedEvidenceRefs.length} citations.`
               : "",
             showRankContextInExplanation ? rankContext : "",
-            props.explanation.modelOutputRejection?.trim() ?? "",
+            showCitationRejection ? "" : props.explanation.modelOutputRejection?.trim() ?? "",
           ]).join("\n\n")}
           auditTrailRecorded={isModelExplanation}
           testId="security-evidence-path-explanation-output"
@@ -569,9 +571,9 @@ function RecommendedActionSection(props: {
     display: displayForLine(line),
   }));
   const notCitedLabels = linesWithDisplay
-    .filter((line) => line.display === "Evidence citation was not stored.")
+    .filter((line) => isSecurityEvidenceStoredFieldOmission(line.display))
     .map((line) => line.label);
-  const citedLines = linesWithDisplay.filter((line) => line.display !== "Evidence citation was not stored.");
+  const citedLines = linesWithDisplay.filter((line) => !isSecurityEvidenceStoredFieldOmission(line.display));
   const showSingleNotCitedLine = notCitedLabels.length === 1;
   const showNotCitedSummary = notCitedLabels.length >= 2;
 
@@ -827,9 +829,7 @@ export function SecurityEvidencePathInspectPanel(props: {
       }
 
       setExplanation(result.explanation);
-      setExplanationGeneratedAt(
-        parseSecurityEvidencePathStoredUtc(result.explanation.createdUtc) ?? new Date(),
-      );
+      setExplanationGeneratedAt(parseSecurityEvidencePathStoredUtc(result.explanation.createdUtc));
     } catch {
       setExplanation(null);
       setExplanationError(SECURENOW_PATH_INSPECT_EXPLANATION_ERROR);
@@ -947,7 +947,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             pathSummary={selectedPath}
             findingId={props.findingId}
             pathId={resolvedPathId}
-            verificationId={pathQuery.data.explanationTemplate?.verify}
+            verificationId={advisoryInstance?.verificationSnapshotId ?? advisoryInstance?.instanceId ?? null}
           />
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind="neutral" label={formatSecurityEvidencePathKindLabel(pathQuery.data.pathKind)} title={pathQuery.data.pathKind} />
@@ -1065,7 +1065,9 @@ export function SecurityEvidencePathInspectPanel(props: {
             >
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE}</h3>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                This is the stored weakest hop. Evidence strength was not stored.
+                {securityEvidencePathConfidenceBandCode(pathQuery.data.weakestHop.hopConfidenceBand).length === 0
+                  ? "This is the stored weakest hop. Evidence strength was not stored."
+                  : "This is the stored weakest hop."}
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
                 Hop {formatSecurityEvidencePathHopOrdinalDisplay(pathQuery.data.weakestHop.hopOrdinal)}:{" "}
@@ -1144,11 +1146,10 @@ export function SecurityEvidencePathInspectPanel(props: {
               .filter((summary) => summary.length > 0).length > 0 ? (
               <ul className="m-0 list-disc space-y-1 pl-5">
                 {pathQuery.data.relatedCutPoints
-                  .map((cutPoint) => cutPoint.explanationSummary.trim())
-                  .filter((summary) => summary.length > 0)
-                  .map((summary) => (
-                    <li key={summary} className={OPERATOR_TYPOGRAPHY.body}>
-                      {summary}
+                  .filter((cutPoint) => cutPoint.explanationSummary.trim().length > 0)
+                  .map((cutPoint) => (
+                    <li key={cutPoint.cutPointId} className={OPERATOR_TYPOGRAPHY.body}>
+                      {cutPoint.explanationSummary.trim()}
                     </li>
                   ))}
               </ul>

@@ -124,8 +124,20 @@ describe("security-evidence-path-api", () => {
     expect(detail?.relatedCutPoints[0]?.collapsedPathIds).toEqual(["path-a", "path-b"]);
   });
 
+  it("returns null when attack-path report failed", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValue({
+      succeeded: false,
+      snapshotId: "snap-1",
+    });
+
+    const report = await fetchSecurityEvidencePathAttackPathReport("snap-1");
+
+    expect(report).toBeNull();
+  });
+
   it("filters blank unevaluated path ids", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValue({
+      succeeded: true,
       snapshotId: "snap-1",
       vulnerableAttackPaths: [],
       unevaluatedGroups: [

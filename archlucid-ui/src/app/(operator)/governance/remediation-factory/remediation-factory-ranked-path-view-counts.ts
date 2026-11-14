@@ -1,3 +1,4 @@
+import { isInsufficientEvidencePathConfidenceBand } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
 
 export type RemediationFactoryRankedPathViewCounts = {
@@ -14,7 +15,7 @@ export function computeRemediationFactoryRankedPathViewCounts(
     all: rows.length,
     publicExposure: rows.filter((row) => row.pathKind.toLowerCase().includes("reachability")).length,
     privilege: rows.filter((row) => row.pathKind.toLowerCase().includes("privilege")).length,
-    insufficientEvidence: rows.filter((row) => row.pathConfidenceBand === "InsufficientEvidence").length,
+    insufficientEvidence: rows.filter((row) => isInsufficientEvidencePathConfidenceBand(row.pathConfidenceBand)).length,
   };
 }
 
