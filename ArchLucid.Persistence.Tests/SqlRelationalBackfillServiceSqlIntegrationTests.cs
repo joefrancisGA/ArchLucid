@@ -172,6 +172,23 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
 
         Guid runId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
+        DateTime createdUtc = await NextContextSnapshotBackfillCreatedUtcAsync(connection, CancellationToken.None);
+
+        // Use a valid snapshot so an accidental backfill would create a relational child row.
+        // Malformed canonical JSON is intentionally tolerated by the repository reader and does
+        // not exercise the backfill quarantine path.
+        string canonicalJson = JsonEntitySerializer.Serialize(new List<CanonicalObject>
+        {
+            new()
+            {
+                ObjectId = "quarantine-object",
+                ObjectType = "Service",
+                Name = "quarantine-api",
+                SourceType = "repo",
+                SourceId = "src",
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            }
+        });
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -187,42 +204,82 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 VALUES
                 (
                     @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
-                    N'not-valid-json', @DeltaSummary, N'[]', N'[]', N'{}'
+                    @CanonicalObjectsJson, @DeltaSummary, N'[]', N'[]', N'{}'
                 );
                 """,
                 new
                 {
                     RunId = runId,
                     ProjectId = "proj-quarantine",
-                    // Backfill advances a persistent CreatedUtc keyset cursor across tests on this shared SQL catalog.
-                    // Ensure the deliberately invalid row remains visible to the first quarantine pass.
-                    CreatedUtc = await NextContextSnapshotBackfillCreatedUtcAsync(connection, CancellationToken.None),
+                    // Shared SQL catalog uses a persistent CreatedUtc keyset cursor.
+                    CreatedUtc = createdUtc,
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId,
                     SnapshotId = snapshotId,
+                    CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
                 },
                 cancellationToken: CancellationToken.None));
 
+        const string stage = "ContextSnapshots";
+        string entityKey = snapshotId.ToString("D");
+        SqlRelationalBackfillFailureQuarantineStore quarantine = new(factory);
+
+        // Seed the actual persisted max-retry state rather than assuming malformed JSON throws.
+        // The separate StageProcessor tests own the exception-to-quarantine transition.
+        await quarantine.RecordFailureAsync(
+            stage, entityKey, "Deterministic prior backfill failure for quarantine regression", 1,
+            CancellationToken.None);
+
+        (int FailureCount, bool SkippedAfterMaxRetries) quarantineRow =
+            await connection.QuerySingleAsync<(int FailureCount, bool SkippedAfterMaxRetries)>(
+                new CommandDefinition(
+                    """
+                    SELECT FailureCount, SkippedAfterMaxRetries
+                    FROM dbo.BackfillFailures
+                    WHERE Stage = @Stage AND EntityKey = @EntityKey;
+                    """,
+                    new { Stage = stage, EntityKey = entityKey },
+                    cancellationToken: CancellationToken.None));
+
+        quarantineRow.FailureCount.Should().Be(1);
+        quarantineRow.SkippedAfterMaxRetries.Should().BeTrue();
+
         SqlRelationalBackfillService backfill = CreateService(factory);
-        SqlRelationalBackfillOptions options = new()
-        {
-            ContextSnapshots = true,
-            GraphSnapshots = false,
-            FindingsSnapshots = false,
-            GoldenManifestsPhase1 = false,
-            ArtifactBundles = false,
-            BatchSize = 10,
-            MaxRetries = 1,
-        };
+        SqlRelationalBackfillReport report = await backfill.RunAsync(
+            new SqlRelationalBackfillOptions
+            {
+                ContextSnapshots = true,
+                GraphSnapshots = false,
+                FindingsSnapshots = false,
+                GoldenManifestsPhase1 = false,
+                ArtifactBundles = false,
+                BatchSize = 10,
+                MaxRetries = 1,
+            },
+            CancellationToken.None);
 
-        SqlRelationalBackfillReport first = await backfill.RunAsync(options, CancellationToken.None);
-        first.FailureCount.Should().BeGreaterThan(0);
+        report.FailureCount.Should().Be(0);
+        report.SkippedQuarantinedCount.Should().BeGreaterThan(0);
 
-        SqlRelationalBackfillReport second = await backfill.RunAsync(options, CancellationToken.None);
-        second.SkippedQuarantinedCount.Should().Be(1);
-        second.FailureCount.Should().Be(0);
+        // Prove our target was reached by the cursor, yet its valid child data was not inserted.
+        string lastProcessedKey = await connection.ExecuteScalarAsync<string>(
+            new CommandDefinition(
+                "SELECT LastProcessedKey FROM dbo.BackfillCheckpoints WHERE Stage = @Stage;",
+                new { Stage = stage },
+                cancellationToken: CancellationToken.None));
+        lastProcessedKey.Should().Be(entityKey);
+
+        int relationalChildCount = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId;",
+                new { SnapshotId = snapshotId },
+                cancellationToken: CancellationToken.None));
+        relationalChildCount.Should().Be(0);
+
+        (await quarantine.ShouldSkipAsync(stage, entityKey, 1, false, CancellationToken.None))
+            .Should().BeTrue();
     }
 
     /// <summary>
