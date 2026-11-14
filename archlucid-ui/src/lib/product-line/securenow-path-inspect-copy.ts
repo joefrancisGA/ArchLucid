@@ -46,6 +46,9 @@ export const SECURENOW_PATH_INSPECT_RANK_TITLE = secureNowTitleCase("Path rank")
 export const SECURENOW_PATH_INSPECT_RANK_MODE_DISCIPLINE =
   "Path rank is deterministic (SA-09). Explanation generation follows the agent execution mode — rank weights are unchanged." as const;
 
+export const SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE =
+  "Rank uses the stored path snapshot for this scope. It is not a new model score or a live Azure measurement." as const;
+
 export const SECURENOW_PATH_INSPECT_RANK_LOADING = "Loading path rank…" as const;
 
 export const SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE = "Path rank unavailable" as const;

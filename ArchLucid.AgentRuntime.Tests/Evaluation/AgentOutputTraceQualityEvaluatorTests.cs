@@ -111,6 +111,98 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         result!.GateOutcome.Should().Be(expectedOutcome);
     }
 
+    [Theory]
+    [InlineData(false, AgentOutputQualityGateOutcome.Rejected)]
+    [InlineData(true, AgentOutputQualityGateOutcome.Accepted)]
+    public async Task TryEvaluateTrace_task_compliance_requires_an_evidence_anchor(
+        bool hasEvidenceAnchor,
+        AgentOutputQualityGateOutcome expectedOutcome)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            PilotStrictMinEvidenceRefCount = 1,
+        };
+        string evidenceRef = "evidence:compliance-control-1";
+        string evidenceRefs = hasEvidenceAnchor ? $"[\"{evidenceRef}\"]" : "[]";
+        string citation = hasEvidenceAnchor
+            ? $"{{\"source\":\"{evidenceRef}\"}}"
+            : "{\"source\":\"\"}";
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "compliance-trace",
+            RunId = "compliance-run",
+            TaskId = "task-compliance",
+            AgentType = AgentType.Compliance,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                $$"""
+                {"resultId":"compliance-result","taskId":"task-compliance","runId":"compliance-run","agentType":3,"claims":[{"text":"Compliance finding","evidence":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"evidenceRefs":{{evidenceRefs}},"confidence":0.8,"findings":[{"severity":"High","description":"Compliance finding with an explicit evidence boundary for Real review.","recommendation":"Review the stored compliance evidence.","evidenceRef":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{{citation}}]}
+                """,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(expectedOutcome);
+    }
+
+    [Theory]
+    [InlineData(false, AgentOutputQualityGateOutcome.Rejected)]
+    [InlineData(true, AgentOutputQualityGateOutcome.Accepted)]
+    public async Task TryEvaluateTrace_task_critic_requires_an_evidence_anchor(
+        bool hasEvidenceAnchor,
+        AgentOutputQualityGateOutcome expectedOutcome)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            PilotStrictMinEvidenceRefCount = 1,
+        };
+        string evidenceRef = "evidence:critic-peer-1";
+        string evidenceRefs = hasEvidenceAnchor ? $"[\"{evidenceRef}\"]" : "[]";
+        string citation = hasEvidenceAnchor
+            ? $"{{\"source\":\"{evidenceRef}\"}}"
+            : "{\"source\":\"\"}";
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "critic-trace",
+            RunId = "critic-run",
+            TaskId = "task-critic",
+            AgentType = AgentType.Critic,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                $$"""
+                {"resultId":"critic-result","taskId":"task-critic","runId":"critic-run","agentType":4,"claims":[{"text":"Critic finding","evidence":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"evidenceRefs":{{evidenceRefs}},"confidence":0.8,"findings":[{"severity":"Medium","description":"Critic finding with an explicit evidence boundary for Real review.","recommendation":"Review the stored peer evidence.","evidenceRef":"{{(hasEvidenceAnchor ? evidenceRef : "")}}"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{{citation}}]}
+                """,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(expectedOutcome);
+    }
+
     [Fact]
     public async Task TryEvaluateTrace_warn_only_missing_citations_warns_when_scores_accept()
     {

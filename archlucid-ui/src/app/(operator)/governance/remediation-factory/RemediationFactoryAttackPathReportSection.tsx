@@ -29,6 +29,7 @@ import {
 } from "./remediation-factory-attack-path-report-copy";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
+  ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
   ATTACK_PATH_REPORT_NO_SNAPSHOT,
   ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT,
 } from "./resolve-attack-path-report-snapshot-id";
@@ -101,6 +102,15 @@ export function RemediationFactoryAttackPathReportSection(props: {
         </>
       ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
+          {props.reportQuery.data.vulnerableAttackPaths.length === 0
+          && props.reportQuery.data.unevaluatedGroups.length === 0 ? (
+            <p
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid="attack-path-report-diagram-filter-empty"
+            >
+              {ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY}
+            </p>
+          ) : null}
           <RemediationFactoryAttackPathReportSubsection
             title={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE}
             emptyTestId="attack-path-report-vulnerable-empty"

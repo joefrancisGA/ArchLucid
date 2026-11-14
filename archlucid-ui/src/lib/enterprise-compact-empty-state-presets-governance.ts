@@ -46,7 +46,10 @@ import {
   STANDARDS_RULES_EMPTY_HEADING,
 } from "@/lib/standards-rules-page";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { policyPacksPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import {
+  policyPacksPathForProductLine,
+  remapGovernanceOperatorHref,
+} from "@/lib/product-line/securenow-compliance-routes";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
@@ -112,6 +115,24 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
     { label: "Open resolve outcomes", href: GOVERNANCE_APPROVAL_QUEUE_PATH, variant: "outline" },
   ],
 };
+
+/** Decision register empty compact — remaps findings-adjacent CTAs on SecureNow. */
+export function resolveDecisionRegisterEmptyCompact(productLine: ProductLineId): EnterpriseCompactEmptyStateProps {
+  const actions = DECISION_REGISTER_EMPTY_COMPACT.actions;
+
+  if (actions === undefined) {
+    return DECISION_REGISTER_EMPTY_COMPACT;
+  }
+
+  return {
+    ...DECISION_REGISTER_EMPTY_COMPACT,
+    actions: actions.map((action) =>
+      action.label === "Open resolve outcomes"
+        ? { ...action, href: remapGovernanceOperatorHref(action.href, productLine) }
+        : action,
+    ),
+  };
+}
 
 export const STANDARDS_RULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "standards-rules-empty-state",

@@ -9,6 +9,8 @@ import {
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG,
+  SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE,
   SECURENOW_PATH_RANKED_PATHS_EMPTY,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import {
@@ -40,6 +42,11 @@ describe("securenow-path-inspect-copy", () => {
     expect(SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE).toBe(
       "Retry the load. This does not change Azure.",
     );
+  });
+
+  it("keeps rank discipline and citation rejection tags explicit", () => {
+    expect(SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE).toContain("stored path snapshot");
+    expect(SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG).toContain("citation rejected");
   });
 
   it("keeps explanations and empty ranked paths honest about the rank", () => {

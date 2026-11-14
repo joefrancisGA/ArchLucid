@@ -70,6 +70,21 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     description: "SecureNow findings queue cannot load.",
   },
   {
+    id: "compliance-policy-packs-hub-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/compliance/policy-packs",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/governance/policy-packs",
+    description: "SecureNow policy packs hub cannot load.",
+  },
+  {
+    id: "compliance-standards-rules-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/compliance/standards-and-rules",
+    componentPath: "app/(operator)/governance/standards-and-rules",
+    description: "SecureNow standards and rules cannot load.",
+  },
+  {
     id: "review-commit-export-page-failure",
     kind: "review-commit-export-fatal",
     routePattern: "/architecture/reviews/[reviewId]",

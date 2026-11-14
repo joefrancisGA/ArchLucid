@@ -40,6 +40,7 @@ import {
   resolveGettingStartedHelpWorkflowSectionIntro,
   resolveGettingStartedHelpWorkflowSectionTitle,
   resolveGettingStartedHelpWorkflowStepsForProductLine,
+  resolveGettingStartedHelpHostedSaasOpenAiCopy,
 } from "@/lib/getting-started-help-guide-content";
 import {
   gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
@@ -447,6 +448,12 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             onOpenChange={setTechnicalDetailsOpen}
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY)}</p>
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="getting-started-hosted-saas-openai-copy"
+            >
+              {resolveGettingStartedHelpHostedSaasOpenAiCopy(productLine)}
+            </p>
             <PlainLanguageTable terms={technicalTerms} testId="getting-started-technical-terms-table" />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Deeper engineering references:{" "}
