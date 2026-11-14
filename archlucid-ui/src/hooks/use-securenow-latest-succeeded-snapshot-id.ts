@@ -10,6 +10,7 @@ const SNAPSHOT_PAGE_SIZE = 20;
 
 export function useSecureNowLatestSucceededSnapshotId(): {
   readonly latestSnapshotId: string | null;
+  readonly succeededSnapshotCountOnFirstPage: number;
   readonly isPending: boolean;
   readonly isError: boolean;
 } {
@@ -20,20 +21,37 @@ export function useSecureNowLatestSucceededSnapshotId(): {
   });
 
   if (query.isPending) {
-    return { latestSnapshotId: null, isPending: true, isError: false };
+    return {
+      latestSnapshotId: null,
+      succeededSnapshotCountOnFirstPage: 0,
+      isPending: true,
+      isError: false,
+    };
   }
 
   if (query.isError) {
-    return { latestSnapshotId: null, isPending: false, isError: true };
+    return {
+      latestSnapshotId: null,
+      succeededSnapshotCountOnFirstPage: 0,
+      isPending: false,
+      isError: true,
+    };
   }
 
+  const items = query.data?.items ?? [];
+  const succeededSnapshotCountOnFirstPage = items.filter((row) =>
+    isInfraEvidenceSnapshotCaptureSucceeded(row.captureStatus),
+  ).length;
+
   const latestSnapshotId =
-    (query.data?.items ?? []).find((row) => isInfraEvidenceSnapshotCaptureSucceeded(row.captureStatus))
-      ?.snapshotId
-      ?.trim()
-    ?? null;
+    items.find((row) => isInfraEvidenceSnapshotCaptureSucceeded(row.captureStatus))?.snapshotId?.trim() ?? null;
 
   const normalized = latestSnapshotId !== null && latestSnapshotId.length > 0 ? latestSnapshotId : null;
 
-  return { latestSnapshotId: normalized, isPending: false, isError: false };
+  return {
+    latestSnapshotId: normalized,
+    succeededSnapshotCountOnFirstPage,
+    isPending: false,
+    isError: false,
+  };
 }

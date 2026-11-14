@@ -61,6 +61,7 @@ import { ArchLucidOpenGateReturnHomeSection } from "@/components/architecture/Ar
 import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
 import { SecureNowAcceleratorHomeSection } from "@/components/product-line/SecureNowAcceleratorHomeSection";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
@@ -116,6 +117,9 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="governance-infrastructure-overview-primary-content"
       >
+        {showSecureNowGroupedHomeSections ? (
+          <SecureNowReaderScopeWorkbenchStrip testId="infrastructure-overview-reader-scope-workbench" />
+        ) : null}
         {buyerPolishedShell ? (
           <section
             aria-labelledby="governance-infrastructure-start-here-heading"

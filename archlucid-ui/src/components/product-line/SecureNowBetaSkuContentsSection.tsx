@@ -15,6 +15,7 @@ import {
   SECURENOW_QUOTE_FEE_LINKS,
   SECURENOW_QUOTE_FEE_RECORDED_LINE,
 } from "@/lib/product-line/securenow-quote-fee-honesty-copy";
+import { SECURENOW_SYNTHETIC_FIXTURE_DISCIPLINE } from "@/lib/product-line/securenow-synthetic-fixture-discipline";
 
 type SecureNowBetaSkuContentsSectionProps = {
   readonly showQuoteLink?: boolean;
@@ -35,6 +36,9 @@ export function SecureNowBetaSkuContentsSection(
         {SECURENOW_BETA_SKU_CONTENTS_HEADING}
       </h2>
       <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_BETA_SKU_CONTENTS_LEAD}</p>
+      <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-beta-sku-synthetic-discipline">
+        {SECURENOW_SYNTHETIC_FIXTURE_DISCIPLINE}
+      </p>
       <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-beta-sku-quote-fee-honesty">
         {SECURENOW_QUOTE_FEE_RECORDED_LINE} {SECURENOW_QUOTE_FEE_ARCHITECTURE_BOUNDARY}
       </p>

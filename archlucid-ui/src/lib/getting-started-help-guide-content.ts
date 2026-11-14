@@ -25,6 +25,10 @@ import {
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  ARCHLUCID_HOSTED_SAAS_OPENAI_COPY,
+  SECURENOW_HOSTED_SAAS_OPENAI_COPY,
+} from "@/lib/score-lift-round40-hosted-saas-openai-copy";
 
 export { GETTING_STARTED_HELP_PATH, LEGACY_GETTING_STARTED_PATH };
 
@@ -930,6 +934,16 @@ export function resolveGettingStartedHelpWorkflowSectionIntro(
   }
 
   return GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO;
+}
+
+export function resolveGettingStartedHelpHostedSaasOpenAiCopy(
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_HOSTED_SAAS_OPENAI_COPY;
+  }
+
+  return ARCHLUCID_HOSTED_SAAS_OPENAI_COPY;
 }
 
 export const GETTING_STARTED_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [

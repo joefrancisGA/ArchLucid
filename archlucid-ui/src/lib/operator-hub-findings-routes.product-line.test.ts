@@ -79,6 +79,7 @@ import {
 import { buildDecisionRegisterEmptyTeaching } from "@/lib/decision-register-empty-teaching";
 import { pathnameShowsContextualHelpFab } from "@/lib/page-contextual-help-fab-paths";
 import { provenanceReferenceHref } from "@/lib/provenance-reference-href";
+import { resolveSecureNowFindingsQueueOpenGate } from "@/lib/product-line/securenow-findings-queue-open-gate";
 import { buildPatternLibraryPolicyPacksVocabulary } from "@/lib/vocabulary/pattern-library-policy-packs-vocabulary";
 import { resolvePatternLibraryPolicyPacksHubPath } from "@/lib/pattern-library-policy-guidance-copy";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
@@ -411,6 +412,19 @@ describe("operator hub findings routes product line", () => {
         (surface) => surface.id === "compliance-findings-queue-hard-failure",
       ),
     ).toBe(true);
+    expect(
+      reportProblemSurfacesForPathname(SECURENOW_POLICY_PACKS_PATH).some(
+        (surface) => surface.id === "compliance-policy-packs-hub-hard-failure",
+      ),
+    ).toBe(true);
+    expect(
+      resolveSecureNowFindingsQueueOpenGate("security", {
+        isAssignedToMe: false,
+        pendingOwner: 0,
+        openRisks: 1,
+        overdueReview: 0,
+      })?.href,
+    ).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
     expect(operatorRouteReadiness(SECURENOW_FINDINGS_PATH)).toBe("advanced-only");
     expect(resolveShellHeaderSearchLabel(SECURENOW_FINDINGS_PATH, "architecture")).toBe("Filter findings");
     expect(
