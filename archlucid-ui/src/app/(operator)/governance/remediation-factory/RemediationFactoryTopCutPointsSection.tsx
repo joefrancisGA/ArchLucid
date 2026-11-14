@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -148,16 +149,21 @@ export function RemediationFactoryTopCutPointsSection(props: {
                   )}
                 </p>
                 {highlightPathId != null ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="mt-2"
-                    aria-pressed={props.selectedPathId === highlightPathId}
-                    onClick={() => props.onSelectPath(highlightPathId)}
-                  >
-                    {REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH}
-                  </Button>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      aria-pressed={props.selectedPathId === highlightPathId}
+                      onClick={() => props.onSelectPath(highlightPathId)}
+                    >
+                      {REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH}
+                    </Button>
+                    <span className={cn("inline-flex items-center gap-1 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                      {highlightPathId}
+                      <CopyIdButton value={highlightPathId} aria-label="Copy path id for this cut point" />
+                    </span>
+                  </div>
                 ) : null}
               </li>
             );

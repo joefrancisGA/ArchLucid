@@ -73,6 +73,8 @@ import {
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
+import { SECURENOW_PATH_INSPECT_CITATION_ALLOWED_REFS_LEAD } from "@/lib/product-line/securenow-path-inspect-citation-allowed-copy";
+import { secureNowSyntheticFixtureDisciplineForPathId } from "@/lib/product-line/securenow-fixture-path-id";
 import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -444,6 +446,11 @@ function PathExplanationSection(props: {
           data-testid="security-evidence-path-explanation-real-fallback-discipline"
         >
           {SECURENOW_PATH_INSPECT_EXPLANATION_REAL_SESSION_FALLBACK_LINE}
+        </p>
+      ) : null}
+      {!props.useSimulator ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-citation-allowed-lead">
+          {SECURENOW_PATH_INSPECT_CITATION_ALLOWED_REFS_LEAD}
         </p>
       ) : null}
       {showCitationRejection ? (
@@ -861,6 +868,11 @@ export function SecurityEvidencePathInspectPanel(props: {
             data-testid="security-evidence-path-inspect-subject"
           >
             Selected subject: {subjectLabel}
+          </p>
+        ) : null}
+        {resolvedPathId != null && secureNowSyntheticFixtureDisciplineForPathId(resolvedPathId) !== null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-fixture-discipline">
+            {secureNowSyntheticFixtureDisciplineForPathId(resolvedPathId)}
           </p>
         ) : null}
         {resolvedPathId != null ? (

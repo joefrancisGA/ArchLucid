@@ -28,6 +28,7 @@ import {
   ADMIN_DIAGNOSTICS_INBOUND_GUIDANCE_LINK_LABEL,
   ADMIN_DIAGNOSTICS_INBOUND_SECTION_TITLE,
 } from "@/lib/admin-diagnostics-inbound-copy";
+import { resolveGettingStartedHelpHostedSaasOpenAiCopy } from "@/lib/getting-started-help-guide-content";
 
 export const TROUBLESHOOTING_REPORT_PROBLEM_LINK = {
   label: "Report a problem",
@@ -432,6 +433,10 @@ export function troubleshootingBeforeContactItems(
   return isSecureNowProductLine(productLineId)
     ? SECURENOW_TROUBLESHOOTING_BEFORE_CONTACT_ITEMS
     : TROUBLESHOOTING_BEFORE_CONTACT_ITEMS;
+}
+
+export function troubleshootingHostedSaasOpenAiNote(productLineId: ProductLineId = "architecture"): string {
+  return resolveGettingStartedHelpHostedSaasOpenAiCopy(productLineId);
 }
 
 export function troubleshootingCommonIssues(productLineId: ProductLineId = "architecture"): readonly TroubleshootingIssue[] {
