@@ -34,6 +34,29 @@ public sealed class EffectfulFindingEngineCollectionFreshnessTests
     }
 
     [Fact]
+    public void ResolvePinnedCollectionUtcOrThrow_resolves_azure_extractor_pin()
+    {
+        DateTime collectedUtc = new(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        FindingAnalysisContext context = new()
+        {
+            EvidencePins =
+            [
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    CollectionUtc = collectedUtc,
+                },
+            ],
+        };
+
+        EffectfulFindingEngineCollectionFreshness
+            .ResolvePinnedCollectionUtcOrThrow(context, CloudProvider.Azure)
+            .Should()
+            .Be(collectedUtc);
+    }
+
+    [Fact]
     public void ShouldSuppressInventoryFindingsForCloud_returns_true_when_pin_is_missing()
     {
         DateTime now = new(2026, 9, 22, 0, 0, 0, DateTimeKind.Utc);

@@ -45,8 +45,8 @@ public sealed class DapperPolicyPackChangeLogRepositoryContractTests(SqlServerPe
         {
             PolicyPackId = policyPackId,
             TenantId = tenantId,
-            WorkspaceId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
-            ProjectId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"),
+            WorkspaceId = WorkspaceW,
+            ProjectId = ProjectP,
             Name = "contract-seed-pack",
             Description = "Policy pack change-log contract test seed",
             PackType = PolicyPackType.BuiltIn,

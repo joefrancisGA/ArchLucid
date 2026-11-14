@@ -51,6 +51,10 @@ public sealed class AwsInventorySecurityBaselineFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
+        // Missing pinned collection evidence must fail closed, not appear as an empty baseline.
+        _ = EffectfulFindingEngineCollectionFreshness.ResolvePinnedCollectionUtcOrThrow(
+            analysisContext, CloudProvider.Aws);
+
         if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForCloud(
                 analysisContext,
                 CloudProvider.Aws,

@@ -83,6 +83,56 @@ public sealed partial class SqlArtifactBundleRepository(
         }
     }
 
+    /// <inheritdoc />
+    public async Task<ArtifactBundle?> GetByBundleIdInScopeAsync(
+        ScopeContext scope,
+        Guid bundleId,
+        bool loadArtifactBodies,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT TOP 1
+                               TenantId, WorkspaceId, ProjectId,
+                               BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson, BundlePayloadBlobUri
+                           FROM dbo.ArtifactBundles
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ScopeProjectId
+                             AND BundleId = @BundleId;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    BundleId = bundleId
+                },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
+
+        try
+        {
+            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, blobStore, loadArtifactBodies, ct);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize ArtifactBundle '{row.BundleId}' in the requested scope. " +
+                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
+        }
+    }
+
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,

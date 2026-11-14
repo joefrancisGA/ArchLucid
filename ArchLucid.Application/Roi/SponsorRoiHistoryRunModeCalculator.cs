@@ -27,6 +27,10 @@ public static class SponsorRoiHistoryRunModeCalculator
             return 0m;
         }
 
-        return totalSavings / totalRuns * realRunCount;
+        // Form the bounded proportion first: dividing savings by a very large run count
+        // can round away precision before the real-run share is restored.
+        // Multiplication remains within decimal range because 0 <= share <= 1.
+        decimal realRunShare = realRunCount / (decimal)totalRuns;
+        return totalSavings * realRunShare;
     }
 }

@@ -15,7 +15,10 @@ export function resolveScopedInsightOpenReviewHref(
   const findingId = options?.primaryFindingId?.trim() ?? "";
 
   if (findingId.length > 0) {
-    return resolveAskBuyerOpenReviewHref(runId, { primaryFindingId: findingId });
+    return resolveAskBuyerOpenReviewHref(runId, {
+      primaryFindingId: findingId,
+      architectureId: options?.architectureId,
+    });
   }
 
   return resolveSystemNotJobWorkingReviewOpenHref(runId.trim(), options?.architectureId ?? null);

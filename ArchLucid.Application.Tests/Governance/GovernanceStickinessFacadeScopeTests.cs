@@ -556,7 +556,11 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Mock<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository> trail = new();
         trail
-            .Setup(t => t.ListByFindingAsync(CallerScope.TenantId, "FIND-ABC", It.IsAny<CancellationToken>()))
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                CallerScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains("FIND-ABC")),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new FindingReviewEventRecord
@@ -1833,7 +1837,11 @@ public sealed class GovernanceStickinessFacadeScopeTests
     {
         Mock<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository> trail = new();
         trail
-            .Setup(t => t.ListByFindingAsync(CallerScope.TenantId, "finding-1", It.IsAny<CancellationToken>()))
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                CallerScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains("finding-1")),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new FindingReviewEventRecord

@@ -11,10 +11,12 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
 {
     private const int SeededChangeLogRowsForMaxRowsContractTest = 5;
 
-    private static readonly Guid TenantA = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
-    private static readonly Guid WorkspaceW = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
-    private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
-    private static readonly Guid TenantB = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
+    // Shared SQL catalog: each test uses distinct policy pack IDs as well as distinct tenant scope.
+
+    protected readonly Guid TenantA = Guid.NewGuid();
+    protected readonly Guid WorkspaceW = Guid.NewGuid();
+    protected readonly Guid ProjectP = Guid.NewGuid();
+    protected readonly Guid TenantB = Guid.NewGuid();
     protected abstract IPolicyPackChangeLogRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
@@ -35,7 +37,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         await repo.AppendAsync(entry, cancellationToken);
     }
 
-    private static PolicyPackChangeLogEntry CreateEntry(
+    private PolicyPackChangeLogEntry CreateEntry(
         Guid policyPackId,
         Guid tenantId,
         string? summary = null,
@@ -61,7 +63,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
+        Guid packId = Guid.NewGuid();
 
         await AppendEntryAsync(repo, CreateEntry(packId, TenantA, "first"), CancellationToken.None);
 
@@ -76,7 +78,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1");
+        Guid packId = Guid.NewGuid();
         DateTime t0 = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
         DateTime t1 = t0.AddHours(1);
         DateTime t2 = t0.AddHours(2);
@@ -99,8 +101,8 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packA = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        Guid packB = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid packA = Guid.NewGuid();
+        Guid packB = Guid.NewGuid();
 
         await AppendEntryAsync(repo, CreateEntry(packA, TenantA, "tenant-a"), CancellationToken.None);
         await AppendEntryAsync(repo, CreateEntry(packB, TenantB, "tenant-b"), CancellationToken.None);
@@ -117,7 +119,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid packId = Guid.NewGuid();
         DateTime t0 = new(2026, 5, 1, 8, 0, 0, DateTimeKind.Utc);
 
         for (int i = 0; i < SeededChangeLogRowsForMaxRowsContractTest; i++)
@@ -141,7 +143,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        Guid packId = Guid.NewGuid();
         Guid foreignWorkspaceId = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
         DateTime t0 = new(2026, 7, 1, 12, 0, 0, DateTimeKind.Utc);
 
@@ -186,7 +188,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        Guid packId = Guid.NewGuid();
         DateTime from = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = new(2026, 6, 2, 0, 0, 0, DateTimeKind.Utc);
 
@@ -219,7 +221,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IPolicyPackChangeLogRepository repo = CreateRepository();
-        Guid packId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        Guid packId = Guid.NewGuid();
         DateTime from = new(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = new(2026, 7, 2, 0, 0, 0, DateTimeKind.Utc);
 

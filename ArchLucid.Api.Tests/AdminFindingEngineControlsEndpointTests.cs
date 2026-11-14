@@ -63,7 +63,13 @@ public sealed class AdminFindingEngineControlsEndpointTests(ApiKeyReaderAndAdmin
         await put.EnsureSuccessForTestAsync();
 
         using HttpResponseMessage delete = await client.DeleteAsync("/v1/admin/settings/finding-engine-controls");
-        delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        delete.StatusCode.Should().Be(HttpStatusCode.OK);
+        TenantFindingEngineControlsResponse deleteBody =
+            await delete.ReadJsonForTestAsync<TenantFindingEngineControlsResponse>(JsonOptions);
+
+        deleteBody.EnableLlmJudgeOverridden.Should().BeFalse();
+        deleteBody.EnableLlmJudgeForEngineFindingsOverridden.Should().BeFalse();
+        deleteBody.PortfolioRecurrenceEnabledOverridden.Should().BeFalse();
 
         using HttpResponseMessage get = await client.GetAsync("/v1/admin/settings/finding-engine-controls");
         TenantFindingEngineControlsResponse getBody =
