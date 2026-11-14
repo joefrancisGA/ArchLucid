@@ -3,7 +3,10 @@ import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 export const REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE = secureNowTitleCase("Highest-leverage cut points");
 
 export const REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD =
-  "These choke points collapse the most ranked paths on the current snapshot. Advisory only — nothing applies automatically." as const;
+  "Stored top cuts from the ranked paths on this page. Advisory only — nothing applies automatically." as const;
+
+export const REMEDIATION_FACTORY_TOP_CUT_POINTS_SUGGESTED_PATTERN_NOT_STORED =
+  "Suggested pattern was not stored." as const;
 
 export const REMEDIATION_FACTORY_TOP_CUT_POINTS_EMPTY =
   "No cut points were computed for the current ranked paths." as const;

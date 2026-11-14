@@ -25,10 +25,6 @@ import {
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import {
-  ARCHLUCID_HOSTED_SAAS_OPENAI_COPY,
-  SECURENOW_HOSTED_SAAS_OPENAI_COPY,
-} from "@/lib/score-lift-round40-hosted-saas-openai-copy";
 
 export { GETTING_STARTED_HELP_PATH, LEGACY_GETTING_STARTED_PATH };
 
@@ -39,6 +35,13 @@ export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
   "See how evidence becomes findings, decisions, and approval outputs before your first review.";
+
+/** Hosted SaaS setup copy belongs to the getting-started guide, its only reader. */
+export const ARCHLUCID_HOSTED_SAAS_OPENAI_COPY =
+  "ArchLucid-hosted workspaces use platform-provisioned Azure OpenAI. You do not need to paste model keys for the standard review path." as const;
+
+export const SECURENOW_HOSTED_SAAS_OPENAI_COPY =
+  "SecureNow-hosted workspaces use platform-provisioned Azure OpenAI for path explanations when Real agent mode is enabled. Paste keys only on self-hosted deployments." as const;
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 

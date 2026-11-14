@@ -56,6 +56,7 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
   SECURENOW_PATH_INSPECT_FRAMEWORK_THEME,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
@@ -78,13 +79,21 @@ import {
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
 import {
+  explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidencePathConfidenceBandLabel,
+  formatSecurityEvidencePathHopOrdinalDisplay,
   formatSecurityEvidencePathKindLabel,
   formatSecurityEvidencePathRelationshipLabel,
-  explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
+  securityEvidencePathStoredText,
 } from "@/lib/security-evidence-path-presentation";
+import { securityEvidencePathNonBlankLines } from "@/lib/security-evidence-path-text";
+import {
+  SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
+} from "@/lib/security-evidence-path-types";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import {
@@ -191,7 +200,7 @@ function PathHopsTable(props: {
               aria-current={isWeakest ? "true" : undefined}
             >
               <EnterpriseTableCell>
-                {hop.hopOrdinal ?? "Hop order was not stored."}
+                {formatSecurityEvidencePathHopOrdinalDisplay(hop.hopOrdinal)}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -266,7 +275,7 @@ function PathBandWeakestHopLimitNote(props: {
       data-testid="security-evidence-path-band-weakest-hop-limit"
     >
       Path band {formatSecurityEvidencePathConfidenceBandLabel(props.pathBand)} is capped by weakest hop{" "}
-      {props.weakestHop.hopOrdinal ?? "Hop order was not stored."} ({hopBandLabel}). Stronger path bands are not claimed.
+      {formatSecurityEvidencePathHopOrdinalDisplay(props.weakestHop.hopOrdinal)} ({hopBandLabel}). Stronger path bands are not claimed.
     </p>
   );
 }
@@ -376,9 +385,12 @@ function PathExplanationSection(props: {
   readonly onGenerate: () => void;
 }) {
   const isModelExplanation = props.explanation?.provenanceKind === "AiInference";
+  const storedExplanationSource = props.explanation?.simulatorLabel?.trim() ?? "";
   const explanationTag = isModelExplanation
     ? SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG
-    : SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG;
+    : !props.useSimulator && storedExplanationSource.length === 0
+      ? SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED
+      : SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG;
   const explanationLead = props.useSimulator
     ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD
     : SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD;
@@ -447,12 +459,21 @@ function PathExplanationSection(props: {
           ruleVersion={props.explanation.simulatorLabel}
           generatedAt={props.generatedAt}
           targetLabel={props.targetLabel}
-          body={[
+          body={securityEvidencePathNonBlankLines([
             props.explanation.executiveSummary,
             ...props.explanation.businessImpactHypotheses,
-            props.explanation.proposedRemediation.recommendedChange.trim().length > 0
-              ? `Recommended change: ${props.explanation.proposedRemediation.recommendedChange}`
-              : "Recommended change was not stored.",
+            (() => {
+              const recommendedChange = securityEvidencePathStoredText(
+                props.explanation.proposedRemediation.recommendedChange,
+                SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
+              );
+
+              if (recommendedChange === SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED) {
+                return recommendedChange;
+              }
+
+              return `Recommended change: ${recommendedChange}`;
+            })(),
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
               : "Cited evidence was not stored.",
@@ -461,9 +482,7 @@ function PathExplanationSection(props: {
               : "",
             showRankContextInExplanation ? rankContext : "",
             props.explanation.modelOutputRejection?.trim() ?? "",
-          ]
-            .filter((line) => line.trim().length > 0)
-            .join("\n\n")}
+          ]).join("\n\n")}
           auditTrailRecorded={isModelExplanation}
           testId="security-evidence-path-explanation-output"
         />
@@ -477,63 +496,57 @@ function RecommendedActionSection(props: {
   readonly rank: SecurityEvidencePathRankDetail | null;
 }): React.JSX.Element {
   const firstRoute = props.path.routing[0];
-  const architectSentence = props.path.explanationTemplate?.architectSentence?.trim() ?? "";
-  const hopEvidenceRef = props.path.hops[0]?.evidenceReference?.trim() ?? "";
+  const firstHop = props.path.hops[0];
 
   const lines = [
     {
       label: "Problem",
-      value: architectSentence.length > 0 ? architectSentence : "Problem statement was not stored.",
+      value: securityEvidencePathStoredText(
+        props.path.explanationTemplate?.architectSentence,
+        "Problem statement was not stored.",
+      ),
     },
     {
       label: "Weakest-hop reason",
-      value:
-        props.path.weakestHop?.reason?.trim() && props.path.weakestHop.reason.trim().length > 0
-          ? props.path.weakestHop.reason.trim()
-          : "Weakest-hop reason was not stored.",
+      value: securityEvidencePathStoredText(
+        props.path.weakestHop?.reason,
+        "Weakest-hop reason was not stored.",
+      ),
     },
     {
       label: "Hop evidence",
-      value: hopEvidenceRef.length > 0 ? hopEvidenceRef : "Hop evidence was not stored.",
+      value: securityEvidencePathStoredText(
+        firstHop?.evidenceReference,
+        SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+      ),
     },
     {
       label: "Consequence",
-      value: props.rank?.dimensionProse.blastRadius ?? "Blast radius was not stored.",
+      value: securityEvidencePathStoredText(
+        props.rank?.dimensionProse.blastRadius,
+        "Blast radius was not stored.",
+      ),
     },
     {
       label: "Recommended change",
-      value:
-        props.path.explanationTemplate?.proposedChange?.trim() && props.path.explanationTemplate.proposedChange.trim().length > 0
-          ? props.path.explanationTemplate.proposedChange.trim()
-          : "Proposed change was not stored.",
+      value: securityEvidencePathStoredText(
+        props.path.explanationTemplate?.proposedChange,
+        "Proposed change was not stored.",
+      ),
     },
     {
       label: "Routing display name",
-      value:
-        firstRoute?.displayName?.trim() && firstRoute.displayName.trim().length > 0
-          ? firstRoute.displayName.trim()
-          : "Routing display name was not stored.",
+      value: securityEvidencePathStoredText(firstRoute?.displayName, "Routing display name was not stored."),
     },
     {
       label: "How to check",
-      value: props.path.explanationTemplate?.verify ?? "How to check was not stored.",
+      value: securityEvidencePathStoredText(
+        props.path.explanationTemplate?.verify,
+        "How to check was not stored.",
+      ),
     },
   ];
-  const displayForLine = (line: { readonly label: string; readonly value: string }): string => {
-    if (line.label === "How to check") {
-      if (line.value.length === 0 || line.value === "How to check was not stored.") {
-        return "How to check was not stored.";
-      }
-
-      if (line.value === "Evidence citation was not stored.") {
-        return "Evidence citation was not stored.";
-      }
-
-      return line.value;
-    }
-
-    return line.value;
-  };
+  const displayForLine = (line: { readonly label: string; readonly value: string }): string => line.value;
 
   const linesWithDisplay = lines.map((line) => ({
     ...line,
@@ -1044,7 +1057,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                 This is the stored weakest hop. Evidence strength was not stored.
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
-                Hop {pathQuery.data.weakestHop.hopOrdinal ?? "Hop order was not stored."}:{" "}
+                Hop {formatSecurityEvidencePathHopOrdinalDisplay(pathQuery.data.weakestHop.hopOrdinal)}:{" "}
                 {formatSecurityEvidencePathRelationshipLabel(pathQuery.data.weakestHop.edgeType)}
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
@@ -1110,7 +1123,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                       {cutPoint.suggestedPatternKey != null && cutPoint.suggestedPatternKey.trim().length > 0
                         ? `Pattern: ${cutPoint.suggestedPatternKey}`
-                        : "Pattern was not stored."}
+                        : SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED}
                     </p>
                   </li>
                 ))}

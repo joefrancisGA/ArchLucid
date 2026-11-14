@@ -5,19 +5,25 @@ import type { SecureNowFindingsQueueOpenGate } from "@/lib/product-line/secureno
 import { cn } from "@/lib/utils";
 
 export function SecureNowFindingsQueueOpenGateStrip(props: {
-  readonly openGate: SecureNowFindingsQueueOpenGate;
+  readonly openGates: ReadonlyArray<SecureNowFindingsQueueOpenGate>;
 }): React.JSX.Element {
-  const { openGate } = props;
-
   return (
-    <p
+    <div
       className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="securenow-findings-queue-open-gate"
     >
-      <span className="font-medium text-al-text-primary">Open gate:</span> {openGate.message}{" "}
-      <Link className={OPERATOR_LINK.inline} href={openGate.href} data-testid={`securenow-findings-open-gate-${openGate.id}`}>
-        {openGate.ctaLabel}
-      </Link>
-    </p>
+      {props.openGates.map((openGate) => (
+        <p key={openGate.id} className="m-0">
+          <span className="font-medium text-al-text-primary">Open gate:</span> {openGate.message}{" "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={openGate.href}
+            data-testid={`securenow-findings-open-gate-${openGate.id}`}
+          >
+            {openGate.ctaLabel}
+          </Link>
+        </p>
+      ))}
+    </div>
   );
 }

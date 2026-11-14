@@ -1,7 +1,49 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
+  SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED,
   SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
 } from "@/lib/security-evidence-path-types";
+
+/** Trimmed stored text, or the omission sentence when absent or whitespace-only. */
+export function securityEvidencePathStoredText(
+  value: string | null | undefined,
+  omissionLabel: string,
+): string {
+  const trimmed = value?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : omissionLabel;
+}
+
+/** Reader-facing hop order cell — numeric when stored, otherwise one omission label. */
+export function formatSecurityEvidencePathHopOrdinalDisplay(hopOrdinal: number | null | undefined): string {
+  if (hopOrdinal === null || hopOrdinal === undefined) {
+    return SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED;
+  }
+
+  return String(hopOrdinal);
+}
+
+type ParsedSecurityEvidencePathConfidenceBand = {
+  readonly trimmed: string;
+  readonly isMissing: boolean;
+  readonly isStoredEmpty: boolean;
+};
+
+function parseSecurityEvidencePathConfidenceBand(
+  band: string | null | undefined,
+): ParsedSecurityEvidencePathConfidenceBand {
+  if (band === null || band === undefined) {
+    return { trimmed: "", isMissing: true, isStoredEmpty: false };
+  }
+
+  const trimmed = band.trim();
+
+  if (trimmed.length === 0) {
+    return { trimmed: "", isMissing: false, isStoredEmpty: true };
+  }
+
+  return { trimmed, isMissing: false, isStoredEmpty: false };
+}
 
 const PATH_CONFIDENCE_BAND_LABELS: Readonly<Record<string, string>> = {
   Confirmed: "Confirmed",
@@ -46,15 +88,17 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
-  if (band === null || band === undefined) {
+  const parsed = parseSecurityEvidencePathConfidenceBand(band);
+
+  if (parsed.isMissing) {
     return "Confidence band was not stored.";
   }
 
-  const trimmed = band.trim();
-
-  if (trimmed.length === 0) {
+  if (parsed.isStoredEmpty) {
     return "Confidence band was stored empty.";
   }
+
+  const trimmed = parsed.trimmed;
 
   if (trimmed === "Confirmed") {
     return "Stored band: Confirmed. Not observed traffic.";
@@ -101,7 +145,7 @@ export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | n
   const trimmed = edgeType.trim();
 
   if (trimmed.length === 0) {
-    return "Relationship type was stored empty.";
+    return SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED;
   }
 
   if (
@@ -136,7 +180,13 @@ export function explainSecurityEvidenceProvenanceKind(kind: string | null | unde
 export function securityEvidencePathConfidenceBandStatusKind(
   band: string | null | undefined,
 ): EnterpriseStatusKind {
-  const trimmed = band?.trim() ?? "";
+  const parsed = parseSecurityEvidencePathConfidenceBand(band);
+
+  if (parsed.isMissing || parsed.isStoredEmpty) {
+    return "neutral";
+  }
+
+  const trimmed = parsed.trimmed;
 
   if (trimmed === "Confirmed" || trimmed === "HighlyLikely") {
     return "ready";

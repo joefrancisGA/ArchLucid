@@ -1,4 +1,5 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { finiteNumberOrDefault, parseFiniteNumber } from "@/lib/parse-finite-number";
 import type {
   OperationalSecurityFindingDetail,
   SecurityEvidencePathAttackPathReport,
@@ -15,20 +16,19 @@ import type {
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
-import { SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED } from "@/lib/security-evidence-path-types";
+import {
+  SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED,
+} from "@/lib/security-evidence-path-types";
 
 const FINDINGS_PATH = "/api/proxy/v1/operational-security/findings";
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
 
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
 function finiteNumberOrNull(value: unknown): number | null {
-  if (value == null) return null;
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  return parseFiniteNumber(value);
 }
 
 function mapStoredLabel(value: unknown, omissionLabel: string): string {
@@ -41,16 +41,47 @@ function mapStoredLabel(value: unknown, omissionLabel: string): string {
   return trimmed.length > 0 ? trimmed : omissionLabel;
 }
 
+function mapRawCodeField(value: unknown): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim();
+}
+
+function mapOptionalTrimmedString(value: unknown): string | null {
+  if (value == null || typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function mapStoredStringList(values: ReadonlyArray<unknown>): string[] {
+  return values
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+function mapStoredIdList(values: ReadonlyArray<unknown>): string[] {
+  return values
+    .map((item) => String(item).trim())
+    .filter((item) => item.length > 0);
+}
+
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
   return {
     hopOrdinal: finiteNumberOrNull(raw.hopOrdinal),
     fromNodeLabel: mapStoredLabel(raw.fromNodeLabel, "Hop source was not stored."),
     toNodeLabel: mapStoredLabel(raw.toNodeLabel, "Hop destination was not stored."),
     edgeType: mapStoredLabel(raw.edgeType, SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED),
-    provenanceKind: String(raw.provenanceKind ?? ""),
-    hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
-    inferenceSource: raw.inferenceSource != null ? String(raw.inferenceSource) : null,
-    evidenceReference: String(raw.evidenceReference ?? ""),
+    provenanceKind: mapRawCodeField(raw.provenanceKind),
+    hopConfidenceBand: mapRawCodeField(raw.hopConfidenceBand),
+    inferenceSource: mapOptionalTrimmedString(raw.inferenceSource),
+    evidenceReference: mapStoredLabel(raw.evidenceReference, SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED),
     cloudResourceId: raw.cloudResourceId != null ? String(raw.cloudResourceId) : null,
   };
 }
@@ -59,9 +90,9 @@ function mapWeakestHop(raw: Record<string, unknown>): SecurityEvidencePathWeakes
   return {
     hopOrdinal: finiteNumberOrNull(raw.hopOrdinal),
     edgeType: mapStoredLabel(raw.edgeType, SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED),
-    hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
-    provenanceKind: String(raw.provenanceKind ?? ""),
-    reason: String(raw.reason ?? ""),
+    hopConfidenceBand: mapRawCodeField(raw.hopConfidenceBand),
+    provenanceKind: mapRawCodeField(raw.provenanceKind),
+    reason: mapStoredLabel(raw.reason, SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED),
   };
 }
 
@@ -71,14 +102,14 @@ function mapExplanationTemplate(raw: Record<string, unknown> | null | undefined)
   }
 
   return {
-    actor: raw.actor != null ? String(raw.actor) : null,
-    identity: raw.identity != null ? String(raw.identity) : null,
-    network: raw.network != null ? String(raw.network) : null,
-    asset: raw.asset != null ? String(raw.asset) : null,
-    weakControl: raw.weakControl != null ? String(raw.weakControl) : null,
-    proposedChange: raw.proposedChange != null ? String(raw.proposedChange) : null,
-    verify: raw.verify != null ? String(raw.verify) : null,
-    architectSentence: raw.architectSentence != null ? String(raw.architectSentence) : null,
+    actor: mapOptionalTrimmedString(raw.actor),
+    identity: mapOptionalTrimmedString(raw.identity),
+    network: mapOptionalTrimmedString(raw.network),
+    asset: mapOptionalTrimmedString(raw.asset),
+    weakControl: mapOptionalTrimmedString(raw.weakControl),
+    proposedChange: mapOptionalTrimmedString(raw.proposedChange),
+    verify: mapOptionalTrimmedString(raw.verify),
+    architectSentence: mapOptionalTrimmedString(raw.architectSentence),
   };
 }
 
@@ -89,16 +120,16 @@ function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint
   return {
     cutPointId: String(raw.cutPointId ?? ""),
     cutKind: String(raw.cutKind ?? ""),
-    cutOrder: Number(raw.cutOrder ?? 0),
-    fromNodeLabel: raw.fromNodeLabel != null ? String(raw.fromNodeLabel) : null,
-    toNodeLabel: raw.toNodeLabel != null ? String(raw.toNodeLabel) : null,
-    edgeType: raw.edgeType != null ? String(raw.edgeType) : null,
+    cutOrder: finiteNumberOrDefault(raw.cutOrder, 0),
+    fromNodeLabel: mapOptionalTrimmedString(raw.fromNodeLabel),
+    toNodeLabel: mapOptionalTrimmedString(raw.toNodeLabel),
+    edgeType: mapOptionalTrimmedString(raw.edgeType),
     explanationSummary: String(raw.explanationSummary ?? ""),
     suggestedPatternKey: raw.suggestedPatternKey != null ? String(raw.suggestedPatternKey) : null,
     operationalCostClass: String(raw.operationalCostClass ?? ""),
     pathsCollapsedCount: finiteNumberOrDefault(raw.pathsCollapsedCount, 0),
     leverageScore: finiteNumberOrNull(leverageRaw),
-    collapsedPathIds: collapsedPathIdsRaw.map((id) => String(id)),
+    collapsedPathIds: mapStoredIdList(collapsedPathIdsRaw),
   };
 }
 
@@ -153,7 +184,10 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
         dimensionProseRaw?.privilegeDepth,
         "Privilege depth prose was not stored.",
       ),
-      blastRadius: mapStoredLabel(dimensionProseRaw?.blastRadius, "Blast radius prose was not stored."),
+      blastRadius: mapStoredLabel(
+        dimensionProseRaw?.blastRadius,
+        SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED,
+      ),
       businessConsequence: mapStoredLabel(
         dimensionProseRaw?.businessConsequence,
         "Business consequence prose was not stored.",
@@ -187,18 +221,24 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
     explanationId: String(raw.explanationId ?? ""),
     pathId: String(raw.pathId ?? ""),
     executiveSummary: String(raw.executiveSummary ?? ""),
-    businessImpactHypotheses: hypothesesRaw.map((item) => String(item)),
+    businessImpactHypotheses: mapStoredStringList(hypothesesRaw),
     proposedRemediation: {
-      recommendedChange: String(proposedRemediationRaw?.recommendedChange ?? ""),
-      recommendedChangeSource: String(proposedRemediationRaw?.recommendedChangeSource ?? ""),
-      verificationQueries: verificationQueriesRaw.map((item) => String(item)),
-      preconditions: preconditionsRaw.map((item) => String(item)),
+      recommendedChange: mapStoredLabel(
+        proposedRemediationRaw?.recommendedChange,
+        SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
+      ),
+      recommendedChangeSource: mapStoredLabel(
+        proposedRemediationRaw?.recommendedChangeSource,
+        "Recommended change source was not stored.",
+      ),
+      verificationQueries: mapStoredStringList(verificationQueriesRaw),
+      preconditions: mapStoredStringList(preconditionsRaw),
       suggestedPatternKey:
         proposedRemediationRaw?.suggestedPatternKey != null
           ? String(proposedRemediationRaw.suggestedPatternKey)
           : null,
     },
-    citedEvidenceRefs: citedRefsRaw.map((item) => String(item)),
+    citedEvidenceRefs: mapStoredStringList(citedRefsRaw),
     provenanceKind: String(raw.provenanceKind ?? ""),
     simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
     modelOutputRejection: raw.modelOutputRejection != null ? String(raw.modelOutputRejection) : null,
@@ -208,11 +248,11 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
 
 function mapRouting(raw: Record<string, unknown>): SecurityEvidencePathRoutingRow {
   return {
-    role: String(raw.role ?? ""),
-    principalId: raw.principalId != null ? String(raw.principalId) : null,
-    displayName: raw.displayName != null ? String(raw.displayName) : null,
-    provenanceKind: String(raw.provenanceKind ?? ""),
-    sourceReference: String(raw.sourceReference ?? ""),
+    role: mapStoredLabel(raw.role, "Routing role was not stored."),
+    principalId: mapOptionalTrimmedString(raw.principalId),
+    displayName: mapOptionalTrimmedString(raw.displayName),
+    provenanceKind: mapRawCodeField(raw.provenanceKind),
+    sourceReference: mapStoredLabel(raw.sourceReference, "Routing source reference was not stored."),
   };
 }
 
@@ -244,11 +284,11 @@ function mapUnevaluatedGroup(raw: Record<string, unknown>): SecurityEvidencePath
   return {
     reasonCode: String(raw.reasonCode ?? ""),
     whyText: String(raw.whyText ?? ""),
-    pathCount: raw.pathCount == null ? null : finiteNumberOrNull(raw.pathCount),
-    pathIds: pathIdsRaw.map((item) => String(item)),
+    pathCount: finiteNumberOrNull(raw.pathCount),
+    pathIds: mapStoredIdList(pathIdsRaw),
     engineName: raw.engineName != null ? String(raw.engineName) : null,
-    limitValue: raw.limitValue == null ? null : finiteNumberOrNull(raw.limitValue),
-    pathsEmitted: raw.pathsEmitted == null ? null : finiteNumberOrNull(raw.pathsEmitted),
+    limitValue: finiteNumberOrNull(raw.limitValue),
+    pathsEmitted: finiteNumberOrNull(raw.pathsEmitted),
   };
 }
 
@@ -360,7 +400,7 @@ export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<S
     pathKind: String(raw.pathKind ?? ""),
     pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
     weakestHopOrdinal: finiteNumberOrNull(raw.weakestHopOrdinal),
-    weakestHopReason: String(raw.weakestHopReason ?? ""),
+    weakestHopReason: mapStoredLabel(raw.weakestHopReason, SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED),
     hops: hopsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapHop),
