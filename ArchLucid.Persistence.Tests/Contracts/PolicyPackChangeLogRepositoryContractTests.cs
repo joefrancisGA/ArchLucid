@@ -11,10 +11,10 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
 {
     private const int SeededChangeLogRowsForMaxRowsContractTest = 5;
 
-    private static readonly Guid TenantA = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
-    private static readonly Guid WorkspaceW = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
-    private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
-    private static readonly Guid TenantB = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
+    protected readonly Guid TenantA = Guid.NewGuid();
+    protected readonly Guid WorkspaceW = Guid.NewGuid();
+    protected readonly Guid ProjectP = Guid.NewGuid();
+    protected readonly Guid TenantB = Guid.NewGuid();
     protected abstract IPolicyPackChangeLogRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
@@ -35,7 +35,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         await repo.AppendAsync(entry, cancellationToken);
     }
 
-    private static PolicyPackChangeLogEntry CreateEntry(
+    private PolicyPackChangeLogEntry CreateEntry(
         Guid policyPackId,
         Guid tenantId,
         string? summary = null,

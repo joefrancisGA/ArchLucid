@@ -82,8 +82,21 @@ public sealed class ArchitecturePostureQualityDimensionBackfillSqlIntegrationTes
                 RecordId = recordId,
             });
 
+        // This is a database-wide migration. Other SQL integration tests can leave eligible rows
+        // in the shared catalog, so count all eligible records before enforcing the exact update count.
+        int eligibleRows = await connection.ExecuteScalarAsync<int>(
+            """
+            SELECT COUNT(DISTINCT fr.FindingRecordId)
+            FROM dbo.FindingRecords AS fr
+            INNER JOIN dbo.PillarCategoryMap AS pcm ON pcm.SourceCategory = fr.Category
+            WHERE fr.QualityDimension IS NULL
+              AND pcm.PillarKey IS NOT NULL
+              AND pcm.IsReviewIntegrity = 0;
+            """);
+        eligibleRows.Should().BeGreaterThan(0);
+
         int firstPassRows = await connection.ExecuteAsync(CategoryMapBackfillSql);
-        firstPassRows.Should().Be(1);
+        firstPassRows.Should().Be(eligibleRows);
 
         string? qualityDimension = await connection.QuerySingleOrDefaultAsync<string?>(
             """
