@@ -182,6 +182,20 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "app/(operator)/administration/support/_sections/AdminSupportPageView.tsx",
     description: "Support bundle download failed on the Settings → Support workspace.",
   },
+  {
+    id: "governance-remediation-factory-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/governance/remediation-factory",
+    componentPath: "app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx",
+    description: "Remediation factory core reads failed on the Architecture governance route.",
+  },
+  {
+    id: "compliance-remediation-factory-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/security/remediation-factory",
+    componentPath: "app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx",
+    description: "Remediation factory core reads failed on the SecureNow Security route.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

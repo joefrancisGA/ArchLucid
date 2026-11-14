@@ -121,7 +121,6 @@ export function PolicyPacksPageView(props: Props) {
           resolveSecureNowEditionIdFromEnv(),
         )
       : [];
-
   const impactPreviewPanel =
     !m.buyerPolishedShell ? (
       <PolicyPackImpactPreviewPanel
@@ -386,6 +385,8 @@ export function PolicyPacksPageView(props: Props) {
         <PolicyPacksLoadFailure
           message={GOVERNANCE_POLICY_PACKS_LOAD_ERROR}
           retrying={m.loading}
+          errorTitle="Policy packs"
+          reportProblemSurfaceId="compliance-policy-packs-hub-hard-failure"
           onRetry={() => {
             void m.load();
           }}

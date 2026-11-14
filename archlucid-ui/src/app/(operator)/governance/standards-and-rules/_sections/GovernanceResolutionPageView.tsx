@@ -19,6 +19,7 @@ import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import {
@@ -194,6 +195,15 @@ export function GovernanceResolutionPageView(props: Props) {
               {STANDARDS_RULES_LOAD_RETRY_LABEL}
             </Button>
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
+            {productLine === "security" ? (
+              <FatalPageReportProblemSupportRow
+                surfaceId="compliance-standards-rules-hard-failure"
+                errorTitle={standardsPageTitle}
+                errorCode="standards-rules-load-failed"
+                correlationId={null}
+                httpStatus={null}
+              />
+            ) : null}
           </div>
         ) : null}
 

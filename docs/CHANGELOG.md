@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-14 - Score lift round 43 (batch 8): Open-gate primary label, collection blocker kinds, and remediation hard-failure report problem
+
+**Outcome.** SecureNow findings open-gate strip separates primary vs additional gates. Collection setup names Reader, subscription, and capture blockers explicitly. Path inspect hops expose copyable evidence references. Architect compare reuses second-capture delta honesty. Policy pack assign strip states rank discipline. Standards hub claim band clarifies it does not score controls. Remediation factory registers report-problem for concurrent core-read failures.
+
+**Surfaces.** Findings queue open gates, collection setup, path inspect hops, architect metrics, policy pack handoff, standards orientation, remediation factory, report-problem registry.
+
 ## 2026-11-14 - Score lift round 42 (batch 7): Remaining rescore honesty — partial capture, findings empty states, and review citation copy
 
 **Outcome.** Round-41 gaps ship: partial capture on ranked paths, findings queue empty states for missing collection versus evaluated-empty, path inspect citation and cut-point copy, diagram path-focus hidden node counts, ITSM draft context, sponsor and scorecard ROI non-summing lines, second-seal compare honesty, and Arch review explanation citation discipline.

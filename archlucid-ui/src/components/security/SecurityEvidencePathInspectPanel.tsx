@@ -6,6 +6,7 @@ import type { Ref } from "react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { SecurityEvidencePathRankReasonDisclosure } from "@/components/security/SecurityEvidencePathRankReasonDisclosure";
 import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
@@ -130,6 +131,11 @@ import { RemediationPrioritySortKeyDisclosure } from "@/app/(operator)/governanc
 import { SecurityEvidencePathRankReaderDisclosures } from "@/components/security/SecurityEvidencePathRankReaderDisclosures";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
+import {
+  SECURENOW_PATH_INSPECT_HOP_EVIDENCE_REF_COPY_LABEL,
+  secureNowPathInspectHopEvidenceReferenceCopyValue,
+  secureNowPathInspectHopEvidenceReferenceLabel,
+} from "@/lib/product-line/securenow-hop-evidence-reference-copy";
 
 function PathHopsTable(props: {
   readonly hops: ReadonlyArray<SecurityEvidencePathHop>;
@@ -253,6 +259,21 @@ function PathHopsTable(props: {
                   <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                     {explainSecurityEvidenceProvenanceKind(hop.provenanceKind)}
                   </p>
+                ) : null}
+                <p
+                  className={cn("m-0 mt-1 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="security-evidence-path-hop-evidence-reference"
+                >
+                  {secureNowPathInspectHopEvidenceReferenceLabel(hop.evidenceReference)}
+                </p>
+                {secureNowPathInspectHopEvidenceReferenceCopyValue(hop.evidenceReference) !== null ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <CopyIdButton
+                      value={secureNowPathInspectHopEvidenceReferenceCopyValue(hop.evidenceReference) ?? ""}
+                      aria-label={SECURENOW_PATH_INSPECT_HOP_EVIDENCE_REF_COPY_LABEL}
+                    />
+                    <span className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_HOP_EVIDENCE_REF_COPY_LABEL}</span>
+                  </div>
                 ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell>

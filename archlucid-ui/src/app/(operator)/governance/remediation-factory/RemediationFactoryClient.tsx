@@ -10,6 +10,7 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import {
@@ -356,6 +357,12 @@ export function RemediationFactoryClient() {
   );
   const attackPathReportQuery = useSecurityEvidencePathReportQuery(reportSnapshotId);
   const metricsQuery = useRemediationFactoryMetricsQuery();
+  const remediationFactoryHardFailure =
+    metricsQuery.isError && rankedQuery.isError && rankedPathsQuery.isError;
+  const remediationFactoryHardFailureSurfaceId =
+    productLine === "security"
+      ? "compliance-remediation-factory-hard-failure"
+      : "governance-remediation-factory-hard-failure";
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
@@ -701,6 +708,21 @@ export function RemediationFactoryClient() {
       />
 
       <SecureNowRemediationFactoryCollectionSetupBanner />
+
+      {remediationFactoryHardFailure ? (
+        <div role="alert" className="space-y-2" data-testid="remediation-factory-hard-failure">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Executive metrics, priority queue, and ranked paths could not be loaded together.
+          </p>
+          <FatalPageReportProblemSupportRow
+            surfaceId={remediationFactoryHardFailureSurfaceId}
+            errorTitle={pageTitle}
+            errorCode="remediation-factory-core-read-failed"
+            correlationId={null}
+            httpStatus={null}
+          />
+        </div>
+      ) : null}
 
       {productLine === "security" ? (
         <SecureNowReaderScopeWorkbenchStrip testId="remediation-factory-reader-scope-workbench" />
