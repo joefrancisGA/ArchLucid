@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-14 - Score lift round 41 (batch 6): Rescore honesty batch — open-gate scope, fixture labels, and hosted OpenAI copy
+
+**Outcome.** SecureNow findings open-gate links preserve run and architecture scope on assigned-to-me and the main queue. Collection setup adds second-capture CTAs. Path inspect labels the fixture path, states allowed citation refs, and aligns diagram-empty copy. Remediation simulator and cut points add rank and path-id honesty. ArchLucid first-review guide names the tenant review next step after prerequisites. Troubleshooting repeats hosted Azure OpenAI posture. PilotStrict rejects mismatched citation sources.
+
+**Surfaces.** Findings queue, path inspect, remediation factory, collection setup, first-review guide, troubleshooting help, agent output quality gate tests, route and axe tests.
+
 ## 2026-11-13 - Score lift round 40 (batch 5): SecureNow queue open-gate, path inspect honesty, and compliance hard-failure surfaces
 
 **Outcome.** SecureNow findings queue header adds open-gate filters, assigned-pack and WK-21 honesty strips, compliance breadcrumb handoff to policy packs, path inspect stored-rank discipline, remediation and infrastructure Reader-scope hints, collection second-capture honesty, synthetic fixture labels, attack-path diagram empty discipline, hosted SaaS OpenAI getting-started copy, compliance hub report-problem entries, and PilotStrict evidence anchors for compliance and critic tasks. Architecture defaults remain unchanged.

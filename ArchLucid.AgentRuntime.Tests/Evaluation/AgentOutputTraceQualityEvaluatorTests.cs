@@ -204,6 +204,44 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateTrace_pilot_strict_mismatched_citation_source_rejects()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            PilotStrictMinEvidenceRefCount = 1,
+        };
+        string allowedRef = "evidence:topology-hop-1";
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "topology-mismatch-trace",
+            RunId = "topology-mismatch-run",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                $$"""
+                {"resultId":"topology-mismatch-result","taskId":"task-topology","runId":"topology-mismatch-run","agentType":1,"claims":[{"text":"Topology finding","evidence":"{{allowedRef}}"}],"evidenceRefs":["{{allowedRef}}"],"confidence":0.8,"findings":[{"severity":"High","description":"Topology finding with citation source outside the evidence anchor set.","recommendation":"Review the stored topology evidence.","evidenceRef":"{{allowedRef}}"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"evidence:topology-hop-wrong"}]}
+                """,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+    }
+
+    [Fact]
     public async Task TryEvaluateTrace_warn_only_missing_citations_warns_when_scores_accept()
     {
         AgentOutputQualityGateOptions options = new()

@@ -155,6 +155,10 @@ public static class AgentOutputTraceQualityEvaluator
             !AgentOutputTraceCitationGate.MeetsEvidenceRefFloor(trace.ParsedResultJson, options.PilotStrictMinEvidenceRefCount))
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
 
+        if (pilotStrict && hasCitations &&
+            !AgentOutputTraceCitationGate.CitationSourcesWithinEvidenceRefs(trace.ParsedResultJson))
+            gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+
         AgentOutputTraceFaithfulnessEvaluator.ApplyAgentResultEvidenceFaithfulness(
             options,
             pilotStrict,

@@ -5,12 +5,17 @@ import {
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-filters";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  appendSecureNowFindingsQueueOpenGateScope,
+  type SecureNowFindingsQueueOpenGateScopeParams,
+} from "@/lib/product-line/securenow-findings-queue-open-gate-scope";
 
 export type SecureNowFindingsQueueOpenGateInput = {
   readonly isAssignedToMe: boolean;
   readonly pendingOwner: number;
   readonly openRisks: number;
   readonly overdueReview: number;
+  readonly scopeParams?: SecureNowFindingsQueueOpenGateScopeParams;
 };
 
 export type SecureNowFindingsQueueOpenGate = {
@@ -29,12 +34,15 @@ function findingsQueueFilterHref(
   productLine: ProductLineId,
   isAssignedToMe: boolean,
   filter: RiskRegisterFilter,
+  scopeParams: SecureNowFindingsQueueOpenGateScopeParams,
 ): string {
   const basePath = isAssignedToMe
     ? assignedToMeFindingsPathForProductLine(productLine)
     : findingsPathForProductLine(productLine);
 
-  return buildGovernanceFindingsQueueHref({ basePath, filter });
+  const href = buildGovernanceFindingsQueueHref({ basePath, filter });
+
+  return appendSecureNowFindingsQueueOpenGateScope(href, scopeParams);
 }
 
 export function resolveSecureNowFindingsQueueOpenGate(
@@ -42,13 +50,14 @@ export function resolveSecureNowFindingsQueueOpenGate(
   input: SecureNowFindingsQueueOpenGateInput,
 ): ReadonlyArray<SecureNowFindingsQueueOpenGate> {
   const gates: SecureNowFindingsQueueOpenGate[] = [];
+  const scopeParams = input.scopeParams ?? {};
 
   if (isPositiveFiniteCount(input.pendingOwner)) {
     gates.push({
       id: "needs-owner",
       message: "Some findings still need an owner before remediation can progress.",
       ctaLabel: "Show findings needing owner",
-      href: findingsQueueFilterHref(productLine, input.isAssignedToMe, "no-owner"),
+      href: findingsQueueFilterHref(productLine, input.isAssignedToMe, "no-owner", scopeParams),
     });
   }
 
@@ -57,7 +66,7 @@ export function resolveSecureNowFindingsQueueOpenGate(
       id: "open-findings",
       message: "Open findings still need triage or disposition.",
       ctaLabel: "Show open findings",
-      href: findingsQueueFilterHref(productLine, input.isAssignedToMe, "open"),
+      href: findingsQueueFilterHref(productLine, input.isAssignedToMe, "open", scopeParams),
     });
   }
 
@@ -66,7 +75,7 @@ export function resolveSecureNowFindingsQueueOpenGate(
       id: "overdue-review",
       message: "Some findings are overdue for review.",
       ctaLabel: "Show overdue review",
-      href: findingsQueueFilterHref(productLine, input.isAssignedToMe, "overdue-review"),
+      href: findingsQueueFilterHref(productLine, input.isAssignedToMe, "overdue-review", scopeParams),
     });
   }
 

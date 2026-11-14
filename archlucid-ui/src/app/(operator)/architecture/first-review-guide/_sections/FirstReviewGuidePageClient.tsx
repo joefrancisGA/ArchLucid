@@ -63,6 +63,11 @@ import {
 } from "@/lib/first-review-guide-page-copy";
 import { formatConversationListDate } from "@/lib/locale-datetime";
 import { resolveFirstReviewGuideWalkthroughNextStep } from "@/lib/first-review-guide-walkthrough-next-step";
+import {
+  FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_BODY,
+  FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL,
+  FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF,
+} from "@/lib/first-review-guide-after-prerequisites-copy";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
@@ -334,7 +339,14 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                     </Link>
                   ) : null}
                 </div>
-              ) : null}
+              ) : (
+                <div className="space-y-1" data-testid="first-review-after-prerequisites-next-step">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_BODY}</p>
+                  <Link className={OPERATOR_LINK.inline} href={FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF}>
+                    {FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL}
+                  </Link>
+                </div>
+              )}
             </>
           )}
         </section>

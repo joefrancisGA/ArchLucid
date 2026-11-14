@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findings/GovernanceFindingsQueueBreadcrumb";
 import { SecureNowFindingsQueueOpenGateStrip } from "@/components/governance/findings/SecureNowFindingsQueueOpenGateStrip";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 import { SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 expect.extend(toHaveNoViolations);
@@ -45,6 +46,13 @@ describe("compliance routes axe", () => {
         ]}
       />,
     );
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
+  });
+
+  it("reader scope workbench strip has no detectable violations", async () => {
+    const { container } = render(<SecureNowReaderScopeWorkbenchStrip />);
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();

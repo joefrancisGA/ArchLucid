@@ -27,6 +27,62 @@ internal static class AgentOutputTraceCitationGate
         gateOutcome = AgentOutputQualityGateOutcome.Warned;
     }
 
+    /// <summary>
+    ///     PilotStrict: every non-empty citation <c>source</c> must appear in top-level <c>evidenceRefs</c>.
+    /// </summary>
+    internal static bool CitationSourcesWithinEvidenceRefs(string parsedResultJson)
+    {
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
+
+            if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                return false;
+
+            HashSet<string> evidenceRefs = new(StringComparer.Ordinal);
+
+            if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(doc.RootElement, "evidenceRefs", out JsonElement refsElement) &&
+                refsElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement reference in refsElement.EnumerateArray())
+                {
+                    if (reference.ValueKind != JsonValueKind.String)
+                        continue;
+
+                    string? referenceText = reference.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(referenceText))
+                        evidenceRefs.Add(referenceText);
+                }
+            }
+
+            if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(doc.RootElement, "citations", out JsonElement citationsElement) ||
+                citationsElement.ValueKind != JsonValueKind.Array)
+                return false;
+
+            foreach (JsonElement citation in citationsElement.EnumerateArray())
+            {
+                if (citation.ValueKind != JsonValueKind.Object)
+                    return false;
+
+                if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(citation, "source", out JsonElement sourceElement) ||
+                    sourceElement.ValueKind != JsonValueKind.String)
+                    return false;
+
+                string? source = sourceElement.GetString();
+
+                if (string.IsNullOrWhiteSpace(source) || !evidenceRefs.Contains(source))
+                    return false;
+            }
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     internal static bool MeetsEvidenceRefFloor(string parsedResultJson, int minimumCount)
     {
         try

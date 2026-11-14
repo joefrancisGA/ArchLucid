@@ -26,6 +26,11 @@ import {
   SECURENOW_COLLECTION_READY_NEXT_SUMMARY,
 } from "@/lib/product-line/securenow-collection-setup-ready-copy";
 import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/securenow-second-capture-delta-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
+  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { cn } from "@/lib/utils";
 
 export type SecureNowCollectionSetupStatusSectionProps = {
@@ -93,12 +98,25 @@ export function SecureNowCollectionSetupStatusSection(
             />
           ) : null}
           {latestSnapshotQuery.succeededSnapshotCountOnFirstPage < 2 ? (
-            <p
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid={`${props.testIdPrefix}-collection-second-capture-honesty`}
-            >
-              {SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE}
-            </p>
+            <div className="space-y-1" data-testid={`${props.testIdPrefix}-collection-second-capture-honesty`}>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE}</p>
+              <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
+                <Link
+                  href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}
+                  className={OPERATOR_LINK.inline}
+                  data-testid={`${props.testIdPrefix}-collection-second-capture-cloud-link`}
+                >
+                  {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+                </Link>
+                <Link
+                  href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.extractUpload}
+                  className={OPERATOR_LINK.inline}
+                  data-testid={`${props.testIdPrefix}-collection-second-capture-upload-link`}
+                >
+                  {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
+                </Link>
+              </p>
+            </div>
           ) : null}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_COLLECTION_READY_NEXT_SUMMARY}</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
