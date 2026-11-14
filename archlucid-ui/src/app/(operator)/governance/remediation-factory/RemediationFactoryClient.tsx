@@ -134,6 +134,7 @@ import {
   REMEDIATION_FACTORY_PAGE_SUBTITLE,
   REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
   REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
+  REMEDIATION_FACTORY_RANKED_PATHS_LOADING,
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
 import { RemediationFactoryMetricsMeasurementDisclosure } from "./RemediationFactoryMetricsMeasurementDisclosure";
@@ -409,9 +410,11 @@ export function RemediationFactoryClient() {
       return null;
     }
 
-    const computedTimes = rankedPaths.map((row) => row.computedUtc.trim());
+    const computedTimes = rankedPaths
+      .map((row) => row.computedUtc.trim())
+      .filter((computedUtc) => computedUtc.length > 0 && !Number.isNaN(Date.parse(computedUtc)));
 
-    if (computedTimes.some((computedUtc) => computedUtc.length === 0)) {
+    if (computedTimes.length !== rankedPaths.length) {
       return null;
     }
 
@@ -903,7 +906,7 @@ export function RemediationFactoryClient() {
           </div>
         )}
         {rankedPathsQuery.isLoading ? (
-          <p className={OPERATOR_TYPOGRAPHY.helper}>Loading ranked paths…</p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_RANKED_PATHS_LOADING}</p>
         ) : rankedPathsQuery.isError ? (
           <>
             <OperatorErrorRecoveryContract

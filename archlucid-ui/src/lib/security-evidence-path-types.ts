@@ -32,6 +32,8 @@ export const SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED =
 
 export const SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED = "Recommended change was not stored." as const;
 
+export const SECURITY_EVIDENCE_PATH_COMPUTED_UTC_NOT_STORED = "Computed time was not stored." as const;
+
 export function securityEvidencePathHopNodeName(label: string): string {
   const trimmed = label.trim();
 

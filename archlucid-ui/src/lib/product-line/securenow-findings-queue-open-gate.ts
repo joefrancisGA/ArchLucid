@@ -20,8 +20,8 @@ export type SecureNowFindingsQueueOpenGate = {
   readonly href: string;
 };
 
-/** Mirrors review open-gate discipline for the SecureNow findings queue header. */
-function isPositiveFiniteCount(value: number): boolean {
+/** Positive stored register counts only — invalid values must not open a filter link. */
+export function isPositiveFiniteCount(value: number): boolean {
   return Number.isFinite(value) && value > 0;
 }
 
