@@ -34,6 +34,7 @@ import {
   resolveOperatorBillingSeatRow,
   resolveOperatorBillingSubscriptionLoadState,
   resolveOperatorBillingSubscriptionStatusDisplay,
+  resolveOperatorBillingWorkspacePackagingRow,
 } from "@/lib/operator/operator-billing-subscription-resolution";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -146,6 +147,13 @@ export function OperatorBillingCurrentPlanSummary() {
     usagePayload?.seatsUsed,
     usagePayload?.seatsLimit,
   );
+  const workspacePackagingRow = resolveOperatorBillingWorkspacePackagingRow(
+    view.hasPaidPlan,
+    commercialTier,
+    subscriptionLoadState,
+    usagePayload?.workspacesUsed,
+    usagePayload?.workspacesLimit,
+  );
   const hasSubscriptionForInvoice = resolveOperatorBillingHasSubscriptionForInvoice(
     subscriptionStatus,
     view.hasPaidPlan,
@@ -224,7 +232,19 @@ export function OperatorBillingCurrentPlanSummary() {
           ) : null}
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Workspaces</dt>
-            <dd className="font-medium text-al-text-primary">{view.workspaceLabel ?? "1 workspace in scope"}</dd>
+            <dd className="font-medium text-al-text-primary">
+              {workspacePackagingRow !== null ? workspacePackagingRow.value : (view.workspaceLabel ?? "1 workspace in scope")}
+              {workspacePackagingRow?.helper !== null && workspacePackagingRow?.helper !== undefined ? (
+                <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {workspacePackagingRow.helper}
+                </span>
+              ) : null}
+              {workspaceLabel !== null && workspacePackagingRow !== null ? (
+                <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Active workspace: {workspaceLabel}
+                </span>
+              ) : null}
+            </dd>
           </div>
         </dl>
 

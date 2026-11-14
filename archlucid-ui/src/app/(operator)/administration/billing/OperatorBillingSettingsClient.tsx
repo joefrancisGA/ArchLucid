@@ -41,6 +41,8 @@ import {
   parseBillingPlansSectionOpenFromSearch,
 } from "@/lib/administration/billing-plans-section-disclosure-url";
 
+import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
+
 import { OperatorBillingCurrentPlanSummary } from "./OperatorBillingCurrentPlanSummary";
 import { OperatorBillingPaymentPastDueBanner } from "./OperatorBillingPaymentPastDueBanner";
 import { OperatorBillingPlansClient } from "./OperatorBillingPlansClient";
@@ -159,6 +161,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
           )}
         >
           <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
+          <TeamExpansionNudge placement="billing" />
           <OperatorBillingCurrentPlanSummary />
         </div>
 
