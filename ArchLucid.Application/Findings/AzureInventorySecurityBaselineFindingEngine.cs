@@ -48,6 +48,10 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
+        // Missing pinned collection evidence must fail closed, not appear as an empty baseline.
+        _ = EffectfulFindingEngineCollectionFreshness.ResolvePinnedCollectionUtcOrThrow(
+            analysisContext, CloudProvider.Azure);
+
         if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForAzure(
                 analysisContext,
                 _clock.GetUtcNow().UtcDateTime,
