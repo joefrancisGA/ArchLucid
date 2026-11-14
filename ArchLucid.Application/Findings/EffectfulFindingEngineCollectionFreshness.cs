@@ -111,6 +111,7 @@ public static class EffectfulFindingEngineCollectionFreshness
     private static string MapCloudProviderToPinProvider(CloudProvider cloudProvider) =>
         cloudProvider switch
         {
+            CloudProvider.Azure => RunEvidencePackagePinService.AzureProvider,
             CloudProvider.Aws => RunEvidencePackagePinService.AwsProvider,
             CloudProvider.Gcp => RunEvidencePackagePinService.GcpProvider,
             _ => cloudProvider.ToString().ToLowerInvariant(),

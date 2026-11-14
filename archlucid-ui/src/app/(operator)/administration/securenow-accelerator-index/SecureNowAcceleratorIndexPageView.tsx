@@ -26,7 +26,7 @@ export function SecureNowAcceleratorIndexPageView(): React.JSX.Element {
     <OperatorPageContainer variant="full" data-testid="securenow-accelerator-index-page">
       <OperatorPageHeader title={SECURENOW_ACCELERATOR_INDEX_HEADING} subtitle={SECURENOW_ACCELERATOR_INDEX_LEAD} />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <main className="mt-6 max-w-3xl space-y-4">
         <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_ACCELERATOR_INDEX_GUARDRAIL}</p>
         {snapshotQuery.isPending ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-accelerator-index-loading">

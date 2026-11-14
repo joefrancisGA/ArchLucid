@@ -153,7 +153,8 @@ public sealed class AuthorityQueryServiceGetPriorCommittedRunIdBeforeCurrentTest
         }
 
         await runs.SaveAsync(
-            BuildCommittedRun(scope, wrongListCommittedRunId, "default", baseUtc.AddDays(-11)),
+            // Visible in the recent list, but newer than the current run: not a valid predecessor.
+            BuildCommittedRun(scope, wrongListCommittedRunId, "default", baseUtc.AddDays(-9)),
             CancellationToken.None);
         await runs.SaveAsync(
             new RunRecord

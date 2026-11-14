@@ -1,5 +1,7 @@
 using Dapper;
 
+using ArchLucid.Persistence.Tests.Support;
+
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
@@ -35,6 +37,18 @@ public sealed class ArchitecturePostureQualityDimensionBackfillSqlIntegrationTes
         Guid projectId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
         Guid recordId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        // Seed valid FK parents so this test isolates the category backfill.
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection, tenantId, workspaceId, projectId,
+            runId, contextSnapshotId, "posture-quality-backfill", CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertGraphSnapshotHeaderAsync(
+            connection, tenantId, workspaceId, projectId,
+            graphSnapshotId, contextSnapshotId, runId, DateTime.UtcNow,
+            "[]", "[]", "[]", CancellationToken.None);
 
         await connection.ExecuteAsync(
             """
@@ -62,14 +76,27 @@ public sealed class ArchitecturePostureQualityDimensionBackfillSqlIntegrationTes
                 TenantId = tenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
-                RunId = Guid.NewGuid(),
-                ContextSnapshotId = Guid.NewGuid(),
-                GraphSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
                 RecordId = recordId,
             });
 
+        // This is a database-wide migration. Other SQL integration tests can leave eligible rows
+        // in the shared catalog, so count all eligible records before enforcing the exact update count.
+        int eligibleRows = await connection.ExecuteScalarAsync<int>(
+            """
+            SELECT COUNT(DISTINCT fr.FindingRecordId)
+            FROM dbo.FindingRecords AS fr
+            INNER JOIN dbo.PillarCategoryMap AS pcm ON pcm.SourceCategory = fr.Category
+            WHERE fr.QualityDimension IS NULL
+              AND pcm.PillarKey IS NOT NULL
+              AND pcm.IsReviewIntegrity = 0;
+            """);
+        eligibleRows.Should().BeGreaterThan(0);
+
         int firstPassRows = await connection.ExecuteAsync(CategoryMapBackfillSql);
-        firstPassRows.Should().Be(1);
+        firstPassRows.Should().Be(eligibleRows);
 
         string? qualityDimension = await connection.QuerySingleOrDefaultAsync<string?>(
             """

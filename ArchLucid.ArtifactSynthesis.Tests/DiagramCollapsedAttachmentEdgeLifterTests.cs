@@ -81,7 +81,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
         DiagramEdge? contains = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => edge.Label != null && edge.Label.Contains(
+            .SingleOrDefault(edge => edge.Label is not null && edge.Label.Contains(
                 DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel,
                 StringComparison.OrdinalIgnoreCase));
         contains.Should().NotBeNull();
@@ -215,7 +215,11 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         && (string.Equals(label, "in", StringComparison.OrdinalIgnoreCase)
             || label.Contains(
                 InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved,
-                StringComparison.Ordinal));
+                StringComparison.Ordinal)
+            // The collapsed VM -> NIC -> subnet/vnet edge is an inferred placement path,
+            // not measured network traffic. Match its provenance-bearing derived wording.
+            || (label.Contains("Derived through NIC", StringComparison.OrdinalIgnoreCase)
+                && label.Contains("not observed traffic", StringComparison.OrdinalIgnoreCase)));
 
     private static GraphSnapshot BuildVmNicSubnetGraph()
     {

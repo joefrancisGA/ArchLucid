@@ -23,6 +23,22 @@ public sealed class SponsorRoiHistoryRunModeCalculatorTests
             .Should().Be(decimal.MaxValue / 2);
     }
 
+    [Theory]
+    [InlineData(100, 1, 1, 50)]
+    [InlineData(100, 1, 3, 25)]
+    [InlineData(100, 3, 1, 75)]
+    [InlineData(100, 0, 3, 0)]
+    public void ComputeRealModeSavingsUsd_UsesExactRealRunShare(
+        int totalSavings,
+        int realRuns,
+        int simulatorRuns,
+        int expectedSavings)
+    {
+        SponsorRoiHistoryRunModeCalculator.ComputeRealModeSavingsUsd(
+                totalSavings, realRuns, simulatorRuns)
+            .Should().Be(expectedSavings);
+    }
+
     [Fact]
     public void ComputeRealModeSavingsUsd_NegativeSimulatorCount_DoesNotInflateSavings()
     {

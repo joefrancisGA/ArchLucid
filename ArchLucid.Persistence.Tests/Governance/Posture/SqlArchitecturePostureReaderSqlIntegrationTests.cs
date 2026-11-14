@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Governance.Posture;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance.Posture;
+using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -38,6 +39,20 @@ public sealed class SqlArchitecturePostureReaderSqlIntegrationTests(SqlServerPer
         Guid otherTenantRecordId = Guid.NewGuid();
         string securityFindingId = "posture-security-finding";
         string topologyFindingId = "posture-topology-finding";
+
+        // FindingsSnapshots require durable run, context and graph parents on SQL Server.
+        Guid runId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection, tenantId, workspaceId, projectId,
+            runId, contextSnapshotId, "posture-aggregate-test", CancellationToken.None);
+
+        await AuthorityRunChainTestSeed.InsertGraphSnapshotHeaderAsync(
+            connection, tenantId, workspaceId, projectId,
+            graphSnapshotId, contextSnapshotId, runId, DateTime.UtcNow,
+            "[]", "[]", "[]", CancellationToken.None);
 
         await connection.ExecuteAsync(
             """
@@ -89,9 +104,9 @@ public sealed class SqlArchitecturePostureReaderSqlIntegrationTests(SqlServerPer
                 OtherTenantId = otherTenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
-                RunId = Guid.NewGuid(),
-                ContextSnapshotId = Guid.NewGuid(),
-                GraphSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
                 OlderSnapshotId = olderSnapshotId,
                 LatestSnapshotId = latestSnapshotId,
                 OlderRecordId = olderRecordId,

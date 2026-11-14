@@ -31,15 +31,27 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     string currentModelId = "model-current";
     string pinnedModelId = "model-pinned";
 
+    ArchitectureKnowledgeModel pinnedModel = new()
+    {
+      ModelId = pinnedModelId,
+      TenantId = TestScope.TenantId.ToString("D"),
+    };
+
     Mock<IArchitectureIntelligencePersistence> persistence = new();
     persistence
       .Setup(p => p.GetModelAsync(TestScope.TenantId.ToString("D"), pinnedModelId, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new ArchitectureKnowledgeModel { ModelId = pinnedModelId, TenantId = TestScope.TenantId.ToString("D") });
+      .ReturnsAsync(pinnedModel);
 
     Mock<IRunRepository> runs = new();
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId, KnowledgeModelId = pinnedModelId });
+      .ReturnsAsync(new RunRecord
+      {
+        RunId = runId,
+        ArchitectureId = architectureId,
+        KnowledgeModelId = pinnedModelId,
+        PinnedKnowledgeModelContentHashSha256 = KnowledgeModelContentFingerprint.TryComputeContentHashSha256(pinnedModel),
+      });
 
     Mock<IArchitectureIdentityRepository> identities = new();
     identities

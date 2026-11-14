@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
@@ -101,11 +102,71 @@ public sealed class AuthorityCommitPersistenceStageTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task FinalizeAndCompleteAsync_loads_artifact_bundle_using_execution_manifest_id()
+    {
+        Guid runGuid = Guid.Parse("dddddddddddddddddddddddddddddddd");
+        string runId = runGuid.ToString("N");
+        Guid pipelineManifestId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        Guid bundleId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        ManifestDocument commitManifest = CreatePersistedManifest(runGuid);
+        RunRecord header = CreateRunRecord(runGuid);
+        header.GoldenManifestId = pipelineManifestId;
+        header.ArtifactBundleId = bundleId;
+
+        ArtifactBundle persistedBundle = new()
+        {
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ProjectId = TestScope.ProjectId,
+            RunId = runGuid,
+            ManifestId = pipelineManifestId,
+            BundleId = bundleId,
+        };
+        Mock<IArtifactBundleRepository> bundles = new();
+        bundles.Setup(repo => repo.GetByManifestIdAsync(
+                TestScope, pipelineManifestId, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(persistedBundle);
+        Mock<IManifestFinalizationService> finalizer = new();
+        finalizer.Setup(service => service.FinalizeAsync(
+                It.IsAny<ManifestFinalizationRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("intentional stop after bundle lookup"));
+
+        AuthorityCommitPersistenceStage sut = CreateSut(
+            finalizer.Object,
+            Mock.Of<IBaselineMutationAuditService>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IUserWorkspaceModeReader>(),
+            bundles.Object);
+
+        Func<Task> act = () => sut.FinalizeAndCompleteAsync(
+            new ArchitectureRun { RunId = runId, RequestId = "req-1", Status = ArchitectureRunStatus.ReadyForCommit },
+            runId,
+            runGuid,
+            header,
+            new ArchitectureRequest { RequestId = "req-1" },
+            "test-actor",
+            new ReadyForCommitRun(new RunId(runGuid)),
+            CreateMaterialization(runGuid, commitManifest),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("intentional stop after bundle lookup");
+        bundles.Verify(repo => repo.GetByManifestIdAsync(
+            TestScope, pipelineManifestId, true, It.IsAny<CancellationToken>()), Times.Once);
+        finalizer.Verify(service => service.FinalizeAsync(
+            It.Is<ManifestFinalizationRequest>(request =>
+                request.ExpectedArtifactBundleId == bundleId
+                && ReferenceEquals(request.PreloadedArtifactBundle, persistedBundle)),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static AuthorityCommitPersistenceStage CreateSut(
         IManifestFinalizationService finalizationService,
         IBaselineMutationAuditService baselineMutationAudit,
         IAuditService auditService,
-        IUserWorkspaceModeReader userWorkspaceModeReader)
+        IUserWorkspaceModeReader userWorkspaceModeReader,
+        IArtifactBundleRepository? artifactBundleRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
@@ -134,7 +195,7 @@ public sealed class AuthorityCommitPersistenceStageTests
             auditService,
             Mock.Of<IRunTelemetryRepository>(),
             Mock.Of<IAuthorityCommitFailureRecorder>(),
-            Mock.Of<IArtifactBundleRepository>(),
+            artifactBundleRepository ?? Mock.Of<IArtifactBundleRepository>(),
             Options.Create(new GenerateIacStubsOptions()),
             Options.Create(new RerankFindingsOptions()),
             userWorkspaceModeReader,

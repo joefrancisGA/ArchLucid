@@ -87,17 +87,8 @@ internal static class ManifestCommittedArtifactInventoryRecoveryMaterialBuilder
 
         if (header.ArtifactBundleId is Guid)
         {
-            ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(
-                scope,
-                persistedManifest.ManifestId,
-                loadArtifactBodies: true,
-                cancellationToken);
-
-            if (bundle is null)
-            {
-                throw new ConflictException(
-                    "Commit recovery blocked: artifact bundle bytes are required to recompute committed artifact inventory.");
-            }
+            ArtifactBundle bundle = await LoadVerifiedBundleAsync(
+                scope, header, artifactBundleRepository, cancellationToken);
 
             artifactBundleUtf8 = ManifestCommittedArtifactInventoryBundleMaterialSerializer.SerializeCanonicalUtf8(
                 bundle);
@@ -110,5 +101,50 @@ internal static class ManifestCommittedArtifactInventoryRecoveryMaterialBuilder
             DecisionTraceUtf8 = decisionTraceUtf8,
             ArtifactBundleUtf8 = artifactBundleUtf8,
         };
+    }
+
+    /// <summary>
+    ///     Rehydrates the exact bundle pinned in the run header, not whichever bundle
+    ///     happens to share the newly committed manifest identity.
+    /// </summary>
+    internal static async Task<ArtifactBundle> LoadVerifiedBundleAsync(
+        ScopeContext scope,
+        RunRecord header,
+        IArtifactBundleRepository repository,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(header);
+        ArgumentNullException.ThrowIfNull(repository);
+
+        if (header.ArtifactBundleId is not Guid bundleId
+            || header.TenantId != scope.TenantId
+            || header.WorkspaceId != scope.WorkspaceId
+            || header.ScopeProjectId != scope.ProjectId)
+        {
+            throw new ConflictException(
+                "Commit recovery blocked: artifact bundle header is missing or outside the requested scope.");
+        }
+
+        ArtifactBundle? bundle = await repository.GetByBundleIdInScopeAsync(
+            scope, bundleId, loadArtifactBodies: true, cancellationToken);
+
+        if (bundle is null)
+        {
+            throw new ConflictException(
+                "Commit recovery blocked: pinned artifact bundle bytes are required to recompute committed artifact inventory.");
+        }
+
+        if (bundle.BundleId != bundleId
+            || bundle.RunId != header.RunId
+            || bundle.TenantId != scope.TenantId
+            || bundle.WorkspaceId != scope.WorkspaceId
+            || bundle.ProjectId != scope.ProjectId)
+        {
+            throw new ConflictException(
+                "Commit recovery blocked: artifact bundle identity, run, or scope does not match the committed run header.");
+        }
+
+        return bundle;
     }
 }

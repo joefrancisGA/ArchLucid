@@ -6,6 +6,8 @@ import {
   SECURENOW_REVIEWER_HOME_SECTION_LEAD,
 } from "@/lib/product-line/securenow-reviewer-home-copy";
 import { WHY_SECURENOW_CONVERSATION_MAILTO } from "@/lib/marketing/why-securenow-draft-copy";
+import { SECURENOW_ACCELERATOR_INDEX_PATH } from "@/lib/product-line/securenow-accelerator-index-copy";
+import { SECURENOW_REVIEWER_PACKET_PATH } from "@/lib/product-line/securenow-reviewer-packet-copy";
 
 describe("SecureNow reviewer home copy (SN-MKT-06 / SN-MKT-10)", () => {
   it("defines the For reviewers section and public destinations", () => {
@@ -17,12 +19,20 @@ describe("SecureNow reviewer home copy (SN-MKT-06 / SN-MKT-10)", () => {
     expect(labels).toEqual([
       "Why SecureNow",
       "SecureNow sample",
+      "Accelerator index",
+      "Procurement evidence map",
       "Reviewer packet",
       "Public reviewer ask",
       "Quote packet",
       "Request a conversation",
       "Accessibility",
     ]);
+    expect(
+      SECURENOW_REVIEWER_HOME_ROWS.find((row) => row.label === "Accelerator index")?.href,
+    ).toBe(SECURENOW_ACCELERATOR_INDEX_PATH);
+    expect(
+      SECURENOW_REVIEWER_HOME_ROWS.find((row) => row.label === "Procurement evidence map")?.href,
+    ).toBe(`${SECURENOW_REVIEWER_PACKET_PATH}#securenow-reviewer-procurement-evidence-map`);
     expect(
       SECURENOW_REVIEWER_HOME_ROWS.find((row) => row.label === "Request a conversation")?.href,
     ).toBe(WHY_SECURENOW_CONVERSATION_MAILTO);

@@ -74,6 +74,33 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
             : Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
     }
 
+    public Task<ArtifactBundle?> GetByBundleIdInScopeAsync(
+        ScopeContext scope,
+        Guid bundleId,
+        bool loadArtifactBodies,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        ArtifactBundle? result;
+        lock (_lock)
+        {
+            result = _store.LastOrDefault(x =>
+                x.BundleId == bundleId &&
+                x.TenantId == scope.TenantId &&
+                x.WorkspaceId == scope.WorkspaceId &&
+                x.ProjectId == scope.ProjectId);
+        }
+
+        if (result is null)
+            return Task.FromResult<ArtifactBundle?>(null);
+
+        return loadArtifactBodies
+            ? Task.FromResult<ArtifactBundle?>(result)
+            : Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
+    }
+
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,
