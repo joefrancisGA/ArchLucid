@@ -27,33 +27,42 @@ function parseStatus(value: unknown): SecurityDeclaredConnectionStatus | undefin
 }
 
 function mapRow(raw: Record<string, unknown>): SecurityDeclaredConnectionRow {
+  const required = (value: unknown): string => typeof value === "string" ? value.trim() : "";
+  const optional = (value: unknown): string | null => {
+    const mapped = required(value);
+
+    return mapped.length > 0 ? mapped : null;
+  };
+
   return {
-    connectionId: typeof raw.connectionId === "string" ? raw.connectionId : "",
-    fromCloudResourceId: typeof raw.fromCloudResourceId === "string" ? raw.fromCloudResourceId : "",
-    toCloudResourceId: typeof raw.toCloudResourceId === "string" ? raw.toCloudResourceId : "",
+    connectionId: required(raw.connectionId),
+    fromCloudResourceId: required(raw.fromCloudResourceId),
+    toCloudResourceId: required(raw.toCloudResourceId),
     relationshipType: parseRelationshipType(raw.relationshipType),
-    rationale: typeof raw.rationale === "string" ? raw.rationale : "",
-    evidenceReference: typeof raw.evidenceReference === "string" ? raw.evidenceReference : null,
-    expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : "",
+    rationale: required(raw.rationale),
+    evidenceReference: optional(raw.evidenceReference),
+    expirationUtc: required(raw.expirationUtc),
     status: parseStatus(raw.status),
-    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : undefined,
-    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
-    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
+    provenanceKind: optional(raw.provenanceKind) ?? undefined,
+    createdUtc: required(raw.createdUtc),
+    updatedUtc: required(raw.updatedUtc),
   };
 }
 
 export async function listSecurityDeclaredConnections(): Promise<SecurityDeclaredConnectionRow[]> {
   const raw = await proxyJsonGet<Record<string, unknown>[]>(BASE_PATH);
-  return raw.map((row) => mapRow(row));
+  return raw
+    .map((row) => mapRow(row))
+    .filter((row) => row.connectionId.length > 0);
 }
 
 export async function createSecurityDeclaredConnection(
   request: SecurityDeclaredConnectionCreateRequest,
 ): Promise<string> {
   const raw = await proxyJsonPost<Record<string, unknown>>(BASE_PATH, request);
-  return typeof raw.connectionId === "string" ? raw.connectionId : "";
+  return typeof raw.connectionId === "string" ? raw.connectionId.trim() : "";
 }
 
 export async function revokeSecurityDeclaredConnection(connectionId: string): Promise<void> {
-  await proxyJsonPost(`${BASE_PATH}/${connectionId}/revoke`, {});
+  await proxyJsonPost(`${BASE_PATH}/${encodeURIComponent(connectionId.trim())}/revoke`, {});
 }

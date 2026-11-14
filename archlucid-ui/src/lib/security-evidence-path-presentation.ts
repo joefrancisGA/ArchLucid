@@ -22,7 +22,12 @@ export function isSecurityEvidenceStoredFieldOmission(value: string): boolean {
 
 /** Reader-facing rank order — numeric when stored, otherwise one omission label. */
 export function formatSecurityEvidencePathRankOrderDisplay(rankOrder: number | null | undefined): string {
-  if (rankOrder === null || rankOrder === undefined || !Number.isFinite(rankOrder)) {
+  if (
+    rankOrder === null
+    || rankOrder === undefined
+    || !Number.isFinite(rankOrder)
+    || rankOrder < 0
+  ) {
     return "Rank was not stored.";
   }
 
@@ -31,7 +36,12 @@ export function formatSecurityEvidencePathRankOrderDisplay(rankOrder: number | n
 
 /** Reader-facing hop order cell — numeric when stored, otherwise one omission label. */
 export function formatSecurityEvidencePathHopOrdinalDisplay(hopOrdinal: number | null | undefined): string {
-  if (hopOrdinal === null || hopOrdinal === undefined) {
+  if (
+    hopOrdinal === null
+    || hopOrdinal === undefined
+    || !Number.isFinite(hopOrdinal)
+    || hopOrdinal < 0
+  ) {
     return SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED;
   }
 

@@ -20,13 +20,25 @@ function mapInvestigationEffortField(value: unknown): string {
   return "";
 }
 
+function mapNonNegativeEffortNumber(value: unknown): string {
+  const mapped = mapInvestigationEffortField(value);
+
+  if (mapped.length === 0) {
+    return mapped;
+  }
+
+  const numeric = Number(mapped);
+
+  return Number.isFinite(numeric) && numeric >= 0 ? mapped : "";
+}
+
 function mapInputs(raw: Record<string, unknown>): SecureNowInvestigationEffortInputsServerRecord {
   return {
-    baselineHours: mapInvestigationEffortField(raw.baselineHours),
-    afterHours: mapInvestigationEffortField(raw.afterHours),
-    annualInvestigations: mapInvestigationEffortField(raw.annualInvestigations),
-    hourlyRate: mapInvestigationEffortField(raw.hourlyRate),
-    annualCost: mapInvestigationEffortField(raw.annualCost),
+    baselineHours: mapNonNegativeEffortNumber(raw.baselineHours),
+    afterHours: mapNonNegativeEffortNumber(raw.afterHours),
+    annualInvestigations: mapNonNegativeEffortNumber(raw.annualInvestigations),
+    hourlyRate: mapNonNegativeEffortNumber(raw.hourlyRate),
+    annualCost: mapNonNegativeEffortNumber(raw.annualCost),
     recordedUtc: mapInvestigationEffortField(raw.recordedUtc),
   };
 }

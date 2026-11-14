@@ -43,7 +43,12 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
     muteReason: typeof raw.muteReason === "string" ? raw.muteReason : null,
     reasoningTrace: typeof raw.reasoningTrace === "string" ? raw.reasoningTrace : null,
     evaluationConfidenceScore:
-      typeof raw.evaluationConfidenceScore === "number" ? raw.evaluationConfidenceScore : null,
+      typeof raw.evaluationConfidenceScore === "number"
+      && Number.isFinite(raw.evaluationConfidenceScore)
+      && raw.evaluationConfidenceScore >= 0
+      && raw.evaluationConfidenceScore <= 100
+        ? raw.evaluationConfidenceScore
+        : null,
     confidenceLevel:
       raw.confidenceLevel === "Low" || raw.confidenceLevel === "Medium" || raw.confidenceLevel === "High"
         ? raw.confidenceLevel

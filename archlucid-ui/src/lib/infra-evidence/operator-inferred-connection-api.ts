@@ -1,4 +1,5 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { finiteNonNegativeNumberOrDefault } from "@/lib/parse-finite-number";
 import type {
   InferenceQuestionnaireListResponse,
   OperatorInferredConnectionConfirmRequest,
@@ -7,35 +8,37 @@ import type {
 } from "@/lib/infra-evidence/operator-inferred-connection-types";
 
 function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
+  const required = (value: unknown): string => typeof value === "string" ? value.trim() : "";
+  const optional = (value: unknown): string | null => {
+    const mapped = required(value);
+
+    return mapped.length > 0 ? mapped : null;
+  };
+
   return {
-    connectionId: typeof raw.connectionId === "string" ? raw.connectionId : "",
-    snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId : "",
-    status: typeof raw.status === "string" ? raw.status as OperatorInferredConnectionRow["status"] : null,
-    source: typeof raw.source === "string" ? raw.source as OperatorInferredConnectionRow["source"] : null,
-    ruleName: typeof raw.ruleName === "string" ? raw.ruleName : null,
-    questionText: typeof raw.questionText === "string" ? raw.questionText : null,
-    fromArmId: typeof raw.fromArmId === "string" ? raw.fromArmId : null,
-    fromLabel: typeof raw.fromLabel === "string" ? raw.fromLabel : null,
-    fromCloudResourceId: typeof raw.fromCloudResourceId === "string" ? raw.fromCloudResourceId : null,
-    toHost: typeof raw.toHost === "string" ? raw.toHost : null,
-    toCatalog: typeof raw.toCatalog === "string" ? raw.toCatalog : null,
-    toArmId: typeof raw.toArmId === "string" ? raw.toArmId : null,
-    toCloudResourceId: typeof raw.toCloudResourceId === "string" ? raw.toCloudResourceId : null,
-    settingName: typeof raw.settingName === "string" ? raw.settingName : null,
-    sourceFileFormat: typeof raw.sourceFileFormat === "string" ? raw.sourceFileFormat : null,
-    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : "DeterministicInference",
-    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
-    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
+    connectionId: required(raw.connectionId),
+    snapshotId: required(raw.snapshotId),
+    status: optional(raw.status) as OperatorInferredConnectionRow["status"],
+    source: optional(raw.source) as OperatorInferredConnectionRow["source"],
+    ruleName: optional(raw.ruleName),
+    questionText: optional(raw.questionText),
+    fromArmId: optional(raw.fromArmId),
+    fromLabel: optional(raw.fromLabel),
+    fromCloudResourceId: optional(raw.fromCloudResourceId),
+    toHost: optional(raw.toHost),
+    toCatalog: optional(raw.toCatalog),
+    toArmId: optional(raw.toArmId),
+    toCloudResourceId: optional(raw.toCloudResourceId),
+    settingName: optional(raw.settingName),
+    sourceFileFormat: optional(raw.sourceFileFormat),
+    provenanceKind: optional(raw.provenanceKind) ?? "",
+    createdUtc: required(raw.createdUtc),
+    updatedUtc: required(raw.updatedUtc),
   };
 }
 
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
 function snapshotBasePath(snapshotId: string): string {
-  return `/api/proxy/v1/infra-evidence/snapshots/${snapshotId}/operator-inferred-connections`;
+  return `/api/proxy/v1/infra-evidence/snapshots/${encodeURIComponent(snapshotId.trim())}/operator-inferred-connections`;
 }
 
 export async function listOperatorInferredConnections(
@@ -46,7 +49,9 @@ export async function listOperatorInferredConnections(
     throw new Error("SecureNow inferred connections response was invalid.");
   }
 
-  return raw.map((row) => mapRow(row));
+  return raw
+    .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object")
+    .map((row) => mapRow(row));
 }
 
 export async function listInferenceQuestionnaireItems(
@@ -54,13 +59,15 @@ export async function listInferenceQuestionnaireItems(
 ): Promise<InferenceQuestionnaireListResponse> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${snapshotBasePath(snapshotId)}/questionnaire`);
   const items = Array.isArray(raw.items)
-    ? raw.items.map((row) => mapRow(row as Record<string, unknown>))
+    ? raw.items
+      .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object")
+      .map((row) => mapRow(row))
     : [];
 
   return {
     items,
-    totalCount: finiteNumberOrDefault(raw.totalCount, items.length),
-    cap: finiteNumberOrDefault(raw.cap, 50),
+    totalCount: finiteNonNegativeNumberOrDefault(raw.totalCount, items.length),
+    cap: finiteNonNegativeNumberOrDefault(raw.cap, 50),
     capReached: raw.capReached === true,
   };
 }

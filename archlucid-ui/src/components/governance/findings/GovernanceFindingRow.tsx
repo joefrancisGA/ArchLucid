@@ -20,7 +20,6 @@ import {
 import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisitMarker";
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
@@ -32,7 +31,6 @@ import {
 import {
   governanceBuyerRecordTypePrimary,
   governanceBuyerRecordTypeSecondary,
-  governanceQueueStatusTagKind,
 } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   GovernanceFindingDetailPane,
@@ -45,7 +43,6 @@ import {
   navigateGovernanceFindingDetail,
   type GovernanceFindingInspectHrefOptions,
 } from "@/components/governance/findings/governance-findings-navigation";
-import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 
 export type GovernanceFindingRowProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -172,20 +169,6 @@ function GovernanceFindingRowComponent({
                 </>
               ) : null}
             </p>
-          </div>
-          <div>
-            <div className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</div>
-            <div className="mt-0.5">
-              <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
-            </div>
-            {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-              <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.humanReviewStatusLabel}</p>
-            ) : null}
-            {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-              <div className="mt-1">
-                <ItsmLinkedTicketStatusChip summary={row.itsmLinkedTicketsSummary} />
-              </div>
-            ) : null}
           </div>
           <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="buyer" />
           {row.recordKind === "finding" ? (

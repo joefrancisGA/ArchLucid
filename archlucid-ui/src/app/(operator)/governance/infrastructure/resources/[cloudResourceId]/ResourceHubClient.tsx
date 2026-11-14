@@ -2345,14 +2345,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </div>
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
-                            {item.severity != null && item.severity.trim().length > 0 ? (
+                            {item.severity != null
+                            && item.severity.trim().length > 0
+                            && !item.severity.trim().endsWith("was not stored.") ? (
                               <SeverityTag severity={item.severity} />
                             ) : (
                               "Severity was not stored."
                             )}
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
-                            {item.status != null && item.status.trim().length > 0 ? (
+                            {item.status != null
+                            && item.status.trim().length > 0
+                            && !item.status.trim().endsWith("was not stored.") ? (
                               <StatusTag kind={findingStatusTagKind(item.status)} label={item.status} />
                             ) : (
                               "Finding status was not stored."
