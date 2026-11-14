@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
@@ -105,10 +106,15 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinatorTests
         Mock<IRunStageOutcomesRepository> runStageOutcomesRepository = new();
         Mock<IAuditService> auditService = new();
         Mock<IAsyncSpecialistReviewService> specialistReviewService = new();
+        Mock<IReRunExecuteSealedManifestPinGate> sealedManifestPinGate = new();
+        sealedManifestPinGate
+            .Setup(gate => gate.EnsureReadyAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         ServiceProvider services = new ServiceCollection()
             .AddSingleton(runRepository.Object)
             .AddSingleton(modelAccess.Object)
+            .AddSingleton(sealedManifestPinGate.Object)
             .AddSingleton(reReviewService.Object)
             .AddSingleton(runStageOutcomesRepository.Object)
             .AddSingleton(auditService.Object)
@@ -126,6 +132,9 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinatorTests
 
         await captured!(CancellationToken.None);
 
+        sealedManifestPinGate.Verify(
+            gate => gate.EnsureReadyAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
         runStageOutcomesRepository.Verify(
             repository => repository.RecordStageStartedAsync(runId, "incremental-re-review-evidence-added", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()),
             Times.Once);
