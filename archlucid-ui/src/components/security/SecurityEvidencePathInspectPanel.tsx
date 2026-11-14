@@ -59,6 +59,8 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
   SECURENOW_PATH_INSPECT_FRAMEWORK_THEME,
+  SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_HREF,
+  SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_LINE,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
   SECURENOW_PATH_INSPECT_LOADING,
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
@@ -73,6 +75,8 @@ import {
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { SECURENOW_PATH_INSPECT_CITATION_ALLOWED_REFS_LEAD } from "@/lib/product-line/securenow-path-inspect-citation-allowed-copy";
+import { formatSecureNowCitationRejectionDetail } from "@/lib/product-line/securenow-citation-rejection-detail";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { secureNowSyntheticFixtureDisciplineForPathId } from "@/lib/product-line/securenow-fixture-path-id";
 import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
@@ -413,6 +417,7 @@ function PathExplanationSection(props: {
     && (executiveSummary.length === 0 || !executiveSummary.includes(rankContext));
   const citedEvidenceRefs = props.explanation?.citedEvidenceRefs.filter((ref) => ref.trim().length > 0) ?? [];
   const citationRejection = props.explanation?.modelOutputRejection?.trim() ?? "";
+  const citationRejectionDetail = formatSecureNowCitationRejectionDetail(citationRejection, citedEvidenceRefs);
   const showCitationRejection =
     props.explanation?.provenanceKind === "DeterministicInference" && citationRejection.length > 0;
   const showRealSessionFallbackDiscipline =
@@ -467,7 +472,9 @@ function PathExplanationSection(props: {
       {showCitationRejection ? (
         <div data-testid="security-evidence-path-explanation-citation-rejection">
           <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG} />
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{citationRejection}</p>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+            {citationRejectionDetail ?? citationRejection}
+          </p>
         </div>
       ) : null}
       {props.explanation != null ? (
@@ -1114,7 +1121,13 @@ export function SecurityEvidencePathInspectPanel(props: {
                 className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="securenow-path-framework-theme"
               >
-                {SECURENOW_PATH_INSPECT_FRAMEWORK_THEME}
+                {SECURENOW_PATH_INSPECT_FRAMEWORK_THEME}{" "}
+                <Link className={OPERATOR_LINK.inline} href={SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_HREF}>
+                  View expectation keys in Standards and rules
+                </Link>
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-path-expectation-keys-wk21">
+                {SECURENOW_PATH_INSPECT_EXPECTATION_KEYS_LINE}
               </p>
               <ul className="space-y-2">
                 {pathQuery.data.relatedCutPoints.map((cutPoint) => (
@@ -1133,6 +1146,12 @@ export function SecurityEvidencePathInspectPanel(props: {
                         ? `Pattern: ${cutPoint.suggestedPatternKey}`
                         : SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED}
                     </p>
+                    {cutPoint.toNodeLabel.trim().length > 0 ? (
+                      <p className={cn("m-0 mt-1 inline-flex flex-wrap items-center gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+                        Resource id: <span className="font-mono text-xs">{cutPoint.toNodeLabel}</span>
+                        <CopyIdButton value={cutPoint.toNodeLabel} aria-label="Copy cut-point resource id" />
+                      </p>
+                    ) : null}
                   </li>
                 ))}
               </ul>

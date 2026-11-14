@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import type { ReactElement } from "react";
 import { useMemo } from "react";
 
+import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { resolveDeskContinuityReviewOpenHref } from "@/lib/architecture/resolve-desk-continuity-review-href";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -141,6 +142,11 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             <p className="m-0 tabular-nums">
               Comparisons (30d): <span className="font-medium">{data.comparisonEventsLast30Days}</span>
             </p>
+            {funnel.committedRunsInScope < 2 ? (
+              <p className="m-0" data-testid="stickiness-second-sealed-compare-honesty">
+                {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+              </p>
+            ) : null}
             <p className="m-0 tabular-nums">
               Pending approvals: <span className="font-medium">{data.pendingGovernanceApprovals}</span>
             </p>

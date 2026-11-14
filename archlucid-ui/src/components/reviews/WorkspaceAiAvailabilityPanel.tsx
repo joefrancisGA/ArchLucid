@@ -29,6 +29,7 @@ import {
   workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
+import { ARCHLUCID_HOSTED_SAAS_OPENAI_COPY } from "@/lib/getting-started-help-guide-content";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -557,9 +558,9 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     >
       <p
         className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="workspace-ai-ready-path"
+        data-testid="workspace-ai-hosted-openai-discipline"
       >
-        ArchLucid-managed Azure OpenAI is the ready path for this workspace. Customer-supplied credentials remain optional.
+        {ARCHLUCID_HOSTED_SAAS_OPENAI_COPY}
       </p>
       {scopingLabel !== null && scopingLabel !== undefined && scopingLabel.trim().length > 0 ? (
         <p className={cn("m-0 mb-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>

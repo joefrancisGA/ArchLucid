@@ -20,6 +20,7 @@ import {
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import {
   SECURENOW_SPONSOR_PATH_NO_PATH_LEAD,
   SECURENOW_SPONSOR_PATH_NO_PATH_REHEARSAL_HEADING,
@@ -107,6 +108,9 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
         subtitle="Internal preparation for a human sponsor readout. SecureNow beta remains NO_GO."
       />
       <main className="mt-6 max-w-4xl space-y-6">
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-roi-non-summing">
+          {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+        </p>
         {pathId.length === 0 ? (
           <section className="space-y-3" data-testid="securenow-sponsor-path-no-path">
             <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_SPONSOR_PATH_NO_PATH_LEAD}</p>

@@ -217,6 +217,7 @@ import {
   SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_BODY,
   SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT,
 } from "@/lib/product-line/securenow-diagram-path-focus-copy";
+import { secureNowDiagramPathFocusHiddenNodesLine } from "@/lib/product-line/securenow-diagram-path-focus-hidden-count-copy";
 import { fetchSecurityEvidencePathDetail } from "@/lib/security-evidence-path-api";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
@@ -1222,6 +1223,16 @@ export function DiagramsWorkbenchClient() {
 
   const pathScopedMermaidOutline = pathHopDiagramFilter.outline;
   const pathHopDiagramMatchBasis = pathHopDiagramFilter.matchBasis;
+
+  const pathFocusHiddenNodesLine = useMemo(() => {
+    if (!pathFocusActive || visibleMermaidOutline == null || pathScopedMermaidOutline == null) {
+      return null;
+    }
+
+    const hidden = visibleMermaidOutline.nodes.length - pathScopedMermaidOutline.nodes.length;
+
+    return secureNowDiagramPathFocusHiddenNodesLine(hidden);
+  }, [pathFocusActive, pathScopedMermaidOutline, visibleMermaidOutline]);
 
   const pathFocusMatchedNoNodes =
     pathFocusActive
@@ -2487,6 +2498,14 @@ export function DiagramsWorkbenchClient() {
               data-testid="securenow-diagram-path-focus-match-basis"
             >
               {SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID}
+            </p>
+          ) : null}
+          {pathFocusHiddenNodesLine != null ? (
+            <p
+              className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="securenow-diagram-path-focus-hidden-count"
+            >
+              {pathFocusHiddenNodesLine}
             </p>
           ) : null}
           <div className="mt-2 flex flex-wrap gap-3">

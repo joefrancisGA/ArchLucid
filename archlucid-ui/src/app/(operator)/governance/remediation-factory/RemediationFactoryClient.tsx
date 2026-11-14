@@ -17,7 +17,10 @@ import {
   type SecureNowArchitectOutcomeQueryState,
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
+import { SECURENOW_SECOND_CAPTURE_CTA_HREFS } from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
@@ -276,6 +279,7 @@ export function RemediationFactoryClient() {
   const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
     snapshotCaptureSucceeded: null,
   });
+  const latestCapturePartial = useLatestSnapshotCaptureIsPartial(productLine === "security");
   const rankedPathsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_RANKED_PATHS_EMPTY => {
     if (productLine !== "security" || collectionInputPending || collectionInput === null) {
       return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
@@ -859,6 +863,14 @@ export function RemediationFactoryClient() {
       </section>
 
       <section className="space-y-3" aria-label={SECURENOW_PATH_RANKED_PATHS_TITLE}>
+        {productLine === "security" && latestCapturePartial ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-partial-capture-ranked-paths">
+            {SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}{" "}
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.extractUpload}>
+              Open capture log
+            </Link>
+          </p>
+        ) : null}
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
           {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
