@@ -56,6 +56,7 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
   SECURENOW_PATH_INSPECT_FRAMEWORK_THEME,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
@@ -384,9 +385,12 @@ function PathExplanationSection(props: {
   readonly onGenerate: () => void;
 }) {
   const isModelExplanation = props.explanation?.provenanceKind === "AiInference";
+  const storedExplanationSource = props.explanation?.simulatorLabel?.trim() ?? "";
   const explanationTag = isModelExplanation
     ? SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG
-    : SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG;
+    : !props.useSimulator && storedExplanationSource.length === 0
+      ? SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED
+      : SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG;
   const explanationLead = props.useSimulator
     ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD
     : SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD;

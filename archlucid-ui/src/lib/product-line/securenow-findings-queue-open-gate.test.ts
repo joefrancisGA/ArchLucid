@@ -4,31 +4,33 @@ import { SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths
 import { resolveSecureNowFindingsQueueOpenGate } from "@/lib/product-line/securenow-findings-queue-open-gate";
 
 describe("securenow-findings-queue-open-gate", () => {
-  it("prefers needs-owner before open findings", () => {
-    const gate = resolveSecureNowFindingsQueueOpenGate("security", {
+  it("returns every active gate in reviewer order", () => {
+    const gates = resolveSecureNowFindingsQueueOpenGate("security", {
       isAssignedToMe: false,
       pendingOwner: 2,
       openRisks: 5,
       overdueReview: 1,
     });
 
-    expect(gate?.id).toBe("needs-owner");
-    expect(gate?.href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=no-owner`);
+    expect(gates.map((gate) => gate.id)).toEqual(["needs-owner", "open-findings", "overdue-review"]);
+    expect(gates[0]?.href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=no-owner`);
+    expect(gates[1]?.href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
+    expect(gates[2]?.href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=overdue-review`);
   });
 
   it("suggests open findings when no pending owners", () => {
-    const gate = resolveSecureNowFindingsQueueOpenGate("security", {
+    const gates = resolveSecureNowFindingsQueueOpenGate("security", {
       isAssignedToMe: false,
       pendingOwner: 0,
       openRisks: 3,
       overdueReview: 0,
     });
 
-    expect(gate?.id).toBe("open-findings");
-    expect(gate?.href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
+    expect(gates.map((gate) => gate.id)).toEqual(["open-findings"]);
+    expect(gates[0]?.href).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
   });
 
-  it("returns null when the register is clear", () => {
+  it("returns no gates when the register is clear or counts are invalid", () => {
     expect(
       resolveSecureNowFindingsQueueOpenGate("security", {
         isAssignedToMe: false,
@@ -36,6 +38,14 @@ describe("securenow-findings-queue-open-gate", () => {
         openRisks: 0,
         overdueReview: 0,
       }),
-    ).toBeNull();
+    ).toEqual([]);
+    expect(
+      resolveSecureNowFindingsQueueOpenGate("security", {
+        isAssignedToMe: false,
+        pendingOwner: -1,
+        openRisks: Number.NaN,
+        overdueReview: Number.POSITIVE_INFINITY,
+      }),
+    ).toEqual([]);
   });
 });
