@@ -227,7 +227,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
         SqlRelationalBackfillFailureQuarantineStore quarantine = new(factory);
 
         // Seed the actual persisted max-retry state rather than assuming malformed JSON throws.
-        // The separate StageProcessor tests own the exception-to-quarantine transition.
+        // This regression checks persisted skip behavior, not exception-to-quarantine recording.
         await quarantine.RecordFailureAsync(
             stage, entityKey, "Deterministic prior backfill failure for quarantine regression", 1,
             CancellationToken.None);
