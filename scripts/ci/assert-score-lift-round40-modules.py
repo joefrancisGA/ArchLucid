@@ -13,7 +13,7 @@ REQUIRED_PATHS = [
     "archlucid-ui/src/lib/product-line/securenow-synthetic-fixture-discipline.ts",
     "archlucid-ui/src/lib/product-line/securenow-second-capture-delta-copy.ts",
     "archlucid-ui/src/lib/product-line/securenow-reader-scope-workbench-copy.ts",
-    "archlucid-ui/src/lib/score-lift-round40-hosted-saas-openai-copy.ts",
+    "archlucid-ui/src/lib/getting-started-help-guide-content.ts",
     "archlucid-ui/src/lib/score-lift-round40.product-line.test.ts",
     "archlucid-ui/src/components/governance/findings/SecureNowFindingsQueueOpenGateStrip.tsx",
     "archlucid-ui/src/accessibility/compliance-routes-axe.test.tsx",

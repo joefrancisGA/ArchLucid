@@ -1,4 +1,5 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { finiteNumberOrDefault, parseFiniteNumber } from "@/lib/parse-finite-number";
 import type {
   OperationalSecurityFindingDetail,
   SecurityEvidencePathAttackPathReport,
@@ -25,22 +26,6 @@ import {
 
 const FINDINGS_PATH = "/api/proxy/v1/operational-security/findings";
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
-
-function parseFiniteNumber(value: unknown): number | null {
-  if (value == null) {
-    return null;
-  }
-
-  const parsed = typeof value === "number" ? value : Number(value);
-
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
-  const parsed = parseFiniteNumber(value);
-
-  return parsed ?? fallback;
-}
 
 function finiteNumberOrNull(value: unknown): number | null {
   return parseFiniteNumber(value);
@@ -72,6 +57,13 @@ function mapOptionalTrimmedString(value: unknown): string | null {
   const trimmed = value.trim();
 
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function mapStoredStringList(values: ReadonlyArray<unknown>): string[] {
+  return values
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 }
 
 function mapStoredIdList(values: ReadonlyArray<unknown>): string[] {
@@ -110,14 +102,14 @@ function mapExplanationTemplate(raw: Record<string, unknown> | null | undefined)
   }
 
   return {
-    actor: raw.actor != null ? String(raw.actor) : null,
-    identity: raw.identity != null ? String(raw.identity) : null,
-    network: raw.network != null ? String(raw.network) : null,
-    asset: raw.asset != null ? String(raw.asset) : null,
-    weakControl: raw.weakControl != null ? String(raw.weakControl) : null,
-    proposedChange: raw.proposedChange != null ? String(raw.proposedChange) : null,
-    verify: raw.verify != null ? String(raw.verify) : null,
-    architectSentence: raw.architectSentence != null ? String(raw.architectSentence) : null,
+    actor: mapOptionalTrimmedString(raw.actor),
+    identity: mapOptionalTrimmedString(raw.identity),
+    network: mapOptionalTrimmedString(raw.network),
+    asset: mapOptionalTrimmedString(raw.asset),
+    weakControl: mapOptionalTrimmedString(raw.weakControl),
+    proposedChange: mapOptionalTrimmedString(raw.proposedChange),
+    verify: mapOptionalTrimmedString(raw.verify),
+    architectSentence: mapOptionalTrimmedString(raw.architectSentence),
   };
 }
 
@@ -128,7 +120,7 @@ function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint
   return {
     cutPointId: String(raw.cutPointId ?? ""),
     cutKind: String(raw.cutKind ?? ""),
-    cutOrder: Number(raw.cutOrder ?? 0),
+    cutOrder: finiteNumberOrDefault(raw.cutOrder, 0),
     fromNodeLabel: mapOptionalTrimmedString(raw.fromNodeLabel),
     toNodeLabel: mapOptionalTrimmedString(raw.toNodeLabel),
     edgeType: mapOptionalTrimmedString(raw.edgeType),
@@ -229,7 +221,7 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
     explanationId: String(raw.explanationId ?? ""),
     pathId: String(raw.pathId ?? ""),
     executiveSummary: String(raw.executiveSummary ?? ""),
-    businessImpactHypotheses: hypothesesRaw.map((item) => String(item)),
+    businessImpactHypotheses: mapStoredStringList(hypothesesRaw),
     proposedRemediation: {
       recommendedChange: mapStoredLabel(
         proposedRemediationRaw?.recommendedChange,
@@ -239,14 +231,14 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
         proposedRemediationRaw?.recommendedChangeSource,
         "Recommended change source was not stored.",
       ),
-      verificationQueries: verificationQueriesRaw.map((item) => String(item)),
-      preconditions: preconditionsRaw.map((item) => String(item)),
+      verificationQueries: mapStoredStringList(verificationQueriesRaw),
+      preconditions: mapStoredStringList(preconditionsRaw),
       suggestedPatternKey:
         proposedRemediationRaw?.suggestedPatternKey != null
           ? String(proposedRemediationRaw.suggestedPatternKey)
           : null,
     },
-    citedEvidenceRefs: citedRefsRaw.map((item) => String(item)),
+    citedEvidenceRefs: mapStoredStringList(citedRefsRaw),
     provenanceKind: String(raw.provenanceKind ?? ""),
     simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
     modelOutputRejection: raw.modelOutputRejection != null ? String(raw.modelOutputRejection) : null,

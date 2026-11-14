@@ -423,7 +423,7 @@ describe("operator hub findings routes product line", () => {
         pendingOwner: 0,
         openRisks: 1,
         overdueReview: 0,
-      })?.href,
+      })[0]?.href,
     ).toBe(`${SECURENOW_FINDINGS_PATH}?filter=open`);
     expect(operatorRouteReadiness(SECURENOW_FINDINGS_PATH)).toBe("advanced-only");
     expect(resolveShellHeaderSearchLabel(SECURENOW_FINDINGS_PATH, "architecture")).toBe("Filter findings");

@@ -127,7 +127,7 @@ export function GovernanceFindingsQueueHeader({
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";
   const secureNowProductLine = isSecureNowProductLine(productLine);
-  const secureNowFindingsOpenGate = useMemo(
+  const secureNowFindingsOpenGates = useMemo(
     () =>
       secureNowProductLine
         ? resolveSecureNowFindingsQueueOpenGate(productLine, {
@@ -136,7 +136,7 @@ export function GovernanceFindingsQueueHeader({
             openRisks: registerSummary.openRisks,
             overdueReview: registerSummary.overdueReview,
           })
-        : null,
+        : [],
     [
       secureNowProductLine,
       productLine,
@@ -290,8 +290,8 @@ export function GovernanceFindingsQueueHeader({
         <div className="mt-2 space-y-1">
           <SecureNowFindingsQueueAssignedPacksLine />
           <SecureNowFindingsWk21HonestyStrip />
-          {secureNowFindingsOpenGate !== null ? (
-            <SecureNowFindingsQueueOpenGateStrip openGate={secureNowFindingsOpenGate} />
+          {secureNowFindingsOpenGates.length > 0 ? (
+            <SecureNowFindingsQueueOpenGateStrip openGates={secureNowFindingsOpenGates} />
           ) : null}
         </div>
       ) : null}

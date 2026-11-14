@@ -1,5 +1,6 @@
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { finiteNumberOrDefault, parseFiniteNumber } from "@/lib/parse-finite-number";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { infraEvidenceHubBlockedReason } from "@/lib/infra-evidence/infra-evidence-hub-blocked-reason";
 import { tryWorkbookInfraResourceHubDemoFallback } from "@/lib/infra-evidence/infra-resource-hub-demo-fallback";
@@ -95,23 +96,17 @@ export async function fetchCloudResourceExplorerPage(
       workCounts: row.workCounts == null
         ? null
         : {
-            openOperationalFindingsCount: Number.isFinite(row.workCounts.openOperationalFindingsCount)
-              ? Number(row.workCounts.openOperationalFindingsCount)
-              : undefined,
-            openRemediationInstancesCount: Number.isFinite(row.workCounts.openRemediationInstancesCount)
-              ? Number(row.workCounts.openRemediationInstancesCount)
-              : undefined,
-            inventoryDriftChangeCount: Number.isFinite(row.workCounts.inventoryDriftChangeCount)
-              ? Number(row.workCounts.inventoryDriftChangeCount)
-              : undefined,
+            openOperationalFindingsCount: parseFiniteNumber(row.workCounts.openOperationalFindingsCount) ?? undefined,
+            openRemediationInstancesCount: parseFiniteNumber(row.workCounts.openRemediationInstancesCount) ?? undefined,
+            inventoryDriftChangeCount: parseFiniteNumber(row.workCounts.inventoryDriftChangeCount) ?? undefined,
           },
     }));
 
   return {
     items,
-    totalCount: Number.isFinite(raw.totalCount) ? Number(raw.totalCount) : items.length,
-    page: Number.isFinite(raw.page) ? Number(raw.page) : page,
-    pageSize: Number.isFinite(raw.pageSize) ? Number(raw.pageSize) : pageSize,
+    totalCount: finiteNumberOrDefault(raw.totalCount, items.length),
+    page: finiteNumberOrDefault(raw.page, page),
+    pageSize: finiteNumberOrDefault(raw.pageSize, pageSize),
     hasMore: raw.hasMore === true,
   };
 }
@@ -175,11 +170,6 @@ function stringRecord(value: unknown): Record<string, string> {
 }
 
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {
-  const finiteNumberOr = (value: unknown, fallback: number): number => {
-    const parsed = typeof value === "number" ? value : Number(value);
-
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
   const mapFindingStream = (stream: Record<string, unknown> | undefined) => ({
     streamKind: String(stream?.streamKind ?? ""),
     streamLabel: typeof stream?.streamLabel === "string" ? stream.streamLabel : null,
@@ -205,9 +195,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
           }];
         })
       : [],
-    totalCount: finiteNumberOr(stream?.totalCount, 0),
-    page: finiteNumberOr(stream?.page, 1),
-    pageSize: finiteNumberOr(stream?.pageSize, 25),
+    totalCount: finiteNumberOrDefault(stream?.totalCount, 0),
+    page: finiteNumberOrDefault(stream?.page, 1),
+    pageSize: finiteNumberOrDefault(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 
@@ -235,9 +225,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
           }];
         })
       : [],
-    totalCount: finiteNumberOr(stream?.totalCount, 0),
-    page: finiteNumberOr(stream?.page, 1),
-    pageSize: finiteNumberOr(stream?.pageSize, 25),
+    totalCount: finiteNumberOrDefault(stream?.totalCount, 0),
+    page: finiteNumberOrDefault(stream?.page, 1),
+    pageSize: finiteNumberOrDefault(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 

@@ -1,5 +1,11 @@
 import { SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  SECURENOW_DOES_NOT_CHANGE_AZURE_LINE,
+  SECURENOW_RETRY_NO_AZURE_CHANGE,
+} from "@/lib/product-line/securenow-change-impact-copy";
 import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
+
+export { SECURENOW_DOES_NOT_CHANGE_AZURE_LINE };
 
 export const SECURENOW_PATH_INSPECT_PANEL_TITLE = secureNowTitleCase("Path inspect");
 
@@ -13,7 +19,7 @@ export const SECURENOW_PATH_INSPECT_LOADING = "Loading path inspect…" as const
 export const SECURENOW_PATH_INSPECT_ERROR = "Path inspect unavailable" as const;
 
 export const SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE =
-  "Retry the load. This does not change Azure." as const;
+  SECURENOW_RETRY_NO_AZURE_CHANGE;
 
 export const SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE = secureNowTitleCase("Weakest hop");
 
@@ -65,6 +71,9 @@ export const SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON = "Generate explanation" 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_LOADING = "Generating explanation…" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_ERROR = "Explanation unavailable" as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_SOURCE_NOT_STORED =
+  "Explanation source was not stored." as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG = "Simulator — not live LLM" as const;
 

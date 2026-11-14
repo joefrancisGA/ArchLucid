@@ -35,12 +35,14 @@ describe("compliance routes axe", () => {
   it("findings queue open-gate strip has no detectable violations", async () => {
     const { container } = render(
       <SecureNowFindingsQueueOpenGateStrip
-        openGate={{
-          id: "open-findings",
-          message: "Open findings still need triage or disposition.",
-          ctaLabel: "Show open findings",
-          href: `${SECURENOW_FINDINGS_PATH}?filter=open`,
-        }}
+        openGates={[
+          {
+            id: "open-findings",
+            message: "Open findings still need triage or disposition.",
+            ctaLabel: "Show open findings",
+            href: `${SECURENOW_FINDINGS_PATH}?filter=open`,
+          },
+        ]}
       />,
     );
     const results = await axe(container);

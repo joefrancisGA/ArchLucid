@@ -1,6 +1,9 @@
 import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { SECURENOW_DOES_NOT_CHANGE_AZURE_LINE } from "@/lib/product-line/securenow-change-impact-copy";
+
+export { SECURENOW_DOES_NOT_CHANGE_AZURE_LINE };
 
 export const SECURENOW_SELF_SERVICE_HEADING = "When you are stuck" as const;
 
