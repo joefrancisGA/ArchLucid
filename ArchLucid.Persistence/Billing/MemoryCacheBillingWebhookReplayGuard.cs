@@ -75,6 +75,7 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
             CleanupExpiredClaims(now);
 
             bool hadPrevious = _claimedKeys.TryGetValue(cacheKey, out DateTimeOffset previousExpiration);
+
             if (rejectDuplicate && hadPrevious && previousExpiration > now)
                 return false;
 
@@ -112,6 +113,7 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
             return;
 
         List<string> expiredKeys = new();
+
         foreach (KeyValuePair<string, DateTimeOffset> claim in _claimedKeys)
         {
             if (claim.Value <= now)
