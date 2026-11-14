@@ -40,6 +40,7 @@ import {
   parseItsmOutboundCreateFindingIdFromSearch,
   parseItsmOutboundCreateOpenFromSearch,
 } from "@/lib/itsm/itsm-outbound-create-issue-panels-url";
+import { formatSecureNowItsmDraftContextLine } from "@/lib/product-line/securenow-stop-itsm-handoff";
 
 export type ItsmOutboundProvider = "Jira" | "ServiceNow" | "Azure Boards";
 
@@ -219,6 +220,12 @@ export function ItsmOutboundCreateIssueDialog({
 
           <ItsmOutboundTriadClarityStrip className="mb-0" />
           <ItsmOutboundCareerHonestyStrip scopedRunId={scopedRunId} className="mb-0" />
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="itsm-create-issue-draft-context"
+          >
+            {formatSecureNowItsmDraftContextLine({ findingId, providerLabel: provider })}
+          </p>
 
           <div className="space-y-4">
             <div className="space-y-2">

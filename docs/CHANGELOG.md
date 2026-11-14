@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-14 - Score lift round 42 (batch 7): Remaining rescore honesty — partial capture, findings empty states, and review citation copy
+
+**Outcome.** Round-41 gaps ship: partial capture on ranked paths, findings queue empty states for missing collection versus evaluated-empty, path inspect citation and cut-point copy, diagram path-focus hidden node counts, ITSM draft context, sponsor and scorecard ROI non-summing lines, second-seal compare honesty, and Arch review explanation citation discipline.
+
+**Surfaces.** Findings queue, remediation factory, path inspect, diagrams workbench, sponsor path, scorecard, stickiness, ITSM dialog, review AI panel, compliance axe tests.
+
 ## 2026-11-14 - Score lift round 41 (batch 6): Rescore honesty batch — open-gate scope, fixture labels, and hosted OpenAI copy
 
 **Outcome.** SecureNow findings open-gate links preserve run and architecture scope on assigned-to-me and the main queue. Collection setup adds second-capture CTAs. Path inspect labels the fixture path, states allowed citation refs, and aligns diagram-empty copy. Remediation simulator and cut points add rank and path-id honesty. ArchLucid first-review guide names the tenant review next step after prerequisites. Troubleshooting repeats hosted Azure OpenAI posture. PilotStrict rejects mismatched citation sources.

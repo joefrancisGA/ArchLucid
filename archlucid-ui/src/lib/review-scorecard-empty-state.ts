@@ -1,4 +1,5 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
 
 export const REVIEW_SCORECARD_EMPTY_HEADING = "No finalized reviews yet";
@@ -30,6 +31,8 @@ export const REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE =
 
 export const REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE =
   "ROI estimates are not calculated until a review is finalized and sponsor inputs pass validation. Figures in sample mode are illustrative only — not measured savings.";
+
+export const REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE = SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE;
 
 export const REVIEW_SCORECARD_SAMPLE_QUERY_PARAM = "sample";
 

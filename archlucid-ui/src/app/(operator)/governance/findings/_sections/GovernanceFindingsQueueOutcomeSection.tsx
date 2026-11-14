@@ -42,8 +42,10 @@ import {
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { shouldShowSecureNowCollectionMissingBlock } from "@/lib/product-line/securenow-collection-missing-reason";
 import { resolveSecureNowGovernanceFindingsEmptyStateCopy } from "@/lib/product-line/securenow-governance-findings-copy";
 
 export function GovernanceFindingsQueueOutcomeSection(
@@ -65,9 +67,20 @@ export function GovernanceFindingsQueueOutcomeSection(
     scopedRunTitle: props.scopedRunContextTitle,
     productLineId: productLine,
   });
+  const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
+    snapshotCaptureSucceeded: null,
+    enabled: !props.isAssignedToMe && isSecureNowProductLine(productLine),
+  });
+  const secureNowCollectionMissing =
+    collectionInput !== null && shouldShowSecureNowCollectionMissingBlock(collectionInput);
+  const secureNowCaptureEvaluatedEmpty =
+    collectionInput !== null && !secureNowCollectionMissing && !collectionInputPending;
   const secureNowEmptyState =
     !props.isAssignedToMe && isSecureNowProductLine(productLine)
-      ? resolveSecureNowGovernanceFindingsEmptyStateCopy()
+      ? resolveSecureNowGovernanceFindingsEmptyStateCopy({
+          collectionMissing: secureNowCollectionMissing,
+          captureEvaluatedEmpty: secureNowCaptureEvaluatedEmpty,
+        })
       : null;
 
   return (
@@ -179,7 +192,11 @@ export function GovernanceFindingsQueueOutcomeSection(
                 ? undefined
                 : secureNowEmptyState !== null
                   ? [
-                      { label: "Open policy packs", href: secureNowEmptyState.policyPacksHref, variant: "primary" },
+                      {
+                        label: secureNowCollectionMissing ? "Open cloud connections" : "Open policy packs",
+                        href: secureNowEmptyState.policyPacksHref,
+                        variant: "primary",
+                      },
                     ]
                 : [
                     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
@@ -205,7 +222,7 @@ export function GovernanceFindingsQueueOutcomeSection(
                 </div>
               ) : secureNowEmptyState !== null ? (
                 <Link className={OPERATOR_LINK.inline} href={secureNowEmptyState.policyPacksHref}>
-                  View policy packs
+                  {secureNowCollectionMissing ? "Open cloud connections" : "View policy packs"}
                 </Link>
               ) : !props.buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>

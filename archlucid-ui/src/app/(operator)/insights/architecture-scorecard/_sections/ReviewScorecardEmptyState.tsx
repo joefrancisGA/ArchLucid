@@ -6,6 +6,7 @@ import { REVIEW_SCORECARD_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-s
 import {
   REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE,
   REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE,
+  REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE,
 } from "@/lib/review-scorecard-empty-state";
 
 import { ReviewScorecardEmptyStatePreview } from "./ReviewScorecardEmptyStatePreview";
@@ -24,6 +25,12 @@ export function ReviewScorecardEmptyState(): React.JSX.Element {
         data-testid="review-scorecard-roi-empty-honesty"
       >
         {REVIEW_SCORECARD_ROI_EMPTY_HONESTY_NOTE}
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="review-scorecard-roi-non-summing"
+      >
+        {REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE}
       </p>
     </div>
   );
