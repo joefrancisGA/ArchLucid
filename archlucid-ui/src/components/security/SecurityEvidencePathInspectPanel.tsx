@@ -89,6 +89,7 @@ import {
   formatSecurityEvidencePathConfidenceBandLabel,
   formatSecurityEvidencePathHopOrdinalDisplay,
   formatSecurityEvidencePathKindLabel,
+  formatSecurityEvidencePathRankOrderDisplay,
   formatSecurityEvidencePathRelationshipLabel,
   isSecurityEvidenceStoredFieldOmission,
   securityEvidencePathConfidenceBandCode,
@@ -317,12 +318,14 @@ function PathBandWeakestHopLimitNote(props: {
 }
 
 function PathConfidenceWhy(props: { readonly band: string }): React.JSX.Element | null {
-  if (props.band !== "InsufficientEvidence" && props.band !== "Possible") {
+  const band = props.band.trim();
+
+  if (band !== "InsufficientEvidence" && band !== "Possible") {
     return null;
   }
 
   const message =
-    props.band === "InsufficientEvidence"
+    band === "InsufficientEvidence"
       ? "This result stays open because the cited evidence does not support a stronger band."
       : `Stored confidence band is ${formatSecurityEvidencePathConfidenceBandLabel(props.band)}. An observed flow was not stored.`;
 
@@ -352,9 +355,7 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <StatusTag
           kind="neutral"
           label={
-            props.rank.rankOrder !== null
-              ? `Rank ${props.rank.rankOrder}`
-              : "Rank was not stored"
+              `Rank ${formatSecurityEvidencePathRankOrderDisplay(props.rank.rankOrder)}`
           }
         />
       </div>
@@ -494,7 +495,9 @@ function PathExplanationSection(props: {
         <div data-testid="security-evidence-path-explanation-citation-rejection">
           <StatusTag kind="needs-attention" label={SECURENOW_PATH_INSPECT_EXPLANATION_CITATION_REJECTION_TAG} />
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-            {citationRejectionDetail ?? citationRejection}
+            {citationRejectionDetail != null && citationRejectionDetail !== citationRejection
+              ? `${citationRejection} ${citationRejectionDetail}`
+              : citationRejection}
           </p>
         </div>
       ) : null}

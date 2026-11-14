@@ -22,7 +22,12 @@ export function isSecurityEvidenceStoredFieldOmission(value: string): boolean {
 
 /** Reader-facing rank order — numeric when stored, otherwise one omission label. */
 export function formatSecurityEvidencePathRankOrderDisplay(rankOrder: number | null | undefined): string {
-  if (rankOrder === null || rankOrder === undefined || !Number.isFinite(rankOrder)) {
+  if (
+    rankOrder === null
+    || rankOrder === undefined
+    || !Number.isFinite(rankOrder)
+    || rankOrder < 0
+  ) {
     return "Rank was not stored.";
   }
 

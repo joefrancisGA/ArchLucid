@@ -199,8 +199,12 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
           return [{
             id: row.id,
             title: row.title,
-            severity: typeof row.severity === "string" ? row.severity : null,
-            status: typeof row.status === "string" ? row.status : null,
+            severity: typeof row.severity === "string" && row.severity.trim().length > 0
+              ? row.severity.trim()
+              : null,
+            status: typeof row.status === "string" && row.status.trim().length > 0
+              ? row.status.trim()
+              : null,
             streamKind: typeof row.streamKind === "string" ? row.streamKind : "",
             streamLabel: typeof row.streamLabel === "string" ? row.streamLabel : "",
           }];

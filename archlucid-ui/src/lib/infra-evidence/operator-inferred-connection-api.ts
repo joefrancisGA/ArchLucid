@@ -37,11 +37,6 @@ function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
   };
 }
 
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
 function snapshotBasePath(snapshotId: string): string {
   return `/api/proxy/v1/infra-evidence/snapshots/${encodeURIComponent(snapshotId.trim())}/operator-inferred-connections`;
 }
@@ -54,7 +49,9 @@ export async function listOperatorInferredConnections(
     throw new Error("SecureNow inferred connections response was invalid.");
   }
 
-  return raw.map((row) => mapRow(row));
+  return raw
+    .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object")
+    .map((row) => mapRow(row));
 }
 
 export async function listInferenceQuestionnaireItems(
@@ -62,7 +59,9 @@ export async function listInferenceQuestionnaireItems(
 ): Promise<InferenceQuestionnaireListResponse> {
   const raw = await proxyJsonGet<Record<string, unknown>>(`${snapshotBasePath(snapshotId)}/questionnaire`);
   const items = Array.isArray(raw.items)
-    ? raw.items.map((row) => mapRow(row as Record<string, unknown>))
+    ? raw.items
+      .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object")
+      .map((row) => mapRow(row))
     : [];
 
   return {

@@ -23,8 +23,12 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
     return null;
   }
 
-  const fromId = (typeof raw.fromSnapshotId === "string" ? raw.fromSnapshotId : fromSnapshotId).trim();
-  const toId = (typeof raw.toSnapshotId === "string" ? raw.toSnapshotId : toSnapshotId).trim();
+  if (typeof raw.fromSnapshotId !== "string" || typeof raw.toSnapshotId !== "string") {
+    return null;
+  }
+
+  const fromId = raw.fromSnapshotId.trim();
+  const toId = raw.toSnapshotId.trim();
 
   if (fromId.length === 0 || toId.length === 0) {
     return null;

@@ -49,6 +49,7 @@ import {
 import {
   GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_DUE_DATE_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
@@ -107,7 +108,7 @@ export function GovernanceFindingsQueueDueCell(props: { readonly row: Governance
   const dueDate = resolveGovernanceQueueDueDate(props.row);
 
   if (dueDate.kind === "missing") {
-    return <span className="text-al-text-secondary">Due date was not stored</span>;
+    return <span className="text-al-text-secondary">{GOVERNANCE_QUEUE_DUE_DATE_NOT_STORED}</span>;
   }
 
   if (dueDate.kind === "invalid") {
@@ -116,7 +117,7 @@ export function GovernanceFindingsQueueDueCell(props: { readonly row: Governance
 
   return (
     <time dateTime={dueDate.utc} className="text-al-text-primary">
-      {formatRiskRegisterUtcLabel(dueDate.utc, "Due date was not stored")}
+      {formatRiskRegisterUtcLabel(dueDate.utc, GOVERNANCE_QUEUE_DUE_DATE_NOT_STORED)}
     </time>
   );
 }

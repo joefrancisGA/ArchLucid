@@ -51,7 +51,9 @@ function mapRow(raw: Record<string, unknown>): SecurityDeclaredConnectionRow {
 
 export async function listSecurityDeclaredConnections(): Promise<SecurityDeclaredConnectionRow[]> {
   const raw = await proxyJsonGet<Record<string, unknown>[]>(BASE_PATH);
-  return raw.map((row) => mapRow(row));
+  return raw
+    .map((row) => mapRow(row))
+    .filter((row) => row.connectionId.length > 0);
 }
 
 export async function createSecurityDeclaredConnection(

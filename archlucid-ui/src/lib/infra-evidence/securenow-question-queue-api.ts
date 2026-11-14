@@ -93,10 +93,6 @@ export type SecureNowQuestionDisposition = {
   readonly auditEntries: readonly SecureNowQuestionDispositionAudit[];
 };
 
-function stringOrDefault(value: unknown, fallback = ""): string {
-  return typeof value === "string" ? value : fallback;
-}
-
 function mapDispositionRequiredString(value: unknown, fallback = ""): string {
   if (typeof value !== "string") {
     return fallback;
