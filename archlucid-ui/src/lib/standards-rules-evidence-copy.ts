@@ -20,6 +20,11 @@ export const STANDARDS_RULES_CLAIM_DISCIPLINE_HEADING = "What standards & rules 
 export const STANDARDS_RULES_CLAIM_DISCIPLINE =
   "Standards & rules shows effective policy resolution and applied rule rows for the current scope — not a finalized review record on its own. Export a diagnostic report when you need a point-in-time citeable snapshot, then open Findings or Policy packs for follow-up.";
 
+export const STANDARDS_RULES_DOES_NOT_SCORE_CONTROLS_HEADING = "What this page does not score" as const;
+
+export const STANDARDS_RULES_DOES_NOT_SCORE_CONTROLS =
+  "This hub resolves which rules apply for the current scope — it does not score individual controls or replace a sealed review scorecard.";
+
 export const STANDARDS_RULES_SOURCES_INTRO =
   "Use these follow-ups when resolution questions turn into pack authoring, findings, or assurance orientation.";
 

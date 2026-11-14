@@ -48,6 +48,24 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     additionalSourceRoots: ["components/EnterpriseInlineErrorNotification.tsx"],
   },
   {
+    surfaceId: "compliance-findings-queue-hard-failure",
+    requiredMarkers: ["compliance-findings-queue-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: [
+      "components/EnterpriseInlineErrorNotification.tsx",
+      "app/(operator)/governance/findings/_sections/GovernanceFindingsQueueOutcomeSection.tsx",
+    ],
+  },
+  {
+    surfaceId: "compliance-policy-packs-hub-hard-failure",
+    requiredMarkers: ["compliance-policy-packs-hub-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/policy-packs"],
+  },
+  {
+    surfaceId: "compliance-standards-rules-hard-failure",
+    requiredMarkers: ["compliance-standards-rules-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/standards-and-rules/_sections/GovernanceResolutionPageView.tsx"],
+  },
+  {
     surfaceId: "review-commit-export-page-failure",
     requiredMarkers: ["OperatorApiProblem", "review-commit-export-page-failure"],
     additionalSourceRoots: ["app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx"],
@@ -105,6 +123,14 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   {
     surfaceId: "admin-support-bundle-download-failure",
     requiredMarkers: ["admin-support-bundle-download-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "governance-remediation-factory-hard-failure",
+    requiredMarkers: ["governance-remediation-factory-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "compliance-remediation-factory-hard-failure",
+    requiredMarkers: ["compliance-remediation-factory-hard-failure", "FatalPageReportProblemSupportRow"],
   },
 ] as const;
 
