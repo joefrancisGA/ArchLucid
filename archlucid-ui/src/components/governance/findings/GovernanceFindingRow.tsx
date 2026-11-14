@@ -46,6 +46,10 @@ import {
   type GovernanceFindingInspectHrefOptions,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
+import {
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+} from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 export type GovernanceFindingRowProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -176,7 +180,13 @@ function GovernanceFindingRowComponent({
           <div>
             <div className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</div>
             <div className="mt-0.5">
-              <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+              {row.status === GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED
+              || row.status === GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED
+              || row.status.toLowerCase().includes("was not stored") ? (
+                <span className="text-al-text-secondary">{row.status}</span>
+              ) : (
+                <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+              )}
             </div>
             {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
               <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.humanReviewStatusLabel}</p>

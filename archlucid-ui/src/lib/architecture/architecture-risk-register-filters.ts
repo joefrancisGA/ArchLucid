@@ -201,7 +201,7 @@ function isNeedsDecision(row: GovernanceFindingQueueRow): boolean {
     return false;
   }
 
-  if (humanReview.includes("pending")) {
+  if (humanReview === "human review pending" || humanReview === "pending review") {
     return true;
   }
 

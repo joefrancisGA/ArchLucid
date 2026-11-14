@@ -3,6 +3,17 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 /** Maps inspect API wire JSON to the UI payload shape (camelCase normalization). */
 export function mapFindingInspectApiPayload(raw: Record<string, unknown>): FindingInspectPayload {
+  const optionalText = (value: unknown): string | null => {
+    if (typeof value !== "string") {
+      return null;
+    }
+
+    const trimmed = value.trim();
+
+    return trimmed.length > 0 ? trimmed : null;
+  };
+
+  const requiredText = (value: unknown): string => optionalText(value) ?? "";
   const evidenceRaw = raw.evidence;
   const evidenceListReturned = Array.isArray(evidenceRaw);
   const evidence =
@@ -11,9 +22,9 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
           const row = item as Record<string, unknown>;
 
           return {
-            artifactId: typeof row.artifactId === "string" ? row.artifactId : null,
-            lineRange: typeof row.lineRange === "string" ? row.lineRange : null,
-            excerpt: typeof row.excerpt === "string" ? row.excerpt : null,
+            artifactId: optionalText(row.artifactId),
+            lineRange: optionalText(row.lineRange),
+            excerpt: optionalText(row.excerpt),
           };
         })
       : [];
@@ -21,27 +32,30 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
   const recommendedActionsRaw = raw.recommendedActions;
   const recommendedActionsReturned = Array.isArray(recommendedActionsRaw);
   const recommendedActions = recommendedActionsReturned
-    ? recommendedActionsRaw.filter((value): value is string => typeof value === "string")
+    ? recommendedActionsRaw
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0)
     : [];
 
   return {
-    findingId: typeof raw.findingId === "string" ? raw.findingId : "",
+    findingId: requiredText(raw.findingId),
     typedPayload: raw.typedPayload ?? null,
-    decisionRuleId: typeof raw.decisionRuleId === "string" ? raw.decisionRuleId : null,
-    decisionRuleName: typeof raw.decisionRuleName === "string" ? raw.decisionRuleName : null,
+    decisionRuleId: optionalText(raw.decisionRuleId),
+    decisionRuleName: optionalText(raw.decisionRuleName),
     evidence,
-    reasoningSummary: typeof raw.reasoningSummary === "string" ? raw.reasoningSummary : null,
+    reasoningSummary: optionalText(raw.reasoningSummary),
     recommendedActions,
     recommendedActionsReturned,
-    auditRowId: typeof raw.auditRowId === "string" ? raw.auditRowId : null,
-    runId: typeof raw.runId === "string" ? raw.runId : "",
-    manifestVersion: typeof raw.manifestVersion === "string" ? raw.manifestVersion : null,
-    modelDeploymentName: typeof raw.modelDeploymentName === "string" ? raw.modelDeploymentName : null,
-    modelAlias: typeof raw.modelAlias === "string" ? raw.modelAlias : null,
-    promptTemplateVersion: typeof raw.promptTemplateVersion === "string" ? raw.promptTemplateVersion : null,
+    auditRowId: optionalText(raw.auditRowId),
+    runId: requiredText(raw.runId),
+    manifestVersion: optionalText(raw.manifestVersion),
+    modelDeploymentName: optionalText(raw.modelDeploymentName),
+    modelAlias: optionalText(raw.modelAlias),
+    promptTemplateVersion: optionalText(raw.promptTemplateVersion),
     isMuted: typeof raw.isMuted === "boolean" ? raw.isMuted : undefined,
-    muteReason: typeof raw.muteReason === "string" ? raw.muteReason : null,
-    reasoningTrace: typeof raw.reasoningTrace === "string" ? raw.reasoningTrace : null,
+    muteReason: optionalText(raw.muteReason),
+    reasoningTrace: optionalText(raw.reasoningTrace),
     evaluationConfidenceScore:
       typeof raw.evaluationConfidenceScore === "number" ? raw.evaluationConfidenceScore : null,
     confidenceLevel:
@@ -52,10 +66,10 @@ export function mapFindingInspectApiPayload(raw: Record<string, unknown>): Findi
       typeof raw.humanReviewStatus === "number" || typeof raw.humanReviewStatus === "string"
         ? (raw.humanReviewStatus as components["schemas"]["FindingHumanReviewStatus"])
         : undefined,
-    assignedToUserId: typeof raw.assignedToUserId === "string" ? raw.assignedToUserId : null,
-    remediationDueUtc: typeof raw.remediationDueUtc === "string" ? raw.remediationDueUtc : null,
-    trustLabel: typeof raw.trustLabel === "string" ? raw.trustLabel : null,
-    trustLabelReason: typeof raw.trustLabelReason === "string" ? raw.trustLabelReason : null,
+    assignedToUserId: optionalText(raw.assignedToUserId),
+    remediationDueUtc: optionalText(raw.remediationDueUtc),
+    trustLabel: optionalText(raw.trustLabel),
+    trustLabelReason: optionalText(raw.trustLabelReason),
     evidenceListReturned,
   };
 }

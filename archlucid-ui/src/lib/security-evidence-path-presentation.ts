@@ -31,7 +31,12 @@ export function formatSecurityEvidencePathRankOrderDisplay(rankOrder: number | n
 
 /** Reader-facing hop order cell — numeric when stored, otherwise one omission label. */
 export function formatSecurityEvidencePathHopOrdinalDisplay(hopOrdinal: number | null | undefined): string {
-  if (hopOrdinal === null || hopOrdinal === undefined) {
+  if (
+    hopOrdinal === null
+    || hopOrdinal === undefined
+    || !Number.isFinite(hopOrdinal)
+    || hopOrdinal < 0
+  ) {
     return SECURITY_EVIDENCE_PATH_HOP_ORDER_NOT_STORED;
   }
 

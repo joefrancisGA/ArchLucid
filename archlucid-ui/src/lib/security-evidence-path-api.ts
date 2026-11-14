@@ -1,7 +1,6 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 import {
   finiteNonNegativeNumberOrDefault,
-  finiteNumberOrDefault,
   parseFiniteNumber,
 } from "@/lib/parse-finite-number";
 import type {
@@ -38,6 +37,12 @@ const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
 
 function finiteNumberOrNull(value: unknown): number | null {
   return parseFiniteNumber(value);
+}
+
+function nonNegativeNumberOrNull(value: unknown): number | null {
+  const parsed = parseFiniteNumber(value);
+
+  return parsed === null || parsed < 0 ? null : parsed;
 }
 
 function mapStoredLabel(value: unknown, omissionLabel: string): string {
@@ -170,7 +175,7 @@ type SecurityEvidencePathRankCore = {
 
 function mapRankCore(raw: Record<string, unknown>): SecurityEvidencePathRankCore {
   return {
-    pathId: mapStoredLabel(raw.pathId, "Path id was not stored."),
+    pathId: mapOptionalTrimmedString(raw.pathId) ?? "",
     snapshotId: mapStoredLabel(raw.snapshotId, "Snapshot id was not stored."),
     rankOrder: finiteNumberOrNull(raw.rankOrder),
     ruleVersion: mapStoredLabel(raw.ruleVersion, SECURITY_EVIDENCE_PATH_RULE_VERSION_NOT_STORED),
@@ -329,11 +334,11 @@ function mapUnevaluatedGroup(raw: Record<string, unknown>): SecurityEvidencePath
   return {
     reasonCode: mapStoredLabel(raw.reasonCode, "Unevaluated reason was not stored."),
     whyText: mapStoredLabel(raw.whyText, "Unevaluated explanation was not stored."),
-    pathCount: finiteNumberOrNull(raw.pathCount),
+    pathCount: nonNegativeNumberOrNull(raw.pathCount),
     pathIds: mapStoredIdList(pathIdsRaw),
     engineName: mapOptionalTrimmedString(raw.engineName),
-    limitValue: finiteNumberOrNull(raw.limitValue),
-    pathsEmitted: finiteNumberOrNull(raw.pathsEmitted),
+    limitValue: nonNegativeNumberOrNull(raw.limitValue),
+    pathsEmitted: nonNegativeNumberOrNull(raw.pathsEmitted),
   };
 }
 
