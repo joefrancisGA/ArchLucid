@@ -7,6 +7,7 @@ import {
   resolveOperatorBillingSeatRow,
   resolveOperatorBillingSubscriptionLoadState,
   resolveOperatorBillingSubscriptionStatusDisplay,
+  resolveOperatorBillingWorkspacePackagingRow,
 } from "./operator-billing-subscription-resolution";
 
 describe("operator-billing-subscription-resolution", () => {
@@ -76,5 +77,14 @@ describe("operator-billing-subscription-resolution", () => {
 
   it("omits the billing seat row when seatsLimit is non-finite", () => {
     expect(resolveOperatorBillingSeatRow(true, false, "resolved", 2, Number.NaN)).toBeNull();
+  });
+
+  it("shows Team workspace packaging at cap with upgrade helper", () => {
+    const row = resolveOperatorBillingWorkspacePackagingRow(true, "Team", "resolved", 1, 1);
+
+    expect(row).toEqual({
+      value: "1 of 1 in use",
+      helper: "Team includes 1 workspace. Professional supports add-on workspaces.",
+    });
   });
 });

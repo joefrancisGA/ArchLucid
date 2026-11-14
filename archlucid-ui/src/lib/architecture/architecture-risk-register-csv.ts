@@ -154,7 +154,7 @@ function formatRiskRegisterNextReviewCell(revisitDueUtc: string | null | undefin
 }
 
 function formatRiskRegisterAgingDaysCell(agingDays: number | undefined): string {
-  if (agingDays === undefined) {
+  if (agingDays === undefined || !Number.isFinite(agingDays) || agingDays < 0) {
     return ARCHITECTURE_RISK_REGISTER_AGING_DAYS_NOT_STORED;
   }
 

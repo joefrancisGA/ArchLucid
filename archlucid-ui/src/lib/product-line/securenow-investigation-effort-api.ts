@@ -74,5 +74,7 @@ export async function saveSecureNowInvestigationEffortInputs(
     return null;
   }
 
-  return raw.errorMessage != null ? String(raw.errorMessage) : "Investigation effort input save failed.";
+  return typeof raw.errorMessage === "string" && raw.errorMessage.trim().length > 0
+    ? raw.errorMessage.trim()
+    : "Investigation effort input save failed.";
 }

@@ -8,32 +8,32 @@ import type {
 } from "@/lib/infra-evidence/operator-inferred-connection-types";
 
 function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
-  const required = (value: unknown): string => typeof value === "string" ? value.trim() : "";
-  const optional = (value: unknown): string | null => {
-    const mapped = required(value);
+  const mapRequired = (value: unknown): string => typeof value === "string" ? value.trim() : "";
+  const mapOptional = (value: unknown): string | null => {
+    const mapped = mapRequired(value);
 
     return mapped.length > 0 ? mapped : null;
   };
 
   return {
-    connectionId: required(raw.connectionId),
-    snapshotId: required(raw.snapshotId),
-    status: optional(raw.status) as OperatorInferredConnectionRow["status"],
-    source: optional(raw.source) as OperatorInferredConnectionRow["source"],
-    ruleName: optional(raw.ruleName),
-    questionText: optional(raw.questionText),
-    fromArmId: optional(raw.fromArmId),
-    fromLabel: optional(raw.fromLabel),
-    fromCloudResourceId: optional(raw.fromCloudResourceId),
-    toHost: optional(raw.toHost),
-    toCatalog: optional(raw.toCatalog),
-    toArmId: optional(raw.toArmId),
-    toCloudResourceId: optional(raw.toCloudResourceId),
-    settingName: optional(raw.settingName),
-    sourceFileFormat: optional(raw.sourceFileFormat),
-    provenanceKind: optional(raw.provenanceKind) ?? "",
-    createdUtc: required(raw.createdUtc),
-    updatedUtc: required(raw.updatedUtc),
+    connectionId: mapRequired(raw.connectionId),
+    snapshotId: mapRequired(raw.snapshotId),
+    status: typeof raw.status === "string" ? raw.status as OperatorInferredConnectionRow["status"] : null,
+    source: typeof raw.source === "string" ? raw.source as OperatorInferredConnectionRow["source"] : null,
+    ruleName: mapOptional(raw.ruleName),
+    questionText: mapOptional(raw.questionText),
+    fromArmId: mapOptional(raw.fromArmId),
+    fromLabel: mapOptional(raw.fromLabel),
+    fromCloudResourceId: mapOptional(raw.fromCloudResourceId),
+    toHost: mapOptional(raw.toHost),
+    toCatalog: mapOptional(raw.toCatalog),
+    toArmId: mapOptional(raw.toArmId),
+    toCloudResourceId: mapOptional(raw.toCloudResourceId),
+    settingName: mapOptional(raw.settingName),
+    sourceFileFormat: mapOptional(raw.sourceFileFormat),
+    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : "DeterministicInference",
+    createdUtc: mapRequired(raw.createdUtc),
+    updatedUtc: mapRequired(raw.updatedUtc),
   };
 }
 

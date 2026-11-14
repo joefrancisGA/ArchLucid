@@ -571,7 +571,9 @@ function mapListedQuestionText(value: unknown): string | null {
     return null;
   }
 
-  return value;
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function mapListedAnswerCodes(value: unknown): readonly string[] | null {

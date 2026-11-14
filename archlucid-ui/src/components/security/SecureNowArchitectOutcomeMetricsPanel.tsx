@@ -34,6 +34,7 @@ import {
   SECURENOW_ARCHITECT_METRICS_TITLE,
   SECURENOW_ARCHITECT_METRICS_TO_LABEL,
 } from "@/lib/product-line/securenow-architect-metrics-copy";
+import { SECURENOW_ARCHITECT_METRICS_SINGLE_SNAPSHOT_COMPARE_LINE } from "@/lib/product-line/securenow-architect-metrics-single-snapshot-copy";
 import { remediationFactoryArchitectMetricsErrorRecovery } from "@/lib/remediation-factory/remediation-factory-error-recovery";
 import {
   parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch,
@@ -459,7 +460,12 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
         props.snapshotsEmptyPreset != null ? (
           <EnterpriseCompactEmptyState {...props.snapshotsEmptyPreset} />
         ) : (
-          <p className={OPERATOR_TYPOGRAPHY.helper}>At least two inventory snapshots are required.</p>
+          <p
+            className={OPERATOR_TYPOGRAPHY.helper}
+            data-testid="securenow-architect-metrics-single-snapshot-honesty"
+          >
+            {SECURENOW_ARCHITECT_METRICS_SINGLE_SNAPSHOT_COMPARE_LINE}
+          </p>
         )
       ) : (
         <>

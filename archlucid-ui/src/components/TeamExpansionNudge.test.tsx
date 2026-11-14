@@ -99,7 +99,7 @@ describe("TeamExpansionNudge", () => {
       },
     });
 
-    renderWithOperatorQuery(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge placement="billing" />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -115,7 +115,7 @@ describe("TeamExpansionNudge", () => {
     expect(screen.queryByTestId("team-expansion-nudge")).not.toBeInTheDocument();
   });
 
-  it("renders workspace trigger and links to pricing with team-expansion query params", async () => {
+  it("does not render for Team workspace at cap (1 of 1) when seats are below threshold", async () => {
     mockOperatorShellFetch({
       trialStatus: { status: "None" },
       usageStatus: {
@@ -128,18 +128,40 @@ describe("TeamExpansionNudge", () => {
       },
     });
 
-    renderWithOperatorQuery(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge placement="billing" />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("team-expansion-nudge")).not.toBeInTheDocument();
+  });
+
+  it("renders seat trigger and links to pricing with team-expansion query params", async () => {
+    mockOperatorShellFetch({
+      trialStatus: { status: "None" },
+      usageStatus: {
+        isTrial: false,
+        commercialTier: "Team",
+        workspacesUsed: 1,
+        workspacesLimit: 1,
+        seatsUsed: 4,
+        seatsLimit: 5,
+      },
+    });
+
+    renderWithOperatorQuery(<TeamExpansionNudge placement="billing" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("team-expansion-nudge")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("team-expansion-nudge")).toHaveAttribute("data-trigger", "workspaces");
+    expect(screen.getByTestId("team-expansion-nudge")).toHaveAttribute("data-trigger", "seats");
     expect(screen.getByRole("link", { name: /request a quote/i })).toHaveAttribute(
       "href",
-      "/pricing?source=team-expansion&trigger=workspaces#pricing-quote-request",
+      "/pricing?source=team-expansion&trigger=seats#pricing-quote-request",
     );
-    expect(mockShown).toHaveBeenCalledWith("workspaces");
+    expect(mockShown).toHaveBeenCalledWith("seats");
   });
 
   it("does not render for Professional tenants", async () => {
@@ -153,7 +175,7 @@ describe("TeamExpansionNudge", () => {
       },
     });
 
-    renderWithOperatorQuery(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge placement="billing" />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -175,14 +197,14 @@ describe("TeamExpansionNudge", () => {
       },
     });
 
-    renderWithOperatorQuery(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge placement="billing" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("team-expansion-nudge")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("link", { name: /request a quote/i }));
-    expect(mockClicked).toHaveBeenCalledWith("workspaces");
+    expect(mockClicked).toHaveBeenCalledWith("seats");
 
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
 
@@ -190,6 +212,6 @@ describe("TeamExpansionNudge", () => {
       expect(screen.queryByTestId("team-expansion-nudge")).not.toBeInTheDocument();
     });
 
-    expect(localStorage.getItem("archlucid_team_expansion_nudge_dismiss_until_workspaces")).not.toBeNull();
+    expect(localStorage.getItem("archlucid_team_expansion_nudge_dismiss_until_seats")).not.toBeNull();
   });
 });

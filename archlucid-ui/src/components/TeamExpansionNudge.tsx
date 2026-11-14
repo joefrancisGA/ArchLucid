@@ -19,6 +19,7 @@ import {
 } from "@/lib/team-expansion-nudge-dismiss";
 import { recordTeamExpansionNudgeClicked, recordTeamExpansionNudgeShown } from "@/lib/team-expansion-nudge-telemetry";
 import {
+  buildTeamExpansionNudgeCopy,
   buildTeamExpansionNudgePricingHref,
   resolveTeamExpansionNudgeTrigger,
   type TeamExpansionNudgeStatusPayload,
@@ -26,42 +27,16 @@ import {
 } from "@/lib/team-expansion-nudge-trigger";
 import { shouldFetchTenantUsageStatusForTeamExpansionNudge } from "@/lib/team-expansion-nudge-usage-fetch";
 
-function nudgeCopy(
-  trigger: TeamExpansionNudgeTrigger,
-  payload: TeamExpansionNudgeStatusPayload,
-): { title: string; detail: string; ctaLabel: string } {
-  if (trigger === "workspaces") {
-    const used = payload.workspacesUsed ?? 0;
-    const limit = payload.workspacesLimit;
-
-    return {
-      title: "You're approaching your Team workspace limit",
-      detail:
-        typeof limit === "number"
-          ? `${used} of ${limit} workspace${limit === 1 ? "" : "s"} in use — expand to Professional for more capacity.`
-          : `${used} workspace${used === 1 ? "" : "s"} in use — expand to Professional for more capacity.`,
-      ctaLabel: "Request a quote",
-    };
-  }
-
-  const used = payload.seatsUsed ?? 0;
-  const limit = payload.seatsLimit;
-
-  return {
-    title: "You're approaching your Team seat limit",
-    detail:
-      typeof limit === "number"
-        ? `${used} of ${limit} seats in use — request a quote to expand to Professional.`
-        : `${used} seats in use — request a quote to expand to Professional.`,
-    ctaLabel: "Request a quote",
-  };
-}
+type TeamExpansionNudgeProps = {
+  /** Billing is the only supported surface; workspace caps are explained at workspace create. */
+  readonly placement: "billing";
+};
 
 /**
- * Usage-based expansion nudge for paid Team tenants (Improvement #5). Shown when seat or workspace usage crosses
- * documented thresholds; trials remain owned by {@link TrialUsageUpgradeNudge}.
+ * Usage-based expansion nudge for paid Team tenants (Improvement #5). Shown on billing when seat usage is high but
+ * below the plan cap; trials remain owned by {@link TrialUsageUpgradeNudge}.
  */
-export function TeamExpansionNudge() {
+export function TeamExpansionNudge({ placement }: TeamExpansionNudgeProps) {
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const usageQueryEnabled =
@@ -102,7 +77,7 @@ export function TeamExpansionNudge() {
     recordTeamExpansionNudgeShown(trigger);
   }, [isFetched, payload]);
 
-  if (!visible || dismissedLocally || activeTrigger === null || payload == null) {
+  if (placement !== "billing" || !visible || dismissedLocally || activeTrigger === null || payload == null) {
     return null;
   }
 
@@ -110,7 +85,7 @@ export function TeamExpansionNudge() {
     return null;
   }
 
-  const copy = nudgeCopy(activeTrigger, payload);
+  const copy = buildTeamExpansionNudgeCopy(activeTrigger, payload);
   const pricingHref = buildTeamExpansionNudgePricingHref(activeTrigger);
 
   return (

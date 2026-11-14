@@ -134,7 +134,9 @@ export function GovernanceFindingsQueueOutcomeSection(
                   }
             }
             reportProblem={{
-              surfaceId: "governance-findings-queue-hard-failure",
+              surfaceId: isSecureNowProductLine(productLine)
+                ? "compliance-findings-queue-hard-failure"
+                : "governance-findings-queue-hard-failure",
               errorTitle: props.pageTitle,
               errorCode: props.loadFailure?.errorCode ?? "governance-findings-load-failed",
               correlationId: props.loadFailure?.correlationId ?? null,

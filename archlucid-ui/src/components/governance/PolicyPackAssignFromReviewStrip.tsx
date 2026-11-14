@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
+import { SECURENOW_POLICY_PACK_ASSIGN_RANK_HONESTY_LINE } from "@/lib/product-line/securenow-policy-pack-assign-rank-honesty-copy";
 import { cn } from "@/lib/utils";
 
 export type PolicyPackAssignFromReviewStripProps = {
@@ -34,6 +35,12 @@ export function PolicyPackAssignFromReviewStrip(props: PolicyPackAssignFromRevie
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Assign or enable policy packs for <span className="font-medium text-al-text-primary">{reviewLabel}</span>{" "}
             before the next commit gate.
+          </p>
+          <p
+            className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="policy-pack-assign-rank-honesty"
+          >
+            {SECURENOW_POLICY_PACK_ASSIGN_RANK_HONESTY_LINE}
           </p>
         </div>
         <Button type="button" variant="outline" size="sm" asChild data-testid="policy-pack-assign-from-review-action">

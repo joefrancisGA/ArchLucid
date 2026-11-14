@@ -9,6 +9,7 @@ import {
   resolveSecureNowCollectionYouAreHere,
 } from "@/lib/product-line/securenow-collection-setup-checklist";
 import { resolveSecureNowCollectionRecoveryLinkLabel } from "@/lib/product-line/securenow-collection-recovery-copy";
+import { resolveSecureNowCollectionBlockerKindLine } from "@/lib/product-line/securenow-collection-blocker-kind-copy";
 import { cn } from "@/lib/utils";
 
 export type SecureNowCollectionPrimaryBlockerLineProps = {
@@ -23,6 +24,7 @@ export function SecureNowCollectionPrimaryBlockerLine(
 ): React.JSX.Element | null {
   const youAreHere = resolveSecureNowCollectionYouAreHere(props.input);
   const blocker = resolveSecureNowCollectionPrimaryBlocker(props.input);
+  const blockerKindLine = blocker !== null ? resolveSecureNowCollectionBlockerKindLine(blocker.stepId) : null;
 
   if (blocker === null || youAreHere === null) {
     return null;
@@ -40,6 +42,11 @@ export function SecureNowCollectionPrimaryBlockerLine(
           <span className="font-medium text-al-text-primary">You are here:</span> step {youAreHere.stepIndex} of{" "}
           {youAreHere.stepCount} — {youAreHere.stepLabel}. {blocker.detail}
         </p>
+        {blockerKindLine !== null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${props.testIdPrefix}-collection-blocker-kind`}>
+            {blockerKindLine}
+          </p>
+        ) : null}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             className={OPERATOR_LINK.inline}
@@ -66,6 +73,12 @@ export function SecureNowCollectionPrimaryBlockerLine(
         {resolveSecureNowCollectionRecoveryLinkLabel(blocker.stepId)}
       </Link>
       . {blocker.detail}
+      {blockerKindLine !== null ? (
+        <>
+          {" "}
+          <span data-testid={`${props.testIdPrefix}-collection-blocker-kind`}>{blockerKindLine}</span>
+        </>
+      ) : null}
     </p>
   );
 }

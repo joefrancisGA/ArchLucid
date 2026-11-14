@@ -2,8 +2,6 @@ import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   finiteNonNegativeNumberOrDefault,
-  finiteNumberOrDefault,
-  parseFiniteNumber,
 } from "@/lib/parse-finite-number";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { infraEvidenceHubBlockedReason } from "@/lib/infra-evidence/infra-evidence-hub-blocked-reason";
@@ -100,17 +98,26 @@ export async function fetchCloudResourceExplorerPage(
       workCounts: row.workCounts == null
         ? null
         : {
-            openOperationalFindingsCount: parseFiniteNumber(row.workCounts.openOperationalFindingsCount) ?? undefined,
-            openRemediationInstancesCount: parseFiniteNumber(row.workCounts.openRemediationInstancesCount) ?? undefined,
-            inventoryDriftChangeCount: parseFiniteNumber(row.workCounts.inventoryDriftChangeCount) ?? undefined,
+            openOperationalFindingsCount: finiteNonNegativeNumberOrDefault(
+              row.workCounts.openOperationalFindingsCount,
+              0,
+            ),
+            openRemediationInstancesCount: finiteNonNegativeNumberOrDefault(
+              row.workCounts.openRemediationInstancesCount,
+              0,
+            ),
+            inventoryDriftChangeCount: finiteNonNegativeNumberOrDefault(
+              row.workCounts.inventoryDriftChangeCount,
+              0,
+            ),
           },
     }));
 
   return {
     items,
-    totalCount: finiteNumberOrDefault(raw.totalCount, items.length),
-    page: finiteNumberOrDefault(raw.page, page),
-    pageSize: finiteNumberOrDefault(raw.pageSize, pageSize),
+    totalCount: finiteNonNegativeNumberOrDefault(raw.totalCount, items.length),
+    page: finiteNonNegativeNumberOrDefault(raw.page, page),
+    pageSize: finiteNonNegativeNumberOrDefault(raw.pageSize, pageSize),
     hasMore: raw.hasMore === true,
   };
 }
@@ -222,20 +229,22 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
             typeof row.instanceId !== "string"
             || typeof row.patternKey !== "string"
             || typeof row.status !== "string"
+            || row.instanceId.trim().length === 0
+            || row.patternKey.trim().length === 0
           ) {
             return [];
           }
 
           return [{
-            instanceId: row.instanceId,
-            patternKey: row.patternKey,
-            status: row.status,
+            instanceId: row.instanceId.trim(),
+            patternKey: row.patternKey.trim(),
+            status: row.status.trim(),
           }];
         })
       : [],
-    totalCount: finiteNumberOrDefault(stream?.totalCount, 0),
-    page: finiteNumberOrDefault(stream?.page, 1),
-    pageSize: finiteNumberOrDefault(stream?.pageSize, 25),
+    totalCount: finiteNonNegativeNumberOrDefault(stream?.totalCount, 0),
+    page: finiteNonNegativeNumberOrDefault(stream?.page, 1),
+    pageSize: finiteNonNegativeNumberOrDefault(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 

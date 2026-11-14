@@ -1,3 +1,6 @@
+"use client";
+
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -8,6 +11,8 @@ export type PolicyPacksLoadFailureProps = {
   readonly message: string;
   readonly retrying: boolean;
   readonly onRetry: () => void;
+  readonly reportProblemSurfaceId: string;
+  readonly errorTitle: string;
 };
 
 /** Single policy packs hub load failure with retry (GPP). */
@@ -27,6 +32,13 @@ export function PolicyPacksLoadFailure(props: PolicyPacksLoadFailureProps): Reac
       >
         {POLICY_PACKS_LOAD_RETRY_LABEL}
       </Button>
+      <FatalPageReportProblemSupportRow
+        surfaceId={props.reportProblemSurfaceId}
+        errorTitle={props.errorTitle}
+        errorCode="policy-packs-hub-load-failed"
+        correlationId={null}
+        httpStatus={null}
+      />
     </div>
   );
 }

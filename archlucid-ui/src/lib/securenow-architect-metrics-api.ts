@@ -19,6 +19,10 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
   });
   const raw = await proxyJsonGet<Record<string, unknown>>(`${ARCHITECT_METRICS_PATH}?${params.toString()}`);
 
+  if (raw.succeeded === false) {
+    return null;
+  }
+
   if (typeof raw.fromSnapshotId !== "string" || typeof raw.toSnapshotId !== "string") {
     return null;
   }
@@ -35,7 +39,7 @@ export async function fetchSecureNowArchitectOutcomeMetrics(
   return {
     fromSnapshotId: fromId,
     toSnapshotId: toId,
-    ruleVersion: String(raw.ruleVersion ?? ""),
+    ruleVersion: typeof raw.ruleVersion === "string" ? raw.ruleVersion.trim() : "",
     criticalOrHighConfidencePathsRemoved: finiteNumberOrNull(raw.criticalOrHighConfidencePathsRemoved),
     privilegedIdentityNodesOnPathsReduced: finiteNumberOrNull(raw.privilegedIdentityNodesOnPathsReduced),
     unrestrictedEgressCapabilityPathsReduced: finiteNumberOrNull(raw.unrestrictedEgressCapabilityPathsReduced),
