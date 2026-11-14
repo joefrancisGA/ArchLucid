@@ -94,12 +94,14 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
 
   const setSuggestionGateOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setSuggestionGateOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncActorGateToUrl(next);
+      let nextOpen = false;
 
-        return next;
+      setSuggestionGateOpenState((current) => {
+        nextOpen = typeof value === "function" ? value(current) : value;
+
+        return nextOpen;
       });
+      syncActorGateToUrl(nextOpen);
     },
     [syncActorGateToUrl],
   );
@@ -120,12 +122,14 @@ export function DraftIntakeSuggestionPanel(props: DraftIntakeSuggestionPanelProp
 
   const setSuggestionPanelOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setSuggestionPanelOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncActorSuggestOpenToUrl(next);
+      let nextOpen = false;
 
-        return next;
+      setSuggestionPanelOpenState((current) => {
+        nextOpen = typeof value === "function" ? value(current) : value;
+
+        return nextOpen;
       });
+      syncActorSuggestOpenToUrl(nextOpen);
     },
     [syncActorSuggestOpenToUrl],
   );
