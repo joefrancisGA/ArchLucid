@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 using ArchLucid.Core.Billing;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -11,12 +9,18 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
 {
     internal static readonly TimeSpan Retention = TimeSpan.FromHours(24);
 
+    private static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(5);
+
     private readonly IMemoryCache _memoryCache =
         memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
     private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-    private readonly ConcurrentDictionary<string, byte> _claimedKeys = new(StringComparer.Ordinal);
+    // A cache entry may be evicted for capacity or compaction before its replay window ends.
+    // Keep an independent, time-bounded claim ledger so those evictions cannot permit replays.
+    private readonly Dictionary<string, DateTimeOffset> _claimedKeys = new(StringComparer.Ordinal);
+    private readonly object _gate = new();
+    private DateTimeOffset _nextCleanupUtc = DateTimeOffset.MinValue;
 
     /// <inheritdoc />
     public Task<bool> HasSeenAsync(string providerName, string eventId, CancellationToken cancellationToken)
@@ -28,9 +32,15 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
 
         string cacheKey = BuildCacheKey(providerName, eventId);
 
-        return Task.FromResult(
-            _claimedKeys.ContainsKey(cacheKey)
-            || _memoryCache.TryGetValue(cacheKey, out _));
+        lock (_gate)
+        {
+            DateTimeOffset now = _clock.GetUtcNow();
+            CleanupExpiredClaims(now);
+
+            return Task.FromResult(
+                _claimedKeys.TryGetValue(cacheKey, out DateTimeOffset expiresAt)
+                && expiresAt > now);
+        }
     }
 
     /// <inheritdoc />
@@ -41,20 +51,7 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
-        string cacheKey = BuildCacheKey(providerName, eventId);
-        _claimedKeys.TryAdd(cacheKey, 0);
-
-        try
-        {
-            _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
-        }
-        catch
-        {
-            _claimedKeys.TryRemove(cacheKey, out _);
-
-            throw;
-        }
-
+        Register(BuildCacheKey(providerName, eventId), rejectDuplicate: false);
         return Task.CompletedTask;
     }
 
@@ -65,44 +62,66 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
-        string cacheKey = BuildCacheKey(providerName, eventId);
-
-        if (!_claimedKeys.TryAdd(cacheKey, 0))
-            return Task.FromResult(false);
-
-        try
-        {
-            _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
-        }
-        catch
-        {
-            _claimedKeys.TryRemove(cacheKey, out _);
-
-            throw;
-        }
-
-        return Task.FromResult(true);
+        return Task.FromResult(Register(BuildCacheKey(providerName, eventId), rejectDuplicate: true));
     }
 
-    private MemoryCacheEntryOptions CreateEntryOptions(string cacheKey)
+    private bool Register(string cacheKey, bool rejectDuplicate)
     {
-        MemoryCacheEntryOptions options = new()
+        // Serialize the claim and cache write. A failed cache write must not leave a
+        // successful claim behind, and concurrent duplicate registrations must be atomic.
+        lock (_gate)
         {
-            AbsoluteExpiration = _clock.GetUtcNow().Add(Retention),
-            Size = 1,
-        };
+            DateTimeOffset now = _clock.GetUtcNow();
+            CleanupExpiredClaims(now);
 
-        options.RegisterPostEvictionCallback(
-            static (key, _, _, state) =>
+            bool hadPrevious = _claimedKeys.TryGetValue(cacheKey, out DateTimeOffset previousExpiration);
+            if (rejectDuplicate && hadPrevious && previousExpiration > now)
+                return false;
+
+            DateTimeOffset expiresAt = now.Add(Retention);
+            _claimedKeys[cacheKey] = expiresAt;
+
+            try
             {
-                if (key is not string evictedKey || state is not ConcurrentDictionary<string, byte> claimedKeys)
-                    return;
+                _memoryCache.Set(
+                    cacheKey,
+                    true,
+                    new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpiration = expiresAt,
+                        Size = 1,
+                    });
+            }
+            catch
+            {
+                if (hadPrevious)
+                    _claimedKeys[cacheKey] = previousExpiration;
+                else
+                    _claimedKeys.Remove(cacheKey);
 
-                claimedKeys.TryRemove(evictedKey, out _);
-            },
-            _claimedKeys);
+                throw;
+            }
 
-        return options;
+            return true;
+        }
+    }
+
+    private void CleanupExpiredClaims(DateTimeOffset now)
+    {
+        if (now < _nextCleanupUtc)
+            return;
+
+        List<string> expiredKeys = new();
+        foreach (KeyValuePair<string, DateTimeOffset> claim in _claimedKeys)
+        {
+            if (claim.Value <= now)
+                expiredKeys.Add(claim.Key);
+        }
+
+        foreach (string expiredKey in expiredKeys)
+            _claimedKeys.Remove(expiredKey);
+
+        _nextCleanupUtc = now.Add(CleanupInterval);
     }
 
     internal static string BuildCacheKey(string providerName, string eventId) =>

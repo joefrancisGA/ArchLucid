@@ -171,6 +171,77 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task HasSeenAsync_remains_true_after_cache_compact_until_retention_expires()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        Mock<TimeProvider> clock = new();
+        clock.Setup(provider => provider.GetUtcNow()).Returns(() => now);
+
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 1 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, clock.Object);
+
+        (await sut.TryRegisterEventAsync("stripe", "evt_compact_seen")).Should().BeTrue();
+
+        cache.Compact(1.0);
+        (await sut.HasSeenAsync("stripe", "evt_compact_seen", CancellationToken.None)).Should().BeTrue();
+
+        now = now.Add(MemoryCacheBillingWebhookReplayGuard.Retention);
+        (await sut.HasSeenAsync("stripe", "evt_compact_seen", CancellationToken.None)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TryRegisterEventAsync_accepts_same_event_only_after_retention_window()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        Mock<TimeProvider> clock = new();
+        clock.Setup(provider => provider.GetUtcNow()).Returns(() => now);
+
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 1 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, clock.Object);
+
+        (await sut.TryRegisterEventAsync("stripe", "evt_expiry")).Should().BeTrue();
+
+        now = now.Add(MemoryCacheBillingWebhookReplayGuard.Retention).AddTicks(-1);
+        (await sut.TryRegisterEventAsync("stripe", "evt_expiry")).Should().BeFalse();
+
+        now = now.AddTicks(1);
+        (await sut.TryRegisterEventAsync("stripe", "evt_expiry")).Should().BeTrue();
+        (await sut.TryRegisterEventAsync("stripe", "evt_expiry")).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RememberAsync_refreshes_retention_after_successful_verification()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset started = now;
+        Mock<TimeProvider> clock = new();
+        clock.Setup(provider => provider.GetUtcNow()).Returns(() => now);
+
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 1 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, clock.Object);
+
+        await sut.RememberAsync("stripe", "evt_refresh", CancellationToken.None);
+        now = started.AddHours(23);
+        await sut.RememberAsync("stripe", "evt_refresh", CancellationToken.None);
+        now = started.AddHours(25);
+
+        (await sut.HasSeenAsync("stripe", "evt_refresh", CancellationToken.None)).Should().BeTrue();
+        (await sut.TryRegisterEventAsync("stripe", "evt_refresh")).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TryRegisterEventAsync_distinguishes_providers_after_cache_eviction()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 1 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        (await sut.TryRegisterEventAsync("stripe", "evt_shared")).Should().BeTrue();
+        cache.Compact(1.0);
+        (await sut.TryRegisterEventAsync("azure-marketplace", "evt_shared")).Should().BeTrue();
+        (await sut.TryRegisterEventAsync("stripe", "evt_shared")).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task RememberAsync_after_TryRegisterEventAsync_keeps_HasSeen_true()
     {
         MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
