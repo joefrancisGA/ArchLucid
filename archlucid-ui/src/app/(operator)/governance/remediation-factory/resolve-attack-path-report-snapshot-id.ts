@@ -6,8 +6,9 @@ export const ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT =
 export const ATTACK_PATH_REPORT_NO_SNAPSHOT =
   "No ranked paths are available yet, so the attack path report needs an inventory snapshot." as const;
 
-export const ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY =
-  "Inventory diagram had no nodes for this path filter. Use the tables below as authoritative — an empty diagram is not a clean bill of health." as const;
+import { SECURENOW_DIAGRAM_FILTER_EMPTY_LINE } from "@/lib/product-line/securenow-diagram-filter-empty-copy";
+
+export const ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY = SECURENOW_DIAGRAM_FILTER_EMPTY_LINE;
 
 export function resolveAttackPathReportSnapshotId(
   toSnapshotId: string | null,

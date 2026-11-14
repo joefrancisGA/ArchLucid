@@ -46,6 +46,7 @@ import {
   focusRemediationFactoryQueueRow,
 } from "@/lib/governance/governance-findings-queue-keyboard-focus";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
+import { REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE } from "@/lib/remediation-factory-simulator-rank-honesty-copy";
 import {
   remediationFactoryExecutiveMetricsErrorRecovery,
   remediationFactoryPriorityQueueErrorRecovery,
@@ -222,6 +223,9 @@ function RemediationSimulatorOutput(props: {
       </div>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         This explains the queue ranking; it does not apply a remediation.
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-rank-discipline">
+        {REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE}
       </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Finding{" "}

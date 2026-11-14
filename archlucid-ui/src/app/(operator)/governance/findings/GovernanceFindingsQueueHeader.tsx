@@ -11,6 +11,7 @@ import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findi
 import { SecureNowFindingsQueueAssignedPacksLine } from "@/components/governance/findings/SecureNowFindingsQueueAssignedPacksLine";
 import { SecureNowFindingsQueueOpenGateStrip } from "@/components/governance/findings/SecureNowFindingsQueueOpenGateStrip";
 import { SecureNowFindingsWk21HonestyStrip } from "@/components/governance/findings/SecureNowFindingsWk21HonestyStrip";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -135,6 +136,10 @@ export function GovernanceFindingsQueueHeader({
             pendingOwner: registerSummary.pendingOwner,
             openRisks: registerSummary.openRisks,
             overdueReview: registerSummary.overdueReview,
+            scopeParams: {
+              runId: scopedRunId,
+              architectureId: scopedArchitectureId,
+            },
           })
         : [],
     [
@@ -144,6 +149,8 @@ export function GovernanceFindingsQueueHeader({
       registerSummary.pendingOwner,
       registerSummary.openRisks,
       registerSummary.overdueReview,
+      scopedRunId,
+      scopedArchitectureId,
     ],
   );
   const findingsDeskShortcutEntries = [
@@ -286,10 +293,16 @@ export function GovernanceFindingsQueueHeader({
           )
         }
       />
-      {secureNowProductLine && !isAssignedToMe ? (
+      {secureNowProductLine ? (
         <div className="mt-2 space-y-1">
-          <SecureNowFindingsQueueAssignedPacksLine />
-          <SecureNowFindingsWk21HonestyStrip />
+          {!isAssignedToMe ? (
+            <>
+              <SecureNowFindingsQueueAssignedPacksLine />
+              <SecureNowFindingsWk21HonestyStrip />
+            </>
+          ) : (
+            <SecureNowReaderScopeWorkbenchStrip testId="securenow-assigned-to-me-reader-scope" />
+          )}
           {secureNowFindingsOpenGates.length > 0 ? (
             <SecureNowFindingsQueueOpenGateStrip openGates={secureNowFindingsOpenGates} />
           ) : null}
