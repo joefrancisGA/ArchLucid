@@ -264,7 +264,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
         report.SkippedQuarantinedCount.Should().BeGreaterThan(0);
 
         // Prove our target was reached by the cursor, yet its valid child data was not inserted.
-        string lastProcessedKey = await connection.ExecuteScalarAsync<string>(
+        string? lastProcessedKey = await connection.ExecuteScalarAsync<string>(
             new CommandDefinition(
                 "SELECT LastProcessedKey FROM dbo.BackfillCheckpoints WHERE Stage = @Stage;",
                 new { Stage = stage },
