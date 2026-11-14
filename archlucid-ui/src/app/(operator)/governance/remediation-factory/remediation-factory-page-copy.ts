@@ -8,3 +8,5 @@ export const REMEDIATION_FACTORY_PAGE_SUBTITLE =
   "Fix these findings first. Advisory only — this page does not change Azure." as const;
 
 export const REMEDIATION_FACTORY_OPEN_WAVES_LABEL = "Open remediation waves" as const;
+
+export const REMEDIATION_FACTORY_RANKED_PATHS_LOADING = "Loading ranked paths…" as const;

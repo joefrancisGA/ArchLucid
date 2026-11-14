@@ -36,7 +36,7 @@ export function formatHours(seconds: number | null | undefined): string {
 /** "5" / "5.5" — integer formatting unless the median falls between counts. */
 export function formatFindings(count: number | null | undefined): string {
   if (count === null || count === undefined) return COUNT_NOT_RETURNED;
-  if (!Number.isFinite(count)) return COUNT_NOT_RETURNED;
+  if (!Number.isFinite(count) || count < 0) return COUNT_NOT_RETURNED;
 
   return Number.isInteger(count) ? String(count) : count.toFixed(1);
 }

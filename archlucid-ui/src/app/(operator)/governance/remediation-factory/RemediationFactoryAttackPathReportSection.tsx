@@ -203,11 +203,14 @@ function UnevaluatedPathLinks(props: {
   readonly onSelectPath: (pathId: string) => void;
 }) {
   const visible = props.pathIds.slice(0, MAX_PATH_LINKS);
-  const remaining = (props.pathCount ?? props.pathIds.length) - visible.length;
+  const linkedCount = props.pathIds.length;
+  const storedPathCount = props.pathCount ?? linkedCount;
+  const displayCount = storedPathCount < linkedCount ? linkedCount : storedPathCount;
+  const remaining = displayCount - visible.length;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className={OPERATOR_TYPOGRAPHY.helper}>{props.pathCount ?? props.pathIds.length}</span>
+      <span className={OPERATOR_TYPOGRAPHY.helper}>{displayCount}</span>
       {visible.map((pathId) => (
         <Link
           key={pathId}
@@ -223,7 +226,7 @@ function UnevaluatedPathLinks(props: {
         </Link>
       ))}
       {remaining > 0 ? (
-        <span className={OPERATOR_TYPOGRAPHY.helper}>and {remaining} more</span>
+        <span className={OPERATOR_TYPOGRAPHY.helper}>and {remaining} more stored paths</span>
       ) : null}
     </div>
   );

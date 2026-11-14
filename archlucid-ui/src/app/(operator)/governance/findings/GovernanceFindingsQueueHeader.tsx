@@ -44,7 +44,10 @@ import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/governance/governance-findings-queue-path-inspect-page-shortcuts";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { resolveSecureNowFindingsQueueOpenGate } from "@/lib/product-line/securenow-findings-queue-open-gate";
+import {
+  isPositiveFiniteCount,
+  resolveSecureNowFindingsQueueOpenGate,
+} from "@/lib/product-line/securenow-findings-queue-open-gate";
 import { FINDINGS_PAGE_SHORTCUTS } from "@/lib/shortcut-registry";
 
 export type GovernanceFindingsQueueHeaderProps = {
@@ -218,41 +221,47 @@ export function GovernanceFindingsQueueHeader({
                 variant="inline"
                 testId="architecture-risk-register-summary-open"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.openRisks,
+                  count: isPositiveFiniteCount(registerSummary.openRisks) ? registerSummary.openRisks : 0,
                   noun: registerSummary.openRisks === 1 ? "open finding" : "open findings",
                   filter: "open",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-expiring"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.expiringExceptions,
+                  count: isPositiveFiniteCount(registerSummary.expiringExceptions)
+                    ? registerSummary.expiringExceptions
+                    : 0,
                   noun:
                     registerSummary.expiringExceptions === 1 ? "expiring exception" : "expiring exceptions",
                   filter: "expiring-soon",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-owner"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.pendingOwner,
+                  count: isPositiveFiniteCount(registerSummary.pendingOwner) ? registerSummary.pendingOwner : 0,
                   noun: registerSummary.pendingOwner === 1 ? "pending owner" : "pending owners",
                   filter: "no-owner",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
               <SelfDescribingMetricCount
                 variant="inline"
                 testId="architecture-risk-register-summary-overdue"
                 presentation={governanceRegisterMetricPresentation({
-                  count: registerSummary.overdueReview,
+                  count: isPositiveFiniteCount(registerSummary.overdueReview) ? registerSummary.overdueReview : 0,
                   noun: registerSummary.overdueReview === 1 ? "overdue review" : "overdue reviews",
                   filter: "overdue-review",
                   runId: scopedRunId,
+                  productLine,
                 })}
               />
             </>

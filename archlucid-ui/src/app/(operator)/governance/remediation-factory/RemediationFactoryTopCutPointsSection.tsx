@@ -8,6 +8,7 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { remediationFactoryTopCutPointsErrorRecovery } from "@/lib/remediation-factory/remediation-factory-error-recovery";
+import { formatCutPointHeadline } from "@/lib/security-evidence-path-cut-point-presentation";
 import type { SecurityEvidencePathCutPoint } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
@@ -21,25 +22,6 @@ import {
   REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE,
   REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH,
 } from "./remediation-factory-top-cut-points-copy";
-
-function formatCutPointHeadline(cutPoint: SecurityEvidencePathCutPoint): string {
-  const fromLabel = cutPoint.fromNodeLabel?.trim() ?? "";
-  const toLabel = cutPoint.toNodeLabel?.trim() ?? "";
-
-  if (fromLabel.length === 0 && toLabel.length === 0) {
-    return `${cutPoint.cutKind} · Cut endpoints were not stored.`;
-  }
-
-  if (fromLabel.length === 0) {
-    return `${cutPoint.cutKind} · Source endpoint was not stored → ${toLabel}`;
-  }
-
-  if (toLabel.length === 0) {
-    return `${cutPoint.cutKind} · ${fromLabel} → Destination endpoint was not stored`;
-  }
-
-  return `${cutPoint.cutKind} · ${fromLabel} → ${toLabel}`;
-}
 
 function firstCollapsedPathId(cutPoint: SecurityEvidencePathCutPoint): string | null {
   const first = cutPoint.collapsedPathIds[0]?.trim();

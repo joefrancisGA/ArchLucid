@@ -9,12 +9,13 @@ export function SecureNowFindingsQueueOpenGateStrip(props: {
 }): React.JSX.Element {
   return (
     <div
-      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+      className={cn("space-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="securenow-findings-queue-open-gate"
     >
+      <p className="m-0 font-medium text-al-text-primary">Open gates</p>
       {props.openGates.map((openGate) => (
         <p key={openGate.id} className="m-0">
-          <span className="font-medium text-al-text-primary">Open gate:</span> {openGate.message}{" "}
+          {openGate.message}{" "}
           <Link
             className={OPERATOR_LINK.inline}
             href={openGate.href}

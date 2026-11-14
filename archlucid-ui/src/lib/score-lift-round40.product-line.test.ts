@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveGettingStartedHelpHostedSaasOpenAiCopy } from "@/lib/getting-started-help-guide-content";
 import { reportProblemSurfacesForPathname } from "@/lib/report-problem-surfaces";
-import { SECURENOW_HOSTED_SAAS_OPENAI_COPY } from "@/lib/score-lift-round40-hosted-saas-openai-copy";
+import { SECURENOW_HOSTED_SAAS_OPENAI_COPY } from "@/lib/getting-started-help-guide-content";
 import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/securenow-second-capture-delta-copy";
 import { SECURENOW_SYNTHETIC_FIXTURE_DISCIPLINE } from "@/lib/product-line/securenow-synthetic-fixture-discipline";
 import { SECURENOW_PATH_INSPECT_RANK_STORED_PATH_DISCIPLINE } from "@/lib/product-line/securenow-path-inspect-copy";

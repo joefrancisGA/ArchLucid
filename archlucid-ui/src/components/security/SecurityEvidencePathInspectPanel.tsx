@@ -69,7 +69,6 @@ import {
   SECURENOW_PATH_INSPECT_RANK_ROI_WORKSHEET_LINK_LABEL,
   SECURENOW_PATH_INSPECT_RANK_TITLE,
   SECURENOW_PATH_INSPECT_ROUTING_TITLE,
-  SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
   SECURENOW_PATH_INSPECT_SELECT_FINDING_HINT,
   SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -88,7 +87,15 @@ import {
   securityEvidencePathConfidenceBandStatusKind,
   securityEvidencePathStoredText,
 } from "@/lib/security-evidence-path-presentation";
-import { securityEvidencePathNonBlankLines } from "@/lib/security-evidence-path-text";
+import {
+  parseSecurityEvidencePathStoredUtc,
+  securityEvidencePathNonBlankLines,
+} from "@/lib/security-evidence-path-text";
+import { formatSecurityEvidencePathCutEndpointSuffix } from "@/lib/security-evidence-path-cut-point-presentation";
+import {
+  pathInspectDetailLoadErrorRecovery,
+  pathInspectRankLoadErrorRecovery,
+} from "@/lib/product-line/securenow-path-inspect-error-recovery";
 import {
   SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
   SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED,
@@ -398,7 +405,9 @@ function PathExplanationSection(props: {
   const executiveSummary = props.explanation?.executiveSummary.trim() ?? "";
   const showRankContextInExplanation =
     rankContext.length > 0
+    && rankContext !== executiveSummary
     && (executiveSummary.length === 0 || !executiveSummary.includes(rankContext));
+  const citedEvidenceRefs = props.explanation?.citedEvidenceRefs.filter((ref) => ref.trim().length > 0) ?? [];
   const citationRejection = props.explanation?.modelOutputRejection?.trim() ?? "";
   const showCitationRejection =
     props.explanation?.provenanceKind === "DeterministicInference" && citationRejection.length > 0;
@@ -474,11 +483,11 @@ function PathExplanationSection(props: {
 
               return `Recommended change: ${recommendedChange}`;
             })(),
-            props.explanation.citedEvidenceRefs.length > 0
-              ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
+            citedEvidenceRefs.length > 0
+              ? `Cited evidence: ${citedEvidenceRefs.join(", ")}`
               : "Cited evidence was not stored.",
-            props.explanation.citedEvidenceRefs.length > 0
-              ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`
+            citedEvidenceRefs.length > 0
+              ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${citedEvidenceRefs.length} citations.`
               : "",
             showRankContextInExplanation ? rankContext : "",
             props.explanation.modelOutputRejection?.trim() ?? "",
@@ -811,7 +820,9 @@ export function SecurityEvidencePathInspectPanel(props: {
       }
 
       setExplanation(result.explanation);
-      setExplanationGeneratedAt(new Date());
+      setExplanationGeneratedAt(
+        parseSecurityEvidencePathStoredUtc(result.explanation.createdUtc) ?? new Date(),
+      );
     } catch {
       setExplanation(null);
       setExplanationError(SECURENOW_PATH_INSPECT_EXPLANATION_ERROR);
@@ -892,11 +903,7 @@ export function SecurityEvidencePathInspectPanel(props: {
       ) : findingQuery.isError || pathQuery.isError ? (
         <>
           <OperatorErrorRecoveryContract
-            presentation={{
-              whatFailed: "Path inspect did not load.",
-              whatIsIntact: "The snapshot selection stays on this page.",
-              nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
-            }}
+            presentation={pathInspectDetailLoadErrorRecovery()}
             testId="security-evidence-path-inspect-error-recovery"
           />
           <Button
@@ -918,11 +925,7 @@ export function SecurityEvidencePathInspectPanel(props: {
         </p>
       ) : pathQuery.data == null ? (
         <OperatorErrorRecoveryContract
-          presentation={{
-            whatFailed: "Path inspect did not load.",
-            whatIsIntact: "The snapshot selection stays on this page.",
-              nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
-          }}
+          presentation={pathInspectDetailLoadErrorRecovery()}
           testId="security-evidence-path-inspect-empty-error-recovery"
         />
       ) : (
@@ -1005,11 +1008,7 @@ export function SecurityEvidencePathInspectPanel(props: {
           ) : pathRankQuery.isError ? (
             <>
               <OperatorErrorRecoveryContract
-                presentation={{
-                  whatFailed: "Path inspect did not load.",
-                  whatIsIntact: "The snapshot selection stays on this page.",
-                  nextStep: SECURENOW_PATH_INSPECT_RETRY_NO_AZURE_CHANGE,
-                }}
+                presentation={pathInspectRankLoadErrorRecovery()}
                 testId="security-evidence-path-rank-error-recovery"
               />
               <Button type="button" variant="outline" size="sm" onClick={() => void pathRankQuery.refetch()}>
@@ -1112,12 +1111,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                   >
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                       {cutPoint.cutKind}
-                      {cutPoint.fromNodeLabel != null &&
-                      cutPoint.toNodeLabel != null &&
-                      cutPoint.fromNodeLabel.trim().length > 0 &&
-                      cutPoint.toNodeLabel.trim().length > 0
-                        ? ` · ${cutPoint.fromNodeLabel} → ${cutPoint.toNodeLabel}`
-                        : " · Endpoint was not stored."}
+                      {formatSecurityEvidencePathCutEndpointSuffix(cutPoint.fromNodeLabel, cutPoint.toNodeLabel)}
                     </p>
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{cutPoint.explanationSummary}</p>
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
