@@ -3,8 +3,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ProductLineHomeSwitch } from "@/components/product-line/ProductLineHomeSwitch";
 import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_HOME_SECURITY_ENV_HINT_TITLE,
+  PRODUCT_LINE_HOME_JOB_ARCHITECTURE_OPEN_LIST_LABEL,
+  PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE,
+  PRODUCT_LINE_HOME_JOB_SECURITY_OUTCOME,
+  PRODUCT_LINE_HOME_JOB_SECURITY_TITLE,
   PRODUCT_LINE_OPEN_INTERNAL_LINK_LABEL,
 } from "@/lib/product-line/product-line-copy";
 
@@ -40,9 +45,13 @@ describe("ProductLineHomeSwitch", () => {
     expect(screen.getByTestId("architecture-home-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("infrastructure-overview-home-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Review an architecture" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Choose an architecture estate" })).toBeInTheDocument();
-    expect(screen.getByText("After you choose an estate, you can see what it can reach.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: PRODUCT_LINE_HOME_JOB_SECURITY_TITLE })).toBeInTheDocument();
+    expect(screen.getByText(PRODUCT_LINE_HOME_JOB_SECURITY_OUTCOME)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_OPEN_LIST_LABEL })).toHaveAttribute(
+      "href",
+      ARCHITECTURES_LIST_PATH,
+    );
     expect(screen.queryByRole("button", { name: "See what this Azure estate can reach" })).not.toBeInTheDocument();
   });
 
@@ -55,7 +64,7 @@ describe("ProductLineHomeSwitch", () => {
     expect(screen.queryByTestId("architecture-home-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
     expect(screen.queryByTestId("product-line-home-job-chooser")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Review an architecture" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE })).not.toBeInTheDocument();
   });
 
   it("keeps the architecture review job available when this process hosts the architecture home", () => {
@@ -67,7 +76,10 @@ describe("ProductLineHomeSwitch", () => {
 
     expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-home-stub")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Review an architecture" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_OPEN_LIST_LABEL }),
+    ).not.toBeInTheDocument();
   });
 
   it("hides the architecture job on the UHG edition", () => {
@@ -79,7 +91,7 @@ describe("ProductLineHomeSwitch", () => {
     );
 
     expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Review an architecture" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE })).not.toBeInTheDocument();
   });
 
   it("shows the dual-start hint with an Internal product-line link", () => {
@@ -94,6 +106,6 @@ describe("ProductLineHomeSwitch", () => {
       INTERNAL_PRODUCT_LINE_PATH,
     );
     expect(screen.queryByTestId("product-line-switch-bar")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Review an architecture" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE })).not.toBeInTheDocument();
   });
 });
