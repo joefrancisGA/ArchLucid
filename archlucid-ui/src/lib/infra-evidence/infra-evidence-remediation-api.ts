@@ -11,18 +11,13 @@ import type {
   RemediationPrioritizedFinding,
   VerifiedRemediationAssociationIdentifier,
 } from "@/lib/infra-evidence/infra-evidence-remediation-types";
+import { parseRemediationInstanceStatusFilter } from "@/lib/infra-evidence/infra-evidence-remediation-types";
 
 const INSTANCES_PATH = "/api/proxy/v1/infra-evidence/remediation-instances";
 const FACTORY_SUMMARY_PATH = "/api/proxy/v1/infra-evidence/remediation-factory/summary";
 const PRIORITIZATION_RANKED_PATH = "/api/proxy/v1/operational-security/remediation-prioritization/ranked";
 const WAVES_PATH = "/api/proxy/v1/operational-security/remediation-waves";
 const FINDING_MATCH_PATH = "/api/proxy/v1/infra-evidence/operational-findings";
-
-function finiteNumberOrDefault(value: unknown, fallback: number): number {
-  const parsed = typeof value === "number" ? value : Number(value);
-
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
 
 /** Absent or non-numeric metrics stay null so Home can omit the number instead of showing zero. */
 function finiteNumberOrNull(value: unknown): number | null {
@@ -56,11 +51,13 @@ function mapOptionalTrimmedString(value: unknown): string | null {
 }
 
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
+  const status = parseRemediationInstanceStatusFilter(mapTrimmedString(raw.status)) ?? "Classified";
+
   return {
     instanceId: mapTrimmedString(raw.instanceId),
     findingId: mapTrimmedString(raw.findingId),
     patternKey: mapTrimmedString(raw.patternKey),
-    status: (mapTrimmedString(raw.status, "Classified")) as RemediationInstanceSummary["status"],
+    status,
     automationLevel: mapTrimmedString(raw.automationLevel),
     cloudResourceId: mapOptionalTrimmedString(raw.cloudResourceId),
     waveId: mapOptionalTrimmedString(raw.waveId),
@@ -236,7 +233,7 @@ export async function fetchRemediationPrioritizedFindings(): Promise<Remediation
 
   return raw.map((row) => ({
     findingId: typeof row.findingId === "string" ? row.findingId : "",
-    totalScore: finiteNumberOrDefault(row.totalScore, 0),
+    totalScore: finiteNonNegativeNumberOrDefault(row.totalScore, 0),
     explanationSummary: typeof row.explanationSummary === "string" ? row.explanationSummary : "",
     cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
     controlId: typeof row.controlId === "string" ? row.controlId : null,

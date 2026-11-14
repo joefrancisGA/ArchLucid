@@ -130,10 +130,10 @@ export function RemediationFactoryTopCutPointsSection(props: {
                     REMEDIATION_FACTORY_TOP_CUT_POINTS_SUGGESTED_PATTERN_NOT_STORED
                   )}
                 </p>
-                {cutPoint.toNodeLabel.trim().length > 0 ? (
+                {(cutPoint.toNodeLabel?.trim().length ?? 0) > 0 ? (
                   <p className={cn("m-0 mt-2 inline-flex flex-wrap items-center gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                    Resource id: <span className="font-mono text-xs">{cutPoint.toNodeLabel}</span>
-                    <CopyIdButton value={cutPoint.toNodeLabel} aria-label="Copy cut-point resource id" />
+                    Resource id: <span className="font-mono text-xs">{cutPoint.toNodeLabel ?? ""}</span>
+                    <CopyIdButton value={cutPoint.toNodeLabel ?? ""} aria-label="Copy cut-point resource id" />
                   </p>
                 ) : null}
                 {highlightPathId != null ? (

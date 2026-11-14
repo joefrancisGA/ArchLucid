@@ -14,6 +14,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   SecureNowQuestionQueueProvider,
   SecureNowQuestionQueueSnapshotPromo,
@@ -52,6 +53,7 @@ import {
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
@@ -2539,17 +2541,24 @@ export function DiagramsWorkbenchClient() {
         selectedMode === "dependencyNeighborhood"
         && appliedSeedNodeId.trim().length > 0
       ) ? (
-        <EnterpriseCompactEmptyState
-          role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-diagrams-load-error-panel"
-          footer={
-            <Button type="button" size="sm" variant="primary" onClick={retryLoad}>
-              Retry load
-            </Button>
-          }
-        />
+        <div className="space-y-2" data-testid="infra-diagrams-load-error-panel">
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-diagrams-load-error-empty"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={retryLoad}>
+                Retry load
+              </Button>
+            }
+          />
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: loadError,
+            })}
+          />
+        </div>
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (

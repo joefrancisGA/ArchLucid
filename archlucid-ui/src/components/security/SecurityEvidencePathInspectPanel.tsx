@@ -1167,10 +1167,10 @@ export function SecurityEvidencePathInspectPanel(props: {
                         ? `Pattern: ${cutPoint.suggestedPatternKey}`
                         : SECURITY_EVIDENCE_PATH_PATTERN_NOT_STORED}
                     </p>
-                    {cutPoint.toNodeLabel.trim().length > 0 ? (
+                    {(cutPoint.toNodeLabel?.trim().length ?? 0) > 0 ? (
                       <p className={cn("m-0 mt-1 inline-flex flex-wrap items-center gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                        Resource id: <span className="font-mono text-xs">{cutPoint.toNodeLabel}</span>
-                        <CopyIdButton value={cutPoint.toNodeLabel} aria-label="Copy cut-point resource id" />
+                        Resource id: <span className="font-mono text-xs">{cutPoint.toNodeLabel ?? ""}</span>
+                        <CopyIdButton value={cutPoint.toNodeLabel ?? ""} aria-label="Copy cut-point resource id" />
                       </p>
                     ) : null}
                   </li>
