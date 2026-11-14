@@ -36,3 +36,16 @@ export const ARCHITECTURE_HOME_SECURITY_ENV_HINT_TITLE = "Architecture home runs
 
 export const ARCHITECTURE_HOME_SECURITY_ENV_HINT_BODY =
   "This Next.js process is the SecureNow shell. Open the Architecture window from start-local-api-and-ui.ps1, or open Product line under Internal.";
+
+/** Home job chooser — workplace nouns (not task verbs). */
+export const PRODUCT_LINE_HOME_JOB_ARCHITECTURE_TITLE = "Architecture review";
+
+export const PRODUCT_LINE_HOME_JOB_ARCHITECTURE_OUTCOME =
+  "You get a finalized architecture package.";
+
+export const PRODUCT_LINE_HOME_JOB_ARCHITECTURE_OPEN_LIST_LABEL = "Open architectures";
+
+export const PRODUCT_LINE_HOME_JOB_SECURITY_TITLE = "Architecture estate";
+
+export const PRODUCT_LINE_HOME_JOB_SECURITY_OUTCOME =
+  "After you choose an estate, you can see what it can reach.";
