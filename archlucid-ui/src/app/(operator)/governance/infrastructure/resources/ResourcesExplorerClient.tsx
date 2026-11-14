@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -27,6 +28,7 @@ import {
   fetchCloudResourceExplorerPage,
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
@@ -487,17 +489,24 @@ export function ResourcesExplorerClient() {
       />
 
       {loadError != null ? (
-        <EnterpriseCompactEmptyState
-          role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-resource-explorer-load-error-panel"
-          footer={
-            <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
-              Retry load
-            </Button>
-          }
-        />
+        <div className="space-y-2" data-testid="infra-resource-explorer-load-error">
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-resource-explorer-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={() => void loadResources()}>
+                Retry load
+              </Button>
+            }
+          />
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: loadError,
+            })}
+          />
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">

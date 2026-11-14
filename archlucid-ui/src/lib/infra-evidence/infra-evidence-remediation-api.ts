@@ -202,24 +202,29 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
 export async function fetchRemediationFactorySummary(): Promise<RemediationFactoryWorkbenchSummary> {
   const raw = await proxyJsonGet<Record<string, unknown>>(FACTORY_SUMMARY_PATH);
   const metricsRaw = (raw.factoryMetrics as Record<string, unknown>) ?? {};
+  const openInstancesByStatus = Object.fromEntries(
+    Object.entries(raw.openInstancesByStatus ?? {})
+      .filter(([status, count]) => status.trim().length > 0 && typeof count === "number" && Number.isFinite(count))
+      .map(([status, count]) => [status.trim(), Math.max(0, count as number)]),
+  );
 
   return {
     factoryMetrics: {
       openFindings: finiteNonNegativeNumberOrDefault(metricsRaw.openFindings, 0),
-      criticalExposureCount: finiteNumberOrNull(metricsRaw.criticalExposureCount),
+      criticalExposureCount: finiteNonNegativeNumberOrDefault(metricsRaw.criticalExposureCount, 0),
       remediatedThisWeek: finiteNonNegativeNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
       verificationFailureCount: finiteNonNegativeNumberOrDefault(metricsRaw.verificationFailureCount, 0),
       businessBlockedCount: finiteNonNegativeNumberOrDefault(metricsRaw.businessBlockedCount, 0),
     },
-    openInstancesByStatus: (raw.openInstancesByStatus as Record<string, number>) ?? {},
+    openInstancesByStatus,
     waves: Array.isArray(raw.waves)
       ? raw.waves.map((item) => {
           const row = item as Record<string, unknown>;
 
           return {
-            waveId: typeof row.waveId === "string" ? row.waveId : "",
-            name: typeof row.name === "string" ? row.name : "",
-            status: typeof row.status === "string" ? row.status : "",
+            waveId: mapTrimmedString(row.waveId),
+            name: mapTrimmedString(row.name),
+            status: mapTrimmedString(row.status),
             memberCount: finiteNonNegativeNumberOrDefault(row.memberCount, 0),
             targetSize: row.targetSize == null ? null : finiteNonNegativeNumberOrDefault(row.targetSize, 0),
           };

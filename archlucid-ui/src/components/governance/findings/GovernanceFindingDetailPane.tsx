@@ -228,7 +228,9 @@ function GovernanceFindingDetailPaneComponent({
             <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
           )}
         </div>
-        {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+        {row.recordKind === "finding"
+        && row.humanReviewStatusLabel
+        && !row.humanReviewStatusLabel.toLowerCase().includes("was not stored") ? (
           <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {row.humanReviewStatusLabel}
           </p>

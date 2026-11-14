@@ -7,6 +7,7 @@ import { ArrowLeftRight, Loader2 } from "lucide-react";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraEvidenceWorkbenchBuildProvenanceStrip } from "@/components/infra-evidence/InfraEvidenceWorkbenchBuildProvenanceStrip";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -28,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   clearDeclaredConnectionFormDraft,
@@ -397,17 +399,24 @@ export function DeclaredConnectionsWorkbenchClient() {
         aria-busy={loading}
       >
         {loadError != null ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE}
-            description={loadError}
-            testId="infra-declared-connections-load-error-panel"
-            footer={
-              <Button type="button" size="sm" variant="primary" onClick={() => void loadRows(false)}>
-                Retry load
-              </Button>
-            }
-          />
+          <div className="space-y-2" data-testid="infra-declared-connections-load-error">
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE}
+              description={loadError}
+              testId="infra-declared-connections-load-error-panel"
+              footer={
+                <Button type="button" size="sm" variant="primary" onClick={() => void loadRows(false)}>
+                  Retry load
+                </Button>
+              }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: loadError,
+              })}
+            />
+          </div>
         ) : null}
 
         <section className="space-y-3 rounded-md border border-border p-4" aria-labelledby="declared-connection-form-heading">

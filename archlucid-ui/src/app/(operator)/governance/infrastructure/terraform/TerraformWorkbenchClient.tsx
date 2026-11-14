@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
@@ -23,6 +24,7 @@ import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/compon
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
   formatInfraEvidenceHubApiError,
@@ -568,13 +570,14 @@ export function TerraformWorkbenchClient() {
         ) : null}
 
         {loadError != null ? (
-          <EnterpriseCompactEmptyState
-            role="alert"
-            title="Terraform mapping unavailable"
-            description={loadError}
-            testId="infra-terraform-load-error-panel"
-            footer={
-              <div className="flex flex-wrap gap-2">
+          <div className="space-y-2" data-testid="infra-terraform-load-error">
+            <EnterpriseCompactEmptyState
+              role="alert"
+              title="Terraform mapping unavailable"
+              description={loadError}
+              testId="infra-terraform-load-error-panel"
+              footer={
+                <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -590,9 +593,15 @@ export function TerraformWorkbenchClient() {
                 <Button asChild variant="outline" size="sm" data-testid="infra-terraform-open-resources-recovery">
                   <Link href={resourcesPath}>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_RESOURCES_ACTION}</Link>
                 </Button>
-              </div>
-            }
-          />
+                </div>
+              }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: loadError,
+              })}
+            />
+          </div>
         ) : null}
 
         {urlCloudResourceId.length > 0 && loadError == null ? (
