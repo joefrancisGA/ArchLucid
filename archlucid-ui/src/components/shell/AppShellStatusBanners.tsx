@@ -8,7 +8,6 @@ import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoD
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/llm/LlmBudgetApproachingLimitBanner";
 import { PublicDemoAiUsageBanner, TrialAiBudgetStatusBanner } from "@/components/trial/TrialAiBudgetStatusBanner";
-import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
 import { TrialBanner } from "@/components/trial/TrialBanner";
 import { TrialExpiryBanner } from "@/components/trial/TrialExpiryBanner";
 import { TrialUsageUpgradeNudge } from "@/components/trial/TrialUsageUpgradeNudge";
@@ -49,7 +48,6 @@ export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
       <LlmBudgetApproachingLimitBanner />
       <TrialAiBudgetStatusBanner />
       <TrialUsageUpgradeNudge />
-      <TeamExpansionNudge />
       <TrialExpiryBanner />
       {variant === "full" ? (
         <>

@@ -1,7 +1,7 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import type { TeamExpansionNudgeTrigger } from "@/lib/team-expansion-nudge-trigger";
 
-const allowedTriggers = new Set<TeamExpansionNudgeTrigger>(["seats", "workspaces"]);
+const allowedTriggers = new Set<TeamExpansionNudgeTrigger>(["seats"]);
 
 function postTeamExpansionNudgeTelemetry(pathSuffix: "shown" | "clicked", trigger: TeamExpansionNudgeTrigger): void {
   if (typeof window === "undefined") {
