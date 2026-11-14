@@ -16,13 +16,18 @@ import type {
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
+import { SECURITY_EVIDENCE_PATH_CUT_KIND_NOT_STORED } from "@/lib/security-evidence-path-cut-point-presentation";
 import {
   SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED,
   SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
   SECURITY_EVIDENCE_PATH_RELATIONSHIP_TYPE_NOT_STORED,
+  SECURITY_EVIDENCE_PATH_COMPUTED_UTC_NOT_STORED,
   SECURITY_EVIDENCE_PATH_RECOMMENDED_CHANGE_NOT_STORED,
   SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED,
 } from "@/lib/security-evidence-path-types";
+
+const SECURITY_EVIDENCE_PATH_EXECUTIVE_SUMMARY_NOT_STORED = "Executive summary was not stored." as const;
+const SECURITY_EVIDENCE_PATH_RULE_VERSION_NOT_STORED = "Rule version was not stored." as const;
 
 const FINDINGS_PATH = "/api/proxy/v1/operational-security/findings";
 const PATHS_PATH = "/api/proxy/v1/operational-security/paths";
@@ -82,7 +87,7 @@ function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
     hopConfidenceBand: mapRawCodeField(raw.hopConfidenceBand),
     inferenceSource: mapOptionalTrimmedString(raw.inferenceSource),
     evidenceReference: mapStoredLabel(raw.evidenceReference, SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED),
-    cloudResourceId: raw.cloudResourceId != null ? String(raw.cloudResourceId) : null,
+    cloudResourceId: mapOptionalTrimmedString(raw.cloudResourceId),
   };
 }
 
@@ -113,20 +118,70 @@ function mapExplanationTemplate(raw: Record<string, unknown> | null | undefined)
   };
 }
 
+function mapStoredUtc(value: unknown): string {
+  const trimmed = typeof value === "string" ? value.trim() : "";
+
+  if (trimmed.length === 0) {
+    return SECURITY_EVIDENCE_PATH_COMPUTED_UTC_NOT_STORED;
+  }
+
+  if (Number.isNaN(Date.parse(trimmed))) {
+    return SECURITY_EVIDENCE_PATH_COMPUTED_UTC_NOT_STORED;
+  }
+
+  return trimmed;
+}
+
+type SecurityEvidencePathRankCore = {
+  pathId: string;
+  snapshotId: string;
+  rankOrder: number | null;
+  ruleVersion: string;
+  technicalExposureScore: number | null;
+  privilegeDepthScore: number | null;
+  blastRadiusScore: number | null;
+  businessConsequenceScore: number | null;
+  confidenceBandScore: number | null;
+  compositeSortScore: number | null;
+  explanationSummary: string;
+  pathKind: string;
+  pathConfidenceBand: string;
+  computedUtc: string;
+};
+
+function mapRankCore(raw: Record<string, unknown>): SecurityEvidencePathRankCore {
+  return {
+    pathId: mapStoredLabel(raw.pathId, "Path id was not stored."),
+    snapshotId: mapStoredLabel(raw.snapshotId, "Snapshot id was not stored."),
+    rankOrder: finiteNumberOrNull(raw.rankOrder),
+    ruleVersion: mapStoredLabel(raw.ruleVersion, SECURITY_EVIDENCE_PATH_RULE_VERSION_NOT_STORED),
+    technicalExposureScore: finiteNumberOrNull(raw.technicalExposureScore),
+    privilegeDepthScore: finiteNumberOrNull(raw.privilegeDepthScore),
+    blastRadiusScore: finiteNumberOrNull(raw.blastRadiusScore),
+    businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
+    confidenceBandScore: finiteNumberOrNull(raw.confidenceBandScore),
+    compositeSortScore: finiteNumberOrNull(raw.compositeSortScore),
+    explanationSummary: mapStoredLabel(raw.explanationSummary, "Rank explanation summary was not stored."),
+    pathKind: mapRawCodeField(raw.pathKind),
+    pathConfidenceBand: mapRawCodeField(raw.pathConfidenceBand),
+    computedUtc: mapStoredUtc(raw.computedUtc),
+  };
+}
+
 function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint {
   const collapsedPathIdsRaw = Array.isArray(raw.collapsedPathIds) ? raw.collapsedPathIds : [];
   const leverageRaw = raw.leverageScore;
 
   return {
-    cutPointId: String(raw.cutPointId ?? ""),
-    cutKind: String(raw.cutKind ?? ""),
+    cutPointId: mapStoredLabel(raw.cutPointId, "Cut point id was not stored."),
+    cutKind: mapStoredLabel(raw.cutKind, SECURITY_EVIDENCE_PATH_CUT_KIND_NOT_STORED),
     cutOrder: finiteNumberOrDefault(raw.cutOrder, 0),
     fromNodeLabel: mapOptionalTrimmedString(raw.fromNodeLabel),
     toNodeLabel: mapOptionalTrimmedString(raw.toNodeLabel),
     edgeType: mapOptionalTrimmedString(raw.edgeType),
-    explanationSummary: String(raw.explanationSummary ?? ""),
-    suggestedPatternKey: raw.suggestedPatternKey != null ? String(raw.suggestedPatternKey) : null,
-    operationalCostClass: String(raw.operationalCostClass ?? ""),
+    explanationSummary: mapStoredLabel(raw.explanationSummary, "Cut point summary was not stored."),
+    suggestedPatternKey: mapOptionalTrimmedString(raw.suggestedPatternKey),
+    operationalCostClass: mapStoredLabel(raw.operationalCostClass, "Operational cost class was not stored."),
     pathsCollapsedCount: finiteNumberOrDefault(raw.pathsCollapsedCount, 0),
     leverageScore: finiteNumberOrNull(leverageRaw),
     collapsedPathIds: mapStoredIdList(collapsedPathIdsRaw),
@@ -137,20 +192,7 @@ function mapRankSummary(raw: Record<string, unknown>): SecurityEvidencePathRankS
   const cutPointsRaw = Array.isArray(raw.relatedCutPoints) ? raw.relatedCutPoints : [];
 
   return {
-    pathId: String(raw.pathId ?? ""),
-    snapshotId: String(raw.snapshotId ?? ""),
-    rankOrder: finiteNumberOrNull(raw.rankOrder),
-    ruleVersion: String(raw.ruleVersion ?? ""),
-    technicalExposureScore: finiteNumberOrNull(raw.technicalExposureScore),
-    privilegeDepthScore: finiteNumberOrNull(raw.privilegeDepthScore),
-    blastRadiusScore: finiteNumberOrNull(raw.blastRadiusScore),
-    businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
-    confidenceBandScore: finiteNumberOrNull(raw.confidenceBandScore),
-    compositeSortScore: finiteNumberOrNull(raw.compositeSortScore),
-    explanationSummary: String(raw.explanationSummary ?? ""),
-    pathKind: String(raw.pathKind ?? ""),
-    pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
-    computedUtc: String(raw.computedUtc ?? ""),
+    ...mapRankCore(raw),
     relatedCutPoints: cutPointsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapCutPoint),
@@ -161,20 +203,8 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
   const dimensionProseRaw = raw.dimensionProse as Record<string, unknown> | null | undefined;
 
   return {
-    pathId: String(raw.pathId ?? ""),
-    snapshotId: String(raw.snapshotId ?? ""),
-    rankOrder: finiteNumberOrNull(raw.rankOrder),
-    ruleVersion: String(raw.ruleVersion ?? ""),
-    technicalExposureScore: finiteNumberOrNull(raw.technicalExposureScore),
-    privilegeDepthScore: finiteNumberOrNull(raw.privilegeDepthScore),
-    blastRadiusScore: finiteNumberOrNull(raw.blastRadiusScore),
-    businessConsequenceScore: finiteNumberOrNull(raw.businessConsequenceScore),
-    confidenceBandScore: finiteNumberOrNull(raw.confidenceBandScore),
-    compositeSortScore: finiteNumberOrNull(raw.compositeSortScore),
-    explanationSummary: String(raw.explanationSummary ?? ""),
-    breakdownJson: String(raw.breakdownJson ?? ""),
-    pathKind: String(raw.pathKind ?? ""),
-    pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
+    ...mapRankCore(raw),
+    breakdownJson: mapStoredLabel(raw.breakdownJson, "Rank breakdown was not stored."),
     dimensionProse: {
       technicalExposure: mapStoredLabel(
         dimensionProseRaw?.technicalExposure,
@@ -198,7 +228,6 @@ function mapRankDetail(raw: Record<string, unknown>): SecurityEvidencePathRankDe
       ),
       overall: mapStoredLabel(dimensionProseRaw?.overall, "Overall rank prose was not stored."),
     },
-    computedUtc: String(raw.computedUtc ?? ""),
     nextStoredPathRankContext: mapStoredLabel(
       raw.nextStoredPathRankContext,
       "Next stored path rank context was not stored.",
@@ -218,9 +247,9 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
     : [];
 
   return {
-    explanationId: String(raw.explanationId ?? ""),
-    pathId: String(raw.pathId ?? ""),
-    executiveSummary: String(raw.executiveSummary ?? ""),
+    explanationId: mapStoredLabel(raw.explanationId, "Explanation id was not stored."),
+    pathId: mapStoredLabel(raw.pathId, "Path id was not stored."),
+    executiveSummary: mapStoredLabel(raw.executiveSummary, SECURITY_EVIDENCE_PATH_EXECUTIVE_SUMMARY_NOT_STORED),
     businessImpactHypotheses: mapStoredStringList(hypothesesRaw),
     proposedRemediation: {
       recommendedChange: mapStoredLabel(
@@ -233,16 +262,13 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
       ),
       verificationQueries: mapStoredStringList(verificationQueriesRaw),
       preconditions: mapStoredStringList(preconditionsRaw),
-      suggestedPatternKey:
-        proposedRemediationRaw?.suggestedPatternKey != null
-          ? String(proposedRemediationRaw.suggestedPatternKey)
-          : null,
+      suggestedPatternKey: mapOptionalTrimmedString(proposedRemediationRaw?.suggestedPatternKey),
     },
     citedEvidenceRefs: mapStoredStringList(citedRefsRaw),
-    provenanceKind: String(raw.provenanceKind ?? ""),
-    simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
-    modelOutputRejection: raw.modelOutputRejection != null ? String(raw.modelOutputRejection) : null,
-    createdUtc: String(raw.createdUtc ?? ""),
+    provenanceKind: mapRawCodeField(raw.provenanceKind),
+    simulatorLabel: mapOptionalTrimmedString(raw.simulatorLabel),
+    modelOutputRejection: mapOptionalTrimmedString(raw.modelOutputRejection),
+    createdUtc: mapStoredUtc(raw.createdUtc),
   };
 }
 
@@ -396,9 +422,9 @@ export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<S
 
   return {
     pathId: mappedPathId,
-    snapshotId: String(raw.snapshotId ?? ""),
-    pathKind: String(raw.pathKind ?? ""),
-    pathConfidenceBand: String(raw.pathConfidenceBand ?? ""),
+    snapshotId: mapStoredLabel(raw.snapshotId, "Snapshot id was not stored."),
+    pathKind: mapRawCodeField(raw.pathKind),
+    pathConfidenceBand: mapRawCodeField(raw.pathConfidenceBand),
     weakestHopOrdinal: finiteNumberOrNull(raw.weakestHopOrdinal),
     weakestHopReason: mapStoredLabel(raw.weakestHopReason, SECURITY_EVIDENCE_PATH_WEAKEST_HOP_REASON_NOT_STORED),
     hops: hopsRaw

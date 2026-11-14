@@ -10,8 +10,6 @@ export const SECURENOW_SELF_SERVICE_HEADING = "When you are stuck" as const;
 export const SECURENOW_SELF_SERVICE_LEAD =
   "Four checks before you email. This is not a support SLA. SecureNow beta remains NO_GO." as const;
 
-export const SECURENOW_DOES_NOT_CHANGE_AZURE_LINE = "SecureNow does not change Azure." as const;
-
 export const SECURENOW_SELF_SERVICE_GUARDRAIL =
   `${SECURENOW_DOES_NOT_CHANGE_AZURE_LINE} This page is not a support SLA.` as const;
 

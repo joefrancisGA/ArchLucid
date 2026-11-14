@@ -39,6 +39,7 @@ describe("formatFindings", () => {
     expect(formatFindings(null)).toBe(COUNT_NOT_RETURNED);
     expect(formatFindings(undefined)).toBe(COUNT_NOT_RETURNED);
     expect(formatFindings(Number.NaN)).toBe(COUNT_NOT_RETURNED);
+    expect(formatFindings(-1)).toBe(COUNT_NOT_RETURNED);
   });
 });
 
