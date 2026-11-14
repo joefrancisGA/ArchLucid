@@ -162,6 +162,9 @@ public abstract class VerifiedRemediationControlAssociationRepositoryContractTes
         Guid instanceOne = Guid.NewGuid();
         Guid instanceTwo = Guid.NewGuid();
 
+        await PrepareStorageAsync(scope, instanceOne, inventorySnapshotId);
+        await PrepareStorageAsync(scope, instanceTwo, inventorySnapshotId);
+
         await repository.UpsertAsync(
             scope,
             CreateRecord(scope, instanceOne, inventorySnapshotId, controlId, new DateTime(2026, 10, 12, 12, 0, 0, DateTimeKind.Utc)));
