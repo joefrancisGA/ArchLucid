@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Compliance.Loaders;
@@ -47,6 +48,10 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
+
+        // Missing pinned collection evidence must fail closed, not appear as an empty baseline.
+        _ = EffectfulFindingEngineCollectionFreshness.ResolvePinnedCollectionUtcOrThrow(
+            analysisContext, CloudProvider.Azure);
 
         if (EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForAzure(
                 analysisContext,
