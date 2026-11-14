@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
 import { InfraEvidenceAuditScopeBar } from "@/components/infra-evidence/InfraEvidenceAuditScopeBar";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
@@ -31,6 +32,7 @@ import {
   EnterpriseTabsTrigger,
 } from "@/components/ui/enterprise-tabs";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -1490,6 +1492,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 Retry
               </Button>
             }
+          />
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: loadError,
+            })}
           />
         </>
       ) : null}

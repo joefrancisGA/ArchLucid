@@ -176,7 +176,7 @@ type SecurityEvidencePathRankCore = {
 function mapRankCore(raw: Record<string, unknown>): SecurityEvidencePathRankCore {
   return {
     pathId: mapOptionalTrimmedString(raw.pathId) ?? "",
-    snapshotId: mapStoredLabel(raw.snapshotId, "Snapshot id was not stored."),
+    snapshotId: mapOptionalTrimmedString(raw.snapshotId) ?? "",
     rankOrder: finiteNumberOrNull(raw.rankOrder),
     ruleVersion: mapStoredLabel(raw.ruleVersion, SECURITY_EVIDENCE_PATH_RULE_VERSION_NOT_STORED),
     technicalExposureScore: nonNegativeNumberOrNull(raw.technicalExposureScore),
@@ -272,7 +272,7 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
 
   return {
     explanationId: mapStoredLabel(raw.explanationId, "Explanation id was not stored."),
-    pathId: mapStoredLabel(raw.pathId, "Path id was not stored."),
+    pathId: mapOptionalTrimmedString(raw.pathId) ?? "",
     executiveSummary: mapStoredLabel(raw.executiveSummary, SECURITY_EVIDENCE_PATH_EXECUTIVE_SUMMARY_NOT_STORED),
     businessImpactHypotheses: mapStoredStringList(hypothesesRaw),
     proposedRemediation: {
@@ -387,6 +387,11 @@ export async function fetchRankedSecurityEvidencePaths(
     pageSize: String(pageSize),
   });
   const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/ranked?${query.toString()}`);
+
+  if (raw.succeeded === false) {
+    throw new Error("Ranked security evidence paths could not be loaded.");
+  }
+
   const itemsRaw = Array.isArray(raw.items) ? raw.items : [];
   const topCutPointsRaw = Array.isArray(raw.topCutPoints) ? raw.topCutPoints : [];
 
@@ -461,7 +466,7 @@ export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<S
 
   return {
     pathId: mappedPathId,
-    snapshotId: mapStoredLabel(raw.snapshotId, "Snapshot id was not stored."),
+    snapshotId: mapOptionalTrimmedString(raw.snapshotId) ?? "",
     pathKind: mapRawCodeField(raw.pathKind),
     pathConfidenceBand: mapRawCodeField(raw.pathConfidenceBand),
     weakestHopOrdinal: finiteNumberOrNull(raw.weakestHopOrdinal),

@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DiagramReconcileBreadcrumb } from "./DiagramReconcileBreadcrumb";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -43,6 +44,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -1538,17 +1540,24 @@ export function DiagramReconcileWorkbenchClient() {
       </p>
 
       {loadError != null ? (
-        <EnterpriseCompactEmptyState
-          role="alert"
-          title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
-          description={loadError}
-          testId="infra-diagram-reconcile-load-error-panel"
-          footer={
-            <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
-              Retry load
-            </Button>
-          }
-        />
+        <div className="space-y-2" data-testid="infra-diagram-reconcile-load-error">
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-diagram-reconcile-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={retryWorkbenchLoad}>
+                Retry load
+              </Button>
+            }
+          />
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: loadError,
+            })}
+          />
+        </div>
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (

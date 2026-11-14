@@ -48,7 +48,7 @@ export async function fetchSecureNowPilotPathDisposition(
     const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${trimmed}/pilot-disposition`);
     const disposition = mapDisposition(raw);
 
-    return disposition.pathId.length > 0 ? disposition : null;
+    return disposition.pathId.length > 0 && disposition.outcome.length > 0 ? disposition : null;
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
 
@@ -72,7 +72,11 @@ export async function saveSecureNowPilotPathDisposition(
     succeeded: raw.succeeded === true,
     errorMessage: mapOptionalTrimmedString(raw.errorMessage),
     disposition:
-      dispositionRaw == null || typeof dispositionRaw.pathId !== "string" || dispositionRaw.pathId.trim().length === 0
+      dispositionRaw == null
+      || typeof dispositionRaw.pathId !== "string"
+      || dispositionRaw.pathId.trim().length === 0
+      || typeof dispositionRaw.outcome !== "string"
+      || dispositionRaw.outcome.trim().length === 0
         ? null
         : mapDisposition(dispositionRaw),
   };
