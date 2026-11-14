@@ -77,7 +77,6 @@ import {
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { SECURENOW_PATH_INSPECT_CITATION_ALLOWED_REFS_LEAD } from "@/lib/product-line/securenow-path-inspect-citation-allowed-copy";
 import { formatSecureNowCitationRejectionDetail } from "@/lib/product-line/securenow-citation-rejection-detail";
-import { CopyIdButton } from "@/components/CopyIdButton";
 import { secureNowSyntheticFixtureDisciplineForPathId } from "@/lib/product-line/securenow-fixture-path-id";
 import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
