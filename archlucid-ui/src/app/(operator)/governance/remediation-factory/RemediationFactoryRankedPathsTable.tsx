@@ -14,6 +14,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
   formatSecurityEvidencePathKindLabel,
+  formatSecurityEvidencePathRankOrderDisplay,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
@@ -117,7 +118,7 @@ export function RemediationFactoryRankedPathsTable(props: {
               >
                 <EnterpriseTableCell className="tabular-nums text-right">
                   <span className="inline-flex items-center gap-2">
-                    {row.rankOrder}
+                    {formatSecurityEvidencePathRankOrderDisplay(row.rankOrder)}
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>

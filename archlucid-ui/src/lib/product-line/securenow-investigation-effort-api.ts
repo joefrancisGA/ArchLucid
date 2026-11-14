@@ -8,14 +8,26 @@ export type SecureNowInvestigationEffortInputsServerRecord = SecureNowInvestigat
   readonly recordedUtc: string;
 };
 
+function mapInvestigationEffortField(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return "";
+}
+
 function mapInputs(raw: Record<string, unknown>): SecureNowInvestigationEffortInputsServerRecord {
   return {
-    baselineHours: String(raw.baselineHours ?? ""),
-    afterHours: String(raw.afterHours ?? ""),
-    annualInvestigations: String(raw.annualInvestigations ?? ""),
-    hourlyRate: String(raw.hourlyRate ?? ""),
-    annualCost: String(raw.annualCost ?? ""),
-    recordedUtc: String(raw.recordedUtc ?? ""),
+    baselineHours: mapInvestigationEffortField(raw.baselineHours),
+    afterHours: mapInvestigationEffortField(raw.afterHours),
+    annualInvestigations: mapInvestigationEffortField(raw.annualInvestigations),
+    hourlyRate: mapInvestigationEffortField(raw.hourlyRate),
+    annualCost: mapInvestigationEffortField(raw.annualCost),
+    recordedUtc: mapInvestigationEffortField(raw.recordedUtc),
   };
 }
 

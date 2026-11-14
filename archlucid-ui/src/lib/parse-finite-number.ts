@@ -12,3 +12,17 @@ export function parseFiniteNumber(value: unknown): number | null {
 export function finiteNumberOrDefault(value: unknown, fallback: number): number {
   return parseFiniteNumber(value) ?? fallback;
 }
+
+export function parseNonNegativeFiniteNumber(value: unknown): number | null {
+  const parsed = parseFiniteNumber(value);
+
+  if (parsed === null || parsed < 0) {
+    return null;
+  }
+
+  return parsed;
+}
+
+export function finiteNonNegativeNumberOrDefault(value: unknown, fallback: number): number {
+  return parseNonNegativeFiniteNumber(value) ?? fallback;
+}

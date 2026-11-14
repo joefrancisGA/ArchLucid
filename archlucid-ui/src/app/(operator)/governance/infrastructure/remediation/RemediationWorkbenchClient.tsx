@@ -116,6 +116,7 @@ import {
 import {
   REMEDIATION_EXECUTE_DISCLAIMER,
   REMEDIATION_WORKBENCH_COLUMNS,
+  parseRemediationInstanceStatusFilter,
   remediationInstanceStatusLabel,
   type RemediationInstanceDetail,
   type RemediationInstanceSummary,
@@ -1176,7 +1177,10 @@ export function RemediationWorkbenchClient() {
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
           </div>
         ) : (
-          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
+          <div className="space-y-2" data-testid="infra-remediation-load-error-panel" role="alert">
+            <p className="m-0 text-sm text-destructive">{loadError}</p>
+            <OperatorErrorRecoveryContract presentation={loadRecovery} />
+          </div>
         )
       ) : null}
 
@@ -1189,7 +1193,15 @@ export function RemediationWorkbenchClient() {
         <>
           {urlStatus.length > 0 ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter">
-              Showing remediation instances with status: {remediationInstanceStatusLabel(urlStatus as RemediationInstanceSummary["status"])}.
+              {(() => {
+                const parsedStatus = parseRemediationInstanceStatusFilter(urlStatus);
+
+                if (parsedStatus == null) {
+                  return "Status filter was not recognized; showing all instances in scope.";
+                }
+
+                return `Showing remediation instances with status: ${remediationInstanceStatusLabel(parsedStatus)}.`;
+              })()}
             </p>
           ) : null}
           <section

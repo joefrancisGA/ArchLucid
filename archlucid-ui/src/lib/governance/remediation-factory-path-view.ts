@@ -1,3 +1,4 @@
+import { isInsufficientEvidencePathConfidenceBand } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
 
 export const REMEDIATION_FACTORY_PATH_VIEW_VALUES = [
@@ -12,7 +13,7 @@ export type RemediationFactoryPathView = (typeof REMEDIATION_FACTORY_PATH_VIEW_V
 export function resolveRemediationFactoryPathViewForRankedPath(
   row: Pick<SecurityEvidencePathRankSummary, "pathKind" | "pathConfidenceBand">,
 ): RemediationFactoryPathView {
-  if (row.pathConfidenceBand === "InsufficientEvidence") {
+  if (isInsufficientEvidencePathConfidenceBand(row.pathConfidenceBand)) {
     return "insufficient-evidence";
   }
 

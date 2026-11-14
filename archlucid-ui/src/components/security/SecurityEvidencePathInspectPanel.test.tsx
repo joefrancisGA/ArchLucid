@@ -515,9 +515,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
     );
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
-    expect(
-      screen.getByText("This is the stored weakest hop. Evidence strength was not stored."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("This is the stored weakest hop.")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
@@ -588,26 +586,12 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     renderPanel("finding-1");
 
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Problem statement was not stored.",
+    expect(screen.getByTestId("security-evidence-path-recommended-action-not-cited-summary")).toHaveTextContent(
+      "Evidence citation was not stored: Problem, Weakest-hop reason, Hop evidence",
     );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Blast radius was not stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).not.toHaveTextContent("Not cited.");
-    expect(screen.queryAllByText("Not cited.")).toHaveLength(0);
     expect(screen.getByTestId("security-evidence-path-hops-empty")).toHaveTextContent("No hops were stored.");
     expect(screen.getByTestId("security-evidence-path-routing-empty")).toHaveTextContent(
       "No routing citations were stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Weakest-hop reason was not stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Hop evidence was not stored.",
-    );
-    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
-      "Proposed change was not stored.",
     );
   });
 
@@ -681,7 +665,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     const recommended = screen.getByTestId("security-evidence-path-recommended-action");
     expect(recommended).toHaveTextContent("Weakest-hop reason");
     expect(recommended).toHaveTextContent("Role assignment inferred from tag metadata.");
-    expect(recommended).toHaveTextContent("Hop evidence was not stored.");
+    expect(recommended).toHaveTextContent("Evidence citation was not stored: Hop evidence");
     expect(recommended).toHaveTextContent("Disable public access.");
     expect(recommended).not.toHaveTextContent("Cut summary should not appear as proposed change.");
   });

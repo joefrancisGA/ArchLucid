@@ -1,5 +1,15 @@
 import type { RemediationInstanceSummary } from "@/lib/infra-evidence/infra-evidence-remediation-types";
-import type { SecurityEvidencePathDetail, SecurityEvidencePathRankDetail } from "@/lib/security-evidence-path-types";
+import {
+  SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED,
+  type SecurityEvidencePathDetail,
+  type SecurityEvidencePathRankDetail,
+} from "@/lib/security-evidence-path-types";
+
+function isHopEvidenceMissing(evidenceReference: string): boolean {
+  const trimmed = evidenceReference.trim();
+
+  return trimmed.length === 0 || trimmed === SECURITY_EVIDENCE_PATH_HOP_EVIDENCE_NOT_STORED;
+}
 
 export type PathDecisionReadiness = {
   readonly status: "READY_FOR_REVIEW" | "VERIFY_EVIDENCE";
@@ -16,7 +26,7 @@ export function buildPathDecisionReadiness(
 ): PathDecisionReadiness {
   const issues: string[] = [];
   if (path.hops.length === 0) issues.push("No path hops are available for inspection.");
-  if (path.hops.some((hop) => !hop.evidenceReference.trim())) {
+  if (path.hops.some((hop) => isHopEvidenceMissing(hop.evidenceReference))) {
     issues.push("One or more hops lack a source evidence reference.");
   }
   for (const hop of path.hops) {

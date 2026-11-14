@@ -85,7 +85,8 @@ export function useGovernanceFindingsQueueMode({
   const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
   const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
 
-  const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
+  const assignedToMeCount =
+    typeof assignedToMeCountQuery.data === "number" ? assignedToMeCountQuery.data : 0;
   const assignedToMeCountData = assignedToMeCountDataOrUndefined(assignedToMeCountQuery.data);
   const assignedToMeLoadedFindingCount = useMemo(
     () => countAssignedToMeLoadedFindings(rows),

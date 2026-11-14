@@ -1,6 +1,10 @@
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { finiteNumberOrDefault, parseFiniteNumber } from "@/lib/parse-finite-number";
+import {
+  finiteNonNegativeNumberOrDefault,
+  finiteNumberOrDefault,
+  parseFiniteNumber,
+} from "@/lib/parse-finite-number";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { infraEvidenceHubBlockedReason } from "@/lib/infra-evidence/infra-evidence-hub-blocked-reason";
 import { tryWorkbookInfraResourceHubDemoFallback } from "@/lib/infra-evidence/infra-resource-hub-demo-fallback";
@@ -171,7 +175,7 @@ function stringRecord(value: unknown): Record<string, string> {
 
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {
   const mapFindingStream = (stream: Record<string, unknown> | undefined) => ({
-    streamKind: String(stream?.streamKind ?? ""),
+    streamKind: typeof stream?.streamKind === "string" ? stream.streamKind.trim() : "",
     streamLabel: typeof stream?.streamLabel === "string" ? stream.streamLabel : null,
     items: Array.isArray(stream?.items)
       ? stream.items.flatMap((item) => {
@@ -195,9 +199,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
           }];
         })
       : [],
-    totalCount: finiteNumberOrDefault(stream?.totalCount, 0),
-    page: finiteNumberOrDefault(stream?.page, 1),
-    pageSize: finiteNumberOrDefault(stream?.pageSize, 25),
+    totalCount: finiteNonNegativeNumberOrDefault(stream?.totalCount, 0),
+    page: finiteNonNegativeNumberOrDefault(stream?.page, 1),
+    pageSize: finiteNonNegativeNumberOrDefault(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 

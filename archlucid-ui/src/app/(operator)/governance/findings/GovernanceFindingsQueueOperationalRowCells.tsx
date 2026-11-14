@@ -27,6 +27,8 @@ import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPo
 import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
+import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/architecture-risk-register-csv";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { resolveGovernanceQueueDueDate } from "@/lib/governance/governance-queue-due-date";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
@@ -272,7 +274,9 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         ) : (
           <span className="space-y-0.5">
             <span className="block">{row.runLabel}</span>
-            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>Review id was not stored.</span>
+            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
+              {buyerFacingReviewLinkLabelFromRunId(row.runId)}
+            </span>
           </span>
         )}
       </EnterpriseTableCell>
@@ -280,14 +284,16 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         {governanceQueueSeverityCell(row, false, severityMeaning)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? row.ownerUserId?.trim() || "Owner was not stored." : "Does not apply to decision rows"}
+        {row.recordKind === "finding"
+          ? row.ownerUserId?.trim() || ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED
+          : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {governanceQueueDispositionLabel(row)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding"
-          ? row.agingDays !== null && row.agingDays !== undefined
+          ? row.agingDays !== null && row.agingDays !== undefined && Number.isFinite(row.agingDays) && row.agingDays >= 0
             ? `${row.agingDays}d`
             : "Aging days were not stored."
           : "Does not apply to decision rows"}

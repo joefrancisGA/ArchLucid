@@ -81,6 +81,7 @@ import {
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { isInsufficientEvidencePathConfidenceBand } from "@/lib/security-evidence-path-presentation";
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
@@ -394,7 +395,7 @@ export function RemediationFactoryClient() {
       case "privilege":
         return rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege"));
       case "insufficient-evidence":
-        return rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence");
+        return rankedPaths.filter((row) => isInsufficientEvidencePathConfidenceBand(row.pathConfidenceBand));
       default:
         return rankedPaths;
     }

@@ -13,6 +13,7 @@ import {
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { governanceFindingsRegisterFilterHrefFromSearch } from "@/lib/governance/governance-findings-register-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isPositiveFiniteCount } from "@/lib/product-line/securenow-findings-queue-open-gate";
 import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsRegisterFilterCompactProps = {
@@ -37,7 +38,9 @@ export function GovernanceFindingsRegisterFilterCompact(
       return fallback;
     }
 
-    return `${fallback} (${count})`;
+    const safeCount = isPositiveFiniteCount(count) ? count : 0;
+
+    return `${fallback} (${safeCount})`;
   }
 
   return (

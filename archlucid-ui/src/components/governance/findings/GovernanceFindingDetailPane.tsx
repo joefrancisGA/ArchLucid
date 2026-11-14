@@ -28,15 +28,18 @@ import {
   formatGovernanceQueueRecordRoleHonesty,
   type GovernanceFindingQueueRow,
 } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
-import { GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED } from "@/components/governance/findings/governance-findings-row-omission-copy";
+import {
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED,
+  GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+} from "@/components/governance/findings/governance-findings-row-omission-copy";
+import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingManifestRecordHref,
   governanceFindingQueueRowReviewHrefForRow,
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
-import {
-  governanceQueueStatusTagKind,
-} from "@/components/governance/findings/governance-findings-buyer-labels";
 import { GovernanceFindingsQueueOperationalActions } from "@/components/governance/findings/governance-findings-queue-operational-actions";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
@@ -176,7 +179,11 @@ function GovernanceFindingDetailPaneComponent({
               <span className="sr-only">Severity does not apply to recorded decision rows.</span>
             </>
           ) : row.recordKind === "finding" ? (
-            <SeverityTag severity={row.severity} />
+            row.severity.trim().length === 0 || row.severity === GOVERNANCE_QUEUE_SEVERITY_NOT_STORED ? (
+              <span className="text-al-text-secondary">{GOVERNANCE_QUEUE_SEVERITY_NOT_STORED}</span>
+            ) : (
+              <SeverityTag severity={row.severity} />
+            )
           ) : (
             <span className="text-al-text-secondary">{row.severity}</span>
           )}
@@ -213,7 +220,13 @@ function GovernanceFindingDetailPaneComponent({
       <div>
         <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>
         <div className="mt-0.5">
-          <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+          {row.status === GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED
+          || row.status === GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED
+          || row.status.trim().toLowerCase().includes("was not stored") ? (
+            <span className="text-al-text-secondary">{row.status}</span>
+          ) : (
+            <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+          )}
         </div>
         {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
           <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
