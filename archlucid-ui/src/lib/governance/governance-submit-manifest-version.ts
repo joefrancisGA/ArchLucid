@@ -11,20 +11,12 @@ export function isNumericSemverManifestVersion(version: string): boolean {
   return NUMERIC_SEMVER_PATTERN.test(version.trim());
 }
 
-export function parseNumericSemverManifestVersion(version: string): [number, number, number] | null {
+function parseNumericSemverManifestVersion(version: string): string[] | null {
   const trimmed = version.trim();
 
-  if (!isNumericSemverManifestVersion(trimmed)) {
-    return null;
-  }
-
-  const parts = trimmed.split(".").map((segment) => Number.parseInt(segment, 10));
-
-  if (parts.length !== 3 || parts.some((segment) => Number.isNaN(segment))) {
-    return null;
-  }
-
-  return [parts[0]!, parts[1]!, parts[2]!];
+  return isNumericSemverManifestVersion(trimmed)
+    ? trimmed.split(".").map((segment) => segment.replace(/^0+(?=\d)/, ""))
+    : null;
 }
 
 export function compareNumericSemverManifestVersions(left: string, right: string): number | null {
@@ -36,10 +28,15 @@ export function compareNumericSemverManifestVersions(left: string, right: string
   }
 
   for (let index = 0; index < 3; index += 1) {
-    const delta = leftParts[index]! - rightParts[index]!;
+    const leftPart = leftParts[index]!;
+    const rightPart = rightParts[index]!;
 
-    if (delta !== 0) {
-      return delta < 0 ? -1 : 1;
+    if (leftPart.length !== rightPart.length) {
+      return leftPart.length < rightPart.length ? -1 : 1;
+    }
+
+    if (leftPart !== rightPart) {
+      return leftPart < rightPart ? -1 : 1;
     }
   }
 
