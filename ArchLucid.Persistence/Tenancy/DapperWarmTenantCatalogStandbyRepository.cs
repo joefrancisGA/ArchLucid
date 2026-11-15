@@ -40,7 +40,7 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
 
         // Atomically claim the oldest unclaimed standby row in a single UPDATE…OUTPUT statement.
         // Using a subquery with UPDLOCK + READPAST prevents two concurrent callers from
-        // selecting the same row.
+        // selecting the same row. READCOMMITTEDLOCK permits READPAST under RCSI.
         const string sql = """
                            UPDATE dbo.WarmTenantCatalogStandby
                            SET ClaimedUtc = SYSUTCDATETIME()
@@ -52,7 +52,7 @@ public sealed class DapperWarmTenantCatalogStandbyRepository(ISystemSqlConnectio
                                INSERTED.ClaimedUtc
                            WHERE StandbyId = (
                                SELECT TOP (1) StandbyId
-                               FROM dbo.WarmTenantCatalogStandby WITH (UPDLOCK, ROWLOCK, READPAST)
+                               FROM dbo.WarmTenantCatalogStandby WITH (READPAST, UPDLOCK, READCOMMITTEDLOCK)
                                WHERE ClaimedUtc IS NULL
                                ORDER BY CreatedUtc ASC
                            );

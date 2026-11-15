@@ -89,7 +89,7 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
                                    ROW_NUMBER() OVER (
                                        PARTITION BY o.TenantId
                                        ORDER BY o.CreatedUtc ASC, o.OutboxId ASC) AS TenantSeq
-                               FROM dbo.AuthorityPipelineWorkOutbox AS o WITH (READPAST, UPDLOCK, ROWLOCK)
+                               FROM dbo.AuthorityPipelineWorkOutbox AS o WITH (READPAST, UPDLOCK, READCOMMITTEDLOCK)
                                WHERE o.ProcessedUtc IS NULL
                                  AND o.DeadLetteredUtc IS NULL
                                  AND (o.NextAttemptUtc IS NULL OR o.NextAttemptUtc <= SYSUTCDATETIME())
