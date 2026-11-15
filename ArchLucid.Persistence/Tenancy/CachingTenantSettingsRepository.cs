@@ -12,7 +12,7 @@ public sealed class CachingTenantSettingsRepository(
     private static readonly ConcurrentDictionary<(Guid TenantId, string SettingKey), long> CacheGenerations =
         new();
 
-    private static readonly ConcurrentDictionary<(Guid TenantId, string SettingKey), byte> WriteInFlightKeys =
+    private static readonly ConcurrentDictionary<(Guid TenantId, string SettingKey), int> WritesInFlight =
         new();
 
     private readonly IHotPathReadCache _hotPathReadCache =
@@ -26,7 +26,7 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
         (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        if (WriteInFlightKeys.ContainsKey(slot))
+        if (WritesInFlight.ContainsKey(slot))
             return await _inner.TryGetAsync(tenantId, normalizedKey, cancellationToken);
 
         // Wrapper distinguishes "cached miss" (null Value) from HybridCache absent entry.
@@ -56,7 +56,7 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
         (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        WriteInFlightKeys.TryAdd(slot, 0);
+        WritesInFlight.AddOrUpdate(slot, 1, static (_, count) => count + 1);
 
         try
         {
@@ -67,7 +67,7 @@ public sealed class CachingTenantSettingsRepository(
         }
         finally
         {
-            WriteInFlightKeys.TryRemove(slot, out _);
+            CompleteWrite(slot);
         }
     }
 
@@ -77,7 +77,7 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
         (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        WriteInFlightKeys.TryAdd(slot, 0);
+        WritesInFlight.AddOrUpdate(slot, 1, static (_, count) => count + 1);
 
         try
         {
@@ -88,7 +88,20 @@ public sealed class CachingTenantSettingsRepository(
         }
         finally
         {
-            WriteInFlightKeys.TryRemove(slot, out _);
+            CompleteWrite(slot);
+        }
+    }
+
+    private static void CompleteWrite((Guid TenantId, string SettingKey) slot)
+    {
+        while (WritesInFlight.TryGetValue(slot, out int count))
+        {
+            bool updated = count == 1
+                ? WritesInFlight.TryRemove(KeyValuePair.Create(slot, count))
+                : WritesInFlight.TryUpdate(slot, count - 1, count);
+
+            if (updated)
+                return;
         }
     }
 
