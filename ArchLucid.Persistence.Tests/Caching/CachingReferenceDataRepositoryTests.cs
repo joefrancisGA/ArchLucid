@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Authorization;
@@ -106,6 +107,38 @@ public sealed class CachingReferenceDataRepositoryTests
             await repo.ListAssignmentsForUserAsync(tenantId, userId, CancellationToken.None);
 
         after.Single().Role.Permissions.Should().BeEquivalentTo(["runs:read", "runs:write"]);
+    }
+
+    [Fact]
+    public async Task ScimUser_DeactivateAsync_invalidates_both_keys_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        Guid tenantId = Guid.NewGuid();
+        const string externalId = "directory-user";
+        InMemoryScimUserRepository backing = new();
+        ScimUserRecord prior = await backing.InsertAsync(
+            tenantId, externalId, "user@example.com", null, true, null,
+            ScimResolvedRoleOrigin.Manual, CancellationToken.None);
+        Guid userId = prior.Id;
+
+        Mock<IScimUserRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repo => repo.GetByIdAsync(tenantId, userId, request.Token)).ReturnsAsync(prior);
+        inner.Setup(repo => repo.DeactivateAsync(tenantId, userId, request.Token)).Returns(async () =>
+        {
+            await backing.DeactivateAsync(tenantId, userId, request.Token);
+            request.Cancel();
+        });
+
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(value => value.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+        CachingScimUserRepository repo = new(inner.Object, cache.Object);
+
+        await repo.DeactivateAsync(tenantId, userId, request.Token);
+
+        cache.Verify(value => value.RemoveAsync(HotPathCacheKeys.ScimUserById(tenantId, userId), CancellationToken.None), Times.Once);
+        cache.Verify(value => value.RemoveAsync(HotPathCacheKeys.ScimUserByExternalId(tenantId, externalId), CancellationToken.None), Times.Once);
     }
 
     [Fact]
