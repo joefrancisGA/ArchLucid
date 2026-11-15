@@ -43,4 +43,22 @@ describe("resolveContinueLastRecurrenceSchedule", () => {
     expect(match?.scheduleId).toBe("sooner");
     expect(match?.name).toBe("Sooner");
   });
+
+  it("orders upcoming reviews by instant across timestamp offsets", () => {
+    const match = resolveContinueLastRecurrenceSchedule([
+      schedule({ scheduleId: "later", nextRunUtc: "2026-08-26T03:00:00-05:00" }),
+      schedule({ scheduleId: "sooner", nextRunUtc: "2026-08-26T08:30:00+02:00" }),
+    ]);
+
+    expect(match?.scheduleId).toBe("sooner");
+  });
+
+  it("uses the most recently triggered review when no valid upcoming run exists", () => {
+    const match = resolveContinueLastRecurrenceSchedule([
+      schedule({ scheduleId: "older", nextRunUtc: "invalid", lastTriggeredUtc: "2026-08-24T09:00:00+02:00" }),
+      schedule({ scheduleId: "newer", nextRunUtc: null, lastTriggeredUtc: "2026-08-24T08:00:00" }),
+    ]);
+
+    expect(match?.scheduleId).toBe("newer");
+  });
 });
