@@ -159,7 +159,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
           : GUIDED_INTAKE_PRIOR_RUN_PREFILL_NO_FIELDS_COPIED,
       );
     }).catch(() => {
-      if (cancelled || !appliedRef.current) {
+      if (cancelled) {
         return;
       }
 
