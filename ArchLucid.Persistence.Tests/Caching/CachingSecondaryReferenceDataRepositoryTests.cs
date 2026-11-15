@@ -1,12 +1,17 @@
 using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AiUsage;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Roi;
+
+using Moq;
 
 namespace ArchLucid.Persistence.Tests.Caching;
 
@@ -122,6 +127,62 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
 
         (await repo.ListEnabledByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None))
             .Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task AlertRule_UpdateAsync_finishes_cache_invalidation_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        AlertRule rule = new()
+        {
+            RuleId = Guid.NewGuid(), TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+        };
+        Mock<IAlertRuleRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.UpdateAsync(rule, request.Token)).Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingAlertRuleRepository repository = new(inner.Object, cache.Object);
+
+        await repository.UpdateAsync(rule, request.Token);
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.AlertRuleListScopeRevision(scope), CancellationToken.None), Times.Once);
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.AlertRuleById(scope, rule.RuleId), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompositeAlertRule_UpdateAsync_finishes_cache_invalidation_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        CompositeAlertRule rule = new()
+        {
+            CompositeRuleId = Guid.NewGuid(), TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+        };
+        Mock<ICompositeAlertRuleRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.UpdateAsync(rule, request.Token)).Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingCompositeAlertRuleRepository repository = new(inner.Object, cache.Object);
+
+        await repository.UpdateAsync(rule, request.Token);
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.CompositeAlertRuleListScopeRevision(scope), CancellationToken.None), Times.Once);
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.CompositeAlertRuleById(scope, rule.CompositeRuleId), CancellationToken.None), Times.Once);
+    }
+
+    private static Mock<IHotPathReadCache> CreateCancellationAwareCache()
+    {
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(x => x.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken ct) =>
+                ct.IsCancellationRequested ? Task.FromCanceled(ct) : Task.CompletedTask);
+        cache.Setup(x => x.GetOrCreateAsync(
+                It.IsAny<string>(),
+                It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                CancellationToken.None,
+                null))
+            .Returns((string _, Func<CancellationToken, Task<RunListScopeRevisionState?>> factory,
+                CancellationToken ct, int? _) => factory(ct));
+        return cache;
     }
 
     [Fact]

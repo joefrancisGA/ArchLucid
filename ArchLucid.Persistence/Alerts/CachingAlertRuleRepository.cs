@@ -24,7 +24,7 @@ public sealed class CachingAlertRuleRepository(IAlertRuleRepository inner, IHotP
             _hotPathReadCache,
             ScopeFor(rule),
             rule.RuleId,
-            ct);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -37,7 +37,7 @@ public sealed class CachingAlertRuleRepository(IAlertRuleRepository inner, IHotP
             _hotPathReadCache,
             ScopeFor(rule),
             rule.RuleId,
-            ct);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
