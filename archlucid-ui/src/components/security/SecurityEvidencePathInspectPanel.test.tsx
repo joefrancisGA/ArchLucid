@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
@@ -957,6 +957,63 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
     expect(screen.queryByRole("link", { name: "Open resource evidence" })).toBeNull();
     expect(screen.queryByTestId("security-evidence-path-hop-resource-evidence")).toBeNull();
+  });
+
+  it("ignores a late explanation from a previously selected path", async () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockImplementation((pathId) => ({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>));
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    type BuildResult = Awaited<ReturnType<typeof buildSecurityEvidencePathExplanation>>;
+    const first = Promise.withResolvers<BuildResult>();
+    const second = Promise.withResolvers<BuildResult>();
+    vi.mocked(buildSecurityEvidencePathExplanation)
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
+
+    const queryClient = new QueryClient();
+    const panel = (pathId: string) => (
+      <QueryClientProvider client={queryClient}>
+        <SecurityEvidencePathInspectPanel findingId={null} pathIdOverride={pathId} />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(panel("path-1"));
+    const button = () => screen.getByTestId("security-evidence-path-explanation-button");
+    fireEvent.click(button());
+
+    rerender(panel("path-2"));
+    fireEvent.click(button());
+
+    await act(async () => {
+      first.resolve({ succeeded: false, explanation: null, errorMessage: "Path 1 request failed." });
+    });
+    expect(screen.queryByText("Path 1 request failed.")).toBeNull();
+    expect(button()).toBeDisabled();
+
+    await act(async () => {
+      second.resolve({ succeeded: false, explanation: null, errorMessage: "Path 2 request failed." });
+    });
+    expect(screen.getByText("Path 2 request failed.")).toBeInTheDocument();
+    expect(button()).toBeEnabled();
   });
 
   it("generates simulator explanation for the selected path", async () => {
