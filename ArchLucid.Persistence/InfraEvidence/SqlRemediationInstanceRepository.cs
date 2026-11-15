@@ -577,7 +577,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                                  AND WorkspaceId = @WorkspaceId
                                  AND ProjectId = @ProjectId
                                  AND CloudResourceId = @CloudResourceId
-                               ORDER BY UpdatedUtc DESC
+                               ORDER BY UpdatedUtc DESC, InstanceId
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
         object parameters = new

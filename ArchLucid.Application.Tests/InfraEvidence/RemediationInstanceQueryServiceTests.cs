@@ -1,5 +1,6 @@
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -85,6 +86,33 @@ public sealed class RemediationInstanceQueryServiceTests
         repository.Verify(
             repo => repo.ListByScopeAsync(It.IsAny<ProjectScopeKey>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ListInstancesAsync_with_cloudResourceId_returns_records_beyond_the_first_page()
+    {
+        const int pageSize = PaginationDefaults.MaxPageSize;
+        RemediationInstanceRecord[] firstPage = Enumerable.Range(0, pageSize)
+            .Select(_ => CreateInstance(Guid.NewGuid(), CloudResourceId))
+            .ToArray();
+        RemediationInstanceRecord finalItem = CreateInstance(Guid.NewGuid(), CloudResourceId);
+        Mock<IRemediationInstanceRepository> repository = new();
+        repository
+            .Setup(repo => repo.ListByCloudResourceIdPagedInScopeAsync(
+                Scope.ToProjectScopeKey(), CloudResourceId, 1, pageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((firstPage, pageSize + 1));
+        repository
+            .Setup(repo => repo.ListByCloudResourceIdPagedInScopeAsync(
+                Scope.ToProjectScopeKey(), CloudResourceId, 2, pageSize, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([finalItem], pageSize + 1));
+
+        RemediationInstanceQueryService service = CreateService(repository.Object);
+
+        IReadOnlyList<RemediationInstanceSummary> instances =
+            await service.ListInstancesAsync(Scope, CloudResourceId, findingId: null, CancellationToken.None);
+
+        instances.Should().HaveCount(pageSize + 1);
+        instances.Should().Contain(item => item.InstanceId == finalItem.InstanceId);
     }
 
     [Fact]
