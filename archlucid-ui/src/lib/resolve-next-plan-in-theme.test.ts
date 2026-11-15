@@ -30,6 +30,17 @@ describe("resolveNextPlanInTheme", () => {
     expect(next?.planId).toBe("plan-2");
   });
 
+  it("breaks equal priorities by creation instant", () => {
+    const plans = [
+      plan({ planId: "earlier", createdUtc: "2026-05-01T13:00:00+02:00" }),
+      plan({ planId: "later", createdUtc: "2026-05-01T12:00:00Z" }),
+      plan({ planId: "unknown", createdUtc: "unreadable" }),
+    ];
+
+    expect(resolveNextPlanInTheme(plans, "earlier", "theme-1")?.planId).toBe("later");
+    expect(resolveNextPlanInTheme(plans, "later", "theme-1")?.planId).toBe("unknown");
+  });
+
   it("returns null when current plan is last in theme", () => {
     expect(resolveNextPlanInTheme([plan()], "plan-1", "theme-1")).toBeNull();
   });

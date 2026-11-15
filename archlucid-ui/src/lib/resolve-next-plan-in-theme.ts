@@ -1,4 +1,10 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { LearningPlanListItemResponse } from "@/types/learning";
+
+function creationSortTime(createdUtc: string): number {
+  const time = parseIsoUtcMs(createdUtc);
+  return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
+}
 
 /** Next improvement plan in the same theme after the current plan id. */
 export function resolveNextPlanInTheme(
@@ -23,7 +29,7 @@ export function resolveNextPlanInTheme(
         return priorityDelta;
       }
 
-      return left.createdUtc.localeCompare(right.createdUtc);
+      return creationSortTime(left.createdUtc) - creationSortTime(right.createdUtc);
     });
 
   const currentIndex = themePlans.findIndex((plan) => plan.planId === normalizedPlanId);
