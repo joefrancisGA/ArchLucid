@@ -48,10 +48,10 @@ export function useRecurrenceScheduleRunsPreviewQuery(
 
   // Call useQuery directly so React Compiler tracks hook order (createOperatorQueryHook is not a use* hook).
   return useQuery<RecurrenceScheduleRunsPreviewResult>({
-    queryKey: operatorQueryKeys.recurrenceScheduleRunsPreview(debouncedCron, count),
+    queryKey: operatorQueryKeys.recurrenceScheduleRunsPreview(trimmed, count),
     queryFn: async () => {
       const response = await previewRecurrenceScheduleRuns({
-        cronExpression: debouncedCron,
+        cronExpression: trimmed,
         count,
       });
 
@@ -61,7 +61,7 @@ export function useRecurrenceScheduleRunsPreviewQuery(
         nextRunUtc: response.nextRunUtc ?? [],
       };
     },
-    enabled: (options?.enabled ?? true) && debouncedCron.length > 0,
+    enabled: (options?.enabled ?? true) && trimmed.length > 0 && trimmed === debouncedCron,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,
