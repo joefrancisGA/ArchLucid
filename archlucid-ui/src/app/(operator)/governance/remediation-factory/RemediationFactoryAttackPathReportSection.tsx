@@ -27,6 +27,7 @@ import {
   REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_EMPTY,
   REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE,
 } from "./remediation-factory-attack-path-report-copy";
+import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
   ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
@@ -226,7 +227,9 @@ function UnevaluatedPathLinks(props: {
         </Link>
       ))}
       {remaining > 0 ? (
-        <span className={OPERATOR_TYPOGRAPHY.helper}>and {remaining} more stored paths</span>
+        <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-overflow-honesty">
+          {formatRemediationFactoryAttackPathOverflowLine(remaining)}
+        </span>
       ) : null}
     </div>
   );

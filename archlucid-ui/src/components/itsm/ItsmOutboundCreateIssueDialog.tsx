@@ -41,6 +41,7 @@ import {
   parseItsmOutboundCreateOpenFromSearch,
 } from "@/lib/itsm/itsm-outbound-create-issue-panels-url";
 import { formatSecureNowItsmDraftContextLine } from "@/lib/product-line/securenow-stop-itsm-handoff";
+import { ITSM_OUTBOUND_CREATE_SUBMIT_DISCIPLINE_LINE } from "@/lib/itsm/itsm-outbound-create-submit-honesty-copy";
 
 export type ItsmOutboundProvider = "Jira" | "ServiceNow" | "Azure Boards";
 
@@ -285,6 +286,13 @@ export function ItsmOutboundCreateIssueDialog({
               </p>
             ) : null}
           </div>
+
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="itsm-create-issue-submit-discipline"
+          >
+            {ITSM_OUTBOUND_CREATE_SUBMIT_DISCIPLINE_LINE}
+          </p>
 
           <DialogFooter>
             <Button

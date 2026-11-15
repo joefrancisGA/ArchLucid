@@ -329,6 +329,12 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-prerequisites-complete-body">
                 {FIRST_REVIEW_GUIDE_PREREQUISITES_COMPLETE_BODY}
               </p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="first-review-tenant-review-seal-discipline"
+              >
+                {FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE}
+              </p>
               {walkthroughNextStep !== null ? (
                 <div className="space-y-1" data-testid="first-review-walkthrough-next-step">
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -343,12 +349,6 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               ) : (
                 <div className="space-y-1" data-testid="first-review-after-prerequisites-next-step">
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_BODY}</p>
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="first-review-tenant-review-seal-discipline"
-                  >
-                    {FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE}
-                  </p>
                   <Link className={OPERATOR_LINK.inline} href={FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF}>
                     {FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL}
                   </Link>
