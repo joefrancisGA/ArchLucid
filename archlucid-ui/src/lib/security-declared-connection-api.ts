@@ -50,9 +50,16 @@ function mapRow(raw: Record<string, unknown>): SecurityDeclaredConnectionRow {
 }
 
 export async function listSecurityDeclaredConnections(): Promise<SecurityDeclaredConnectionRow[]> {
-  const raw = await proxyJsonGet<Record<string, unknown>[]>(BASE_PATH);
+  const raw = await proxyJsonGet<unknown>(BASE_PATH);
+
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
   return raw
+    .filter((row): row is Record<string, unknown> => row !== null && typeof row === "object" && !Array.isArray(row))
     .map((row) => mapRow(row))
+    .filter((row) => row.fromCloudResourceId.length > 0 && row.toCloudResourceId.length > 0)
     .filter((row) => row.connectionId.length > 0);
 }
 
@@ -60,7 +67,13 @@ export async function createSecurityDeclaredConnection(
   request: SecurityDeclaredConnectionCreateRequest,
 ): Promise<string> {
   const raw = await proxyJsonPost<Record<string, unknown>>(BASE_PATH, request);
-  return typeof raw.connectionId === "string" ? raw.connectionId.trim() : "";
+  const connectionId = typeof raw.connectionId === "string" ? raw.connectionId.trim() : "";
+
+  if (connectionId.length === 0) {
+    throw new Error("Declared connection id was not returned.");
+  }
+
+  return connectionId;
 }
 
 export async function revokeSecurityDeclaredConnection(connectionId: string): Promise<void> {

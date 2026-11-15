@@ -11,6 +11,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
@@ -21,6 +22,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -409,6 +411,11 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                   </Button>
                 </div>
               }
+            />
+            <OperatorErrorRecoveryContract
+              presentation={errorRecoveryContractForScenario("api-problem", {
+                failureSummary: lineageBlockedReason ?? AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_BODY,
+              })}
             />
           </div>
         ) : null}

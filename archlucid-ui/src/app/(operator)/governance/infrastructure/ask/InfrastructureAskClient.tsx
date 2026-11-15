@@ -10,6 +10,7 @@ import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/Workben
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -41,6 +42,7 @@ import {
 import { formatInfraEvidenceAskTopicKindLabel } from "@/lib/infra-evidence/infra-evidence-ask-topic-kind-label";
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
@@ -1167,22 +1169,28 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       </section>
 
       {submitError != null ? (
-        <div
-          className={cn("rounded-md border px-3 py-2", DESIGN_TOKENS.callout.warn)}
-          role="alert"
-          data-testid="infra-ask-submit-error"
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusTag
-              kind={submitErrorIsBlocked ? "blocked" : "needs-attention"}
-              label={
-                submitErrorIsBlocked
-                  ? GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL
-                  : GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL
-              }
-            />
+        <div className="space-y-2" data-testid="infra-ask-submit-error">
+          <div
+            className={cn("rounded-md border px-3 py-2", DESIGN_TOKENS.callout.warn)}
+            role="alert"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusTag
+                kind={submitErrorIsBlocked ? "blocked" : "needs-attention"}
+                label={
+                  submitErrorIsBlocked
+                    ? GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL
+                    : GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL
+                }
+              />
+            </div>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{submitError}</p>
           </div>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{submitError}</p>
+          <OperatorErrorRecoveryContract
+            presentation={errorRecoveryContractForScenario("api-problem", {
+              failureSummary: submitError,
+            })}
+          />
         </div>
       ) : null}
 

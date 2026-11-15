@@ -128,6 +128,12 @@ export async function fetchCloudResourceEvidenceHub(
   page = 1,
   pageSize = 25,
 ): Promise<CloudResourceEvidenceHubResponse> {
+  const trimmedCloudResourceId = cloudResourceId.trim();
+
+  if (trimmedCloudResourceId.length === 0) {
+    throw new Error("cloudResourceId is required.");
+  }
+
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
 
   if (context.runId != null && context.runId.trim().length > 0) {
@@ -152,12 +158,12 @@ export async function fetchCloudResourceEvidenceHub(
 
   try {
     const raw = await proxyJsonGet<Record<string, unknown>>(
-      `${CLOUD_RESOURCES_PATH}/${cloudResourceId}/hub?${params.toString()}`,
+      `${CLOUD_RESOURCES_PATH}/${encodeURIComponent(trimmedCloudResourceId)}/hub?${params.toString()}`,
     );
 
     return mapHubResponse(raw);
   } catch (error: unknown) {
-    const demoFallback = tryWorkbookInfraResourceHubDemoFallback(cloudResourceId);
+    const demoFallback = tryWorkbookInfraResourceHubDemoFallback(trimmedCloudResourceId);
 
     if (demoFallback !== null) {
       return demoFallback;
@@ -181,9 +187,26 @@ function stringRecord(value: unknown): Record<string, string> {
 }
 
 function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubResponse {
+  const mapRequiredText = (value: unknown): string => typeof value === "string" ? value.trim() : "";
+  const mapOptionalText = (value: unknown): string | null => {
+    const mapped = mapRequiredText(value);
+
+    return mapped.length > 0 ? mapped : null;
+  };
+  const mapStoredText = (value: unknown): string | null =>
+    typeof value === "string" ? value.trim() : null;
+  const mapStreamLabel = (value: unknown): string | null =>
+    value == null ? null : mapStoredText(value);
+  const mapCodeText = (value: unknown): string =>
+    typeof value === "string" ? value.trim() : "";
+  const mapPositivePage = (value: unknown, fallback: number): number => {
+    const mapped = finiteNonNegativeNumberOrDefault(value, fallback);
+
+    return mapped >= 1 ? mapped : fallback;
+  };
   const mapFindingStream = (stream: Record<string, unknown> | undefined) => ({
-    streamKind: typeof stream?.streamKind === "string" ? stream.streamKind.trim() : "",
-    streamLabel: typeof stream?.streamLabel === "string" ? stream.streamLabel : null,
+    streamKind: mapRequiredText(stream?.streamKind),
+    streamLabel: mapStreamLabel(stream?.streamLabel),
     items: Array.isArray(stream?.items)
       ? stream.items.flatMap((item) => {
           if (item === null || typeof item !== "object" || Array.isArray(item)) {
@@ -192,27 +215,26 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 
           const row = item as Record<string, unknown>;
 
-          if (typeof row.id !== "string" || typeof row.title !== "string") {
+          const id = mapRequiredText(row.id);
+          const title = mapRequiredText(row.title);
+
+          if (id.length === 0 || title.length === 0) {
             return [];
           }
 
           return [{
-            id: row.id,
-            title: row.title,
-            severity: typeof row.severity === "string" && row.severity.trim().length > 0
-              ? row.severity.trim()
-              : null,
-            status: typeof row.status === "string" && row.status.trim().length > 0
-              ? row.status.trim()
-              : null,
-            streamKind: typeof row.streamKind === "string" ? row.streamKind : "",
-            streamLabel: typeof row.streamLabel === "string" ? row.streamLabel : "",
+            id,
+            title,
+            severity: mapOptionalText(row.severity),
+            status: mapOptionalText(row.status),
+            streamKind: mapRequiredText(row.streamKind),
+            streamLabel: mapRequiredText(row.streamLabel),
           }];
         })
       : [],
     totalCount: finiteNonNegativeNumberOrDefault(stream?.totalCount, 0),
-    page: finiteNonNegativeNumberOrDefault(stream?.page, 1),
-    pageSize: finiteNonNegativeNumberOrDefault(stream?.pageSize, 25),
+    page: mapPositivePage(stream?.page, 1),
+    pageSize: mapPositivePage(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 
@@ -243,8 +265,8 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
         })
       : [],
     totalCount: finiteNonNegativeNumberOrDefault(stream?.totalCount, 0),
-    page: finiteNonNegativeNumberOrDefault(stream?.page, 1),
-    pageSize: finiteNonNegativeNumberOrDefault(stream?.pageSize, 25),
+    page: mapPositivePage(stream?.page, 1),
+    pageSize: mapPositivePage(stream?.pageSize, 25),
     hasMore: stream?.hasMore === true,
   });
 
@@ -253,21 +275,21 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
   const auditRaw = raw.auditLineageLink as Record<string, unknown> | undefined;
 
   return {
-    cloudResourceId: typeof raw.cloudResourceId === "string" ? raw.cloudResourceId : "",
-    externalResourceId: typeof raw.externalResourceId === "string" ? raw.externalResourceId : "",
-    resourceType: typeof raw.resourceType === "string" ? raw.resourceType : null,
+    cloudResourceId: mapRequiredText(raw.cloudResourceId),
+    externalResourceId: mapRequiredText(raw.externalResourceId),
+    resourceType: mapOptionalText(raw.resourceType),
     currentConfiguration:
       currentConfigurationRaw == null
         ? null
         : {
-            snapshotId: typeof currentConfigurationRaw.snapshotId === "string" ? currentConfigurationRaw.snapshotId : "",
-            azureResourceId: typeof currentConfigurationRaw.azureResourceId === "string" ? currentConfigurationRaw.azureResourceId : "",
-            resourceType: typeof currentConfigurationRaw.resourceType === "string" ? currentConfigurationRaw.resourceType : "",
+            snapshotId: mapRequiredText(currentConfigurationRaw.snapshotId),
+            azureResourceId: mapRequiredText(currentConfigurationRaw.azureResourceId),
+            resourceType: mapRequiredText(currentConfigurationRaw.resourceType),
             resourceGroup:
               typeof currentConfigurationRaw.resourceGroup === "string"
-                ? currentConfigurationRaw.resourceGroup
+                ? currentConfigurationRaw.resourceGroup.trim()
                 : null,
-            region: typeof currentConfigurationRaw.region === "string" ? currentConfigurationRaw.region : null,
+            region: mapOptionalText(currentConfigurationRaw.region),
             properties: stringRecord(currentConfigurationRaw.properties),
             tags: stringRecord(currentConfigurationRaw.tags),
           },
@@ -278,18 +300,18 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       diagramRaw == null
         ? null
         : {
-            correspondenceId: typeof diagramRaw.correspondenceId === "string" ? diagramRaw.correspondenceId : "",
-            diagramNodeId: typeof diagramRaw.diagramNodeId === "string" ? diagramRaw.diagramNodeId : null,
-            diagramNodeLabel: typeof diagramRaw.diagramNodeLabel === "string" ? diagramRaw.diagramNodeLabel : null,
-            cloudResourceId: typeof diagramRaw.cloudResourceId === "string" ? diagramRaw.cloudResourceId : null,
-            azureResourceId: typeof diagramRaw.azureResourceId === "string" ? diagramRaw.azureResourceId : null,
-            resourceType: typeof diagramRaw.resourceType === "string" ? diagramRaw.resourceType : null,
-            resourceGroup: typeof diagramRaw.resourceGroup === "string" ? diagramRaw.resourceGroup : null,
-            terraformAddress: typeof diagramRaw.terraformAddress === "string" ? diagramRaw.terraformAddress : null,
-            matchKind: typeof diagramRaw.matchKind === "string" ? diagramRaw.matchKind : null,
-            confidenceBand: typeof diagramRaw.confidenceBand === "string" ? diagramRaw.confidenceBand : "",
-            explainText: typeof diagramRaw.explainText === "string" ? diagramRaw.explainText : null,
-            aiRationale: typeof diagramRaw.aiRationale === "string" ? diagramRaw.aiRationale : null,
+            correspondenceId: mapRequiredText(diagramRaw.correspondenceId),
+            diagramNodeId: mapOptionalText(diagramRaw.diagramNodeId),
+            diagramNodeLabel: mapOptionalText(diagramRaw.diagramNodeLabel),
+            cloudResourceId: mapOptionalText(diagramRaw.cloudResourceId),
+            azureResourceId: mapOptionalText(diagramRaw.azureResourceId),
+            resourceType: mapOptionalText(diagramRaw.resourceType),
+            resourceGroup: mapOptionalText(diagramRaw.resourceGroup),
+            terraformAddress: mapOptionalText(diagramRaw.terraformAddress),
+            matchKind: mapCodeText(diagramRaw.matchKind),
+            confidenceBand: mapCodeText(diagramRaw.confidenceBand),
+            explainText: mapStoredText(diagramRaw.explainText),
+            aiRationale: mapStoredText(diagramRaw.aiRationale),
             securityDiscrepancy: diagramRaw.securityDiscrepancy === true,
           },
     operationalSecurityFindings: mapFindingStream(
@@ -309,18 +331,18 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 
           const row = item as Record<string, unknown>;
 
-          if (
-            typeof row.principalId !== "string"
-            || typeof row.roleDefinitionId !== "string"
-            || typeof row.scope !== "string"
-          ) {
+          const principalId = mapRequiredText(row.principalId);
+          const roleDefinitionId = mapRequiredText(row.roleDefinitionId);
+          const scope = mapRequiredText(row.scope);
+
+          if (principalId.length === 0 || roleDefinitionId.length === 0 || scope.length === 0) {
             return [];
           }
 
           return [{
-            principalId: row.principalId,
-            roleDefinitionId: row.roleDefinitionId,
-            scope: row.scope,
+            principalId,
+            roleDefinitionId,
+            scope,
           }];
         })
       : [],
@@ -332,18 +354,18 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 
           const row = item as Record<string, unknown>;
 
-          if (
-            typeof row.relationshipType !== "string"
-            || typeof row.fromAzureResourceId !== "string"
-            || typeof row.toAzureResourceId !== "string"
-          ) {
+          const relationshipType = mapRequiredText(row.relationshipType);
+          const fromAzureResourceId = mapRequiredText(row.fromAzureResourceId);
+          const toAzureResourceId = mapRequiredText(row.toAzureResourceId);
+
+          if (relationshipType.length === 0 || fromAzureResourceId.length === 0 || toAzureResourceId.length === 0) {
             return [];
           }
 
           return [{
-            relationshipType: row.relationshipType,
-            fromAzureResourceId: row.fromAzureResourceId,
-            toAzureResourceId: row.toAzureResourceId,
+            relationshipType,
+            fromAzureResourceId,
+            toAzureResourceId,
           }];
         })
       : [],
@@ -355,39 +377,45 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 
           const row = item as Record<string, unknown>;
 
+          const changeId = mapRequiredText(row.changeId);
+          const diffId = mapRequiredText(row.diffId);
+          const snapshotAId = mapRequiredText(row.snapshotAId);
+          const snapshotBId = mapRequiredText(row.snapshotBId);
+          const changeType = mapRequiredText(row.changeType);
+
           if (
-            typeof row.changeId !== "string"
-            || typeof row.diffId !== "string"
-            || typeof row.snapshotAId !== "string"
-            || typeof row.snapshotBId !== "string"
-            || typeof row.changeType !== "string"
+            changeId.length === 0
+            || diffId.length === 0
+            || snapshotAId.length === 0
+            || snapshotBId.length === 0
+            || changeType.length === 0
           ) {
             return [];
           }
 
           return [{
-            changeId: row.changeId,
-            diffId: row.diffId,
-            snapshotAId: row.snapshotAId,
-            snapshotBId: row.snapshotBId,
-            changeType: row.changeType,
-            property: typeof row.property === "string" ? row.property : null,
-            oldValue: typeof row.oldValue === "string" ? row.oldValue : null,
-            newValue: typeof row.newValue === "string" ? row.newValue : null,
-            riskClassification: typeof row.riskClassification === "string" ? row.riskClassification : null,
+            changeId,
+            diffId,
+            snapshotAId,
+            snapshotBId,
+            changeType,
+            property: mapOptionalText(row.property),
+            oldValue: mapOptionalText(row.oldValue),
+            newValue: mapOptionalText(row.newValue),
+            riskClassification: mapOptionalText(row.riskClassification),
           }];
         })
       : [],
     auditLineageLink: {
       available: auditRaw?.available === true,
       degradedReason: typeof auditRaw?.degradedReason === "string" ? auditRaw.degradedReason : null,
-      relativePath: typeof auditRaw?.relativePath === "string" ? auditRaw.relativePath : null,
-      assessmentId: typeof auditRaw?.assessmentId === "string" ? auditRaw.assessmentId : null,
+      relativePath: mapOptionalText(auditRaw?.relativePath),
+      assessmentId: mapOptionalText(auditRaw?.assessmentId),
       auditEvidenceSnapshotId:
         typeof auditRaw?.auditEvidenceSnapshotId === "string" ? auditRaw.auditEvidenceSnapshotId : null,
-      controlId: typeof auditRaw?.controlId === "string" ? auditRaw.controlId : null,
-      controlNumber: typeof auditRaw?.controlNumber === "string" ? auditRaw.controlNumber : null,
-      controlTitle: typeof auditRaw?.controlTitle === "string" ? auditRaw.controlTitle : null,
+      controlId: mapOptionalText(auditRaw?.controlId),
+      controlNumber: mapOptionalText(auditRaw?.controlNumber),
+      controlTitle: mapOptionalText(auditRaw?.controlTitle),
       matches: Array.isArray(auditRaw?.matches)
         ? auditRaw.matches.flatMap((item) => {
             if (item === null || typeof item !== "object" || Array.isArray(item)) {
@@ -404,17 +432,17 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
               row.snapshotCreatedUtc,
             ];
 
-            if (!required.every((value) => typeof value === "string")) {
+            if (!required.every((value) => typeof value === "string" && value.trim().length > 0)) {
               return [];
             }
 
             return [{
-              assessmentId: row.assessmentId as string,
-              auditEvidenceSnapshotId: row.auditEvidenceSnapshotId as string,
-              controlId: row.controlId as string,
-              controlNumber: row.controlNumber as string,
-              controlTitle: row.controlTitle as string,
-              snapshotCreatedUtc: row.snapshotCreatedUtc as string,
+              assessmentId: mapRequiredText(row.assessmentId),
+              auditEvidenceSnapshotId: mapRequiredText(row.auditEvidenceSnapshotId),
+              controlId: mapRequiredText(row.controlId),
+              controlNumber: mapRequiredText(row.controlNumber),
+              controlTitle: mapRequiredText(row.controlTitle),
+              snapshotCreatedUtc: mapRequiredText(row.snapshotCreatedUtc),
             }];
           })
         : [],
@@ -427,11 +455,14 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 
           const row = item as Record<string, unknown>;
 
-          if (typeof row.kind !== "string" || typeof row.relativePath !== "string") {
+          const kind = mapRequiredText(row.kind);
+          const relativePath = mapRequiredText(row.relativePath);
+
+          if (kind.length === 0 || relativePath.length === 0) {
             return [];
           }
 
-          return [{ kind: row.kind, relativePath: row.relativePath }];
+          return [{ kind, relativePath }];
         })
       : [],
   };
