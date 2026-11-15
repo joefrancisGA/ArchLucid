@@ -359,6 +359,32 @@ public sealed class PersistencePackageCoverageBatch13Tests
     }
 
     [Fact]
+    public async Task CachingFindingsSnapshotRepository_SaveAsync_EvictsAfterSuccessfulWriteEvenIfCallerCancels()
+    {
+        Mock<IFindingsSnapshotRepository> inner = new();
+        Mock<IHotPathReadCache> cache = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        FindingsSnapshot snapshot = new() { FindingsSnapshotId = Guid.NewGuid() };
+        using CancellationTokenSource cancellation = new();
+        string key = HotPathCacheKeys.FindingsSnapshot(scope, snapshot.FindingsSnapshotId);
+
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+        inner.Setup(i => i.SaveAsync(snapshot, cancellation.Token, null, null))
+            .Callback(cancellation.Cancel)
+            .Returns(Task.CompletedTask);
+        cache.Setup(c => c.RemoveAsync(key, It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+
+        CachingFindingsSnapshotRepository repository = new(inner.Object, cache.Object, scopeProvider.Object);
+
+        await repository.SaveAsync(snapshot, cancellation.Token);
+
+        cache.Verify(c => c.RemoveAsync(key, CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task CachingFindingsSnapshotRepository_SaveAsync_SkipsEviction_WhenConnectionSupplied()
     {
         Mock<IFindingsSnapshotRepository> inner = new();
