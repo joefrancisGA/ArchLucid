@@ -4,6 +4,7 @@ import {
   FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_LEAD,
   FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_NOT_YET,
 } from "@/lib/first-review-sample-sealed-package-copy";
+import { FIRST_REVIEW_SAMPLE_EXPORT_BADGE_LINE } from "@/lib/architecture/first-review-sample-export-badge-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,9 @@ export function FirstReviewSampleSealedPackageChecklist(): React.JSX.Element {
         {FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_HEADING}
       </h2>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_LEAD}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-sample-export-badge">
+        {FIRST_REVIEW_SAMPLE_EXPORT_BADGE_LINE}
+      </p>
       <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.helper)}>Sample includes</p>
       <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
         {FIRST_REVIEW_SAMPLE_SEALED_PACKAGE_CHECKLIST.map((item) => (

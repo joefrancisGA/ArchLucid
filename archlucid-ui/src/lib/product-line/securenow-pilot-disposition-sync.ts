@@ -12,9 +12,14 @@ export type SecureNowPilotDispositionPersistOutcome =
   | { readonly status: "saved"; readonly tenantAuditRecorded: true; readonly recordedUtc: string | null }
   | { readonly status: "error"; readonly errorMessage: string };
 
+export type SecureNowPilotDispositionLoaded = {
+  readonly record: SecureNowPilotDispositionRecord;
+  readonly recordedUtc: string | null;
+};
+
 export async function loadSecureNowPilotDispositionForPath(
   pathId: string,
-): Promise<SecureNowPilotDispositionRecord | null> {
+): Promise<SecureNowPilotDispositionLoaded | null> {
   const trimmed = pathId.trim();
 
   if (trimmed.length === 0) {
@@ -27,13 +32,22 @@ export async function loadSecureNowPilotDispositionForPath(
     if (server !== null) {
       const record = { outcome: server.outcome, rationale: server.rationale };
       writeSecureNowPilotDisposition(trimmed, record);
-      return record;
+
+      const recordedUtc = server.recordedUtc.trim().length > 0 ? server.recordedUtc.trim() : null;
+
+      return { record, recordedUtc };
     }
   } catch {
     // Fall back to browser cache when audit read is unavailable.
   }
 
-  return readSecureNowPilotDisposition(trimmed);
+  const cached = readSecureNowPilotDisposition(trimmed);
+
+  if (cached === null) {
+    return null;
+  }
+
+  return { record: cached, recordedUtc: null };
 }
 
 export async function persistSecureNowPilotDispositionForPath(

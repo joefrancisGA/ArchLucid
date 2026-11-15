@@ -10,7 +10,10 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite, whyDisabledPolicy } from "@/lib/why-disabled-cta";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_SHARE_PACKAGE_COMMIT_DISABLED_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { showError, showMutationError, showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 export type ShareReviewPackageButtonProps = {
   readonly runId: string;
@@ -79,6 +82,11 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
         reason={shareDisabledReason}
         testId={shareDisabledHintId}
       />
+      {shareDisabledReason !== null && !committed ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="share-review-package-commit-disabled-line">
+          {REVIEW_SHARE_PACKAGE_COMMIT_DISABLED_LINE}
+        </p>
+      ) : null}
     </div>
   );
 }

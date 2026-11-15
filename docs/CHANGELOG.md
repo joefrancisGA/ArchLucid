@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 45 (batch 10): Arch first-review honesty, commit-before-seal, and sponsor audit on load
+
+**Outcome.** Platform health blocker copy, open-gate spine focus, and sample export badges on the first-review guide. Review deliverables and share-review explain evidence before finalize. Warn-only AI finalize discipline on the guide. Sponsor path hydrates tenant audit `recordedUtc` from server load.
+
+**Surfaces.** First-review guide, review deliverables, share review, path inspect disposition load, sponsor path.
+
 ## 2026-11-14 - Score lift round 44 (batch 9): Sponsor audit time, investigation inputs, policy hub rank, and extract-upload baseline failure
 
 **Outcome.** Sponsor path disposition save surfaces tenant audit `recordedUtc`. Investigation effort ROI names missing inputs by field label. Policy packs hub states rank discipline. Extract and upload registers report-problem when inventory baseline status cannot load.
