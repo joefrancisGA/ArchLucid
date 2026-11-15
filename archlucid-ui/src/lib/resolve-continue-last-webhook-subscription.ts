@@ -1,4 +1,5 @@
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 export const WEBHOOK_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY =
@@ -86,12 +87,12 @@ export function resolveContinueLastWebhookSubscription(
   const newest = pool
     .map((subscription) => ({
       subscription,
-      createdAt: Date.parse(subscription.createdUtc),
+      createdAt: parseIsoUtcMs(subscription.createdUtc),
     }))
     .filter((entry) => !Number.isNaN(entry.createdAt))
     .reduce<typeof pool[number] | null>(
       (latest, entry) =>
-        latest === null || entry.createdAt > Date.parse(latest.createdUtc)
+        latest === null || entry.createdAt > parseIsoUtcMs(latest.createdUtc)
           ? entry.subscription
           : latest,
       null,
