@@ -41,7 +41,7 @@ const COLLECTION_AGENT_PAGE_TITLE = resolveSecureNowPageHeading(
   SECURENOW_COLLECTION_AGENT_PATH,
 );
 import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { cn } from "@/lib/utils";
 
 function collectionRunSortTime(run: CollectionRun): number {
@@ -183,6 +183,8 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
 export function CollectionAgentPageClient(): React.JSX.Element {
   const query = useCollectionRunsQuery();
   const triggerMutation = useTriggerCollectionRunMutation();
+  const queryFailure = query.isError ? toApiLoadFailure(query.error) : null;
+  const showCachedRuns = query.isRefetchError && isApiTransientLoadFailure(queryFailure);
   const runs = useMemo(() => sortCollectionRuns(query.data ?? []), [query.data]);
   const health = resolveCollectionAgentHealth(runs);
   const staleSuccessDetail = resolveCollectionAgentStaleSuccessDetail(runs);
@@ -201,14 +203,12 @@ export function CollectionAgentPageClient(): React.JSX.Element {
     return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;
   }
 
-  if (query.isError) {
-    const failure = toApiLoadFailure(query.error);
-
+  if (queryFailure !== null && !showCachedRuns) {
     return (
       <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
         <OperatorPageHeader title={COLLECTION_AGENT_PAGE_TITLE} subtitle="Whether scheduled collection is running and what it found." />
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
-          {failure.message}
+          {queryFailure.message}
         </div>
       </OperatorPageContainer>
     );
@@ -224,13 +224,18 @@ export function CollectionAgentPageClient(): React.JSX.Element {
           <button
             type="button"
             onClick={() => triggerMutation.mutate(crypto.randomUUID())}
-            disabled={triggerMutation.isPending || activeRun !== null}
+            disabled={triggerMutation.isPending || activeRun !== null || showCachedRuns}
             className="rounded border border-teal-700 bg-transparent px-3 py-2 text-sm font-medium text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-teal-300 dark:text-teal-200 dark:hover:bg-teal-950"
           >
             {triggerMutation.isPending ? "Starting…" : "Run now"}
           </button>
         }
       />
+      {showCachedRuns ? (
+        <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
+          Collection history could not refresh. Showing the last loaded collection runs. {queryFailure?.message}
+        </div>
+      ) : null}
       {triggerFailure !== null ? (
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
           {triggerFailure.message}
