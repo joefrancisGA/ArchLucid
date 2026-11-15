@@ -13,11 +13,13 @@ export function parseDecisionRegisterCustomDateFromSearch(raw: string | null | u
 
   const trimmed = raw.trim();
 
-  if (!DATE_INPUT_PATTERN.test(trimmed)) {
+  if (!DATE_INPUT_PATTERN.test(trimmed) || trimmed.startsWith("0000-")) {
     return "";
   }
 
-  return trimmed;
+  const date = new Date(trimmed);
+
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === trimmed ? trimmed : "";
 }
 
 export function decisionRegisterCustomDateHrefFromSearch(
