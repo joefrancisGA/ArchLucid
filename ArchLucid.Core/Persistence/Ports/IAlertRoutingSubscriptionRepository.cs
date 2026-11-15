@@ -18,11 +18,11 @@ public interface IAlertRoutingSubscriptionRepository
     /// <summary>Inserts a new subscription row.</summary>
     Task CreateAsync(AlertRoutingSubscription subscription, CancellationToken ct);
 
-    /// <summary>
-    ///     Updates mutable fields (including <see cref="AlertRoutingSubscription.LastDeliveredUtc" /> after successful
-    ///     delivery).
-    /// </summary>
+    /// <summary>Updates mutable subscription fields.</summary>
     Task UpdateAsync(AlertRoutingSubscription subscription, CancellationToken ct);
+
+    /// <summary>Records a successful delivery without changing the subscription's routing settings.</summary>
+    Task RecordDeliveryAsync(AlertRoutingSubscription subscription, DateTime deliveredUtc, CancellationToken ct);
 
     /// <summary>Loads by id within <paramref name="scope" />; <c>null</c> when missing or out of scope.</summary>
     Task<AlertRoutingSubscription?> GetByIdAsync(ScopeContext scope, Guid routingSubscriptionId, CancellationToken ct);

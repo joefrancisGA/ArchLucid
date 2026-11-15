@@ -66,6 +66,31 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
     }
 
     /// <inheritdoc />
+    public async Task RecordDeliveryAsync(AlertRoutingSubscription subscription, DateTime deliveredUtc, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+        const string sql = """
+            UPDATE dbo.AlertRoutingSubscriptions
+            SET LastDeliveredUtc = @DeliveredUtc
+            WHERE RoutingSubscriptionId = @RoutingSubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (LastDeliveredUtc IS NULL OR LastDeliveredUtc < @DeliveredUtc);
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            subscription.RoutingSubscriptionId,
+            subscription.TenantId,
+            subscription.WorkspaceId,
+            subscription.ProjectId,
+            DeliveredUtc = deliveredUtc,
+        }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
     public async Task<AlertRoutingSubscription?> GetByIdAsync(
         ScopeContext scope,
         Guid routingSubscriptionId,
