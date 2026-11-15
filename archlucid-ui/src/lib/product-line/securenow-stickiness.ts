@@ -96,28 +96,33 @@ function readScopedValue(prefix: string, scope: SecureNowStickinessScope): strin
     return null;
   }
 
-  const scoped = window.localStorage.getItem(storageKey(prefix, scope))?.trim() ?? "";
+  try {
+    const storage = window.localStorage;
+    const scoped = storage.getItem(storageKey(prefix, scope))?.trim() ?? "";
 
-  if (scoped.length > 0) {
-    return scoped;
+    return scoped || storage.getItem(legacyStorageKey(prefix, scope.workspaceId))?.trim() || null;
+  } catch {
+    return null;
   }
-
-  const legacy = window.localStorage.getItem(legacyStorageKey(prefix, scope.workspaceId))?.trim() ?? "";
-
-  return legacy.length === 0 ? null : legacy;
 }
 
-function writeScopedValue(prefix: string, scope: SecureNowStickinessScope, value: string): void {
+function writeScopedValue(prefix: string, scope: SecureNowStickinessScope, value: string): boolean {
   if (typeof window === "undefined") {
-    return;
+    return false;
   }
 
   if (scope.workspaceId.trim().length === 0 || value.trim().length === 0) {
-    return;
+    return false;
   }
 
-  window.localStorage.setItem(storageKey(prefix, scope), value.trim());
-  window.localStorage.removeItem(legacyStorageKey(prefix, scope.workspaceId));
+  try {
+    const storage = window.localStorage;
+    storage.setItem(storageKey(prefix, scope), value.trim());
+    storage.removeItem(legacyStorageKey(prefix, scope.workspaceId));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function readSecureNowLastOpenedSnapshotId(scope: SecureNowStickinessScope): string | null {
@@ -132,17 +137,23 @@ export function readSecureNowPinnedPathId(scope: SecureNowStickinessScope): stri
   return readScopedValue(PINNED_PATH_PREFIX, scope);
 }
 
-export function writeSecureNowPinnedPathId(scope: SecureNowStickinessScope, pathId: string): void {
-  writeScopedValue(PINNED_PATH_PREFIX, scope, pathId);
+export function writeSecureNowPinnedPathId(scope: SecureNowStickinessScope, pathId: string): boolean {
+  return writeScopedValue(PINNED_PATH_PREFIX, scope, pathId);
 }
 
-export function clearSecureNowPinnedPathId(scope: SecureNowStickinessScope): void {
+export function clearSecureNowPinnedPathId(scope: SecureNowStickinessScope): boolean {
   if (typeof window === "undefined" || scope.workspaceId.trim().length === 0) {
-    return;
+    return false;
   }
 
-  window.localStorage.removeItem(storageKey(PINNED_PATH_PREFIX, scope));
-  window.localStorage.removeItem(legacyStorageKey(PINNED_PATH_PREFIX, scope.workspaceId));
+  try {
+    const storage = window.localStorage;
+    storage.removeItem(storageKey(PINNED_PATH_PREFIX, scope));
+    storage.removeItem(legacyStorageKey(PINNED_PATH_PREFIX, scope.workspaceId));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function countSecureNowExtendDispositionsInBrowserCache(): number {
@@ -150,33 +161,38 @@ export function countSecureNowExtendDispositionsInBrowserCache(): number {
     return 0;
   }
 
-  let count = 0;
+  try {
+    const storage = window.localStorage;
+    let count = 0;
 
-  for (let index = 0; index < window.localStorage.length; index += 1) {
-    const key = window.localStorage.key(index);
+    for (let index = 0; index < storage.length; index += 1) {
+      const key = storage.key(index);
 
-    if (key === null || !key.startsWith(SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX)) {
-      continue;
-    }
-
-    const raw = window.localStorage.getItem(key);
-
-    if (raw === null) {
-      continue;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as { outcome?: string };
-
-      if (parsed.outcome?.trim() === "Extend") {
-        count += 1;
+      if (key === null || !key.startsWith(SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX)) {
+        continue;
       }
-    } catch {
-      continue;
-    }
-  }
 
-  return count;
+      const raw = storage.getItem(key);
+
+      if (raw === null) {
+        continue;
+      }
+
+      try {
+        const parsed = JSON.parse(raw) as { outcome?: string };
+
+        if (parsed.outcome?.trim() === "Extend") {
+          count += 1;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return count;
+  } catch {
+    return 0;
+  }
 }
 
 export function buildSecureNowReturnHomeRows(
