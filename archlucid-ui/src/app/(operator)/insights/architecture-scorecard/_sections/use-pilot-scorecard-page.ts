@@ -164,7 +164,7 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     try {
       const body = {
         baselineHoursPerReview: hours.trim() === "" ? null : Number(hours),
-        baselineReviewsPerQuarter: reviews.trim() === "" ? null : Number.parseInt(reviews, 10),
+        baselineReviewsPerQuarter: reviews.trim() === "" ? null : Number(reviews),
         baselineArchitectHourlyCost: rate.trim() === "" ? null : Number(rate),
       };
       const res = await fetch(

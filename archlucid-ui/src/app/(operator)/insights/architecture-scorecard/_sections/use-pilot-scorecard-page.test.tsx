@@ -71,6 +71,31 @@ describe("usePilotScorecardPage", () => {
     vi.mocked(getPilotScorecard).mockReset();
   });
 
+  it("saves the same review count used by the ROI preview", async () => {
+    const { result } = renderHook(
+      () =>
+        usePilotScorecardPage({
+          data: scorecardPayload(),
+          error: null,
+        }),
+      { wrapper: OperatorQueryTestWrapper },
+    );
+
+    act(() => {
+      result.current.setReviews("1e2");
+    });
+
+    expect(result.current.canSaveAssumptions).toBe(true);
+    expect(result.current.livePreview?.statusQuoAnnualUsd).toBe(100 * 4 * 8 * 150);
+
+    await act(async () => {
+      await result.current.onSaveBaselines();
+    });
+
+    const init = fetchMock.mock.calls[0]?.[1];
+    expect(JSON.parse(String(init?.body))).toMatchObject({ baselineReviewsPerQuarter: 100 });
+  });
+
   it("forwards operator scope headers when saving ROI baselines", async () => {
     const { result } = renderHook(
       () =>
