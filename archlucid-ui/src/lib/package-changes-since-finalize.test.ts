@@ -88,6 +88,16 @@ describe("filterEventsAfterFinalize / resolvePackageFinalizeUtc", () => {
     ]);
   });
 
+  it("compares offset-less UTC events to the same finalize boundary", () => {
+    const events = [
+      { eventId: "before", eventType: "artifact.bundle.created", occurredUtc: "2026-08-01T11:30:00" },
+      { eventId: "after", eventType: "artifact.bundle.created", occurredUtc: "2026-08-01T12:30:00" },
+    ];
+
+    expect(filterEventsAfterFinalize(events, "2026-08-01T12:00:00Z").map((event) => event.eventId))
+      .toEqual(["after"]);
+  });
+
   it("returns empty when finalize utc is unknown", () => {
     expect(filterEventsAfterFinalize(sampleEvents, null)).toEqual([]);
     expect(filterEventsAfterFinalize(sampleEvents, "not-a-date")).toEqual([]);

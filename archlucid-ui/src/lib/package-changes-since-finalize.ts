@@ -3,6 +3,7 @@
  * Compare remains two-review only; this answers post-lock movement on one package.
  */
 
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 
 export const PACKAGE_CHANGE_KINDS = ["disposition", "export", "approval", "other"] as const;
@@ -90,13 +91,7 @@ export function isFinalizeBoundaryEvent(eventType: string): boolean {
 }
 
 function parseOccurredMs(occurredUtc: string): number | null {
-  const trimmed = occurredUtc.trim();
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  const ms = Date.parse(trimmed);
+  const ms = parseIsoUtcMs(occurredUtc);
 
   if (!Number.isFinite(ms)) {
     return null;
