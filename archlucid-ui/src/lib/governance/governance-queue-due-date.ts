@@ -26,3 +26,9 @@ export function resolveGovernanceQueueDueDate(row: GovernanceFindingQueueRow): G
 
   return { kind: "valid", utc: new Date(parsed).toISOString() };
 }
+
+export function resolveGovernanceQueueDueDateMs(row: GovernanceFindingQueueRow): number | null {
+  const dueDate = resolveGovernanceQueueDueDate(row);
+
+  return dueDate.kind === "valid" ? Date.parse(dueDate.utc) : null;
+}
