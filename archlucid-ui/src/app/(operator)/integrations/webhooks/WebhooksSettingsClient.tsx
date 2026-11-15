@@ -6,6 +6,7 @@ import { FormProvider, useWatch } from "react-hook-form";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -381,13 +382,10 @@ export function WebhooksSettingsClient() {
         }}
         extraContent={
           enableErrorMessage !== null ? (
-            <p
-              className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
-              role="alert"
-              data-testid="webhook-subscription-enable-error"
-            >
-              {enableErrorMessage}
-            </p>
+            <OperatorMutationInlineError
+              message={enableErrorMessage}
+              testId="webhook-subscription-enable-error"
+            />
           ) : null
         }
       />

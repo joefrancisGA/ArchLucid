@@ -55,16 +55,26 @@ export async function upsertAzureBoardsSettings(
 export async function listAzureBoardsProjects(): Promise<string[]> {
   const body = await apiGet<AzureBoardsNamedItemsResponse>("/v1/integrations/azure-boards/projects");
 
-  return body.items ?? [];
+  return Array.isArray(body.items)
+    ? body.items.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean)
+    : [];
 }
 
 export async function listAzureBoardsWorkItemTypes(project: string): Promise<string[]> {
-  const encoded = encodeURIComponent(project);
+  const normalizedProject = project.trim();
+
+  if (normalizedProject.length === 0) {
+    throw new Error("project is required.");
+  }
+
+  const encoded = encodeURIComponent(normalizedProject);
   const body = await apiGet<AzureBoardsNamedItemsResponse>(
     `/v1/integrations/azure-boards/projects/${encoded}/work-item-types`,
   );
 
-  return body.items ?? [];
+  return Array.isArray(body.items)
+    ? body.items.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean)
+    : [];
 }
 
 export async function testAzureBoardsConnection(): Promise<AzureBoardsConnectionTestResponse> {

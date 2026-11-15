@@ -14,7 +14,11 @@ import type {
 import { apiGet } from "./http";
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
-  return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
+  const raw = await apiGet<unknown>(`/${ApiV1Routes.policyPacks}`);
+
+  return Array.isArray(raw)
+    ? raw.filter((item): item is PolicyPack => item !== null && typeof item === "object" && !Array.isArray(item))
+    : [];
 }
 
 /** Policy packs hub: list, effective assignments, and merged content in one GET. */
@@ -28,22 +32,39 @@ export async function fetchPolicyPacksPageBundle(): Promise<{
 
 /** Lists platform-promoted policy packs available to clone into the tenant. */
 export async function listPolicyPackCatalog(): Promise<PolicyPackCatalogListItem[]> {
-  return apiGet<PolicyPackCatalogListItem[]>(`/${ApiV1Routes.policyPacks}/catalog`);
+  const raw = await apiGet<unknown>(`/${ApiV1Routes.policyPacks}/catalog`);
+
+  return Array.isArray(raw)
+    ? raw.filter((item): item is PolicyPackCatalogListItem =>
+      item !== null && typeof item === "object" && !Array.isArray(item))
+    : [];
 }
 
 /** Reads one catalog entry including snapshot JSON. */
 export async function getPolicyPackCatalogEntry(
   policyPackCatalogEntryId: string,
 ): Promise<PolicyPackCatalogEntryDetail> {
+  const normalizedId = policyPackCatalogEntryId.trim();
+
+  if (normalizedId.length === 0) {
+    throw new Error("policyPackCatalogEntryId is required.");
+  }
+
   return apiGet<PolicyPackCatalogEntryDetail>(
-    `/${ApiV1Routes.policyPacks}/catalog/${encodeURIComponent(policyPackCatalogEntryId)}`,
+    `/${ApiV1Routes.policyPacks}/catalog/${encodeURIComponent(normalizedId)}`,
   );
 }
 
 /** Lists published versions for a policy pack (metadata only; ContentJson is empty). */
 export async function listPolicyPackVersions(policyPackId: string): Promise<PolicyPackVersion[]> {
+  const normalizedId = policyPackId.trim();
+
+  if (normalizedId.length === 0) {
+    throw new Error("policyPackId is required.");
+  }
+
   return apiGet<PolicyPackVersion[]>(
-    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/versions`,
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(normalizedId)}/versions`,
   );
 }
 
@@ -52,8 +73,15 @@ export async function getPolicyPackVersion(
   policyPackId: string,
   version: string,
 ): Promise<PolicyPackVersion> {
+  const normalizedId = policyPackId.trim();
+  const normalizedVersion = version.trim();
+
+  if (normalizedId.length === 0 || normalizedVersion.length === 0) {
+    throw new Error("policyPackId and version are required.");
+  }
+
   return apiGet<PolicyPackVersion>(
-    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/versions/${encodeURIComponent(version)}`,
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(normalizedId)}/versions/${encodeURIComponent(normalizedVersion)}`,
   );
 }
 

@@ -121,18 +121,37 @@ export default function GovernanceEnvironmentsClient() {
       return "Add at least one environment.";
     }
 
+    const normalizedSlugs = new Set<string>();
+
     for (const environment of draft.environments) {
-      if (environment.slug.trim().length === 0) {
+      const normalizedSlug = environment.slug.trim();
+
+      if (normalizedSlug.length === 0) {
         return "Every environment needs a slug.";
       }
 
+      if (normalizedSlugs.has(normalizedSlug)) {
+        return `Environment slug '${normalizedSlug}' is duplicated.`;
+      }
+
+      normalizedSlugs.add(normalizedSlug);
+
       if (environment.displayName.trim().length === 0) {
-        return `Display name is required for '${environment.slug}'.`;
+        return `Display name is required for '${normalizedSlug}'.`;
       }
     }
 
     if (draft.transitions.length === 0) {
       return "Define at least one allowed transition.";
+    }
+
+    for (const transition of draft.transitions) {
+      const sourceSlug = transition.sourceSlug.trim();
+      const targetSlug = transition.targetSlug.trim();
+
+      if (!normalizedSlugs.has(sourceSlug) || !normalizedSlugs.has(targetSlug)) {
+        return `Transition '${sourceSlug || "source"} → ${targetSlug || "target"}' references an unknown environment.`;
+      }
     }
 
     return null;
