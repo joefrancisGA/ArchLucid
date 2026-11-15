@@ -135,7 +135,10 @@ import {
   resolveRemediationFactoryLastRefreshedAt,
 } from "./remediation-factory-freshness";
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
-import { REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE } from "./remediation-factory-url-state";
+import {
+  REMEDIATION_FACTORY_RANKED_PAGE_PARAM,
+  REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE,
+} from "./remediation-factory-url-state";
 import {
   REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
   REMEDIATION_FACTORY_PAGE_SUBTITLE,
@@ -391,10 +394,6 @@ export function RemediationFactoryClient() {
   );
 
   useEffect(() => {
-    setRankedPage(1);
-  }, [pathView, setRankedPage]);
-
-  useEffect(() => {
     if (selectedPathId === null) {
       setPathViewFiltersExpanded(false);
     }
@@ -441,7 +440,12 @@ export function RemediationFactoryClient() {
   }, [rankedPaths]);
 
   const setPathView = useCallback((value: string) => {
+    if (value === pathView) {
+      return;
+    }
+
     const params = new URLSearchParams(searchParams.toString());
+    params.delete(REMEDIATION_FACTORY_RANKED_PAGE_PARAM);
     if (value === "all") {
       params.delete("pathView");
     } else {
@@ -449,7 +453,7 @@ export function RemediationFactoryClient() {
     }
     const query = params.toString();
     router.replace(query.length > 0 ? `?${query}` : window.location.pathname, { scroll: false });
-  }, [router, searchParams]);
+  }, [pathView, router, searchParams]);
 
   const selectPath = useCallback(
     (nextPathId: string) => {
