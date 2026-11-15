@@ -1,8 +1,33 @@
+using Microsoft.Extensions.Caching.Hybrid;
+
 namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 
 public sealed class HybridHotPathReadCacheTests
 {
+    [SkippableFact]
+    public async Task GetOrCreateAsync_refreshes_invalid_present_slot_on_the_same_read()
+    {
+        const string key = "invalid-present-slot";
+        HybridHotPathReadCache cache = HybridHotPathCacheTestFactory.Create(
+            new HotPathCacheOptions { AbsoluteExpirationSeconds = 60 }, out HybridCache hybridCache);
+        await hybridCache.SetAsync(key, new HotPathTypedCacheSlot<string>(true, null));
+
+        int calls = 0;
+        Task<string?> Factory(CancellationToken _)
+        {
+            calls++;
+            return Task.FromResult<string?>("from-storage");
+        }
+
+        string? first = await cache.GetOrCreateAsync(key, Factory, CancellationToken.None);
+        string? second = await cache.GetOrCreateAsync(key, Factory, CancellationToken.None);
+
+        first.Should().Be("from-storage");
+        second.Should().Be("from-storage");
+        calls.Should().Be(1);
+    }
+
     [SkippableFact]
     public async Task GetOrCreateAsync_second_call_does_not_invoke_factory()
     {

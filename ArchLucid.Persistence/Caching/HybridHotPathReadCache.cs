@@ -39,8 +39,26 @@ public sealed class HybridHotPathReadCache(
 
         int factoryInvoked = 0;
 
-        HotPathTypedCacheSlot<T> slot = await _hybridCache
-            .GetOrCreateAsync(
+        HotPathTypedCacheSlot<T> slot = await ReadSlotAsync().ConfigureAwait(false);
+
+        if (slot.IsPresent && slot.Value is null)
+        {
+            // Omit cache key from logs — keys can embed tenant/role identifiers (cs/exposure-of-sensitive-information).
+            _logger.LogWarning(
+                "HotPath hybrid cache entry is invalid (present flag without value); refreshing.");
+
+            await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
+            slot = await ReadSlotAsync().ConfigureAwait(false);
+        }
+
+        if (factoryInvoked == 0)
+            ArchLucidInstrumentation.RecordHotPathReadCacheHit();
+
+        return slot.IsPresent ? slot.Value : null;
+
+        ValueTask<HotPathTypedCacheSlot<T>> ReadSlotAsync()
+        {
+            return _hybridCache.GetOrCreateAsync(
                 key,
                 async innerCt => await HotPathReadCacheSingleFlight.CoalesceAsync(
                     key,
@@ -55,27 +73,8 @@ public sealed class HybridHotPathReadCache(
                     },
                     innerCt),
                 entryOptions,
-                cancellationToken: ct)
-            .ConfigureAwait(false);
-
-        if (factoryInvoked == 0)
-            ArchLucidInstrumentation.RecordHotPathReadCacheHit();
-
-        if (!slot.IsPresent)
-            return null;
-
-        if (slot.Value is null)
-        {
-            // Omit cache key from logs — keys can embed tenant/role identifiers (cs/exposure-of-sensitive-information).
-            _logger.LogWarning(
-                "HotPath hybrid cache entry is invalid (present flag without value); refreshing.");
-
-            await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
-
-            return null;
+                cancellationToken: ct);
         }
-
-        return slot.Value;
     }
 
     /// <inheritdoc />
