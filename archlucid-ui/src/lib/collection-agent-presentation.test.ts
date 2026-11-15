@@ -37,6 +37,15 @@ describe("collection-agent-presentation", () => {
     expect(health.successfulRun?.runId).toBe("run");
   });
 
+  it("treats a success timestamp without a suffix as UTC for freshness", () => {
+    const health = resolveCollectionAgentHealth(
+      [run({ finishedUtc: "2026-10-11T22:00:00" })],
+      Date.parse("2026-10-12T23:00:00.000Z"),
+    );
+
+    expect(health.label).toBe("Needs attention");
+  });
+
   it("blocks without a success and needs attention after a failed or stale run", () => {
     expect(
       resolveCollectionAgentHealth(
@@ -82,6 +91,13 @@ describe("collection-agent-presentation", () => {
         run({ startedUtc: "not-a-date", finishedUtc: "2026-08-10T12:05:00.000Z" }),
       ),
     ).toBe("Duration was not stored.");
+  });
+
+  it("measures a UTC duration across the browser's daylight saving transition", () => {
+    expect(formatCollectionRunDuration(run({
+      startedUtc: "2026-11-01T01:59:00",
+      finishedUtc: "2026-11-01T02:01:00",
+    }))).toBe("2m 0s");
   });
 
   it("labels subscription coverage without collapsing missing, unreadable, and empty cases", () => {

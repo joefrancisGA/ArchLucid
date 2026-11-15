@@ -23,7 +23,7 @@ import {
   resolveCollectionAgentStaleSuccessDetail,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -45,7 +45,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { cn } from "@/lib/utils";
 
 function collectionRunSortTime(run: CollectionRun): number {
-  return Date.parse(run.finishedUtc ?? run.startedUtc ?? "");
+  return parseIsoUtcMs(run.finishedUtc ?? run.startedUtc ?? "");
 }
 
 function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
