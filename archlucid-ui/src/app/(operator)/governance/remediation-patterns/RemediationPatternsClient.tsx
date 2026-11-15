@@ -453,7 +453,7 @@ export function RemediationPatternsClient() {
   }, [urlVersion]);
 
   useEffect(() => {
-    if (selectedPatternId === null) {
+    if (selectedPatternId === null || !listQuery.isSuccess) {
       return;
     }
 
@@ -464,7 +464,7 @@ export function RemediationPatternsClient() {
       setSelectedVersion(null);
       syncSelectionUrl({ patternId: null, version: null });
     }
-  }, [filteredPatterns, selectedPatternId, syncSelectionUrl]);
+  }, [filteredPatterns, listQuery.isSuccess, selectedPatternId, syncSelectionUrl]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
