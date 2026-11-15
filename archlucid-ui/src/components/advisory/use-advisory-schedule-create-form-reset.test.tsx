@@ -1,5 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
+import type { FormEvent } from "react";
 import { describe, expect, it, vi } from "vitest";
+
+import { ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS } from "@/lib/advisory-schedule-upcoming-preview";
+import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
 
 import { useAdvisoryScheduleCreateForm } from "./use-advisory-schedule-create-form";
 
@@ -13,9 +17,13 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: navigation.replace }),
   usePathname: () => "/governance/advisory-scans",
   useSearchParams: () => ({
-    get: (_key: string) => null,
+    get: () => null,
     toString: () => "",
   }),
+}));
+
+vi.mock("@/lib/api/governance-stickiness-api", () => ({
+  previewRecurrenceScheduleRuns: vi.fn(),
 }));
 
 describe("useAdvisoryScheduleCreateForm reset identity", () => {
@@ -59,4 +67,46 @@ describe("useAdvisoryScheduleCreateForm reset identity", () => {
     expect(navigation.replace).toHaveBeenCalledTimes(2);
     view.unmount();
   });
+});
+
+it("waits for the current preset preview before creating a schedule", async () => {
+  vi.useFakeTimers();
+  const preview = vi.mocked(previewRecurrenceScheduleRuns);
+  preview.mockResolvedValue({
+    isValid: true,
+    nextRunUtc: ["2026-11-16T07:00:00Z"],
+  });
+  const onCreate = vi.fn(async () => undefined);
+  const event = { preventDefault: vi.fn() } as unknown as FormEvent;
+
+  try {
+    const { result } = renderHook(() =>
+      useAdvisoryScheduleCreateForm({
+        canEdit: true,
+        sampleModeBlocked: false,
+        creating: false,
+        createSuccess: false,
+        projectLabel: "Claims",
+        onCreate,
+        runProjectSlug: "default",
+        formResetKey: 0,
+      }),
+    );
+    act(() => result.current.updateForm({ timeZoneId: "UTC" }));
+    await act(() => vi.advanceTimersByTimeAsync(ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS));
+    expect(result.current.formReady).toBe(true);
+
+    act(() => result.current.updateForm({ minuteOfHour: 15 }));
+    expect(result.current.formReady).toBe(false);
+    expect(result.current.preview.runs).toEqual([]);
+    await result.current.onSubmit(event);
+    expect(onCreate).not.toHaveBeenCalled();
+
+    await act(() => vi.advanceTimersByTimeAsync(ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS));
+    expect(result.current.formReady).toBe(true);
+    await result.current.onSubmit(event);
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ cronExpression: "15 7 * * *" }));
+  } finally {
+    vi.useRealTimers();
+  }
 });
