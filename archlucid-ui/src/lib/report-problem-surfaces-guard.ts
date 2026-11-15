@@ -162,6 +162,26 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "securenow-sponsor-path-disposition-save-failure",
     requiredMarkers: ["securenow-sponsor-path-disposition-save-failure", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "governance-remediation-patterns-hard-failure",
+    requiredMarkers: ["governance-remediation-patterns-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx"],
+  },
+  {
+    surfaceId: "compliance-remediation-patterns-hard-failure",
+    requiredMarkers: ["compliance-remediation-patterns-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx"],
+  },
+  {
+    surfaceId: "governance-digest-subscriptions-hard-failure",
+    requiredMarkers: ["governance-digest-subscriptions-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/digests/DigestSubscriptionsContent.tsx"],
+  },
+  {
+    surfaceId: "compliance-digest-subscriptions-hard-failure",
+    requiredMarkers: ["compliance-digest-subscriptions-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/digests/DigestSubscriptionsContent.tsx"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

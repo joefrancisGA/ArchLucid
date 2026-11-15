@@ -267,13 +267,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   const exportLegacyWarning =
     legacySealedReExport ? (
-      <p
-        className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="golden-manifest-export-legacy-sealed-warning"
-        role="status"
-      >
-        This sealed record predates transparency trail requirements — treat exports as incomplete for career use.
-      </p>
+      <div className="space-y-1" role="status" data-testid="golden-manifest-export-legacy-sealed-warning">
+        <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
+          This sealed record predates transparency trail requirements — treat exports as incomplete for career use.
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-legacy-blocked-commit-before-seal">
+          {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+        </p>
+      </div>
     ) : null;
 
   const exportStatusChrome =

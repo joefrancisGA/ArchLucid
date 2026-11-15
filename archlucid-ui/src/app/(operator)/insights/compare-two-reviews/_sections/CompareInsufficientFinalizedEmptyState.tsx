@@ -7,6 +7,7 @@ import {
   buildCompareInsufficientFinalizedEmpty,
   buildInsightsFinalizedReviewPrerequisiteEmpty,
 } from "@/lib/insights-finalized-review-prerequisite-empty";
+import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,12 @@ export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficien
             data-testid="compare-insufficient-finalized-second-sealed-discipline"
           >
             {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-insufficient-finalized-counts-two-sealed"
+          >
+            {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
           </p>
           <CompareSampleComparisonAction onLoadSampleComparison={onLoadSampleComparison} />
         </div>

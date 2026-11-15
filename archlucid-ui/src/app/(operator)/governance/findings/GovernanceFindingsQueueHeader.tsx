@@ -47,7 +47,8 @@ import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/gov
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import Link from "next/link";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
-import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
   SECURENOW_SECOND_CAPTURE_CTA_HREFS,
@@ -139,6 +140,7 @@ export function GovernanceFindingsQueueHeader({
     : "governance-findings-claim-discipline";
   const secureNowProductLine = isSecureNowProductLine(productLine);
   const partialCapture = useLatestSnapshotCaptureIsPartial(secureNowProductLine && !isAssignedToMe);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(secureNowProductLine && !isAssignedToMe && partialCapture);
   const secureNowFindingsOpenGates = useMemo(
     () =>
       secureNowProductLine
@@ -328,7 +330,7 @@ export function GovernanceFindingsQueueHeader({
           ) : null}
           {partialCapture ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-header-partial-capture">
-              {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+              {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
               <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
                 {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
               </Link>
