@@ -190,6 +190,36 @@ describe("compare-effective-governance-diff", () => {
     expect(view.materialComplianceRuleKeyChanges).toHaveLength(1);
   });
 
+  it.each([
+    [[], ["sec-base-010"], "added"],
+    [["sec-base-010"], [], "removed"],
+  ])("counts a recorded empty rule set in a manifest comparison", (baselineKeys, targetKeys, changeType) => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({
+        effectiveGovernanceAtCommit: { complianceRuleKeys: baselineKeys },
+      }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({
+        effectiveGovernanceAtCommit: { complianceRuleKeys: targetKeys },
+      }),
+      currentEffective: null,
+    });
+
+    expect(view.materialComplianceRuleKeyChanges.map((row) => row.changeType)).toEqual([changeType]);
+    expect(view.hasManifestGovernanceDelta).toBe(true);
+  });
+
+  it("keeps an unstored rule set from being treated as a recorded empty one", () => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({ effectiveGovernanceAtCommit: {} }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({
+        effectiveGovernanceAtCommit: { complianceRuleKeys: ["sec-base-010"] },
+      }),
+      currentEffective: null,
+    });
+
+    expect(view.hasManifestGovernanceDelta).toBe(false);
+  });
+
   it("builds governance diff view with current-effective disclaimer path", () => {
     const effective: EffectivePolicyPackSet = {
       tenantId: "tenant-1",
