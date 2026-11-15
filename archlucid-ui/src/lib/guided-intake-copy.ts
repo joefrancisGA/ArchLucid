@@ -61,35 +61,68 @@ export function architectureDraftRequirementsImportErrorMessage(fileName: string
   return `Could not read ${fileName}. Paste the text into Architecture overview or try another file.`;
 }
 
+export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS = 10;
+
+export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER =
+  `Enter at least ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS} characters describing the business outcome you expect.`;
+
+function formatGuidedIntakeCharacterCount(count: number): string {
+  const noun = count === 1 ? "character" : "characters";
+
+  return `${count} ${noun}`;
+}
+
+/**
+ * "11 / 100" is the usual current/maximum counter, so readers treat 100 as a cap.
+ * These fields enforce a floor. State how many characters are in and how many are still required.
+ */
+export function guidedIntakeMinimumLengthHelperText(
+  trimmedLength: number,
+  minimumChars: number,
+  minimumHelper: string,
+): string {
+  if (!Number.isFinite(trimmedLength) || trimmedLength <= 0) {
+    return minimumHelper;
+  }
+
+  const entered = Math.floor(trimmedLength);
+
+  if (entered < minimumChars) {
+    const remaining = minimumChars - entered;
+    const remainingNoun = remaining === 1 ? "character" : "characters";
+
+    return `${formatGuidedIntakeCharacterCount(entered)} so far, ${remaining} more ${remainingNoun} needed. ${minimumHelper}`;
+  }
+
+  return `${formatGuidedIntakeCharacterCount(entered)}.`;
+}
+
 export function guidedIntakeArchitectureIntentHelperText(trimmedLength: number): string {
-  if (trimmedLength === 0) {
-    return GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER;
-  }
-
-  if (trimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-    return `${trimmedLength} / ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS} characters. ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER}`;
-  }
-
-  return `${trimmedLength} characters.`;
+  return guidedIntakeMinimumLengthHelperText(
+    trimmedLength,
+    GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
+    GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
+  );
 }
 
 export function guidedIntakeCreationArchitectureOverviewHelperText(trimmedLength: number): string {
-  if (trimmedLength === 0) {
-    return GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER;
-  }
+  return guidedIntakeMinimumLengthHelperText(
+    trimmedLength,
+    GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
+    GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER,
+  );
+}
 
-  if (trimmedLength < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-    return `${trimmedLength} / ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS} characters. ${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER}`;
-  }
-
-  return `${trimmedLength} characters.`;
+export function guidedIntakeCreationBusinessOutcomeHelperText(trimmedLength: number): string {
+  return guidedIntakeMinimumLengthHelperText(
+    trimmedLength,
+    GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS,
+    GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
+  );
 }
 
 export const GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER =
   "Example: Reduce intake cycle time, improve auditability, and give operations teams a single structured workflow for claims submissions.";
-
-export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER =
-  "Enter at least 10 characters describing the business outcome you expect.";
 
 export const GUIDED_INTAKE_ACTORS_SECTION_HEADING = "People, systems, and integrations";
 

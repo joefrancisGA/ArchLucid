@@ -1,6 +1,7 @@
 import { CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
@@ -13,7 +14,7 @@ import type { ActorSet } from "@/types/draft-intake";
 export const MIN_INTENT_CHARS = GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS;
 
 /** Shortest business outcome the admission gate will accept. */
-export const MIN_OUTCOME_CHARS = 10;
+export const MIN_OUTCOME_CHARS = GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS;
 
 /** Guided intake slides: brief, clarifications, submit. */
 export const INTAKE_STEPS = [

@@ -25,16 +25,17 @@ import {
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
-  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
   guidedIntakeCreationArchitectureOverviewHelperText,
+  guidedIntakeCreationBusinessOutcomeHelperText,
 } from "@/lib/guided-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import type { ActorSet } from "@/types/draft-intake";
 
-const MIN_OUTCOME_CHARS = 10;
+const MIN_OUTCOME_CHARS = GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_CHARS;
 
 type ArchitectureDraftFormFieldsProps = {
   readonly fields: ArchitectureDraftFieldState;
@@ -179,9 +180,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         />
         {outcomeTrimmedLength > 0 ? (
           <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-            {outcomeMeetsMinimum
-              ? `${outcomeTrimmedLength} characters.`
-              : `${outcomeTrimmedLength} / ${MIN_OUTCOME_CHARS} characters. ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER}`}
+            {guidedIntakeCreationBusinessOutcomeHelperText(outcomeTrimmedLength)}
           </p>
         ) : null}
       </div>

@@ -55,6 +55,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   const searchParams = useSearchParams();
   const searchParamsRef = useRef(searchParams);
   searchParamsRef.current = searchParams;
+  const pendingIntakeStepUrlSyncRef = useRef(false);
   const urlStepIndex = parseGuidedIntakeStepFromSearch(searchParams.get("intakeStep"));
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
@@ -101,13 +102,25 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     (value: SetStateAction<number>) => {
       setStepState((current) => {
         const resolved = typeof value === "function" ? value(current) : value;
-        syncIntakeStepToUrl(resolved);
+
+        if (resolved !== current) {
+          pendingIntakeStepUrlSyncRef.current = true;
+        }
 
         return resolved;
       });
     },
-    [setStepState, syncIntakeStepToUrl],
+    [setStepState],
   );
+
+  useEffect(() => {
+    if (!pendingIntakeStepUrlSyncRef.current) {
+      return;
+    }
+
+    pendingIntakeStepUrlSyncRef.current = false;
+    syncIntakeStepToUrl(step);
+  }, [step, syncIntakeStepToUrl]);
 
   useEffect(() => {
     const nextStep =

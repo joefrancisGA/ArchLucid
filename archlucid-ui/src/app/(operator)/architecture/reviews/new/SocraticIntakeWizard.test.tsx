@@ -804,10 +804,17 @@ describe("SocraticIntakeWizard", () => {
       target: { value: "Too short for guided intake." },
     });
 
-    expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(/\/ 100 characters/i);
+    expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(
+      /28 characters so far, 72 more characters needed/i,
+    );
+    expect(screen.getByTestId("socratic-intent-helper")).not.toHaveTextContent(/\d+\s*\/\s*100/);
     expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(
       GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
     );
+    const progress = screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID);
+    const saveStatus = screen.getByTestId("wizard-session-save-status");
+    expect(progress.contains(saveStatus)).toBe(true);
+    expect(progress.querySelector("ol")?.contains(saveStatus)).toBe(false);
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeDisabled();
 
     fireEvent.change(screen.getByTestId("socratic-intent"), {
