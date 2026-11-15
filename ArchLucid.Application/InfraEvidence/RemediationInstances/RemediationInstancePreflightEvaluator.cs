@@ -54,7 +54,18 @@ public static class RemediationInstancePreflightEvaluator
             blockers.Add("Rollback definition is required for SemiAutomated or Automated remediation patterns.");
         }
 
-        bool productionTagged = DetectProductionTag(snapshotDetail, instance.CloudResourceId);
+        Guid cloudResourceId = instance.CloudResourceId.GetValueOrDefault();
+        AzureInventoryResourceRecord? resource = null;
+
+        if (cloudResourceId != Guid.Empty)
+        {
+            resource = snapshotDetail?.Resources.FirstOrDefault(row => row.CloudResourceId == cloudResourceId);
+
+            if (resource is null)
+                blockers.Add("Target cloud resource is not present in the preflight snapshot.");
+        }
+
+        bool productionTagged = DetectProductionTag(snapshotDetail, resource);
 
         bool passed = blockers.Count == 0;
 
@@ -75,15 +86,9 @@ public static class RemediationInstancePreflightEvaluator
 
     private static bool DetectProductionTag(
         AzureInventorySnapshotDetailReadModel? snapshotDetail,
-        Guid? cloudResourceId)
+        AzureInventoryResourceRecord? resource)
     {
-        if (snapshotDetail is null || cloudResourceId is null || cloudResourceId == Guid.Empty)
-            return false;
-
-        AzureInventoryResourceRecord? resource = snapshotDetail.Resources
-            .FirstOrDefault(row => row.CloudResourceId == cloudResourceId);
-
-        if (resource is null)
+        if (snapshotDetail is null || resource is null)
             return false;
 
         IEnumerable<AzureInventoryTagReadModel> tags = snapshotDetail.Tags
