@@ -176,13 +176,14 @@ public sealed class RemediationFactoryMetricsService(
         IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord> activeMatchesByFindingId =
             await matchRepository.ListActiveMatchesByOpenFindingInScopeAsync(projectScope, cancellationToken);
 
-        int matchedFindings = activeMatchesByFindingId.Count;
         int exactMatchCount = activeMatchesByFindingId.Values.Count(match =>
             match.MatchKind == RemediationPatternMatchKind.ExactMatch);
 
-        decimal patternCoverage = matchedFindings == 0
+        // The two aggregates can observe different open populations while findings are changing.
+        int coveredOpenFindings = Math.Min(exactMatchCount, findingMetrics.OpenFindings);
+        decimal patternCoverage = findingMetrics.OpenFindings == 0
             ? 0m
-            : Math.Round((decimal)exactMatchCount / matchedFindings * 100m, 2);
+            : Math.Round((decimal)coveredOpenFindings / findingMetrics.OpenFindings * 100m, 2);
 
         decimal automationPercent = instanceMetrics.TotalInstances == 0
             ? 0m

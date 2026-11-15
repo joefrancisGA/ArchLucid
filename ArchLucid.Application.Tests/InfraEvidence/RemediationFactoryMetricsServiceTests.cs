@@ -80,10 +80,18 @@ public sealed class RemediationFactoryMetricsServiceTests
             .Setup(repository => repository.SumTotalScoresForOpenFindingsInScopeAsync(projectScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(12.3456m);
 
+        Guid exactMatchFindingId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         Mock<IRemediationPatternMatchRepository> matches = new();
         matches
             .Setup(repository => repository.ListActiveMatchesByOpenFindingInScopeAsync(projectScope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, RemediationPatternMatchResultRecord>());
+            .ReturnsAsync(new Dictionary<Guid, RemediationPatternMatchResultRecord>
+            {
+                [exactMatchFindingId] = new()
+                {
+                    FindingId = exactMatchFindingId,
+                    MatchKind = RemediationPatternMatchKind.ExactMatch,
+                },
+            });
 
         RemediationFactoryMetricsService service = new(
             findings.Object,
@@ -97,6 +105,7 @@ public sealed class RemediationFactoryMetricsServiceTests
         metrics.OpenFindings.Should().Be(2);
         metrics.NetBurn.Should().Be(2);
         metrics.RiskWeightedOpen.Should().Be(12.3456m);
+        metrics.PatternCoverageExactMatchPercent.Should().Be(50m);
         metrics.AutomationPercent.Should().Be(50m);
         metrics.TopControlIds.Should().ContainSingle().Which.Key.Should().Be("AC-1");
 
