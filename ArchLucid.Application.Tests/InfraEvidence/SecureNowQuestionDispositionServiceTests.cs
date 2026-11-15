@@ -159,6 +159,26 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Ignore_validates_and_stores_a_local_expiration_as_utc()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        DateTime expectedUtc = DateTime.UtcNow.AddMinutes(15);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource")
+                with { ExpirationUtc = expectedUtc.ToLocalTime() },
+            "actor");
+
+        result.Succeeded.Should().BeTrue(result.ErrorMessage ?? string.Empty);
+        DateTime storedExpiration = repository.Rows.Single().ExpirationUtc;
+        storedExpiration.Should().Be(expectedUtc);
+        storedExpiration.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
     public async Task Reopen_sets_open_and_appends_an_audit_entry()
     {
         InMemoryDispositionRepository repository = new();
