@@ -119,12 +119,21 @@ public sealed class CachingDraftRequestRepository(
     }
 
     /// <inheritdoc />
-    public Task<DraftIntakeReaperBatchResult> HardDeleteTerminalDraftsBatchAsync(
+    public async Task<DraftIntakeReaperBatchResult> HardDeleteTerminalDraftsBatchAsync(
         DateTimeOffset updatedBeforeUtc,
         int batchSize,
         CancellationToken cancellationToken)
     {
-        return _inner.HardDeleteTerminalDraftsBatchAsync(updatedBeforeUtc, batchSize, cancellationToken);
+        DraftIntakeReaperBatchResult batch = await _inner.HardDeleteTerminalDraftsBatchAsync(
+            updatedBeforeUtc, batchSize, cancellationToken);
+
+        foreach (DraftIntakeReapedDraft draft in batch.DeletedDrafts)
+        {
+            await InvalidateDraftAsync(
+                draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId, CancellationToken.None);
+        }
+
+        return batch;
     }
 
     /// <inheritdoc />
