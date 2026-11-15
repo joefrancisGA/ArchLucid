@@ -11,6 +11,11 @@ internal static class HybridHotPathCacheTestFactory
 {
     public static HybridHotPathReadCache Create(HotPathCacheOptions options)
     {
+        return Create(options, out _);
+    }
+
+    public static HybridHotPathReadCache Create(HotPathCacheOptions options, out HybridCache hybridCache)
+    {
         ServiceCollection services = [];
 
         services.AddLogging(static b =>
@@ -42,6 +47,7 @@ internal static class HybridHotPathCacheTestFactory
         services.AddSingleton<HybridHotPathReadCache>();
 
         ServiceProvider provider = services.BuildServiceProvider();
+        hybridCache = provider.GetRequiredService<HybridCache>();
 
         return provider.GetRequiredService<HybridHotPathReadCache>();
     }
