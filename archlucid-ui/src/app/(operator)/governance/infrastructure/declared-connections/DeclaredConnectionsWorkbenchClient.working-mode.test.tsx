@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
@@ -30,11 +30,36 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_SKIP_LINK_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { listSecurityDeclaredConnections } from "@/lib/security-declared-connection-api";
 import { DeclaredConnectionsWorkbenchClient } from "./DeclaredConnectionsWorkbenchClient";
 
 describe("DeclaredConnectionsWorkbenchClient working mode", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it.each([
+    { expirationUtc: "2026-11-15T11:30:00Z", status: "Expired", label: "(expired)" },
+    { expirationUtc: "2026-11-15T23:00:00", status: "Active", label: "(expires today)" },
+  ] as const)("shows $label for expiry $expirationUtc", async ({ expirationUtc, status, label }) => {
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-11-15T12:00:00Z"));
+    vi.mocked(listSecurityDeclaredConnections).mockResolvedValueOnce([{
+      connectionId: "connection-1",
+      fromCloudResourceId: "source",
+      toCloudResourceId: "destination",
+      relationshipType: "ConnectsTo",
+      rationale: "The source connects to the destination.",
+      evidenceReference: null,
+      expirationUtc,
+      status,
+      createdUtc: "2026-11-01T12:00:00Z",
+      updatedUtc: "2026-11-01T12:00:00Z",
+    }]);
+
+    render(<DeclaredConnectionsWorkbenchClient />);
+
+    const row = await screen.findByTestId("infra-declared-connection-row-connection-1");
+    expect(within(row).getByText(label)).toBeInTheDocument();
   });
 
   it("renders skip link, claim discipline, submit guard, and empty state", async () => {
