@@ -8,7 +8,7 @@ import type { PolicyPackContentDocument } from "@/types/policy-packs";
 export type ResponsibleAiRuleTableRow = {
   readonly ruleKey: string;
   readonly ruleName: string;
-  readonly severity: "Critical" | "High" | "Medium" | "Low";
+  readonly severity: "Critical" | "High" | "Medium" | "Low" | null;
   readonly requirement: string;
   readonly evidenceExpected: string;
 };
@@ -88,7 +88,7 @@ export function resolveResponsibleAiPolicyRuleRows(
         rows: keys.map((key) => ({
           ruleKey: key.trim(),
           ruleName: humanizeRuleKey(key),
-          severity: "Low",
+          severity: null,
           requirement: "Compliance rule defined in published pack content.",
           evidenceExpected: "No evidence hint recorded",
         })),
