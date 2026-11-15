@@ -1,5 +1,6 @@
 import type { TenantAuthDomainRecord } from "@/lib/admin-auth-domains-api";
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 export const AUTH_DOMAIN_LAST_VIEWED_STORAGE_KEY = "archlucid_auth_domain_continue_last_v1";
 
@@ -76,9 +77,13 @@ export function resolveContinueLastAuthDomain(domains: unknown): AuthDomainsCont
     }
   }
 
-  const unverified = validDomains.filter((domain) => isUnverified(domain));
-  const pool = unverified.length > 0 ? unverified : validDomains;
-  const newest = pool.slice().sort((left, right) => right.createdUtc.localeCompare(left.createdUtc))[0];
+  const timestampedDomains = validDomains
+    .map((domain) => ({ domain, createdAtMs: parseIsoUtcMs(domain.createdUtc) }))
+    .filter(({ createdAtMs }) => !Number.isNaN(createdAtMs));
+  const unverified = timestampedDomains.filter(({ domain }) => isUnverified(domain));
+  const pool = unverified.length > 0 ? unverified : timestampedDomains;
+  const newest = pool
+    .sort((left, right) => right.createdAtMs - left.createdAtMs)[0]?.domain;
 
   return newest === undefined ? null : toTarget(newest);
 }
