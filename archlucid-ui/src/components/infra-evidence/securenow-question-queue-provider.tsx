@@ -272,6 +272,7 @@ export function SecureNowQuestionQueueProvider(
   const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const loadSequence = useRef(0);
+  const mutationSequence = useRef(0);
   const snapshotIdRef = useRef(snapshotId);
   snapshotIdRef.current = snapshotId;
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
@@ -280,6 +281,8 @@ export function SecureNowQuestionQueueProvider(
   );
 
   useEffect(() => {
+    mutationSequence.current += 1;
+    setBusy(false);
     setQuestions([]);
     setInferredConnections([]);
     setVisitedQuestionKeys(new Set());
@@ -608,6 +611,9 @@ export function SecureNowQuestionQueueProvider(
       ? [mutationDispositionPostOptions]
       : [];
 
+    const requestSequence = ++mutationSequence.current;
+    const isCurrentMutation = () =>
+      requestSequence === mutationSequence.current && snapshotId === snapshotIdRef.current;
     setBusy(true);
     setError((current) => (current?.kind === "mutation" ? null : current));
     try {
@@ -653,6 +659,8 @@ export function SecureNowQuestionQueueProvider(
           evidenceFingerprint: mutationEvidenceFingerprint!,
         }, ...mutationDispositionPostArgs);
       }
+      if (!isCurrentMutation()) return;
+
       let preferredFilter: QueueFilter | undefined;
       if (action === "answer") {
         preferredFilter = "Answered";
@@ -667,10 +675,14 @@ export function SecureNowQuestionQueueProvider(
         focusQuestionIdentity: questionIdentity(currentQuestion),
         reloadAfterMutation: true,
       });
+      if (!isCurrentMutation()) return;
+
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
     } catch (submitError) {
+      if (!isCurrentMutation()) return;
+
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
           submitError,
@@ -679,7 +691,7 @@ export function SecureNowQuestionQueueProvider(
         ),
       );
     } finally {
-      setBusy(false);
+      if (isCurrentMutation()) setBusy(false);
     }
   }, [
     busy,
