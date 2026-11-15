@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import {
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
@@ -30,6 +31,12 @@ function totalWorkCount(row: CloudResourceSummary): number {
   );
 }
 
+function lastSeenSortTime(lastSeenUtc: string): number {
+  const parsed = parseIsoUtcMs(lastSeenUtc);
+
+  return Number.isNaN(parsed) ? Number.MIN_SAFE_INTEGER : parsed;
+}
+
 function compareResourceExplorerRows(
   left: CloudResourceSummary,
   right: CloudResourceSummary,
@@ -58,7 +65,7 @@ function compareResourceExplorerRows(
     return (left.region ?? "").localeCompare(right.region ?? "");
   }
 
-  return left.lastSeenUtc.localeCompare(right.lastSeenUtc);
+  return lastSeenSortTime(left.lastSeenUtc) - lastSeenSortTime(right.lastSeenUtc);
 }
 
 export function sortResourceExplorerRows(
