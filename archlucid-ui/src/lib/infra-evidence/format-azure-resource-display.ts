@@ -113,10 +113,17 @@ export function formatAzureResourceTypeForDisplay(resourceType: string | null | 
 }
 
 function resourceTypeFromSegments(segments: readonly string[]): string | null {
-  const providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
+  let providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 
   if (providersIndex < 0 || segments.length < providersIndex + 3) {
     return null;
+  }
+
+  // Extension resources start another provider namespace at a type position.
+  for (let index = providersIndex + 2; index + 3 < segments.length; index += 2) {
+    if (segments[index]?.toLowerCase() === "providers") {
+      providersIndex = index;
+    }
   }
 
   const namespaceSegment = segments[providersIndex + 1];
