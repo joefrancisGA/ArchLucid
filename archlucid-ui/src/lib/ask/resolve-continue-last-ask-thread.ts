@@ -1,5 +1,6 @@
 import { readAskContinueLastThreadId } from "@/lib/ask/ask-continue-last-thread-storage";
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { ConversationThread } from "@/types/conversation";
 
 /** Thread to pin as Continue last conversation on the ask page. */
@@ -28,9 +29,15 @@ export function resolveContinueLastAskThread(threads: unknown): ConversationThre
     }
   }
 
-  return (
-    validThreads
-      .slice()
-      .sort((left, right) => right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc))[0] ?? null
-  );
+  let newestThread: ConversationThread | null = null;
+  let newestTimestamp = Number.NEGATIVE_INFINITY;
+  for (const thread of validThreads) {
+    const timestamp = parseIsoUtcMs(thread.lastUpdatedUtc);
+    if (timestamp > newestTimestamp) {
+      newestThread = thread;
+      newestTimestamp = timestamp;
+    }
+  }
+
+  return newestThread;
 }
