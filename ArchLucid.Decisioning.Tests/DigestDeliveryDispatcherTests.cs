@@ -165,6 +165,47 @@ public sealed class DigestDeliveryDispatcherTests
     }
 
     [Fact]
+    public async Task DeliverAsync_WhenSuccessAuditFails_PreservesSuccessfulDelivery()
+    {
+        ArchitectureDigest digest = CreateDigest();
+        InMemoryDigestSubscriptionRepository subscriptions = new();
+        await subscriptions.CreateAsync(new DigestSubscription
+        {
+            TenantId = digest.TenantId,
+            WorkspaceId = digest.WorkspaceId,
+            ProjectId = digest.ProjectId,
+            ChannelType = DigestDeliveryChannelType.Email,
+            Destination = "ops@example.com",
+        }, CancellationToken.None);
+        InMemoryDigestDeliveryAttemptRepository attempts = new();
+        Mock<IDigestDeliveryChannel> channel = new();
+        channel.Setup(x => x.ChannelType).Returns(DigestDeliveryChannelType.Email);
+        channel.Setup(x => x.SendAsync(It.IsAny<DigestDeliveryPayload>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.DigestDeliverySucceeded),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        DigestDeliveryDispatcher sut = CreateSut([channel.Object], subscriptions, attempts, audit.Object);
+
+        await sut.DeliverAsync(digest, CancellationToken.None);
+
+        ScopeContext scope = new()
+        {
+            TenantId = digest.TenantId,
+            WorkspaceId = digest.WorkspaceId,
+            ProjectId = digest.ProjectId,
+        };
+        IReadOnlyList<DigestDeliveryAttempt> history =
+            await attempts.ListByDigestAsync(scope, digest.DigestId, CancellationToken.None);
+        history.Should().ContainSingle().Which.Status.Should().Be(DigestDeliveryStatus.Succeeded);
+        audit.Verify(x => x.LogAsync(
+            It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.DigestDeliveryFailed),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task DeliverAsync_WhenChannelFails_AuditsFailureWithoutThrowing()
     {
         DigestSubscription subscription = new()
