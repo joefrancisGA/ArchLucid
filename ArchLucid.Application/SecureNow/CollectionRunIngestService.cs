@@ -31,13 +31,15 @@ public sealed class CollectionRunIngestService(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CollectionRunManifest manifest = artifact.Manifest;
-        byte[] zipHash = ResolveHash(manifest, artifact.ZipBytes);
+        byte[] zipHash = SHA256.HashData(artifact.ZipBytes);
+        bool manifestHashMatches = IsManifestHashValid(manifest, zipHash);
 
         CollectionRun? existingRun = await _collectionRunRepository.GetAsync(
             scope,
             manifest.RunId,
             cancellationToken);
-        if (existingRun?.Status == CollectionRunStatus.Imported &&
+        if (manifestHashMatches &&
+            existingRun?.Status == CollectionRunStatus.Imported &&
             existingRun.ZipSha256 is not null &&
             existingRun.ZipSha256.SequenceEqual(zipHash))
             return existingRun;
@@ -71,10 +73,12 @@ public sealed class CollectionRunIngestService(
             return collectionRun;
         }
 
-        if (!IsManifestHashValid(manifest, zipHash))
+        if (!manifestHashMatches)
         {
             collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection package hash does not match the manifest.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+            if (existingRun?.Status != CollectionRunStatus.Imported)
+                await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+
             return collectionRun;
         }
 
@@ -155,24 +159,6 @@ public sealed class CollectionRunIngestService(
             ZipSha256 = collectionRun.ZipSha256,
             ImportedSnapshotId = collectionRun.ImportedSnapshotId,
         };
-
-    private static byte[] ResolveHash(CollectionRunManifest manifest, byte[] zipBytes)
-    {
-        if (!string.IsNullOrWhiteSpace(manifest.ZipSha256) &&
-            manifest.ZipSha256.Length == 64 &&
-            manifest.ZipSha256.All(static character => Uri.IsHexDigit(character)))
-        {
-            try
-            {
-                return Convert.FromHexString(manifest.ZipSha256);
-            }
-            catch (FormatException)
-            {
-            }
-        }
-
-        return SHA256.HashData(zipBytes);
-    }
 
     private static bool IsManifestHashValid(CollectionRunManifest manifest, byte[] actualHash)
     {

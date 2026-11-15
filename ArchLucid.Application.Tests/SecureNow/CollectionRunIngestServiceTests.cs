@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.SecureNow;
 using ArchLucid.Core.AzureExtractor;
@@ -17,8 +19,10 @@ public sealed class CollectionRunIngestServiceTests
 {
     private static readonly Guid TestTenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-    [Fact]
-    public async Task NewHashImportsOneSnapshot()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task NewHashImportsOneSnapshot(bool includeManifestHash)
     {
         Guid runId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
@@ -26,10 +30,13 @@ public sealed class CollectionRunIngestServiceTests
         Mock<IAzureExtractorIngestService> importer = CreateImporter(snapshotId);
         CollectionRunIngestService service = CreateService(repository, importer);
 
-        CollectionRun result = await service.IngestAsync(CreateArtifact(runId));
+        byte[] zipHash = SHA256.HashData(new byte[] { 1, 2, 3 });
+        CollectionRun result = await service.IngestAsync(CreateArtifact(runId,
+            includeManifestHash ? Convert.ToHexString(zipHash) : null));
 
         result.Status.Should().Be(CollectionRunStatus.Imported);
         result.ImportedSnapshotId.Should().Be(snapshotId);
+        result.ZipSha256.Should().Equal(zipHash);
         importer.Verify(
             item => item.IngestZipBytesAsync(
                 It.IsAny<byte[]>(),
@@ -127,6 +134,36 @@ public sealed class CollectionRunIngestServiceTests
         importer.Invocations.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MismatchedPackageHashPreservesPreviouslyImportedRun(bool samePackageBytes)
+    {
+        Guid runId = Guid.NewGuid();
+        byte[] incomingHash = SHA256.HashData(new byte[] { 1, 2, 3 });
+        byte[] otherHash = SHA256.HashData(new byte[] { 4, 5, 6 });
+        Mock<ICollectionRunRepository> repository = CreateRepository(true);
+        repository
+            .Setup(item => item.GetAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CollectionRun
+            {
+                RunId = runId,
+                Status = CollectionRunStatus.Imported,
+                ZipSha256 = samePackageBytes ? incomingHash : otherHash,
+            });
+        Mock<IAzureExtractorIngestService> importer = new();
+        CollectionRunIngestService service = CreateService(repository, importer);
+
+        CollectionRun result = await service.IngestAsync(CreateArtifact(runId, Convert.ToHexString(otherHash)));
+
+        result.Status.Should().Be(CollectionRunStatus.Rejected);
+        result.ErrorSummary.Should().Contain("hash");
+        repository.Verify(
+            item => item.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        importer.Invocations.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task RunningManifestRejectsWithoutImport()
     {
@@ -194,7 +231,7 @@ public sealed class CollectionRunIngestServiceTests
             Times.Never);
     }
 
-    private static CollectionRunArtifact CreateArtifact(Guid runId) =>
+    private static CollectionRunArtifact CreateArtifact(Guid runId, string? manifestHash = null) =>
         new()
         {
             Manifest = new CollectionRunManifest
@@ -204,6 +241,7 @@ public sealed class CollectionRunIngestServiceTests
                 StartedUtc = DateTime.UtcNow,
                 Status = "Succeeded",
                 TenantId = TestTenantId,
+                ZipSha256 = manifestHash,
                 SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
             },
             ZipBytes = [1, 2, 3],
