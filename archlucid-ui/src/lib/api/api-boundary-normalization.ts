@@ -23,6 +23,16 @@ export function trimRequiredPathSegment(value: string, fieldName: string): strin
   return trimmed;
 }
 
+export function encodeRequiredPathSegment(value: string, fieldName: string): string {
+  return encodeURIComponent(trimRequiredPathSegment(value, fieldName));
+}
+
+export function trimStringList(values: readonly string[] | undefined): string[] {
+  return (values ?? [])
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+}
+
 export function positiveIntegerOrDefault(value: number | undefined, fallback: number): number {
   if (value === undefined || !Number.isFinite(value) || value < 1) {
     return fallback;

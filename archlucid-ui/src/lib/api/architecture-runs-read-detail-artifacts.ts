@@ -30,6 +30,11 @@ import {
 } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import type { RunToolInvocationForensicsPayload } from "./architecture-runs-read-types";
+import {
+  encodeRequiredPathSegment,
+  positiveIntegerOrDefault,
+  trimRequiredPathSegment,
+} from "./api-boundary-normalization";
 
 /** Linkage graph + trace timeline for a coordinator architecture run. */
 export async function getArchitectureRunProvenance(
@@ -37,7 +42,7 @@ export async function getArchitectureRunProvenance(
 ): Promise<ArchitectureRunProvenanceGraph> {
   try {
     return await apiGetSealedManifestAware<ArchitectureRunProvenanceGraph>(
-      `/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance`,
+      `/v1/architecture/reviews/${encodeRequiredPathSegment(runId, "runId")}/provenance`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -52,12 +57,14 @@ export async function getRunDetail(
   runId: string,
   options?: ApiGetOptions,
 ): Promise<ApiResponseWithTrace<RunDetail>> {
-  if (!isLiveAuthorityRunId(runId)) {
-    throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
+  if (!isLiveAuthorityRunId(normalizedRunId)) {
+    throw new Error(`Run id "${normalizedRunId}" is not a live authority key.`);
   }
 
   try {
-    const data = await apiGet<RunDetail>(`/v1/runs/${runId}`, options);
+    const data = await apiGet<RunDetail>(`/v1/runs/${encodeURIComponent(normalizedRunId)}`, options);
 
     return { data, traceId: null };
   } catch (error: unknown) {
@@ -72,7 +79,7 @@ export async function getRunDetail(
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
   try {
     return await apiGet<DecisionProvenanceGraph>(
-      `/v1/runs/${encodeURIComponent(runId)}/review-trail/provenance`,
+      `/v1/runs/${encodeRequiredPathSegment(runId, "runId")}/review-trail/provenance`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -89,12 +96,12 @@ export async function getRunTraces(
   pageSize = 50,
 ): Promise<AgentExecutionTraceListPayload> {
   const q = new URLSearchParams();
-  q.set("pageNumber", String(pageNumber));
-  q.set("pageSize", String(pageSize));
+  q.set("pageNumber", String(positiveIntegerOrDefault(pageNumber, 1)));
+  q.set("pageSize", String(positiveIntegerOrDefault(pageSize, 50)));
 
   try {
     return await apiGetSealedManifestAware<AgentExecutionTraceListPayload>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
+      `/v1/architecture/review/${encodeRequiredPathSegment(runId, "runId")}/traces?${q}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -110,7 +117,7 @@ export async function getRunToolInvocationForensics(
 ): Promise<RunToolInvocationForensicsPayload> {
   try {
     return await apiGetSealedManifestAware<RunToolInvocationForensicsPayload>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
+      `/v1/architecture/review/${encodeRequiredPathSegment(runId, "runId")}/tool-invocation-forensics`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -126,7 +133,7 @@ export async function getRunAgentEvaluation(
 ): Promise<AgentOutputEvaluationSummaryPayload> {
   try {
     return await apiGetSealedManifestAware<AgentOutputEvaluationSummaryPayload>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
+      `/v1/architecture/review/${encodeRequiredPathSegment(runId, "runId")}/agent-evaluation`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -142,7 +149,7 @@ export async function getRunRetrievalGrounding(
 ): Promise<RunRetrievalGroundingPayload> {
   try {
     return await apiGetSealedManifestAware<RunRetrievalGroundingPayload>(
-      `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
+      `/v1/authority/reviews/${encodeRequiredPathSegment(runId, "runId")}/retrieval-grounding`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -156,7 +163,7 @@ export async function getRunRetrievalGrounding(
 export async function getAuthorityRunManifest(runId: string): Promise<unknown> {
   try {
     return await apiGetSealedManifestAware<unknown>(
-      `/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`,
+      `/v1/authority/reviews/${encodeRequiredPathSegment(runId, "runId")}/signed-review-record`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -173,7 +180,7 @@ export async function getRunRationale(
 ): Promise<components["schemas"]["RunRationale"]> {
   try {
     return await apiGetSealedManifestAware<components["schemas"]["RunRationale"]>(
-      `/v1/runs/${encodeURIComponent(runId)}/review-trail/rationale`,
+      `/v1/runs/${encodeRequiredPathSegment(runId, "runId")}/review-trail/rationale`,
       options,
     );
   } catch (error: unknown) {
@@ -191,7 +198,7 @@ export async function getRunExplanationSummary(
 ): Promise<RunExplanationSummary> {
   try {
     return await apiGetSealedManifestAware<RunExplanationSummary>(
-      `/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`,
+      `/v1/explain/runs/${encodeRequiredPathSegment(runId, "runId")}/aggregate`,
       options,
     );
   } catch (error: unknown) {

@@ -3,6 +3,7 @@ import type { DemoExplainResponse } from "@/types/demo-explain";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
+import { isRecord, normalizeCountFields, nonNegativeFiniteOrDefault } from "./api-boundary-normalization";
 
 /** Server-rendered telemetry snapshot for the operator-shell `/why-archlucid` proof page. */
 export type WhyArchLucidSnapshot = {
@@ -18,9 +19,49 @@ export type WhyArchLucidSnapshot = {
   estimatedManualWorkHoursSavedMethodology?: string;
 };
 
+function mapWhyArchLucidSnapshot(raw: unknown): WhyArchLucidSnapshot {
+  const row = isRecord(raw) ? raw : {};
+  const findingsProducedBySeverity = isRecord(row.findingsProducedBySeverity)
+    ? Object.fromEntries(
+        Object.entries(row.findingsProducedBySeverity).map(([key, value]) => [key, nonNegativeFiniteOrDefault(value)]),
+      )
+    : {};
+
+  return {
+    generatedUtc: typeof row.generatedUtc === "string" ? row.generatedUtc : "",
+    demoRunId: typeof row.demoRunId === "string" ? row.demoRunId.trim() : "",
+    runsCreatedTotal: nonNegativeFiniteOrDefault(row.runsCreatedTotal),
+    findingsProducedBySeverity,
+    auditRowCount: nonNegativeFiniteOrDefault(row.auditRowCount),
+    auditRowCountTruncated: row.auditRowCountTruncated === true,
+    ...(typeof row.estimatedManualWorkHoursSaved === "number"
+      ? { estimatedManualWorkHoursSaved: nonNegativeFiniteOrDefault(row.estimatedManualWorkHoursSaved) }
+      : {}),
+    ...(typeof row.estimatedManualWorkHoursSavedMethodology === "string"
+      ? { estimatedManualWorkHoursSavedMethodology: row.estimatedManualWorkHoursSavedMethodology.trim() }
+      : {}),
+  };
+}
+
+function mapPilotScorecard(raw: unknown): PilotScorecardJson {
+  return normalizeCountFields(raw) as PilotScorecardJson;
+}
+
+function mapSponsorEvidencePack(raw: unknown): SponsorEvidencePackPayload {
+  return normalizeCountFields(raw) as SponsorEvidencePackPayload;
+}
+
+function mapDemoExplainResponse(raw: unknown): DemoExplainResponse | null {
+  if (!isRecord(raw) || typeof raw.generatedUtc !== "string" || typeof raw.runId !== "string") {
+    return null;
+  }
+
+  return raw as DemoExplainResponse;
+}
+
 /** GETs the `/v1/pilots/why-archlucid-snapshot` JSON snapshot used by the proof page. */
 export async function getWhyArchLucidSnapshot(): Promise<WhyArchLucidSnapshot> {
-  return apiGet<WhyArchLucidSnapshot>("/v1/pilots/why-archlucid-snapshot");
+  return mapWhyArchLucidSnapshot(await apiGet<unknown>("/v1/pilots/why-archlucid-snapshot"));
 }
 
 /** Bundle for `/why-archlucid`: process counters + optional monthly cost band + disclaimers. */
@@ -34,14 +75,12 @@ export type TenantMeasuredRoiPayload = {
 export async function getPilotScorecard(options?: {
   readonly scopeHeaders?: Record<string, string>;
 }): Promise<PilotScorecardJson> {
-  return apiGet<PilotScorecardJson>(`/${ApiV1Routes.pilotsScorecard}`, options);
+  return mapPilotScorecard(await apiGet<unknown>(`/${ApiV1Routes.pilotsScorecard}`, options));
 }
 
 /** GET `/v1/pilots/sponsor-evidence-pack` — aggregated sponsor-facing proof bundle (Standard tier). */
 export async function getSponsorEvidencePack(): Promise<SponsorEvidencePackPayload> {
-  return apiGet<SponsorEvidencePackPayload>(
-    `/${ApiV1Routes.pilotsSponsorEvidencePack}`,
-  );
+  return mapSponsorEvidencePack(await apiGet<unknown>(`/${ApiV1Routes.pilotsSponsorEvidencePack}`));
 }
 
 export type ExplainabilityTraceEngineCompletenessPack = {
@@ -95,7 +134,19 @@ export type SponsorEvidencePackPayload = {
 
 /** GETs `/v1/tenant/measured-roi` (operator proof page — combines snapshot + cost context). */
 export async function getTenantMeasuredRoi(): Promise<TenantMeasuredRoiPayload> {
-  return apiGet<TenantMeasuredRoiPayload>(`/${ApiV1Routes.tenantMeasuredRoi}`);
+  const payload = await apiGet<unknown>(`/${ApiV1Routes.tenantMeasuredRoi}`);
+
+  if (!isRecord(payload)) {
+    throw new Error("Measured ROI response was not recognized.");
+  }
+
+  return {
+    snapshot: mapWhyArchLucidSnapshot(payload.snapshot),
+    monthlyCostEstimate: isRecord(payload.monthlyCostEstimate)
+      ? (payload.monthlyCostEstimate as TenantCostEstimateResponse)
+      : null,
+    disclaimer: typeof payload.disclaimer === "string" ? payload.disclaimer : "",
+  };
 }
 
 /**
@@ -116,5 +167,7 @@ export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
 
   if (!response.ok) throwApiRequestError(response, text);
 
-  return JSON.parse(text) as DemoExplainResponse;
+  const parsed: unknown = JSON.parse(text);
+
+  return mapDemoExplainResponse(parsed);
 }

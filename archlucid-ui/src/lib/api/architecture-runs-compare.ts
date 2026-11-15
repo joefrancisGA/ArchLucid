@@ -21,6 +21,15 @@ import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocke
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
+import { encodeRequiredPathSegment } from "./api-boundary-normalization";
+
+function compareRunPairQuery(leftRunId: string, rightRunId: string): string {
+  return `leftRunId=${encodeRequiredPathSegment(leftRunId, "leftRunId")}&rightRunId=${encodeRequiredPathSegment(rightRunId, "rightRunId")}`;
+}
+
+function goldenCompareQuery(baseRunId: string, targetRunId: string): string {
+  return `baseRunId=${encodeRequiredPathSegment(baseRunId, "baseRunId")}&targetRunId=${encodeRequiredPathSegment(targetRunId, "targetRunId")}`;
+}
 
 type EndToEndReplayComparisonWireResponse = {
   readonly report?: {
@@ -38,7 +47,7 @@ export async function compareRunsEndToEnd(
 ): Promise<EndToEndReplayComparisonWireResponse> {
   try {
     return await apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
-      `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+      `/v1/architecture/review/compare/end-to-end?${compareRunPairQuery(leftRunId, rightRunId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -55,7 +64,7 @@ export async function compareAgentResults(
 ): Promise<components["schemas"]["AgentResultCompareResponse"]> {
   try {
     return await apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
-      `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+      `/v1/architecture/review/compare/agents?${compareRunPairQuery(leftRunId, rightRunId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -72,7 +81,7 @@ export async function compareAgentResultsSummary(
 ): Promise<components["schemas"]["AgentResultCompareSummaryResponse"]> {
   try {
     return await apiGetSealedManifestAware<components["schemas"]["AgentResultCompareSummaryResponse"]>(
-      `/v1/architecture/review/compare/agents/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+      `/v1/architecture/review/compare/agents/summary?${compareRunPairQuery(leftRunId, rightRunId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -87,7 +96,7 @@ export async function compareAgentResultsSummary(
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
   try {
     return await apiGetSealedManifestAware<RunComparison>(
-      `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+      `/v1/authority/compare/runs?${compareRunPairQuery(leftRunId, rightRunId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -104,7 +113,7 @@ export async function compareGoldenManifestRuns(
 ): Promise<GoldenManifestComparison> {
   try {
     return await apiGetSealedManifestAware<GoldenManifestComparison>(
-      `/v1/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+      `/v1/compare?${goldenCompareQuery(baseRunId, targetRunId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -122,7 +131,7 @@ export async function explainComparisonRuns(
 ): Promise<ComparisonExplanation> {
   try {
     return await apiGetSealedManifestAware<ComparisonExplanation>(
-      `/v1/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+      `/v1/explain/compare/explain?${goldenCompareQuery(baseRunId, targetRunId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -137,7 +146,7 @@ export async function explainComparisonRuns(
 export async function explainRun(runId: string): Promise<RunExplanation> {
   try {
     return await apiGetSealedManifestAware<RunExplanation>(
-      `/v1/explain/runs/${encodeURIComponent(runId)}/explain`,
+      `/v1/explain/runs/${encodeRequiredPathSegment(runId, "runId")}/explain`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -154,7 +163,9 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
  */
 export async function getFirstValueReportMarkdown(runId: string): Promise<string | null> {
   await ensureOidcBearerReady();
-  const { url, headers } = await resolveRequest(`/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`);
+  const { url, headers } = await resolveRequest(
+    `/v1/pilots/runs/${encodeRequiredPathSegment(runId, "runId")}/first-value-report`,
+  );
   const baseHeaders = withCorrelationHeaders(headers);
   baseHeaders.set("Accept", "text/markdown");
   const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(baseHeaders);

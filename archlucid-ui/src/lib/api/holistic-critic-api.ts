@@ -3,6 +3,11 @@ import { holisticCriticBlockedReason } from "@/lib/explain/holistic-critic-block
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiPostJson } from "./http";
+import {
+  encodeRequiredPathSegment,
+  nonNegativeFiniteOrNull,
+  trimOptionalText,
+} from "./api-boundary-normalization";
 
 export type HolisticCriticInput = {
   focus?: string;
@@ -20,11 +25,27 @@ export async function generateHolisticCritique(
   runId: string,
   input: HolisticCriticInput = {},
 ): Promise<HolisticCriticResponse> {
+  const focus = trimOptionalText(input.focus);
+  const request = focus !== undefined ? { focus } : {};
+
   try {
-    return await apiPostJson<HolisticCriticResponse>(
-      `/v1/explain/runs/${encodeURIComponent(runId)}/holistic-critic`,
-      input,
+    const raw = await apiPostJson<unknown>(
+      `/v1/explain/runs/${encodeRequiredPathSegment(runId, "runId")}/holistic-critic`,
+      request,
     );
+    const row = raw !== null && typeof raw === "object" && !Array.isArray(raw)
+      ? raw as Record<string, unknown>
+      : {};
+
+    const omittedFindingLinesCount = nonNegativeFiniteOrNull(row.omittedFindingLinesCount);
+    const omittedThemeSummariesCount = nonNegativeFiniteOrNull(row.omittedThemeSummariesCount);
+
+    return {
+      disclaimer: typeof row.disclaimer === "string" ? row.disclaimer : "",
+      critiqueMarkdown: typeof row.critiqueMarkdown === "string" ? row.critiqueMarkdown : "",
+      ...(omittedFindingLinesCount !== null ? { omittedFindingLinesCount } : {}),
+      ...(omittedThemeSummariesCount !== null ? { omittedThemeSummariesCount } : {}),
+    };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = holisticCriticBlockedReason(failure);
