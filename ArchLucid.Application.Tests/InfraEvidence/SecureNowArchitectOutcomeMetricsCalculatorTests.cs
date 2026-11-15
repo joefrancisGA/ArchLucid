@@ -17,6 +17,39 @@ public sealed class SecureNowArchitectOutcomeMetricsCalculatorTests
     private static readonly Guid RemovedPathId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid RemainingPathId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(2, 0)]
+    [InlineData(3, 0)]
+    [InlineData(8, 0)]
+    public void Count_open_finding_requires_an_earlier_closed_finding(int closedDay, int expected)
+    {
+        DateTime start = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        Guid resourceId = Guid.NewGuid();
+        const string controlId = "example-control";
+
+        OperationalSecurityFindingRecord[] findings =
+        [
+            new()
+            {
+                CloudResourceId = resourceId,
+                ControlId = controlId,
+                Status = OperationalSecurityFindingStatus.Open,
+                UpdatedUtc = start.AddDays(2),
+            },
+            new()
+            {
+                CloudResourceId = resourceId,
+                ControlId = controlId,
+                Status = OperationalSecurityFindingStatus.Closed,
+                UpdatedUtc = start.AddDays(closedDay),
+            },
+        ];
+
+        SecureNowOutcomeRecurrenceCounter.Count(findings, start, start.AddDays(7))
+            .Should().Be(expected);
+    }
+
     [Fact]
     public void Calculate_one_critical_path_removed_counts_one()
     {
