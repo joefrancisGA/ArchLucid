@@ -23,7 +23,7 @@ function manifestIdFromRecentHref(href: string): string | null {
   return remainder;
 }
 
-function readRecentSignedRecordManifestId(): string | null {
+function readRecentSignedRecord(rows: readonly SignedRecordsListRow[]): SignedRecordsListRow | null {
   if (typeof window === "undefined") {
     return null;
   }
@@ -35,8 +35,13 @@ function readRecentSignedRecordManifestId(): string | null {
     for (const entry of state.entries) {
       const manifestId = manifestIdFromRecentHref(entry.href);
 
-      if (manifestId !== null) {
-        return manifestId;
+      if (manifestId === null) {
+        continue;
+      }
+
+      const match = rows.find((row) => row.manifestId === manifestId && isSignedRecordsListRowOpenable(row));
+      if (match !== undefined) {
+        return match;
       }
     }
   } catch {
@@ -88,14 +93,10 @@ export function resolveContinueLastSignedRecordsListRow(rows: unknown): SignedRe
     return null;
   }
 
-  const recentManifestId = readRecentSignedRecordManifestId();
+  const recentRecord = readRecentSignedRecord(validRows);
 
-  if (recentManifestId !== null) {
-    const manifestMatch = validRows.find((row) => row.manifestId === recentManifestId);
-
-    if (manifestMatch !== undefined && isSignedRecordsListRowOpenable(manifestMatch)) {
-      return manifestMatch;
-    }
+  if (recentRecord !== null) {
+    return recentRecord;
   }
 
   const recentRunId = readRecentSignedRecordRunId();
