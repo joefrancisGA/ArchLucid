@@ -9,6 +9,30 @@ namespace ArchLucid.Decisioning.Tests.Analysis;
 [Trait("Category", "Unit")]
 public sealed class DrRpoQualityAttributeParserTests
 {
+    [Theory]
+    [InlineData("35791394.125")]
+    [InlineData("79228162514264337593543950335")]
+    [InlineData("-1")]
+    public void TryParseRecoveryObjectives_ignores_invalid_hours_and_retains_valid_objective(string invalidHours)
+    {
+        GraphNode node = new()
+        {
+            NodeId = "qa-invalid-rpo",
+            NodeType = GraphNodeTypes.QualityAttribute,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["rpoHours"] = invalidHours,
+                ["rtoHours"] = "4",
+            },
+        };
+
+        DrRpoQualityAttributeParser.TryParseRecoveryObjectives(node, out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeTrue();
+
+        rpoMinutes.Should().BeNull();
+        rtoMinutes.Should().Be(240);
+    }
+
     [Fact]
     public void TryParseRecoveryObjectives_reads_typed_rto_and_rpo_hours_without_re_parsing_label()
     {
