@@ -35,6 +35,32 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
     }
 
     /// <inheritdoc />
+    public Task MarkFailedIfStartedAsync(
+        ScopeContext scope,
+        Guid executionId,
+        DateTime completedUtc,
+        string errorMessage,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            AdvisoryScanExecution? execution = _items.Find(x =>
+                x.ExecutionId == executionId && MatchesScope(x, scope) &&
+                string.Equals(x.Status, "Started", StringComparison.OrdinalIgnoreCase));
+            if (execution is not null)
+            {
+                execution.Status = "Failed";
+                execution.CompletedUtc = completedUtc;
+                execution.ErrorMessage = errorMessage;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         ScopeContext scope,
         Guid scheduleId,
