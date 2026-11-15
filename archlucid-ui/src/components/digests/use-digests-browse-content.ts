@@ -79,6 +79,7 @@ export function useDigestsBrowseContent(
   const [detailFailure, setDetailFailure] = useState<ApiLoadFailureState | null>(null);
   const [previewOpen, setPreviewOpenState] = useState(urlPreviewOpen);
   const detailPanelRef = useRef<HTMLElement | null>(null);
+  const detailRequestVersion = useRef(0);
   const loading = digestsQuery.isLoading;
   const failure =
     detailFailure ??
@@ -110,18 +111,28 @@ export function useDigestsBrowseContent(
   }, [searchParams]);
 
   const selectDigest = useCallback(async (digestId: string): Promise<void> => {
+    const requestVersion = ++detailRequestVersion.current;
     setDetailFailure(null);
     writeDigestBrowseLastViewedId(digestId);
     router.replace(digestsBrowseDigestHrefFromSearch(searchParams.toString(), digestId, pathname), { scroll: false });
 
     try {
       const full = await getArchitectureDigest(digestId);
+      if (requestVersion !== detailRequestVersion.current) {
+        return;
+      }
+
       setSelected(full);
+      setDeliveryAttempts([]);
       const attempts = await listDigestDeliveryAttempts(digestId);
-      setDeliveryAttempts(attempts);
-      setPreviewOpen(true);
+      if (requestVersion === detailRequestVersion.current) {
+        setDeliveryAttempts(attempts);
+        setPreviewOpen(true);
+      }
     } catch (e) {
-      setDetailFailure(toApiLoadFailure(e));
+      if (requestVersion === detailRequestVersion.current) {
+        setDetailFailure(toApiLoadFailure(e));
+      }
     }
   }, [pathname, router, searchParams, setPreviewOpen]);
 
@@ -142,6 +153,7 @@ export function useDigestsBrowseContent(
   }, [refreshToken, digestsQuery.refetch]);
 
   useEffect(() => {
+    detailRequestVersion.current += 1;
     setSelected(null);
     setDeliveryAttempts([]);
   }, [refreshToken]);
