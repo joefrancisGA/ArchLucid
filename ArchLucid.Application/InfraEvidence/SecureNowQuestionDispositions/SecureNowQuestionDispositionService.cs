@@ -249,6 +249,9 @@ public sealed class SecureNowQuestionDispositionService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
+        if (request.ExpirationUtc is { Kind: DateTimeKind.Local } localExpiration)
+            request = request with { ExpirationUtc = localExpiration.ToUniversalTime() };
+
         string dispositionResourceId = ResolveDispositionResourceId(
             request.SubscriptionId,
             request.ResourceId,
