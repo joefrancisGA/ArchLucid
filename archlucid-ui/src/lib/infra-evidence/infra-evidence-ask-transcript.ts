@@ -8,6 +8,8 @@ const INFRA_EVIDENCE_ASK_TRANSCRIPT_STORAGE_PREFIX = "archlucid.infra-evidence.a
 export type InfraEvidenceAskTurn = {
   readonly question: string;
   readonly response: InfraEvidenceAskResponse;
+  /** Snapshot id pinned when the question was submitted (optional for older persisted turns). */
+  readonly askedSnapshotId?: string;
 };
 
 export type InfraEvidenceAskTranscriptState = {

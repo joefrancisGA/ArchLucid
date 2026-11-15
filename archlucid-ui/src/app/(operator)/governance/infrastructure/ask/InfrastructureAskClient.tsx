@@ -35,6 +35,10 @@ import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-eviden
 import { INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-honesty-copy";
 import { formatInfrastructureAskInsufficientEvidenceSnapshotLine } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-snapshot-copy";
 import {
+  formatInfraEvidenceAskStaleSnapshotCitationLine,
+  shouldShowInfraEvidenceAskStaleSnapshotCitation,
+} from "@/lib/infra-evidence/infra-evidence-ask-stale-snapshot-citation-copy";
+import {
   buildInfraEvidenceAskScopeKey,
   mergeCannedQuestionIntoDraft,
   parkInfraEvidenceAskTranscript,
@@ -741,7 +745,14 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
       });
-      setHistory((current) => [...current, { question: trimmed, response: result }]);
+      setHistory((current) => [
+        ...current,
+        {
+          question: trimmed,
+          response: result,
+          askedSnapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+        },
+      ]);
       setQuestion("");
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
@@ -868,6 +879,15 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
             <p className={cn("m-0 text-sm font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Question: {turn.question}
             </p>
+
+            {shouldShowInfraEvidenceAskStaleSnapshotCitation(turn.askedSnapshotId, snapshotId) ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-ask-stale-snapshot-citation"
+              >
+                {formatInfraEvidenceAskStaleSnapshotCitationLine(turn.askedSnapshotId ?? "")}
+              </p>
+            ) : null}
 
             {turn.response.simulatorLabel != null ? (
               <p

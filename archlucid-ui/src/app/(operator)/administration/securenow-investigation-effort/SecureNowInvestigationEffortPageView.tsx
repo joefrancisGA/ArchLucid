@@ -21,6 +21,7 @@ import {
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
 import { resolveSecureNowInvestigationEffortResultState } from "@/lib/product-line/securenow-investigation-effort-result-state";
 import { SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE } from "@/lib/product-line/securenow-investigation-effort-operator-roi-discipline-copy";
+import { formatSecureNowInvestigationEffortBlockingBanner } from "@/lib/product-line/securenow-investigation-effort-blocking-banner-copy";
 import {
   loadSecureNowInvestigationEffortInputs,
   persistSecureNowInvestigationEffortInputsToAudit,
@@ -103,6 +104,15 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
         >
           {SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE}
         </p>
+        {resultState.kind === "incomplete" ? (
+          <div
+            className="rounded border border-amber-500/40 bg-amber-50/40 p-3 dark:bg-amber-950/20"
+            role="status"
+            data-testid="securenow-investigation-effort-blocking-banner"
+          >
+            <p className={OPERATOR_TYPOGRAPHY.body}>{formatSecureNowInvestigationEffortBlockingBanner(resultState.reason)}</p>
+          </div>
+        ) : null}
         <section aria-labelledby="securenow-investigation-effort-inputs-heading" className="space-y-3">
           <h2 id="securenow-investigation-effort-inputs-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Entered inputs

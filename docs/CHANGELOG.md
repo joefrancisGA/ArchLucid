@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 55 (batch 20): Row expiry, KPI as-of, Ask stale pin, and sponsor partial capture
+
+**Outcome.** Declared connections repeat per-row expiry honesty beside stored UTC instants. Workspace health KPI cards repeat a short point-in-time line on every tile. Investigation effort shows a blocking banner when ROI cannot compute. Policy pack empty assignments are distinct from load failure. Guided intake scope states how policy packs and pilot mode bound agents. Infrastructure Ask marks answers when the snapshot pin moved after the question. Sponsor path repeats partial-capture recovery with snapshot id and cloud connections CTA.
+
+**Surfaces.** Declared connections, workspace health, investigation effort, policy packs, guided intake, infrastructure Ask, sponsor path, honesty tests.
+
 ## 2026-11-15 - Score lift round 54 (batch 19): Filter honesty, catalog empties, and subscription catalog report problem
 
 **Outcome.** Terraform snippet preview states plan output does not apply in the subscription. Drift empty diffs name when unchanged rows are hidden. Diagram reconcile says when filters hide stored rows. Standards catalog empty and decision register success empty are distinct from load failure. Compare insufficient-finalized repeats two-sealed counts discipline. Resource hub findings empty aligns with explorer not-failure copy. Factory rank table shows long path-id overflow. Partial-capture strips name the partial snapshot id. First-review prerequisites distinguish sample spine from tenant seal. Golden manifest legacy blocked exports repeat commit-before-seal. Remediation patterns and digest subscription list hard failures register Report Problem.
