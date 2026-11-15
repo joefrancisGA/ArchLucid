@@ -177,17 +177,17 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
   });
 
-  it("labels empty actor lists as stored empty when the list is present", () => {
+  it("labels empty actor lists when the actor list is present but has no entries", () => {
     const bullets = deriveScopeUnderstandingBullets({
       architectureName: "Vertex",
       peopleAndSystems: [],
     });
 
     expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
-      "People in scope were stored empty.",
+      "No people were named on this draft.",
     );
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe(
-      "Systems in scope were stored empty.",
+      "No systems were named on this draft.",
     );
   });
 
