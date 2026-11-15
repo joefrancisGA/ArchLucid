@@ -24,6 +24,7 @@ import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/compon
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
+import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/terraform-advisory-snapshot-honesty-copy";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -741,6 +742,9 @@ export function TerraformWorkbenchClient() {
             {advisorySnippet != null ? (
               <div className="mt-4">
                 <h3 className="text-sm font-medium">Advisory snippet preview</h3>
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-terraform-plan-not-apply">
+                  {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
+                </p>
                 <pre
                   tabIndex={0}
                   role="region"

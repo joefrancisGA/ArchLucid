@@ -70,6 +70,7 @@ import {
 } from "@/lib/first-review-guide-after-prerequisites-copy";
 import { FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE } from "@/lib/architecture/first-review-tenant-review-seal-discipline-copy";
 import { formatFirstReviewGuidePrerequisitesCombinedHelper } from "@/lib/architecture/first-review-guide-prerequisites-combined-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
@@ -337,6 +338,9 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                 {formatFirstReviewGuidePrerequisitesCombinedHelper({
                   sealLine: FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE,
                   walkthroughStepTitle: walkthroughNextStep?.title ?? null,
+                  sampleSpineActive:
+                    guide.latestRunHref !== null
+                    && guide.latestRunHref.includes(encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)),
                 })}
               </p>
               {walkthroughNextStep !== null ? (

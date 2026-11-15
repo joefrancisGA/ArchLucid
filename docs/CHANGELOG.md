@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 54 (batch 19): Filter honesty, catalog empties, and subscription catalog report problem
+
+**Outcome.** Terraform snippet preview states plan output does not apply in the subscription. Drift empty diffs name when unchanged rows are hidden. Diagram reconcile says when filters hide stored rows. Standards catalog empty and decision register success empty are distinct from load failure. Compare insufficient-finalized repeats two-sealed counts discipline. Resource hub findings empty aligns with explorer not-failure copy. Factory rank table shows long path-id overflow. Partial-capture strips name the partial snapshot id. First-review prerequisites distinguish sample spine from tenant seal. Golden manifest legacy blocked exports repeat commit-before-seal. Remediation patterns and digest subscription list hard failures register Report Problem.
+
+**Surfaces.** Terraform, drift, diagram reconcile, standards hub, decision register, compare, resource hub, remediation factory rank table, findings header, connection-status help, first-review guide, golden manifest export, remediation patterns, digest subscriptions, report-problem registry.
+
 ## 2026-11-15 - Score lift round 53 (batch 18): Drift empties, compare seal footnotes, and disposition report problem
 
 **Outcome.** Drift workbench repeats not-failure honesty on empty diffs and inventory slices. Diagram reconcile warns when a stored run has zero correspondence rows. Compare quality delta adds two-sealed counts footnote; collapsed change reviews repeat seal discipline. SecureNow home names partial capture when collection completed with gaps. Attack path report states partial capture context. Infrastructure Ask insufficient-evidence names the pinned snapshot id. Remediation patterns and digest subscriptions empty views are distinct from load failure. Standards rules filter-empty is distinct from load failure. Remediation factory cut points warn on long path ids. Golden manifest export errors repeat commit-before-seal on both control variants. Decision register load failures and pilot disposition save errors register Report Problem.

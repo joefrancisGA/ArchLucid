@@ -1,0 +1,2 @@
+export const DECISION_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "No workspace decisions are recorded yet while the register loaded successfully — empty is not the same as a failed register read." as const;

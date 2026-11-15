@@ -1,0 +1,2 @@
+export const STANDARDS_RULES_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "No standards rules were returned for the workspace while the catalog loaded successfully — this empty catalog is not a failed load." as const;

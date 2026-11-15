@@ -141,6 +141,10 @@ import { DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-e
 import { DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE } from "@/lib/infra-evidence/diagram-reconcile-pinned-snapshot-honesty-copy";
 import { DIAGRAM_RECONCILE_EMPTY_NOT_CLEAN_RESULT_LINE } from "@/lib/infra-evidence/diagram-empty-not-clean-result-copy";
 import {
+  DIAGRAM_RECONCILE_FILTER_HID_ROWS_LINE,
+  shouldShowDiagramReconcileFilterHidRowsHonesty,
+} from "@/lib/infra-evidence/diagram-reconcile-filter-hid-rows-copy";
+import {
   DIAGRAM_RECONCILE_ZERO_CHANGES_NOT_CLEAN_LINE,
   shouldShowDiagramReconcileZeroChangesHonesty,
 } from "@/lib/infra-evidence/diagram-reconcile-zero-changes-not-clean-copy";
@@ -2165,9 +2169,21 @@ export function DiagramReconcileWorkbenchClient() {
               {filteredRows.length === 0 ? (
                 <EnterpriseTableRow>
                   <EnterpriseTableCell colSpan={6}>
-                    {urlCloudResourceId.length > 0
-                      ? "No correspondence rows match the scoped cloud resource for this reconciliation."
-                      : "No correspondence rows match the selected filter."}
+                    <div className="grid gap-1">
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                        {urlCloudResourceId.length > 0
+                          ? "No correspondence rows match the scoped cloud resource for this reconciliation."
+                          : "No correspondence rows match the selected filter."}
+                      </p>
+                      {shouldShowDiagramReconcileFilterHidRowsHonesty(
+                        reconciliation.rows?.length ?? 0,
+                        displayedRows.rowCount,
+                      ) ? (
+                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-filter-hid-rows">
+                          {DIAGRAM_RECONCILE_FILTER_HID_ROWS_LINE}
+                        </p>
+                      ) : null}
+                    </div>
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ) : null}

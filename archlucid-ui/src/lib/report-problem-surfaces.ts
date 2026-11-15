@@ -252,6 +252,38 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "app/(operator)/administration/securenow-sponsor-path/SecureNowSponsorPathPageView.tsx",
     description: "Sponsor path disposition could not be saved to tenant audit storage.",
   },
+  {
+    id: "governance-remediation-patterns-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/governance/remediation-patterns",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx",
+    description: "Remediation patterns catalog cannot load on the Architecture route.",
+  },
+  {
+    id: "compliance-remediation-patterns-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/compliance/remediation-patterns",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx",
+    description: "Remediation patterns catalog cannot load on the SecureNow route.",
+  },
+  {
+    id: "governance-digest-subscriptions-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/governance/digests",
+    routeMatch: "exact-or-child",
+    componentPath: "components/digests/DigestSubscriptionsContent.tsx",
+    description: "Digest subscriptions list cannot load.",
+  },
+  {
+    id: "compliance-digest-subscriptions-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/compliance/digests",
+    routeMatch: "exact-or-child",
+    componentPath: "components/digests/DigestSubscriptionsContent.tsx",
+    description: "SecureNow digest subscriptions list cannot load.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

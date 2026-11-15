@@ -19,7 +19,8 @@ import Link from "next/link";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
   SECURENOW_SECOND_CAPTURE_CTA_HREFS,
@@ -76,6 +77,9 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
   const readiness = props.readiness ?? hookReadiness;
   const { productLine } = useProductLine();
   const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(
+    isSecureNowProductLine(productLine) && partialCapture,
+  );
 
   const scopeLine = useMemo((): string | null => {
     if (readiness.loading || readiness.workspaceScopeLabel === null) {
@@ -123,7 +127,7 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
         ) : null}
         {partialCapture ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-connection-status-partial-capture">
-            {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
             <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
               {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
             </Link>

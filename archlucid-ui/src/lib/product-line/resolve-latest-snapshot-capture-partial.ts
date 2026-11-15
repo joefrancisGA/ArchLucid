@@ -1,22 +1,6 @@
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 
-function parseCaptureLifecycle(captureStatus: number | string | null | undefined): "partial" | null {
-  if (typeof captureStatus === "number" && Number.isFinite(captureStatus)) {
-    return captureStatus === 2 ? "partial" : null;
-  }
-
-  if (typeof captureStatus !== "string") {
-    return null;
-  }
-
-  switch (captureStatus.trim().toLowerCase()) {
-    case "2":
-    case "partial":
-      return "partial";
-    default:
-      return null;
-  }
-}
+import { resolveLatestSnapshotCaptureIsPartialFromSnapshot } from "./resolve-latest-snapshot-capture-partial-shared";
 
 /** True when the newest listed snapshot has Partial capture status. */
 export async function resolveLatestSnapshotCaptureIsPartial(): Promise<boolean> {
@@ -28,7 +12,7 @@ export async function resolveLatestSnapshotCaptureIsPartial(): Promise<boolean> 
       return false;
     }
 
-    return parseCaptureLifecycle(first.captureStatus) === "partial";
+    return resolveLatestSnapshotCaptureIsPartialFromSnapshot(first.captureStatus);
   } catch {
     return false;
   }

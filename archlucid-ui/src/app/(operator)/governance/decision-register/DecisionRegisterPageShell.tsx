@@ -35,6 +35,7 @@ import { DecisionRegisterLoadingSkeleton } from "./_sections/DecisionRegisterLoa
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
 import { DecisionRegisterContinueLastViewedRow } from "./DecisionRegisterContinueLastViewedRow";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
+import { DECISION_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/decision-register-empty-not-load-failure-copy";
 import { DecisionRegisterExportButton } from "./DecisionRegisterExportButton";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
@@ -260,6 +261,11 @@ export function DecisionRegisterPageShell(props: DecisionRegisterPageShellProps)
                   { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/architecture/reviews/new", variant: "outline" },
                   { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance/approval-queue", variant: "outline" },
                 ]}
+                footer={
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="decision-register-empty-not-load-failure">
+                    {DECISION_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                }
               />
             </div>
           </DecisionRegisterViewEmptyShell>

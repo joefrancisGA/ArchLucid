@@ -9,6 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -890,6 +891,17 @@ export function RemediationPatternsClient() {
               message="Pattern list unavailable."
               onRetry={refreshAll}
               retrying={listQuery.isFetching}
+            />
+            <FatalPageReportProblemSupportRow
+              surfaceId={
+                productLine === "security"
+                  ? "compliance-remediation-patterns-hard-failure"
+                  : "governance-remediation-patterns-hard-failure"
+              }
+              errorTitle="Remediation patterns catalog"
+              errorCode="remediation-patterns-list-load-failed"
+              correlationId={null}
+              httpStatus={null}
             />
             <OperatorErrorRecoveryContract presentation={listLoadRecovery} />
           </div>

@@ -1,0 +1,2 @@
+export const FIRST_REVIEW_GUIDE_SAMPLE_SPINE_NOT_TENANT_SEAL_LINE =
+  "The sample sealed review spine demonstrates the product — Finalize on your own tenant review is still required before treating evidence as tenant-sealed." as const;

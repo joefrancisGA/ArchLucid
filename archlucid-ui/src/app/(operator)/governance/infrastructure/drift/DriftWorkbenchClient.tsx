@@ -124,6 +124,10 @@ import { isAppShellWorkspaceFooterBuildFingerprintVisible } from "@/lib/app-shel
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import { DRIFT_WORKBENCH_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/drift-workbench-empty-not-failure-copy";
 import { DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-diffs-not-failure-copy";
+import {
+  DRIFT_WORKBENCH_EMPTY_DIFFS_UNCHANGED_FILTER_OFF_LINE,
+  shouldShowDriftEmptyDiffsUnchangedFilterOffHonesty,
+} from "@/lib/infra-evidence/drift-empty-diffs-unchanged-filter-off-copy";
 import { DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-inventory-not-failure-copy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
@@ -1770,9 +1774,16 @@ export function DriftWorkbenchClient() {
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY}
             testId="infra-drift-diffs-empty-resolved"
             footer={
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-diffs-empty-not-failure">
-                {DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE}
-              </p>
+              <div className="grid gap-1">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-diffs-empty-not-failure">
+                  {DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE}
+                </p>
+                {shouldShowDriftEmptyDiffsUnchangedFilterOffHonesty(tableFilterState.includeUnchanged) ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-diffs-empty-unchanged-filter-off">
+                    {DRIFT_WORKBENCH_EMPTY_DIFFS_UNCHANGED_FILTER_OFF_LINE}
+                  </p>
+                ) : null}
+              </div>
             }
           />
         ) : null}
