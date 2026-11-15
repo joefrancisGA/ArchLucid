@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -34,7 +34,17 @@ export type UseAskPageOptions = {
 
 export function useAskPage(options: UseAskPageOptions = {}) {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
-  const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [selectedThreadId, updateSelectedThreadId] = useState("");
+  const selectedThreadIdRef = useRef("");
+  const messageRequestVersion = useRef(0);
+  const setSelectedThreadId = useCallback((threadId: string) => {
+    if (selectedThreadIdRef.current !== threadId) {
+      selectedThreadIdRef.current = threadId;
+      messageRequestVersion.current += 1;
+    }
+
+    updateSelectedThreadId(threadId);
+  }, []);
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [runId, setRunId] = useState("");
   const [baseRunId, setBaseRunId] = useState("");
@@ -76,7 +86,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     setMessages(seeded.messages);
 
     return true;
-  }, [buyerPolishedShell]);
+  }, [buyerPolishedShell, setSelectedThreadId]);
 
   const applyThreadList = useCallback(
     (data: ConversationThread[]) => {
@@ -106,12 +116,25 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   }, [applyDemoSeedIfAvailable, applyThreadList, prefetchedThreads, threadListError, threadsQueryError]);
 
   const loadMessages = useCallback(async (threadId: string) => {
+    if (threadId !== selectedThreadIdRef.current) {
+      return;
+    }
+
+    const requestVersion = ++messageRequestVersion.current;
     setActionFailure(null);
     try {
       const data = await getConversationMessages(threadId);
+      if (requestVersion !== messageRequestVersion.current) {
+        return;
+      }
+
       const fallback = tryStaticDemoConversationMessages(threadId);
       setMessages(data.length > 0 ? data : (fallback ?? []));
     } catch (e) {
+      if (requestVersion !== messageRequestVersion.current) {
+        return;
+      }
+
       const fallback = tryStaticDemoConversationMessages(threadId);
 
       if (fallback !== null) {

@@ -1,7 +1,7 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ConversationThread } from "@/types/conversation";
+import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
 import { useAskPage } from "./use-ask-page";
 
@@ -123,5 +123,41 @@ describe("useAskPage conversation list", () => {
       "/insights/ask-review-questions",
       { scroll: false },
     ));
+  });
+
+  it.each(["success", "failure"])("ignores a late %s from the previous conversation", async (outcome) => {
+    const selectedThread = { ...requestedThread, threadId: "next-thread" };
+    const messageFor = (threadId: string): ConversationMessage => ({
+      messageId: `${threadId}-message`,
+      threadId,
+      role: "Assistant",
+      content: `Answer for ${threadId}`,
+      createdUtc: "2026-02-02T00:00:00Z",
+      metadataJson: "{}",
+    });
+    const previousRequest = Promise.withResolvers<ConversationMessage[]>();
+    mocks.useThreads.mockReturnValue({ data: [requestedThread, selectedThread], isError: false, refetch });
+    mocks.getMessages.mockImplementation((threadId: string) => threadId === requestedThread.threadId
+      ? previousRequest.promise
+      : Promise.resolve([messageFor(threadId)]));
+    const { result } = renderHook(() => useAskPage());
+    await waitFor(() => expect(mocks.getMessages).toHaveBeenCalledWith(requestedThread.threadId));
+
+    await act(async () => {
+      await result.current.onSelectThread(selectedThread.threadId);
+    });
+    expect(result.current.messages).toEqual([messageFor(selectedThread.threadId)]);
+
+    await act(async () => {
+      if (outcome === "success") {
+        previousRequest.resolve([messageFor(requestedThread.threadId)]);
+      } else {
+        previousRequest.reject(new Error("Previous conversation failed to load"));
+      }
+    });
+
+    expect(result.current.selectedThreadId).toBe(selectedThread.threadId);
+    expect(result.current.messages).toEqual([messageFor(selectedThread.threadId)]);
+    expect(result.current.actionFailure).toBeNull();
   });
 });
