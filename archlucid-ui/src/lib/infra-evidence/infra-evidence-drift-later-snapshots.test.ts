@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { partitionInfraEvidenceLaterSnapshotsForAnchor } from "@/lib/infra-evidence/infra-evidence-drift-later-snapshots";
@@ -17,6 +17,10 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
 }
 
 describe("partitionInfraEvidenceLaterSnapshotsForAnchor", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("partitions later captures by same vs cross subscription", () => {
     const anchor = snapshot();
     const sameSubLater = snapshot({
@@ -39,6 +43,18 @@ describe("partitionInfraEvidenceLaterSnapshotsForAnchor", () => {
     ).toEqual({
       sameSubscription: [sameSubLater],
       crossSubscription: [crossSubLater],
+    });
+  });
+
+  it("compares offset-less capture times as UTC against explicit offsets", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    const anchor = snapshot({ capturedUtc: "2026-09-01T12:00:00" });
+    const later = snapshot({ snapshotId: "later", capturedUtc: "2026-09-01T14:30:00+02:00" });
+    const earlier = snapshot({ snapshotId: "earlier", capturedUtc: "2026-09-01T11:30:00Z" });
+
+    expect(partitionInfraEvidenceLaterSnapshotsForAnchor(anchor, [later, earlier])).toEqual({
+      sameSubscription: [later],
+      crossSubscription: [],
     });
   });
 });

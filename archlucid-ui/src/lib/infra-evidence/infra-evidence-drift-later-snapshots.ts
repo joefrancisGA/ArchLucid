@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { infraEvidenceSnapshotsShareSubscription } from "@/lib/infra-evidence/infra-evidence-drift-subscription-scope";
 
@@ -6,7 +7,7 @@ function parseInfraEvidenceInstantMs(instantUtc: string | null | undefined): num
     return null;
   }
 
-  const parsedMs = Date.parse(instantUtc);
+  const parsedMs = parseIsoUtcMs(instantUtc);
 
   if (Number.isNaN(parsedMs)) {
     return null;
