@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { Ref } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -769,6 +769,7 @@ export function SecurityEvidencePathInspectPanel(props: {
   const resolvedPathId = props.pathIdOverride ?? findingQuery.data?.pathId ?? null;
   const pathQuery = useSecurityEvidencePathDetailQuery(resolvedPathId);
   const pathRankQuery = useSecurityEvidencePathRankQuery(resolvedPathId);
+  const explanationRequestId = useRef(0);
   const [explanation, setExplanation] = useState<SecurityEvidencePathExplanation | null>(null);
   const [explanationError, setExplanationError] = useState<string | null>(null);
   const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
@@ -836,6 +837,10 @@ export function SecurityEvidencePathInspectPanel(props: {
     setExplanationError(null);
     setIsGeneratingExplanation(false);
     setExplanationGeneratedAt(null);
+
+    return () => {
+      explanationRequestId.current += 1;
+    };
   }, [resolvedPathId]);
 
   async function generateExplanation() {
@@ -843,6 +848,7 @@ export function SecurityEvidencePathInspectPanel(props: {
       return;
     }
 
+    const requestId = ++explanationRequestId.current;
     setExplanationError(null);
     setIsGeneratingExplanation(true);
 
@@ -851,6 +857,10 @@ export function SecurityEvidencePathInspectPanel(props: {
         useSimulator: useSimulatorForExplanation,
         allowInsufficientEvidence: false,
       });
+
+      if (requestId !== explanationRequestId.current) {
+        return;
+      }
 
       if (!result.succeeded || result.explanation == null) {
         setExplanation(null);
@@ -861,10 +871,14 @@ export function SecurityEvidencePathInspectPanel(props: {
       setExplanation(result.explanation);
       setExplanationGeneratedAt(parseSecurityEvidencePathStoredUtc(result.explanation.createdUtc));
     } catch {
-      setExplanation(null);
-      setExplanationError(SECURENOW_PATH_INSPECT_EXPLANATION_ERROR);
+      if (requestId === explanationRequestId.current) {
+        setExplanation(null);
+        setExplanationError(SECURENOW_PATH_INSPECT_EXPLANATION_ERROR);
+      }
     } finally {
-      setIsGeneratingExplanation(false);
+      if (requestId === explanationRequestId.current) {
+        setIsGeneratingExplanation(false);
+      }
     }
   }
 
