@@ -1,4 +1,7 @@
+using System.Data.SqlTypes;
+
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -162,6 +165,36 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
 
     second.CloudResourceId.Should().Be(first.CloudResourceId);
     second.LastSeenSnapshotId.Should().Be(snapshotB);
+  }
+
+  [SkippableFact]
+  public async Task CloudResourceExplorer_orders_same_timestamp_resources_across_pages()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+    SqlCloudResourceIdentityDirectory directory = new(new SqlConnectionFactory(fixture.ConnectionString));
+    ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = WorkspaceId, ProjectId = ProjectA };
+    List<CloudResourceIdentitySnapshotWrite> resources = Enumerable.Range(0, 4)
+      .Select(index => new CloudResourceIdentitySnapshotWrite(
+        $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/paging{index}",
+        "Microsoft.Storage/storageAccounts", "sub", "rg", "eastus", $"paging{index}")).ToList();
+    IReadOnlyDictionary<string, CloudResourceIdentityRecord> batch =
+      await directory.UpsertSnapshotBatchAsync(scope, CloudProvider.Azure, Guid.NewGuid(), resources);
+
+    batch.Values.Select(resource => resource.LastSeenUtc).Distinct().Should().ContainSingle();
+    Guid[] expectedIds = batch.Values
+      .Select(resource => new SqlGuid(resource.CloudResourceId))
+      .Order()
+      .Select(id => id.Value)
+      .ToArray();
+
+    var (firstPage, totalCount) = await directory.ListForExplorerAsync(
+      scope, null, null, null, CloudResourceExplorerWorkQueue.All, page: 1, pageSize: 2);
+    var (secondPage, _) = await directory.ListForExplorerAsync(
+      scope, null, null, null, CloudResourceExplorerWorkQueue.All, page: 2, pageSize: 2);
+
+    totalCount.Should().Be(4);
+    firstPage.Select(row => row.Identity.CloudResourceId).Should().Equal(expectedIds[..2]);
+    secondPage.Select(row => row.Identity.CloudResourceId).Should().Equal(expectedIds[2..]);
   }
 
   [SkippableFact]
