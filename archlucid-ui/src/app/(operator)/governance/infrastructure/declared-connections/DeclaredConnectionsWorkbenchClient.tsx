@@ -68,7 +68,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -106,17 +106,19 @@ function formatDeclaredConnectionField(value: string | null | undefined, notStor
 }
 
 function formatRelativeExpiry(expirationUtc: string): string | null {
-  const expiryMs = Date.parse(expirationUtc);
-  const deltaMs = expiryMs - Date.now();
-  const days = Math.round(deltaMs / (24 * 60 * 60 * 1000));
+  const expiryMs = parseIsoUtcMs(expirationUtc);
 
   if (Number.isNaN(expiryMs)) {
     return null;
   }
 
-  if (days < 0) {
+  const deltaMs = expiryMs - Date.now();
+
+  if (deltaMs <= 0) {
     return "expired";
   }
+
+  const days = Math.round(deltaMs / (24 * 60 * 60 * 1000));
 
   if (days === 0) {
     return "expires today";
