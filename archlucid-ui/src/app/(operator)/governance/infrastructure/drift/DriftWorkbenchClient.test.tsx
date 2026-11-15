@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 
 let searchParams = new URLSearchParams(
   "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",
@@ -220,6 +221,24 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-drift-snapshot-picker")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
+  });
+
+  it("keeps one snapshot row when a loaded page is fetched again", async () => {
+    const snapshot = mockSnapshotItems[0]!;
+    const response = { items: [snapshot], totalCount: 51, page: 2, pageSize: 50, hasMore: false };
+    vi.mocked(fetchInfraEvidenceSnapshots).mockResolvedValueOnce(response).mockResolvedValueOnce(response);
+    searchParams = new URLSearchParams("snapshotsPage=2");
+
+    const { rerender } = render(<DriftWorkbenchClient />);
+    const rowTestId = `infra-drift-snapshot-row-${snapshot.snapshotId}`;
+    expect(await screen.findByTestId(rowTestId)).toBeInTheDocument();
+
+    searchParams = new URLSearchParams({ snapshotsPage: "2", snapshotId: snapshot.snapshotId });
+    await act(async () => {
+      rerender(<DriftWorkbenchClient />);
+    });
+
+    expect(screen.getAllByTestId(rowTestId)).toHaveLength(1);
   });
 
   it("explains that a first stored capture is required when no snapshots exist", async () => {

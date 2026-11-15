@@ -587,9 +587,17 @@ export function DriftWorkbenchClient() {
         const items = response.items ?? [];
 
         if (!cancelled) {
-          setSnapshots((current) =>
-            tableFilterState.snapshotsPage > 1 ? [...current, ...items] : items,
-          );
+          setSnapshots((current) => {
+            if (tableFilterState.snapshotsPage === 1) {
+              return items;
+            }
+
+            const byId = new Map(current.map((snapshot) => [snapshot.snapshotId, snapshot]));
+            for (const snapshot of items) {
+              byId.set(snapshot.snapshotId, snapshot);
+            }
+            return [...byId.values()];
+          });
           setSnapshotsTotalCount(response.totalCount ?? items.length);
           setSnapshotsHasMore(response.hasMore === true);
 
