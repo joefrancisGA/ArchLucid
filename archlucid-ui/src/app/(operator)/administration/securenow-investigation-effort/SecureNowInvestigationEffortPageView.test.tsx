@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SECURENOW_INVESTIGATION_EFFORT_NOTES } from "@/lib/product-line/securenow-investigation-effort-copy";
@@ -6,6 +6,10 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
   secureNowInvestigationEffortInputStorageKeyForScope,
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
+import {
+  loadSecureNowInvestigationEffortInputs,
+  persistSecureNowInvestigationEffortInputsToAudit,
+} from "@/lib/product-line/securenow-investigation-effort-sync";
 import { SecureNowInvestigationEffortPageView } from "./SecureNowInvestigationEffortPageView";
 
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
@@ -116,5 +120,36 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
       "Net annual value estimate: -3400",
     );
+  });
+
+  it("only records a new audit event after the operator edits restored inputs", async () => {
+    const savedInputs = {
+      baselineHours: "5",
+      afterHours: "3",
+      annualInvestigations: "10",
+      hourlyRate: "80",
+      annualCost: "5000",
+    };
+    vi.mocked(loadSecureNowInvestigationEffortInputs).mockResolvedValueOnce(savedInputs);
+    const save = vi.mocked(persistSecureNowInvestigationEffortInputsToAudit);
+    save.mockClear();
+    vi.useFakeTimers();
+
+    try {
+      await act(async () => {
+        render(<SecureNowInvestigationEffortPageView />);
+      });
+      const baseline = screen.getByLabelText("Baseline hours (B)");
+      expect(baseline).toHaveValue(5);
+
+      act(() => vi.advanceTimersByTime(400));
+      expect(save).not.toHaveBeenCalled();
+
+      fireEvent.change(baseline, { target: { value: "6" } });
+      act(() => vi.advanceTimersByTime(400));
+      expect(save).toHaveBeenCalledExactlyOnceWith({ ...savedInputs, baselineHours: "6" });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

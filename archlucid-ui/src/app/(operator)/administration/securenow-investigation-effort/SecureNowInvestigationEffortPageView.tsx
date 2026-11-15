@@ -62,7 +62,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (!restoreComplete) {
+    if (!restoreComplete || !editedRef.current) {
       return;
     }
 
