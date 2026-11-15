@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
@@ -74,9 +75,16 @@ export function resolveContinueLastDecisionRegisterEntry(
     }
   }
 
-  return (
-    validDecisions
-      .slice()
-      .sort((left, right) => right.recordedAtUtc.localeCompare(left.recordedAtUtc))[0] ?? null
-  );
+  let latest: ArchitectureDecisionRegisterEntry | null = null;
+  let latestRecordedAtMs = Number.NEGATIVE_INFINITY;
+
+  for (const decision of validDecisions) {
+    const recordedAtMs = parseIsoUtcMs(decision.recordedAtUtc);
+    if (recordedAtMs > latestRecordedAtMs) {
+      latest = decision;
+      latestRecordedAtMs = recordedAtMs;
+    }
+  }
+
+  return latest;
 }
