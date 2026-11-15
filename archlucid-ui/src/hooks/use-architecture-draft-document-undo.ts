@@ -50,6 +50,12 @@ export function useArchitectureDraftDocumentUndo(
     actorSet: args.actorSet,
   };
 
+  const lastRecorded = lastRecordedRef.current;
+  const pendingUndoSnapshot =
+    lastRecorded !== null && !draftDocumentSnapshotsEqual(lastRecorded, currentSnapshot)
+      ? lastRecorded
+      : null;
+
   const resetStacks = useCallback((baseline: ArchitectureDraftDocumentSnapshot) => {
     lastRecordedRef.current = cloneDraftDocumentSnapshot(baseline);
     setStacks(EMPTY_STACKS);
@@ -100,6 +106,11 @@ export function useArchitectureDraftDocumentUndo(
 
   const applyRestoredSnapshot = useCallback(
     (restored: ArchitectureDraftDocumentSnapshot) => {
+      if (coalesceTimerRef.current !== null) {
+        clearTimeout(coalesceTimerRef.current);
+        coalesceTimerRef.current = null;
+      }
+
       isRestoringRef.current = true;
       args.setFields(restored.fields);
       args.setActorSet(restored.actorSet);
@@ -114,7 +125,10 @@ export function useArchitectureDraftDocumentUndo(
       return false;
     }
 
-    const { stacks: nextStacks, restored } = undoDraftDocumentSnapshot(stacks, currentSnapshot);
+    const undoStacks = pendingUndoSnapshot === null
+      ? stacks
+      : pushDraftDocumentUndoSnapshot(stacks, pendingUndoSnapshot);
+    const { stacks: nextStacks, restored } = undoDraftDocumentSnapshot(undoStacks, currentSnapshot);
 
     if (restored === null) {
       return false;
@@ -124,10 +138,10 @@ export function useArchitectureDraftDocumentUndo(
     applyRestoredSnapshot(restored);
 
     return true;
-  }, [applyRestoredSnapshot, args.enabled, currentSnapshot, stacks]);
+  }, [applyRestoredSnapshot, args.enabled, currentSnapshot, pendingUndoSnapshot, stacks]);
 
   const redo = useCallback((): boolean => {
-    if (!args.enabled) {
+    if (!args.enabled || pendingUndoSnapshot !== null) {
       return false;
     }
 
@@ -141,7 +155,7 @@ export function useArchitectureDraftDocumentUndo(
     applyRestoredSnapshot(restored);
 
     return true;
-  }, [applyRestoredSnapshot, args.enabled, currentSnapshot, stacks]);
+  }, [applyRestoredSnapshot, args.enabled, currentSnapshot, pendingUndoSnapshot, stacks]);
 
   useKeyboardShortcuts({
     "ctrl+z": {
@@ -157,8 +171,8 @@ export function useArchitectureDraftDocumentUndo(
   });
 
   return {
-    canUndo: args.enabled && stacks.undo.length > 0,
-    canRedo: args.enabled && stacks.redo.length > 0,
+    canUndo: args.enabled && (pendingUndoSnapshot !== null || stacks.undo.length > 0),
+    canRedo: args.enabled && pendingUndoSnapshot === null && stacks.redo.length > 0,
     undo,
     redo,
     resetStacks,
