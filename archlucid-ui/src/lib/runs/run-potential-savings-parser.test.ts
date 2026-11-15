@@ -20,6 +20,26 @@ describe("run-potential-savings-parser", () => {
     expect(amount).toBeCloseTo(410 * 12);
   });
 
+  it.each([
+    ["Estimated Monthly Savings", 1800],
+    ["Estimated Annual Savings", 150],
+    ["PotentialMonthlySavings", 1800],
+  ])("reads cost-management opportunity from %s", (heading, expected) => {
+    const amount = heuristicAnnualUsdOpportunityFromCostArtifactJson({
+      properties: { columns: [{ name: "PreTaxCost" }, { name: heading }], rows: [[900, 150]] },
+    });
+
+    expect(amount).toBe(expected);
+  });
+
+  it("ignores billed cost without a savings column", () => {
+    const amount = heuristicAnnualUsdOpportunityFromCostArtifactJson({
+      properties: { columns: [{ name: "PreTaxCost" }], rows: [[900]] },
+    });
+
+    expect(amount).toBe(0);
+  });
+
   it("parses CM-style column matrices when headings imply opportunity", () => {
     const amount = heuristicAnnualUsdOpportunityFromCostArtifactJson({
       properties: {
