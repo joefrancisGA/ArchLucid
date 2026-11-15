@@ -43,7 +43,7 @@ const requestedThread: ConversationThread = {
 };
 const refetch = vi.fn();
 
-describe("useAskPage thread links", () => {
+describe("useAskPage conversation list", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getMessages.mockResolvedValue([]);
@@ -60,11 +60,51 @@ describe("useAskPage thread links", () => {
   });
 
   it("preserves the thread link when the initial list request fails", () => {
-    mocks.useThreads.mockReturnValue({ data: undefined, isError: true, refetch });
+    mocks.useThreads.mockReturnValue({
+      data: undefined,
+      isError: true,
+      error: new Error("Could not load conversations"),
+      refetch,
+    });
 
     renderHook(() => useAskPage());
 
     expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("exposes an initial list failure and clears it when the list recovers", async () => {
+    mocks.useThreads.mockReturnValue({
+      data: undefined,
+      isError: true,
+      error: new Error("Could not load conversations"),
+      refetch,
+    });
+    const { result, rerender } = renderHook(() => useAskPage());
+
+    expect(result.current.listFailure?.message).toBe("Could not load conversations");
+
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+    rerender();
+
+    await waitFor(() => expect(result.current.selectedThreadId).toBe("requested"));
+    expect(result.current.listFailure).toBeNull();
+  });
+
+  it("exposes a refresh failure while keeping the last successful thread list", () => {
+    const threads = [requestedThread];
+    mocks.useThreads.mockReturnValue({ data: threads, isError: false, refetch });
+    const { result, rerender } = renderHook(() => useAskPage());
+
+    mocks.useThreads.mockReturnValue({
+      data: threads,
+      isError: true,
+      error: new Error("Could not refresh conversations"),
+      refetch,
+    });
+    rerender();
+
+    expect(result.current.listFailure?.message).toBe("Could not refresh conversations");
+    expect(result.current.threads).toEqual(threads);
   });
 
   it("waits for the refreshed list before replacing a thread absent from the cache", async () => {
