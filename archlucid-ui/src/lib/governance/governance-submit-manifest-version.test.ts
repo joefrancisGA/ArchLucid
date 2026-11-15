@@ -48,6 +48,21 @@ describe("governance-submit-manifest-version", () => {
     });
   });
 
+  it("rejects a lower version even when a segment exceeds safe integer precision", () => {
+    const persisted = "1.9007199254740993.0";
+    const proposed = "1.9007199254740992.0";
+
+    expect(compareNumericSemverManifestVersions(proposed, persisted)).toBe(-1);
+    expect(validateGovernanceSubmitManifestVersion(proposed, persisted)).toEqual({
+      valid: false,
+      message: `Review record version cannot be lower than ${persisted} for this review.`,
+    });
+  });
+
+  it("treats zero-padded segments as the same numeric version", () => {
+    expect(compareNumericSemverManifestVersions("01.0002.0", "1.2.00")).toBe(0);
+  });
+
   it("accepts versions at or above the persisted max", () => {
     expect(validateGovernanceSubmitManifestVersion("3.4.1", "3.4.1")).toEqual({ valid: true });
     expect(validateGovernanceSubmitManifestVersion("3.4.2", "3.4.1")).toEqual({ valid: true });
