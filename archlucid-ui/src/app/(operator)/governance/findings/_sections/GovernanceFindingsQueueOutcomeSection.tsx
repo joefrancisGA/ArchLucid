@@ -70,14 +70,14 @@ export function GovernanceFindingsQueueOutcomeSection(
   });
   const { collectionInput, isPending: collectionInputPending } = useSecureNowCollectionSetupInput({
     snapshotCaptureSucceeded: null,
-    enabled: !props.isAssignedToMe && isSecureNowProductLine(productLine),
+    enabled: isSecureNowProductLine(productLine),
   });
   const secureNowCollectionMissing =
     collectionInput !== null && shouldShowSecureNowCollectionMissingBlock(collectionInput);
   const secureNowCaptureEvaluatedEmpty =
     collectionInput !== null && !secureNowCollectionMissing && !collectionInputPending;
   const secureNowEmptyState =
-    !props.isAssignedToMe && isSecureNowProductLine(productLine)
+    isSecureNowProductLine(productLine)
       ? resolveSecureNowGovernanceFindingsEmptyStateCopy({
           collectionMissing: secureNowCollectionMissing,
           captureEvaluatedEmpty: secureNowCaptureEvaluatedEmpty,
@@ -171,17 +171,19 @@ export function GovernanceFindingsQueueOutcomeSection(
             }
             description={
               props.isAssignedToMe
-                ? buildGovernanceAssignedToMeEmptyDescription(
-                    {
-                      assigneeDisplayName: props.currentPrincipalName,
-                      assigneeRoleLabel: props.currentPrincipalRole,
-                      checkedAt: props.assignedToMeCheckedAt,
-                      fetchBasis: props.assignedToMeFetchBasis,
-                      productLine,
-                      suppressCheckedAtLine: true,
-                    },
-                    { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
-                  )
+                ? secureNowEmptyState !== null && secureNowCollectionMissing
+                  ? secureNowEmptyState.description
+                  : buildGovernanceAssignedToMeEmptyDescription(
+                      {
+                        assigneeDisplayName: props.currentPrincipalName,
+                        assigneeRoleLabel: props.currentPrincipalRole,
+                        checkedAt: props.assignedToMeCheckedAt,
+                        fetchBasis: props.assignedToMeFetchBasis,
+                        productLine,
+                        suppressCheckedAtLine: true,
+                      },
+                      { nowMs: relativeFreshnessNowMs, headerOwnsFreshness: true },
+                    )
                 : inhabitedEmptyState !== null
                   ? inhabitedEmptyState.description
                   : secureNowEmptyState !== null
@@ -215,6 +217,12 @@ export function GovernanceFindingsQueueOutcomeSection(
             footer={
               props.isAssignedToMe ? (
                 <div className="space-y-3">
+                  {secureNowCollectionMissing && collectionInput !== null ? (
+                    <SecureNowCollectionPrimaryBlockerLine
+                      input={collectionInput}
+                      testIdPrefix="governance-assigned-findings-empty"
+                    />
+                  ) : null}
                   <Button asChild size="sm" variant="outline">
                     <Link href={assignedToMeFindingsHref(productLine)}>
                       {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}

@@ -6,6 +6,7 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackCatalogListItem } from "@/types/policy-packs";
+import { POLICY_PACKS_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/policy/policy-packs-catalog-empty-honesty-copy";
 
 type PolicyPacksCatalogSectionProps = {
   readonly canMutatePacks: boolean;
@@ -71,11 +72,19 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
         </div>
       ) : null}
 
-      {props.items.length === 0 && !props.loading ? (
-        <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>
-          No promoted catalog snapshots yet. Bundled platform packs live on the <strong>My packs</strong> tab — use the
-          workspace selection list there to turn packs on or off.
-        </p>
+      {props.items.length === 0 && !props.loading && props.failure === null ? (
+        <div className="space-y-2">
+          <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>
+            No promoted catalog snapshots yet. Bundled platform packs live on the <strong>My packs</strong> tab — use the
+            workspace selection list there to turn packs on or off.
+          </p>
+          <p
+            className={cn("m-0 text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="policy-packs-catalog-empty-not-load-failure"
+          >
+            {POLICY_PACKS_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </div>
       ) : null}
 
       <ul className="divide-y rounded-md border">

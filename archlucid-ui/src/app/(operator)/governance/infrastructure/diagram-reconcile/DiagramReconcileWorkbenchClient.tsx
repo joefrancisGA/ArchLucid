@@ -138,6 +138,7 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/diagram-reconcile-inventory-snapshot-honesty-copy";
+import { DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE } from "@/lib/infra-evidence/diagram-reconcile-pinned-snapshot-honesty-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
@@ -535,6 +536,17 @@ export function DiagramReconcileWorkbenchClient() {
       }),
     [selectedSnapshotId, snapshots, urlSnapshotId],
   );
+  const diagramReconcilePinnedNotLatest = useMemo(() => {
+    const latestSnapshotId = snapshots[0]?.snapshotId?.trim() ?? "";
+    const urlId = urlSnapshotId.trim();
+    const selected = selectedSnapshotId.trim();
+
+    if (urlId.length === 0 || latestSnapshotId.length === 0 || selected.length === 0) {
+      return false;
+    }
+
+    return selected !== latestSnapshotId;
+  }, [selectedSnapshotId, snapshots, urlSnapshotId]);
 
   const syncUrl = useCallback(
     (patch: {
@@ -1891,6 +1903,14 @@ export function DiagramReconcileWorkbenchClient() {
               <StatusTag kind="needs-attention" label="Needs attention" />
             ) : null}
           </div>
+        ) : null}
+        {diagramReconcilePinnedNotLatest ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagram-reconcile-pinned-not-latest-honesty"
+          >
+            {DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE}
+          </p>
         ) : null}
       </section>
       </div>

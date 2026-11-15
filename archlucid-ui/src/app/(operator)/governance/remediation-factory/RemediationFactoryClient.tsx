@@ -51,6 +51,7 @@ import {
 } from "@/lib/governance/governance-findings-queue-keyboard-focus";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
 import { REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE } from "@/lib/remediation-factory-simulator-rank-honesty-copy";
+import { REMEDIATION_FACTORY_CORE_READ_RETRY_RANK_UNCHANGED_LINE } from "@/lib/remediation-factory/remediation-factory-core-read-honesty-copy";
 import {
   remediationFactoryExecutiveMetricsErrorRecovery,
   remediationFactoryPriorityQueueErrorRecovery,
@@ -713,6 +714,12 @@ export function RemediationFactoryClient() {
         <div role="alert" className="space-y-2" data-testid="remediation-factory-hard-failure">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             Executive metrics, priority queue, and ranked paths could not be loaded together.
+          </p>
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="remediation-factory-core-read-retry-rank-honesty"
+          >
+            {REMEDIATION_FACTORY_CORE_READ_RETRY_RANK_UNCHANGED_LINE}
           </p>
           <FatalPageReportProblemSupportRow
             surfaceId={remediationFactoryHardFailureSurfaceId}
