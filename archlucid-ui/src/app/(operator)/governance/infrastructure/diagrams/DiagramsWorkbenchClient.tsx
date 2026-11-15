@@ -54,6 +54,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { DIAGRAMS_SNAPSHOT_RENDER_HONESTY_LINE } from "@/lib/infra-evidence/diagrams-snapshot-render-honesty-copy";
 import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
@@ -2434,6 +2435,10 @@ export function DiagramsWorkbenchClient() {
         snapshotId={snapshotResolvedForWorkbench ? selectedSnapshotId : ""}
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-snapshot-render-honesty">
+        {DIAGRAMS_SNAPSHOT_RENDER_HONESTY_LINE}
+      </p>
 
       {deepLinkedSnapshotMissing ? (
         <StatusTag

@@ -24,6 +24,7 @@ import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/compon
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
+import { TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/terraform-advisory-snapshot-honesty-copy";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
@@ -500,6 +501,10 @@ export function TerraformWorkbenchClient() {
         data-testid="infra-terraform-primary-content"
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-terraform-selection-announcer" />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-terraform-advisory-snapshot-honesty">
+          {TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE}
+        </p>
 
         {hasStaleAuditUrlParams && urlCloudResourceId.length === 0 ? (
           <InfraAuditLineageUnavailableBanner
