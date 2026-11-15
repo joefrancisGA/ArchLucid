@@ -82,6 +82,7 @@ describe("ResponsibleAiPolicyPackDetail", () => {
     expect(screen.getByText("Enabled")).toBeInTheDocument();
     expect(screen.getByText("Workspace")).toBeInTheDocument();
     expect(screen.getByText("Ai Gov 001")).toBeInTheDocument();
+    expect(screen.getByText("Severity was not stored.")).toBeInTheDocument();
     expect(screen.getByTestId("policy-pack-rules-source-qualifier")).toHaveTextContent(
       "Published pack lists rule keys only; severity is not specified in pack metadata.",
     );

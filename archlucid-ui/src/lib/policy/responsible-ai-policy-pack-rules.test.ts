@@ -29,7 +29,7 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
     expect(result.rulesSourceQualifier).toBe(
       "Published pack lists rule keys only; severity is not specified in pack metadata.",
     );
-    expect(result.rows[0]?.severity).toBe("Low");
+    expect(result.rows[0]?.severity).toBeNull();
   });
 
   it("prefers curated rules from pack metadata when present", () => {
