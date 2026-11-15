@@ -38,4 +38,14 @@ describe("resolveContinueLastAlertRule", () => {
     expect(match?.ruleId).toBe("new");
     expect(match?.name).toBe("New");
   });
+
+  it("orders rules by instant and ignores unreadable creation timestamps", () => {
+    const match = resolveContinueLastAlertRule([
+      rule({ ruleId: "invalid", name: "Invalid", createdUtc: "not-a-timestamp" }),
+      rule({ ruleId: "older", name: "Older", createdUtc: "2026-08-20T01:00:00+02:00" }),
+      rule({ ruleId: "newer", name: "Newer", createdUtc: "2026-08-20T00:30:00Z" }),
+    ]);
+
+    expect(match?.ruleId).toBe("newer");
+  });
 });
