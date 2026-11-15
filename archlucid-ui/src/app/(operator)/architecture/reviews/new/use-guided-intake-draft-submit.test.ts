@@ -92,6 +92,7 @@ describe("useGuidedIntakeDraftSubmit", () => {
       },
     });
     submitDraftRequest.mockResolvedValue({
+      status: "Submitted",
       runId: "run-guided-1",
       parentSpawnedRunId: null,
     });
@@ -123,5 +124,38 @@ describe("useGuidedIntakeDraftSubmit", () => {
     expect(navigate).toHaveBeenCalledWith("/architecture/reviews/run-guided-1/generation");
     expect(clearSession).toHaveBeenCalled();
     expect(setSubmitError.mock.calls.some((call) => call[0] instanceof Error)).toBe(false);
+  });
+
+  it("hands off the review when the draft refresh fails after a successful submit", async () => {
+    const draftBeforeSubmit = await getDraftRequest();
+    getDraftRequest
+      .mockResolvedValueOnce(draftBeforeSubmit)
+      .mockRejectedValueOnce(new Error("draft refresh failed"));
+    const navigate = vi.fn();
+    const clearSession = vi.fn();
+    const core = buildCore();
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeDraftSubmit({
+        form: buildForm(),
+        isCreateArchitectureFlow: false,
+        navigate,
+        clearSession,
+        core,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.submitDraft();
+    });
+
+    expect(navigate).toHaveBeenCalledWith("/architecture/reviews/run-guided-1/generation");
+    expect(core.setDraftStatus).toHaveBeenCalledWith("Submitted");
+    expect(core.setLinkedSpawnedRunId).toHaveBeenCalledWith("run-guided-1");
+    expect(upsertArchitectureDraftRegistryEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ linkedReviewId: "run-guided-1" }),
+    );
+    expect(clearSession).toHaveBeenCalled();
+    expect(core.setSubmitError).toHaveBeenCalledExactlyOnceWith(null);
   });
 });
