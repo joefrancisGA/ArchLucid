@@ -37,6 +37,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   const [selectedThreadId, updateSelectedThreadId] = useState("");
   const selectedThreadIdRef = useRef("");
   const messageRequestVersion = useRef(0);
+  const skipAutomaticThreadResume = useRef(false);
   const setSelectedThreadId = useCallback((threadId: string) => {
     if (selectedThreadIdRef.current !== threadId) {
       selectedThreadIdRef.current = threadId;
@@ -193,10 +194,14 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     basePathname: options.basePathname,
   });
 
-  const { onSelectThread } = urlSync;
+  const { onSelectThread, onNewConversation: resetConversation } = urlSync;
+  const onNewConversation = useCallback(() => {
+    skipAutomaticThreadResume.current = true;
+    resetConversation();
+  }, [resetConversation]);
 
   useEffect(() => {
-    if (listFailure !== null) {
+    if (skipAutomaticThreadResume.current || listFailure !== null) {
       return;
     }
 
@@ -366,7 +371,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     reviewScopedForAsking: urlSync.reviewScopedForAsking,
     showThreadHistoryPanel,
     onPickReviewForAsking: urlSync.onPickReviewForAsking,
-    onNewConversation: urlSync.onNewConversation,
+    onNewConversation,
     onSelectThread: urlSync.onSelectThread,
     onStarterPromptClick: stream.onStarterPromptClick,
     mergePromptLine: stream.mergePromptLine,

@@ -46,6 +46,7 @@ const refetch = vi.fn();
 describe("useAskPage conversation list", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParams.set("thread", "requested");
     mocks.getMessages.mockResolvedValue([]);
   });
 
@@ -159,5 +160,33 @@ describe("useAskPage conversation list", () => {
     expect(result.current.selectedThreadId).toBe(selectedThread.threadId);
     expect(result.current.messages).toEqual([messageFor(selectedThread.threadId)]);
     expect(result.current.actionFailure).toBeNull();
+  });
+
+  it("automatically resumes an existing conversation when opening Ask without a thread link", async () => {
+    searchParams.delete("thread");
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+
+    const { result } = renderHook(() => useAskPage());
+
+    await waitFor(() => expect(result.current.selectedThreadId).toBe(requestedThread.threadId));
+    expect(mocks.getMessages).toHaveBeenCalledWith(requestedThread.threadId);
+  });
+
+  it("keeps a deliberately started conversation blank after the URL updates", async () => {
+    mocks.useThreads.mockReturnValue({ data: [requestedThread], isError: false, refetch });
+    const { result, rerender } = renderHook(() => useAskPage());
+    await waitFor(() => expect(result.current.selectedThreadId).toBe(requestedThread.threadId));
+    mocks.getMessages.mockClear();
+
+    act(() => result.current.onNewConversation());
+    searchParams.delete("thread");
+    rerender();
+
+    expect(result.current.selectedThreadId).toBe("");
+    expect(result.current.messages).toEqual([]);
+    expect(mocks.getMessages).not.toHaveBeenCalled();
+
+    await act(async () => result.current.onSelectThread(requestedThread.threadId));
+    expect(result.current.selectedThreadId).toBe(requestedThread.threadId);
   });
 });
