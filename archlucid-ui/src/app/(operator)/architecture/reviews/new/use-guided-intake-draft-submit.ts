@@ -49,7 +49,11 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
     try {
       const draftBeforeSubmit = await getDraftRequest(core.draftId);
       const result = await submitDraftRequest(core.draftId, draftBeforeSubmit.updatedUtc);
-      const submittedDraft = await getDraftRequest(core.draftId);
+      const submittedDraft = await getDraftRequest(core.draftId).catch(() => ({
+        ...draftBeforeSubmit,
+        status: result.status,
+        spawnedRunId: result.runId,
+      }));
       core.setDraftStatus(submittedDraft.status);
       core.setLinkedSpawnedRunId(architectureDraftSpawnedRunId(submittedDraft));
 
