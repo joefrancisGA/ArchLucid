@@ -199,14 +199,14 @@ function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint
   return {
     cutPointId: mapStoredLabel(raw.cutPointId, "Cut point id was not stored."),
     cutKind: mapStoredLabel(raw.cutKind, SECURITY_EVIDENCE_PATH_CUT_KIND_NOT_STORED),
-    cutOrder: finiteNonNegativeNumberOrDefault(raw.cutOrder, 0),
+    cutOrder: nonNegativeNumberOrNull(raw.cutOrder),
     fromNodeLabel: mapOptionalTrimmedString(raw.fromNodeLabel),
     toNodeLabel: mapOptionalTrimmedString(raw.toNodeLabel),
     edgeType: mapOptionalTrimmedString(raw.edgeType),
     explanationSummary: mapStoredLabel(raw.explanationSummary, "Cut point summary was not stored."),
     suggestedPatternKey: mapOptionalTrimmedString(raw.suggestedPatternKey),
     operationalCostClass: mapStoredLabel(raw.operationalCostClass, "Operational cost class was not stored."),
-    pathsCollapsedCount: finiteNonNegativeNumberOrDefault(raw.pathsCollapsedCount, 0),
+    pathsCollapsedCount: nonNegativeNumberOrNull(raw.pathsCollapsedCount),
     leverageScore: nonNegativeNumberOrNull(leverageRaw),
     collapsedPathIds: mapStoredIdList(collapsedPathIdsRaw),
   };

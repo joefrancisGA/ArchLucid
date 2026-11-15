@@ -18,11 +18,21 @@ export type RunAcknowledgedCoverageDocument = {
   entries: RunCoverageAcknowledgementEntry[];
 };
 
+function encodeRequiredPathSegment(value: string, fieldName: string): string {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error(`${fieldName} is required.`);
+  }
+
+  return encodeURIComponent(trimmed);
+}
+
 /** GET /v1/runs/{runId}/coverage/acknowledgement — operator pinned coverage acknowledgement rows. */
 export async function getRunCoverageAcknowledgement(
   runId: string,
 ): Promise<RunAcknowledgedCoverageDocument> {
-  const normalizedRunId = runId.trim();
+  const normalizedRunId = encodeRequiredPathSegment(runId, "runId");
 
   try {
     return await apiGetSealedManifestAware<RunAcknowledgedCoverageDocument>(
@@ -41,7 +51,7 @@ export async function putRunCoverageAcknowledgement(
   runId: string,
   entries: readonly RunCoverageAcknowledgementEntry[],
 ): Promise<RunAcknowledgedCoverageDocument> {
-  const normalizedRunId = runId.trim();
+  const normalizedRunId = encodeRequiredPathSegment(runId, "runId");
 
   try {
     return await apiPutJson<RunAcknowledgedCoverageDocument>(
@@ -62,8 +72,8 @@ export async function patchRunCoveragePack(
   policyPackId: string,
   body: { excluded: boolean; exclusionReason?: string | null },
 ): Promise<RunCoverageAcknowledgementEntry> {
-  const normalizedRunId = runId.trim();
-  const normalizedPackId = policyPackId.trim();
+  const normalizedRunId = encodeRequiredPathSegment(runId, "runId");
+  const normalizedPackId = encodeRequiredPathSegment(policyPackId, "policyPackId");
 
   try {
     return await apiPatchJson<RunCoverageAcknowledgementEntry>(

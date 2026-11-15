@@ -153,7 +153,7 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
 
       {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading GCP connections…</p> : null}
 
-      {!isLoading && !hasConnection ? <GcpConnectionWizard /> : null}
+      {!isLoading && loadError === null && !hasConnection ? <GcpConnectionWizard /> : null}
 
       {hasConnection ? (
         <div className="space-y-4" data-testid="gcp-connection-list">

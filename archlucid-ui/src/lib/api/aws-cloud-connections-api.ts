@@ -23,11 +23,39 @@ export async function configureAwsTier2Connection(
 }
 
 export async function listAwsTier2Connections(): Promise<AwsTier2ConnectionResponse[]> {
-  return apiGet<AwsTier2ConnectionResponse[]>("/v1/aws-extractor/connections");
+  const raw = await apiGet<unknown>("/v1/aws-extractor/connections");
+
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.flatMap((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const row = item as Record<string, unknown>;
+
+    return [{
+      connectionId: typeof row.connectionId === "string" ? row.connectionId.trim() : "",
+      accountId: typeof row.accountId === "string" ? row.accountId.trim() : "",
+      region: typeof row.region === "string" ? row.region.trim() : "",
+      roleArn: typeof row.roleArn === "string" ? row.roleArn.trim() : "",
+      status: typeof row.status === "string" ? row.status.trim() : "",
+      lastPolledUtc: typeof row.lastPolledUtc === "string" ? row.lastPolledUtc.trim() : null,
+      updatedUtc: typeof row.updatedUtc === "string" ? row.updatedUtc.trim() : "",
+    }];
+  });
 }
 
 export async function disconnectAwsTier2Connection(connectionId: string): Promise<void> {
-  await apiDelete(`/v1/aws-extractor/connections/${connectionId}`);
+  const normalizedConnectionId = connectionId.trim();
+
+  if (normalizedConnectionId.length === 0) {
+    throw new Error("connectionId is required.");
+  }
+
+  await apiDelete(`/v1/aws-extractor/connections/${encodeURIComponent(normalizedConnectionId)}`);
 }
 
 export interface AwsTier2HostedRunBody {

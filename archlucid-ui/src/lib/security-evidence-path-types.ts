@@ -57,14 +57,14 @@ export type SecurityEvidencePathWeakestHop = {
 export type SecurityEvidencePathCutPoint = {
   cutPointId: string;
   cutKind: string;
-  cutOrder: number;
+  cutOrder: number | null;
   fromNodeLabel: string | null;
   toNodeLabel: string | null;
   edgeType: string | null;
   explanationSummary: string;
   suggestedPatternKey: string | null;
   operationalCostClass: string;
-  pathsCollapsedCount: number;
+  pathsCollapsedCount: number | null;
   leverageScore: number | null;
   collapsedPathIds: ReadonlyArray<string>;
 };

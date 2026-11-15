@@ -1178,7 +1178,12 @@ export function RemediationWorkbenchClient() {
           </div>
         ) : (
           <div className="space-y-2" data-testid="infra-remediation-load-error-panel" role="alert">
-            <p className="m-0 text-sm text-destructive">{loadError}</p>
+            <OperatorSectionLoadFailure
+              message={loadError}
+              onRetry={() => void loadWorkbench()}
+              retrying={loading}
+              testId="infra-remediation-load-error-panel"
+            />
             <OperatorErrorRecoveryContract presentation={loadRecovery} />
           </div>
         )

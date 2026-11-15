@@ -107,10 +107,12 @@ export function RemediationFactoryTopCutPointsSection(props: {
               <li
                 key={cutPoint.cutPointId}
                 className="rounded border border-border p-3"
-                data-testid={`remediation-factory-top-cut-point-${cutPoint.cutOrder}`}
+                data-testid={`remediation-factory-top-cut-point-${cutPoint.cutOrder ?? "not-stored"}`}
               >
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="font-mono text-muted-foreground">#{cutPoint.cutOrder}</span>
+                  <span className="font-mono text-muted-foreground">
+                    #{cutPoint.cutOrder ?? "not stored"}
+                  </span>
                   {" "}
                   {formatCutPointHeadline(cutPoint)}
                 </p>

@@ -4,7 +4,7 @@ import { formatInstantForLocale } from "@/lib/locale-datetime";
 /** Shared presentation helpers for GCP cloud connection UI (TB-1773). */
 
 export function gcpConnectionStatusTagKind(status: string): EnterpriseStatusKind {
-  switch (status.toLowerCase()) {
+  switch (status.trim().toLowerCase()) {
     case "connected":
       return "ready";
     case "polling":
@@ -24,7 +24,7 @@ export function formatGcpConnectionTimestamp(value: string | null): string {
   const parsed = Date.parse(value);
 
   if (Number.isNaN(parsed)) {
-    return value;
+    return "Date not readable";
   }
 
   return formatInstantForLocale(value);

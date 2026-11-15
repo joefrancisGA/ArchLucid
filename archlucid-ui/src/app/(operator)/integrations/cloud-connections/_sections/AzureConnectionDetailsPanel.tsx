@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -115,9 +116,11 @@ export function AzureConnectionDetailsPanel(): React.ReactElement {
 
   if (loadError !== null) {
     return (
-      <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
-        {loadError}
-      </p>
+      <OperatorSectionLoadFailure
+        message={loadError}
+        onRetry={() => void refreshConnections()}
+        testId="azure-connection-details-load-error"
+      />
     );
   }
 
