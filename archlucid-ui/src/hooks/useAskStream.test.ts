@@ -70,4 +70,19 @@ describe("useAskStream", () => {
     });
     expect(result.current.isStreaming).toBe(false);
   });
+
+  it("clears streaming after a transport failure so another question can be sent", async () => {
+    askArchLucidStream.mockRejectedValueOnce(new Error("connection lost")).mockResolvedValueOnce(null);
+    const { result } = renderHook(() => useAskStream());
+
+    await act(async () => {
+      await expect(result.current.ask({ question: "First question" })).rejects.toThrow("connection lost");
+    });
+
+    expect(result.current.isStreaming).toBe(false);
+    await act(async () => {
+      await result.current.ask({ question: "Try again" });
+    });
+    expect(askArchLucidStream).toHaveBeenCalledTimes(2);
+  });
 });
