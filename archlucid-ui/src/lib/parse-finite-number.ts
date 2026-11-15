@@ -1,6 +1,6 @@
 /** Converts numeric API values without allowing NaN or Infinity into UI state. */
 export function parseFiniteNumber(value: unknown): number | null {
-  if (value == null) {
+  if (typeof value !== "number" && (typeof value !== "string" || value.trim() === "")) {
     return null;
   }
 
