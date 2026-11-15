@@ -30,6 +30,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evidence/resources-explorer-snapshot-scope-honesty-copy";
+import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
@@ -645,6 +646,11 @@ export function ResourcesExplorerClient() {
                   title="No matching resources"
                   description="No resources in this snapshot match the current filters. Widen filters or clear the work queue — an empty table is not proof the subscription has zero resources."
                   testId="infra-resource-explorer-empty-state"
+                  footer={
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-not-failure">
+                      {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                  }
                 />
               </EnterpriseTableCell>
             </EnterpriseTableRow>

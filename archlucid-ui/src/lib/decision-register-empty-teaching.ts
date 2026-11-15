@@ -47,6 +47,9 @@ export const DECISION_REGISTER_EMPTY_TEACHING_BODY =
 export const DECISION_REGISTER_EMPTY_TEACHING_HONESTY =
   "An empty Decision register does not mean the findings queue is empty — triage risks there, then record decisions here after finalize." as const;
 
+export const DECISION_REGISTER_EMPTY_SECURENOW_COLLECTION_HONESTY =
+  "On SecureNow, this register stays empty until architecture-style finalize exists — finish inventory capture and path ranking first." as const;
+
 export const DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION: DecisionRegisterEmptyTeachingAction =
   {
     id: "triage-findings",
@@ -88,6 +91,10 @@ export function buildDecisionRegisterEmptyTeaching(
   const workingMode = input?.workingMode === true;
   const productLine = input?.productLine ?? "architecture";
   const findingsAction = decisionRegisterFindingsAction(productLine);
+  const honestyLine =
+    productLine === "security"
+      ? `${DECISION_REGISTER_EMPTY_TEACHING_HONESTY} ${DECISION_REGISTER_EMPTY_SECURENOW_COLLECTION_HONESTY}`
+      : DECISION_REGISTER_EMPTY_TEACHING_HONESTY;
 
   if (workingMode) {
     const lastOpenArchitectureId = input?.lastOpenArchitectureId?.trim() ?? "";
@@ -99,7 +106,7 @@ export function buildDecisionRegisterEmptyTeaching(
     return {
       title: DECISION_REGISTER_EMPTY_TEACHING_TITLE,
       body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
-      honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
+      honestyLine,
       actions: [
         findingsAction,
         {
@@ -119,7 +126,7 @@ export function buildDecisionRegisterEmptyTeaching(
   return {
     title: DECISION_REGISTER_EMPTY_TEACHING_TITLE,
     body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
-    honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
+    honestyLine,
     actions: [
       findingsAction,
       DECISION_REGISTER_EMPTY_TEACHING_START_REVIEW_ACTION,

@@ -122,6 +122,7 @@ import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evide
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { isAppShellWorkspaceFooterBuildFingerprintVisible } from "@/lib/app-shell-workspace-footer-build-fingerprint-visibility";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
+import { DRIFT_WORKBENCH_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/drift-workbench-empty-not-failure-copy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
@@ -1742,9 +1743,14 @@ export function DriftWorkbenchClient() {
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY}
             testId="infra-drift-snapshots-empty-resolved"
             footer={
-              <Button asChild size="sm" variant="primary">
-                <Link href={CLOUD_CONNECTIONS_PATH}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION}</Link>
-              </Button>
+              <div className="flex flex-col gap-2">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-snapshots-empty-not-failure">
+                  {DRIFT_WORKBENCH_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={CLOUD_CONNECTIONS_PATH}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION}</Link>
+                </Button>
+              </div>
             }
           />
         ) : null}

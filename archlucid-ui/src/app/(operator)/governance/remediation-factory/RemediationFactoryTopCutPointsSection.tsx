@@ -12,6 +12,7 @@ import { remediationFactoryTopCutPointsErrorRecovery } from "@/lib/remediation-f
 import { formatCutPointHeadline } from "@/lib/security-evidence-path-cut-point-presentation";
 import type { SecurityEvidencePathCutPoint } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
+import { STANDARDS_CUT_POINT_FRAMEWORK_THEME_NOT_CONTROL_PASS_LINE } from "@/lib/governance/standards-cut-point-framework-theme-copy";
 
 import { RemediationFactoryBorderedSection } from "./RemediationFactoryBorderedSection";
 import {
@@ -91,6 +92,12 @@ export function RemediationFactoryTopCutPointsSection(props: {
       }
     >
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD}</p>
+      <p
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="remediation-factory-top-cut-points-framework-theme"
+      >
+        {STANDARDS_CUT_POINT_FRAMEWORK_THEME_NOT_CONTROL_PASS_LINE}
+      </p>
 
       {props.cutPoints.length === 0 ? (
         <EnterpriseCompactEmptyState

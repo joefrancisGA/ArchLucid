@@ -78,6 +78,10 @@ import {
 import { SECURENOW_PATH_INSPECT_CITATION_ALLOWED_REFS_LEAD } from "@/lib/product-line/securenow-path-inspect-citation-allowed-copy";
 import { formatSecureNowCitationRejectionDetail } from "@/lib/product-line/securenow-citation-rejection-detail";
 import { secureNowSyntheticFixtureDisciplineForPathId } from "@/lib/product-line/securenow-fixture-path-id";
+import {
+  PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE,
+  shouldShowPathInspectLongPathIdHonesty,
+} from "@/lib/product-line/path-inspect-long-path-id-honesty-copy";
 import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -666,12 +670,19 @@ function InspectSelectionIdentityHeader(props: {
           {idsOpen ? "Hide identifiers" : "Show identifiers"}
         </Link>
         {idsOpen ? (
-          <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-path-id">
-            Path ID:{" "}
-            {props.pathId != null && props.pathId.trim().length > 0
-              ? props.pathId
-              : "Path id was not stored."}
-          </p>
+          <div className="space-y-1">
+            <p className={cn("m-0 font-mono text-xs break-all", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-path-id">
+              Path ID:{" "}
+              {props.pathId != null && props.pathId.trim().length > 0
+                ? props.pathId
+                : "Path id was not stored."}
+            </p>
+            {shouldShowPathInspectLongPathIdHonesty(props.pathId) ? (
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-path-id-overflow">
+                {PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE}
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </div>
     );

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -15,6 +15,15 @@ import type {
   ConnectionStatusHelpWorkspaceReadinessSnapshot,
 } from "@/lib/use-connection-status-help-workspace-readiness";
 import { useConnectionStatusHelpWorkspaceReadiness } from "@/lib/use-connection-status-help-workspace-readiness";
+import Link from "next/link";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 
 export const HELP_CONNECTION_STATUS_WORKSPACE_READINESS_HEADING_ID =
   "help-connection-status-workspace-readiness-heading";
@@ -65,6 +74,8 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
 ): React.ReactElement {
   const hookReadiness = useConnectionStatusHelpWorkspaceReadiness();
   const readiness = props.readiness ?? hookReadiness;
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
 
   const scopeLine = useMemo((): string | null => {
     if (readiness.loading || readiness.workspaceScopeLabel === null) {
@@ -109,6 +120,14 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
         </h2>
         {headerMeta.length > 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{headerMeta}</p>
+        ) : null}
+        {partialCapture ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-connection-status-partial-capture">
+            {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+          </p>
         ) : null}
       </header>
 

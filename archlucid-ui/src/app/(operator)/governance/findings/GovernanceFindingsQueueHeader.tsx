@@ -22,7 +22,7 @@ import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyb
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
@@ -45,6 +45,13 @@ import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/governance/governance-findings-queue-path-inspect-page-shortcuts";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import Link from "next/link";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 import {
   isPositiveFiniteCount,
   resolveSecureNowFindingsQueueOpenGate,
@@ -131,6 +138,7 @@ export function GovernanceFindingsQueueHeader({
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";
   const secureNowProductLine = isSecureNowProductLine(productLine);
+  const partialCapture = useLatestSnapshotCaptureIsPartial(secureNowProductLine && !isAssignedToMe);
   const secureNowFindingsOpenGates = useMemo(
     () =>
       secureNowProductLine
@@ -317,6 +325,14 @@ export function GovernanceFindingsQueueHeader({
           )}
           {secureNowFindingsOpenGates.length > 0 ? (
             <SecureNowFindingsQueueOpenGateStrip openGates={secureNowFindingsOpenGates} />
+          ) : null}
+          {partialCapture ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-header-partial-capture">
+              {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+              <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+                {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+              </Link>
+            </p>
           ) : null}
         </div>
       ) : null}

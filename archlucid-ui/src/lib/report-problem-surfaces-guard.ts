@@ -144,6 +144,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "administration-connection-status-hard-failure",
     requiredMarkers: ["administration-connection-status-hard-failure", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "securenow-sponsor-path-disposition-save-failure",
+    requiredMarkers: ["securenow-sponsor-path-disposition-save-failure", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [
