@@ -209,6 +209,25 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantAiBudgetPolicy_EnsureDefault_finishes_cache_eviction_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset expiresUtc = TimeProvider.System.GetUtcNow().AddDays(14);
+        Mock<ITenantAiBudgetPolicyRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.EnsureDefaultTrialPolicyIfAbsentAsync(tenantId, 12m, expiresUtc, request.Token))
+            .Callback(request.Cancel)
+            .ReturnsAsync(true);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingTenantAiBudgetPolicyRepository repository = new(inner.Object, cache.Object);
+
+        (await repository.EnsureDefaultTrialPolicyIfAbsentAsync(tenantId, 12m, expiresUtc, request.Token))
+            .Should().BeTrue();
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.TenantAiBudgetPolicy(tenantId), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task TenantCostSettings_TryGetAsync_refreshes_after_upsert()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
