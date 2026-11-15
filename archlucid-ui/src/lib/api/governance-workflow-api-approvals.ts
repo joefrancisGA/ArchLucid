@@ -15,6 +15,7 @@ import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/govern
 import { governanceWorkflowRunReadBlockedReason } from "@/lib/governance/governance-workflow-run-read-blocked-reason";
 import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { recordsOnly, trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, type ApiGetOptions } from "./http";
@@ -25,9 +26,11 @@ const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 export async function getApprovalRequestLineage(
   approvalRequestId: string,
 ): Promise<GovernanceLineageResult> {
+  const normalizedApprovalRequestId = trimRequiredPathSegment(approvalRequestId, "approvalRequestId");
+
   try {
     return await apiGetSealedManifestAware<GovernanceLineageResult>(
-      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/lineage`,
+      `${governanceBase()}/approval-requests/${encodeURIComponent(normalizedApprovalRequestId)}/lineage`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -41,9 +44,11 @@ export async function getApprovalRequestLineage(
 export async function getGovernanceApprovalRationale(
   approvalRequestId: string,
 ): Promise<GovernanceRationaleResult> {
+  const normalizedApprovalRequestId = trimRequiredPathSegment(approvalRequestId, "approvalRequestId");
+
   try {
     return await apiGetSealedManifestAware<GovernanceRationaleResult>(
-      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/rationale`,
+      `${governanceBase()}/approval-requests/${encodeURIComponent(normalizedApprovalRequestId)}/rationale`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -58,15 +63,17 @@ export async function listApprovalRequests(
   runId: string,
   options?: Pick<ApiGetOptions, "showErrorToast">,
 ): Promise<GovernanceApprovalRequest[]> {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
   if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
     return [];
   }
 
   try {
-    return await apiGetSealedManifestAware<GovernanceApprovalRequest[]>(
-      `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
+    return recordsOnly<GovernanceApprovalRequest>(await apiGetSealedManifestAware<unknown>(
+      `${governanceBase()}/runs/${encodeURIComponent(normalizedRunId)}/approval-requests`,
       options,
-    );
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowRunReadBlockedReason(failure);
@@ -83,8 +90,17 @@ export async function submitApprovalRequest(body: {
   targetEnvironment: string;
   requestComment?: string;
 }): Promise<GovernanceApprovalRequest> {
+  const request = {
+    ...body,
+    runId: trimRequiredPathSegment(body.runId, "runId"),
+    manifestVersion: trimRequiredPathSegment(body.manifestVersion, "manifestVersion"),
+    sourceEnvironment: trimRequiredPathSegment(body.sourceEnvironment, "sourceEnvironment"),
+    targetEnvironment: trimRequiredPathSegment(body.targetEnvironment, "targetEnvironment"),
+    requestComment: trimOptionalText(body.requestComment),
+  };
+
   try {
-    return await apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, body);
+    return await apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, request);
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
     const failure = toApiLoadFailure(error);
@@ -99,10 +115,16 @@ export async function approveRequest(
   approvalRequestId: string,
   body: { reviewedBy?: string; reviewComment?: string },
 ): Promise<GovernanceApprovalRequest> {
+  const normalizedApprovalRequestId = trimRequiredPathSegment(approvalRequestId, "approvalRequestId");
+  const request = {
+    reviewedBy: trimOptionalText(body.reviewedBy),
+    reviewComment: trimOptionalText(body.reviewComment),
+  };
+
   try {
     return await apiPostJson<GovernanceApprovalRequest>(
-      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/approve`,
-      body,
+      `${governanceBase()}/approval-requests/${encodeURIComponent(normalizedApprovalRequestId)}/approve`,
+      request,
     );
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
@@ -118,10 +140,16 @@ export async function rejectRequest(
   approvalRequestId: string,
   body: { reviewedBy?: string; reviewComment?: string },
 ): Promise<GovernanceApprovalRequest> {
+  const normalizedApprovalRequestId = trimRequiredPathSegment(approvalRequestId, "approvalRequestId");
+  const request = {
+    reviewedBy: trimOptionalText(body.reviewedBy),
+    reviewComment: trimOptionalText(body.reviewComment),
+  };
+
   try {
     return await apiPostJson<GovernanceApprovalRequest>(
-      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/reject`,
-      body,
+      `${governanceBase()}/approval-requests/${encodeURIComponent(normalizedApprovalRequestId)}/reject`,
+      request,
     );
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
@@ -139,12 +167,16 @@ export async function batchReviewGovernanceApprovalRequests(body: {
   reviewComment?: string;
   reviewedBy?: string;
 }): Promise<GovernanceBatchReviewResponse> {
+  const approvalRequestIds = body.approvalRequestIds
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+
   try {
     return await apiPostJson<GovernanceBatchReviewResponse>(`${governanceBase()}/approval-requests/batch-review`, {
-      approvalRequestIds: body.approvalRequestIds,
+      approvalRequestIds,
       decision: body.decision,
-      reviewComment: body.reviewComment,
-      reviewedBy: body.reviewedBy,
+      reviewComment: trimOptionalText(body.reviewComment),
+      reviewedBy: trimOptionalText(body.reviewedBy),
     });
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
@@ -165,8 +197,19 @@ export async function promoteManifest(body: {
   approvalRequestId?: string;
   notes?: string;
 }): Promise<GovernancePromotionRecord> {
+  const request = {
+    ...body,
+    runId: trimRequiredPathSegment(body.runId, "runId"),
+    manifestVersion: trimRequiredPathSegment(body.manifestVersion, "manifestVersion"),
+    sourceEnvironment: trimRequiredPathSegment(body.sourceEnvironment, "sourceEnvironment"),
+    targetEnvironment: trimRequiredPathSegment(body.targetEnvironment, "targetEnvironment"),
+    promotedBy: trimRequiredPathSegment(body.promotedBy, "promotedBy"),
+    approvalRequestId: trimOptionalText(body.approvalRequestId),
+    notes: trimOptionalText(body.notes),
+  };
+
   try {
-    return await apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
+    return await apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, request);
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
     const failure = toApiLoadFailure(error);
@@ -178,14 +221,16 @@ export async function promoteManifest(body: {
 
 /** Lists promotion audit rows for a run. */
 export async function listPromotions(runId: string): Promise<GovernancePromotionRecord[]> {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
   if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
     return [];
   }
 
   try {
-    return await apiGetSealedManifestAware<GovernancePromotionRecord[]>(
-      `${governanceBase()}/runs/${encodeURIComponent(runId)}/promotions`,
-    );
+    return recordsOnly<GovernancePromotionRecord>(await apiGetSealedManifestAware<unknown>(
+      `${governanceBase()}/runs/${encodeURIComponent(normalizedRunId)}/promotions`,
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowRunReadBlockedReason(failure);

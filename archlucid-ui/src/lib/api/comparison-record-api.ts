@@ -5,6 +5,7 @@ import { comparisonRecordBlockedReason } from "@/lib/compare/comparison-record-b
 import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { positiveIntegerOrDefault, trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 export type ComparisonRecordResponse = components["schemas"]["ComparisonRecordResponse"];
 export type ComparisonSummaryResponse = components["schemas"]["ComparisonSummaryResponse"];
@@ -27,14 +28,22 @@ export async function searchComparisonRecords(
 ): Promise<ComparisonHistoryResponse> {
   const params = new URLSearchParams();
 
-  if (query.comparisonType) params.set("comparisonType", query.comparisonType);
-  if (query.leftRunId) params.set("leftRunId", query.leftRunId);
-  if (query.rightRunId) params.set("rightRunId", query.rightRunId);
-  if (query.leftExportRecordId) params.set("leftExportRecordId", query.leftExportRecordId);
-  if (query.rightExportRecordId) params.set("rightExportRecordId", query.rightExportRecordId);
-  if (query.label) params.set("label", query.label);
-  if (query.cursor) params.set("cursor", query.cursor);
-  if (typeof query.pageSize === "number") params.set("pageSize", String(query.pageSize));
+  const comparisonType = trimOptionalText(query.comparisonType);
+  const leftRunId = trimOptionalText(query.leftRunId);
+  const rightRunId = trimOptionalText(query.rightRunId);
+  const leftExportRecordId = trimOptionalText(query.leftExportRecordId);
+  const rightExportRecordId = trimOptionalText(query.rightExportRecordId);
+  const label = trimOptionalText(query.label);
+  const cursor = trimOptionalText(query.cursor);
+
+  if (comparisonType !== undefined) params.set("comparisonType", comparisonType);
+  if (leftRunId !== undefined) params.set("leftRunId", leftRunId);
+  if (rightRunId !== undefined) params.set("rightRunId", rightRunId);
+  if (leftExportRecordId !== undefined) params.set("leftExportRecordId", leftExportRecordId);
+  if (rightExportRecordId !== undefined) params.set("rightExportRecordId", rightExportRecordId);
+  if (label !== undefined) params.set("label", label);
+  if (cursor !== undefined) params.set("cursor", cursor);
+  if (query.pageSize !== undefined) params.set("pageSize", String(positiveIntegerOrDefault(query.pageSize, 50)));
 
   const suffix = params.size > 0 ? `?${params.toString()}` : "";
 
@@ -50,9 +59,11 @@ export async function searchComparisonRecords(
 
 /** Loads one persisted comparison audit row. */
 export async function getComparisonRecord(comparisonRecordId: string): Promise<ComparisonRecordResponse> {
+  const normalizedComparisonRecordId = trimRequiredPathSegment(comparisonRecordId, "comparisonRecordId");
+
   try {
     return await apiGetSealedManifestAware<ComparisonRecordResponse>(
-      `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}`,
+      `/v1/architecture/comparisons/${encodeURIComponent(normalizedComparisonRecordId)}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -64,9 +75,11 @@ export async function getComparisonRecord(comparisonRecordId: string): Promise<C
 
 /** Loads the markdown summary for a persisted comparison record. */
 export async function getComparisonSummary(comparisonRecordId: string): Promise<ComparisonSummaryResponse> {
+  const normalizedComparisonRecordId = trimRequiredPathSegment(comparisonRecordId, "comparisonRecordId");
+
   try {
     return await apiGetSealedManifestAware<ComparisonSummaryResponse>(
-      `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}/summary`,
+      `/v1/architecture/comparisons/${encodeURIComponent(normalizedComparisonRecordId)}/summary`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

@@ -12,6 +12,7 @@ import type {
   TeamsIncomingWebhookSecretValidationResponse,
 } from "@/types/teams-incoming-webhook-connection";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
+import { recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
 import { apiDelete, apiGet, apiPostJson } from "./http";
 
 /** Loads weekly sponsor digest email preferences for the current tenant. */
@@ -62,7 +63,11 @@ export async function deleteTeamsIncomingWebhookConnection(): Promise<void> {
 
 /** Loads the canonical v1 Teams notification trigger catalog (canonical event-type strings). */
 export async function getTeamsNotificationTriggerCatalog(): Promise<string[]> {
-  return apiGet<string[]>(`/${ApiV1Routes.teamsNotificationTriggerCatalog}`);
+  const payload = await apiGet<unknown>(`/${ApiV1Routes.teamsNotificationTriggerCatalog}`);
+
+  return Array.isArray(payload)
+    ? payload.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim())
+    : [];
 }
 
 /** Validates a Key Vault secret reference for Teams webhook delivery (Execute+). */
@@ -89,9 +94,11 @@ export async function testTeamsIncomingWebhookConnection(
 
 /** Lists all delivery attempts for a specific digest. */
 export async function listDigestDeliveryAttempts(digestId: string): Promise<DigestDeliveryAttempt[]> {
-  return apiGet<DigestDeliveryAttempt[]>(
-    `/${ApiV1Routes.digestSubscriptions}/digests/${encodeURIComponent(digestId)}/attempts`,
-  );
+  const normalizedDigestId = trimRequiredPathSegment(digestId, "digestId");
+
+  return recordsOnly<DigestDeliveryAttempt>(await apiGet<unknown>(
+    `/${ApiV1Routes.digestSubscriptions}/digests/${encodeURIComponent(normalizedDigestId)}/attempts`,
+  ));
 }
 
 /** One digest’s attempts within a batch delivery-attempt response. */
@@ -108,17 +115,28 @@ export async function listDigestDeliveryAttemptsBatch(
     return [];
   }
 
-  const qs = digestIds.map((id) => encodeURIComponent(id)).join(",");
+  const qs = digestIds
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0)
+    .map((id) => encodeURIComponent(id))
+    .join(",");
+
+  if (qs.length === 0) {
+    return [];
+  }
+
   const payload = await apiGet<{ items: DigestDeliveryAttemptsBatchItem[] }>(
     `/${ApiV1Routes.digestSubscriptions}/digests/attempts?digestIds=${qs}`,
   );
 
-  return payload.items ?? [];
+  return recordsOnly<DigestDeliveryAttemptsBatchItem>(payload.items);
 }
 
 /** Fetches a single architecture digest by ID. */
 export async function getArchitectureDigest(digestId: string): Promise<ArchitectureDigest> {
+  const normalizedDigestId = trimRequiredPathSegment(digestId, "digestId");
+
   return apiGet<ArchitectureDigest>(
-    `/v1/advisory-scheduling/digests/${encodeURIComponent(digestId)}`,
+    `/v1/advisory-scheduling/digests/${encodeURIComponent(normalizedDigestId)}`,
   );
 }

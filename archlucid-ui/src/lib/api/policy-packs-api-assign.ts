@@ -8,6 +8,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
 import { policyPackArchiveMutationBlockedReason } from "@/lib/policy/policy-pack-archive-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 
@@ -16,10 +17,12 @@ export async function assignPolicyPack(
   policyPackId: string,
   body: { version: string; scopeLevel?: string; isPinned?: boolean; isOrganizationRequired?: boolean },
 ): Promise<PolicyPackAssignment> {
+  const normalizedPolicyPackId = trimRequiredPathSegment(policyPackId, "policyPackId");
+
   try {
     return await apiPostJson<PolicyPackAssignment>(
-      `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
-      body,
+      `/${ApiV1Routes.policyPacks}/${encodeURIComponent(normalizedPolicyPackId)}/assign`,
+      { ...body, version: body.version.trim(), scopeLevel: body.scopeLevel?.trim() },
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -31,14 +34,18 @@ export async function assignPolicyPack(
 
 /** Lists workspace policy packs with assignment ids for tenant opt-in/opt-out. */
 export async function listPolicyPackWorkspaceSelection(): Promise<PolicyPackWorkspaceSelectionItem[]> {
-  return apiGet(`/${ApiV1Routes.policyPacks}/workspace-selection`);
+  return recordsOnly<PolicyPackWorkspaceSelectionItem>(
+    await apiGet<unknown>(`/${ApiV1Routes.policyPacks}/workspace-selection`),
+  );
 }
 
 /** Marks one policy pack assignment archived for the current tenant (row retained for audit). */
 export async function archivePolicyPackAssignment(assignmentId: string): Promise<void> {
+  const normalizedAssignmentId = trimRequiredPathSegment(assignmentId, "assignmentId");
+
   try {
     await apiPostNoContent(
-      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/archive`,
+      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(normalizedAssignmentId)}/archive`,
       {},
     );
   } catch (error: unknown) {
@@ -52,9 +59,11 @@ export async function archivePolicyPackAssignment(assignmentId: string): Promise
 
 /** Enables or disables one policy pack assignment for the current workspace. */
 export async function setPolicyPackAssignmentEnabled(assignmentId: string, isEnabled: boolean): Promise<void> {
+  const normalizedAssignmentId = trimRequiredPathSegment(assignmentId, "assignmentId");
+
   try {
     await apiPutNoContent(
-      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/enabled`,
+      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(normalizedAssignmentId)}/enabled`,
       { isEnabled },
     );
   } catch (error: unknown) {
@@ -70,9 +79,11 @@ export async function setPolicyPackAssignmentOrganizationRequired(
   assignmentId: string,
   isOrganizationRequired: boolean,
 ): Promise<void> {
+  const normalizedAssignmentId = trimRequiredPathSegment(assignmentId, "assignmentId");
+
   try {
     await apiPutNoContent(
-      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/organization-required`,
+      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(normalizedAssignmentId)}/organization-required`,
       { isOrganizationRequired },
     );
   } catch (error: unknown) {
@@ -88,9 +99,11 @@ export async function setPlatformBundledPolicyPackActivation(
   bundleContentFile: string,
   isGloballyActive: boolean,
 ): Promise<PlatformBundledPolicyPackRegistryEntry> {
+  const normalizedBundleContentFile = trimRequiredPathSegment(bundleContentFile, "bundleContentFile");
+
   try {
     return await apiPutJson(
-      `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
+      `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(normalizedBundleContentFile)}/activation`,
       { isGloballyActive },
     );
   } catch (error: unknown) {

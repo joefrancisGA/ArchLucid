@@ -17,6 +17,7 @@ import {
 } from "@/lib/governance/governance-workflow-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { positiveIntegerOrDefault, recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -54,9 +55,9 @@ export async function getGovernanceDashboard(
   maxChanges = 20,
 ): Promise<GovernanceDashboardSummary> {
   const query = new URLSearchParams({
-    maxPending: String(maxPending),
-    maxDecisions: String(maxDecisions),
-    maxChanges: String(maxChanges),
+    maxPending: String(positiveIntegerOrDefault(maxPending, 20)),
+    maxDecisions: String(positiveIntegerOrDefault(maxDecisions, 20)),
+    maxChanges: String(positiveIntegerOrDefault(maxChanges, 20)),
   });
 
   try {
@@ -76,15 +77,15 @@ export async function getComplianceDriftTrend(
   bucketMinutes = 1440,
 ): Promise<ComplianceDriftTrendPoint[]> {
   const query = new URLSearchParams({
-    fromUtc,
-    toUtc,
-    bucketMinutes: String(bucketMinutes),
+    fromUtc: trimRequiredPathSegment(fromUtc, "fromUtc"),
+    toUtc: trimRequiredPathSegment(toUtc, "toUtc"),
+    bucketMinutes: String(positiveIntegerOrDefault(bucketMinutes, 1440)),
   });
 
   try {
-    return await apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
+    return recordsOnly<ComplianceDriftTrendPoint>(await apiGetSealedManifestAware<unknown>(
       `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
-    );
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = complianceDriftTrendBlockedReason(failure);
