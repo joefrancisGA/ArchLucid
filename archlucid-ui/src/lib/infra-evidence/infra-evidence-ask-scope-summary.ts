@@ -8,6 +8,7 @@ import {
   formatInfraEvidenceSubscriptionLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type InfraEvidenceAskScopeSummaryInput = {
@@ -34,23 +35,6 @@ export type InfraEvidenceAskSnapshotFreshness = {
   readonly statusLabel: string;
 };
 
-function isInfraEvidenceSnapshotStale(
-  capturedUtc: string | null | undefined,
-  nowMs: number = Date.now(),
-): boolean {
-  if (capturedUtc == null || capturedUtc.trim().length === 0) {
-    return false;
-  }
-
-  const capturedMs = Date.parse(capturedUtc);
-
-  if (Number.isNaN(capturedMs)) {
-    return false;
-  }
-
-  return nowMs - capturedMs >= ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_MS;
-}
-
 export function resolveInfraEvidenceAskSnapshotFreshness(
   snapshotId: string,
   snapshotCapturedUtc: string | null | undefined,
@@ -63,9 +47,10 @@ export function resolveInfraEvidenceAskSnapshotFreshness(
   }
 
   const capturedLabel = formatInfraEvidenceSnapshotCapturedLabel(snapshotCapturedUtc);
-  const hasCaptureTime = snapshotCapturedUtc != null && snapshotCapturedUtc.trim().length > 0;
+  const capturedMs = parseIsoUtcMs(snapshotCapturedUtc ?? "");
+  const hasCaptureTime = !Number.isNaN(capturedMs);
   const ageLabel = hasCaptureTime ? formatRelativeTime(snapshotCapturedUtc ?? "", nowMs) : "Capture time was not stored.";
-  const stale = hasCaptureTime && isInfraEvidenceSnapshotStale(snapshotCapturedUtc, nowMs);
+  const stale = hasCaptureTime && nowMs - capturedMs >= ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_MS;
 
   return {
     snapshotId: trimmedSnapshotId,
