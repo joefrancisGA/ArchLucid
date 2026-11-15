@@ -1,5 +1,6 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { CollectionRun } from "@/lib/collection-runs-api";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
 export const COLLECTION_AGENT_EXPECTED_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
@@ -10,7 +11,7 @@ export type CollectionAgentHealth = {
 };
 
 function runTimeMs(run: CollectionRun): number {
-  return Date.parse(run.finishedUtc ?? run.startedUtc ?? "");
+  return parseIsoUtcMs(run.finishedUtc ?? run.startedUtc ?? "");
 }
 
 function newestRun(runs: readonly CollectionRun[]): CollectionRun | null {
@@ -94,7 +95,7 @@ export function formatCollectionRunDuration(run: CollectionRun): string {
     return "Start time was not stored.";
   }
 
-  const durationMs = Date.parse(run.finishedUtc) - Date.parse(startedUtc);
+  const durationMs = parseIsoUtcMs(run.finishedUtc) - parseIsoUtcMs(startedUtc);
 
   if (!Number.isFinite(durationMs) || durationMs < 0) {
     return "Duration was not stored.";

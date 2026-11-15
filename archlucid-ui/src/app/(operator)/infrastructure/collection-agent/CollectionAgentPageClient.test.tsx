@@ -110,6 +110,24 @@ describe("CollectionAgentPageClient", () => {
     );
   });
 
+  it("orders collection runs by UTC when timestamp suffixes differ", () => {
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [
+        { ...successfulRun(), runId: "older", finishedUtc: "2026-10-11T18:00:00", importedSnapshotId: "older" },
+        { ...successfulRun(), runId: "newer", finishedUtc: "2026-10-11T20:00:00Z", importedSnapshotId: "newer" },
+      ],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getAllByRole("link", { name: "Open drift for this snapshot" })[0]).toHaveAttribute(
+      "href",
+      "/infrastructure/snapshots-drift?snapshotId=newer",
+    );
+  });
+
   it("shows the reported schedule and disables Run now while a run is active", () => {
     useCollectionRunsQueryMock.mockReturnValue({
       data: [{ ...successfulRun(), status: "Running", finishedUtc: null, schedule: "Daily at 02:00 UTC" }],
