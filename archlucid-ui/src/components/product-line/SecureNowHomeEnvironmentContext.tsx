@@ -45,6 +45,12 @@ import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 
 const SNAPSHOT_PAGE_SIZE = 20;
 const CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
@@ -254,6 +260,7 @@ function SecureNowHomeCollectionSetupBlock(props: {
 export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const searchParams = useSearchParams();
   const scope = useOperatorScopeQueryKey();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
   const snapshotsQuery = useQuery({
     queryKey: operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE),
     queryFn: () => fetchInfraEvidenceSnapshots(1, SNAPSHOT_PAGE_SIZE),
@@ -415,6 +422,14 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         eligibleSnapshots={eligibleCaptureSnapshots}
         reportQueries={pathDeltaReportQueryViews}
       />
+      {partialCapture && !showCollectionSetup ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-partial-capture">
+          {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+            {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+          </Link>
+        </p>
+      ) : null}
     </div>
   );
 }

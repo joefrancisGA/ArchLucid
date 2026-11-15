@@ -50,6 +50,7 @@ import { reversibleControlLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { QueryStatus } from "@tanstack/react-query";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
+import { DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digest-subscriptions-empty-not-load-failure-copy";
 
 export type DigestSubscriptionListProps = {
   readonly items: readonly DigestSubscription[];
@@ -103,17 +104,22 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
             title="No delivery destinations yet"
             description={emptyDescription}
             footer={
-              props.hideEmptyStateCreateCta ? undefined : (
-              <Button
-                type="button"
-                size="sm"
-                variant="primary"
-                onClick={props.onFocusCreateForm}
-                data-testid="digest-subscriptions-empty-add-destination"
-              >
-                Add delivery destination
-              </Button>
-              )
+              <div className="flex flex-col gap-2">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digest-subscriptions-empty-not-load-failure">
+                  {DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                {props.hideEmptyStateCreateCta ? null : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    onClick={props.onFocusCreateForm}
+                    data-testid="digest-subscriptions-empty-add-destination"
+                  >
+                    Add delivery destination
+                  </Button>
+                )}
+              </div>
             }
           />
         </div>

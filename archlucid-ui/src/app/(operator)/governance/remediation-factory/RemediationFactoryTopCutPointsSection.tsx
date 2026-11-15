@@ -13,6 +13,10 @@ import { formatCutPointHeadline } from "@/lib/security-evidence-path-cut-point-p
 import type { SecurityEvidencePathCutPoint } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 import { STANDARDS_CUT_POINT_FRAMEWORK_THEME_NOT_CONTROL_PASS_LINE } from "@/lib/governance/standards-cut-point-framework-theme-copy";
+import {
+  PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE,
+  shouldShowPathInspectLongPathIdHonesty,
+} from "@/lib/product-line/path-inspect-long-path-id-honesty-copy";
 
 import { RemediationFactoryBorderedSection } from "./RemediationFactoryBorderedSection";
 import {
@@ -156,10 +160,15 @@ export function RemediationFactoryTopCutPointsSection(props: {
                     >
                       {REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH}
                     </Button>
-                    <span className={cn("inline-flex items-center gap-1 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+                    <span className={cn("inline-flex items-center gap-1 break-all font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
                       {highlightPathId}
                       <CopyIdButton value={highlightPathId} aria-label="Copy path id for this cut point" />
                     </span>
+                    {shouldShowPathInspectLongPathIdHonesty(highlightPathId) ? (
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-cut-point-path-id-overflow">
+                        {PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE}
+                      </p>
+                    ) : null}
                   </div>
                 ) : null}
               </li>

@@ -33,6 +33,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
 import { INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-honesty-copy";
+import { formatInfrastructureAskInsufficientEvidenceSnapshotLine } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-snapshot-copy";
 import {
   buildInfraEvidenceAskScopeKey,
   mergeCannedQuestionIntoDraft,
@@ -884,8 +885,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
               <div className="grid gap-2" data-testid="infra-ask-insufficient-evidence">
                 <StatusTag kind="needs-attention" label="Insufficient evidence" />
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-ask-insufficient-evidence-scope">
-                  This snapshot does not have enough evidence to answer. Ask did not query live Azure.
+                  {formatInfrastructureAskInsufficientEvidenceSnapshotLine(snapshotId)}
                 </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE}</p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   {formatInfraEvidenceAskAnswer(turn.response.answer)}
                 </p>

@@ -294,6 +294,12 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
           </summary>
+          <p
+            className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-change-reviews-collapsed-seal-footnote"
+          >
+            {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+          </p>
           <div className="mt-3 space-y-4">{pickerFields}</div>
         </details>
       ) : (

@@ -145,6 +145,20 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     requiredMarkers: ["administration-connection-status-hard-failure", "FatalPageReportProblemSupportRow"],
   },
   {
+    surfaceId: "governance-decision-register-hard-failure",
+    requiredMarkers: ["governance-decision-register-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/decision-register/_sections/DecisionRegisterLoadFailure.tsx"],
+  },
+  {
+    surfaceId: "compliance-decision-register-hard-failure",
+    requiredMarkers: ["compliance-decision-register-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["app/(operator)/governance/decision-register/_sections/DecisionRegisterLoadFailure.tsx"],
+  },
+  {
+    surfaceId: "securenow-pilot-decision-disposition-save-failure",
+    requiredMarkers: ["securenow-pilot-decision-disposition-save-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
     surfaceId: "securenow-sponsor-path-disposition-save-failure",
     requiredMarkers: ["securenow-sponsor-path-disposition-save-failure", "FatalPageReportProblemSupportRow"],
   },
