@@ -2,6 +2,7 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import { isGovernanceFindingOpenRisk } from "@/lib/governance/governance-finding-open-risk";
 
 import { GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL } from "./architecture-risk-register-copy";
+import { hasExpiringRiskException } from "./architecture-risk-register-summary";
 
 export type RiskRegisterFilter =
   | "all"
@@ -48,7 +49,6 @@ export const RISK_REGISTER_QUICK_FILTERS: readonly RiskRegisterFilter[] = [
   "remediated-recent",
 ];
 
-const WAIVER_EXPIRING_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
 /** Reads an optional product-run scope from policy findings / advisory deep links. */
 export function scopedRunIdFromQuery(raw: string | null | undefined): string | null {
@@ -121,22 +121,6 @@ export function riskRegisterFilterFromQuery(raw: string | null): RiskRegisterFil
 
 function isFindingRow(row: GovernanceFindingQueueRow): boolean {
   return row.recordKind === "finding";
-}
-
-function hasExpiringException(row: GovernanceFindingQueueRow, nowMs: number): boolean {
-  const expiresRaw = row.waiverExpiresAtUtc?.trim() ?? "";
-
-  if (expiresRaw.length === 0) {
-    return false;
-  }
-
-  const expiresMs = Date.parse(expiresRaw);
-
-  if (Number.isNaN(expiresMs)) {
-    return false;
-  }
-
-  return expiresMs <= nowMs + WAIVER_EXPIRING_WINDOW_MS;
 }
 
 function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean {
@@ -264,7 +248,7 @@ export function matchesRiskRegisterFilter(
   }
 
   if (filter === "expiring-soon") {
-    return hasExpiringException(row, nowMs);
+    return hasExpiringRiskException(row, nowMs);
   }
 
   if (filter === "open") {
