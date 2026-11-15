@@ -41,22 +41,15 @@ function resolveActiveInFlightJob(
   return null;
 }
 
-function subscribeInFlight(onStoreChange: () => void): () => void {
-  return subscribeInFlightOperations(onStoreChange);
-}
-
-function getActiveInFlightJobSnapshot(): ActiveInFlightJob | null {
-  return resolveActiveInFlightJob(getInFlightOperations());
-}
-
 /** Client hook — Working unfinished-work CTAs open the desk or nested job, not the hub filter (SY-54). */
 export function useReviewsHubUnfinishedWorkHref(): string {
   const { isWorkingMode } = useWorkspaceMode();
-  const activeInFlightJob = useSyncExternalStore(
-    subscribeInFlight,
-    getActiveInFlightJobSnapshot,
-    getActiveInFlightJobSnapshot,
+  const operations = useSyncExternalStore(
+    subscribeInFlightOperations,
+    getInFlightOperations,
+    getInFlightOperations,
   );
+  const activeInFlightJob = resolveActiveInFlightJob(operations);
 
   return useMemo(
     () =>
