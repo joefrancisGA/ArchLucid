@@ -86,4 +86,34 @@ describe("resolveContinueLastApiKeyCredential", () => {
 
     expect(match?.slot).toBe("ReadOnly");
   });
+
+  it("orders audit events by instant and ignores unreadable timestamps", () => {
+    window.localStorage.removeItem(API_KEY_CREDENTIAL_LAST_VIEWED_STORAGE_KEY);
+
+    const match = resolveContinueLastApiKeyCredential(
+      [
+        credential({ slot: "Admin", isConfigured: false }),
+        credential({ slot: "ReadOnly", isConfigured: false }),
+      ],
+      [
+        auditEvent({
+          id: "invalid",
+          occurredAtUtc: "not-a-timestamp",
+          keyName: API_KEYS_ADMIN_KEY_NAME,
+        }),
+        auditEvent({
+          id: "older",
+          occurredAtUtc: "2026-08-20T01:00:00+02:00",
+          keyName: API_KEYS_ADMIN_KEY_NAME,
+        }),
+        auditEvent({
+          id: "newer",
+          occurredAtUtc: "2026-08-20T00:30:00Z",
+          keyName: API_KEYS_READONLY_KEY_NAME,
+        }),
+      ],
+    );
+
+    expect(match?.slot).toBe("ReadOnly");
+  });
 });
