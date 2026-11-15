@@ -140,8 +140,11 @@ public interface IOperationalSecurityExceptionRepository
         IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
             await ListByScopeAsync(scope, cancellationToken);
 
-        int exceptionsActive = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Active);
-        int exceptionsExpired = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Expired);
+        int exceptionsActive = exceptions.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Active && item.ExpirationUtc > utcNow);
+        int exceptionsExpired = exceptions.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Expired
+            || (item.Status == OperationalSecurityExceptionStatus.Active && item.ExpirationUtc <= utcNow));
 
         int exceptionsExpiringSoon = exceptions.Count(item =>
             item.Status == OperationalSecurityExceptionStatus.Active
