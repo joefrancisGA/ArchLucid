@@ -52,12 +52,12 @@ public static partial class HotPathCacheKeys
             $"{Prefix}govdash:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{tenantId:N}:{maxPending:D}:{maxDecisions:D}:{maxChanges:D}";
     }
 
-    /// <summary>Policy pack version row (includes ContentJson) by pack + version label.</summary>
+    /// <summary>Policy pack version row (includes ContentJson) by pack and case-insensitive version label.</summary>
     public static string PolicyPackVersion(Guid policyPackId, string version)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(version);
 
-        return $"{Prefix}ppv:{policyPackId:N}:{version.Trim()}";
+        return $"{Prefix}ppv:{policyPackId:N}:{version.Trim().ToUpperInvariant()}";
     }
 
     /// <summary>All versions for one policy pack.</summary>
