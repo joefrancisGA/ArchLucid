@@ -62,6 +62,31 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    public async Task RecordDeliveryAsync(DigestSubscription subscription, DateTime deliveredUtc, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(subscription);
+        const string sql = """
+            UPDATE dbo.DigestSubscriptions
+            SET LastDeliveredUtc = @DeliveredUtc
+            WHERE SubscriptionId = @SubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (LastDeliveredUtc IS NULL OR LastDeliveredUtc < @DeliveredUtc);
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            subscription.SubscriptionId,
+            subscription.TenantId,
+            subscription.WorkspaceId,
+            subscription.ProjectId,
+            DeliveredUtc = deliveredUtc,
+        }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
     public async Task<DigestSubscription?> GetByIdAsync(ScopeContext scope, Guid subscriptionId, CancellationToken ct)
     {
         PersistenceTenantScope.RequireScopedTenant(scope);

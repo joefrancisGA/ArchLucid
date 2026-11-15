@@ -84,10 +84,10 @@ public sealed class DigestDeliveryDispatcher(
                 ;
 
             attempt.Status = DigestDeliveryStatus.Succeeded;
-            subscription.LastDeliveredUtc = TimeProvider.System.UtcNowDateTime();
+            DateTime deliveredUtc = TimeProvider.System.UtcNowDateTime();
 
             await attemptRepository.UpdateAsync(attempt, ct);
-            await subscriptionRepository.UpdateAsync(subscription, ct);
+            await subscriptionRepository.RecordDeliveryAsync(subscription, deliveredUtc, ct);
 
             await auditService.LogAsync(
                 new AuditEvent
