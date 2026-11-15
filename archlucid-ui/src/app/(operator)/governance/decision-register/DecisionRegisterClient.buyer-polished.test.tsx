@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -55,6 +55,22 @@ describe("DecisionRegisterClient buyer-polished shell", () => {
   beforeEach(() => {
     mockedGetRegister.mockReset();
     mockedGetRegister.mockResolvedValue({ decisions: [] });
+  });
+
+  it("refetches the workspace and filtered register once after Retry", async () => {
+    mockedGetRegister.mockRejectedValue(new Error("Initial load failed."));
+    render(<DecisionRegisterClient />);
+
+    const retry = await screen.findByTestId("decision-register-load-retry");
+    expect(mockedGetRegister).toHaveBeenCalledTimes(2);
+
+    mockedGetRegister.mockClear();
+    mockedGetRegister.mockResolvedValue({ decisions: [] });
+    fireEvent.click(retry);
+
+    await screen.findByTestId("decision-register-empty-state");
+    expect(screen.queryByTestId("decision-register-load-failure")).toBeNull();
+    expect(mockedGetRegister).toHaveBeenCalledTimes(2);
   });
 
   it("renders skip link, buyer subtitle, first-viewport intro, and orientation after register body", async () => {
