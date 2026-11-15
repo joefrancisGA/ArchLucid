@@ -9,6 +9,7 @@ import {
   formatBuyerAuditTrailSummaryLine,
   groupAuditEventsByLifecycleStage,
 } from "@/app/(operator)/governance/audit/audit-ui-helpers";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { buyerAuditTrailGovernanceSummaryCounts } from "@/lib/audit-trail-page-helpers";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
@@ -37,6 +38,11 @@ export type UseAuditPageLifecycleGroupsResult = {
   readonly buyerAuditTrailSummaryLine: string | null;
   readonly buyerAuditTrailMetrics: ReturnType<typeof buyerAuditTrailGovernanceSummaryCounts> | null;
 };
+
+function eventSortTime(occurredUtc: string): number {
+  const time = parseIsoUtcMs(occurredUtc);
+  return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
+}
 
 export function useAuditPageLifecycleGroups(
   args: UseAuditPageLifecycleGroupsArgs,
@@ -69,7 +75,7 @@ export function useAuditPageLifecycleGroups(
         return rankDiff;
       }
 
-      return eventA.occurredUtc.localeCompare(eventB.occurredUtc);
+      return eventSortTime(eventA.occurredUtc) - eventSortTime(eventB.occurredUtc);
     });
   }, [events, storyPresentation]);
 
