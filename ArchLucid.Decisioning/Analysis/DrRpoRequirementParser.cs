@@ -95,7 +95,9 @@ public static partial class DrRpoRequirementParser
         if (!decimal.TryParse(valueText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
             return null;
 
-        if (value < 0)
+        // Seconds allow the largest input value for a representable minute count.
+        // Reject larger values before converting hours or days to minutes.
+        if (value < 0 || value > int.MaxValue * 60m)
             return null;
 
         decimal minutes = ConvertToMinutes(value, unitText);
