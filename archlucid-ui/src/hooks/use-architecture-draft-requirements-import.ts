@@ -53,8 +53,6 @@ export function useArchitectureDraftRequirementsImport(
       setImporting(true);
 
       void (async () => {
-        let nextOverview = overviewRef.current;
-
         try {
           for (const file of added) {
             const key = architectureDraftRequirementsFileKey(file);
@@ -71,7 +69,7 @@ export function useArchitectureDraftRequirementsImport(
               continue;
             }
 
-            nextOverview = appendArchitectureDraftRequirementsImport(nextOverview, file.name, extracted);
+            const nextOverview = appendArchitectureDraftRequirementsImport(overviewRef.current, file.name, extracted);
             overviewRef.current = nextOverview;
             onOverviewChange(nextOverview);
           }
