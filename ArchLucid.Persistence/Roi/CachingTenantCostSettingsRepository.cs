@@ -27,9 +27,10 @@ public sealed class CachingTenantCostSettingsRepository(
         ArgumentNullException.ThrowIfNull(record);
 
         await _inner.UpsertAsync(record, cancellationToken);
+        // The persisted change still needs eviction if the caller disconnects.
         await HotPathCacheEviction.RemoveTenantCostSettingsAsync(
             _hotPathReadCache,
             record.TenantId,
-            cancellationToken);
+            CancellationToken.None);
     }
 }
