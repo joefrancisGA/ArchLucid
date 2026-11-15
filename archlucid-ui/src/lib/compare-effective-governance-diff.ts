@@ -386,9 +386,17 @@ export function buildCompareGovernanceDiffView(input: {
     input.targetManifest.complianceRuleKeys.length === 0 &&
     input.currentEffective !== null;
 
+  const baselineStoredCount =
+    input.baselineManifest.atCommit?.complianceRuleKeyCount ?? input.baselineManifest.complianceRuleKeyCount;
+  const targetStoredCount =
+    input.targetManifest.atCommit?.complianceRuleKeyCount ?? input.targetManifest.complianceRuleKeyCount;
+  const hasComparableRuleKeys =
+    (baselineKeys.length > 0 && targetKeys.length > 0) ||
+    (baselineStoredCount === baselineKeys.length && targetStoredCount === targetKeys.length);
+
   const hasManifestGovernanceDelta =
     manifestRuleSetChanges.length > 0 ||
-    (baselineKeys.length > 0 && targetKeys.length > 0 && materialComplianceRuleKeyChanges.length > 0);
+    (hasComparableRuleKeys && materialComplianceRuleKeyChanges.length > 0);
 
   return {
     baselineManifest: input.baselineManifest,
