@@ -3,8 +3,9 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { architectureGraphReadBlockedReason, architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
 import { provenanceGraphAliasBlockedReason } from "@/lib/graph/provenance-graph-alias-blocked-reason";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
+import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
@@ -23,8 +24,12 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+    return await apiGet<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
   } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 413) {
+      throw error;
+    }
+
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureGraphReadBlockedReason(failure);
 
