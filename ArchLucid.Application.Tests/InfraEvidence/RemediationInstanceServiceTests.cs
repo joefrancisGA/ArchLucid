@@ -68,6 +68,21 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public void Preflight_blocks_when_the_snapshot_is_missing_the_target_resource()
+    {
+        RemediationInstancePreflightResult result = RemediationInstancePreflightEvaluator.Evaluate(
+            CreateScope(),
+            CreateInstance(Guid.NewGuid(), RemediationInstanceStatus.Classified, cloudResourceId: CloudResourceId),
+            CreateVersion(RemediationPatternStatus.Approved),
+            CreateMatch(RemediationPatternMatchKind.ExactMatch),
+            hasActiveException: true,
+            CreateSnapshot(SnapshotA, Guid.NewGuid(), present: false));
+
+        result.Passed.Should().BeFalse();
+        result.Blockers.Should().ContainSingle(blocker => blocker.Contains("Target cloud resource"));
+    }
+
+    [Fact]
     public async Task Execute_does_not_set_verified_status()
     {
         InMemoryRemediationInstanceRepository instanceRepository = new();
