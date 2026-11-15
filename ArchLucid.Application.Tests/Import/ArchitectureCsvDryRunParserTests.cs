@@ -28,6 +28,21 @@ public sealed class ArchitectureCsvDryRunParserTests
         rows[1].ComponentName.Should().Be("orders-db");
     }
 
+    [Theory]
+    [InlineData("\n")]
+    [InlineData("\r\n")]
+    [InlineData("\r")]
+    public void TryParseRows_reports_physical_line_number_after_blank_rows(string newline)
+    {
+        string csv = string.Join(
+            newline, "", "ComponentName,Type,Description", "Orders,Api,Valid", " ", ",Queue,Missing name");
+
+        bool ok = ArchitectureCsvDryRunParser.TryParseRows(csv, out _, out string? err);
+
+        ok.Should().BeFalse();
+        err.Should().Be("Row 5: ComponentName is required.");
+    }
+
     [Fact]
     public void TryParseRows_requires_all_columns()
     {

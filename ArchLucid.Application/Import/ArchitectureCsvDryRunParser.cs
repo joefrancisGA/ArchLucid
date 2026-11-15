@@ -21,17 +21,21 @@ internal static class ArchitectureCsvDryRunParser
             return false;
         }
 
-        string normalized = text.TrimStart('\uFEFF');
-        string[] lines = normalized.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string normalized = text.TrimStart('\uFEFF')
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n');
+        string[] lines = normalized.Split('\n', StringSplitOptions.TrimEntries);
+        int headerLineIndex = Array.FindIndex(lines, line => line.Length > 0);
+        int lastDataLineIndex = Array.FindLastIndex(lines, line => line.Length > 0);
 
-        if (lines.Length < 2)
+        if (headerLineIndex < 0 || headerLineIndex == lastDataLineIndex)
         {
             error = "CSV must include a header row and at least one data row.";
 
             return false;
         }
 
-        string[] headerCells = SplitCsvLine(lines[0]);
+        string[] headerCells = SplitCsvLine(lines[headerLineIndex]);
 
         int nameIdx = IndexOfHeader(headerCells, ComponentNameHeader);
         int typeIdx = IndexOfHeader(headerCells, TypeHeader);
@@ -45,7 +49,7 @@ internal static class ArchitectureCsvDryRunParser
             return false;
         }
 
-        for (int i = 1; i < lines.Length; i++)
+        for (int i = headerLineIndex + 1; i <= lastDataLineIndex; i++)
         {
             string line = lines[i];
 
