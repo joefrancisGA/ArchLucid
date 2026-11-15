@@ -137,6 +137,10 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     );
   }
 
+  if (detailQuery.isError) {
+    return wrapDetail(<PolicyPackDetailLoadError onRetry={handleRetry} />);
+  }
+
   if (kind === "healthcare-claims") {
     return wrapDetail(
       <HealthcareClaimsPolicyPackDetail
@@ -163,10 +167,6 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         findingsHref={findingsHref}
       />,
     );
-  }
-
-  if (detailQuery.isError) {
-    return wrapDetail(<PolicyPackDetailLoadError onRetry={handleRetry} />);
   }
 
   if (packRecord !== null) {
