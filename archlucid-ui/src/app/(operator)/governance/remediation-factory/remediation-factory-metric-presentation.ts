@@ -1,7 +1,7 @@
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
 import {
-  formatRemediationFactoryPercentDisplay,
+  formatRemediationFactoryPercentPoints,
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
 } from "@/lib/remediation-factory/remediation-factory-percent-format";
 import {
@@ -110,7 +110,7 @@ export function remediationFactoryPercentMetricPresentation(input: {
       : `${WORKSPACE_METRICS_SCOPE}. ${REMEDIATION_FACTORY_PERCENT_POPULATION_LINE} ${input.scopeNote}`;
 
   return {
-    displayValue: formatRemediationFactoryPercentDisplay(input.value),
+    displayValue: formatRemediationFactoryPercentPoints(input.value),
     scopeNote,
     state: input.value === 0 ? "measuredZero" : "measured",
   };

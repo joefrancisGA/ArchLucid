@@ -1,6 +1,6 @@
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import {
-  formatRemediationFactoryPercentDisplay,
+  formatRemediationFactoryPercentPoints,
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
 } from "@/lib/remediation-factory/remediation-factory-percent-format";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
@@ -110,7 +110,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       windowLine: REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
       value:
         metricsLoaded && metrics !== undefined
-          ? formatRemediationFactoryPercentDisplay(metrics.patternCoverageExactMatchPercent)
+          ? formatRemediationFactoryPercentPoints(metrics.patternCoverageExactMatchPercent)
           : null,
     },
     {
@@ -120,7 +120,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       windowLine: REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
       value:
         metricsLoaded && metrics !== undefined
-          ? formatRemediationFactoryPercentDisplay(metrics.automationPercent)
+          ? formatRemediationFactoryPercentPoints(metrics.automationPercent)
           : null,
     },
     {
