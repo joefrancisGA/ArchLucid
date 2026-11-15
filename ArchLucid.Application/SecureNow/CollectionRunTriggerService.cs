@@ -7,6 +7,8 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.SecureNow;
@@ -19,7 +21,8 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunAdmissionCounter admissionCounter,
     TimeProvider? timeProvider = null,
     ICollectionTriggerClaimRepository? durableClaims = null,
-    IOptions<SecureNowCapacityOptions>? capacityOptions = null)
+    IOptions<SecureNowCapacityOptions>? capacityOptions = null,
+    ILogger<CollectionRunTriggerService>? logger = null)
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
     // Process-local execution bulkhead; independent of per-tenant idempotency gates.
@@ -155,7 +158,7 @@ public sealed class CollectionRunTriggerService(
         };
         await _collectionRunRepository.UpsertAsync(run, cancellationToken);
         await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
-        await _auditService.LogAsync(new AuditEvent
+        await LogTriggeredAsync(new AuditEvent
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -213,7 +216,7 @@ public sealed class CollectionRunTriggerService(
         await _collectionRunRepository.UpsertAsync(run, cancellationToken);
         _idempotencyStore.Set(scopedKey, runId, IdempotencyWindow);
 
-        await _auditService.LogAsync(
+        await LogTriggeredAsync(
             new AuditEvent
             {
                 TenantId = scope.TenantId,
@@ -232,4 +235,13 @@ public sealed class CollectionRunTriggerService(
 
         return run;
     }
+
+    private Task LogTriggeredAsync(AuditEvent auditEvent, CancellationToken cancellationToken) =>
+        DurableAuditLogRetry.TryLogAsync(
+            ct => _auditService.LogAsync(auditEvent, ct),
+            logger ?? NullLogger<CollectionRunTriggerService>.Instance,
+            AuditEventTypes.SecureNowCollectionRunTriggered,
+            cancellationToken,
+            maxAttempts: 1,
+            auditEventTypeForMetrics: AuditEventTypes.SecureNowCollectionRunTriggered);
 }
