@@ -98,6 +98,20 @@ describe("buyerAuditTrailGovernanceSummaryCounts", () => {
     expect(summary.lastActivityUtc).not.toBeNull();
   });
 
+  it.each([
+    ["2026-09-09T12:00:00Z", "2026-09-09T12:00:00.100Z"],
+    ["2026-09-09T13:00:00+02:00", "2026-09-09T12:00:00Z"],
+    ["unreadable", "2026-09-09T12:00:00Z"],
+  ])("selects the latest valid instant from %s and %s", (earlier, latest) => {
+    const summary = buyerAuditTrailGovernanceSummaryCounts([
+      { eventType: "decision", occurredUtc: earlier },
+      { eventType: "decision", occurredUtc: latest },
+    ]);
+
+    expect(summary.lastActivityUtc).toBe(latest);
+    expect(summary.totalEvents).toBe(2);
+  });
+
   it("returns zeros for an empty list", () => {
     expect(buyerAuditTrailGovernanceSummaryCounts([])).toEqual({
       totalEvents: 0,
