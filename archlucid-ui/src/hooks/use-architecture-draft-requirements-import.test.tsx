@@ -11,6 +11,25 @@ function requirementsFile(text: string): File {
 }
 
 describe("useArchitectureDraftRequirementsImport", () => {
+  it("lets the same file be selected again after a temporary read failure", async () => {
+    const file = requirementsFile("Use private endpoints.");
+    vi.mocked(file.text).mockRejectedValueOnce(new Error("read failed"));
+    const onOverviewChange = vi.fn();
+    const { result } = renderHook(() => useArchitectureDraftRequirementsImport({
+      currentOverview: "Existing overview",
+      onOverviewChange,
+    }));
+
+    act(() => result.current.onRequirementsFilesSelected([file]));
+    await waitFor(() => expect(result.current.importError).not.toBeNull());
+    await act(async () => result.current.onRequirementsFilesSelected([file]));
+
+    expect(file.text).toHaveBeenCalledTimes(2);
+    expect(onOverviewChange).toHaveBeenCalledExactlyOnceWith(
+      "Existing overview\n\n---\nFrom network-requirements.txt:\n\nUse private endpoints.",
+    );
+  });
+
   it("appends to an overview accepted while extraction is in progress", async () => {
     const extracted = Promise.withResolvers<string>();
     const file = Object.assign(new File(["requirements"], "network-requirements.txt"), {
