@@ -7,6 +7,7 @@ import {
   FIRST_REVIEW_OPEN_GATE_STARTER_LEAD,
   FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW,
 } from "@/lib/architecture/first-review-open-gate-starter-copy";
+import { FIRST_REVIEW_OPEN_GATE_STARTER_FOCUS_LINE } from "@/lib/architecture/first-review-open-gate-focus-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,9 @@ export function FirstReviewOpenGateStarter(): React.JSX.Element {
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
       >
         {FIRST_REVIEW_OPEN_GATE_STARTER_NOT_THIS_REVIEW}
+      </p>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-open-gate-starter-focus">
+        {FIRST_REVIEW_OPEN_GATE_STARTER_FOCUS_LINE}
       </p>
       <Button asChild type="button" variant="primary" size="sm">
         <Link

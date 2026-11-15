@@ -50,6 +50,7 @@ vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
   persistSecureNowPilotDispositionForPath: vi.fn(async () => ({
     status: "saved",
     tenantAuditRecorded: true,
+    recordedUtc: null,
   })),
 }));
 

@@ -16,6 +16,7 @@ import {
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { FIRST_REVIEW_GUIDE_SSO_OPTIONAL_COPY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ARCH_FIRST_REVIEW_PLATFORM_HEALTH_OPTIONAL_BENEFIT } from "@/lib/architecture/architecture-first-review-platform-health-copy";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
@@ -64,7 +65,7 @@ function resolveOptionalWorkspaceSetupRows(
     rows.push({
       id: "platform-health",
       title: "Platform health",
-      benefit: "Confirm that required services are available.",
+      benefit: ARCH_FIRST_REVIEW_PLATFORM_HEALTH_OPTIONAL_BENEFIT,
       statusLabel: healthReady ? "Ready" : "Needs attention",
       statusKind: healthReady ? "ready" : "needs-attention",
       href: FINISH_SETUP_SYSTEM_HEALTH_PATH,

@@ -34,6 +34,8 @@ import { architectureRequestJsonMutationBlockedReason } from "@/lib/runs/archite
 import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-blob-urls";
+import { FIRST_REVIEW_SAMPLE_EXPORT_BADGE_LINE } from "@/lib/architecture/first-review-sample-export-badge-copy";
+import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
@@ -341,6 +343,14 @@ export function RunDetailArtifactsExportsSection(
           <p className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
             {RUN_DETAIL_DELIVERABLES_INTRO}
           </p>
+          {!packageSealedForDeliverables ? (
+            <p
+              className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="run-detail-commit-evidence-before-seal"
+            >
+              {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+            </p>
+          ) : null}
           <div className="mb-4 flex flex-wrap gap-3">
             {showDecisionReceipt ? (
               <DecisionReceiptExportButton
@@ -364,6 +374,9 @@ export function RunDetailArtifactsExportsSection(
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
+                </p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-detail-sample-export-badge">
+                  {FIRST_REVIEW_SAMPLE_EXPORT_BADGE_LINE}
                 </p>
               </div>
             ) : collateralExportBlockedReason !== null ? (

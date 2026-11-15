@@ -72,6 +72,7 @@ import {
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
   EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
+  extractUploadSettingsPageTitle,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
@@ -87,6 +88,8 @@ import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
 import { isAzureLabDemoScenarioId } from "@/lib/azure-lab-inventory-demo-scenarios";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { SECURENOW_EXTRACT_UPLOAD_BASELINE_LOAD_FAILED } from "@/lib/product-line/securenow-extract-upload-baseline-failure-copy";
 
 function reviewBindingStepLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
@@ -127,6 +130,7 @@ function ExtractUploadSettingsPageClientInner() {
     setAdvancedCommandOpen,
     buyerPolishedShell,
     baselineLoading,
+    baselineLoadFailed,
     hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
@@ -191,6 +195,23 @@ function ExtractUploadSettingsPageClientInner() {
           associateRunId={associateRunId}
           uploadBusy={upload.busy}
         />
+
+        {baselineLoadFailed ? (
+          <div className="space-y-2" role="alert" data-testid="extract-upload-baseline-load-failure">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_EXTRACT_UPLOAD_BASELINE_LOAD_FAILED}</p>
+            <FatalPageReportProblemSupportRow
+              surfaceId={
+                productLine === "security"
+                  ? "compliance-infrastructure-extract-upload-hard-failure"
+                  : "governance-infrastructure-extract-upload-hard-failure"
+              }
+              errorTitle={extractUploadSettingsPageTitle(productLine)}
+              errorCode="extract-upload-baseline-load-failed"
+              correlationId={null}
+              httpStatus={null}
+            />
+          </div>
+        ) : null}
 
         {!buyerPolishedShell ? (
           <ExtractUploadCloudConnectionsVocabularyRail

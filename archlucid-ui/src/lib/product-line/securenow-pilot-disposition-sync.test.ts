@@ -30,7 +30,10 @@ describe("securenow pilot disposition sync", () => {
 
     const loaded = await loadSecureNowPilotDispositionForPath("path-1");
 
-    expect(loaded).toEqual({ outcome: "Stop", rationale: "Pilot stop." });
+    expect(loaded).toEqual({
+      record: { outcome: "Stop", rationale: "Pilot stop." },
+      recordedUtc: "2026-01-01T00:00:00Z",
+    });
     expect(fetchDisposition).toHaveBeenCalledWith("path-1");
   });
 
@@ -53,7 +56,11 @@ describe("securenow pilot disposition sync", () => {
       rationale: "More time.",
     });
 
-    expect(result).toEqual({ status: "saved", tenantAuditRecorded: true });
+    expect(result).toEqual({
+      status: "saved",
+      tenantAuditRecorded: true,
+      recordedUtc: "2026-01-01T00:00:00Z",
+    });
     expect(saveDisposition).toHaveBeenCalledWith("path-2", { outcome: "Extend", rationale: "More time." });
   });
 

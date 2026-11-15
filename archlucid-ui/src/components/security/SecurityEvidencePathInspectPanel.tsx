@@ -802,9 +802,9 @@ export function SecurityEvidencePathInspectPanel(props: {
 
     let cancelled = false;
 
-    void loadSecureNowPilotDispositionForPath(resolvedPathId).then((record) => {
+    void loadSecureNowPilotDispositionForPath(resolvedPathId).then((loaded) => {
       if (!cancelled) {
-        setPilotDisposition(record);
+        setPilotDisposition(loaded?.record ?? null);
       }
     });
 

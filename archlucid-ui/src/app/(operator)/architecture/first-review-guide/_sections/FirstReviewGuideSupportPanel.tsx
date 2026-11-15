@@ -20,6 +20,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF } from "@/lib/core-pilot-help-ia-dual";
+import { ARCH_WORKSPACE_WARN_ONLY_FINALIZE_SHORT } from "@/lib/reviews/architecture-warn-only-finalize-copy";
 import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
@@ -155,6 +156,10 @@ export function FirstReviewGuideSupportPanel({ sealedRunId, className }: FirstRe
           </Button>
         </div>
       </section>
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-warn-only-finalize">
+        {ARCH_WORKSPACE_WARN_ONLY_FINALIZE_SHORT}
+      </p>
     </aside>
   );
 }

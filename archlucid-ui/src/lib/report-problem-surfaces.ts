@@ -196,6 +196,22 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx",
     description: "Remediation factory core reads failed on the SecureNow Security route.",
   },
+  {
+    id: "governance-infrastructure-extract-upload-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/governance/infrastructure/extract-upload",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
+    description: "Extract and upload baseline status could not be loaded on the Architecture route.",
+  },
+  {
+    id: "compliance-infrastructure-extract-upload-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/infrastructure/manual-upload",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
+    description: "Extract and upload baseline status could not be loaded on the SecureNow Infrastructure route.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

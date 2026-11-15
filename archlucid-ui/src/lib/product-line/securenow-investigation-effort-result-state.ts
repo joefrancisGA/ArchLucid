@@ -2,6 +2,10 @@ import {
   isSecureNowInvestigationEffortFixtureWorksheet,
   type SecureNowInvestigationEffortInputFields,
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
+import {
+  formatSecureNowInvestigationEffortMissingFieldsReason,
+  listSecureNowInvestigationEffortMissingFieldLabels,
+} from "@/lib/product-line/securenow-investigation-effort-missing-fields";
 
 export type SecureNowInvestigationEffortResultState =
   | { readonly kind: "incomplete"; readonly headline: "ROI not calculated."; readonly reason: string }
@@ -35,10 +39,12 @@ export function resolveSecureNowInvestigationEffortResultState(
     || hourlyRate === null
     || annualCost === null
   ) {
+    const missingLabels = listSecureNowInvestigationEffortMissingFieldLabels(inputs);
+
     return {
       kind: "incomplete",
       headline: "ROI not calculated.",
-      reason: "Enter all five inputs with positive numbers. Empty or invalid fields stay out of ROI.",
+      reason: formatSecureNowInvestigationEffortMissingFieldsReason(missingLabels),
     };
   }
 
