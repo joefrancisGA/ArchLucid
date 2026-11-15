@@ -6,7 +6,7 @@ import {
   type PriorPackageGuidedIntakePrefill,
 } from "@/lib/prior-package-guided-intake-prefill";
 
-/** Best-effort load of prior-package intake fields for guided-intake rerun prefill. */
+/** Loads guided-intake prefill, returning null when no prior request is available. */
 export async function tryLoadPriorPackageGuidedIntakePrefill(
   runId: string,
 ): Promise<PriorPackageGuidedIntakePrefill | null> {
@@ -16,29 +16,25 @@ export async function tryLoadPriorPackageGuidedIntakePrefill(
     return null;
   }
 
-  try {
-    const detailEnvelope = await getRunDetail(trimmedRunId);
-    const coercedDetail = coerceRunDetail(detailEnvelope.data);
+  const detailEnvelope = await getRunDetail(trimmedRunId);
+  const coercedDetail = coerceRunDetail(detailEnvelope.data);
 
-    if (!coercedDetail.ok) {
-      return null;
-    }
-
-    const requestId = coercedDetail.value.run.architectureRequestId?.trim() ?? "";
-
-    if (requestId.length === 0) {
-      return null;
-    }
-
-    const request = await getArchitectureRequest(requestId);
-
-    return derivePriorPackageGuidedIntakePrefill({
-      systemName: request.systemName,
-      description: request.description,
-      draftActors: request.draftActors?.map((a) => ({ ...a, label: a.label ?? undefined })),
-      inlineRequirements: request.inlineRequirements,
-    });
-  } catch {
+  if (!coercedDetail.ok) {
     return null;
   }
+
+  const requestId = coercedDetail.value.run.architectureRequestId?.trim() ?? "";
+
+  if (requestId.length === 0) {
+    return null;
+  }
+
+  const request = await getArchitectureRequest(requestId);
+
+  return derivePriorPackageGuidedIntakePrefill({
+    systemName: request.systemName,
+    description: request.description,
+    draftActors: request.draftActors?.map((a) => ({ ...a, label: a.label ?? undefined })),
+    inlineRequirements: request.inlineRequirements,
+  });
 }

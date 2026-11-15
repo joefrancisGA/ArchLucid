@@ -1,17 +1,23 @@
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
 
-const { tryLoadPriorPackageGuidedIntakePrefill } = vi.hoisted(() => ({
+const { getRunDetail, tryLoadPriorPackageGuidedIntakePrefill } = vi.hoisted(() => ({
+  getRunDetail: vi.fn(),
   tryLoadPriorPackageGuidedIntakePrefill: vi.fn(),
 }));
+
+vi.mock("@/lib/api", () => ({ getRunDetail, getArchitectureRequest: vi.fn() }));
 
 vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
   tryLoadPriorPackageGuidedIntakePrefill,
 }));
 
-import { useGuidedIntakePriorRunPrefill } from "./use-guided-intake-prior-run-prefill";
+import {
+  GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE,
+  useGuidedIntakePriorRunPrefill,
+} from "./use-guided-intake-prior-run-prefill";
 
 const existingScopeBullet: ScopeUnderstandingBullet = {
   id: "scope-1",
@@ -71,13 +77,15 @@ describe("useGuidedIntakePriorRunPrefill", () => {
     expect(setScopeGateOpen).not.toHaveBeenCalled();
   });
 
-  it("handles a rejected prior-package load", () => {
-    const catchHandler = vi.fn();
-    tryLoadPriorPackageGuidedIntakePrefill.mockReturnValueOnce({
-      then: vi.fn(() => ({ catch: catchHandler })),
-    });
+  it("reports a prior-package API failure without changing intake fields", async () => {
+    const loader = await vi.importActual<typeof import("@/lib/try-load-prior-package-guided-intake-prefill")>(
+      "@/lib/try-load-prior-package-guided-intake-prefill",
+    );
+    getRunDetail.mockRejectedValueOnce(new Error("Prior run request failed"));
+    tryLoadPriorPackageGuidedIntakePrefill.mockImplementationOnce(loader.tryLoadPriorPackageGuidedIntakePrefill);
+    const setSystemName = vi.fn();
 
-    renderHook(() =>
+    const { result } = renderHook(() =>
       useGuidedIntakePriorRunPrefill({
         priorRunId: "run-1",
         freeTextIntent: "",
@@ -87,7 +95,7 @@ describe("useGuidedIntakePriorRunPrefill", () => {
         scopeBullets: [],
         setFreeTextIntent: vi.fn(),
         setBusinessOutcome: vi.fn(),
-        setSystemName: vi.fn(),
+        setSystemName,
         setActorSet: vi.fn(),
         setScopeBullets: vi.fn(),
         setScopeGateOpen: vi.fn(),
@@ -95,6 +103,9 @@ describe("useGuidedIntakePriorRunPrefill", () => {
       }),
     );
 
-    expect(catchHandler).toHaveBeenCalledOnce();
+    await waitFor(() => expect(result.current.priorRunPrefillCopiedFromLine)
+      .toBe(GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE));
+    expect(getRunDetail).toHaveBeenCalledWith("run-1");
+    expect(setSystemName).not.toHaveBeenCalled();
   });
 });
