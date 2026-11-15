@@ -152,6 +152,11 @@ export function formatResourcesExplorerPageRangeLabel(input: {
   }
 
   const rangeStart = (input.page - 1) * input.pageSize + 1;
+
+  if (rangeStart > input.totalCount) {
+    return `Showing 0 of ${input.totalCount}`;
+  }
+
   const rangeEnd = Math.min(input.page * input.pageSize, input.totalCount);
 
   return `Showing ${rangeStart}–${rangeEnd} of ${input.totalCount}`;
