@@ -132,6 +132,10 @@ export function useGraphPageFetch(options: UseGraphPageFetchOptions): UseGraphPa
             if (!isApiRequestError(err) || err.httpStatus !== 413 || rid.length === 0) throw err;
 
             raw = await mergeArchitectureGraphPages(rid);
+            if (gen !== loadGenRef.current) {
+              return;
+            }
+
             setArchitectureGraphNote(
               "Full graph response exceeded the API size limit; loaded all pages via the paginated endpoint. Edges appear only when both endpoints fall on the same page — some cross-page links may be missing from this view.",
             );
