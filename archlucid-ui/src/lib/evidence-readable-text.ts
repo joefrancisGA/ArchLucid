@@ -72,6 +72,7 @@ export async function buildArchitectureIntakeInferenceCorpus(
   input: {
     readonly briefText: string;
     readonly evidenceFiles: readonly File[];
+    readonly includeFileNameTokens?: boolean;
   },
   observer?: ArchitectureIntakeInferenceCorpusObserver,
 ): Promise<string> {
@@ -101,7 +102,7 @@ export async function buildArchitectureIntakeInferenceCorpus(
         }
       }
       catch {
-        // Ignore unreadable attachments — filename tokens are still added below.
+        // Skip unreadable contents. Filename tokens may still contribute to inference.
       }
     }
     else if (isBinaryArchitectureDocumentFileName(file.name)) {
@@ -122,10 +123,11 @@ export async function buildArchitectureIntakeInferenceCorpus(
       }
     }
 
-    const fileNameTokens = file.name.replace(/[._-]+/g, " ").trim();
-
-    if (fileNameTokens.length > 0) {
-      parts.push(fileNameTokens);
+    if (input.includeFileNameTokens !== false) {
+      const fileNameTokens = file.name.replace(/[._-]+/g, " ").trim();
+      if (fileNameTokens.length > 0) {
+        parts.push(fileNameTokens);
+      }
     }
   }
 

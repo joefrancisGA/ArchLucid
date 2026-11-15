@@ -63,6 +63,7 @@ export function useArchitectureDraftRequirementsImport(
             const extracted = await buildArchitectureIntakeInferenceCorpus({
               briefText: "",
               evidenceFiles: [file],
+              includeFileNameTokens: false,
             });
 
             if (extracted.trim().length === 0) {
