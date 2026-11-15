@@ -8,6 +8,37 @@ namespace ArchLucid.Decisioning.Tests.Analysis;
 public sealed class DrRpoRequirementParserTests
 {
     [Fact]
+    public void TryParseRecoveryObjectives_binds_iso_durations_to_their_objectives()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["description"] = "Backup job runs every PT60M.",
+            ["rpo"] = "PT15M",
+            ["rto"] = "PT5M",
+        };
+
+        DrRpoRequirementParser.TryParseRecoveryObjectives(
+                "Recovery objectives", properties, out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeTrue();
+
+        rpoMinutes.Should().Be(15);
+        rtoMinutes.Should().Be(5);
+    }
+
+    [Theory]
+    [InlineData("RPO and backup schedule: every PT60M")]
+    [InlineData("RPO PT2147483648M")]
+    public void TryParseRecoveryObjectives_rejects_uncoupled_or_out_of_range_iso_duration(string label)
+    {
+        DrRpoRequirementParser.TryParseRecoveryObjectives(
+                label, new Dictionary<string, string>(), out int? rpoMinutes, out int? rtoMinutes)
+            .Should().BeFalse();
+
+        rpoMinutes.Should().BeNull();
+        rtoMinutes.Should().BeNull();
+    }
+
+    [Fact]
     public void TryParseRecoveryObjectives_parses_rpo_minutes_from_text()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
