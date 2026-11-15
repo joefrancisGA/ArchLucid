@@ -680,8 +680,10 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         await sut.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
-    public async Task ProcessOneMessageAsync_schedules_retry_when_executor_fails_within_max_retries()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(500)]
+    public async Task ProcessOneMessageAsync_schedules_retry_when_executor_fails_within_max_retries(int capacity)
     {
         Mock<QueueClient> queueClient = new();
         Mock<IBackgroundJobRepository> repo = new();
@@ -699,7 +701,8 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         BackgroundJobsOptions backgroundJobsOptions = new()
         {
             ProcessorReceiveBatchSize = 1,
-            ProcessorIdlePollMilliseconds = 10
+            ProcessorIdlePollMilliseconds = 10,
+            MaxPendingJobs = capacity,
         };
 
         BackgroundJobQueueProcessorHostedService sut = new(
@@ -750,24 +753,39 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         repo.Setup(r => r.TryPrepareQueuedJobAsync("job-retry", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, row));
         repo.Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        BackgroundJobRow current = row;
+        repo.Setup(r => r.GetAsync("job-retry", It.IsAny<CancellationToken>())).ReturnsAsync(() => current);
         repo.Setup(r => r.MarkPendingRetryAsync("job-retry", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback(() => current = new BackgroundJobRow
+            {
+                JobId = row.JobId,
+                State = "Pending",
+                RetryCount = 1,
+            })
             .ReturnsAsync(true);
 
         queueClient.Setup(q => q.SendMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Mock.Of<Azure.Response<SendReceipt>>());
 
+        TaskCompletionSource<bool> acknowledged = new(TaskCreationOptions.RunContinuationsAsynchronously);
         queueClient.Setup(q => q.DeleteMessageAsync("msg-retry", "rcpt-retry", It.IsAny<CancellationToken>()))
+            .Callback(() => acknowledged.TrySetResult(true))
             .ReturnsAsync(Mock.Of<Azure.Response>());
 
         await sut.StartAsync(CancellationToken.None);
-        await Task.Delay(1500);
+        try
+        {
+            await acknowledged.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        finally
+        {
+            await sut.StopAsync(CancellationToken.None);
+        }
 
         repo.Verify(
             r => r.MarkPendingRetryAsync("job-retry", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Once);
         queueClient.Verify(q => q.SendMessageAsync("job-retry", It.IsAny<CancellationToken>()), Times.Once);
-
-        await sut.StopAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -1588,18 +1606,18 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, BuildRow()));
 
         repo.Setup(r => r.GetAsync("job-cancel-retry-send", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => BuildRow());
-
-        repo.Setup(r => r.MarkPendingRetryAsync("job-cancel-retry-send", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        repo.Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
-                jobState = "Canceled";
+                BackgroundJobRow observed = BuildRow();
+                if (jobState == "Pending")
+                    jobState = "Canceled";
 
-                return 1;
+                return observed;
             });
+
+        repo.Setup(r => r.MarkPendingRetryAsync("job-cancel-retry-send", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback(() => jobState = "Pending")
+            .ReturnsAsync(true);
 
         queueClient.Setup(q => q.DeleteMessageAsync("msg-cancel-retry-send", "rcpt-cancel-retry-send", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Mock.Of<Azure.Response>());
@@ -2367,7 +2385,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
     }
 
     [Fact]
-    public async Task ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_before_capacity_exhausted_terminal_assignment()
+    public async Task ProcessOneMessageAsync_does_not_enqueue_retry_when_cancel_visible_on_final_notification_check()
     {
         TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
         TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -2495,13 +2513,14 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
 
-        getAsyncCalls.Should().BeGreaterThan(4, "capacity-exhausted terminal failure should re-read cancel state before MarkFailedTerminal");
+        queueClient.Verify(q => q.SendMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        getAsyncCalls.Should().BeGreaterThan(4, "the final notification check should observe the cancellation");
 
         await sut.StopAsync(CancellationToken.None);
     }
 
     [Fact]
-    public async Task ProcessOneMessageAsync_does_not_mark_failed_terminal_when_job_reclaimed_to_pending_before_capacity_exhausted_terminal_assignment()
+    public async Task ProcessOneMessageAsync_does_not_fail_job_when_pending_on_final_notification_check()
     {
         TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
         TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
