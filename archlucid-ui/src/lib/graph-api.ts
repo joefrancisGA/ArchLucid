@@ -134,14 +134,17 @@ export async function getArchitectureGraphPage(
   page = 1,
   pageSize = 200,
 ): Promise<GraphNodesPageResponse> {
+  const normalizedRunId = runId.trim();
+  const normalizedPage = Number.isFinite(page) && page >= 1 ? Math.floor(page) : 1;
+  const normalizedPageSize = Number.isFinite(pageSize) && pageSize >= 1 ? Math.floor(pageSize) : 200;
   const q = new URLSearchParams({
-    page: String(page),
-    pageSize: String(pageSize),
+    page: String(normalizedPage),
+    pageSize: String(normalizedPageSize),
   });
 
   try {
     return await apiGetSealedManifestAware<GraphNodesPageResponse>(
-      `/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`,
+      `/v1/evidence-graph/reviews/${encodeURIComponent(normalizedRunId)}/nodes?${q.toString()}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -165,7 +168,13 @@ export async function mergeArchitectureGraphPages(
   const seenEdge = new Set<string>();
   let page = 1;
 
+  const maximumPages = 1000;
+
   for (;;) {
+    if (page > maximumPages) {
+      throw new Error("Architecture graph pagination did not converge.");
+    }
+
     const slice = await getArchitectureGraphPage(runId, page, pageSize);
 
     for (const n of slice.nodes) {
@@ -219,9 +228,11 @@ export async function getNodeNeighborhood(
   nodeId: string,
   depth = 1,
 ): Promise<GraphViewModel> {
+  const normalizedDepth = Number.isFinite(depth) && depth >= 0 ? Math.floor(depth) : 1;
+
   try {
     return await apiGetSealedManifestAware<GraphViewModel>(
-      `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
+      `/v1/provenance/runs/${encodeURIComponent(runId.trim())}/graph/node/${encodeURIComponent(nodeId.trim())}?depth=${normalizedDepth}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

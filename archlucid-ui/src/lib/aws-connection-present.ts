@@ -11,14 +11,14 @@ export function formatAwsConnectionTimestamp(value: string | null): string {
   const parsed = Date.parse(value);
 
   if (Number.isNaN(parsed)) {
-    return value;
+    return "Date not readable";
   }
 
   return formatInstantForLocale(value);
 }
 
 export function awsConnectionStatusTagKind(status: string): EnterpriseStatusKind {
-  switch (status.toLowerCase()) {
+  switch (status.trim().toLowerCase()) {
     case "connected":
       return "ready";
     case "polling":

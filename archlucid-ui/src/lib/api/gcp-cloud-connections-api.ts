@@ -23,11 +23,40 @@ export async function configureGcpTier2Connection(
 }
 
 export async function listGcpTier2Connections(): Promise<GcpTier2ConnectionResponse[]> {
-  return apiGet<GcpTier2ConnectionResponse[]>("/v1/gcp-extractor/connections");
+  const raw = await apiGet<unknown>("/v1/gcp-extractor/connections");
+
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.flatMap((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const row = item as Record<string, unknown>;
+
+    return [{
+      connectionId: typeof row.connectionId === "string" ? row.connectionId.trim() : "",
+      projectId: typeof row.projectId === "string" ? row.projectId.trim() : "",
+      workloadIdentityPoolProvider:
+        typeof row.workloadIdentityPoolProvider === "string" ? row.workloadIdentityPoolProvider.trim() : "",
+      serviceAccountEmail: typeof row.serviceAccountEmail === "string" ? row.serviceAccountEmail.trim() : "",
+      status: typeof row.status === "string" ? row.status.trim() : "",
+      lastPolledUtc: typeof row.lastPolledUtc === "string" ? row.lastPolledUtc.trim() : null,
+      updatedUtc: typeof row.updatedUtc === "string" ? row.updatedUtc.trim() : "",
+    }];
+  });
 }
 
 export async function disconnectGcpTier2Connection(connectionId: string): Promise<void> {
-  await apiDelete(`/v1/gcp-extractor/connections/${connectionId}`);
+  const normalizedConnectionId = connectionId.trim();
+
+  if (normalizedConnectionId.length === 0) {
+    throw new Error("connectionId is required.");
+  }
+
+  await apiDelete(`/v1/gcp-extractor/connections/${encodeURIComponent(normalizedConnectionId)}`);
 }
 
 export interface GcpTier2HostedRunBody {

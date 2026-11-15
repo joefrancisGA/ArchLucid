@@ -141,8 +141,14 @@ export async function fetchInfrastructureDiagramDocumentationDecision(
 export async function fetchAbsentInfrastructureDiagramDocumentationDecisions(
   comparisonId: string,
 ): Promise<InfrastructureDiagramDocumentationDecision[]> {
+  const trimmedComparisonId = comparisonId.trim();
+
+  if (trimmedComparisonId.length === 0) {
+    throw new Error("comparisonId is required.");
+  }
+
   return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
-    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions/absent`,
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${encodeURIComponent(trimmedComparisonId)}/documentation-decisions/absent`,
   );
 }
 

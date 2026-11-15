@@ -21,7 +21,27 @@ export async function configureTier2Connection(
 }
 
 export async function listTier2Connections(): Promise<Tier2ConnectionResponse[]> {
-  return apiGet<Tier2ConnectionResponse[]>("/v1/azure-extractor/connections");
+  const raw = await apiGet<unknown>("/v1/azure-extractor/connections");
+
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.flatMap((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const row = item as Record<string, unknown>;
+
+    return [{
+      connectionId: typeof row.connectionId === "string" ? row.connectionId.trim() : "",
+      tenantId: typeof row.tenantId === "string" ? row.tenantId.trim() : "",
+      clientId: typeof row.clientId === "string" ? row.clientId.trim() : "",
+      subscriptionIds: typeof row.subscriptionIds === "string" ? row.subscriptionIds.trim() : "",
+      updatedUtc: typeof row.updatedUtc === "string" ? row.updatedUtc.trim() : "",
+    }];
+  });
 }
 
 export interface Tier2HostedRunValidationBody {

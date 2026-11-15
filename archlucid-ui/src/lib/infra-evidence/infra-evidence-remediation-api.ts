@@ -60,8 +60,12 @@ function encodeRequiredPathSegment(value: string, fieldName: string): string {
   return encodeURIComponent(trimmed);
 }
 
-function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
-  const status = parseRemediationInstanceStatusFilter(mapTrimmedString(raw.status)) ?? "Classified";
+function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary | null {
+  const status = parseRemediationInstanceStatusFilter(mapTrimmedString(raw.status));
+
+  if (status === null) {
+    return null;
+  }
 
   return {
     instanceId: mapTrimmedString(raw.instanceId),
@@ -138,7 +142,11 @@ export async function fetchRemediationInstances(
 
   const raw = await proxyJsonGet<Array<Record<string, unknown>>>(path);
 
-  return raw.map(mapInstanceSummary);
+  return raw.flatMap((row) => {
+    const mapped = mapInstanceSummary(row);
+
+    return mapped === null ? [] : [mapped];
+  });
 }
 
 export async function fetchRemediationInstanceDetail(instanceId: string): Promise<RemediationInstanceDetail> {
@@ -147,8 +155,14 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
   const findingRaw = raw.finding as Record<string, unknown> | null | undefined;
   const matchRaw = raw.activeMatch as Record<string, unknown> | null | undefined;
 
+  const instance = mapInstanceSummary(instanceRaw);
+
+  if (instance === null) {
+    throw new Error("Remediation instance status was not recognized.");
+  }
+
   return {
-    instance: mapInstanceSummary(instanceRaw),
+    instance,
     finding:
       findingRaw == null
         ? null
