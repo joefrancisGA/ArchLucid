@@ -66,6 +66,7 @@ vi.mock("@/components/advisory/use-advisory-schedules-page", () => ({
     canMutateSchedules: true,
     sampleModeBlocked: false,
     prerequisiteBlocksSchedules: false,
+    reviewAvailability: { loading: false, hasFinalizedReviews: true, finalizedCount: 1, loadFailed: false, retry: vi.fn() },
     showHeaderCreate: true,
     showCreateForm: true,
     showCreatePanel: false,

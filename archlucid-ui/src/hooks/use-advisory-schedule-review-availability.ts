@@ -6,6 +6,8 @@ export type AdvisoryScheduleReviewAvailability = {
   readonly loading: boolean;
   readonly hasFinalizedReviews: boolean;
   readonly finalizedCount: number;
+  readonly loadFailed: boolean;
+  readonly retry: () => void;
 };
 
 /**
@@ -15,15 +17,18 @@ export type AdvisoryScheduleReviewAvailability = {
 export function useAdvisoryScheduleReviewAvailability(
   runProjectSlug: string,
 ): AdvisoryScheduleReviewAvailability {
-  const { data, isPending } = useAskProjectRunsQuery(runProjectSlug, {
+  const { data, isPending, isError, refetch } = useAskProjectRunsQuery(runProjectSlug, {
     committedOnly: true,
   });
 
   const finalizedCount = data?.items.length ?? 0;
+  const loadFailed = isError || data?.loadError === true;
 
   return {
     loading: isPending,
-    hasFinalizedReviews: !isPending && finalizedCount > 0,
+    hasFinalizedReviews: !isPending && !loadFailed && finalizedCount > 0,
     finalizedCount,
+    loadFailed,
+    retry: () => void refetch(),
   };
 }

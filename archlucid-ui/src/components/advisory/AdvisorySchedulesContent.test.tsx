@@ -26,6 +26,8 @@ const reviewAvailabilityMock = vi.hoisted(() => ({
   loading: false,
   hasFinalizedReviews: true,
   finalizedCount: 1,
+  loadFailed: false,
+  retry: vi.fn(),
 }));
 
 const demoEnvMock = vi.hoisted(() => ({
@@ -88,6 +90,8 @@ vi.mock("@/hooks/use-advisory-schedule-review-availability", () => ({
     loading: reviewAvailabilityMock.loading,
     hasFinalizedReviews: reviewAvailabilityMock.hasFinalizedReviews,
     finalizedCount: reviewAvailabilityMock.finalizedCount,
+    loadFailed: reviewAvailabilityMock.loadFailed,
+    retry: reviewAvailabilityMock.retry,
   }),
 }));
 
@@ -112,6 +116,7 @@ describe("AdvisorySchedulesContent", () => {
     reviewAvailabilityMock.loading = false;
     reviewAvailabilityMock.hasFinalizedReviews = true;
     reviewAvailabilityMock.finalizedCount = 1;
+    reviewAvailabilityMock.loadFailed = false;
     demoEnvMock.buyerPolished = false;
     demoEnvMock.fullShell = true;
     demoEnvMock.evalChrome = false;
@@ -202,6 +207,20 @@ describe("AdvisorySchedulesContent", () => {
     expect(await screen.findByTestId("advisory-schedules-no-finalized-reviews-empty-state")).toBeInTheDocument();
     expect(screen.queryByTestId("advisory-schedule-create-form")).toBeNull();
     expect(screen.queryByTestId("advisory-schedule-create-submit")).toBeNull();
+  });
+
+  it("shows a retryable review lookup error instead of a no-review prerequisite", async () => {
+    reviewAvailabilityMock.hasFinalizedReviews = false;
+    reviewAvailabilityMock.finalizedCount = 0;
+    reviewAvailabilityMock.loadFailed = true;
+
+    render(<AdvisorySchedulesContent />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not check for finalized reviews.");
+    expect(screen.queryByTestId("advisory-schedules-no-finalized-reviews-empty-state")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedules-create-action")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Retry review lookup" }));
+    expect(reviewAvailabilityMock.retry).toHaveBeenCalledOnce();
   });
 
   it("disables run now when finalized reviews are unavailable", async () => {
