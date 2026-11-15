@@ -112,7 +112,7 @@ export function formatAzureResourceTypeForDisplay(resourceType: string | null | 
   return `${stripMicrosoftProviderPrefix(namespace)}${remainder}`;
 }
 
-function resourceTypeFromSegments(segments: readonly string[]): string | null {
+export function resolveAzureResourceTypeFromIdSegments(segments: readonly string[]): string | null {
   let providersIndex = segments.findIndex((segment) => segment.toLowerCase() === "providers");
 
   if (providersIndex < 0 || segments.length < providersIndex + 3) {
@@ -148,7 +148,7 @@ function resourceTypeFromSegments(segments: readonly string[]): string | null {
     return null;
   }
 
-  return `${stripMicrosoftProviderPrefix(namespaceSegment)}/${typeSegments.join("/")}`;
+  return `${namespaceSegment}/${typeSegments.join("/")}`;
 }
 
 function looksLikeArmResourceId(azureResourceId: string): boolean {
@@ -214,7 +214,8 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
     }
   }
 
-  const resourceType = resourceTypeFromSegments(segments);
+  const qualifiedType = resolveAzureResourceTypeFromIdSegments(segments);
+  const resourceType = qualifiedType === null ? null : formatAzureResourceTypeForDisplay(qualifiedType);
 
   const displayName = normalizeSecureNowResourceNameForDisplay(name);
 

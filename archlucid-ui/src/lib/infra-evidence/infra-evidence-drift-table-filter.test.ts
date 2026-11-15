@@ -237,6 +237,28 @@ describe("infra-evidence-drift-table-filter", () => {
     ).toEqual([rows[0]]);
   });
 
+  it("filters by the full ARM type of nested and extension resources", () => {
+    const subnet = buildChange(
+      "subnet",
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet/subnets/snet",
+      { changeType: "ResourceModified" },
+    );
+    const roleAssignment = buildChange(
+      "role-assignment",
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet/providers/Microsoft.Authorization/roleAssignments/assignment",
+      { changeType: "ResourceModified" },
+    );
+    const rows = [subnet, roleAssignment];
+
+    const filterByType = (resourceTypeFilter: string) =>
+      filterDriftChanges(rows, parseDriftTableFilterState(new URLSearchParams({ resourceType: resourceTypeFilter })));
+
+    expect(filterByType("Microsoft.Network/virtualNetworks/subnets")).toEqual([subnet]);
+    expect(filterByType("Microsoft.Authorization/roleAssignments")).toEqual([roleAssignment]);
+    expect(filterByType("Authorization/roleAssignments")).toEqual([roleAssignment]);
+    expect(filterByType("Microsoft.Network/virtualNetworks")).toEqual([subnet]);
+  });
+
   it("parses and serializes includeUnchanged table filter state", () => {
     expect(parseDriftTableIncludeUnchanged("1")).toBe(true);
     expect(parseDriftTableIncludeUnchanged("true")).toBe(true);
