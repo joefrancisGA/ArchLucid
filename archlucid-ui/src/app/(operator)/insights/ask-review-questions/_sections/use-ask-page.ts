@@ -55,6 +55,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   const {
     data: prefetchedThreads,
     isError: threadsQueryError,
+    isFetching: threadsQueryFetching,
     refetch: refetchThreads,
   } = useConversationThreadsQuery(50);
 
@@ -156,7 +157,9 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     setLoading,
   });
 
-  const threadsHydrated = prefetchedThreads !== undefined || threadsQueryError;
+  // The URL may only discard a missing thread after the successful query result
+  // has been applied to the local list used by the URL synchronizer.
+  const threadsHydrated = threads === prefetchedThreads && !threadsQueryError && !threadsQueryFetching;
 
   const urlSync = useAskPageUrlSync({
     runId,
@@ -198,7 +201,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     if (urlSync.urlThreadId.length > 0) {
       const urlThreadKnown = threads.some((thread) => thread.threadId === urlSync.urlThreadId);
 
-      if (urlThreadKnown) {
+      if (urlThreadKnown || !threadsHydrated) {
         return;
       }
     }
@@ -210,7 +213,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     }
 
     void onSelectThread(resumeThreadId);
-  }, [threads, selectedThreadId, listFailure, onSelectThread, urlSync.urlThreadId]);
+  }, [threads, threadsHydrated, selectedThreadId, listFailure, onSelectThread, urlSync.urlThreadId]);
 
   const continueLastThread = useMemo(() => resolveContinueLastAskThread(threads), [threads]);
   const showContinueLastThreadRow =
