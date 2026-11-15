@@ -118,6 +118,25 @@ public sealed class OperationalSecurityExceptionServiceTests
         findingRepository.Observations.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task FactoryMetrics_count_expired_exceptions_before_the_sweep()
+    {
+        DateTime utcNow = new(2026, 11, 15, 12, 0, 0, DateTimeKind.Utc);
+        InMemoryOperationalSecurityExceptionRepository repository = new();
+        repository.Records.Add(CreateActiveException(Guid.NewGuid(), Guid.NewGuid(), utcNow));
+        repository.Records.Add(CreateActiveException(Guid.NewGuid(), Guid.NewGuid(), utcNow.AddDays(1)));
+        repository.Records.Add(CreateActiveException(Guid.NewGuid(), Guid.NewGuid(), utcNow.AddDays(14)));
+
+        RemediationFactoryExceptionMetricsAggregate result =
+            await ((IOperationalSecurityExceptionRepository)repository).GetFactoryExceptionMetricsAggregateInScopeAsync(
+                CreateScope().ToProjectScopeKey(), utcNow, TimeSpan.FromDays(7));
+
+        result.ExceptionsActive.Should().Be(2);
+        result.ExceptionsExpired.Should().Be(1);
+        result.ExceptionsExpiringSoon.Should().Be(1);
+        repository.Records[0].Status.Should().Be(OperationalSecurityExceptionStatus.Active);
+    }
+
     private static OperationalSecurityExceptionService CreateSut(
         InMemoryOperationalSecurityExceptionRepository exceptionRepository,
         InMemoryOperationalSecurityFindingRepository findingRepository) =>
