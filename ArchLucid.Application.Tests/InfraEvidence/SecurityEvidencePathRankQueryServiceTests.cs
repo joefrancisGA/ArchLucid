@@ -21,6 +21,26 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
     private static readonly Guid SnapshotId = Guid.Parse("44444444-4444-4444-4444-444444444444");
     private static readonly Guid PathId = Guid.Parse("55555555-5555-5555-5555-555555555555");
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ListRankedPathsAsync_reports_normalized_pagination(bool hasRank)
+    {
+        InMemoryRankRepository rankRepository = new();
+        if (hasRank)
+            rankRepository.StoredRanks[(TenantId, PathId)] = CreateSampleRank();
+
+        SecurityEvidencePathRankQueryService sut = new(
+            CreateSamplePathRepository(), rankRepository, new InMemoryCutPointRepository());
+
+        SecurityEvidencePathRankedPageResponse response = await sut.ListRankedPathsAsync(
+            CreateScope(), SnapshotId, page: 0, pageSize: 0, cancellationToken: CancellationToken.None);
+
+        response.Page.Should().Be(1);
+        response.PageSize.Should().Be(1);
+        response.Items.Should().HaveCount(hasRank ? 1 : 0);
+    }
+
     [Fact]
     public async Task TryGetPathRankAsync_returns_dimension_prose_without_llm()
     {
