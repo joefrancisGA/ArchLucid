@@ -64,4 +64,43 @@ public sealed class CachingPolicyPackRepositoryGetByIdsTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdsAsync_does_not_restore_stale_metadata_to_single_read_cache()
+    {
+        Guid id = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        PolicyPack Pack(string version) => new()
+        {
+            PolicyPackId = id,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Name = "pack",
+            CurrentVersion = version,
+        };
+
+        PolicyPack oldPack = Pack("1.0.0");
+        PolicyPack currentPack = Pack("2.0.0");
+        TaskCompletionSource<IReadOnlyList<PolicyPack>> pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IPolicyPackRepository> inner = new();
+        inner.Setup(repo => repo.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), CancellationToken.None))
+            .Returns(pending.Task);
+        inner.Setup(repo => repo.GetByIdAsync(id, CancellationToken.None))
+            .ReturnsAsync(currentPack);
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions());
+        CachingPolicyPackRepository sut = new(inner.Object, hotPath);
+
+        Task<IReadOnlyList<PolicyPack>> batch = sut.GetByIdsAsync([id], CancellationToken.None);
+        await sut.UpdateAsync(currentPack, CancellationToken.None);
+        pending.SetResult([oldPack]);
+        (await batch).Should().ContainSingle().Which.CurrentVersion.Should().Be("1.0.0");
+
+        PolicyPack? after = await sut.GetByIdAsync(id, CancellationToken.None);
+
+        after.Should().NotBeNull();
+        after!.CurrentVersion.Should().Be("2.0.0");
+    }
 }

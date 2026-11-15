@@ -59,18 +59,8 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
             return Array.Empty<PolicyPack>();
 
         List<Guid> distinctIds = policyPackIds.Distinct().ToList();
-        IReadOnlyList<PolicyPack> loaded =
-            await _inner.GetByIdsAsync(distinctIds, ct).ConfigureAwait(false) ?? Array.Empty<PolicyPack>();
-
-        foreach (PolicyPack pack in loaded)
-        {
-            await _hotPathReadCache.GetOrCreateAsync(
-                HotPathCacheKeys.PolicyPack(pack.PolicyPackId),
-                innerCt => Task.FromResult<PolicyPack?>(pack),
-                ct).ConfigureAwait(false);
-        }
-
-        return loaded;
+        // A batch started before an update can finish after that update evicts the single-read entry.
+        return await _inner.GetByIdsAsync(distinctIds, ct).ConfigureAwait(false) ?? Array.Empty<PolicyPack>();
     }
 
     /// <inheritdoc />
