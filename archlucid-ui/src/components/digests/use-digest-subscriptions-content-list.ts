@@ -45,7 +45,7 @@ export function useDigestSubscriptionsContentList(args: UseDigestSubscriptionsCo
     [items],
   );
   const subscriptionIds = useMemo(() => items.map((item) => item.subscriptionId), [items]);
-  const { attemptsBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, args.refreshToken);
+  const { attemptsBySub, attemptStatusBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, args.refreshToken);
   const [historyOpenFor, setHistoryOpenForState] = useState<string | null>(
     urlHistorySubscriptionId.length > 0 ? urlHistorySubscriptionId : null,
   );
@@ -125,6 +125,7 @@ export function useDigestSubscriptionsContentList(args: UseDigestSubscriptionsCo
     items,
     continueLastSubscription,
     attemptsBySub,
+    attemptStatusBySub,
     historyOpenFor,
     loading,
     queryFailure,

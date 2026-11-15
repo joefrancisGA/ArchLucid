@@ -218,6 +218,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         <DigestSubscriptionList
           items={list.items}
           attemptsBySub={list.attemptsBySub}
+          attemptStatusBySub={list.attemptStatusBySub}
           historyOpenFor={list.historyOpenFor}
           loading={loading}
           canMutate={toggle.canMutateSubscriptions}
