@@ -79,4 +79,21 @@ describe("resolveContinueLastRecycleBinProject", () => {
     expect(match?.projectId).toBe("newer");
     expect(match?.workspaceName).toBe("Sandbox");
   });
+
+  it("uses the latest valid deletion instant when no project was viewed", () => {
+    window.localStorage.removeItem(RECYCLE_BIN_PROJECT_LAST_VIEWED_STORAGE_KEY);
+    const projects = [
+      { projectId: "older", deletedUtcIso: "2026-08-01T12:30:00+02:00" },
+      { projectId: "newer", deletedUtcIso: "2026-08-01T11:00:00Z" },
+      { projectId: "unreadable", deletedUtcIso: "unknown" },
+    ].map((project) => ({
+      ...project,
+      projectName: project.projectId,
+      workspaceId: "ws-1",
+      workspaceName: "Production",
+      purgeAfterUtcIso: "2026-08-31T00:00:00Z",
+    }));
+
+    expect(resolveContinueLastRecycleBinProject(projects)?.projectId).toBe("newer");
+  });
 });
