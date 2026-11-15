@@ -110,6 +110,46 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task CustomRole_UpdateAsync_bumps_tenant_revision_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        CustomRoleRecord role = new()
+        {
+            Id = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            Name = "Updated role name",
+        };
+        Mock<ICustomRoleRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repo => repo.UpdateAsync(role, request.Token))
+            .Callback(request.Cancel)
+            .ReturnsAsync(role);
+
+        string revisionKey = HotPathCacheKeys.CustomRoleTenantRevision(role.TenantId);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(value => value.RemoveAsync(revisionKey, It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+        cache.Setup(value => value.GetOrCreateAsync(
+                revisionKey,
+                It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                CancellationToken.None,
+                null))
+            .Returns((string _, Func<CancellationToken, Task<RunListScopeRevisionState?>> factory,
+                CancellationToken token, int? _) => factory(token));
+        CachingCustomRoleRepository repository = new(inner.Object, cache.Object);
+
+        CustomRoleRecord result = await repository.UpdateAsync(role, request.Token);
+
+        result.Should().BeSameAs(role);
+        cache.Verify(value => value.RemoveAsync(revisionKey, CancellationToken.None), Times.Once);
+        cache.Verify(value => value.GetOrCreateAsync(
+            revisionKey,
+            It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+            CancellationToken.None,
+            null), Times.Once);
+    }
+
+    [Fact]
     public async Task ScimUser_DeactivateAsync_invalidates_both_keys_after_caller_cancels()
     {
         using CancellationTokenSource request = new();

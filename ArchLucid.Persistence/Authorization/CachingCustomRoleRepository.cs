@@ -57,7 +57,8 @@ public sealed class CachingCustomRoleRepository(ICustomRoleRepository inner, IHo
         ArgumentNullException.ThrowIfNull(record);
 
         CustomRoleRecord created = await _inner.CreateAsync(record, cancellationToken);
-        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, record.TenantId, cancellationToken);
+        // Complete cache invalidation once a role write succeeds, even if the caller cancels.
+        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, record.TenantId, CancellationToken.None);
 
         return created;
     }
@@ -68,7 +69,7 @@ public sealed class CachingCustomRoleRepository(ICustomRoleRepository inner, IHo
         ArgumentNullException.ThrowIfNull(record);
 
         CustomRoleRecord updated = await _inner.UpdateAsync(record, cancellationToken);
-        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, record.TenantId, cancellationToken);
+        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, record.TenantId, CancellationToken.None);
 
         return updated;
     }
@@ -77,7 +78,7 @@ public sealed class CachingCustomRoleRepository(ICustomRoleRepository inner, IHo
     public async Task DeleteAsync(Guid tenantId, Guid roleId, CancellationToken cancellationToken)
     {
         await _inner.DeleteAsync(tenantId, roleId, cancellationToken);
-        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, tenantId, cancellationToken);
+        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -115,7 +116,7 @@ public sealed class CachingCustomRoleRepository(ICustomRoleRepository inner, IHo
             await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(
                 _hotPathReadCache,
                 assignment.TenantId,
-                cancellationToken);
+                CancellationToken.None);
         }
     }
 
@@ -127,14 +128,14 @@ public sealed class CachingCustomRoleRepository(ICustomRoleRepository inner, IHo
         CancellationToken cancellationToken)
     {
         await _inner.RemoveAssignmentAsync(tenantId, userId, customRoleId, cancellationToken);
-        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, tenantId, cancellationToken);
+        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
     public async Task EnsureBuiltInRolesSeededAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         await _inner.EnsureBuiltInRolesSeededAsync(tenantId, cancellationToken);
-        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, tenantId, cancellationToken);
+        await HotPathCacheEviction.InvalidateCustomRoleTenantAsync(_hotPathReadCache, tenantId, CancellationToken.None);
     }
 
     private async Task<long> ReadTenantRevisionAsync(Guid tenantId, CancellationToken ct)
