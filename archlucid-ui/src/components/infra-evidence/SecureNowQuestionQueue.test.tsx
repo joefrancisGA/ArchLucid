@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -1501,7 +1501,7 @@ describe("SecureNowQuestionQueue", () => {
     await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledTimes(2));
   });
 
-  it("keeps the active snapshot loading state when a stale snapshot reload finishes first", async () => {
+  it("keeps the active snapshot loading state when a stale save finishes first", async () => {
     const snapshotOneQuestion = {
       ...question,
       snapshotId: "snapshot-1",
@@ -1557,9 +1557,9 @@ describe("SecureNowQuestionQueue", () => {
     await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-2"));
     expect(screen.getByTestId("securenow-queue-loading-probe")).toHaveTextContent("loading");
 
-    resolveAnswer();
-    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.anything()));
-    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(3));
+    await act(async () => resolveAnswer());
+    expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.anything());
+    expect(mocks.listQuestions).toHaveBeenCalledTimes(2);
 
     expect(screen.getByTestId("securenow-queue-loading-probe")).toHaveTextContent("loading");
 
@@ -1621,6 +1621,34 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-2", expect.anything()));
+  });
+
+  it("keeps a pending save and its error scoped to the original snapshot", async () => {
+    const snapshotTwoQuestion = { ...question, snapshotId: "snapshot-2" };
+    let rejectFirstSave: (error: Error) => void = () => undefined;
+    const firstSave = new Promise<void>((_resolve, reject) => {
+      rejectFirstSave = reject;
+    });
+    mocks.listQuestions.mockResolvedValueOnce([question]).mockResolvedValueOnce([snapshotTwoQuestion]);
+    mocks.answerQuestion.mockReturnValueOnce(firstSave);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+    expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.anything());
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    const answerChoice = screen.getByRole("button", { name: "Name the peer" });
+    expect(answerChoice).toBeEnabled();
+    fireEvent.click(answerChoice);
+
+    await act(async () => rejectFirstSave(new Error("First snapshot save failed.")));
+
+    expect(screen.queryByText("First snapshot save failed.")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+    expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-2", expect.anything());
   });
 
   it("closes the question drawer when the active snapshot changes", async () => {
