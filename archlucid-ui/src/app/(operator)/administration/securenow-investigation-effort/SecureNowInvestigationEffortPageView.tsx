@@ -39,7 +39,7 @@ const EMPTY_INPUTS: EffortInputs = {
 export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
   const [restoreComplete, setRestoreComplete] = useState(false);
-  const editedRef = useRef(false);
+  const inputEditsRef = useRef<Partial<EffortInputs>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -49,10 +49,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
         return;
       }
 
-      if (!editedRef.current) {
-        setInputs(stored ?? EMPTY_INPUTS);
-      }
-
+      setInputs({ ...(stored ?? EMPTY_INPUTS), ...inputEditsRef.current });
       setRestoreComplete(true);
     });
 
@@ -62,7 +59,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (!restoreComplete || !editedRef.current) {
+    if (!restoreComplete || Object.keys(inputEditsRef.current).length === 0) {
       return;
     }
 
@@ -84,7 +81,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const resultState = useMemo(() => resolveSecureNowInvestigationEffortResultState(inputs), [inputs]);
 
   const updateInput = (field: keyof EffortInputs, value: string) => {
-    editedRef.current = true;
+    inputEditsRef.current = { ...inputEditsRef.current, [field]: value };
     setInputs((current) => ({ ...current, [field]: value }));
   };
 

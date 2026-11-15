@@ -152,4 +152,35 @@ describe("SecureNowInvestigationEffortPageView", () => {
       vi.useRealTimers();
     }
   });
+
+  it("restores untouched fields when an operator edit precedes the load", async () => {
+    const savedInputs = {
+      baselineHours: "5",
+      afterHours: "3",
+      annualInvestigations: "10",
+      hourlyRate: "80",
+      annualCost: "5000",
+    };
+    const restore = Promise.withResolvers<typeof savedInputs>();
+    vi.mocked(loadSecureNowInvestigationEffortInputs).mockReturnValueOnce(restore.promise);
+    render(<SecureNowInvestigationEffortPageView />);
+
+    const baseline = screen.getByLabelText("Baseline hours (B)");
+    const afterHours = screen.getByLabelText("After-product hours (A)");
+    fireEvent.change(baseline, { target: { value: "6" } });
+    fireEvent.change(afterHours, { target: { value: "2" } });
+    fireEvent.change(afterHours, { target: { value: "" } });
+
+    await act(async () => restore.resolve(savedInputs));
+
+    expect(baseline).toHaveValue(6);
+    expect(afterHours).toHaveValue(null);
+    expect(screen.getByLabelText("Annual investigations (N)")).toHaveValue(10);
+    const cacheKey = secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b");
+    expect(JSON.parse(window.localStorage.getItem(cacheKey) ?? "null")).toEqual({
+      ...savedInputs,
+      baselineHours: "6",
+      afterHours: "",
+    });
+  });
 });
