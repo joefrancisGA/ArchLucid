@@ -31,6 +31,7 @@ import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/Secur
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
+import { CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE } from "@/lib/integrations/cloud-connections-reader-pull-honesty-copy";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -199,6 +200,12 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
         {collectionInProgress}
         {collectionReady}
         {checklist}
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="cloud-connections-reader-pull-honesty"
+        >
+          {CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE}
+        </p>
         {orientationStrip}
         {providerList}
       </OperatorPageContainer>
@@ -266,6 +273,12 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           {collectionInProgress}
           {collectionReady}
           {checklist}
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="cloud-connections-reader-pull-honesty"
+          >
+            {CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE}
+          </p>
           {providerList}
         </div>
 

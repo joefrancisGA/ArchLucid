@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 47 (batch 12): Cloud pull honesty, snapshot inventory discipline, and home open-gate seal reminder
+
+**Outcome.** Cloud connections hub states that saving federation settings is not a Reader pull. Diagram reconcile and resource hub name snapshot inventory vs live ARM. Working home open-gate line reminds operators to Finalize before treating a package as tenant-sealed.
+
+**Surfaces.** Cloud connections, diagram reconcile, resource hub, operator home open gate.
+
 ## 2026-11-15 - Score lift round 46 (batch 11): Connector configured honesty, connection status report problem, and tenant seal discipline
 
 **Outcome.** Connection status names what configured means and registers Report Problem on inventory load failure. First-review guide states evidence and Finalize before a sealed tenant review. Declared connections repeat expiry discipline. Pilot decision hydrates tenant audit time like sponsor path.
