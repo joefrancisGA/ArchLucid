@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -63,8 +63,6 @@ export function usePolicyRuleAuthoringSimulate(
   const [runsLoadError, setRunsLoadError] = useState<string | null>(null);
   const [simulateBusy, setSimulateBusy] = useState(false);
   const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
-  const [simulateResult, setSimulateResult] =
-    useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(null);
   const [blockOnCritical, setBlockOnCritical] = useState(true);
   const [allowPublishWithoutTest, setAllowPublishWithoutTest] = useState(false);
 
@@ -72,6 +70,25 @@ export function usePolicyRuleAuthoringSimulate(
     () => tryParseContentDocument(policyContentJson),
     [policyContentJson],
   );
+
+  const trimmedRun = simulateRunId.trim();
+  const simulationInputs = useMemo(
+    () => ({ content: parsedDocumentForSimulate, selectedPackId, runId: trimmedRun, blockOnCritical }),
+    [parsedDocumentForSimulate, selectedPackId, trimmedRun, blockOnCritical],
+  );
+  const [completedSimulation, setCompletedSimulation] = useState<{
+    inputs: typeof simulationInputs;
+    result: components["schemas"]["PolicyPackGovernanceDryRunResult"];
+  } | null>(null);
+  const simulateResult = completedSimulation?.inputs === simulationInputs ? completedSimulation.result : null;
+
+  useEffect(() => {
+    if (simulateResult !== null) {
+      presentPolicyPackSimulateToast(simulateResult, {
+        successMessage: "Policy test completed for the selected review.",
+      });
+    }
+  }, [simulateResult]);
 
   const loadRecentRuns = useCallback(async () => {
     setRunsLoadError(null);
@@ -96,9 +113,10 @@ export function usePolicyRuleAuthoringSimulate(
 
   const runSimulation = useCallback(async () => {
     setSimulateFailure(null);
-    setSimulateResult(null);
+    setCompletedSimulation(null);
+    const { content, runId, selectedPackId, blockOnCritical } = simulationInputs;
 
-    if (parsedDocumentForSimulate === null) {
+    if (content === null) {
       setSimulateFailure(
         uiFailureFromMessage("Policy content must be valid JSON matching the pack document shape before testing."),
       );
@@ -106,9 +124,7 @@ export function usePolicyRuleAuthoringSimulate(
       return;
     }
 
-    const trimmedRun: string = simulateRunId.trim();
-
-    if (trimmedRun.length === 0) {
+    if (runId.length === 0) {
       setSimulateFailure(
         uiFailureFromMessage("Enter a review ID to evaluate this policy content against that architecture snapshot."),
       );
@@ -121,24 +137,21 @@ export function usePolicyRuleAuthoringSimulate(
     try {
       const proposedId: string | null = /^[0-9a-fA-F-]{36}$/.test(selectedPackId) ? selectedPackId : null;
       const body: components["schemas"]["PolicyPackSimulateRequest"] = {
-        runId: trimmedRun,
-        content: parsedDocumentForSimulate,
+        runId,
+        content,
         blockCommitOnCritical: blockOnCritical,
         proposedPolicyPackId: proposedId,
       };
 
       const result: components["schemas"]["PolicyPackGovernanceDryRunResult"] =
         await simulatePolicyPackAgainstRun(body);
-      setSimulateResult(result);
-      presentPolicyPackSimulateToast(result, {
-        successMessage: "Policy test completed for the selected review.",
-      });
+      setCompletedSimulation({ inputs: simulationInputs, result });
     } catch (e: unknown) {
       setSimulateFailure(toApiLoadFailure(e));
     } finally {
       setSimulateBusy(false);
     }
-  }, [blockOnCritical, parsedDocumentForSimulate, selectedPackId, simulateRunId]);
+  }, [simulationInputs]);
 
   const gateBlocked: boolean =
     simulateResult?.gateResult !== undefined && simulateResult.gateResult?.blocked === true;
