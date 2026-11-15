@@ -27,6 +27,16 @@ const SNAPSHOTS_PATH = "/api/proxy/v1/infra-evidence/snapshots";
 const DIFFS_PATH = "/api/proxy/v1/infra-evidence/diffs";
 const BASELINES_PATH = "/api/proxy/v1/infra-evidence/azure-inventory/baselines";
 
+function encodeRequiredPathSegment(value: string, fieldName: string): string {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error(`${fieldName} is required.`);
+  }
+
+  return encodeURIComponent(trimmed);
+}
+
 export async function deleteInfraEvidenceSnapshot(snapshotId: string): Promise<void> {
   const trimmed = snapshotId.trim();
 
@@ -56,7 +66,9 @@ export async function fetchInfraEvidenceSnapshots(
 export async function fetchInfraEvidenceDiffsForSnapshot(
   snapshotId: string,
 ): Promise<InfraEvidenceDiffSummary[]> {
-  return proxyJsonGet<InfraEvidenceDiffSummary[]>(`${SNAPSHOTS_PATH}/${snapshotId}/diffs`);
+  return proxyJsonGet<InfraEvidenceDiffSummary[]>(
+    `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/diffs`,
+  );
 }
 
 export async function fetchInfraEvidenceSnapshotInventoryRows(
@@ -72,7 +84,7 @@ export async function fetchInfraEvidenceSnapshotInventoryRows(
   }
 
   return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
-    `${SNAPSHOTS_PATH}/${snapshotId}/inventory-rows?${params.toString()}`,
+    `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/inventory-rows?${params.toString()}`,
   );
 }
 
@@ -93,7 +105,7 @@ export async function fetchInfraEvidenceDiffChanges(
   }
 
   return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
-    `${DIFFS_PATH}/${diffId}/changes?${params.toString()}`,
+    `${DIFFS_PATH}/${encodeRequiredPathSegment(diffId, "diffId")}/changes?${params.toString()}`,
   );
 }
 
@@ -114,7 +126,7 @@ export async function downloadInfraEvidenceTerraformAdvisoryZip(snapshotId: stri
   }
 
   await ensureOidcBearerReady();
-  const url = `${SNAPSHOTS_PATH}/${snapshotId}/terraform-advisory`;
+  const url = `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/terraform-advisory`;
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
 

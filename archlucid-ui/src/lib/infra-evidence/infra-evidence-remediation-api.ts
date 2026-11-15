@@ -50,6 +50,16 @@ function mapOptionalTrimmedString(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function encodeRequiredPathSegment(value: string, fieldName: string): string {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error(`${fieldName} is required.`);
+  }
+
+  return encodeURIComponent(trimmed);
+}
+
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
   const status = parseRemediationInstanceStatusFilter(mapTrimmedString(raw.status)) ?? "Classified";
 
@@ -234,33 +244,59 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
 }
 
 export async function fetchRemediationPrioritizedFindings(): Promise<RemediationPrioritizedFinding[]> {
-  const raw = await proxyJsonGet<Array<Record<string, unknown>>>(PRIORITIZATION_RANKED_PATH);
+  const raw = await proxyJsonGet<unknown>(PRIORITIZATION_RANKED_PATH);
 
-  return raw.map((row) => ({
-    findingId: typeof row.findingId === "string" ? row.findingId : "",
-    totalScore: finiteNonNegativeNumberOrDefault(row.totalScore, 0),
-    explanationSummary: typeof row.explanationSummary === "string" ? row.explanationSummary : "",
-    cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
-    controlId: typeof row.controlId === "string" ? row.controlId : null,
-    patternKey: typeof row.patternKey === "string" ? row.patternKey : null,
-  }));
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.flatMap((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const row = item as Record<string, unknown>;
+
+    return [{
+      findingId: mapTrimmedString(row.findingId),
+      totalScore: finiteNonNegativeNumberOrDefault(row.totalScore, 0),
+      explanationSummary: mapTrimmedString(row.explanationSummary),
+      cloudResourceId: mapOptionalTrimmedString(row.cloudResourceId),
+      controlId: mapOptionalTrimmedString(row.controlId),
+      patternKey: mapOptionalTrimmedString(row.patternKey),
+    }];
+  });
 }
 
 export async function fetchRemediationWaves(): Promise<Array<{ waveId: string; name: string }>> {
-  const raw = await proxyJsonGet<Array<Record<string, unknown>>>(WAVES_PATH);
+  const raw = await proxyJsonGet<unknown>(WAVES_PATH);
 
-  return raw.map((row) => ({
-    waveId: typeof row.waveId === "string" ? row.waveId : "",
-    name: typeof row.name === "string" ? row.name : "",
-  }));
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.flatMap((item) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const row = item as Record<string, unknown>;
+    const waveId = mapTrimmedString(row.waveId);
+    const name = mapTrimmedString(row.name);
+
+    return waveId.length > 0 && name.length > 0 ? [{ waveId, name }] : [];
+  });
 }
 
 export async function matchOperationalFinding(findingId: string): Promise<Record<string, unknown>> {
-  return proxyJsonPost<Record<string, unknown>>(`${FINDING_MATCH_PATH}/${findingId}/match`, {});
+  return proxyJsonPost<Record<string, unknown>>(
+    `${FINDING_MATCH_PATH}/${encodeRequiredPathSegment(findingId, "findingId")}/match`,
+    {},
+  );
 }
 
 export async function createRemediationInstance(findingId: string): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(INSTANCES_PATH, { findingId });
+  const raw = await proxyJsonPost<Record<string, unknown>>(INSTANCES_PATH, { findingId: findingId.trim() });
 
   return mapOperationResult(raw);
 }
@@ -269,7 +305,7 @@ export async function runRemediationPreflight(
   instanceId: string,
   inventorySnapshotId: string,
 ): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}/preflight`, {
+  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/preflight`, {
     inventorySnapshotId,
   });
 
@@ -277,7 +313,7 @@ export async function runRemediationPreflight(
 }
 
 export async function approveRemediationInstance(instanceId: string): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}/approve`, {});
+  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/approve`, {});
 
   return mapOperationResult(raw);
 }
@@ -286,7 +322,10 @@ export async function assignRemediationWave(
   instanceId: string,
   waveId: string,
 ): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}/assign-wave`, { waveId });
+  const raw = await proxyJsonPost<Record<string, unknown>>(
+    `${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/assign-wave`,
+    { waveId: waveId.trim() },
+  );
 
   return mapOperationResult(raw);
 }
@@ -295,7 +334,7 @@ export async function executeRemediationInstance(
   instanceId: string,
   inventorySnapshotId: string,
 ): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}/execute`, {
+  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/execute`, {
     inventorySnapshotId,
   });
 
@@ -306,7 +345,7 @@ export async function attestChangeImplemented(
   instanceId: string,
 ): Promise<RemediationInstanceOperationResult> {
   const raw = await proxyJsonPost<Record<string, unknown>>(
-    `${INSTANCES_PATH}/${instanceId}/attest-change-implemented`,
+    `${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/attest-change-implemented`,
     {},
   );
 
@@ -317,7 +356,7 @@ export async function verifyRemediationInstance(
   instanceId: string,
   verificationSnapshotId: string,
 ): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}/verify`, {
+  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/verify`, {
     verificationSnapshotId,
   });
 
@@ -325,7 +364,7 @@ export async function verifyRemediationInstance(
 }
 
 export async function closeRemediationInstance(instanceId: string): Promise<RemediationInstanceOperationResult> {
-  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${instanceId}/close`, {});
+  const raw = await proxyJsonPost<Record<string, unknown>>(`${INSTANCES_PATH}/${encodeRequiredPathSegment(instanceId, "instanceId")}/close`, {});
 
   return mapOperationResult(raw);
 }

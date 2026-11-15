@@ -32,6 +32,16 @@ import type {
 
 const SNAPSHOTS_PATH = "/api/proxy/v1/infra-evidence/snapshots";
 
+function encodeRequiredPathSegment(value: string, fieldName: string): string {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error(`${fieldName} is required.`);
+  }
+
+  return encodeURIComponent(trimmed);
+}
+
 export type InfraEvidenceMermaidRenderQuery = {
   readonly mode?: string | null;
   readonly fallbackKey?: string | null;
@@ -136,7 +146,7 @@ export async function fetchInfraEvidenceMermaidPreview(
   const queryString = buildMermaidQuery(query);
 
   return proxyJsonGet<InfraEvidenceMermaidPreviewResponse>(
-    `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/preview${queryString}`,
+    `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/mermaid/preview${queryString}`,
   );
 }
 
@@ -145,7 +155,7 @@ export async function fetchInfraEvidenceMermaidRender(
   query: InfraEvidenceMermaidRenderQuery,
 ): Promise<InfraEvidenceMermaidRenderResponse> {
   return proxyJsonGet<InfraEvidenceMermaidRenderResponse>(
-    `${SNAPSHOTS_PATH}/${snapshotId}/mermaid${buildMermaidQuery(query)}`,
+    `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/mermaid${buildMermaidQuery(query)}`,
   );
 }
 
@@ -154,7 +164,7 @@ function buildInfraEvidenceMermaidPngFileName(snapshotId: string, query: InfraEv
     || query.mode?.trim()
     || "mode-not-stored";
 
-  return `infra-evidence-mermaid-${snapshotId}-${modeToken}.png`;
+  return `infra-evidence-mermaid-${snapshotId.trim() || "snapshot-not-stored"}-${modeToken}.png`;
 }
 
 async function downloadInfraEvidenceMermaidPngFromServer(
@@ -163,7 +173,7 @@ async function downloadInfraEvidenceMermaidPngFromServer(
   options: InfraEvidenceMermaidPngDownloadOptions,
 ): Promise<void> {
   await ensureOidcBearerReady();
-  const url = `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/export.png${buildMermaidQuery(query)}`;
+  const url = `${SNAPSHOTS_PATH}/${encodeRequiredPathSegment(snapshotId, "snapshotId")}/mermaid/export.png${buildMermaidQuery(query)}`;
   const headers = new Headers();
   headers.set("Accept", "image/png, application/json");
 

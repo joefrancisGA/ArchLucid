@@ -4,6 +4,7 @@ import {
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
 } from "@/lib/remediation-factory/remediation-factory-percent-format";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
+import { parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
 
 export type RemediationFactoryMetricTile = {
   readonly id: string;
@@ -35,7 +36,9 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       return null;
     }
 
-    return String(value);
+    const normalized = parseNonNegativeFiniteNumber(value);
+
+    return normalized === null ? null : String(normalized);
   }
 
   function formatDecimal(value: number | undefined, digits = 2): string | null {
@@ -43,7 +46,9 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       return null;
     }
 
-    return value.toFixed(digits);
+    const normalized = parseNonNegativeFiniteNumber(value);
+
+    return normalized === null ? null : normalized.toFixed(digits);
   }
 
   return [
