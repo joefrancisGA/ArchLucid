@@ -199,6 +199,7 @@ import {
   resolveInfraEvidenceDiffOtherSnapshot,
   resolveInfraEvidenceSnapshotSubscriptionLabel,
 } from "@/lib/infra-evidence/infra-evidence-drift-subscription-scope";
+import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { cn } from "@/lib/utils";
 
 import { DriftBreadcrumb } from "./DriftBreadcrumb";
@@ -232,6 +233,7 @@ type PendingDriftSubscriptionConfirmation =
   | { readonly kind: "diff"; readonly diffId: string };
 
 export function DriftWorkbenchClient() {
+  const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const { productLine } = useProductLine();
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -395,10 +397,10 @@ export function DriftWorkbenchClient() {
   );
 
   const visibleSnapshots = useMemo(() => {
-    const filtered = filterDriftSnapshots(snapshots, snapshotTableFilterState);
+    const filtered = filterDriftSnapshots(snapshots, snapshotTableFilterState, ianaTimeZoneId);
 
     return sortDriftSnapshots(filtered, snapshotTableFilterState.sortBy, snapshotTableFilterState.sortDir);
-  }, [snapshots, snapshotTableFilterState]);
+  }, [snapshots, snapshotTableFilterState, ianaTimeZoneId]);
 
   const laterSnapshotsPartition = useMemo(() => {
     if (selectedSnapshot == null) {

@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient";
+import { IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY } from "@/lib/iana-time-zone-preference";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 
 let searchParams = new URLSearchParams(
@@ -221,6 +222,20 @@ describe("DriftWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-drift-snapshot-picker")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-export-terraform")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-drift-diff-picker")).not.toBeInTheDocument();
+  });
+
+  it("filters captures using the time shown in the operator's preferred time zone", async () => {
+    window.localStorage.setItem(IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY, "America/Los_Angeles");
+    searchParams = new URLSearchParams();
+    const { rerender } = render(<DriftWorkbenchClient />);
+    const capturedTestId = `infra-drift-snapshot-captured-${mockSnapshotItems[0]!.snapshotId}`;
+    const captured = await screen.findByTestId(capturedTestId);
+    expect(captured).toHaveTextContent("5:00 AM");
+
+    searchParams = new URLSearchParams({ snapshotCaptured: "5:00 AM" });
+    rerender(<DriftWorkbenchClient />);
+
+    expect(screen.getByTestId(capturedTestId)).toHaveTextContent("5:00 AM");
   });
 
   it("keeps one snapshot row when a loaded page is fetched again", async () => {
