@@ -1,6 +1,9 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
+
+using Moq;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -106,6 +109,56 @@ public sealed class CachingRunRepositoryRunListInvalidationTests
             await repo.ListByProjectKeysetAsync(scope, projectSlug, null, null, 10, CancellationToken.None);
 
         afterUpdate.Items.Single().LegacyRunStatus.Should().Be("Committed");
+    }
+
+    [SkippableFact]
+    public async Task ListByProject_does_not_coalesce_unpaged_and_keyset_cache_misses()
+    {
+        Mock<IRunRepository> inner = new();
+        CachingRunRepository repo = new(inner.Object, HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        const string project = "default";
+        CancellationToken ct = CancellationToken.None;
+        RunRecord run = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = project,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+        TaskCompletionSource started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<IReadOnlyList<RunRecord>> pendingRows = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        inner.Setup(source => source.ListByProjectAsync(scope, project, 10, It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                started.SetResult();
+                return pendingRows.Task;
+            });
+        inner.Setup(source => source.ListByProjectKeysetAsync(scope, project, null, null, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunListPage([run], HasMore: true));
+
+        Task<IReadOnlyList<RunRecord>> unpaged = repo.ListByProjectAsync(scope, project, 10, ct);
+        try
+        {
+            await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            RunListPage page = await repo.ListByProjectKeysetAsync(scope, project, null, null, 10, ct)
+                .WaitAsync(TimeSpan.FromSeconds(5));
+
+            page.Items.Select(row => row.RunId).Should().Equal(run.RunId);
+            page.HasMore.Should().BeTrue();
+        }
+        finally
+        {
+            pendingRows.SetResult([run]);
+            (await unpaged).Select(row => row.RunId).Should().Equal(run.RunId);
+        }
     }
 
     [SkippableFact]
