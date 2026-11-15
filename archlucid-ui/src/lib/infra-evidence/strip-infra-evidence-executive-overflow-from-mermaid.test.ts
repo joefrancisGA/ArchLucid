@@ -35,6 +35,29 @@ describe("stripExecutiveOverflowNodesFromInfraEvidenceMermaid", () => {
     expect(stripped).toContain("core_vnet --> app_storage");
   });
 
+  it("keeps links whose labels or visible endpoint IDs contain an outline-only node ID", () => {
+    const source = `flowchart TD
+    %% al-outline-only=true
+    nsg_app["unresolved NSG"]
+    nsg_app_backup["backup NSG"]
+    core_vnet["core-vnet"]
+    core_vnet -->|"references nsg_app"| nsg_app_backup
+    nsg_app_backup -.-> core_vnet
+    core_vnet -->|"unresolved policy"| nsg_app
+    core_vnet ~~~ nsg_app
+    core_vnet ==>|"unresolved policy"| nsg_app
+    nsg_app-->core_vnet`;
+
+    const stripped = stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source);
+
+    expect(stripped).toContain('core_vnet -->|"references nsg_app"| nsg_app_backup');
+    expect(stripped).toContain("nsg_app_backup -.-> core_vnet");
+    expect(stripped).not.toContain('core_vnet -->|"unresolved policy"| nsg_app');
+    expect(stripped).not.toContain("core_vnet ~~~ nsg_app");
+    expect(stripped).not.toContain('core_vnet ==>|"unresolved policy"| nsg_app');
+    expect(stripped).not.toContain("nsg_app-->core_vnet");
+  });
+
   it("leaves non-overflow mermaid unchanged", () => {
     const source = `flowchart TD
     core_vnet["core-vnet"]
