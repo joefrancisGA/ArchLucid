@@ -14,6 +14,7 @@ import {
   SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
   SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { formatSecureNowPilotDispositionTenantAuditRecordedLine } from "@/lib/product-line/securenow-pilot-disposition-tenant-audit-copy";
 import {
   loadSecureNowPilotDispositionForPath,
   persistSecureNowPilotDispositionForPath,
@@ -39,6 +40,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
   const [tenantAuditSaved, setTenantAuditSaved] = useState(false);
+  const [tenantAuditRecordedUtc, setTenantAuditRecordedUtc] = useState<string | null>(null);
   const [rehearsalOutcome, setRehearsalOutcome] = useState("");
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
       setRationale("");
       setSavedDisposition(null);
       setTenantAuditSaved(false);
+      setTenantAuditRecordedUtc(null);
       return;
     }
 
@@ -62,6 +65,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
         setRationale("");
         setSavedDisposition(null);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
@@ -92,12 +96,14 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
       if (outcome.status === "error") {
         setSaveError(outcome.errorMessage);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
       setSavedDisposition(record);
       setSaveError(null);
       setTenantAuditSaved(true);
+      setTenantAuditRecordedUtc(outcome.recordedUtc);
     });
   };
 
@@ -207,6 +213,14 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
               {tenantAuditSaved ? (
                 <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-tenant-audit-saved">
                   {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
+                  {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "") != null ? (
+                    <>
+                      {" "}
+                      <span data-testid="securenow-sponsor-path-tenant-audit-recorded-utc">
+                        {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "")}
+                      </span>
+                    </>
+                  ) : null}
                 </p>
               ) : null}
               <SecureNowPilotDispositionOutcomeRehearsalPanels

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-14 - Score lift round 44 (batch 9): Sponsor audit time, investigation inputs, policy hub rank, and extract-upload baseline failure
+
+**Outcome.** Sponsor path disposition save surfaces tenant audit `recordedUtc`. Investigation effort ROI names missing inputs by field label. Policy packs hub states rank discipline. Extract and upload registers report-problem when inventory baseline status cannot load.
+
+**Surfaces.** Sponsor path, investigation effort, policy packs hub, extract and upload, report-problem registry.
+
 ## 2026-11-14 - Score lift round 43 (batch 8): Open-gate primary label, collection blocker kinds, and remediation hard-failure report problem
 
 **Outcome.** SecureNow findings open-gate strip separates primary vs additional gates. Collection setup names Reader, subscription, and capture blockers explicitly. Path inspect hops expose copyable evidence references. Architect compare reuses second-capture delta honesty. Policy pack assign strip states rank discipline. Standards hub claim band clarifies it does not score controls. Remediation factory registers report-problem for concurrent core-read failures.

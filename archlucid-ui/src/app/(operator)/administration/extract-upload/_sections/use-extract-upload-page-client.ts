@@ -136,6 +136,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   });
 
   const baselineLoading = baselineQuery.isPending;
+  const baselineLoadFailed = baselineQuery.isError;
   const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
   const hasInventoryOnFile = resolveExtractUploadHasInventoryOnFile({
     hasBaselineArtifacts,
@@ -200,6 +201,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     setAdvancedCommandOpen,
     buyerPolishedShell,
     baselineLoading,
+    baselineLoadFailed,
     hasBaselineArtifacts,
     hasInventoryOnFile,
     extractorScriptVersion,

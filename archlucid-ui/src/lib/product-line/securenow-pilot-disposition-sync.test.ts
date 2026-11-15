@@ -53,7 +53,11 @@ describe("securenow pilot disposition sync", () => {
       rationale: "More time.",
     });
 
-    expect(result).toEqual({ status: "saved", tenantAuditRecorded: true });
+    expect(result).toEqual({
+      status: "saved",
+      tenantAuditRecorded: true,
+      recordedUtc: "2026-01-01T00:00:00Z",
+    });
     expect(saveDisposition).toHaveBeenCalledWith("path-2", { outcome: "Extend", rationale: "More time." });
   });
 

@@ -26,7 +26,11 @@ vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
 describe("SecureNowSponsorPathPageView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    persist.mockResolvedValue({ status: "saved", tenantAuditRecorded: true });
+    persist.mockResolvedValue({
+      status: "saved",
+      tenantAuditRecorded: true,
+      recordedUtc: "2026-11-14T12:00:00.000Z",
+    });
   });
 
   it("shows procurement trust strip on the sponsor path", () => {
@@ -76,6 +80,9 @@ describe("SecureNowSponsorPathPageView", () => {
     await waitFor(() => {
       expect(screen.getByTestId("securenow-sponsor-path-tenant-audit-saved")).toHaveTextContent(
         SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
+      );
+      expect(screen.getByTestId("securenow-sponsor-path-tenant-audit-recorded-utc")).toHaveTextContent(
+        "Tenant audit recorded",
       );
     });
   });

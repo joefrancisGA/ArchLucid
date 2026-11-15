@@ -9,7 +9,7 @@ import {
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 
 export type SecureNowPilotDispositionPersistOutcome =
-  | { readonly status: "saved"; readonly tenantAuditRecorded: true }
+  | { readonly status: "saved"; readonly tenantAuditRecorded: true; readonly recordedUtc: string | null }
   | { readonly status: "error"; readonly errorMessage: string };
 
 export async function loadSecureNowPilotDispositionForPath(
@@ -52,10 +52,16 @@ export async function persistSecureNowPilotDispositionForPath(
     if (!result.succeeded) {
       return { status: "error", errorMessage: result.errorMessage ?? "Path disposition save failed." };
     }
+
+    writeSecureNowPilotDisposition(trimmed, record);
+    const recordedUtc = result.disposition?.recordedUtc?.trim() ?? null;
+
+    return {
+      status: "saved",
+      tenantAuditRecorded: true,
+      recordedUtc: recordedUtc != null && recordedUtc.length > 0 ? recordedUtc : null,
+    };
   } catch {
     return { status: "error", errorMessage: "Path disposition save failed." };
   }
-
-  writeSecureNowPilotDisposition(trimmed, record);
-  return { status: "saved", tenantAuditRecorded: true };
 }

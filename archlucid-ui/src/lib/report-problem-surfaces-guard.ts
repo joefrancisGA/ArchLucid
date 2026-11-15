@@ -132,6 +132,14 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "compliance-remediation-factory-hard-failure",
     requiredMarkers: ["compliance-remediation-factory-hard-failure", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "governance-infrastructure-extract-upload-hard-failure",
+    requiredMarkers: ["governance-infrastructure-extract-upload-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "compliance-infrastructure-extract-upload-hard-failure",
+    requiredMarkers: ["compliance-infrastructure-extract-upload-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [
