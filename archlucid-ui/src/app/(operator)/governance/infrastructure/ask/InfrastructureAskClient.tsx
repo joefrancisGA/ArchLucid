@@ -31,6 +31,7 @@ import {
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
+import { INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-insufficient-evidence-honesty-copy";
 import {
   buildInfraEvidenceAskScopeKey,
   mergeCannedQuestionIntoDraft,
@@ -1005,6 +1006,10 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         )}
         data-testid="infra-ask-primary-content"
       >
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-insufficient-evidence-honesty">
+        {INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE}
+      </p>
 
       {cloudResourceId.length > 0 && (
         auditScope != null

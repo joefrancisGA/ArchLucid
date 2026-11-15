@@ -10,6 +10,7 @@ import {
   SECURENOW_SELF_SERVICE_LEAD,
   SECURENOW_SELF_SERVICE_STEPS,
 } from "@/lib/product-line/securenow-self-service-copy";
+import { SECURENOW_SELF_SERVICE_RANK_STORED_PATH_LINE } from "@/lib/product-line/securenow-self-service-rank-stored-path-copy";
 
 export function SecureNowSelfServicePageView(): React.JSX.Element {
   return (
@@ -21,6 +22,10 @@ export function SecureNowSelfServicePageView(): React.JSX.Element {
           testIdPrefix="securenow-self-service"
           sectionId="collection"
         />
+
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-self-service-rank-stored-path">
+          {SECURENOW_SELF_SERVICE_RANK_STORED_PATH_LINE}
+        </p>
 
         <section aria-labelledby="securenow-self-service-steps-heading" className="space-y-2">
           <h2 id="securenow-self-service-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>

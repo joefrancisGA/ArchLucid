@@ -79,6 +79,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
+import { REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-workflow-honesty-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -903,6 +904,10 @@ export function RemediationWorkbenchClient() {
         data-testid="infra-remediation-primary-content"
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-workflow-honesty">
+        {REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE}
+      </p>
 
       <RemediationWorkbenchContextStrip
         freshnessLabel={freshnessLabel}
