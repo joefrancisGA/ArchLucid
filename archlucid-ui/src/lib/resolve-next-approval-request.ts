@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 export type ApprovalLineageNextRequestTarget = {
@@ -24,6 +25,11 @@ function displayTitle(requestComment: string | null | undefined): string {
   return approvalTitle;
 }
 
+function requestedSortTime(requestedUtc: string): number {
+  const parsed = parseIsoUtcMs(requestedUtc);
+  return Number.isNaN(parsed) ? Number.MIN_SAFE_INTEGER : parsed;
+}
+
 /** Next approval request in queue order after the current id. */
 export function resolveNextApprovalRequest(
   approvals: readonly GovernanceApprovalRequest[],
@@ -35,7 +41,9 @@ export function resolveNextApprovalRequest(
     return null;
   }
 
-  const sorted = [...approvals].sort((left, right) => right.requestedUtc.localeCompare(left.requestedUtc));
+  const sorted = [...approvals].sort(
+    (left, right) => requestedSortTime(right.requestedUtc) - requestedSortTime(left.requestedUtc),
+  );
   const currentIndex = sorted.findIndex((row) => row.approvalRequestId === normalizedCurrentId);
 
   if (currentIndex < 0) {
