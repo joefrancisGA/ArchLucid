@@ -137,6 +137,7 @@ import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evide
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/diagram-reconcile-inventory-snapshot-honesty-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
@@ -1537,6 +1538,9 @@ export function DiagramReconcileWorkbenchClient() {
         {advisoryComparisonPath
           ? "Advisory compare mode checks documentation accuracy against inventory. Nothing is written to a sealed review record."
           : "Sealed reconcile mode compares the ingested diagram on a sealed review record with inventory evidence. It does not change either one."}
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-snapshot-honesty">
+        {DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE}
       </p>
 
       {loadError != null ? (

@@ -12,6 +12,7 @@ import {
   OPERATOR_HOME_WORKING_OPEN_GATE_BROWSER_LOCAL,
   OPERATOR_HOME_WORKING_OPEN_GATE_PREFIX,
 } from "@/lib/operator/operator-home-working-open-gate-copy";
+import { OPERATOR_HOME_OPEN_GATE_NOT_TENANT_SEAL_LINE } from "@/lib/operator/operator-home-open-gate-not-tenant-seal-copy";
 import { cn } from "@/lib/utils";
 
 export type OperatorHomeWorkingOpenGateLineProps = {
@@ -51,7 +52,8 @@ export function OperatorHomeWorkingOpenGateLine(
       <Link className={OPERATOR_LINK.inline} href={record.href} data-testid="operator-home-working-open-gate-link">
         {trimmedLabel}
       </Link>
-      . {OPERATOR_HOME_WORKING_OPEN_GATE_BROWSER_LOCAL}
+      . {OPERATOR_HOME_WORKING_OPEN_GATE_BROWSER_LOCAL}{" "}
+      <span data-testid="operator-home-open-gate-not-tenant-seal">{OPERATOR_HOME_OPEN_GATE_NOT_TENANT_SEAL_LINE}</span>
     </p>
   );
 }
