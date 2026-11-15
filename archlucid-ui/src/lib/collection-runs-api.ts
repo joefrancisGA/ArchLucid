@@ -13,9 +13,13 @@ export async function fetchCollectionRuns(limit = 50): Promise<CollectionRun[]> 
 
   const raw = await proxyJsonGet<unknown>(`${COLLECTION_RUNS_PATH}?${params.toString()}`);
 
-  return Array.isArray(raw)
-    ? raw.filter((item): item is CollectionRun => item !== null && typeof item === "object" && !Array.isArray(item))
-    : [];
+  if (!Array.isArray(raw) || !raw.every(
+    (item): item is CollectionRun => item !== null && typeof item === "object" && !Array.isArray(item),
+  )) {
+    throw new Error("Invalid collection history response.");
+  }
+
+  return raw;
 }
 
 export async function triggerCollectionRun(
