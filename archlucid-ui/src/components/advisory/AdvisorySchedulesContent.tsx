@@ -193,6 +193,17 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
           </div>
         ) : null}
 
+        {page.reviewAvailability.loadFailed ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
+              Could not check for finalized reviews.
+            </p>
+            <Button type="button" size="sm" variant="outline" onClick={page.reviewAvailability.retry}>
+              Retry review lookup
+            </Button>
+          </div>
+        ) : null}
+
         {page.statusMessage !== null ? (
           <p
             className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
