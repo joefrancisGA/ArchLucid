@@ -1,0 +1,2 @@
+export const DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "No digest subscriptions are configured yet while the list loaded successfully — empty is not the same as a failed subscription read." as const;

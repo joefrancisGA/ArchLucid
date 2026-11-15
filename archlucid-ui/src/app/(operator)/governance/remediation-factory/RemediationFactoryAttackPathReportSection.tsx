@@ -28,6 +28,11 @@ import {
   REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE,
 } from "./remediation-factory-attack-path-report-copy";
 import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
+import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
   ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
@@ -55,6 +60,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
   readonly onSelectPath: (pathId: string) => void;
   readonly awaitingRankedSnapshot: boolean;
   readonly showRankedSnapshotHint: boolean;
+  readonly partialCapture?: boolean;
 }) {
   if (props.snapshotId === null) {
     return (
@@ -82,6 +88,14 @@ export function RemediationFactoryAttackPathReportSection(props: {
         {props.showRankedSnapshotHint ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-ranked-snapshot-hint">
             {ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT}
+          </p>
+        ) : null}
+        {props.partialCapture === true ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-partial-capture">
+            {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
           </p>
         ) : null}
       </header>

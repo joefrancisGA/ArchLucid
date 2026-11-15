@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 53 (batch 18): Drift empties, compare seal footnotes, and disposition report problem
+
+**Outcome.** Drift workbench repeats not-failure honesty on empty diffs and inventory slices. Diagram reconcile warns when a stored run has zero correspondence rows. Compare quality delta adds two-sealed counts footnote; collapsed change reviews repeat seal discipline. SecureNow home names partial capture when collection completed with gaps. Attack path report states partial capture context. Infrastructure Ask insufficient-evidence names the pinned snapshot id. Remediation patterns and digest subscriptions empty views are distinct from load failure. Standards rules filter-empty is distinct from load failure. Remediation factory cut points warn on long path ids. Golden manifest export errors repeat commit-before-seal on both control variants. Decision register load failures and pilot disposition save errors register Report Problem.
+
+**Surfaces.** Drift, diagram reconcile, compare, SecureNow home, attack path report, infrastructure Ask, remediation patterns, digest subscriptions, standards hub, remediation factory cut points, golden manifest export, decision register, pilot decision, report-problem registry.
+
 ## 2026-11-15 - Score lift round 52 (batch 17): Partial capture headers, empty-vs-failure footers, and sponsor save discipline
 
 **Outcome.** Findings queue and connection-status help name partial capture recovery CTAs. Compare run pickers repeat second-seal discipline. Workspace health states point-in-time KPIs. Governance approvals empty is distinct from load failure. Remediation factory top cut points clarify framework themes are not control passes. Resource explorer, drift, and diagram reconcile empty states repeat not-failure / not-clean honesty. First-review guide merges seal and walkthrough next-step copy. Path inspect warns on long path ids. Sponsor and pilot disposition save errors state prior audit unchanged; sponsor path registers Report Problem. Decision register empty teaching adds SecureNow collection honesty. Blocked golden manifest exports repeat commit-before-seal discipline.

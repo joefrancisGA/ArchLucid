@@ -141,6 +141,10 @@ import { DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-e
 import { DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE } from "@/lib/infra-evidence/diagram-reconcile-pinned-snapshot-honesty-copy";
 import { DIAGRAM_RECONCILE_EMPTY_NOT_CLEAN_RESULT_LINE } from "@/lib/infra-evidence/diagram-empty-not-clean-result-copy";
 import {
+  DIAGRAM_RECONCILE_ZERO_CHANGES_NOT_CLEAN_LINE,
+  shouldShowDiagramReconcileZeroChangesHonesty,
+} from "@/lib/infra-evidence/diagram-reconcile-zero-changes-not-clean-copy";
+import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DIAGRAM_SOURCE_REQUIRED_ERROR,
@@ -2088,6 +2092,11 @@ export function DiagramReconcileWorkbenchClient() {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-denominator">
                 {buildDiagramReconcileDenominatorSentence(reconciliation.inventoryResourceCount)}
               </p>
+              {shouldShowDiagramReconcileZeroChangesHonesty(reconciliation.rows?.length ?? 0) ? (
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-zero-changes-not-clean">
+                  {DIAGRAM_RECONCILE_ZERO_CHANGES_NOT_CLEAN_LINE}
+                </p>
+              ) : null}
             </div>
           ) : null}
 

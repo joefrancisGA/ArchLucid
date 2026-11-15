@@ -345,13 +345,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         {exportStatusChrome}
         {exportRecoveryChrome}
         {exportError !== null ? (
-          <p
-            role="alert"
-            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="golden-manifest-export-error"
-          >
-            {exportError}
-          </p>
+          <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
+            <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
+              {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+            </p>
+          </div>
         ) : null}
       </div>
     );
@@ -418,13 +417,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       {exportStatusChrome}
       {exportRecoveryChrome}
       {exportError !== null ? (
-        <p
-          role="alert"
-          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="golden-manifest-export-error"
-        >
-          {exportError}
-        </p>
+        <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
+          <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
+            {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+          </p>
+        </div>
       ) : null}
     </div>
   );

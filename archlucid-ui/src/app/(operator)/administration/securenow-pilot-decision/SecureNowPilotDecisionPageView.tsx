@@ -31,6 +31,7 @@ import {
   SECURENOW_PILOT_DECISION_STEPS,
 } from "@/lib/product-line/securenow-pilot-decision-copy";
 import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { cn } from "@/lib/utils";
 
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
@@ -185,6 +186,13 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-pilot-decision-save-unchanged">
                 {SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE}
               </p>
+              <FatalPageReportProblemSupportRow
+                surfaceId="securenow-pilot-decision-disposition-save-failure"
+                errorTitle="Save path disposition"
+                errorCode="securenow-pilot-decision-disposition-save-failed"
+                correlationId={null}
+                httpStatus={null}
+              />
             </div>
           ) : null}
           {savedDisposition !== null ? (

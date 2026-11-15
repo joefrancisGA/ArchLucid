@@ -821,6 +821,7 @@ export function RemediationFactoryClient() {
               && rankedPathsQuery.isLoading
             }
             showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
+            partialCapture={productLine === "security" && latestCapturePartial}
           />
 
           <RemediationFactoryTopCutPointsSection

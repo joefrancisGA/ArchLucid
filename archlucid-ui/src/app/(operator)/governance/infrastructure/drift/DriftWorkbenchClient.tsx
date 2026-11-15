@@ -123,6 +123,8 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { isAppShellWorkspaceFooterBuildFingerprintVisible } from "@/lib/app-shell-workspace-footer-build-fingerprint-visibility";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import { DRIFT_WORKBENCH_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/drift-workbench-empty-not-failure-copy";
+import { DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-diffs-not-failure-copy";
+import { DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-inventory-not-failure-copy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
@@ -1270,6 +1272,11 @@ export function DriftWorkbenchClient() {
                   : GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_INVENTORY_BODY
               }
               testId="infra-drift-changes-empty-inventory"
+              footer={
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-inventory-empty-not-failure">
+                  {DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE}
+                </p>
+              }
             />
           </EnterpriseTableCell>
         </EnterpriseTableRow>
@@ -1762,6 +1769,11 @@ export function DriftWorkbenchClient() {
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY}
             testId="infra-drift-diffs-empty-resolved"
+            footer={
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-diffs-empty-not-failure">
+                {DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE}
+              </p>
+            }
           />
         ) : null}
 
