@@ -118,6 +118,13 @@ describe("infra-evidence-diagrams-partitioned-view", () => {
     expect(resolveInfraDiagramsDefaultFallbackKey([])).toBe("");
   });
 
+  it("falls back to a usable partition when the executive diagram failed", () => {
+    expect(resolveInfraDiagramsDefaultFallbackKey([
+      { ...executiveArtifact, status: "Failed" },
+      networkArtifact,
+    ])).toBe("network");
+  });
+
   it("ignores full-machine and resource-group view keys when resolving the effective fallback", () => {
     expect(
       resolveInfraDiagramsEffectiveFallbackKey({
