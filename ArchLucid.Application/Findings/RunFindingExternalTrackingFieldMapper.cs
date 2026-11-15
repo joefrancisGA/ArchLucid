@@ -6,7 +6,9 @@ internal static class RunFindingExternalTrackingFieldMapper
 {
     public static FindingHumanReviewStatus ParseHumanReview(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus status))
+        if (!string.IsNullOrWhiteSpace(raw)
+            && Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus status)
+            && Enum.IsDefined(status))
             return status;
 
         return FindingHumanReviewStatus.NotRequired;
@@ -18,6 +20,7 @@ internal static class RunFindingExternalTrackingFieldMapper
             return null;
 
         return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition)
+            && Enum.IsDefined(disposition)
             ? disposition
             : null;
     }
