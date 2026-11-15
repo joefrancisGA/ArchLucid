@@ -2,7 +2,12 @@
 export function formatRemediationFactoryPercentDisplay(value: number): string {
   const normalized = value > 0 && value <= 1 ? value * 100 : value;
 
-  return `${Math.round(normalized)}%`;
+  return formatRemediationFactoryPercentPoints(normalized);
+}
+
+/** Formats a value already expressed on the API's 0–100 scale. */
+export function formatRemediationFactoryPercentPoints(value: number): string {
+  return `${Math.round(value)}%`;
 }
 
 export const REMEDIATION_FACTORY_PERCENT_POPULATION_LINE =
