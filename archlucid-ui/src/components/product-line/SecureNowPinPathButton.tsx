@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   clearSecureNowPinnedPathId,
   readSecureNowPinnedPathId,
+  type SecureNowStickinessScope,
   writeSecureNowPinnedPathId,
 } from "@/lib/product-line/securenow-stickiness";
 import { useState } from "react";
@@ -16,22 +17,32 @@ type SecureNowPinPathButtonProps = {
 /** One watched path per tenant workspace. Browser storage only until server sync ships. Not a usage score. */
 export function SecureNowPinPathButton(props: SecureNowPinPathButtonProps): React.JSX.Element | null {
   const pathId = props.pathId.trim();
-  const scope = useOperatorScopeQueryKey();
-  const stickinessScope = { tenantId: scope.tenantId, workspaceId: scope.workspaceId };
-  const [pinnedPathId, setPinnedPathId] = useState<string | null>(() =>
-    readSecureNowPinnedPathId(stickinessScope),
-  );
+  const { tenantId, workspaceId } = useOperatorScopeQueryKey();
 
   if (pathId.length === 0) {
     return null;
   }
 
+  return (
+    <WorkspacePinPathButton
+      key={JSON.stringify([tenantId, workspaceId])}
+      pathId={pathId}
+      scope={{ tenantId, workspaceId }}
+    />
+  );
+}
+
+function WorkspacePinPathButton({ pathId, scope }: {
+  readonly pathId: string;
+  readonly scope: SecureNowStickinessScope;
+}): React.JSX.Element {
+  const [pinnedPathId, setPinnedPathId] = useState(() => readSecureNowPinnedPathId(scope));
   const isPinned = pinnedPathId === pathId;
 
   function togglePin(): void {
     const saved = isPinned
-      ? clearSecureNowPinnedPathId(stickinessScope)
-      : writeSecureNowPinnedPathId(stickinessScope, pathId);
+      ? clearSecureNowPinnedPathId(scope)
+      : writeSecureNowPinnedPathId(scope, pathId);
     if (saved) {
       setPinnedPathId(isPinned ? null : pathId);
     }
