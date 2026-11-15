@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 51 (batch 16): Compare deltas, assigned-to-me collection, and empty-vs-failure honesty
+
+**Outcome.** Compare insufficient-finalized and quality delta panels state second-sealed discipline. SecureNow assigned-to-me empty queue shows the primary collection blocker. Resource hub findings empty names snapshot-stored-not-failure. Extract upload accepted panel clarifies evaluation may be pending. Policy catalog empty is distinct from load failure. Remediation factory core-read failure explains retry does not re-rank. Diagram reconcile names URL-pinned snapshots. Deliverables repeat finalize discipline beside blocked exports.
+
+**Surfaces.** Compare, findings assigned-to-me, resource hub, extract upload, policy packs catalog, remediation factory, diagram reconcile, review deliverables.
+
 ## 2026-11-15 - Score lift round 50 (batch 15): Findings collection blocker, compare seal, and remediation Execute discipline
 
 **Outcome.** SecureNow findings empty queue names the primary collection blocker when capture is missing. Compare two reviews states second-sealed review discipline on the page. Remediation Execute clarifies advisory-only emission. Attack path overflow copy names unlisted stored paths. ITSM create dialog repeats confirm-before-send discipline. First-review guide shows tenant seal line whenever prerequisites are complete.

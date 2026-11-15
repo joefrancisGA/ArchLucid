@@ -8,6 +8,7 @@ import {
   type CompareQualityDeltaCounts,
   type CompareTrustLaneBreakdownRow,
 } from "@/lib/review-quality/compare-quality-delta";
+import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 
 export type CompareQualityDeltaPanelProps = {
   readonly counts: CompareQualityDeltaCounts;
@@ -33,6 +34,12 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
       </h2>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Directional counts only — every row is inspectable, not a synthetic quality score.
+      </p>
+      <p
+        className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="compare-quality-delta-second-sealed-discipline"
+      >
+        {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
       </p>
       <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (

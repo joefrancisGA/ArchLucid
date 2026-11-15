@@ -34,6 +34,7 @@ import {
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/resource-hub-inventory-snapshot-honesty-copy";
+import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -2271,6 +2272,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_TITLE}
                     description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_FINDINGS_EMPTY_BODY}
                     testId={`infra-resource-hub-findings-empty-${stream.streamKind}`}
+                    footer={
+                      <p
+                        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid={`infra-resource-hub-findings-empty-honesty-${stream.streamKind}`}
+                      >
+                        {formatResourceHubFindingsStoredEmptyLine(resolvedSnapshotId)}
+                      </p>
+                    }
                   />
                 ) : (
                   <EnterpriseTable

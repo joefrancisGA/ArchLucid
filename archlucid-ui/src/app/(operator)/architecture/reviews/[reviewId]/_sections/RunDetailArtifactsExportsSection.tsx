@@ -392,6 +392,12 @@ export function RunDetailArtifactsExportsSection(
                 >
                   {collateralExportBlockedReason}
                 </p>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="run-detail-deliverables-export-finalize-discipline"
+                >
+                  {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+                </p>
               </div>
             ) : (
               <div className={cn("flex flex-col gap-1", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>

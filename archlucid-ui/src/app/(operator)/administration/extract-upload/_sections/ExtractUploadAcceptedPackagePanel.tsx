@@ -35,6 +35,7 @@ import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { showSuccess } from "@/lib/toast";
+import { EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE } from "@/lib/extract-upload/extract-upload-accepted-evaluation-honesty-copy";
 
 export type ExtractUploadAcceptedPackagePanelProps = {
   readonly record: ExtractUploadAcceptedPackageRecord;
@@ -102,6 +103,12 @@ export function ExtractUploadAcceptedPackagePanel(
             </h2>
             <StatusTag kind="ready" label="Accepted" data-testid="extract-upload-accepted-package-status" />
           </div>
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="extract-upload-accepted-evaluation-honesty"
+          >
+            {EXTRACT_UPLOAD_ACCEPTED_NOT_EVALUATION_COMPLETE_LINE}
+          </p>
           <dl className="m-0 grid gap-2 sm:grid-cols-2">
             <div>
               <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
