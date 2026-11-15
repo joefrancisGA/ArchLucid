@@ -129,9 +129,15 @@ public sealed class RemediationWaveService(
         if (selected.Count == 0)
             return Failed("No findings matched the wave criteria.");
 
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        IReadOnlyDictionary<Guid, RemediationInstanceRecord> approvedInstancesByFindingId =
+            await instanceRepository.ListLatestApprovedByFindingIdsInScopeAsync(
+                projectScope,
+                selected.Select(item => item.FindingId).ToArray(),
+                cancellationToken);
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         Guid waveId = Guid.NewGuid();
-        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
         await waveRepository.InsertWaveInScopeAsync(
             projectScope,
@@ -146,12 +152,6 @@ public sealed class RemediationWaveService(
                 UpdatedUtc = utcNow,
             },
             cancellationToken);
-
-        IReadOnlyDictionary<Guid, RemediationInstanceRecord> approvedInstancesByFindingId =
-            await instanceRepository.ListLatestApprovedByFindingIdsInScopeAsync(
-                projectScope,
-                selected.Select(item => item.FindingId).ToArray(),
-                cancellationToken);
 
         int rank = 1;
 

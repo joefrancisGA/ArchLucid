@@ -77,6 +77,39 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
     }
 
     [Fact]
+    public async Task CreateWave_does_not_leave_an_empty_wave_if_the_instance_lookup_fails()
+    {
+        ScopeContext scope = CreateScope(TenantA);
+        Guid findingId = Guid.NewGuid();
+        InMemoryRemediationWaveRepository waveRepository = new();
+        Mock<IRemediationPrioritizationService> prioritizationService = new();
+        prioritizationService
+            .Setup(service => service.RankOpenFindingsAsync(scope, "operator-1", CancellationToken.None))
+            .ReturnsAsync(new[] { new RemediationPrioritizedFinding { FindingId = findingId } });
+        Mock<IProjectScopedRemediationInstanceRepository> instanceRepository = new();
+        instanceRepository
+            .SetupSequence(repository => repository.ListLatestApprovedByFindingIdsInScopeAsync(
+                scope.ToProjectScopeKey(),
+                It.Is<IReadOnlyCollection<Guid>>(ids => ids.Count == 1 && ids.Contains(findingId)),
+                CancellationToken.None))
+            .ThrowsAsync(new InvalidOperationException("Approved instances could not be loaded."))
+            .ReturnsAsync(new Dictionary<Guid, RemediationInstanceRecord>());
+        RemediationWaveService waveService = new(
+            waveRepository, prioritizationService.Object, Mock.Of<IRemediationInstanceService>(), instanceRepository.Object);
+        Task<RemediationWaveOperationResult> CreateWave() =>
+            waveService.CreateWaveAsync(scope, "wave", targetSize: 1, explicitCloudResourceIds: null, "operator-1");
+
+        InvalidOperationException failure = await Assert.ThrowsAsync<InvalidOperationException>(CreateWave);
+        failure.Message.Should().Be("Approved instances could not be loaded.");
+        waveRepository.Waves.Should().BeEmpty();
+
+        RemediationWaveOperationResult retry = await CreateWave();
+        retry.Succeeded.Should().BeTrue();
+        waveRepository.Waves.Should().ContainSingle();
+        waveRepository.Members.Should().ContainSingle(member => member.FindingId == findingId);
+    }
+
+    [Fact]
     public async Task Weight_change_reranks_findings()
     {
         Guid lowSeverityId = Guid.NewGuid();
