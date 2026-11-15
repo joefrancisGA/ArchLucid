@@ -60,6 +60,7 @@ import {
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
 } from "@/lib/infra-evidence/format-azure-resource-display";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatInstantCompactMilitary } from "@/lib/locale-datetime";
 import {
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
@@ -121,10 +122,13 @@ function resolveExplorerAskHubTab(
 
 function resolveNewestLastSeenUtc(rows: readonly CloudResourceSummary[]): string {
   let newest = "";
+  let newestMs = Number.NEGATIVE_INFINITY;
 
   for (const row of rows) {
-    if (row.lastSeenUtc.length > 0 && row.lastSeenUtc.localeCompare(newest) > 0) {
+    const lastSeenMs = parseIsoUtcMs(row.lastSeenUtc);
+    if (lastSeenMs > newestMs) {
       newest = row.lastSeenUtc;
+      newestMs = lastSeenMs;
     }
   }
 
