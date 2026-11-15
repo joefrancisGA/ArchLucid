@@ -38,6 +38,14 @@ public sealed class WorkloadForecastHistoryTests
     }
 
     [Fact]
+    public void Null_history_entry_is_rejected_as_an_invalid_observation()
+    {
+        Action import = () => WorkloadForecastHistory.Import("[null]");
+
+        import.Should().Throw<ArgumentException>().WithParameterName("json");
+    }
+
+    [Fact]
     public void Invalid_revision_or_oversized_history_is_rejected()
     {
         Action invalid = () => WorkloadForecastHistory.Import("""[{"schemaVersion":2}]""");
