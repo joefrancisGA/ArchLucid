@@ -162,6 +162,49 @@ public sealed class AlertDeliveryDispatcherTests
     }
 
     [Fact]
+    public async Task DeliverAsync_WhenSuccessAuditFails_PreservesSuccessfulDelivery()
+    {
+        AlertRecord alert = CreateAlert(AlertSeverity.Warning);
+        AlertRoutingSubscription subscription = new()
+        {
+            TenantId = alert.TenantId,
+            WorkspaceId = alert.WorkspaceId,
+            ProjectId = alert.ProjectId,
+            ChannelType = AlertRoutingChannelType.Email,
+            Destination = "oncall@example.com",
+            MinimumSeverity = AlertSeverity.Info,
+        };
+        InMemoryAlertRoutingSubscriptionRepository routing = new();
+        await routing.CreateAsync(subscription, CancellationToken.None);
+        InMemoryAlertDeliveryAttemptRepository attempts = new();
+        Mock<IAlertDeliveryChannel> channel = new();
+        channel.Setup(x => x.ChannelType).Returns(AlertRoutingChannelType.Email);
+        channel.Setup(x => x.SendAsync(It.IsAny<AlertDeliveryPayload>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.AlertDeliverySucceeded),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit storage unavailable"));
+        AlertDeliveryDispatcher sut = CreateSut([channel.Object], routing, attempts, audit.Object);
+
+        await sut.DeliverAsync(alert, CancellationToken.None);
+
+        ScopeContext scope = new()
+        {
+            TenantId = alert.TenantId,
+            WorkspaceId = alert.WorkspaceId,
+            ProjectId = alert.ProjectId,
+        };
+        IReadOnlyList<AlertDeliveryAttempt> history =
+            await attempts.ListByAlertAsync(scope, alert.AlertId, CancellationToken.None);
+        history.Should().ContainSingle().Which.Status.Should().Be(AlertDeliveryAttemptStatus.Succeeded);
+        audit.Verify(x => x.LogAsync(
+            It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.AlertDeliveryFailed),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task DeliverAsync_WhenChannelFails_AuditsFailureWithoutThrowing()
     {
         AlertRoutingSubscription subscription = new()
