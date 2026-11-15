@@ -58,9 +58,9 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   return `Actor name was not stored (${kind}).`;
 }
 
-export const PEOPLE_IN_SCOPE_STORED_EMPTY = "People in scope were stored empty." as const;
+export const PEOPLE_IN_SCOPE_STORED_EMPTY = "No people were named on this draft." as const;
 
-export const SYSTEMS_IN_SCOPE_STORED_EMPTY = "Systems in scope were stored empty." as const;
+export const SYSTEMS_IN_SCOPE_STORED_EMPTY = "No systems were named on this draft." as const;
 
 export const SCOPE_BRIEF_INFERRED_LINE_PREFIX =
   "Derived from intake, not a separate confirmed answer: " as const;
