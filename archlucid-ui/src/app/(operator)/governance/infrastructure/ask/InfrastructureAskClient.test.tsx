@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { InfrastructureAskClient } from "@/app/(operator)/governance/infrastructure/ask/InfrastructureAskClient";
 import { submitInfraEvidenceAsk } from "@/lib/infra-evidence/infra-evidence-ask-api";
+import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
   INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITH_SNAPSHOT,
   INFRA_EVIDENCE_ASK_SNAPSHOT_HONESTY_WITHOUT_SNAPSHOT,
@@ -519,6 +520,39 @@ describe("InfrastructureAskClient", () => {
 
     expect(await screen.findByTestId("infra-ask-simulator-status-header")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-simulator-banner")).toBeInTheDocument();
+  });
+
+  it("does not show the prior snapshot's metadata while the new snapshot loads", async () => {
+    const beforeId = "22222222-2222-2222-2222-222222222222";
+    const afterId = "33333333-3333-3333-3333-333333333333";
+    vi.mocked(fetchInfraEvidenceSnapshots)
+      .mockResolvedValueOnce({
+        items: [{
+          snapshotId: beforeId,
+          subscriptionId: "prior-subscription",
+          subscriptionName: "Prior subscription",
+          capturedUtc: "2026-09-08T22:44:27Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 0,
+        }],
+        totalCount: 1,
+        page: 1,
+        pageSize: 50,
+        hasMore: false,
+      })
+      .mockImplementationOnce(() => new Promise(() => {}));
+
+    searchParams = new URLSearchParams({ snapshotId: beforeId });
+    const { rerender } = render(<InfrastructureAskClient />);
+    expect(await screen.findByText(/Prior subscription/)).toBeInTheDocument();
+
+    searchParams = new URLSearchParams({ snapshotId: afterId });
+    rerender(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-snapshot-freshness")).toHaveTextContent(afterId);
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("Subscription was not stored.");
+    expect(screen.queryByText(/Prior subscription/)).toBeNull();
   });
 
   it("renders blocked ask errors as a semantic callout", async () => {

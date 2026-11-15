@@ -21,6 +21,7 @@ import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-h
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   formatInfraEvidenceAskScopeStack,
   resolveInfraEvidenceAskSnapshotFreshness,
@@ -247,9 +248,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitErrorIsBlocked, setSubmitErrorIsBlocked] = useState(false);
   const [history, setHistory] = useState<InfraEvidenceAskTurn[]>([]);
-  const [snapshotCapturedUtc, setSnapshotCapturedUtc] = useState<string | null>(null);
-  const [snapshotSubscriptionName, setSnapshotSubscriptionName] = useState<string | null>(null);
-  const [snapshotSubscriptionId, setSnapshotSubscriptionId] = useState<string | null>(null);
+  const [loadedSnapshot, setLoadedSnapshot] = useState<InfraEvidenceSnapshotSummary | null>(null);
+  const activeSnapshot = loadedSnapshot?.snapshotId === snapshotId ? loadedSnapshot : null;
+  const snapshotCapturedUtc = activeSnapshot?.capturedUtc ?? null;
+  const snapshotSubscriptionName = activeSnapshot?.subscriptionName ?? null;
+  const snapshotSubscriptionId = activeSnapshot?.subscriptionId ?? null;
   const previousScopeKeyRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const questionRef = useRef(question);
@@ -261,26 +264,26 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
 
   useEffect(() => {
     if (snapshotId.length === 0) {
-      setSnapshotCapturedUtc(null);
-      setSnapshotSubscriptionName(null);
-      setSnapshotSubscriptionId(null);
-
+      setLoadedSnapshot(null);
       return;
     }
 
     let cancelled = false;
 
-    void fetchInfraEvidenceSnapshots(1, 50).then((response) => {
-      if (cancelled) {
-        return;
+    async function loadSnapshotMetadata() {
+      try {
+        const response = await fetchInfraEvidenceSnapshots(1, 50);
+        if (!cancelled) {
+          setLoadedSnapshot(response.items.find((item) => item.snapshotId === snapshotId) ?? null);
+        }
+      } catch {
+        if (!cancelled) {
+          setLoadedSnapshot(null);
+        }
       }
+    }
 
-      const match = response.items.find((item) => item.snapshotId === snapshotId);
-
-      setSnapshotCapturedUtc(match?.capturedUtc ?? null);
-      setSnapshotSubscriptionName(match?.subscriptionName ?? null);
-      setSnapshotSubscriptionId(match?.subscriptionId ?? null);
-    });
+    void loadSnapshotMetadata();
 
     return () => {
       cancelled = true;
