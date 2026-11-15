@@ -14,7 +14,7 @@ function isFindingRow(row: GovernanceFindingQueueRow): boolean {
   return row.recordKind === "finding";
 }
 
-function hasExpiringException(row: GovernanceFindingQueueRow, nowMs: number): boolean {
+export function hasExpiringRiskException(row: GovernanceFindingQueueRow, nowMs: number): boolean {
   const expiresRaw = row.waiverExpiresAtUtc?.trim() ?? "";
 
   if (expiresRaw.length === 0) {
@@ -27,7 +27,7 @@ function hasExpiringException(row: GovernanceFindingQueueRow, nowMs: number): bo
     return false;
   }
 
-  return expiresMs <= nowMs + WAIVER_EXPIRING_WINDOW_MS;
+  return expiresMs > nowMs && expiresMs <= nowMs + WAIVER_EXPIRING_WINDOW_MS;
 }
 
 function isOverdueReview(row: GovernanceFindingQueueRow, nowMs: number): boolean {
@@ -64,7 +64,7 @@ export function computeArchitectureRiskRegisterSummary(
 ): ArchitectureRiskRegisterSummary {
   return {
     openRisks: rows.filter((row) => isOpenRisk(row)).length,
-    expiringExceptions: rows.filter((row) => hasExpiringException(row, nowMs)).length,
+    expiringExceptions: rows.filter((row) => hasExpiringRiskException(row, nowMs)).length,
     pendingOwner: rows.filter((row) => hasPendingOwner(row)).length,
     overdueReview: rows.filter((row) => isOverdueReview(row, nowMs)).length,
   };
