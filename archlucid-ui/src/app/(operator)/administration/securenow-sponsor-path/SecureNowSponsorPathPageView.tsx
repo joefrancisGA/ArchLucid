@@ -32,12 +32,21 @@ import {
 } from "@/lib/product-line/securenow-investigation-effort-copy";
 import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { cn } from "@/lib/utils";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
   const [outcome, setOutcome] = useState("");
   const [rationale, setRationale] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -125,6 +134,14 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-roi-non-summing">
           {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
+        {partialCapture ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-partial-capture">
+            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+          </p>
+        ) : null}
         {pathId.length === 0 ? (
           <section className="space-y-3" data-testid="securenow-sponsor-path-no-path">
             <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_SPONSOR_PATH_NO_PATH_LEAD}</p>

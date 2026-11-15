@@ -6,6 +6,10 @@ export const POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_WITH_INVENTORY_LINE =
 export const POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_LINE =
   "No policy packs are available for this workspace." as const;
 
+/** Empty assignment list after a successful load — distinct from pack detail load failure. */
+export const POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE =
+  "Assignment list empty after a successful load — not the same as a pack detail or catalog load failure." as const;
+
 export const POLICY_PACKS_EFFECTIVE_LAYERS_NOT_LOADED_LINE =
   "Effective policy layers not loaded for this scope." as const;
 

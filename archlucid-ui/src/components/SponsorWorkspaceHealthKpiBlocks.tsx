@@ -27,6 +27,18 @@ import {
 import { cn } from "@/lib/utils";
 
 import type { SponsorWorkspaceHealthKpiViewModel } from "./use-sponsor-workspace-health-dashboard";
+import { WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE } from "@/lib/insights/workspace-health-kpi-card-as-of-copy";
+
+function WorkspaceHealthKpiCardAsOfLine(): React.JSX.Element {
+  return (
+    <p
+      className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="sponsor-workspace-health-kpi-card-as-of"
+    >
+      {WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE}
+    </p>
+  );
+}
 
 function sponsorHighCriticalFindingsLinkLabel(buyerPolishedShell: boolean, productLine: ProductLineId): string {
   if (productLine === "security") {
@@ -70,6 +82,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {executiveWorkspaceHealthKpiTitle("preCommitOutcomes", buyerPolishedShell)}
             </h2>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
@@ -106,6 +119,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {executiveWorkspaceHealthKpiTitle("highCriticalExposure", buyerPolishedShell)}
             </h2>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
               aging inventory.
@@ -134,6 +148,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
                 Resolve outcomes workflow
               </Link>
             </div>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>
             <ComplianceDriftChartPdfExport points={driftPoints} />
           </CardContent>
@@ -144,6 +159,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {executiveWorkspaceHealthKpiTitle("approvalSla", buyerPolishedShell)}
             </h2>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Derived from workspace health pending approvals and recent terminal decisions.
             </p>
@@ -182,6 +198,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
                 triggerClassName="self-start"
               />
             </div>
+            <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Blocks in 30d:{" "}
               <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">

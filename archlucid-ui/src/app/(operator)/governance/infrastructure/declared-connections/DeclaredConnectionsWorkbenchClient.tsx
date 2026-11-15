@@ -57,6 +57,10 @@ import {
 } from "@/lib/governance/declared-connections-status";
 import { DECLARED_CONNECTIONS_EXPIRY_HONESTY_LINE } from "@/lib/governance/declared-connections-expiry-honesty-copy";
 import {
+  DECLARED_CONNECTION_ROW_EXPIRY_HONESTY_LINE,
+  shouldShowDeclaredConnectionRowExpiryHonesty,
+} from "@/lib/governance/declared-connections-row-expiry-honesty-copy";
+import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD,
@@ -702,6 +706,14 @@ export function DeclaredConnectionsWorkbenchClient() {
                               <span className="ms-1 text-al-text-secondary">({relativeExpiry})</span>
                             );
                           })()}
+                          {shouldShowDeclaredConnectionRowExpiryHonesty(row.expirationUtc) ? (
+                            <p
+                              className={cn("m-0 mt-1 max-w-md", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid={`infra-declared-connection-row-expiry-honesty-${row.connectionId}`}
+                            >
+                              {DECLARED_CONNECTION_ROW_EXPIRY_HONESTY_LINE}
+                            </p>
+                          ) : null}
                         </EnterpriseTableCell>
                         <EnterpriseTableCell className="space-x-2">
                           <Button type="button" variant="outline" size="sm" onClick={() => setExpandedRowId(expanded ? null : row.connectionId)}>
