@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
@@ -228,6 +228,45 @@ describe("DigestsBrowseContent", () => {
     const diagnostics = screen.getByTestId("digests-delivery-diagnostics");
 
     expect(within(diagnostics).getByText(/SmtpException/)).toBeInTheDocument();
+  });
+
+  it("keeps delivery history for the latest opened digest when an older request finishes late", async () => {
+    const firstDigest = { ...digestRow, title: "First digest" };
+    const secondDigest = { ...digestRow, digestId: "d2", title: "Second digest" };
+    const firstAttempt = {
+      attemptId: "a1",
+      digestId: firstDigest.digestId,
+      subscriptionId: "s1",
+      attemptedUtc: "2026-07-08T12:05:00Z",
+      status: "Succeeded" as const,
+      channelType: "Email" as const,
+      destination: "first@example.com",
+    };
+    const secondAttempt = {
+      ...firstAttempt,
+      attemptId: "a2",
+      digestId: secondDigest.digestId,
+      destination: "second@example.com",
+    };
+    let finishFirstHistory: (attempts: (typeof firstAttempt)[]) => void = () => undefined;
+    const firstHistory = new Promise<(typeof firstAttempt)[]>((resolve) => {
+      finishFirstHistory = resolve;
+    });
+    vi.mocked(listArchitectureDigests).mockResolvedValue([firstDigest, secondDigest]);
+    vi.mocked(getArchitectureDigest).mockResolvedValueOnce(firstDigest).mockResolvedValueOnce(secondDigest);
+    vi.mocked(listDigestDeliveryAttempts).mockReturnValueOnce(firstHistory).mockResolvedValueOnce([secondAttempt]);
+
+    renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: firstDigest.title }));
+    await waitFor(() => expect(listDigestDeliveryAttempts).toHaveBeenCalledWith(firstDigest.digestId));
+    fireEvent.click(screen.getByRole("button", { name: secondDigest.title }));
+    await screen.findByText(`Email: ${secondAttempt.destination}`);
+
+    await act(async () => finishFirstHistory([firstAttempt]));
+
+    expect(screen.getByText(`Email: ${secondAttempt.destination}`)).toBeInTheDocument();
+    expect(screen.queryByText(`Email: ${firstAttempt.destination}`)).not.toBeInTheDocument();
   });
 
   it("renders the digest history table when digests exist", async () => {
