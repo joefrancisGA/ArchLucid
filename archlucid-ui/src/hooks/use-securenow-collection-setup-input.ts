@@ -6,7 +6,6 @@ import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
   deriveAzureSubscriptionScopeFromConnections,
-  deriveAzureSuccessfulPullFromConnections,
   deriveSecureNowCollectionSetupInput,
 } from "@/lib/product-line/derive-securenow-collection-setup-input";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
@@ -40,16 +39,10 @@ export function useSecureNowCollectionSetupInput(input: {
     queryFn: async () => {
       const azureConnections = await listTier2Connections();
       const azureScope = deriveAzureSubscriptionScopeFromConnections(azureConnections);
-      const azurePullSucceeded = deriveAzureSuccessfulPullFromConnections(azureConnections);
       const providerSummaries = {
         azure: azureConnections.length > 0 ? { status: "Configured" } : DEFAULT_PROVIDER_SUMMARY,
         aws: DEFAULT_PROVIDER_SUMMARY,
         gcp: DEFAULT_PROVIDER_SUMMARY,
-      };
-      const successfulPullByProvider = {
-        azure: azurePullSucceeded,
-        aws: false,
-        gcp: false,
       };
       const snapshotCaptureStatuses = await readSnapshotCaptureStatuses();
       const snapshotCaptureSucceeded = resolveCollectionSnapshotCaptureSucceeded({
@@ -59,7 +52,6 @@ export function useSecureNowCollectionSetupInput(input: {
 
       return deriveSecureNowCollectionSetupInput({
         providerSummaries,
-        successfulPullByProvider,
         azureSubscriptionIdsPresent: azureScope.azureSubscriptionIdsPresent,
         snapshotCaptureSucceeded,
       });
@@ -89,15 +81,8 @@ export function resolveSecureNowHomeCollectionSetupFallbackInput(input: {
     aws: DEFAULT_PROVIDER_SUMMARY,
     gcp: DEFAULT_PROVIDER_SUMMARY,
   };
-  const successfulPullByProvider = {
-    azure: false,
-    aws: false,
-    gcp: false,
-  };
-
   return deriveSecureNowCollectionSetupInput({
     providerSummaries,
-    successfulPullByProvider,
     azureSubscriptionIdsPresent: input.subscriptionLabelPresent,
     snapshotCaptureSucceeded: input.snapshotCaptureSucceeded,
   });
