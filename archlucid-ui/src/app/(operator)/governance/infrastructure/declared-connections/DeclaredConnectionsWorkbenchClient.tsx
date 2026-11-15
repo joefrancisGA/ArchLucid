@@ -55,6 +55,7 @@ import {
   resolveDeclaredConnectionDisplayStatus,
   sortDeclaredConnectionsByExpiry,
 } from "@/lib/governance/declared-connections-status";
+import { DECLARED_CONNECTIONS_EXPIRY_HONESTY_LINE } from "@/lib/governance/declared-connections-expiry-honesty-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_LOAD_ERROR_TITLE,
@@ -391,6 +392,10 @@ export function DeclaredConnectionsWorkbenchClient() {
           />
         }
       />
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-declared-connections-expiry-honesty">
+        {DECLARED_CONNECTIONS_EXPIRY_HONESTY_LINE}
+      </p>
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID}

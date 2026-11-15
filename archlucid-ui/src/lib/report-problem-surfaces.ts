@@ -212,6 +212,14 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
     description: "Extract and upload baseline status could not be loaded on the SecureNow Infrastructure route.",
   },
+  {
+    id: "administration-connection-status-hard-failure",
+    kind: "connectivity-error",
+    routePattern: "/administration/connection-status",
+    routeMatch: "exact-or-child",
+    componentPath: "components/integrations/ConnectorOperationsDashboard.tsx",
+    description: "Connection status integration inventory could not be loaded.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

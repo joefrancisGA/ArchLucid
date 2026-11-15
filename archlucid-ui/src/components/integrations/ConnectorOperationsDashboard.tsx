@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from "rea
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   IntegrationConnectorInventoryTable,
@@ -50,7 +51,11 @@ import {
   resolveIntegrationBackgroundDeliveryLabel,
 } from "@/lib/integration-readiness-present";
 import { isIntegrationConnectorExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { CONNECTOR_CONFIGURED_STATUS_HONESTY_LINE } from "@/lib/integrations/connector-configured-status-honesty-copy";
 import { normalizeConnectorSurfaceStatus, type TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
+
+const ADMINISTRATION_CONNECTION_STATUS_HARD_FAILURE_SURFACE_ID =
+  "administration-connection-status-hard-failure" as const;
 
 const CONNECTION_STATUS_EMPTY_STATE = {
   title: "No integrations to show yet",
@@ -151,23 +156,41 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
 
   if (loadFailureMessage !== null) {
     return (
-      <OperatorSectionLoadFailure
-        message={loadFailureMessage}
-        retrying={retrying || loading}
-        testId="connection-status-load-failure"
-        onRetry={handleRetry}
-      />
+      <div className="space-y-3" data-testid="connection-status-load-failure">
+        <OperatorSectionLoadFailure
+          message={loadFailureMessage}
+          retrying={retrying || loading}
+          testId="connection-status-load-failure-alert"
+          onRetry={handleRetry}
+        />
+        <FatalPageReportProblemSupportRow
+          surfaceId={ADMINISTRATION_CONNECTION_STATUS_HARD_FAILURE_SURFACE_ID}
+          errorTitle="Connection status could not load"
+          errorCode="connection-status-load-failed"
+          correlationId={null}
+          httpStatus={null}
+        />
+      </div>
     );
   }
 
   if (visibleData === null || configurationReadAt === null) {
     return (
-      <OperatorSectionLoadFailure
-        message="Connection status could not be loaded."
-        retrying={retrying || loading}
-        testId="connection-status-load-failure"
-        onRetry={handleRetry}
-      />
+      <div className="space-y-3" data-testid="connection-status-load-failure">
+        <OperatorSectionLoadFailure
+          message="Connection status could not be loaded."
+          retrying={retrying || loading}
+          testId="connection-status-load-failure-alert"
+          onRetry={handleRetry}
+        />
+        <FatalPageReportProblemSupportRow
+          surfaceId={ADMINISTRATION_CONNECTION_STATUS_HARD_FAILURE_SURFACE_ID}
+          errorTitle="Connection status could not load"
+          errorCode="connection-status-load-failed"
+          correlationId={null}
+          httpStatus={null}
+        />
+      </div>
     );
   }
 
@@ -257,6 +280,12 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         refreshing={loading || retrying}
         onRefresh={handleRetry}
       />
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="connection-status-configured-honesty"
+      >
+        {CONNECTOR_CONFIGURED_STATUS_HONESTY_LINE}
+      </p>
       {recommendedFirstSetup && !hideRecommendedSetupActions ? (
         <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} />
       ) : null}
