@@ -11,6 +11,26 @@ function requirementsFile(text: string): File {
 }
 
 describe("useArchitectureDraftRequirementsImport", () => {
+  it("appends to an overview accepted while extraction is in progress", async () => {
+    const extracted = Promise.withResolvers<string>();
+    const file = Object.assign(new File(["requirements"], "network-requirements.txt"), {
+      text: vi.fn(() => extracted.promise),
+    });
+    const onOverviewChange = vi.fn();
+    const { result, rerender } = renderHook(({ currentOverview }) => useArchitectureDraftRequirementsImport({
+      currentOverview,
+      onOverviewChange,
+    }), { initialProps: { currentOverview: "Old overview" } });
+
+    act(() => result.current.onRequirementsFilesSelected([file]));
+    rerender({ currentOverview: "Accepted rewrite" });
+    await act(async () => extracted.resolve("Use private endpoints."));
+
+    expect(onOverviewChange).toHaveBeenCalledExactlyOnceWith(
+      "Accepted rewrite\n\n---\nFrom network-requirements.txt:\n\nUse private endpoints.",
+    );
+  });
+
   it("does not append filename tokens for an empty requirements file", async () => {
     const onOverviewChange = vi.fn();
     const { result } = renderHook(() => useArchitectureDraftRequirementsImport({
