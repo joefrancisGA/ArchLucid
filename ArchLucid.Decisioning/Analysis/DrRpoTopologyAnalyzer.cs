@@ -51,6 +51,9 @@ public static class DrRpoTopologyAnalyzer
                 adjacency,
                 gaps,
                 gapKeys);
+
+            if (gaps.Count >= MaxFindings)
+                return gaps;
         }
 
         foreach (GraphNode qualityAttribute in graphSnapshot.GetNodesByType(GraphNodeTypes.QualityAttribute))
@@ -74,6 +77,9 @@ public static class DrRpoTopologyAnalyzer
                 adjacency,
                 gaps,
                 gapKeys);
+
+            if (gaps.Count >= MaxFindings)
+                return gaps;
         }
 
         return gaps;
@@ -115,9 +121,6 @@ public static class DrRpoTopologyAnalyzer
                         rtoMinutes,
                         string.Empty,
                         "Linked recovery datastore was not stored."));
-
-                    if (gaps.Count >= MaxFindings)
-                        return;
                 }
             }
 
