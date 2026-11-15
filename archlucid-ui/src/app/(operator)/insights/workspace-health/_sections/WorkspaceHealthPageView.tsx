@@ -6,7 +6,7 @@ import { WorkspaceHealthEvidenceOrientationStrip } from "@/components/evidence-o
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   SPONSOR_WORKSPACE_HEALTH_CLAIM_DISCIPLINE,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/sponsor/sponsor-workspace-health-page-copy";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
+import { WORKSPACE_HEALTH_POINT_IN_TIME_HONESTY_LINE } from "@/lib/insights/workspace-health-point-in-time-honesty-copy";
 
 const WORKSPACE_HEALTH_PRIMARY_CONTENT_ID = "workspace-health-primary-content";
 const WORKSPACE_HEALTH_SKIP_TARGET_ID = "workspace-health-first-viewport";
@@ -48,6 +49,9 @@ export function WorkspaceHealthPageView(): React.JSX.Element {
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
         <div id={WORKSPACE_HEALTH_SKIP_TARGET_ID} data-testid={WORKSPACE_HEALTH_SKIP_TARGET_ID} className="scroll-mt-24 space-y-4">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="workspace-health-point-in-time-honesty">
+            {WORKSPACE_HEALTH_POINT_IN_TIME_HONESTY_LINE}
+          </p>
           <SponsorWorkspaceHealthDashboard standalonePage externalPageHeader />
           <WorkspaceHealthEvidenceOrientationStrip sources={workspaceHealthSources} />
         </div>

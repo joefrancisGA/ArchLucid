@@ -30,6 +30,8 @@ import {
   SECURENOW_PILOT_DECISION_OUTCOMES,
   SECURENOW_PILOT_DECISION_STEPS,
 } from "@/lib/product-line/securenow-pilot-decision-copy";
+import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -177,7 +179,14 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
           <button type="button" className="rounded border border-border px-3 py-2" onClick={saveDisposition}>
             Save path disposition
           </button>
-          {saveError !== null ? <p className="text-rose-700" role="alert">{saveError}</p> : null}
+          {saveError !== null ? (
+            <div className="space-y-1" role="alert" data-testid="securenow-pilot-decision-save-error">
+              <p className="text-rose-700">{saveError}</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-pilot-decision-save-unchanged">
+                {SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE}
+              </p>
+            </div>
+          ) : null}
           {savedDisposition !== null ? (
             <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-pilot-decision-saved-disposition">
               Saved {savedDisposition.outcome}: {savedDisposition.rationale}

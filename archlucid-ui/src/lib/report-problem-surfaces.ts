@@ -220,6 +220,14 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "components/integrations/ConnectorOperationsDashboard.tsx",
     description: "Connection status integration inventory could not be loaded.",
   },
+  {
+    id: "securenow-sponsor-path-disposition-save-failure",
+    kind: "api-problem-high-stakes",
+    routePattern: "/administration/securenow-sponsor-path",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/administration/securenow-sponsor-path/SecureNowSponsorPathPageView.tsx",
+    description: "Sponsor path disposition could not be saved to tenant audit storage.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

@@ -42,6 +42,7 @@ import { downloadManifestMarkdownExport } from "@/lib/api/manifest-markdown-expo
 import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-markdown-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
@@ -311,13 +312,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   const exportBlockedReasonChrome =
     sponsorExportBlocked ? (
-      <p
-        role="alert"
-        className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="golden-manifest-export-blocked-reason"
-      >
-        {exportBlockedReason}
-      </p>
+      <div className="space-y-1" role="alert" data-testid="golden-manifest-export-blocked-reason">
+        <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportBlockedReason}</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-commit-before-seal">
+          {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
+        </p>
+      </div>
     ) : null;
 
   if (buyerMarkdownAsPrimaryButton === true) {

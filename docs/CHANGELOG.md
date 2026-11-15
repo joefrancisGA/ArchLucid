@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 52 (batch 17): Partial capture headers, empty-vs-failure footers, and sponsor save discipline
+
+**Outcome.** Findings queue and connection-status help name partial capture recovery CTAs. Compare run pickers repeat second-seal discipline. Workspace health states point-in-time KPIs. Governance approvals empty is distinct from load failure. Remediation factory top cut points clarify framework themes are not control passes. Resource explorer, drift, and diagram reconcile empty states repeat not-failure / not-clean honesty. First-review guide merges seal and walkthrough next-step copy. Path inspect warns on long path ids. Sponsor and pilot disposition save errors state prior audit unchanged; sponsor path registers Report Problem. Decision register empty teaching adds SecureNow collection honesty. Blocked golden manifest exports repeat commit-before-seal discipline.
+
+**Surfaces.** Findings header, compare pickers, workspace health, workflow approvals, remediation factory cut points, resource explorer, drift, diagram reconcile, first-review guide, path inspect, sponsor path, pilot decision, decision register, review export menu, connection-status help, report-problem registry.
+
 ## 2026-11-15 - Score lift round 51 (batch 16): Compare deltas, assigned-to-me collection, and empty-vs-failure honesty
 
 **Outcome.** Compare insufficient-finalized and quality delta panels state second-sealed discipline. SecureNow assigned-to-me empty queue shows the primary collection blocker. Resource hub findings empty names snapshot-stored-not-failure. Extract upload accepted panel clarifies evaluation may be pending. Policy catalog empty is distinct from load failure. Remediation factory core-read failure explains retry does not re-rank. Diagram reconcile names URL-pinned snapshots. Deliverables repeat finalize discipline beside blocked exports.

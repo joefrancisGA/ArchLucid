@@ -139,6 +139,7 @@ import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/diagram-reconcile-inventory-snapshot-honesty-copy";
 import { DIAGRAM_RECONCILE_PINNED_NOT_LATEST_CAPTURE_LINE } from "@/lib/infra-evidence/diagram-reconcile-pinned-snapshot-honesty-copy";
+import { DIAGRAM_RECONCILE_EMPTY_NOT_CLEAN_RESULT_LINE } from "@/lib/infra-evidence/diagram-empty-not-clean-result-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE,
@@ -2009,6 +2010,11 @@ export function DiagramReconcileWorkbenchClient() {
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_NO_SAVED_RECONCILIATION_DESCRIPTION}
           testId="infra-diagram-reconcile-no-saved-reconciliation"
+          footer={
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-empty-not-clean">
+              {DIAGRAM_RECONCILE_EMPTY_NOT_CLEAN_RESULT_LINE}
+            </p>
+          }
         />
       ) : null}
 

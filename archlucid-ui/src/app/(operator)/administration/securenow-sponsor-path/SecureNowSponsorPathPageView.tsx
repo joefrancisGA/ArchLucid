@@ -30,6 +30,9 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_PATH,
   SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
+import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { cn } from "@/lib/utils";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -206,9 +209,19 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
                 Save path disposition
               </button>
               {saveError !== null ? (
-                <p className="text-rose-700" role="alert">
-                  {saveError}
-                </p>
+                <div className="space-y-2" role="alert" data-testid="securenow-sponsor-path-save-error">
+                  <p className="text-rose-700">{saveError}</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-sponsor-path-save-unchanged">
+                    {SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE}
+                  </p>
+                  <FatalPageReportProblemSupportRow
+                    surfaceId="securenow-sponsor-path-disposition-save-failure"
+                    errorTitle="Save path disposition"
+                    errorCode="securenow-sponsor-path-disposition-save-failed"
+                    correlationId={null}
+                    httpStatus={null}
+                  />
+                </div>
               ) : null}
               {savedDisposition !== null ? (
                 <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-sponsor-path-saved-disposition">
