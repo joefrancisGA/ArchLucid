@@ -13,6 +13,7 @@ import {
   loadSecureNowPilotDispositionForPath,
   persistSecureNowPilotDispositionForPath,
 } from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { formatSecureNowPilotDispositionTenantAuditRecordedLine } from "@/lib/product-line/securenow-pilot-disposition-tenant-audit-copy";
 import {
   secureNowPilotDispositionStorageKey,
   SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE,
@@ -39,6 +40,7 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
   const [tenantAuditSaved, setTenantAuditSaved] = useState(false);
+  const [tenantAuditRecordedUtc, setTenantAuditRecordedUtc] = useState<string | null>(null);
 
   useEffect(() => {
     if (pathId.length === 0) {
@@ -46,27 +48,36 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       setRationale("");
       setSavedDisposition(null);
       setTenantAuditSaved(false);
+      setTenantAuditRecordedUtc(null);
       return;
     }
 
     let cancelled = false;
 
-    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+    void loadSecureNowPilotDispositionForPath(pathId).then((loaded) => {
       if (cancelled) {
         return;
       }
 
-      if (stored === null) {
+      if (loaded === null) {
         setOutcome("");
         setRationale("");
         setSavedDisposition(null);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
-      setOutcome(stored.outcome);
-      setRationale(stored.rationale);
-      setSavedDisposition(stored);
+      setOutcome(loaded.record.outcome);
+      setRationale(loaded.record.rationale);
+      setSavedDisposition(loaded.record);
+      setTenantAuditRecordedUtc(loaded.recordedUtc);
+
+      if (loaded.recordedUtc !== null) {
+        setTenantAuditSaved(true);
+      } else {
+        setTenantAuditSaved(false);
+      }
     });
 
     return () => {
@@ -91,12 +102,14 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       if (outcome.status === "error") {
         setSaveError(outcome.errorMessage);
         setTenantAuditSaved(false);
+        setTenantAuditRecordedUtc(null);
         return;
       }
 
       setSavedDisposition(record);
       setSaveError(null);
       setTenantAuditSaved(true);
+      setTenantAuditRecordedUtc(outcome.recordedUtc);
     });
   };
 
@@ -173,6 +186,14 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
           {tenantAuditSaved ? (
             <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-pilot-decision-tenant-audit-saved">
               {SECURENOW_PILOT_DISPOSITION_TENANT_AUDIT_SAVED_LINE}
+              {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "") != null ? (
+                <>
+                  {" "}
+                  <span data-testid="securenow-pilot-decision-tenant-audit-recorded-utc">
+                    {formatSecureNowPilotDispositionTenantAuditRecordedLine(tenantAuditRecordedUtc ?? "")}
+                  </span>
+                </>
+              ) : null}
             </p>
           ) : null}
           <SecureNowPilotDispositionOutcomeRehearsalPanels

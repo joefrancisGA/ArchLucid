@@ -68,6 +68,7 @@ import {
   FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL,
   FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF,
 } from "@/lib/first-review-guide-after-prerequisites-copy";
+import { FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE } from "@/lib/architecture/first-review-tenant-review-seal-discipline-copy";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
@@ -342,6 +343,12 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
               ) : (
                 <div className="space-y-1" data-testid="first-review-after-prerequisites-next-step">
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_BODY}</p>
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="first-review-tenant-review-seal-discipline"
+                  >
+                    {FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE}
+                  </p>
                   <Link className={OPERATOR_LINK.inline} href={FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_HREF}>
                     {FIRST_REVIEW_GUIDE_AFTER_PREREQUISITES_CTA_LABEL}
                   </Link>

@@ -140,6 +140,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "compliance-infrastructure-extract-upload-hard-failure",
     requiredMarkers: ["compliance-infrastructure-extract-upload-hard-failure", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "administration-connection-status-hard-failure",
+    requiredMarkers: ["administration-connection-status-hard-failure", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

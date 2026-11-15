@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 46 (batch 11): Connector configured honesty, connection status report problem, and tenant seal discipline
+
+**Outcome.** Connection status names what configured means and registers Report Problem on inventory load failure. First-review guide states evidence and Finalize before a sealed tenant review. Declared connections repeat expiry discipline. Pilot decision hydrates tenant audit time like sponsor path.
+
+**Surfaces.** Connection status, first-review guide, declared connections, pilot decision, report-problem registry.
+
 ## 2026-11-15 - Score lift round 45 (batch 10): Arch first-review honesty, commit-before-seal, and sponsor audit on load
 
 **Outcome.** Platform health blocker copy, open-gate spine focus, and sample export badges on the first-review guide. Review deliverables and share-review explain evidence before finalize. Warn-only AI finalize discipline on the guide. Sponsor path hydrates tenant audit `recordedUtc` from server load.
