@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ResourcesExplorerClient } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerClient";
@@ -136,6 +136,39 @@ describe("ResourcesExplorerClient", () => {
     expect(screen.getByTestId("infra-resource-row-arm-id-disclosure-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
       "resource id: /subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
     );
+  });
+
+  it.each(["empty response", "error"])("ignores a stale %s after the active filter loads", async (result) => {
+    let completeStaleRequest = () => {
+      throw new Error("Expected the initial inventory request to start.");
+    };
+    vi.mocked(fetchCloudResourceExplorerPage).mockImplementationOnce(
+      () => new Promise((resolve, reject) => {
+        completeStaleRequest = () => {
+          if (result === "error") {
+            reject(new Error("Stale inventory request failed."));
+          } else {
+            resolve({ items: [], totalCount: 0, page: 1, pageSize: 50, hasMore: false });
+          }
+        };
+      }),
+    );
+
+    searchParams = new URLSearchParams("namePrefix=old");
+    listOperatorSavedViews.mockResolvedValue([]);
+    const { rerender } = render(<ResourcesExplorerClient />);
+
+    searchParams = new URLSearchParams("namePrefix=gateway");
+    rerender(<ResourcesExplorerClient />);
+
+    expect(await screen.findByRole("link", { name: "gateway-pip" })).toBeInTheDocument();
+
+    await act(async () => {
+      completeStaleRequest();
+    });
+
+    expect(screen.queryByRole("link", { name: "gateway-pip" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-load-error")).toBeNull();
   });
 
   it("uses omission sentences for absent inventory fields", async () => {

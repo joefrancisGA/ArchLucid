@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -228,7 +228,10 @@ export function ResourcesExplorerClient() {
     setPage(urlPage);
   }, [urlNamePrefix, urlPage, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
+  const resourceRequestVersion = useRef(0);
   const loadResources = useCallback(async () => {
+    const requestVersion = ++resourceRequestVersion.current;
+
     setLoading(true);
     setLoadError(null);
 
@@ -243,18 +246,28 @@ export function ResourcesExplorerClient() {
         urlPage,
         50,
       );
+      if (requestVersion !== resourceRequestVersion.current) {
+        return;
+      }
+
       setRows(response.items);
       setTotalCount(response.totalCount);
       setPage(response.page);
       setPageSize(response.pageSize);
       setHasMore(response.hasMore);
     } catch (error: unknown) {
+      if (requestVersion !== resourceRequestVersion.current) {
+        return;
+      }
+
       setLoadError(formatInfraEvidenceHubApiError(error));
       setRows([]);
       setTotalCount(0);
       setHasMore(false);
     } finally {
-      setLoading(false);
+      if (requestVersion === resourceRequestVersion.current) {
+        setLoading(false);
+      }
     }
   }, [urlNamePrefix, urlPage, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
@@ -264,6 +277,10 @@ export function ResourcesExplorerClient() {
     }
 
     void loadResources();
+
+    return () => {
+      resourceRequestVersion.current += 1;
+    };
   }, [loadResources, urlCloudResourceId]);
 
   useEffect(() => {
