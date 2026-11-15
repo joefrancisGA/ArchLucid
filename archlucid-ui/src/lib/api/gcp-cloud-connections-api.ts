@@ -1,4 +1,6 @@
+import { trimRequiredText, trimTextFields } from "./api-boundary-normalization";
 import { apiDelete, apiGet, apiPostJson } from "./http";
+import { optionalHostedRunId, toTier2HostedRunResult } from "./tier2-hosted-run-response";
 
 export interface GcpTier2ConnectionResponse {
   connectionId: string;
@@ -19,7 +21,10 @@ export interface GcpTier2ConnectionConfigureBody {
 export async function configureGcpTier2Connection(
   body: GcpTier2ConnectionConfigureBody,
 ): Promise<GcpTier2ConnectionResponse> {
-  return apiPostJson<GcpTier2ConnectionResponse>("/v1/gcp-extractor/connections", body);
+  return apiPostJson<GcpTier2ConnectionResponse>(
+    "/v1/gcp-extractor/connections",
+    trimTextFields(body, ["projectId", "workloadIdentityPoolProvider", "serviceAccountEmail"]),
+  );
 }
 
 export async function listGcpTier2Connections(): Promise<GcpTier2ConnectionResponse[]> {
@@ -73,5 +78,10 @@ export interface GcpTier2HostedRunResponse {
 export async function triggerGcpTier2HostedRun(
   body: GcpTier2HostedRunBody,
 ): Promise<GcpTier2HostedRunResponse> {
-  return apiPostJson<GcpTier2HostedRunResponse>("/v1/admin/gcp-extractor/hosted/run", body);
+  const normalizedBody: GcpTier2HostedRunBody = {
+    connectionId: trimRequiredText(body.connectionId, "connectionId"),
+    ...optionalHostedRunId(body.runId),
+  };
+
+  return toTier2HostedRunResult(await apiPostJson<unknown>("/v1/admin/gcp-extractor/hosted/run", normalizedBody));
 }

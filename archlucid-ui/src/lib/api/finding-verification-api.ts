@@ -4,6 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { findingVerificationMutationBlockedReason } from "@/lib/findings/finding-verification-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
+import { encodeRequiredPathSegment, trimTextFields } from "./api-boundary-normalization";
 import { apiPostJson } from "./http";
 
 export type CreateFindingVerificationReportRequest =
@@ -19,11 +20,12 @@ export async function postFindingVerificationReport(
   options?: { readonly async?: boolean },
 ): Promise<FindingVerificationReportResponse> {
   const asyncQuery = options?.async ? "?async=true" : "";
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
 
   try {
     return await apiPostJson<FindingVerificationReportResponse>(
-      `/v1/runs/${encodeURIComponent(runId)}/finding-verification${asyncQuery}`,
-      request,
+      `/v1/runs/${encodedRunId}/finding-verification${asyncQuery}`,
+      trimTextFields(request, ["verificationFindingsSnapshotId"]),
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
