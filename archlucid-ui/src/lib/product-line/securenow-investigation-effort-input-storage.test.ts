@@ -63,4 +63,17 @@ describe("securenow-investigation-effort-input-storage", () => {
       annualCost: "5000",
     })).toBe(true);
   });
+
+  it("keeps a worksheet with after-product hours above baseline out of the audit", () => {
+    const fields = {
+      baselineHours: "2",
+      afterHours: "4",
+      annualInvestigations: "10",
+      hourlyRate: "80",
+      annualCost: "5000",
+    };
+
+    expect(isSecureNowInvestigationEffortAuditCandidate(fields)).toBe(false);
+    expect(isSecureNowInvestigationEffortAuditCandidate({ ...fields, afterHours: "2" })).toBe(true);
+  });
 });

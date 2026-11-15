@@ -117,12 +117,16 @@ export function isSecureNowInvestigationEffortFixtureWorksheet(
     && positiveNumber(fields.annualCost) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_COST;
 }
 
-/** Complete positive operator inputs that are not the published fixture worksheet. */
+/** Complete operator inputs eligible for both the ROI preview and audit autosave. */
 export function isSecureNowInvestigationEffortAuditCandidate(
   fields: SecureNowInvestigationEffortInputFields,
 ): boolean {
-  return positiveNumber(fields.baselineHours) !== null
-    && positiveNumber(fields.afterHours) !== null
+  const baseline = positiveNumber(fields.baselineHours);
+  const after = positiveNumber(fields.afterHours);
+
+  return baseline !== null
+    && after !== null
+    && after <= baseline
     && positiveNumber(fields.annualInvestigations) !== null
     && positiveNumber(fields.hourlyRate) !== null
     && positiveNumber(fields.annualCost) !== null
