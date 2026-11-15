@@ -87,7 +87,6 @@ export function useDecisionRegisterPage() {
   const [minConfidence, setMinConfidence] = useState(urlMinConfidence);
   const [maxConfidence, setMaxConfidence] = useState(urlMaxConfidence);
   const [confidenceBasis, setConfidenceBasis] = useState(urlConfidenceBasis);
-  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     setCategory(urlCategory);
@@ -180,10 +179,6 @@ export function useDecisionRegisterPage() {
     };
   }, [recordedAfter, recordedBefore, router, searchParams]);
 
-  const retryLoad = useCallback(() => {
-    setReloadToken((value) => value + 1);
-  }, []);
-
   const filters = useMemo((): ArchitectureDecisionRegisterFilters => {
     const parsed: ArchitectureDecisionRegisterFilters = {};
 
@@ -217,14 +212,13 @@ export function useDecisionRegisterPage() {
   const workspaceQuery = useArchitectureDecisionRegisterQuery(projectId ?? "");
   const filteredQuery = useArchitectureDecisionRegisterQuery(projectId ?? "", filters);
 
-  useEffect(() => {
-    if (reloadToken === 0) {
-      return;
-    }
+  const { refetch: refetchWorkspace } = workspaceQuery;
+  const { refetch: refetchFiltered } = filteredQuery;
 
-    void workspaceQuery.refetch();
-    void filteredQuery.refetch();
-  }, [filteredQuery, reloadToken, workspaceQuery]);
+  const retryLoad = useCallback(() => {
+    void refetchWorkspace();
+    void refetchFiltered();
+  }, [refetchFiltered, refetchWorkspace]);
 
   const workspaceDecisions = useMemo(
     () => [...(workspaceQuery.data?.decisions ?? [])] as ArchitectureDecisionRegisterEntry[],
