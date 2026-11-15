@@ -13,6 +13,25 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class CachingAuditRepositoryInvalidationTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task GetFilteredAsync_with_non_utc_date_bound_bypasses_cache(bool useLowerBound)
+    {
+        CountingAuditRepository inner = new(new InMemoryAuditRepository());
+        CachingAuditRepository repo = new(inner, HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        DateTime bound = new(2026, 3, 20, 12, 0, 0, DateTimeKind.Unspecified);
+        AuditEventFilter filter = useLowerBound ? new() { FromUtc = bound } : new() { ToUtc = bound };
+
+        await repo.GetFilteredAsync(tenantId, workspaceId, projectId, filter, CancellationToken.None);
+        await repo.GetFilteredAsync(tenantId, workspaceId, projectId, filter, CancellationToken.None);
+
+        inner.GetFilteredAsyncCallCount.Should().Be(2);
+    }
+
     [SkippableFact]
     public async Task AppendAsync_refreshes_cached_GetFilteredAsync_first_page()
     {

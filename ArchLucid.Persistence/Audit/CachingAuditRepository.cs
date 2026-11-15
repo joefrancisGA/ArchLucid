@@ -145,6 +145,10 @@ public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadC
         if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
             return false;
 
+        // Storage providers can interpret non-UTC bounds differently from the UTC cache fingerprint.
+        if (filter.FromUtc is { Kind: not DateTimeKind.Utc } || filter.ToUtc is { Kind: not DateTimeKind.Utc })
+            return false;
+
         return true;
     }
 
