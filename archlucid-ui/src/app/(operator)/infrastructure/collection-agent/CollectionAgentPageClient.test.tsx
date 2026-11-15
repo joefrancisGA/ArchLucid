@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -6,6 +7,7 @@ import {
   collectionRunStartedUtcDisplay,
   collectionRunStatusLabel,
 } from "@/app/(operator)/infrastructure/collection-agent/CollectionAgentPageClient";
+import { triggerCollectionRun } from "@/lib/collection-runs-api";
 
 const useCollectionRunsQueryMock = vi.fn();
 const useTriggerCollectionRunMutationMock = vi.fn();
@@ -13,6 +15,10 @@ const useTriggerCollectionRunMutationMock = vi.fn();
 vi.mock("@/hooks/use-collection-runs-query", () => ({
   useCollectionRunsQuery: () => useCollectionRunsQueryMock(),
   useTriggerCollectionRunMutation: () => useTriggerCollectionRunMutationMock(),
+}));
+
+vi.mock("@/lib/collection-runs-api", () => ({
+  triggerCollectionRun: vi.fn(),
 }));
 
 function successfulRun() {
@@ -47,7 +53,7 @@ describe("collection agent omission copy (P-16, P-17)", () => {
     useTriggerCollectionRunMutationMock.mockReturnValue({
       error: null,
       isPending: false,
-      mutateAsync: vi.fn(),
+      mutate: vi.fn(),
     });
     useCollectionRunsQueryMock.mockReturnValue({
       data: [{ ...successfulRun(), importedSnapshotId: "" }],
@@ -69,7 +75,7 @@ describe("CollectionAgentPageClient", () => {
     useTriggerCollectionRunMutationMock.mockReturnValue({
       error: null,
       isPending: false,
-      mutateAsync: vi.fn(),
+      mutate: vi.fn(),
     });
   });
 
@@ -118,22 +124,30 @@ describe("CollectionAgentPageClient", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Collection is running.");
   });
 
-  it("shows trigger failures inline", () => {
+  it("shows a failed Run now request inline and allows a retry", async () => {
     useCollectionRunsQueryMock.mockReturnValue({
       data: [successfulRun()],
       isPending: false,
       isError: false,
     });
-    useTriggerCollectionRunMutationMock.mockReturnValue({
-      error: new Error("Collection is not configured."),
-      isPending: false,
-      mutateAsync: vi.fn(),
-    });
+    const { useTriggerCollectionRunMutation } = await vi.importActual<
+      typeof import("@/hooks/use-collection-runs-query")
+    >("@/hooks/use-collection-runs-query");
+    useTriggerCollectionRunMutationMock.mockImplementation(useTriggerCollectionRunMutation);
+    vi.mocked(triggerCollectionRun).mockRejectedValueOnce(new Error("Collection is not configured."));
 
-    render(<CollectionAgentPageClient />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <CollectionAgentPageClient />
+      </QueryClientProvider>,
+    );
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Collection is not configured.");
-    expect(screen.getByRole("button", { name: "Run now" })).toBeEnabled();
+    const runButton = screen.getByRole("button", { name: "Run now" });
+    fireEvent.click(runButton);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Collection is not configured.");
+    expect(triggerCollectionRun).toHaveBeenCalledOnce();
+    expect(runButton).toBeEnabled();
   });
 
   it("expands a failed run to show its error summary", () => {

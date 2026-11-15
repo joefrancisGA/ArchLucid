@@ -223,7 +223,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
         actions={
           <button
             type="button"
-            onClick={() => void triggerMutation.mutateAsync(crypto.randomUUID())}
+            onClick={() => triggerMutation.mutate(crypto.randomUUID())}
             disabled={triggerMutation.isPending || activeRun !== null}
             className="rounded border border-teal-700 bg-transparent px-3 py-2 text-sm font-medium text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-teal-300 dark:text-teal-200 dark:hover:bg-teal-950"
           >
