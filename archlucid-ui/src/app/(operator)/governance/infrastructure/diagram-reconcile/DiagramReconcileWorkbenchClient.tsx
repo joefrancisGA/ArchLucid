@@ -397,6 +397,8 @@ export function DiagramReconcileWorkbenchClient() {
   const [absentDocumentationDecisions, setAbsentDocumentationDecisions] = useState<
     InfrastructureDiagramDocumentationDecision[]
   >([]);
+  const [documentationDecisionLoadFailed, setDocumentationDecisionLoadFailed] = useState(false);
+  const [documentationDecisionRetryNonce, setDocumentationDecisionRetryNonce] = useState(0);
   const [documentationDecisionPick, setDocumentationDecisionPick] = useState<Record<string, string>>({});
   const [documentationDecisionBusyKey, setDocumentationDecisionBusyKey] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -1013,6 +1015,8 @@ export function DiagramReconcileWorkbenchClient() {
   }, [advisoryComparisonPath, reconciliation, runId, selectedSnapshotId]);
 
   useEffect(() => {
+    setDocumentationDecisionLoadFailed(false);
+
     if (!documentationDecisionAvailable || reconciliation == null) {
       setDocumentationDecisions({});
       setAbsentDocumentationDecisions([]);
@@ -1051,17 +1055,21 @@ export function DiagramReconcileWorkbenchClient() {
                 subject.subjectKind,
                 subject.subjectKey,
               );
-            } catch {
-              return null;
+            } catch (error: unknown) {
+              if (isApiNotFoundFailure(toApiLoadFailure(error))) {
+                return null;
+              }
+
+              throw error;
             }
           }),
         );
-        absent = await fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue).catch(() => []);
+        absent = await fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue);
       } else if (validRunId) {
         const sealedDecisions = await fetchSealedInfrastructureDiagramDocumentationDecisions(
           runId,
           selectedSnapshotId,
-        ).catch(() => []);
+        );
         loaded = sealedDecisions;
         absent = sealedDecisions.filter((decision) => decision.carryForwardState === "NoLongerInCapture");
       }
@@ -1080,7 +1088,13 @@ export function DiagramReconcileWorkbenchClient() {
       setAbsentDocumentationDecisions(absent);
     }
 
-    void loadDocumentationDecisions();
+    void loadDocumentationDecisions().catch(() => {
+      if (!cancelled) {
+        setDocumentationDecisions({});
+        setAbsentDocumentationDecisions([]);
+        setDocumentationDecisionLoadFailed(true);
+      }
+    });
 
     return () => {
       cancelled = true;
@@ -1089,6 +1103,7 @@ export function DiagramReconcileWorkbenchClient() {
     advisoryComparisonPath,
     comparisonId,
     documentationDecisionAvailable,
+    documentationDecisionRetryNonce,
     reconciliation,
     runId,
     selectedSnapshotId,
@@ -1574,6 +1589,24 @@ export function DiagramReconcileWorkbenchClient() {
             })}
           />
         </div>
+      ) : null}
+
+      {documentationDecisionAvailable && documentationDecisionLoadFailed ? (
+        <EnterpriseCompactEmptyState
+          role="alert"
+          title="Could not load documentation decisions."
+          description="You can still inspect the reconciliation."
+          footer={
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              onClick={() => setDocumentationDecisionRetryNonce((value) => value + 1)}
+            >
+              Retry documentation decisions
+            </Button>
+          }
+        />
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (
