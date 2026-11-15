@@ -4,6 +4,32 @@ namespace ArchLucid.Persistence.Tests.Caching;
 public sealed class HotPathReadCacheSingleFlightTests
 {
     [SkippableFact]
+    public async Task CoalesceAsync_active_follower_recovers_after_leader_cancellation()
+    {
+        using CancellationTokenSource leaderCancellation = new();
+        const string key = "cancelled-leader";
+        Task<string> leader = HotPathReadCacheSingleFlight.CoalesceAsync(
+            key,
+            async ct =>
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return "leader";
+            },
+            leaderCancellation.Token);
+        Task<string> follower = HotPathReadCacheSingleFlight.CoalesceAsync(
+            key,
+            _ => Task.FromResult("follower"),
+            CancellationToken.None);
+
+        follower.IsCompleted.Should().BeFalse();
+        await leaderCancellation.CancelAsync();
+
+        Func<Task> awaitLeader = () => leader;
+        await awaitLeader.Should().ThrowAsync<OperationCanceledException>();
+        (await follower.WaitAsync(TimeSpan.FromSeconds(5))).Should().Be("follower");
+    }
+
+    [SkippableFact]
     public async Task CoalesceAsync_concurrent_leaders_invoke_work_once()
     {
         int calls = 0;
