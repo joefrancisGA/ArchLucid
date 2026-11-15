@@ -106,6 +106,9 @@ public sealed class CachingSponsorRoiSummaryServiceTests
 
         SponsorRoiSummaryResponse result = await sut.BuildAsync(CancellationToken.None);
 
+        result.Should().NotBeSameAs(staleCached);
+        staleCached.ExpiringWaiversCount14Days.Should().Be(99);
+        staleCached.StaleArchitectureRiskCount.Should().Be(88);
         result.ExpiringWaiversCount14Days.Should().Be(1);
         result.StaleArchitectureRiskCount.Should().Be(2);
     }

@@ -201,6 +201,15 @@ public sealed class SponsorRoiSummaryResponse
         get;
         set;
     }
+
+    /// <summary>Copies the summary before overlaying request-specific governance counts.</summary>
+    public SponsorRoiSummaryResponse WithGovernanceCounts(int expiringWaiversCount14Days, int staleArchitectureRiskCount)
+    {
+        SponsorRoiSummaryResponse copy = (SponsorRoiSummaryResponse)MemberwiseClone();
+        copy.ExpiringWaiversCount14Days = expiringWaiversCount14Days;
+        copy.StaleArchitectureRiskCount = staleArchitectureRiskCount;
+        return copy;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>
