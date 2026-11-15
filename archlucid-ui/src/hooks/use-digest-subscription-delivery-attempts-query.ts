@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, type QueryStatus } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -27,24 +27,19 @@ export function useDigestSubscriptionDeliveryAttemptsQueries(
         subscriptionId,
         refreshToken,
       ),
-      queryFn: async (): Promise<DigestDeliveryAttempt[]> => {
-        try {
-          return await listSubscriptionDeliveryAttempts(
-            subscriptionId,
-            DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE,
-          );
-        } catch {
-          return [];
-        }
-      },
+      queryFn: () => listSubscriptionDeliveryAttempts(
+        subscriptionId,
+        DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE,
+      ),
       staleTime: OPERATOR_QUERY_STALE_MS,
       gcTime: OPERATOR_QUERY_GC_MS,
       retry: false,
     })),
   });
 
-  const attemptsBySub = useMemo(() => {
-    const next: Record<string, DigestDeliveryAttempt[]> = {};
+  return useMemo(() => {
+    const attemptsBySub: Record<string, DigestDeliveryAttempt[]> = {};
+    const attemptStatusBySub: Record<string, QueryStatus> = {};
 
     for (let index = 0; index < subscriptionIds.length; index++) {
       const subscriptionId = subscriptionIds[index];
@@ -53,11 +48,10 @@ export function useDigestSubscriptionDeliveryAttemptsQueries(
         continue;
       }
 
-      next[subscriptionId] = queries[index]?.data ?? [];
+      attemptsBySub[subscriptionId] = queries[index]?.data ?? [];
+      attemptStatusBySub[subscriptionId] = queries[index]?.status ?? "pending";
     }
 
-    return next;
+    return { attemptsBySub, attemptStatusBySub };
   }, [queries, subscriptionIds]);
-
-  return { attemptsBySub };
 }
