@@ -20,6 +20,7 @@ import {
   type SecureNowInvestigationEffortInputFields,
 } from "@/lib/product-line/securenow-investigation-effort-input-storage";
 import { resolveSecureNowInvestigationEffortResultState } from "@/lib/product-line/securenow-investigation-effort-result-state";
+import { SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE } from "@/lib/product-line/securenow-investigation-effort-operator-roi-discipline-copy";
 import {
   loadSecureNowInvestigationEffortInputs,
   persistSecureNowInvestigationEffortInputsToAudit,
@@ -99,6 +100,12 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
 
       <div className="mt-6 max-w-3xl space-y-6">
         <SecureNowInvestigationEffortScopeLine />
+        <p
+          className={OPERATOR_TYPOGRAPHY.helper}
+          data-testid="securenow-investigation-effort-operator-roi-discipline"
+        >
+          {SECURENOW_INVESTIGATION_EFFORT_OPERATOR_ROI_DISCIPLINE_LINE}
+        </p>
         <section aria-labelledby="securenow-investigation-effort-inputs-heading" className="space-y-3">
           <h2 id="securenow-investigation-effort-inputs-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Entered inputs

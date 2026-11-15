@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 49 (batch 14): Remediation workflow, Ask evidence, and SecureNow ROI discipline
+
+**Outcome.** Remediation workbench states workflow steps do not change Azure. Infrastructure Ask explains insufficient-evidence outcomes. Investigation effort labels operator ROI math as not customer-verified. Self-service names stored path rank until Reader capture.
+
+**Surfaces.** Remediation workbench, Infrastructure Ask, investigation effort, SecureNow self-service.
+
 ## 2026-11-15 - Score lift round 48 (batch 13): Infrastructure snapshot honesty across drift, diagrams, Terraform, and explorer
 
 **Outcome.** Drift, diagrams, Terraform advisory, and resource explorer state they read stored inventory snapshots, not live ARM. Connection status summary strip reminds operators tiles are point-in-time until refresh.
