@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { InfraEvidenceDiffSummary, InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
@@ -35,6 +35,10 @@ function diff(overrides: Partial<InfraEvidenceDiffSummary> = {}): InfraEvidenceD
 }
 
 describe("infra-evidence-drift-diff-filter", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("includes diffs whose other snapshot was captured after the anchor", () => {
     const anchor = snapshot();
     const later = snapshot({
@@ -108,5 +112,25 @@ describe("infra-evidence-drift-diff-filter", () => {
         [anchor, later, earlier],
       ).map((row) => row.diffId),
     ).toEqual(["diff-later"]);
+  });
+
+  it("excludes offset-less snapshots captured before an anchor with an explicit offset", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    const anchor = snapshot({ capturedUtc: "2026-09-01T14:00:00+02:00" });
+    const earlier = snapshot({
+      snapshotId: "22222222-2222-2222-2222-222222222222",
+      capturedUtc: "2026-09-01T11:30:00",
+    });
+
+    expect(isInfraEvidenceDiffCapturedAfterAnchorSnapshot(diff(), anchor, [anchor, earlier])).toBe(false);
+  });
+
+  it("uses UTC for an offset-less diff creation time when the other snapshot is missing", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    const anchor = snapshot({ capturedUtc: "2026-09-01T12:00:00Z" });
+
+    expect(
+      isInfraEvidenceDiffCapturedAfterAnchorSnapshot(diff({ createdUtc: "2026-09-01T11:30:00" }), anchor, [anchor]),
+    ).toBe(false);
   });
 });
