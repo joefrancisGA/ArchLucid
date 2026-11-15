@@ -37,6 +37,15 @@ describe("SN-027 compare entry from architecture desk", () => {
     expect(resolveArchitectureDeskCompareBaseRunId({ reviews })).toBe("review-newer");
   });
 
+  it("uses the later child as the fallback base when timestamps share a second", () => {
+    const sameSecond = [
+      { runId: "later", description: "Later review", createdUtc: "2026-01-02T00:00:00.1Z" },
+      { runId: "prior", description: "Prior review", createdUtc: "2026-01-02T00:00:00Z" },
+    ];
+
+    expect(resolveArchitectureDeskCompareBaseRunId({ reviews: sameSecond })).toBe("later");
+  });
+
   it("Working mode opens nested compare with both sides when two reviews exist", () => {
     const resolution = resolveArchitectureDeskCompareHref({
       architectureId,

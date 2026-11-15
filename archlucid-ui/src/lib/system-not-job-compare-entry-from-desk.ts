@@ -1,6 +1,7 @@
 import { architectureNestedComparePath } from "@/lib/architecture/architecture-routes";
 import {
   resolveArchitectureCompareSiblingDefaults,
+  sortArchitectureReviewsNewestFirst,
   type ArchitectureCompareSiblingDefaults,
 } from "@/lib/architecture/resolve-architecture-compare-defaults";
 import { compareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
@@ -50,9 +51,7 @@ export function resolveArchitectureDeskCompareBaseRunId(
     return latestReviewId;
   }
 
-  const sortedReviews = [...reviews].sort((left, right) =>
-    right.createdUtc.localeCompare(left.createdUtc),
-  );
+  const sortedReviews = sortArchitectureReviewsNewestFirst(reviews);
 
   return sortedReviews[0]?.runId ?? null;
 }
