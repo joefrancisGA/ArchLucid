@@ -11,7 +11,14 @@ public static class WorkloadForecastAccuracy
             (AdvisoryPercentThreshold is not null && AdvisoryPercentThreshold < 0))
             throw new ArgumentOutOfRangeException(nameof(forecast));
         decimal error = Math.Abs(checked(forecast - observed));
-        decimal? percentage = observed == 0 ? null : checked(100m * error / observed);
+        decimal? percentage = null;
+        if (observed != 0)
+        {
+            // Divide first only when scaling the error would overflow the intermediate value.
+            percentage = error > decimal.MaxValue / 100m
+                ? checked(error / observed * 100m)
+                : checked(100m * error / observed);
+        }
         return new(error, percentage, percentage is not null && AdvisoryPercentThreshold is not null &&
             percentage.Value > AdvisoryPercentThreshold.Value);
     }

@@ -58,6 +58,16 @@ public sealed class WorkloadInfrastructureForecastTests
     }
 
     [Fact]
+    public void Forecast_error_avoids_overflow_when_percentage_is_representable()
+    {
+        var result = WorkloadForecastAccuracy.Compare(0m, decimal.MaxValue, 99m);
+
+        result.AbsoluteError.Should().Be(decimal.MaxValue);
+        result.AbsolutePercentageError.Should().Be(100m);
+        result.ThresholdExceeded.Should().BeTrue();
+    }
+
+    [Fact]
     public void Forecast_error_zero_actual_is_not_percentage()
     {
         var result = WorkloadForecastAccuracy.Compare(10m, 0m, 20m);
