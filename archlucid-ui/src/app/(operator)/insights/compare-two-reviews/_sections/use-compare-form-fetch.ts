@@ -44,7 +44,7 @@ export function useCompareFormFetch() {
     setContinueLastPair(readCompareLastComparisonPair());
   }, []);
 
-  const hydratePickedSummariesForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
+  const hydratePickedSummariesForPair = useCallback(async (leftAtStart: string, rightAtStart: string, compareGen: number) => {
     setLeftSummaryBlockedReason(null);
     setRightSummaryBlockedReason(null);
 
@@ -52,6 +52,10 @@ export function useCompareFormFetch() {
       getRunSummary(leftAtStart),
       getRunSummary(rightAtStart),
     ]);
+
+    if (compareGen !== compareGenerationRef.current) {
+      return;
+    }
 
     if (leftOutcome.status === "fulfilled") {
       setLeftPickedSummary(leftOutcome.value);
@@ -122,7 +126,7 @@ export function useCompareFormFetch() {
         setGolden(staticGolden);
         setLoading(false);
         setLastComparedPair({ left: leftAtStart, right: rightAtStart });
-        void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
+        void hydratePickedSummariesForPair(leftAtStart, rightAtStart, gen);
 
         return;
       }
@@ -170,7 +174,7 @@ export function useCompareFormFetch() {
           setLastComparedPair({ left: leftAtStart, right: rightAtStart });
           writeCompareLastComparisonPair({ priorRunId: leftAtStart, laterRunId: rightAtStart });
           setContinueLastPair({ priorRunId: leftAtStart, laterRunId: rightAtStart });
-          void hydratePickedSummariesForPair(leftAtStart, rightAtStart);
+          void hydratePickedSummariesForPair(leftAtStart, rightAtStart, gen);
           void loadComparisonNarrative(leftAtStart, rightAtStart, gen);
         }
       }
