@@ -44,6 +44,7 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
+import { DRIFT_TWO_SNAPSHOTS_STORED_HONESTY_LINE } from "@/lib/infra-evidence/drift-two-snapshots-stored-honesty-copy";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type {
   InfraEvidenceDiffChange,
@@ -1355,6 +1356,10 @@ export function DriftWorkbenchClient() {
         data-testid="infra-drift-primary-content"
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-two-snapshots-stored-honesty">
+          {DRIFT_TWO_SNAPSHOTS_STORED_HONESTY_LINE}
+        </p>
 
         {showResumeLastComparisonRow && validatedResumeLastComparison != null ? (
           <DriftResumeLastComparisonRow onResume={handleResumeLastComparison} />

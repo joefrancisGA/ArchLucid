@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 48 (batch 13): Infrastructure snapshot honesty across drift, diagrams, Terraform, and explorer
+
+**Outcome.** Drift, diagrams, Terraform advisory, and resource explorer state they read stored inventory snapshots, not live ARM. Connection status summary strip reminds operators tiles are point-in-time until refresh.
+
+**Surfaces.** Drift, diagrams, Terraform, resource explorer, connection status readiness strip.
+
 ## 2026-11-15 - Score lift round 47 (batch 12): Cloud pull honesty, snapshot inventory discipline, and home open-gate seal reminder
 
 **Outcome.** Cloud connections hub states that saving federation settings is not a Reader pull. Diagram reconcile and resource hub name snapshot inventory vs live ARM. Working home open-gate line reminds operators to Finalize before treating a package as tenant-sealed.

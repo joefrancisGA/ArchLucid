@@ -29,6 +29,7 @@ import {
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evidence/resources-explorer-snapshot-scope-honesty-copy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
@@ -458,6 +459,10 @@ export function ResourcesExplorerClient() {
           />
         }
       />
+
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-snapshot-scope-honesty">
+        {RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE}
+      </p>
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}
