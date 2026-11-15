@@ -148,7 +148,14 @@ export function TerraformWorkbenchClient() {
   );
   const isUnscoped = urlCloudResourceId.length === 0;
 
-  const [hub, setHub] = useState<CloudResourceEvidenceHubResponse | null>(null);
+  const [loadedHub, setLoadedHub] = useState<{
+    cloudResourceId: string;
+    snapshotId: string;
+    response: CloudResourceEvidenceHubResponse;
+  } | null>(null);
+  const hub = loadedHub?.cloudResourceId === urlCloudResourceId && loadedHub.snapshotId === urlSnapshotId
+    ? loadedHub.response
+    : null;
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [exportBusy, setExportBusy] = useState(false);
@@ -311,7 +318,7 @@ export function TerraformWorkbenchClient() {
 
   useEffect(() => {
     if (urlCloudResourceId.length === 0) {
-      setHub(null);
+      setLoadedHub(null);
       setLoadError(null);
       setLoading(false);
 
@@ -330,11 +337,11 @@ export function TerraformWorkbenchClient() {
         });
 
         if (!cancelled) {
-          setHub(response);
+          setLoadedHub({ cloudResourceId: urlCloudResourceId, snapshotId: urlSnapshotId, response });
         }
       } catch (error: unknown) {
         if (!cancelled) {
-          setHub(null);
+          setLoadedHub(null);
           setLoadError(formatInfraEvidenceHubApiError(error));
         }
       } finally {
