@@ -61,23 +61,41 @@ export async function searchAuditEvents(params: {
   take?: number;
 }): Promise<CursorPagedResponse<AuditEvent>> {
   const query = new URLSearchParams();
-  if (params.cursor) query.set("cursor", params.cursor);
-  if (params.eventType) query.set("eventType", params.eventType);
-  if (params.fromUtc) query.set("fromUtc", params.fromUtc);
-  if (params.toUtc) query.set("toUtc", params.toUtc);
-  if (params.beforeUtc) query.set("beforeUtc", params.beforeUtc);
-  if (params.beforeEventId) query.set("beforeEventId", params.beforeEventId);
-  if (params.correlationId) query.set("correlationId", params.correlationId);
-  if (params.actorUserId) query.set("actorUserId", params.actorUserId);
-  if (params.runId) query.set("runId", params.runId);
-  if (params.take) query.set("take", String(params.take));
+  const setTrimmed = (key: string, value: string | undefined) => {
+    const trimmed = value?.trim() ?? "";
+
+    if (trimmed.length > 0) {
+      query.set(key, trimmed);
+    }
+  };
+
+  setTrimmed("cursor", params.cursor);
+  setTrimmed("eventType", params.eventType);
+  setTrimmed("fromUtc", params.fromUtc);
+  setTrimmed("toUtc", params.toUtc);
+  setTrimmed("beforeUtc", params.beforeUtc);
+  setTrimmed("beforeEventId", params.beforeEventId);
+  setTrimmed("correlationId", params.correlationId);
+  setTrimmed("actorUserId", params.actorUserId);
+  setTrimmed("runId", params.runId);
+
+  if (params.take !== undefined && Number.isFinite(params.take) && params.take >= 1) {
+    query.set("take", String(Math.floor(params.take)));
+  }
   const qs = query.toString();
   return apiGet<CursorPagedResponse<AuditEvent>>(`/v1/audit/search${qs ? `?${qs}` : ""}`);
 }
 
 /** Core registry constants for event-type dropdowns (`GET /v1/audit/event-types`). */
 export async function getAuditEventTypes(): Promise<string[]> {
-  return apiGet<string[]>("/v1/audit/event-types");
+  const raw = await apiGet<unknown>("/v1/audit/event-types");
+
+  return Array.isArray(raw)
+    ? raw
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0)
+    : [];
 }
 
 /**

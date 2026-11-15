@@ -18,8 +18,16 @@ function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
   return {
     connectionId: mapRequired(raw.connectionId),
     snapshotId: mapRequired(raw.snapshotId),
-    status: typeof raw.status === "string" ? raw.status as OperatorInferredConnectionRow["status"] : null,
-    source: typeof raw.source === "string" ? raw.source as OperatorInferredConnectionRow["source"] : null,
+    status: raw.status === "Proposed" || raw.status === "Confirmed" || raw.status === "Dismissed"
+      ? raw.status
+      : typeof raw.status === "string" && raw.status.trim().length > 0
+        ? ""
+        : null,
+    source: raw.source === "upload" || raw.source === "questionnaire"
+      ? raw.source
+      : typeof raw.source === "string" && raw.source.trim().length > 0
+        ? ""
+        : null,
     ruleName: mapOptional(raw.ruleName),
     questionText: mapOptional(raw.questionText),
     fromArmId: mapOptional(raw.fromArmId),
@@ -31,7 +39,7 @@ function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
     toCloudResourceId: mapOptional(raw.toCloudResourceId),
     settingName: mapOptional(raw.settingName),
     sourceFileFormat: mapOptional(raw.sourceFileFormat),
-    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : "DeterministicInference",
+    provenanceKind: mapRequired(raw.provenanceKind),
     createdUtc: mapRequired(raw.createdUtc),
     updatedUtc: mapRequired(raw.updatedUtc),
   };
@@ -76,12 +84,17 @@ export async function confirmOperatorInferredConnection(
   snapshotId: string,
   request: OperatorInferredConnectionConfirmRequest,
 ): Promise<void> {
-  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/confirm`, request);
+  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/confirm`, {
+    ...request,
+    connectionId: request.connectionId.trim(),
+  });
 }
 
 export async function dismissOperatorInferredConnection(
   snapshotId: string,
   request: OperatorInferredConnectionDismissRequest,
 ): Promise<void> {
-  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/dismiss`, request);
+  await proxyJsonPost(`${snapshotBasePath(snapshotId)}/dismiss`, {
+    connectionId: request.connectionId.trim(),
+  });
 }
