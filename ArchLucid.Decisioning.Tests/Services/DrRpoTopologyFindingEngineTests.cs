@@ -11,6 +11,48 @@ namespace ArchLucid.Decisioning.Tests.Services;
 [Trait("Category", "Unit")]
 public sealed class DrRpoTopologyFindingEngineTests
 {
+    [Theory]
+    [InlineData(21, 1)]
+    [InlineData(19, 3)]
+    public async Task AnalyzeAsync_caps_combined_requirement_and_quality_attribute_findings(
+        int requirementCount,
+        int qualityAttributeCount)
+    {
+        GraphSnapshot graph = BuildQualityAttributeFixture(includeFailoverGroup: false);
+        graph.Nodes.RemoveAll(static node => node.NodeType == GraphNodeTypes.QualityAttribute);
+
+        for (int i = 0; i < requirementCount; i++)
+        {
+            graph.Nodes.Add(new GraphNode
+            {
+                NodeId = $"req-dr-{i}",
+                NodeType = GraphNodeTypes.Requirement,
+                Label = "RPO 15 minutes",
+            });
+        }
+
+        for (int i = 0; i < qualityAttributeCount; i++)
+        {
+            graph.Nodes.Add(new GraphNode
+            {
+                NodeId = $"qa-dr-{i}",
+                NodeType = GraphNodeTypes.QualityAttribute,
+                Label = "Availability",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["theme"] = "availability",
+                    ["rtoHours"] = "4",
+                },
+            });
+        }
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().HaveCount(20);
+    }
+
     [Fact]
     public async Task AnalyzeAsync_emits_finding_when_rpo_declared_and_sql_lacks_replica_keys()
     {
