@@ -18,7 +18,7 @@ export function collectSecurityEvidencePathIdsFromAttackPathReport(
   report: SecurityEvidencePathAttackPathReport | null | undefined,
 ): readonly string[] {
   if (report == null) {
-    return [];
+    throw new Error("Capture path report is unavailable.");
   }
 
   const ids = new Set<string>();
