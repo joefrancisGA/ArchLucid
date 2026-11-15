@@ -14,11 +14,13 @@ import {
 
 const answerDraftQuestion = vi.fn();
 const getDraftQuestions = vi.fn();
+const getDraftRequest = vi.fn();
 const reasonDraftRequest = vi.fn();
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
   answerDraftQuestion: (...args: unknown[]) => answerDraftQuestion(...args),
   getDraftQuestions: (...args: unknown[]) => getDraftQuestions(...args),
+  getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
   skipDraftQuestion: vi.fn(),
 }));
 
@@ -39,6 +41,7 @@ describe("useReviewPresenterElicitation (PC-09)", () => {
     queryClient.clear();
     answerDraftQuestion.mockReset();
     getDraftQuestions.mockReset();
+    getDraftRequest.mockReset();
     getDraftQuestions.mockResolvedValue({
       selection: {
         pendingMustQuestions: [
@@ -137,6 +140,36 @@ describe("useReviewPresenterElicitation (PC-09)", () => {
 
     expect(result.current.title).toBe(REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING);
     expect(result.current.title).not.toBe("Ready to finalize");
+  });
+
+  it("moves past answered questions in the full list once no MUST questions remain", async () => {
+    const must = { questionKey: "latency", prompt: "Is latency acceptable?", tier: "Must" };
+    const answeredShould = { questionKey: "recovery", prompt: "Is there a recovery plan?", tier: "Should" };
+    const pendingShould = { questionKey: "ownership", prompt: "Is the owner assigned?", tier: "Should" };
+    getDraftQuestions.mockResolvedValue({
+      selection: {
+        pendingMustQuestions: [],
+        allQuestions: [must, answeredShould, pendingShould],
+        requiredMustQuestionKeys: [],
+      },
+    });
+    getDraftRequest.mockResolvedValue({
+      document: { questionAnswers: { latency: "Yes", Recovery: "Yes" } },
+    });
+
+    const { result } = renderHook(() => useReviewPresenterElicitation("draft-hex"), { wrapper });
+    await waitFor(() => expect(result.current.primaryQuestion?.questionKey).toBe("ownership"));
+
+    answerDraftQuestion.mockResolvedValue({});
+    getDraftRequest.mockResolvedValue({
+      document: { questionAnswers: { latency: "Yes", Recovery: "Yes", ownership: "Yes" } },
+    });
+    await act(async () => {
+      await result.current.confirm();
+    });
+
+    expect(result.current.primaryQuestion).toBeNull();
+    expect(result.current.readyToFinalize).toBe(true);
   });
 
   it("uses failed heading when draft questions cannot load", async () => {
