@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { SignedRecordsListDateRangePreset } from "@/lib/signed-records/signed-records-list-date-range-url";
 
 import type { SignedRecordsListIntegrityFilter } from "./SignedRecordsListToolbar";
@@ -13,7 +14,7 @@ function rowMatchesDateRange(
   const to = customToUtc.trim();
 
   if (from.length > 0 || to.length > 0) {
-    const committedMs = Date.parse(row.committedUtc);
+    const committedMs = parseIsoUtcMs(row.committedUtc);
 
     if (Number.isNaN(committedMs)) {
       return false;
@@ -42,7 +43,7 @@ function rowMatchesDateRange(
     return true;
   }
 
-  const committedMs = Date.parse(row.committedUtc);
+  const committedMs = parseIsoUtcMs(row.committedUtc);
 
   if (Number.isNaN(committedMs)) {
     return false;
