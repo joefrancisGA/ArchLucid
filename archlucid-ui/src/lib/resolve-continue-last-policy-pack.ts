@@ -7,6 +7,7 @@ import {
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
+import { sortPolicyPacksByRecency } from "@/lib/policy/sort-policy-packs-by-recency";
 import type { PolicyPack } from "@/types/policy-packs";
 
 const POLICY_PACKS_HUB_PATHS = [
@@ -67,10 +68,6 @@ function readRecentPolicyPackView(): { readonly policyPackId: string; readonly v
   return null;
 }
 
-function policyPackRecencyUtc(pack: PolicyPack): string {
-  return pack.activatedUtc ?? pack.createdUtc;
-}
-
 /** Resolves the policy pack to pin as Continue last viewed on the packs hub. */
 export function resolveContinueLastPolicyPackDetail(packs: unknown): ResolvedContinueLastPolicyPack | null {
   const normalizedPacks = asNonemptyReadonlyArray<PolicyPack>(packs);
@@ -104,10 +101,7 @@ export function resolveContinueLastPolicyPackDetail(packs: unknown): ResolvedCon
     }
   }
 
-  const fallbackPack =
-    validPacks
-      .slice()
-      .sort((left, right) => policyPackRecencyUtc(right).localeCompare(policyPackRecencyUtc(left)))[0] ?? null;
+  const fallbackPack = sortPolicyPacksByRecency(validPacks)[0] ?? null;
 
   if (fallbackPack === null) {
     return null;

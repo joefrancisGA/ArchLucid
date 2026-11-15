@@ -1,4 +1,5 @@
 import { policyPackDetailHref } from "@/lib/policy/policy-packs-deep-link";
+import { sortPolicyPacksByRecency } from "@/lib/policy/sort-policy-packs-by-recency";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPackDetailNextPackTarget = {
@@ -6,10 +7,6 @@ export type PolicyPackDetailNextPackTarget = {
   readonly name: string;
   readonly href: string;
 };
-
-function policyPackRecencyUtc(pack: PolicyPack): string {
-  return pack.activatedUtc ?? pack.createdUtc;
-}
 
 /** Next policy pack in workspace list order after the current pack id. */
 export function resolveNextPolicyPackInList(
@@ -19,9 +16,7 @@ export function resolveNextPolicyPackInList(
   hubPath?: string,
 ): PolicyPackDetailNextPackTarget | null {
   const normalizedCurrentId = currentPolicyPackId.trim();
-  const sorted = [...packs].sort((left, right) =>
-    policyPackRecencyUtc(right).localeCompare(policyPackRecencyUtc(left)),
-  );
+  const sorted = sortPolicyPacksByRecency(packs);
   const currentIndex = sorted.findIndex((pack) => pack.policyPackId === normalizedCurrentId);
 
   if (currentIndex < 0) {
