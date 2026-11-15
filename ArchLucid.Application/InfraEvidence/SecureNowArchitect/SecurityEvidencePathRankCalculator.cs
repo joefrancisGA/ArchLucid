@@ -221,12 +221,16 @@ public static class SecurityEvidencePathRankCalculator
                 return SecurityEvidencePathRankConstants.DefaultWeights();
             }
 
+            IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal> defaults =
+                SecurityEvidencePathRankConstants.DefaultWeights();
+
             Dictionary<SecurityEvidencePathRankDimension, decimal> resolved = new();
 
             foreach (KeyValuePair<string, decimal> entry in parsed)
             {
 
-                if (Enum.TryParse(entry.Key, ignoreCase: true, out SecurityEvidencePathRankDimension dimension))
+                if (Enum.TryParse(entry.Key, ignoreCase: true, out SecurityEvidencePathRankDimension dimension)
+                    && defaults.ContainsKey(dimension))
                 {
                     resolved[dimension] = entry.Value;
                 }
@@ -234,11 +238,8 @@ public static class SecurityEvidencePathRankCalculator
 
             if (resolved.Count == 0)
             {
-                return SecurityEvidencePathRankConstants.DefaultWeights();
+                return defaults;
             }
-
-            IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal> defaults =
-                SecurityEvidencePathRankConstants.DefaultWeights();
 
             foreach (KeyValuePair<SecurityEvidencePathRankDimension, decimal> fallback in defaults)
             {
@@ -247,6 +248,18 @@ public static class SecurityEvidencePathRankCalculator
                 {
                     resolved[fallback.Key] = fallback.Value;
                 }
+            }
+
+            // CompositeSortScore is persisted as DECIMAL(6, 3). Bound the worst-case
+            // sum before multiplying, even when an individual weight is near decimal.MaxValue.
+            decimal remainingWeight = 999.999m / SecurityEvidencePathRankConstants.DimensionCap;
+            foreach (decimal weight in resolved.Values)
+            {
+                decimal magnitude = Math.Abs(weight);
+                if (magnitude > remainingWeight)
+                    return defaults;
+
+                remainingWeight -= magnitude;
             }
 
             return resolved;

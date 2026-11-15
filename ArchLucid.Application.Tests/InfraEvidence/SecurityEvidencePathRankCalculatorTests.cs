@@ -18,6 +18,25 @@ public sealed class SecurityEvidencePathRankCalculatorTests
     private static readonly Guid LowPathId = Guid.Parse("e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5");
     private static readonly Guid CrownJewelAssertionId = Guid.Parse("f6f6f6f6-f6f6-f6f6-f6f6-f6f6f6f6f6f6");
 
+    [Theory]
+    [InlineData("{\"ConfidenceBand\":79228162514264337593543950335}")]
+    [InlineData("{\"TechnicalExposure\":130,\"ConfidenceBand\":130}")]
+    public void ParseWeightsJson_uses_defaults_when_composite_could_exceed_storage_range(string json)
+    {
+        SecurityEvidencePathRankCalculator.ParseWeightsJson(json)
+            .Should().BeEquivalentTo(SecurityEvidencePathRankConstants.DefaultWeights());
+    }
+
+    [Fact]
+    public void ParseWeightsJson_preserves_custom_weight_and_fills_missing_defaults()
+    {
+        IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal> weights =
+            SecurityEvidencePathRankCalculator.ParseWeightsJson("{\"ConfidenceBand\":0.75}");
+
+        weights[SecurityEvidencePathRankDimension.ConfidenceBand].Should().Be(0.75m);
+        weights[SecurityEvidencePathRankDimension.TechnicalExposure].Should().Be(0.25m);
+    }
+
     [Fact]
     public void Evaluate_identical_technical_paths_without_phi_assertion_do_not_collapse_to_last()
     {
