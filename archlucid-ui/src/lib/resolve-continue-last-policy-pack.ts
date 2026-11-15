@@ -1,10 +1,19 @@
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_POLICY_PACKS_PATH,
+  LEGACY_POLICY_PACKS_PATH,
+  pathMatchesRoutePrefix,
+  SECURENOW_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
 
-const POLICY_PACKS_DETAIL_PREFIX = `${GOVERNANCE_POLICY_PACKS_PATH}/`;
+const POLICY_PACKS_HUB_PATHS = [
+  GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  LEGACY_POLICY_PACKS_PATH,
+];
 
 export type ContinueLastPolicyPackSource = "recent-view" | "recency-fallback";
 
@@ -15,25 +24,18 @@ export type ResolvedContinueLastPolicyPack = {
 };
 
 function policyPackIdFromRecentHref(href: string): string | null {
-  const queryIndex = href.indexOf("?");
+  const [path = "", query = ""] = href.split("?", 2);
+  const hubPath = POLICY_PACKS_HUB_PATHS.find((hub) => pathMatchesRoutePrefix(path, hub));
 
-  if (queryIndex >= 0) {
-    const search = href.slice(queryIndex);
-    const params = new URLSearchParams(search);
-    const packId = params.get(POLICY_PACK_ID_QUERY_PARAM);
-
-    if (packId !== null && packId.trim().length > 0) {
-      return packId.trim();
-    }
-  }
-
-  const path = href.split("?")[0] ?? "";
-
-  if (!path.startsWith(POLICY_PACKS_DETAIL_PREFIX)) {
+  if (hubPath === undefined) {
     return null;
   }
 
-  const remainder = path.slice(POLICY_PACKS_DETAIL_PREFIX.length).trim();
+  if (path === hubPath) {
+    return new URLSearchParams(query).get(POLICY_PACK_ID_QUERY_PARAM)?.trim() || null;
+  }
+
+  const remainder = path.slice(hubPath.length + 1).trim();
 
   if (remainder.length === 0 || remainder.includes("/")) {
     return null;
