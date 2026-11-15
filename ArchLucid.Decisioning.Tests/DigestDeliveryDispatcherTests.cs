@@ -1,4 +1,5 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Advisory;
@@ -84,7 +85,7 @@ public sealed class DigestDeliveryDispatcherTests
             .Returns(Task.CompletedTask);
 
         subscriptions
-            .Setup(x => x.UpdateAsync(It.IsAny<DigestSubscription>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.RecordDeliveryAsync(subscription, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IDigestDeliveryChannel> channel = new();
@@ -113,7 +114,54 @@ public sealed class DigestDeliveryDispatcherTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.DigestDeliverySucceeded),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        subscriptions.Verify(x => x.UpdateAsync(It.IsAny<DigestSubscription>(), It.IsAny<CancellationToken>()), Times.Once);
+        subscriptions.Verify(x => x.RecordDeliveryAsync(subscription, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeliverAsync_PreservesSubscriptionSettingsChangedDuringSend()
+    {
+        ArchitectureDigest digest = CreateDigest();
+        DigestSubscription original = new()
+        {
+            TenantId = digest.TenantId,
+            WorkspaceId = digest.WorkspaceId,
+            ProjectId = digest.ProjectId,
+            ChannelType = DigestDeliveryChannelType.Email,
+            Destination = "old@example.com",
+        };
+        DigestSubscription updated = new()
+        {
+            SubscriptionId = original.SubscriptionId,
+            TenantId = original.TenantId,
+            WorkspaceId = original.WorkspaceId,
+            ProjectId = original.ProjectId,
+            ChannelType = original.ChannelType,
+            Destination = "new@example.com",
+            IsEnabled = false,
+        };
+        InMemoryDigestSubscriptionRepository subscriptions = new();
+        await subscriptions.CreateAsync(original, CancellationToken.None);
+        Mock<IDigestDeliveryChannel> channel = new();
+        channel.Setup(x => x.ChannelType).Returns(DigestDeliveryChannelType.Email);
+        channel.Setup(x => x.SendAsync(It.IsAny<DigestDeliveryPayload>(), It.IsAny<CancellationToken>()))
+            .Returns((DigestDeliveryPayload _, CancellationToken ct) => subscriptions.UpdateAsync(updated, ct));
+        DigestDeliveryDispatcher sut = CreateSut([channel.Object], subscriptions,
+            new InMemoryDigestDeliveryAttemptRepository(), Mock.Of<IAuditService>());
+
+        await sut.DeliverAsync(digest, CancellationToken.None);
+
+        ScopeContext scope = new()
+        {
+            TenantId = original.TenantId,
+            WorkspaceId = original.WorkspaceId,
+            ProjectId = original.ProjectId,
+        };
+        DigestSubscription? stored =
+            await subscriptions.GetByIdAsync(scope, original.SubscriptionId, CancellationToken.None);
+        stored.Should().NotBeNull();
+        stored!.IsEnabled.Should().BeFalse();
+        stored.Destination.Should().Be(updated.Destination);
+        stored.LastDeliveredUtc.Should().NotBeNull();
     }
 
     [Fact]
