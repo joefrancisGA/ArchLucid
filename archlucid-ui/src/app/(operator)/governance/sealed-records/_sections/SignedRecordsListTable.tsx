@@ -18,6 +18,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import {
   parseSignedRecordsListSortAscFromSearch,
   parseSignedRecordsListSortKeyFromSearch,
@@ -82,8 +83,8 @@ function compareSignedRecordsListRows(
   let result = 0;
 
   if (sortKey === "committedUtc") {
-    const leftTime = Date.parse(left.committedUtc.trim());
-    const rightTime = Date.parse(right.committedUtc.trim());
+    const leftTime = parseIsoUtcMs(left.committedUtc);
+    const rightTime = parseIsoUtcMs(right.committedUtc);
     const leftValue = Number.isNaN(leftTime) ? 0 : leftTime;
     const rightValue = Number.isNaN(rightTime) ? 0 : rightTime;
     result = leftValue - rightValue;
