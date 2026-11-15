@@ -50,4 +50,31 @@ public sealed class CachingDraftRequestRepositoryTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task HardDeleteTerminalDraftsBatchAsync_evicts_deleted_draft_from_scoped_cache()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        InMemoryDraftRequestRepository inner = new();
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions());
+        CachingDraftRequestRepository repo = new(inner, hotPath);
+        DraftRequestDocument document = new() { FreeTextIntent = "Test draft" };
+
+        DraftRequestResponse draft = await inner.CreateAsync(
+            tenantId, workspaceId, projectId, "operator", document, CancellationToken.None);
+        await inner.UpdateAsync(
+            tenantId, workspaceId, projectId, draft.DraftId, DraftRequestStatus.Abandoned,
+            document, null, null, CancellationToken.None);
+        (await repo.GetAsync(tenantId, workspaceId, projectId, draft.DraftId, CancellationToken.None))
+            .Should().NotBeNull();
+
+        DraftIntakeReaperBatchResult batch = await repo.HardDeleteTerminalDraftsBatchAsync(
+            DateTimeOffset.UtcNow.AddDays(1), 10, CancellationToken.None);
+
+        batch.DeletedDraftIds.Should().Equal(draft.DraftId);
+        (await repo.GetAsync(tenantId, workspaceId, projectId, draft.DraftId, CancellationToken.None))
+            .Should().BeNull();
+    }
 }

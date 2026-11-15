@@ -197,21 +197,24 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
 
         const string sql = """
                            DELETE TOP (@BatchSize) dr
-                           OUTPUT DELETED.DraftId
+                           OUTPUT DELETED.DraftId, DELETED.TenantId, DELETED.WorkspaceId, DELETED.ProjectId
                            FROM dbo.DraftRequests dr
                            WHERE dr.Status IN (N'Redirected', N'Abandoned')
                              AND dr.UpdatedUtc < @UpdatedBeforeUtc;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<Guid> deleted = await connection.QueryAsync<Guid>(
+        IEnumerable<DraftIntakeReapedDraft> deleted = await connection.QueryAsync<DraftIntakeReapedDraft>(
             new CommandDefinition(
                 sql,
                 new { BatchSize = effectiveBatchSize, UpdatedBeforeUtc = cutoff },
                 cancellationToken: cancellationToken));
 
-        List<Guid> deletedDraftIds = deleted.ToList();
-
-        return new DraftIntakeReaperBatchResult { DeletedDraftIds = deletedDraftIds };
+        List<DraftIntakeReapedDraft> deletedDrafts = deleted.AsList();
+        return new DraftIntakeReaperBatchResult
+        {
+            DeletedDraftIds = deletedDrafts.Select(draft => draft.DraftId).ToList(),
+            DeletedDrafts = deletedDrafts,
+        };
     }
 }
