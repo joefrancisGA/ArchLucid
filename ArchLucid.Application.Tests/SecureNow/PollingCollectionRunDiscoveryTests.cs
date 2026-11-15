@@ -502,6 +502,15 @@ public sealed class PollingCollectionRunDiscoveryTests
         int imported = await discovery.DiscoverAsync(CancellationToken.None);
 
         imported.Should().Be(1);
+        azureIngest.Verify(
+            i => i.IngestZipBytesAsync(
+                goodArtifact.ZipBytes,
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<string?>(),
+                It.IsAny<long>()),
+            Times.Once);
         azureIngest.Invocations.Count.Should().Be(1);
     }
 
