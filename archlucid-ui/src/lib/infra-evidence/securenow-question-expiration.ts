@@ -1,3 +1,5 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
+
 /**
  * Whether a listed question should be treated as expired for queue chrome.
  * List payloads may carry a stale `isExpired: false` while `expirationUtc` is already in the past.
@@ -20,7 +22,7 @@ export function secureNowQuestionShowsExpired(
     return false;
   }
 
-  const parsed = Date.parse(trimmed);
+  const parsed = parseIsoUtcMs(trimmed);
   if (Number.isNaN(parsed)) {
     return false;
   }
@@ -46,7 +48,7 @@ export function secureNowQuestionDispositionPostExpirationContradicts(
     return true;
   }
 
-  const parsed = Date.parse(trimmed);
+  const parsed = parseIsoUtcMs(trimmed);
   if (Number.isNaN(parsed)) {
     return true;
   }
@@ -73,7 +75,7 @@ export function secureNowQuestionDispositionPostExpirationUnderReports(
     return false;
   }
 
-  const parsed = Date.parse(trimmed);
+  const parsed = parseIsoUtcMs(trimmed);
   if (Number.isNaN(parsed)) {
     return false;
   }
@@ -90,7 +92,7 @@ export function secureNowQuestionDispositionPostExpirationTimestampUnparsable(
     return false;
   }
 
-  return Number.isNaN(Date.parse(trimmed));
+  return Number.isNaN(parseIsoUtcMs(trimmed));
 }
 
 /**
