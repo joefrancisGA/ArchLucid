@@ -54,6 +54,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
 
   const {
     data: prefetchedThreads,
+    error: threadListError,
     isError: threadsQueryError,
     isFetching: threadsQueryFetching,
     refetch: refetchThreads,
@@ -89,34 +90,20 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   );
 
   const loadThreads = useCallback(async () => {
-    setListFailure(null);
-
-    try {
-      const result = await refetchThreads();
-      const data = result.data ?? [];
-      applyThreadList(data);
-    } catch (e) {
-      if (applyDemoSeedIfAvailable()) {
-        return;
-      }
-
-      setListFailure(toApiLoadFailure(e));
-    }
-  }, [applyDemoSeedIfAvailable, applyThreadList, refetchThreads]);
+    await refetchThreads();
+  }, [refetchThreads]);
 
   useEffect(() => {
-    if (prefetchedThreads === undefined) {
-      return;
-    }
-
     if (threadsQueryError) {
-      applyDemoSeedIfAvailable();
-
+      setListFailure(applyDemoSeedIfAvailable() ? null : toApiLoadFailure(threadListError));
       return;
     }
 
-    applyThreadList(prefetchedThreads);
-  }, [applyDemoSeedIfAvailable, applyThreadList, prefetchedThreads, threadsQueryError]);
+    if (prefetchedThreads !== undefined) {
+      setListFailure(null);
+      applyThreadList(prefetchedThreads);
+    }
+  }, [applyDemoSeedIfAvailable, applyThreadList, prefetchedThreads, threadListError, threadsQueryError]);
 
   const loadMessages = useCallback(async (threadId: string) => {
     setActionFailure(null);
