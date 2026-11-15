@@ -41,6 +41,20 @@ public sealed class ApiPagingTests
         error.Should().NotBeNullOrEmpty();
     }
 
+    [Theory]
+    [InlineData(-1L)]
+    [InlineData(3155378976000000000L)]
+    public void TryParseUtcTicksIdCursor_out_of_range_ticks_return_validation_error(long ticks)
+    {
+        bool ok = ApiPaging.TryParseUtcTicksIdCursor(
+            $"{ticks}:rec-42", out DateTime? createdUtc, out string? id, out string? error);
+
+        ok.Should().BeFalse();
+        createdUtc.Should().BeNull();
+        id.Should().BeNull();
+        error.Should().NotBeNullOrEmpty();
+    }
+
     [SkippableFact]
     public void TryParseUtcTicksIdCursor_valid_cursor_round_trips()
     {
