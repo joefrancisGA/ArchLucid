@@ -1,5 +1,6 @@
 import type { CreateArchitectureRunRequestPayload } from "./architecture-runs";
 import { apiPostJson } from "./http";
+import { trimOptionalText } from "./api-boundary-normalization";
 
 export type ConnectorIntakeSource = "terraform-show-json" | "git-terraform";
 
@@ -23,11 +24,17 @@ export async function parseConnectorIntake(
 ): Promise<ConnectorIntakeArchitectureRequest> {
   return apiPostJson<ConnectorIntakeArchitectureRequest>("/v1/architecture/connector-intake", {
     source: input.source,
-    terraformShowJson: input.terraformShowJson,
-    gitRepositoryUrl: input.gitRepositoryUrl,
-    gitBranch: input.gitBranch,
-    gitTerraformPath: input.gitTerraformPath,
-    systemName: input.systemName,
-    description: input.description,
+    ...(trimOptionalText(input.terraformShowJson) !== undefined
+      ? { terraformShowJson: trimOptionalText(input.terraformShowJson) }
+      : {}),
+    ...(trimOptionalText(input.gitRepositoryUrl) !== undefined
+      ? { gitRepositoryUrl: trimOptionalText(input.gitRepositoryUrl) }
+      : {}),
+    ...(trimOptionalText(input.gitBranch) !== undefined ? { gitBranch: trimOptionalText(input.gitBranch) } : {}),
+    ...(trimOptionalText(input.gitTerraformPath) !== undefined
+      ? { gitTerraformPath: trimOptionalText(input.gitTerraformPath) }
+      : {}),
+    ...(trimOptionalText(input.systemName) !== undefined ? { systemName: trimOptionalText(input.systemName) } : {}),
+    ...(trimOptionalText(input.description) !== undefined ? { description: trimOptionalText(input.description) } : {}),
   });
 }

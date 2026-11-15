@@ -5,6 +5,7 @@ import { findingAskBlockedReason } from "@/lib/findings/finding-ask-blocked-reas
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiPostJson } from "./http";
+import { trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 /** Body for POST /v1/architecture/finding/{findingId}/ask. */
 export type FindingAskRequestPayload = {
@@ -28,13 +29,14 @@ export async function askAboutFinding(
   findingId: string,
   payload: FindingAskRequestPayload,
 ): Promise<AskResponse> {
-  const routeId = findingIdForAskRoute(findingId);
+  const routeId = trimRequiredPathSegment(findingIdForAskRoute(findingId), "findingId");
   const body: Record<string, unknown> = {
-    question: payload.question,
+    question: trimRequiredPathSegment(payload.question, "question"),
   };
+  const threadId = trimOptionalText(payload.threadId);
 
-  if (payload.threadId !== undefined && payload.threadId.trim().length > 0) {
-    body.threadId = payload.threadId.trim();
+  if (threadId !== undefined) {
+    body.threadId = threadId;
   }
 
   try {

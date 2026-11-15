@@ -18,20 +18,27 @@ import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { advisoryRunReadBlockedReason } from "@/lib/advisory/advisory-run-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  encodeRequiredPathSegment,
+  isRecord,
+  positiveIntegerOrDefault,
+  trimOptionalText,
+} from "./api-boundary-normalization";
 
 /** Generates an AI-driven improvement plan for a run, optionally compared to another run. */
 export async function getImprovementPlan(runId: string, compareToRunId?: string): Promise<ImprovementPlan> {
   const params = new URLSearchParams();
+  const normalizedCompareToRunId = trimOptionalText(compareToRunId);
 
-  if (compareToRunId?.trim()) {
-    params.set("compareToRunId", compareToRunId.trim());
+  if (normalizedCompareToRunId !== undefined) {
+    params.set("compareToRunId", normalizedCompareToRunId);
   }
 
   const q = params.toString();
 
   try {
     return await apiGetSealedManifestAware<ImprovementPlan>(
-      `/v1/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
+      `/v1/advisory/runs/${encodeRequiredPathSegment(runId, "runId")}/improvements${q ? `?${q}` : ""}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -57,7 +64,13 @@ export async function getLatestLearningProfile(): Promise<LearningProfile | null
     throwApiRequestError(response, text);
   }
 
-  return JSON.parse(text) as LearningProfile;
+  const parsed: unknown = JSON.parse(text);
+
+  if (!isRecord(parsed) || typeof parsed.generatedUtc !== "string") {
+    throw new Error("Learning profile response was not recognized.");
+  }
+
+  return parsed as LearningProfile;
 }
 
 /** Optional `since` filter (ISO 8601) appended to product-learning GETs; omit for all-time scope. */
@@ -88,7 +101,7 @@ function learningMaxQuery(param: "maxThemes" | "maxPlans", value: number | undef
     return "";
   }
 
-  return `?${param}=${encodeURIComponent(String(value))}`;
+  return `?${param}=${encodeURIComponent(String(positiveIntegerOrDefault(value, 20)))}`;
 }
 
 /** Lists improvement themes for the current scope (newest first). */
@@ -108,8 +121,9 @@ export async function fetchLearningPlans(
 
 /** Loads one improvement plan with steps, link counts, and optional parent theme. */
 export async function fetchLearningPlanDetail(planId: string): Promise<LearningPlanDetailResponse> {
-  const id = planId.trim();
-  return apiGetSealedManifestAware<LearningPlanDetailResponse>(`/${ApiV1Routes.learning}/plans/${encodeURIComponent(id)}`);
+  return apiGetSealedManifestAware<LearningPlanDetailResponse>(
+    `/${ApiV1Routes.learning}/plans/${encodeRequiredPathSegment(planId, "planId")}`,
+  );
 }
 
 /** Aggregated planning KPIs for the current scope. */
@@ -119,10 +133,11 @@ export async function fetchLearningSummary(options?: {
 }): Promise<LearningSummaryResponse> {
   const params = new URLSearchParams();
   if (options?.maxThemes !== undefined) {
-    params.set("maxThemes", String(options.maxThemes));
+    params.set("maxThemes", String(positiveIntegerOrDefault(options.maxThemes, 20)));
   }
+
   if (options?.maxPlans !== undefined) {
-    params.set("maxPlans", String(options.maxPlans));
+    params.set("maxPlans", String(positiveIntegerOrDefault(options.maxPlans, 20)));
   }
 
   const q = params.toString();
@@ -144,10 +159,11 @@ export async function fetchLearningPlanningListBundle(options?: {
 }> {
   const params = new URLSearchParams();
   if (options?.maxThemes !== undefined) {
-    params.set("maxThemes", String(options.maxThemes));
+    params.set("maxThemes", String(positiveIntegerOrDefault(options.maxThemes, 20)));
   }
+
   if (options?.maxPlans !== undefined) {
-    params.set("maxPlans", String(options.maxPlans));
+    params.set("maxPlans", String(positiveIntegerOrDefault(options.maxPlans, 20)));
   }
 
   const q = params.toString();
@@ -158,23 +174,24 @@ export async function fetchLearningPlanningListBundle(options?: {
 
 /** Lists 60R evolution candidate change sets for the current scope (newest first server-side). */
 export async function fetchEvolutionCandidates(max?: number): Promise<EvolutionCandidateChangeSetListResponse> {
-  const q = max !== undefined ? `?max=${encodeURIComponent(String(max))}` : "";
+  const q = max !== undefined ? `?max=${encodeURIComponent(String(positiveIntegerOrDefault(max, 20)))}` : "";
 
   return apiGetSealedManifestAware<EvolutionCandidateChangeSetListResponse>(`/${ApiV1Routes.evolution}/candidates${q}`);
 }
 
 /** Loads candidate, plan snapshot JSON, and simulation runs with parsed evaluation fields. */
 export async function fetchEvolutionResults(candidateId: string): Promise<EvolutionResultsResponse> {
-  const id = candidateId.trim();
-
-  return apiGetSealedManifestAware<EvolutionResultsResponse>(`/${ApiV1Routes.evolution}/results/${encodeURIComponent(id)}`);
+  return apiGetSealedManifestAware<EvolutionResultsResponse>(
+    `/${ApiV1Routes.evolution}/results/${encodeRequiredPathSegment(candidateId, "candidateId")}`,
+  );
 }
 
 /**
  * Re-runs simulation for the candidate (replaces prior rows). Requires operator access; may return 403.
  */
 export async function postEvolutionSimulate(candidateId: string): Promise<EvolutionSimulateResponse> {
-  const id = candidateId.trim();
-
-  return apiPostJson<EvolutionSimulateResponse>(`/${ApiV1Routes.evolution}/simulate/${encodeURIComponent(id)}`, {});
+  return apiPostJson<EvolutionSimulateResponse>(
+    `/${ApiV1Routes.evolution}/simulate/${encodeRequiredPathSegment(candidateId, "candidateId")}`,
+    {},
+  );
 }

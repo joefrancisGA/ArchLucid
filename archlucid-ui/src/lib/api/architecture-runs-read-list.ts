@@ -18,6 +18,12 @@ import {
   apiGet,
   apiPostJson,
 } from "./http";
+import {
+  encodeRequiredPathSegment,
+  recordsOnly,
+  trimOptionalText,
+  trimRequiredPathSegment,
+} from "./api-boundary-normalization";
 import type {
   RunOperatorGovernanceDispositionRequest,
   RunOperatorGovernanceDispositionResponse,
@@ -30,7 +36,7 @@ export async function getArchitectureRequest(
 ): Promise<components["schemas"]["ArchitectureRequest"]> {
   try {
     return await apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
-      `/v1/architecture/request/${encodeURIComponent(requestId)}`,
+      `/v1/architecture/request/${encodeRequiredPathSegment(requestId, "requestId")}`,
       options,
     );
   } catch (error: unknown) {
@@ -46,12 +52,14 @@ export async function getRunSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunSummary> {
-  if (!isLiveAuthorityRunId(runId)) {
-    throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
+  if (!isLiveAuthorityRunId(normalizedRunId)) {
+    throw new Error(`Run id "${normalizedRunId}" is not a live authority key.`);
   }
 
   try {
-    return await apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
+    return await apiGet<RunSummary>(`/v1/authority/reviews/${encodeURIComponent(normalizedRunId)}/summary`, options);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = runSummaryBlockedReason(failure);
@@ -66,7 +74,11 @@ export async function getBuyerRunDetailSummary(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ApiResponseWithTrace<RunDetail>> {
   try {
-    const data = await apiGet<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options);
+    const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+    const data = await apiGet<RunDetail>(
+      `/v1/authority/reviews/${encodeURIComponent(normalizedRunId)}/buyer-summary`,
+      options,
+    );
 
     return { data, traceId: null };
   } catch (error: unknown) {
@@ -82,10 +94,15 @@ export async function recordRunOperatorGovernanceDisposition(
   runId: string,
   body: RunOperatorGovernanceDispositionRequest,
 ): Promise<RunOperatorGovernanceDispositionResponse> {
+  const request = {
+    decision: body.decision,
+    rationale: trimOptionalText(body.rationale ?? undefined) ?? null,
+  };
+
   try {
     return await apiPostJson<RunOperatorGovernanceDispositionResponse>(
-      `/v1/authority/reviews/${encodeURIComponent(runId)}/disposition`,
-      body,
+      `/v1/authority/reviews/${encodeRequiredPathSegment(runId, "runId")}/disposition`,
+      request,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -98,9 +115,9 @@ export async function recordRunOperatorGovernanceDisposition(
 /** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */
 export async function getRunStageTimeline(runId: string): Promise<StageTimelineSummary[]> {
   try {
-    return await apiGetSealedManifestAware<StageTimelineSummary[]>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/stage-timeline`,
-    );
+    return recordsOnly<StageTimelineSummary>(await apiGetSealedManifestAware<unknown>(
+      `/v1/architecture/review/${encodeRequiredPathSegment(runId, "runId")}/stage-timeline`,
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = runPipelineTimelineBlockedReason(failure);
@@ -112,9 +129,9 @@ export async function getRunStageTimeline(runId: string): Promise<StageTimelineS
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
   try {
-    return await apiGetSealedManifestAware<PipelineTimelineItem[]>(
-      `/v1/authority/reviews/${runId}/pipeline-timeline`,
-    );
+    return recordsOnly<PipelineTimelineItem>(await apiGetSealedManifestAware<unknown>(
+      `/v1/authority/reviews/${encodeRequiredPathSegment(runId, "runId")}/pipeline-timeline`,
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = runPipelineTimelineBlockedReason(failure);
@@ -126,9 +143,9 @@ export async function getRunPipelineTimeline(runId: string): Promise<PipelineTim
 /** Canonical product review-trail list (`GET /v1/runs/{runId}/review-trail`). */
 export async function getReviewTrail(runId: string): Promise<PipelineTimelineItem[]> {
   try {
-    return await apiGetSealedManifestAware<PipelineTimelineItem[]>(
-      `/v1/runs/${encodeURIComponent(runId)}/review-trail`,
-    );
+    return recordsOnly<PipelineTimelineItem>(await apiGetSealedManifestAware<unknown>(
+      `/v1/runs/${encodeRequiredPathSegment(runId, "runId")}/review-trail`,
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = runReviewTrailBlockedReason(failure);

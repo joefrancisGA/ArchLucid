@@ -5,6 +5,7 @@ import { exportLineageVerifyBlockedReason } from "@/lib/exports/export-lineage-v
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { encodeRequiredPathSegment } from "./api-boundary-normalization";
 
 export type RunExportLineageVerificationResponse =
   components["schemas"]["RunExportLineageVerificationResponse"];
@@ -13,7 +14,7 @@ export type RunExportLineageVerificationResponse =
 export async function verifyRunExportLineage(runId: string): Promise<RunExportLineageVerificationResponse> {
   try {
     return await apiGetSealedManifestAware<RunExportLineageVerificationResponse>(
-      `/v1/artifacts/runs/${encodeURIComponent(runId)}/export/verify`,
+      `/v1/artifacts/runs/${encodeRequiredPathSegment(runId, "runId")}/export/verify`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
