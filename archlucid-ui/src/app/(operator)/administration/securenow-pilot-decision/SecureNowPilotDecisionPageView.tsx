@@ -51,12 +51,12 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
 
     let cancelled = false;
 
-    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+    void loadSecureNowPilotDispositionForPath(pathId).then((loaded) => {
       if (cancelled) {
         return;
       }
 
-      if (stored === null) {
+      if (loaded === null) {
         setOutcome("");
         setRationale("");
         setSavedDisposition(null);
@@ -64,9 +64,15 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
         return;
       }
 
-      setOutcome(stored.outcome);
-      setRationale(stored.rationale);
-      setSavedDisposition(stored);
+      setOutcome(loaded.record.outcome);
+      setRationale(loaded.record.rationale);
+      setSavedDisposition(loaded.record);
+
+      if (loaded.recordedUtc !== null) {
+        setTenantAuditSaved(true);
+      } else {
+        setTenantAuditSaved(false);
+      }
     });
 
     return () => {
