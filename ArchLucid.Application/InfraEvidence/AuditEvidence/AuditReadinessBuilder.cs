@@ -144,21 +144,24 @@ public static class AuditReadinessBuilder
     private static AuditEvidenceFreshnessStatus ResolveWorstFreshness(
         IReadOnlyList<AuditEvidenceSnapshotItemRecord> controlItems)
     {
-        if (controlItems.Count == 0)
-            return AuditEvidenceFreshnessStatus.Unknown;
-
-        AuditEvidenceFreshnessStatus worst = AuditEvidenceFreshnessStatus.Current;
+        AuditEvidenceFreshnessStatus worst = AuditEvidenceFreshnessStatus.Unknown;
+        bool hasUnverifiedFreshness = false;
 
         foreach (AuditEvidenceSnapshotItemRecord item in controlItems)
         {
             if (item.CollectionStatus != AuditEvidenceCollectionStatus.Collected)
                 continue;
 
+            if (item.FreshnessStatus == AuditEvidenceFreshnessStatus.Unknown)
+                hasUnverifiedFreshness = true;
+
             if (item.FreshnessStatus > worst)
                 worst = item.FreshnessStatus;
         }
 
-        return worst;
+        return hasUnverifiedFreshness && !AuditEvidenceFreshnessGate.BlocksCurrentAssessment(worst)
+            ? AuditEvidenceFreshnessStatus.Unknown
+            : worst;
     }
 
     private static AuditControlEvidenceCompleteness ResolveCompleteness(
