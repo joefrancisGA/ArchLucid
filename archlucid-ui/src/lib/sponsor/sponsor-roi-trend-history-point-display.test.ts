@@ -16,6 +16,14 @@ describe("sponsor-roi-trend-history-point-display", () => {
     expect(sponsorRoiTrendCriticalFindingsDisplay({ criticalSecurityFindings: undefined })).toBe("Not returned");
   });
 
+  it.each([-1, 0.5, Number.MAX_SAFE_INTEGER + 1])(
+    "does not treat invalid history count %s as measured",
+    (value) => {
+      expect(sponsorRoiTrendCriticalFindingsDisplay({ criticalSecurityFindings: value })).toBe("Not returned");
+      expect(isSponsorRoiTrendSimulatorOnlyPeriod({ realRunCount: value, simulatorRunCount: 2 })).toBe(false);
+    },
+  );
+
   it("excludes missing critical counts from bar scale maximum", () => {
     expect(
       sponsorRoiTrendCriticalFindingsForScale([
