@@ -14,16 +14,6 @@ export const SECURENOW_STICKINESS_NOT_USAGE_CLAIM = "This is not a usage claim."
 const LAST_OPENED_SNAPSHOT_PREFIX = "securenow-last-opened-snapshot:" as const;
 const PINNED_PATH_PREFIX = "securenow-pinned-path:" as const;
 
-const AWAITING_VERIFICATION_STATUSES = new Set<RemediationInstanceStatus>([
-  "Classified",
-  "PreflightPassed",
-  "PreflightBlocked",
-  "Approved",
-  "WaveAssigned",
-  "Executed",
-  "ChangeImplemented",
-]);
-
 export type SecureNowPinnedPathStatus = "added" | "gone" | "unchanged" | "not-in-latest";
 
 export type SecureNowReturnHomeInput = {
@@ -50,7 +40,7 @@ export function countRemediationInstancesAwaitingVerification(
 ): number {
   return instances.filter(
     (instance) =>
-      instance.verificationSnapshotId === null && AWAITING_VERIFICATION_STATUSES.has(instance.status),
+      instance.status === "ChangeImplemented" && instance.verificationSnapshotId === null,
   ).length;
 }
 

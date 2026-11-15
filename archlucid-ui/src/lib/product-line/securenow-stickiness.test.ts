@@ -33,9 +33,15 @@ describe("securenow stickiness", () => {
     );
   });
 
-  it("counts instances that still lack verification", () => {
+  it("counts only implemented changes awaiting a verification capture", () => {
     expect(
       countRemediationInstancesAwaitingVerification([
+        { status: "Classified", verificationSnapshotId: null },
+        { status: "PreflightPassed", verificationSnapshotId: null },
+        { status: "PreflightBlocked", verificationSnapshotId: null },
+        { status: "Approved", verificationSnapshotId: null },
+        { status: "WaveAssigned", verificationSnapshotId: null },
+        { status: "Executed", verificationSnapshotId: null },
         { status: "ChangeImplemented", verificationSnapshotId: null },
         { status: "Verified", verificationSnapshotId: "snap-2" },
         { status: "Closed", verificationSnapshotId: null },
