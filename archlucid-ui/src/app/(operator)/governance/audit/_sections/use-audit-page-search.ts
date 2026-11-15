@@ -294,8 +294,6 @@ export function useAuditPageSearch(
   });
 
   const dateRange = useAuditPageDateRange({
-    buyerPolishedShell,
-    events: query.events,
     eventType,
     correlationId,
     actorUserId,
