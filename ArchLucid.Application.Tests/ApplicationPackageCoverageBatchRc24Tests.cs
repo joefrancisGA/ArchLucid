@@ -362,6 +362,8 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
     [Theory]
     [InlineData(null, FindingHumanReviewStatus.NotRequired)]
     [InlineData("pending", FindingHumanReviewStatus.Pending)]
+    [InlineData("1", FindingHumanReviewStatus.Pending)]
+    [InlineData("999", FindingHumanReviewStatus.NotRequired)]
     [InlineData("not-a-status", FindingHumanReviewStatus.NotRequired)]
     public void RunFindingExternalTrackingFieldMapper_ParseHumanReview_defaults_safely(
         string? raw,
@@ -373,6 +375,8 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
     [Theory]
     [InlineData(null, null)]
     [InlineData("accepted", FindingDisposition.Accepted)]
+    [InlineData("1", FindingDisposition.Deferred)]
+    [InlineData("999", null)]
     [InlineData("bogus", null)]
     public void RunFindingExternalTrackingFieldMapper_ParseDisposition_handles_blank_and_invalid(
         string? raw,
