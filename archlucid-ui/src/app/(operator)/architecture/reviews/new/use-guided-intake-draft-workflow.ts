@@ -133,6 +133,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [viewAllClarifications, setViewAllClarificationsState] = useState(urlViewAllClarifications);
   const viewAllClarificationsRef = useRef(viewAllClarifications);
   viewAllClarificationsRef.current = viewAllClarifications;
+  const pendingViewAllClarificationsUrlSyncRef = useRef(false);
 
   const syncViewAllClarificationsToUrl = useCallback(
     (open: boolean) => {
@@ -148,21 +149,27 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     [pathname],
   );
 
-  const setViewAllClarifications = useCallback(
-    (value: SetStateAction<boolean>) => {
-      setViewAllClarificationsState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+  const setViewAllClarifications = useCallback((value: SetStateAction<boolean>) => {
+    setViewAllClarificationsState((current) => {
+      const next = typeof value === "function" ? value(current) : value;
 
-        if (viewAllClarificationsRef.current !== next) {
-          viewAllClarificationsRef.current = next;
-          syncViewAllClarificationsToUrl(next);
-        }
+      if (viewAllClarificationsRef.current !== next) {
+        pendingViewAllClarificationsUrlSyncRef.current = true;
+        viewAllClarificationsRef.current = next;
+      }
 
-        return next;
-      });
-    },
-    [syncViewAllClarificationsToUrl],
-  );
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!pendingViewAllClarificationsUrlSyncRef.current) {
+      return;
+    }
+
+    pendingViewAllClarificationsUrlSyncRef.current = false;
+    syncViewAllClarificationsToUrl(viewAllClarifications);
+  }, [syncViewAllClarificationsToUrl, viewAllClarifications]);
 
   useEffect(() => {
     if (viewAllClarificationsRef.current !== urlViewAllClarifications) {

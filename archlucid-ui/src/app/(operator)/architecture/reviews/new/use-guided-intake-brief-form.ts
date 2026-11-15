@@ -63,6 +63,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const scopeGateOpenRef = useRef(scopeGateOpen);
   scopeGateOpenRef.current = scopeGateOpen;
+  const pendingScopeGateUrlSyncRef = useRef(false);
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
 
@@ -78,29 +79,34 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   }, [searchParams]);
   const starterTemplatePrefillApplied = useRef(false);
 
-  const setScopeGateOpen = useCallback(
-    (next: boolean | ((open: boolean) => boolean)) => {
-      setScopeGateOpenState((current) => {
-        const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
+  const setScopeGateOpen = useCallback((next: boolean | ((open: boolean) => boolean)) => {
+    setScopeGateOpenState((current) => {
+      const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
 
-        if (shouldSyncUrl) {
-          scopeGateOpenRef.current = resolved;
-          commitHrefIfChanged(
-            scopeGateHrefFromSearch(
-              searchParamsQueryStringForHrefWrite(searchParamsRef.current),
-              resolved,
-              pathname,
-            ),
-            {
-            notify: false,
-          });
-        }
+      if (shouldSyncUrl) {
+        pendingScopeGateUrlSyncRef.current = true;
+        scopeGateOpenRef.current = resolved;
+      }
 
-        return resolved;
-      });
-    },
-    [pathname],
-  );
+      return resolved;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!pendingScopeGateUrlSyncRef.current) {
+      return;
+    }
+
+    pendingScopeGateUrlSyncRef.current = false;
+    commitHrefIfChanged(
+      scopeGateHrefFromSearch(
+        searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+        scopeGateOpen,
+        pathname,
+      ),
+      { notify: false },
+    );
+  }, [pathname, scopeGateOpen]);
 
   useEffect(() => {
     if (scopeGateOpenRef.current !== urlScopeGateOpen) {

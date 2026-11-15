@@ -16,12 +16,12 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   /** ArchLucid platform defaults — not customer-configured standards (future tenant customization is out of scope here). */
   standardsAppliedTitle: "ArchLucid default standards applied automatically",
   standardsAppliedBody:
-    "For your first review, ArchLucid evaluates against its default architecture-quality standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability — no manual assignment required.",
+    "For your first review, ArchLucid evaluates against six baseline standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability — with no manual assignment required.",
   focusedPilotToggleLabel: "Focused review scope",
   focusedPilotToggleDescription:
-    "Limit this review to the six architecture-quality standards (Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability) so your first package stays actionable.",
+    "Limit this review to six baseline standards (Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability) for your first package.",
   focusedPilotToggleAssistiveOn:
-    "Evaluation is limited to the six architecture-quality baseline standards.",
+    "Evaluation is limited to six baseline standards for your first package.",
   focusedPilotToggleAssistiveOff: "All enabled standards may contribute findings.",
   /**
    * Two-option review-scope choice on first-run intake. Replaces an inverted checkbox where
@@ -30,7 +30,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   reviewScopeChoiceLegend: "Which standards should evaluate this review?",
   reviewScopeRecommendedLabel: "Recommended standards (default)",
   reviewScopeRecommendedDescription:
-    "Use ArchLucid's six default architecture-quality standards. Keeps your first review shorter and the findings actionable.",
+    "Use six baseline standards for your first package: Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability.",
   reviewScopeAllLabel: "Every standard enabled for this workspace",
   reviewScopeAllDescription:
     "Any standard your workspace has enabled can also contribute findings. Expect a longer review and more findings to work through.",
