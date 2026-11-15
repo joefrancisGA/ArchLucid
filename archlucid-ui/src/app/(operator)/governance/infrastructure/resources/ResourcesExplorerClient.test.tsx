@@ -138,6 +138,35 @@ describe("ResourcesExplorerClient", () => {
     );
   });
 
+  it("shows the newest valid observation instant in the inventory header", async () => {
+    searchParams = new URLSearchParams();
+    listOperatorSavedViews.mockResolvedValue([]);
+    const timestamps = [
+      "2026-09-01T12:00:00Z",
+      "2026-09-01T13:00:00+02:00",
+      "unreadable",
+    ];
+    vi.mocked(fetchCloudResourceExplorerPage).mockResolvedValueOnce({
+      items: timestamps.map((lastSeenUtc, index) => ({
+        cloudResourceId: `11111111-1111-1111-1111-11111111111${index}`,
+        externalResourceId: `/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gateway-${index}`,
+        displayName: `gateway-${index}`,
+        resourceType: "Microsoft.Network/publicIPAddresses",
+        resourceGroup: "rg",
+        region: "eastus",
+        lastSeenUtc,
+        workCounts: null,
+      })),
+      totalCount: timestamps.length,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByTestId("infra-resource-explorer-inventory-as-of")).toHaveTextContent("9/1/26, 08:00");
+  });
+
   it.each(["empty response", "error"])("ignores a stale %s after the active filter loads", async (result) => {
     let completeStaleRequest = () => {
       throw new Error("Expected the initial inventory request to start.");
