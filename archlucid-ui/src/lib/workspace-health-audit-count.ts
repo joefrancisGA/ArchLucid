@@ -19,6 +19,7 @@ export async function countAuditEventsInWindow(input: {
   let count = 0;
   let cursor: string | undefined;
   let pages = 0;
+  const seenCursors = new Set<string>();
 
   while (pages < MAX_PAGES) {
     const res = await searchAuditEvents({
@@ -29,14 +30,24 @@ export async function countAuditEventsInWindow(input: {
       cursor,
     });
 
+    const nextCursor = res.nextCursor?.trim();
+    if (res.hasMore && nextCursor && seenCursors.has(nextCursor)) {
+      return { count, exact: false };
+    }
+
     count += res.items.length;
     pages++;
 
-    if (!res.hasMore || res.nextCursor === null || res.nextCursor === undefined || res.nextCursor.length === 0) {
+    if (!res.hasMore) {
       return { count, exact: true };
     }
 
-    cursor = res.nextCursor;
+    if (!nextCursor) {
+      return { count, exact: false };
+    }
+
+    seenCursors.add(nextCursor);
+    cursor = nextCursor;
   }
 
   return { count, exact: false };
