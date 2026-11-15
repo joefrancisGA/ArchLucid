@@ -124,7 +124,9 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
         await repo.SaveAsync(sealedRun, CancellationToken.None);
         await repo.SaveAsync(openRun, CancellationToken.None);
 
-        await repo.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, CancellationToken.None);
+        IReadOnlyList<Guid> cleared = await repo.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, CancellationToken.None);
+
+        cleared.Should().Equal(openRun.RunId);
 
         RunRecord? loadedSealed = await repo.GetByIdAsync(scope, sealedRun.RunId, CancellationToken.None);
         RunRecord? loadedOpen = await repo.GetByIdAsync(scope, openRun.RunId, CancellationToken.None);

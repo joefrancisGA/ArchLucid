@@ -95,11 +95,23 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
             ct);
 
     /// <inheritdoc />
-    public Task ClearGraphSnapshotForArchitectureAsync(
+    public async Task<IReadOnlyList<Guid>> ClearGraphSnapshotForArchitectureAsync(
         ScopeContext scope,
         Guid architectureId,
         CancellationToken ct)
-        => _inner.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, ct);
+    {
+        IReadOnlyList<Guid> updatedRunIds = await _inner.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, ct);
+        if (updatedRunIds.Count == 0)
+            return updatedRunIds;
+
+        foreach (Guid runId in updatedRunIds)
+        {
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, CancellationToken.None);
+        }
+
+        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, CancellationToken.None);
+        return updatedRunIds;
+    }
 
     /// <inheritdoc />
     public Task<Guid?> GetLatestRunIdForArchitectureAsync(
