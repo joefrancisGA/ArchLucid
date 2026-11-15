@@ -5,6 +5,8 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
@@ -14,6 +16,7 @@ namespace ArchLucid.Persistence.Alerts;
 /// <param name="subscriptionRepository">Per-scope routing configuration.</param>
 /// <param name="attemptRepository">Persists per-try delivery state.</param>
 /// <param name="auditService">Logs delivery success and failure.</param>
+/// <param name="logger">Reports failures after delivery success has been recorded.</param>
 /// <remarks>
 /// Skips silently when no subscriptions match; each matching subscription yields one attempt row and one channel send.
 /// </remarks>
@@ -23,7 +26,8 @@ public sealed class AlertDeliveryDispatcher(
     IAlertDeliveryAttemptRepository attemptRepository,
     IAuditService auditService,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IAlertDeliveryDispatcher
+    IManifestHashService manifestHashService,
+    ILogger<AlertDeliveryDispatcher>? logger = null) : IAlertDeliveryDispatcher
 {
     private static IAlertDeliveryChannel ResolveChannel(IEnumerable<IAlertDeliveryChannel> channels, string channelType) =>
         channels.FirstOrDefault(x => string.Equals(x.ChannelType, channelType, StringComparison.OrdinalIgnoreCase))
@@ -68,6 +72,7 @@ public sealed class AlertDeliveryDispatcher(
             };
 
             await attemptRepository.CreateAsync(attempt, ct);
+            bool deliveryRecorded = false;
 
             try
             {
@@ -87,6 +92,7 @@ public sealed class AlertDeliveryDispatcher(
                 DateTime deliveredUtc = TimeProvider.System.UtcNowDateTime();
 
                 await attemptRepository.UpdateAsync(attempt, ct);
+                deliveryRecorded = true;
                 await subscriptionRepository.RecordDeliveryAsync(subscription, deliveredUtc, ct);
 
                 await auditService.LogAsync(
@@ -108,6 +114,13 @@ public sealed class AlertDeliveryDispatcher(
             catch (OperationCanceledException)
             {
                 throw;
+            }
+            catch (Exception ex) when (deliveryRecorded)
+            {
+                logger?.LogWarning(
+                    ex,
+                    "Could not finish bookkeeping for successful alert delivery attempt {AlertDeliveryAttemptId}.",
+                    attempt.AlertDeliveryAttemptId);
             }
             catch (Exception ex)
             {
