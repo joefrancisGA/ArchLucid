@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
@@ -83,6 +85,36 @@ public sealed class SecureNowPilotPathDispositionServiceTests
         latest.Should().NotBeNull();
         latest!.Outcome.Should().Be("Stop");
         latest.Rationale.Should().Be("Final stop.");
+    }
+
+    [Fact]
+    public async Task TryGetLatestAsync_crosses_a_full_page_of_other_paths_at_the_same_time()
+    {
+        InMemoryAuditRepository auditRepository = new();
+        SecureNowPilotPathDispositionService sut = CreateSut(CreateSamplePathRepository(), auditRepository);
+        DateTime occurredUtc = new(2026, 11, 15, 12, 0, 0, DateTimeKind.Utc);
+        Guid otherPathId = Guid.NewGuid();
+
+        for (int index = 1; index <= 501; index++)
+        {
+            Guid pathId = index == 1 ? PathId : otherPathId;
+            await auditRepository.AppendAsync(new AuditEvent
+            {
+                EventId = new Guid(index, 0, 0, new byte[8]),
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                DataJson = JsonSerializer.Serialize(new { pathId, outcome = "Stop", rationale = "Pilot scope ended." }),
+            }, CancellationToken.None);
+        }
+
+        SecureNowPilotPathDispositionResponse? latest = await sut.TryGetLatestAsync(CreateScope(), PathId);
+
+        latest.Should().NotBeNull();
+        latest!.PathId.Should().Be(PathId);
+        latest.Outcome.Should().Be("Stop");
     }
 
     [Fact]

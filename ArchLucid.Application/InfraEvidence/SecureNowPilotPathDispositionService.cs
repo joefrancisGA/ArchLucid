@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.InfraEvidence;
@@ -45,29 +46,40 @@ public sealed class SecureNowPilotPathDispositionService(
             return null;
         }
 
-        IReadOnlyList<AuditEvent> events = await auditRepository.GetFilteredAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            new AuditEventFilter
-            {
-                EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
-                IncludeDataJson = true,
-                Take = 500,
-            },
-            cancellationToken);
-
-        foreach (AuditEvent auditEvent in events.OrderByDescending(item => item.OccurredUtc))
+        AuditEventFilter filter = new()
         {
-            SecureNowPilotPathDispositionResponse? parsed = TryParseDisposition(pathId, auditEvent);
+            EventType = AuditEventTypes.SecureNowPilotPathDispositionRecorded,
+            IncludeDataJson = true,
+            Take = PaginationDefaults.MaxListingTake,
+        };
 
-            if (parsed is not null)
+        while (true)
+        {
+            IReadOnlyList<AuditEvent> events = await auditRepository.GetFilteredAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                filter,
+                cancellationToken);
+
+            foreach (AuditEvent auditEvent in events)
             {
-                return parsed;
-            }
-        }
+                SecureNowPilotPathDispositionResponse? parsed = TryParseDisposition(pathId, auditEvent);
 
-        return null;
+                if (parsed is not null)
+                    return parsed;
+            }
+
+            if (events.Count < filter.Take)
+                return null;
+
+            AuditEvent cursor = events[^1];
+            if (cursor.OccurredUtc == filter.BeforeUtc && cursor.EventId == filter.BeforeEventId)
+                return null;
+
+            filter.BeforeUtc = cursor.OccurredUtc;
+            filter.BeforeEventId = cursor.EventId;
+        }
     }
 
     public async Task<SecureNowPilotPathDispositionSaveResult> SaveAsync(
