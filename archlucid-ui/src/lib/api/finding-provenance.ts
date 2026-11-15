@@ -3,6 +3,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { SHOWCASE_FINDING_PROVENANCE } from "@/lib/showcase-static-demo";
 import { findingProvenanceBlockedReason } from "@/lib/findings/finding-provenance-blocked-reason";
+import { isRecord, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 export type FindingProvenanceStepKind = "input" | "evidence" | "policy-check" | "conclusion";
 
@@ -19,10 +20,17 @@ export type FindingProvenance = {
 };
 
 export async function getFindingProvenance(runId: string, findingId: string): Promise<FindingProvenance | null> {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+  const normalizedFindingId = trimRequiredPathSegment(findingId, "findingId");
+
   try {
     const payload = await apiGetSealedManifestAware<FindingProvenance>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/provenance`,
+      `/v1/architecture/review/${encodeURIComponent(normalizedRunId)}/findings/${encodeURIComponent(normalizedFindingId)}/provenance`,
     );
+
+    if (!isRecord(payload) || !Array.isArray(payload.steps)) {
+      return null;
+    }
 
     if (payload.steps.length === 0) {
       return null;
@@ -37,9 +45,9 @@ export async function getFindingProvenance(runId: string, findingId: string): Pr
     }
 
     if (isStaticDemoPayloadFallbackEnabled()) {
-      return SHOWCASE_FINDING_PROVENANCE[findingId] ?? null;
+      return SHOWCASE_FINDING_PROVENANCE[normalizedFindingId] ?? null;
     }
 
-    return SHOWCASE_FINDING_PROVENANCE[findingId] ?? null;
+    throw new Error(toApiLoadFailure(error).message ?? "Finding provenance could not be loaded.");
   }
 }

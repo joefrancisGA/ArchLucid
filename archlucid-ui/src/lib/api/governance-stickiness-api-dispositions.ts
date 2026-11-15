@@ -9,6 +9,7 @@ import { apiPostJson } from "./http";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { notifyFinalizeReadinessRefresh } from "@/lib/review-quality/finalize-readiness-refresh-notify";
 import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
+import { recordsOnly, trimOptionalText, trimRequiredPathSegment } from "./api-boundary-normalization";
 import {
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -34,12 +35,24 @@ export async function recordFindingDisposition(
   body: RecordFindingDispositionBody,
   options?: { readonly idempotencyKey?: string },
 ): Promise<FindingDispositionEvent> {
+  const normalizedFindingId = trimRequiredPathSegment(findingId, "findingId");
+  const request = {
+    ...body,
+    runId: trimRequiredPathSegment(body.runId, "runId"),
+    rationale: trimOptionalText(body.rationale),
+    revisitDueUtc: trimOptionalText(body.revisitDueUtc),
+    evidenceRequestText: trimOptionalText(body.evidenceRequestText),
+    tradeOffAcknowledgment: trimOptionalText(body.tradeOffAcknowledgment),
+    expectedCurrentDispositionRowVersionBase64: trimOptionalText(body.expectedCurrentDispositionRowVersionBase64),
+    previewOverrideReason: trimOptionalText(body.previewOverrideReason),
+    architectRestatement: trimOptionalText(body.architectRestatement),
+  };
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
 
   try {
     const result = await apiPostJson<FindingDispositionEvent>(
-      `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
-      body,
+      `${governanceStickinessBase()}/findings/${encodeURIComponent(normalizedFindingId)}/dispositions`,
+      request,
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
     notifyFinalizeReadinessRefresh(body.runId);
@@ -87,12 +100,21 @@ export async function recordBulkFindingDisposition(
   },
   options?: { readonly idempotencyKey?: string; readonly refreshRunId?: string },
 ): Promise<RecordBulkFindingDispositionResponse> {
+  const findingIds = body.findingIds
+    .map((findingId) => findingId.trim())
+    .filter((findingId) => findingId.length > 0);
+  const request = {
+    ...body,
+    findingIds,
+    rationale: trimOptionalText(body.rationale),
+    revisitDueUtc: trimOptionalText(body.revisitDueUtc),
+  };
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
 
   try {
     const result = await apiPostJson<RecordBulkFindingDispositionResponse>(
       `${governanceStickinessBase()}/findings/bulk-disposition`,
-      body,
+      request,
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
 
@@ -112,10 +134,12 @@ export async function recordBulkFindingDisposition(
 }
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
+  const normalizedFindingId = trimRequiredPathSegment(findingId, "findingId");
+
   try {
-    return await apiGetSealedManifestAware<FindingDispositionEvent[]>(
-      `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
-    );
+    return recordsOnly<FindingDispositionEvent>(await apiGetSealedManifestAware<unknown>(
+      `${governanceStickinessBase()}/findings/${encodeURIComponent(normalizedFindingId)}/dispositions`,
+    ));
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = findingDispositionsBlockedReason(failure);

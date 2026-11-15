@@ -8,6 +8,7 @@ import type {
   OperatorSavedViewPayload,
   OperatorSavedViewSurface,
 } from "@/lib/operator/operator-saved-view-types";
+import { recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
 
 export type { OperatorSavedView, OperatorSavedViewPayload, OperatorSavedViewSurface };
 
@@ -24,14 +25,17 @@ export async function listOperatorSavedViews(
   const query = surface !== undefined ? `?surface=${encodeURIComponent(surface)}` : "";
   const response = await apiGet<OperatorSavedViewListResponse>(`/v1/operator/saved-views${query}`);
 
-  return response.views ?? [];
+  return recordsOnly<OperatorSavedView>(response.views);
 }
 
 export async function createOperatorSavedView(
   request: CreateOperatorSavedViewRequest,
 ): Promise<OperatorSavedView> {
   try {
-    return await apiPostJson<OperatorSavedView>("/v1/operator/saved-views", request);
+    return await apiPostJson<OperatorSavedView>("/v1/operator/saved-views", {
+      ...request,
+      name: request.name.trim(),
+    });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = operatorSavedViewMutationBlockedReason(failure);
@@ -41,5 +45,7 @@ export async function createOperatorSavedView(
 }
 
 export async function deleteOperatorSavedView(viewId: string): Promise<void> {
-  await apiDelete(`/v1/operator/saved-views/${encodeURIComponent(viewId)}`);
+  const normalizedViewId = trimRequiredPathSegment(viewId, "viewId");
+
+  await apiDelete(`/v1/operator/saved-views/${encodeURIComponent(normalizedViewId)}`);
 }

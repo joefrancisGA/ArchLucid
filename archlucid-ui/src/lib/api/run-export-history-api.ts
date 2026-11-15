@@ -5,14 +5,17 @@ import { runExportHistoryBlockedReason } from "@/lib/exports/run-export-history-
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 
 export type RunExportHistoryResponse = components["schemas"]["RunExportHistoryResponse"];
 
 /** Loads persisted export audit rows for a run (whitelabel pre-fill, replay lineage). */
 export async function getRunExportHistory(runId: string): Promise<RunExportHistoryResponse> {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
   try {
     return await apiGetSealedManifestAware<RunExportHistoryResponse>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/exports`,
+      `/v1/architecture/review/${encodeURIComponent(normalizedRunId)}/exports`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
