@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let searchParams = new URLSearchParams("");
@@ -157,6 +157,47 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
   beforeEach(() => {
     vi.mocked(fetchRemediationInstanceDetail).mockReset();
     vi.mocked(fetchRemediationInstanceDetail).mockResolvedValue(defaultRemediationInstanceDetail);
+  });
+
+  it.each(["response", "error"])("ignores a late detail %s for the previous instance", async (outcome) => {
+    const currentInstanceId = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff";
+    const olderDetail = {
+      ...defaultRemediationInstanceDetail,
+      instance: { ...defaultRemediationInstanceDetail.instance, patternKey: "older.pattern" },
+    };
+    const currentDetail = {
+      ...defaultRemediationInstanceDetail,
+      instance: { ...defaultRemediationInstanceDetail.instance, instanceId: currentInstanceId, patternKey: "current.pattern" },
+    };
+    let completeOldRequest = () => {
+      throw new Error("Expected the first instance request to start.");
+    };
+    vi.mocked(fetchRemediationInstanceDetail)
+      .mockImplementationOnce(() => new Promise((resolve, reject) => {
+        completeOldRequest = () => {
+          if (outcome === "error") {
+            reject(new Error("Previous detail failed."));
+          } else {
+            resolve(olderDetail);
+          }
+        };
+      }))
+      .mockResolvedValue(currentDetail);
+
+    searchParams = new URLSearchParams({ instanceId: olderDetail.instance.instanceId });
+    const { rerender } = render(<RemediationWorkbenchClient />);
+    expect(fetchRemediationInstanceDetail).toHaveBeenCalledWith(olderDetail.instance.instanceId);
+
+    searchParams = new URLSearchParams({ instanceId: currentInstanceId });
+    rerender(<RemediationWorkbenchClient />);
+    expect(await screen.findByRole("heading", { name: "current.pattern" })).toBeInTheDocument();
+
+    await act(async () => {
+      completeOldRequest();
+    });
+
+    expect(screen.queryByRole("heading", { name: "current.pattern" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-remediation-load-error-panel")).toBeNull();
   });
 
   it("renders context strip, refresh control, and blocked lifecycle reasons", async () => {

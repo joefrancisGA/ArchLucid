@@ -342,7 +342,12 @@ export function RemediationWorkbenchClient() {
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
-  const [detail, setDetail] = useState<RemediationInstanceDetail | null>(null);
+  const [loadedDetail, setLoadedDetail] = useState<{
+    instanceId: string;
+    data: RemediationInstanceDetail;
+  } | null>(null);
+  const detail = loadedDetail?.instanceId === selectedInstanceId ? loadedDetail.data : null;
+  const detailRequestVersion = useRef(0);
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState("");
   const [waves, setWaves] = useState<Array<{ waveId: string; name: string }>>([]);
@@ -502,8 +507,10 @@ export function RemediationWorkbenchClient() {
   }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
+    const requestVersion = ++detailRequestVersion.current;
     if (instanceId.length === 0) {
-      setDetail(null);
+      setLoadedDetail(null);
+      setDetailLoading(false);
       return;
     }
 
@@ -511,12 +518,18 @@ export function RemediationWorkbenchClient() {
 
     try {
       const response = await fetchRemediationInstanceDetail(instanceId);
-      setDetail(response);
+      if (requestVersion === detailRequestVersion.current) {
+        setLoadedDetail({ instanceId, data: response });
+      }
     } catch (error: unknown) {
-      setLoadError(formatRemediationWorkbenchApiError(error));
-      setDetail(null);
+      if (requestVersion === detailRequestVersion.current) {
+        setLoadError(formatRemediationWorkbenchApiError(error));
+        setLoadedDetail(null);
+      }
     } finally {
-      setDetailLoading(false);
+      if (requestVersion === detailRequestVersion.current) {
+        setDetailLoading(false);
+      }
     }
   }, []);
 
