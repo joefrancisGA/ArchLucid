@@ -7,6 +7,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SPONSOR_ROI_HEADLINE_MODEL_ESTIMATE_LINE } from "@/lib/sponsor/sponsor-roi-headline-estimate-honesty";
+import { PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE } from "@/lib/scorecard/pilot-scorecard-headline-band-roi-non-summing-copy";
 import {
   REVIEW_SCORECARD_NOT_MEASURED_LABEL,
   type ReviewScorecardMetricState,
@@ -184,6 +185,12 @@ export function ScorecardSummaryTile({
       )}
     >
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{label}</p>
+      <p
+        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+        data-testid={`scorecard-summary-non-summing-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      >
+        {PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE}
+      </p>
       <MetricValueDisplay metricState={metricState} useKpiEmphasis={useKpiEmphasis} value={value} />
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{detail}</p>
       {href !== null && href !== undefined && drillDownLabel !== undefined && drillDownLabel.length > 0 ? (
@@ -232,6 +239,12 @@ export function ScorecardSavingsHero({
     >
       <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
         Estimated annual review-time savings
+      </p>
+      <p
+        className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+        data-testid="scorecard-savings-hero-non-summing"
+      >
+        {PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE}
       </p>
       <p
         className={cn(
