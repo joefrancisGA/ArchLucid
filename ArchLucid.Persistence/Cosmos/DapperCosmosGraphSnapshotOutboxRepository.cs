@@ -80,7 +80,7 @@ public sealed class DapperCosmosGraphSnapshotOutboxRepository(ISqlConnectionFact
                            ;WITH cte AS (
                                SELECT TOP (@Take)
                                    OutboxId
-                               FROM dbo.CosmosGraphSnapshotOutbox AS o WITH (READPAST, UPDLOCK, ROWLOCK)
+                               FROM dbo.CosmosGraphSnapshotOutbox AS o WITH (READPAST, UPDLOCK, READCOMMITTEDLOCK)
                                WHERE o.ProcessedUtc IS NULL
                                  AND o.DeadLetteredUtc IS NULL
                                  AND (o.NextAttemptUtc IS NULL OR o.NextAttemptUtc <= SYSUTCDATETIME())
