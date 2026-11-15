@@ -48,6 +48,16 @@ describe("resolveContinueLastPolicyPack", () => {
     expect(resolveContinueLastPolicyPack([])).toBeNull();
   });
 
+  it("uses the newest valid instant and falls back to creation when activation is invalid", () => {
+    const match = resolveContinueLastPolicyPack([
+      pack({ policyPackId: "pack-invalid", activatedUtc: "invalid", createdUtc: "invalid" }),
+      pack({ policyPackId: "pack-earlier", activatedUtc: "2026-02-01T09:00:00+02:00" }),
+      pack({ policyPackId: "pack-later", activatedUtc: "", createdUtc: "2026-02-01T08:00:00" }),
+    ]);
+
+    expect(match?.policyPackId).toBe("pack-later");
+  });
+
   it("labels recency fallback when no recent view exists", () => {
     const detail = resolveContinueLastPolicyPackDetail([
       pack({ policyPackId: "pack-old", activatedUtc: "2025-01-01T00:00:00Z" }),
