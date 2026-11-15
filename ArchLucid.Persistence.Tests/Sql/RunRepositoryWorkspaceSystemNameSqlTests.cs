@@ -782,6 +782,7 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("ArchivedUtc IS NULL");
         RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("GraphSnapshotId IS NOT NULL");
         RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("GoldenManifestId IS NULL");
+        RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("OUTPUT inserted.RunId INTO @UpdatedRuns");
     }
 
     [Fact]

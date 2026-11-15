@@ -122,7 +122,7 @@ public sealed partial class InMemoryRunRepository
                 excludeRunId));
     }
 
-    public Task ClearGraphSnapshotForArchitectureAsync(
+    public Task<IReadOnlyList<Guid>> ClearGraphSnapshotForArchitectureAsync(
         ScopeContext scope,
         Guid architectureId,
         CancellationToken ct)
@@ -131,8 +131,9 @@ public sealed partial class InMemoryRunRepository
         ArgumentNullException.ThrowIfNull(scope);
 
         if (architectureId == Guid.Empty)
-            return Task.CompletedTask;
+            return Task.FromResult<IReadOnlyList<Guid>>([]);
 
+        List<Guid> updatedRunIds = [];
         foreach (RunRecord candidate in _store.Values)
         {
             if (!RunRepositoryCore.IsActiveInScope(candidate, scope))
@@ -141,13 +142,14 @@ public sealed partial class InMemoryRunRepository
             if (candidate.ArchitectureId != architectureId)
                 continue;
 
-            if (candidate.GoldenManifestId.HasValue)
+            if (candidate.GoldenManifestId.HasValue || !candidate.GraphSnapshotId.HasValue)
                 continue;
 
             candidate.GraphSnapshotId = null;
+            updatedRunIds.Add(candidate.RunId);
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult<IReadOnlyList<Guid>>(updatedRunIds);
     }
 
     public Task<Guid?> GetLatestRunIdForArchitectureAsync(
