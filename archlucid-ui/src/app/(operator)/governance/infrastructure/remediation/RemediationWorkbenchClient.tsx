@@ -80,6 +80,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
 import { REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-workflow-honesty-copy";
+import { REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-execute-advisory-honesty-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -1545,6 +1546,12 @@ export function RemediationWorkbenchClient() {
                   </Button>
                 ) : null}
               </div>
+              <p
+                className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-remediation-execute-advisory-honesty"
+              >
+                {REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE}
+              </p>
               {buyerPolishedShell ? (
                 <div className="space-y-1">
                   <WhyDisabledCtaHint

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-15 - Score lift round 50 (batch 15): Findings collection blocker, compare seal, and remediation Execute discipline
+
+**Outcome.** SecureNow findings empty queue names the primary collection blocker when capture is missing. Compare two reviews states second-sealed review discipline on the page. Remediation Execute clarifies advisory-only emission. Attack path overflow copy names unlisted stored paths. ITSM create dialog repeats confirm-before-send discipline. First-review guide shows tenant seal line whenever prerequisites are complete.
+
+**Surfaces.** Findings queue empty state, compare two reviews, remediation workbench, attack path report, ITSM create dialog, first-review guide.
+
 ## 2026-11-15 - Score lift round 49 (batch 14): Remediation workflow, Ask evidence, and SecureNow ROI discipline
 
 **Outcome.** Remediation workbench states workflow steps do not change Azure. Infrastructure Ask explains insufficient-evidence outcomes. Investigation effort labels operator ROI math as not customer-verified. Self-service names stored path rank until Reader capture.

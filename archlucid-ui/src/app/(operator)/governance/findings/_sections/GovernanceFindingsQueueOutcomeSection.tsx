@@ -47,6 +47,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { shouldShowSecureNowCollectionMissingBlock } from "@/lib/product-line/securenow-collection-missing-reason";
 import { resolveSecureNowGovernanceFindingsEmptyStateCopy } from "@/lib/product-line/securenow-governance-findings-copy";
+import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -223,9 +224,17 @@ export function GovernanceFindingsQueueOutcomeSection(
                   <GovernanceAssignedToMeBuildProvenanceStrip />
                 </div>
               ) : secureNowEmptyState !== null ? (
-                <Link className={OPERATOR_LINK.inline} href={secureNowEmptyState.policyPacksHref}>
-                  {secureNowCollectionMissing ? "Open cloud connections" : "View policy packs"}
-                </Link>
+                <div className="space-y-3">
+                  {secureNowCollectionMissing && collectionInput !== null ? (
+                    <SecureNowCollectionPrimaryBlockerLine
+                      input={collectionInput}
+                      testIdPrefix="governance-findings-empty"
+                    />
+                  ) : null}
+                  <Link className={OPERATOR_LINK.inline} href={secureNowEmptyState.policyPacksHref}>
+                    {secureNowCollectionMissing ? "Open cloud connections" : "View policy packs"}
+                  </Link>
+                </div>
               ) : !props.buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
                   View policy packs

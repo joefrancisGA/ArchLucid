@@ -51,6 +51,7 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-stat
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
 import { useCompareFindingCorrelation } from "./useCompareFindingCorrelation";
 import { resolveCompareUpdatedReviewOpenHref } from "@/lib/compare-pair-grounding-links";
+import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
 
 export type CompareFormProps = {
   readonly basePathname?: string;
@@ -240,6 +241,13 @@ export function CompareForm(props: CompareFormProps = {}) {
           emphasizedStepId={compareChecklistEmphasizedStepId}
           testIdPrefix="compare-two-reviews"
         />
+
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="compare-two-reviews-second-sealed-discipline"
+        >
+          {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
+        </p>
 
         {urlPairComplete ? (
           <p
