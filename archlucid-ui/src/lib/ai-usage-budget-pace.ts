@@ -104,7 +104,8 @@ export function compareRollingHalvesPercent(daily: readonly LlmCostDailyBucket[]
 
   const midpoint = Math.floor(daily.length / 2);
   const priorHalf = daily.slice(0, midpoint);
-  const recentHalf = daily.slice(midpoint);
+  // Compare equal-length periods and leave the middle day out of odd-length windows.
+  const recentHalf = daily.slice(-midpoint);
   const priorTotal = sumDailyCost(priorHalf);
   const recentTotal = sumDailyCost(recentHalf);
 
