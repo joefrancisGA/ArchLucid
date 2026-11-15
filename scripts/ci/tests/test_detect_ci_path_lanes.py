@@ -100,20 +100,21 @@ class DetectCiPathLanesTests(unittest.TestCase):
         match = re.search(r"(?m)^  push:\n    branches: \[([^\]]+)\]$", workflow)
         self.assertIsNotNone(match)
         branches = {branch.strip() for branch in match.group(1).split(",")}
-        self.assertTrue({"RC43", "RC44"}.issubset(branches))
+        self.assertTrue({"RC43", "RC44", "RC45"}.issubset(branches))
 
-        # RC43 and RC44 must each use a branch-scoped group so different releases do not collide.
+        # RC43, RC44 and RC45 must each use a branch-scoped group so releases do not collide.
         self.assertIn("github.event_name == 'push'", concurrency)
         self.assertIn("github.ref == 'refs/heads/RC43'", concurrency)
         self.assertIn("github.ref == 'refs/heads/RC44'", concurrency)
+        self.assertIn("github.ref == 'refs/heads/RC45'", concurrency)
         self.assertIn("format('rc-push-{0}', github.ref)", concurrency)
         self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
         self.assertNotIn("github.sha", concurrency)
-        # Both release-candidate pushes complete rather than being canceled by a second push.
+        # Release-candidate pushes complete rather than being canceled by a second push.
         self.assertIn(
             "cancel-in-progress: ${{ github.event_name != 'merge_group' "
             "&& !(github.event_name == 'push' && "
-            "(github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44')) }}",
+            "(github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC45')) }}",
             concurrency,
         )
 

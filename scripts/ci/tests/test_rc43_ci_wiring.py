@@ -10,7 +10,7 @@ WORKFLOW = Path(__file__).resolve().parents[3] / ".github" / "workflows" / "ci.y
 class ReleaseCandidateCiWiringTests(unittest.TestCase):
     def test_full_non_deploying_ci_pushes_only_explicit_rc_branches(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44\]$")
+        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44, RC45\]$")
         self.assertNotIn("branches: [master]", workflow)
         self.assertNotIn("branches: [main]", workflow)
         self.assertNotIn("branches: [RC41]", workflow)
@@ -21,6 +21,7 @@ class ReleaseCandidateCiWiringTests(unittest.TestCase):
         workflow = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("github.ref != 'refs/heads/RC43'", workflow)
         self.assertIn("github.ref != 'refs/heads/RC44'", workflow)
+        self.assertIn("github.ref != 'refs/heads/RC45'", workflow)
         self.assertNotIn("github.ref != 'refs/heads/RC41'", workflow)
         self.assertNotIn("refs/heads/RC40", workflow)
         self.assertNotIn("refs/heads/RC36", workflow)
@@ -57,6 +58,7 @@ class ReleaseCandidateCiWiringTests(unittest.TestCase):
         self.assertIn("!cancelled()", build)
         self.assertIn("github.ref == 'refs/heads/RC43'", build)
         self.assertIn("github.ref == 'refs/heads/RC44'", build)
+        self.assertIn("github.ref == 'refs/heads/RC45'", build)
         self.assertIn("needs.openapi-contract-snapshot.result == 'success'", build)
         for prerequisite in (
             "gitleaks",
