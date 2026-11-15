@@ -119,22 +119,25 @@ export function SecureNowReturnHomeSection(): React.JSX.Element {
     );
   }
 
-  const delta = computeSecureNowCapturePathDelta(previousReportQuery.data ?? [], latestReportQuery.data ?? []);
+  const canCompareReports = deltaTargets.length >= 2 && latestReportQuery.isSuccess && previousReportQuery.isSuccess;
+  const latestPathIds = latestReportQuery.data ?? [];
+  const previousPathIds = previousReportQuery.data ?? [];
+  const delta = canCompareReports ? computeSecureNowCapturePathDelta(previousPathIds, latestPathIds) : null;
   const stickinessScope = { tenantId: scope.tenantId, workspaceId: scope.workspaceId };
   const pinnedPathId = browserMemoryReady ? readSecureNowPinnedPathId(stickinessScope) : null;
   const builtRows = buildSecureNowReturnHomeRows({
     awaitingVerificationCount: instancesQuery.isError
       ? 0
       : countRemediationInstancesAwaitingVerification(instancesQuery.data ?? []),
-    addedCount: deltaTargets.length >= 2 && !latestReportQuery.isError && !previousReportQuery.isError ? delta.added.length : 0,
-    goneCount: deltaTargets.length >= 2 && !latestReportQuery.isError && !previousReportQuery.isError ? delta.gone.length : 0,
+    addedCount: delta?.added.length ?? 0,
+    goneCount: delta?.gone.length ?? 0,
     latestSnapshotId: eligibleSnapshots[0]?.snapshotId ?? null,
     lastOpenedSnapshotId: browserMemoryReady ? readSecureNowLastOpenedSnapshotId(stickinessScope) : null,
     pinnedPathId,
     pinnedPathStatus:
-      pinnedPathId === null || deltaTargets.length < 2
+      pinnedPathId === null || !canCompareReports
         ? null
-        : resolveSecureNowPinnedPathStatus(pinnedPathId, latestReportQuery.data ?? [], previousReportQuery.data ?? []),
+        : resolveSecureNowPinnedPathStatus(pinnedPathId, latestPathIds, previousPathIds),
     extendDispositionCount: browserMemoryReady ? countSecureNowExtendDispositionsInBrowserCache() : 0,
   });
   const collectionInput = collectionSetupQuery.collectionInput;
