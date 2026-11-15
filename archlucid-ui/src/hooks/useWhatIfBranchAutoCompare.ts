@@ -76,7 +76,7 @@ export function useWhatIfBranchAutoCompare(
           ? { hasGoldenManifest: true }
           : await getRunSummary(options.currentRunId);
 
-        if (!bothRunsReadyForBranchCompare(parent, branch)) {
+        if (canceled || !bothRunsReadyForBranchCompare(parent, branch)) {
           return;
         }
 
