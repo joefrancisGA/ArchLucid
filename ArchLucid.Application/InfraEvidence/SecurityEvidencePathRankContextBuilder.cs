@@ -36,13 +36,10 @@ public static class SecurityEvidencePathRankContextBuilder
             ("BusinessConsequence", (selected.BusinessConsequenceScore ?? 0m) - (next.BusinessConsequenceScore ?? 0m)),
             ("ConfidenceBand", selected.ConfidenceBandScore - next.ConfidenceBandScore),
         ];
-        (string Name, decimal Gap)? largest = dimensions
-            .Where(dimension => dimension.Gap > 0)
-            .OrderByDescending(dimension => dimension.Gap)
-            .FirstOrDefault();
+        (string Name, decimal Gap) largest = dimensions.MaxBy(dimension => dimension.Gap);
 
-        return largest is { } dimension
-            ? $"Selected path {selected.PathId:D} outranks stored path {next.PathId:D} on {dimension.Name}. This does not change the rank."
+        return largest.Gap > 0
+            ? $"Selected path {selected.PathId:D} outranks stored path {next.PathId:D} on {largest.Name}. This does not change the rank."
             : $"Selected path {selected.PathId:D} does not outrank stored path {next.PathId:D} on a stored dimension. This does not change the rank.";
     }
 }
