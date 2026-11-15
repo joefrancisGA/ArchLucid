@@ -40,6 +40,15 @@ describe("resolveGovernanceAssignedToMeOldestFinding", () => {
     });
   });
 
+  it("uses the displayed exception expiry to break an aging tie", () => {
+    const target = resolveGovernanceAssignedToMeOldestFinding([
+      baseRow({ findingId: "later", revisitDueUtc: "2026-09-02T00:00:00Z" }),
+      baseRow({ findingId: "sooner", revisitDueUtc: "", waiverExpiresAtUtc: "2026-09-01T00:00:00Z" }),
+    ]);
+
+    expect(target?.findingId).toBe("sooner");
+  });
+
   it("ignores architecture decision rows", () => {
     const target = resolveGovernanceAssignedToMeOldestFinding([
       baseRow({ findingId: "decision-1", recordKind: "decision", agingDays: 99 }),
