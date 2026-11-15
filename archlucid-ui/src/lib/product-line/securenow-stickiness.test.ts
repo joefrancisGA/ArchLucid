@@ -1,9 +1,10 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { writeSecureNowPilotDisposition } from "@/lib/product-line/securenow-pilot-disposition-storage";
 
 import {
   buildSecureNowReturnHomeRows,
+  clearSecureNowPinnedPathId,
   markSecureNowReturnHomeRecommendedFirst,
   countRemediationInstancesAwaitingVerification,
   countSecureNowExtendDispositionsInBrowserCache,
@@ -58,6 +59,22 @@ describe("securenow stickiness", () => {
 
     expect(readSecureNowPinnedPathId(scope)).toBe("path-2");
     expect(countSecureNowExtendDispositionsInBrowserCache()).toBe(1);
+  });
+
+  it("keeps browser memory optional when access to storage is blocked", () => {
+    const scope = { tenantId: "tenant-1", workspaceId: "ws-1" };
+    const storage = vi.spyOn(window, "localStorage", "get").mockImplementation(() => {
+      throw new DOMException("Storage access is blocked", "SecurityError");
+    });
+
+    try {
+      expect(readSecureNowPinnedPathId(scope)).toBeNull();
+      expect(countSecureNowExtendDispositionsInBrowserCache()).toBe(0);
+      expect(writeSecureNowPinnedPathId(scope, "path-1")).toBe(false);
+      expect(clearSecureNowPinnedPathId(scope)).toBe(false);
+    } finally {
+      storage.mockRestore();
+    }
   });
 
   it("surfaces the latest capture when Home has not recorded a last-opened snapshot", () => {

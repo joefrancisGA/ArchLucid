@@ -29,15 +29,12 @@ export function SecureNowPinPathButton(props: SecureNowPinPathButtonProps): Reac
   const isPinned = pinnedPathId === pathId;
 
   function togglePin(): void {
-    if (isPinned) {
-      clearSecureNowPinnedPathId(stickinessScope);
-      setPinnedPathId(null);
-
-      return;
+    const saved = isPinned
+      ? clearSecureNowPinnedPathId(stickinessScope)
+      : writeSecureNowPinnedPathId(stickinessScope, pathId);
+    if (saved) {
+      setPinnedPathId(isPinned ? null : pathId);
     }
-
-    writeSecureNowPinnedPathId(stickinessScope, pathId);
-    setPinnedPathId(pathId);
   }
 
   return (
