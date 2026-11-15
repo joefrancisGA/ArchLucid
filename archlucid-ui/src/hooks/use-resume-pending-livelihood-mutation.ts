@@ -130,7 +130,13 @@ export function useResumePendingLivelihoodMutation(
   }, [args.enabled, returnPath, runReplay]);
 
   const confirmReplay = useCallback(() => {
-    if (chromeState === null || chromeState.isReplaying) {
+    if (!args.enabled || chromeState === null || chromeState.isReplaying || chromeState.pending.returnPath !== returnPath) {
+      return;
+    }
+
+    if (chromeState.replayErrorMessage !== null) {
+      replayStartedRef.current = true;
+      runReplay(chromeState.pending, true);
       return;
     }
 
@@ -144,7 +150,7 @@ export function useResumePendingLivelihoodMutation(
     }
 
     runReplay(consumed, true);
-  }, [chromeState, returnPath, runReplay]);
+  }, [args.enabled, chromeState, returnPath, runReplay]);
 
   const discardReplay = useCallback(() => {
     clearLivelihoodPendingMutation();

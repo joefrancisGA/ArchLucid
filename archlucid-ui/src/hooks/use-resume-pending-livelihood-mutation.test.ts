@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -166,5 +166,26 @@ describe("useResumePendingLivelihoodMutation (LW-052)", () => {
     });
 
     expect(result.current.chrome?.presentation.requiresConfirm).toBe(false);
+  });
+
+  it("retries a failed replay with the original idempotency key", async () => {
+    replayLivelihoodPendingMutation.mockRejectedValueOnce(new Error("network")).mockResolvedValueOnce({ draftId: "draft-1" });
+    writeLivelihoodPendingMutation({
+      kind: "architecture_draft_patch",
+      idempotencyKey: "99999999-9999-4999-8999-999999999999",
+      returnPath: "/architecture/reviews/run-1/findings/f-1",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: { draftId: "draft-1", body: { expectedUpdatedUtc: "2026-09-10T12:00:00.000Z" } },
+    });
+
+    const { result } = renderHook(() => useResumePendingLivelihoodMutation({ enabled: true }));
+    await act(async () => result.current.confirmReplay());
+    expect(result.current.chrome?.replayErrorMessage).not.toBeNull();
+
+    await act(async () => result.current.confirmReplay());
+    expect(replayLivelihoodPendingMutation).toHaveBeenCalledTimes(2);
+    expect(replayLivelihoodPendingMutation.mock.calls[1]).toEqual(replayLivelihoodPendingMutation.mock.calls[0]);
+    expect(result.current.chrome).toBeNull();
   });
 });
