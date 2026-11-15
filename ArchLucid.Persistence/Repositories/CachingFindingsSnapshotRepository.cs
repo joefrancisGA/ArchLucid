@@ -40,11 +40,12 @@ public sealed class CachingFindingsSnapshotRepository(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        // Finish eviction even if the caller cancels after the standalone write commits.
         await HotPathCacheEviction.RemoveFindingsSnapshotAsync(
             _hotPathReadCache,
             scope,
             snapshot.FindingsSnapshotId,
-            ct);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
