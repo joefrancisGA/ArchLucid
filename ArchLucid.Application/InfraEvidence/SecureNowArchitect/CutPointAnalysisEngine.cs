@@ -38,13 +38,7 @@ public sealed class CutPointAnalysisEngine(
 
         if (ranks.Count == 0)
         {
-            await cutPointRepository.ReplaceCutPointsForSnapshotInScopeAsync(scope.ToProjectScopeKey(), snapshotId, [], cancellationToken);
-
-            return new CutPointAnalysisEngineResult
-            {
-                Succeeded = true,
-                CutPointsDiscovered = 0,
-            };
+            return await PersistCutPointsAsync(scope, snapshotId, [], cancellationToken);
         }
 
         IReadOnlyDictionary<Guid, string?> resourceTypesByCloudResourceId =
@@ -83,6 +77,15 @@ public sealed class CutPointAnalysisEngine(
                 suggestedPatternKey));
         }
 
+        return await PersistCutPointsAsync(scope, snapshotId, records, cancellationToken);
+    }
+
+    private async Task<CutPointAnalysisEngineResult> PersistCutPointsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<SecurityEvidenceCutPointRecord> records,
+        CancellationToken cancellationToken)
+    {
         try
         {
             await cutPointRepository.ReplaceCutPointsForSnapshotInScopeAsync(
