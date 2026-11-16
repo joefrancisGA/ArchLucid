@@ -57,32 +57,26 @@ public sealed class SqlArchitectureProjectRetentionPurgeService(
 
         foreach (TenantRecord tenant in tenants)
         {
-            string connectionString;
+            ct.ThrowIfCancellationRequested();
 
             try
             {
-                connectionString = await _tenantDatabaseResolver.ResolveTenantConnectionStringAsync(tenant.Id, ct);
+                string connectionString =
+                    await _tenantDatabaseResolver.ResolveTenantConnectionStringAsync(tenant.Id, ct);
+                string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+                await using SqlConnection connection = new(secured);
+                await connection.OpenAsync(ct);
+
+                all.AddRange(await PurgeOnConnectionAsync(connection, cutoffUtc, ct));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning(
                         ex,
-                        "Architecture project retention: skipped tenant {TenantId} — catalog binding unavailable.",
+                        "Architecture project retention: purge failed for tenant {TenantId}.",
                         tenant.Id);
-
-                continue;
             }
-
-            string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
-            await using SqlConnection connection = new(secured);
-            await connection.OpenAsync(ct);
-
-            IReadOnlyList<ArchitectureProjectPurgeDeletion> chunk = await PurgeOnConnectionAsync(connection, cutoffUtc, ct);
-
-            foreach (ArchitectureProjectPurgeDeletion d in chunk)
-
-                all.Add(d);
         }
 
         return all;
