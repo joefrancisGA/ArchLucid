@@ -24,6 +24,10 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
     }
 
     /// <inheritdoc />
+    public Task<TenantRecord?> GetByIdUncachedAsync(Guid tenantId, CancellationToken ct) =>
+        _inner.GetByIdUncachedAsync(tenantId, ct);
+
+    /// <inheritdoc />
     public Task<TenantRecord?> GetByIdFromControlPlaneCatalogAsync(Guid tenantId, CancellationToken ct) =>
         _inner.GetByIdFromControlPlaneCatalogAsync(tenantId, ct);
 

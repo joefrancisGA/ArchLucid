@@ -5,6 +5,9 @@ public interface ITenantDirectoryReader
 {
     Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct);
 
+    /// <summary>Reads the current tenant row on the tenant-plane route without a cache.</summary>
+    Task<TenantRecord?> GetByIdUncachedAsync(Guid tenantId, CancellationToken ct);
+
     /// <summary>
     ///     Reads <c>dbo.Tenants</c> from the control-plane catalog (system SQL) when tenant-plane routing returns no row.
     /// </summary>

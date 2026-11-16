@@ -227,6 +227,21 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task Tenant_GetByIdUncachedAsync_bypasses_the_cache()
+    {
+        Guid tenantId = Guid.NewGuid();
+        TenantRecord expected = new() { Id = tenantId };
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repository => repository.GetByIdUncachedAsync(tenantId, CancellationToken.None))
+            .ReturnsAsync(expected);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        CachingTenantRepository repository = new(inner.Object, cache.Object);
+
+        (await repository.GetByIdUncachedAsync(tenantId, CancellationToken.None)).Should().BeSameAs(expected);
+        cache.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Tenant_GetByIdAsync_invalidates_on_suspend()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
