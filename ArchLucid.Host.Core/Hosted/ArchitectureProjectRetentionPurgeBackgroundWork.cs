@@ -48,6 +48,7 @@ public static class ArchitectureProjectRetentionPurgeBackgroundWork
             IReadOnlyList<ArchitectureProjectPurgeDeletion> deleted =
                 await purge.PurgeExpiredAsync(cutoff, cancellationToken);
 
+            // These deletions have already been committed. Finish their audit writes during shutdown.
             foreach (ArchitectureProjectPurgeDeletion d in deleted)
             {
                 await DurableAuditLogRetry.TryLogAsync(
@@ -67,7 +68,7 @@ public static class ArchitectureProjectRetentionPurgeBackgroundWork
                         ct),
                     logger,
                     $"ArchitectureProjectHardPurgedRetention:{d.ProjectId:D}",
-                    cancellationToken,
+                    CancellationToken.None,
                     auditEventTypeForMetrics: AuditEventTypes.ArchitectureProjectHardPurgedRetention);
             }
         }
