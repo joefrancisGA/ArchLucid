@@ -87,19 +87,20 @@ public sealed class HybridHotPathReadCache(
 
     private HybridCacheEntryOptions ResolveEntryOptions(int? absoluteExpirationSecondsOverride)
     {
-        int seconds =
-            absoluteExpirationSecondsOverride ?? _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
+        HotPathCacheOptions options = _optionsMonitor.CurrentValue;
+        int seconds = absoluteExpirationSecondsOverride ?? options.AbsoluteExpirationSeconds;
 
         if (seconds < 1)
             seconds = 60;
 
         seconds = Math.Clamp(seconds, 1, 3600);
-        TimeSpan ttl = TimeSpan.FromSeconds(seconds);
+        bool distributedL2Enabled = options.Enabled &&
+            string.Equals(HotPathCacheProviderResolver.ResolveEffectiveProvider(options), "Redis", StringComparison.OrdinalIgnoreCase);
 
         return new HybridCacheEntryOptions
         {
-            Expiration = ttl,
-            LocalCacheExpiration = ttl
+            Expiration = TimeSpan.FromSeconds(seconds),
+            LocalCacheExpiration = HotPathCacheProviderResolver.ResolveLocalCacheExpiration(options, distributedL2Enabled, seconds),
         };
     }
 }
