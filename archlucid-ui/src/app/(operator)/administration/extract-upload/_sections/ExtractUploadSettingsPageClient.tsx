@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
@@ -90,6 +90,11 @@ import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackag
 import { isAzureLabDemoScenarioId } from "@/lib/azure-lab-inventory-demo-scenarios";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { SECURENOW_EXTRACT_UPLOAD_BASELINE_LOAD_FAILED } from "@/lib/product-line/securenow-extract-upload-baseline-failure-copy";
+import {
+  CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE,
+  formatCloudConnectionsReturnLinkLabel,
+} from "@/lib/integrations/cloud-connections-return-path-honesty-copy";
+import { resolveSecureNowReturnPathFromSearch } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 
 function reviewBindingStepLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
@@ -170,6 +175,18 @@ function ExtractUploadSettingsPageClientInner() {
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
   const showUploadChecklist = shouldShowExtractUploadPackageChecklist(lastAcceptedPackage !== null, extractUploadSteps);
+  const secureNowReturnPath = resolveSecureNowReturnPathFromSearch(searchParams);
+  const returnPathStrip =
+    secureNowReturnPath !== null ? (
+      <div className="space-y-1" data-testid="extract-upload-return-path">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={OPERATOR_LINK.inline} href={secureNowReturnPath}>
+            {formatCloudConnectionsReturnLinkLabel(secureNowReturnPath)}
+          </Link>
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE}</p>
+      </div>
+    ) : null;
 
   return (
     <div
@@ -195,6 +212,8 @@ function ExtractUploadSettingsPageClientInner() {
           associateRunId={associateRunId}
           uploadBusy={upload.busy}
         />
+
+        {returnPathStrip}
 
         {baselineLoadFailed ? (
           <div className="space-y-2" role="alert" data-testid="extract-upload-baseline-load-failure">

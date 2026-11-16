@@ -9,7 +9,10 @@ import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-lin
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useSecureNowLatestSucceededSnapshotId } from "@/hooks/use-securenow-latest-succeeded-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
@@ -31,7 +34,6 @@ import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/sec
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
   SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
-  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
 } from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { cn } from "@/lib/utils";
 
@@ -112,7 +114,7 @@ export function SecureNowCollectionSetupStatusSection(
                   {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
                 </Link>
                 <Link
-                  href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.extractUpload}
+                  href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
                   className={OPERATOR_LINK.inline}
                   data-testid={`${props.testIdPrefix}-collection-second-capture-upload-link`}
                 >

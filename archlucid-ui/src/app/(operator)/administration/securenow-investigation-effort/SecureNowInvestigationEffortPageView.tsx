@@ -1,18 +1,26 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
+import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL,
   SECURENOW_INVESTIGATION_EFFORT_HEADING,
   SECURENOW_INVESTIGATION_EFFORT_LEAD,
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
+  SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
-import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
-import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
   persistSecureNowInvestigationEffortInputs,
@@ -38,6 +46,9 @@ const EMPTY_INPUTS: EffortInputs = {
 };
 
 export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
   const [restoreComplete, setRestoreComplete] = useState(false);
   const inputEditsRef = useRef<Partial<EffortInputs>>({});
@@ -97,6 +108,24 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       />
 
       <div className="mt-6 max-w-3xl space-y-6">
+        {partialCapture ? (
+          <div
+            className="space-y-1 rounded border border-amber-500/30 bg-amber-50/30 p-3 dark:bg-amber-950/20"
+            data-testid="securenow-investigation-effort-partial-capture"
+          >
+            <p className={OPERATOR_TYPOGRAPHY.helper}>{formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}</p>
+            <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE}</p>
+            <p className={OPERATOR_TYPOGRAPHY.helper}>
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+                data-testid="securenow-investigation-effort-partial-capture-cloud-connections"
+              >
+                {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+              </Link>
+            </p>
+          </div>
+        ) : null}
         <SecureNowInvestigationEffortScopeLine />
         <p
           className={OPERATOR_TYPOGRAPHY.helper}

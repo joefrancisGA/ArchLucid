@@ -11,6 +11,10 @@ export const SECURENOW_INVESTIGATION_EFFORT_LEAD =
 export const SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL =
   "This page does not start a timer, calculate ROI, or copy a fee. This page is not a savings claim." as const;
 
+/** Shown when the latest capture completed with gaps — worksheet math does not fix incomplete inventory. */
+export const SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE =
+  "The latest capture completed with gaps. Investigation-effort ROI uses your entered minutes only — it does not infer missing hops or paths from a partial snapshot." as const;
+
 export const SECURENOW_SPONSOR_PATH_INVESTIGATION_EFFORT_HINT =
   `${SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL} Enter your own inputs on Investigation effort before citing ROI in a sponsor readout.` as const;
 
