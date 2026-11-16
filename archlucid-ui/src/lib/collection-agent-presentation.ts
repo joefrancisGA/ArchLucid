@@ -11,14 +11,23 @@ export type CollectionAgentHealth = {
 };
 
 function runTimeMs(run: CollectionRun): number {
-  return parseIsoUtcMs(run.finishedUtc ?? run.startedUtc ?? "");
+  const finishTime = parseIsoUtcMs(run.finishedUtc ?? "");
+  return Number.isFinite(finishTime) ? finishTime : parseIsoUtcMs(run.startedUtc ?? "");
 }
 
 function newestRun(runs: readonly CollectionRun[]): CollectionRun | null {
-  return runs.reduce<CollectionRun | null>(
-    (current, run) => current === null || runTimeMs(run) > runTimeMs(current) ? run : current,
-    null,
-  );
+  let newest: CollectionRun | null = null;
+  let newestTime = Number.NEGATIVE_INFINITY;
+
+  for (const run of runs) {
+    const time = runTimeMs(run);
+    if (newest === null || time > newestTime) {
+      newest = run;
+      newestTime = Number.isFinite(time) ? time : Number.NEGATIVE_INFINITY;
+    }
+  }
+
+  return newest;
 }
 
 export function resolveCollectionAgentHealth(
@@ -35,11 +44,13 @@ export function resolveCollectionAgentHealth(
     return { kind: "blocked", label: "No successful run stored", successfulRun: null };
   }
 
+  const successTime = runTimeMs(successfulRun);
   if (
-    latestRun?.status === "Failed"
+    !Number.isFinite(successTime)
+    || latestRun?.status === "Failed"
     || latestRun?.status === "Rejected"
     || latestRun?.status === "PartiallySucceeded"
-    || nowMs - runTimeMs(successfulRun) > expectedIntervalMs
+    || nowMs - successTime > expectedIntervalMs
   ) {
     return { kind: "needs-attention", label: "Needs attention", successfulRun };
   }
