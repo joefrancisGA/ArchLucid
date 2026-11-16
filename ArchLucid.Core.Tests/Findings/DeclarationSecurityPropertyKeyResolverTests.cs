@@ -65,6 +65,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_publiclyaccessible()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.publiclyaccessible"] = "false",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.publiclyaccessible");
+        value.Should().Be("false");
+    }
+
+    [Fact]
     public void TryGet_resolves_arm_publicNetworkAccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

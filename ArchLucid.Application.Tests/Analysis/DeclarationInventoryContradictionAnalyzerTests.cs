@@ -492,6 +492,53 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_aws_declaration_uses_compacted_tf_publiclyaccessible()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "rds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                        ["tf.publiclyaccessible"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "name": "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                "resourceType": "AWS::RDS::DBInstance",
+                "properties": {
+                  "publiclyAccessible": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.publiclyaccessible");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+    }
+
+    [Fact]
     public void Analyze_detects_storage_encryption_mismatch_for_aws_rds()
     {
         GraphSnapshot graph = new()

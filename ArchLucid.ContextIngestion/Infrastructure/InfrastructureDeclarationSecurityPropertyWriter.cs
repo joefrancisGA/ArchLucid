@@ -9,6 +9,7 @@ internal static class InfrastructureDeclarationSecurityPropertyWriter
         new(StringComparer.OrdinalIgnoreCase)
         {
             ["publicnetworkaccess"] = "publicNetworkAccess",
+            ["publiclyaccessible"] = "publiclyAccessible",
             ["allowblobpublicaccess"] = "allowBlobPublicAccess",
             ["httpsonly"] = "httpsOnly",
             ["minimumtlsversion"] = "minimumTlsVersion",

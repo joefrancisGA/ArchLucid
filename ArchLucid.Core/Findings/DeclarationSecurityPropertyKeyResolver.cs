@@ -13,7 +13,10 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.public_network_access",
                 "tf.public_network_access_enabled",
                 "tf.publicnetworkaccess",
+                "tf.publicly_accessible",
+                "tf.publiclyaccessible",
                 "publicNetworkAccess",
+                "publiclyAccessible",
             ],
             [DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess] =
             [
