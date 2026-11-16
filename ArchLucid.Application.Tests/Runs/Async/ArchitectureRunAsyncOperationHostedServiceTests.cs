@@ -354,8 +354,9 @@ public sealed class ArchitectureRunAsyncOperationHostedServiceTests
         Mock<IRunRepository> runs = new();
         runs.Setup(r => r.GetByIdAsync(DefaultScope, sourceRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
+        // The tenant SQL catalog is selected from the ambient scope.
         runs.Setup(r => r.GetByIdAsync(DefaultScope, replayRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(prepared);
+            .ReturnsAsync(() => AmbientScopeContext.CurrentOverride == DefaultScope ? prepared : null);
         runs.Setup(r => r.UpdateAsync(prepared, It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
         Mock<IArchitectureRunAsyncOperationQueueDrainWorker> drain = new();
