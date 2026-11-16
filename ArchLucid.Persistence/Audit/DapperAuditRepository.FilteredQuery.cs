@@ -60,9 +60,9 @@ public sealed partial class DapperAuditRepository
 
         int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
 
-        // RCSI-backed read committed: no dirty reads on audit listing (see migration 091).
+        // Full payload reads use the database read-committed setting, including RCSI where enabled.
         string selectPrefix = filter.IncludeDataJson
-            ? HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock
+            ? HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJson
             : HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock;
 
         StringBuilder sql = new(selectPrefix);
