@@ -92,6 +92,7 @@ public sealed class AzureInventorySnapshotHeaderService(
 
             await snapshotRepository.InsertHeaderAsync(record, cancellationToken);
 
+            // Finish auditing the committed header even if the caller disconnects.
             await auditService.LogAsync(
                 new AuditEvent
                 {
@@ -105,7 +106,7 @@ public sealed class AzureInventorySnapshotHeaderService(
                         new { snapshotId, packageId },
                         AuditJsonSerializationOptions.Instance),
                 },
-                cancellationToken);
+                CancellationToken.None);
 
             return new AzureInventorySnapshotHeaderCreateResult
             {
