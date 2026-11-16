@@ -460,6 +460,50 @@ public sealed class HostCorePackageCoverageBatch13Tests
     }
 
     [Fact]
+    public async Task OperationalErrorRetentionHostedService_handles_repository_failure_when_warning_logging_is_disabled()
+    {
+        using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(5));
+        TaskCompletionSource attempted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IOperationalErrorRepository> repository = new();
+        repository
+            .Setup(r => r.DeleteOlderThanAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Callback(() => attempted.TrySetResult())
+            .ThrowsAsync(new InvalidOperationException("Temporary storage failure"));
+
+        using ServiceProvider provider = new ServiceCollection()
+            .AddSingleton(repository.Object)
+            .BuildServiceProvider();
+
+        Mock<IOptionsMonitor<OperationalErrorOptions>> retentionOptions = new();
+        retentionOptions.SetupGet(o => o.CurrentValue).Returns(new OperationalErrorOptions());
+        Mock<IOptionsMonitor<HostLeaderElectionOptions>> electionOptions = new();
+        electionOptions.SetupGet(o => o.CurrentValue).Returns(new HostLeaderElectionOptions { Enabled = false });
+        HostLeaderElectionCoordinator coordinator = new(
+            electionOptions.Object,
+            Mock.Of<IHostLeaderLeaseRepository>(),
+            HostInstanceIdentifier.ForTests("test-instance"),
+            NullLogger<HostLeaderElectionCoordinator>.Instance);
+
+        using OperationalErrorRetentionHostedService sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            retentionOptions.Object,
+            NullLogger<OperationalErrorRetentionHostedService>.Instance,
+            coordinator);
+
+        await sut.StartAsync(timeout.Token);
+        try
+        {
+            await attempted.Task.WaitAsync(timeout.Token);
+        }
+        finally
+        {
+            await sut.StopAsync(timeout.Token);
+        }
+
+        await sut.ExecuteTask!.WaitAsync(timeout.Token);
+    }
+
+    [Fact]
     public async Task ScimTokenRotationReminderIteration_queries_due_tokens()
     {
         Mock<IScimTenantTokenRepository> tokens = new();
