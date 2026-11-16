@@ -88,13 +88,13 @@ public sealed partial class CachingRunRepository
     {
         RunArchiveByIdsResult result = await _inner.ArchiveRunsByIdsAsync(runIds, ct);
 
-        await InvalidateRunListCachesForArchivedRowsAsync(result.ArchivedRuns, ct);
+        await InvalidateRunListCachesForArchivedRowsAsync(result.ArchivedRuns, CancellationToken.None);
 
         foreach (ArchivedRunScopeRow row in result.ArchivedRuns)
         {
             ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
 
-            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, CancellationToken.None);
         }
 
         return result;

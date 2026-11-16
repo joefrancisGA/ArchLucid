@@ -1,6 +1,9 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
+
+using Moq;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -48,5 +51,65 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
         RunRecord? afterArchive = await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None);
 
         afterArchive.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task ArchiveRunsByIdsAsync_evicts_cached_rows_when_caller_cancels_after_commit()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        RunRecord run = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+        };
+        Guid[] runIds = [run.RunId];
+        RunArchiveByIdsResult committed = new()
+        {
+            SucceededRunIds = runIds,
+            ArchivedRuns = [new ArchivedRunScopeRow
+            {
+                RunId = run.RunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            }],
+        };
+
+        using CancellationTokenSource caller = new();
+        bool archived = false;
+        Mock<IRunRepository> inner = new();
+        inner.Setup(r => r.GetByIdAsync(scope, run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => archived ? null : run);
+        inner.Setup(r => r.ListRecentInScopeAsync(scope, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => archived ? Array.Empty<RunRecord>() : new[] { run });
+        inner.Setup(r => r.ArchiveRunsByIdsAsync(runIds, caller.Token))
+            .Returns(() =>
+            {
+                archived = true;
+                caller.Cancel();
+                return Task.FromResult(committed);
+            });
+        CachingRunRepository repo = new(inner.Object, HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+
+        (await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None)).Should().NotBeNull();
+        (await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None)).Should().ContainSingle();
+
+        RunArchiveByIdsResult? result = null;
+        Exception? archiveError = await Record.ExceptionAsync(async () =>
+        {
+            result = await repo.ArchiveRunsByIdsAsync(runIds, caller.Token);
+        });
+
+        (await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None)).Should().BeNull();
+        (await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None)).Should().BeEmpty();
+        archiveError.Should().BeNull();
+        result.Should().BeSameAs(committed);
     }
 }
