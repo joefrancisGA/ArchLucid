@@ -64,13 +64,7 @@ public sealed class ReadReplicaRoutedConnectionFactory : IAuthorityRunListConnec
         catch (Exception ex) when (replica is not null && SqlConnectionFailoverClassifier.IsFailoverEligible(ex))
         {
             return await _replicaOpenRetryPipeline.ExecuteAsync(
-                async innerCt =>
-                {
-                    SqlConnection connection = new(replica);
-                    await connection.OpenAsync(innerCt);
-
-                    return connection;
-                },
+                innerCt => SqlConnectionOpen.OpenAsync(new SqlConnection(replica), innerCt),
                 ct);
         }
     }
