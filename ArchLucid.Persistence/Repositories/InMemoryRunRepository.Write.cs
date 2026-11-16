@@ -237,12 +237,12 @@ public sealed partial class InMemoryRunRepository
         ArgumentNullException.ThrowIfNull(scope);
 
         if (!_store.TryGetValue(runId, out RunRecord? run))
-            return Task.CompletedTask;
+            throw new RunConcurrencyConflictException(runId);
 
         lock (run)
         {
             if (!RunRepositoryCore.IsActiveInScope(run, scope))
-                return Task.CompletedTask;
+                throw new RunConcurrencyConflictException(runId);
 
             run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
             run.CompletedUtc ??= completedUtc;

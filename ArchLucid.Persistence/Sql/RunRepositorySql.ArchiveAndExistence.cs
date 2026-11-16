@@ -204,5 +204,7 @@ internal static partial class RunRepositorySql
                                                            AND WorkspaceId = @WorkspaceId
                                                            AND ScopeProjectId = @ScopeProjectId
                                                            AND ArchivedUtc IS NULL;
+
+                                                         SELECT @@ROWCOUNT;
                                                          """;
 }
