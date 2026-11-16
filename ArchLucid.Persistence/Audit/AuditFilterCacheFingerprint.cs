@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 
@@ -11,14 +13,17 @@ internal static class AuditFilterCacheFingerprint
     {
         ArgumentNullException.ThrowIfNull(filter);
 
-        return string.Join(
-            '|',
+        string[] fields =
+        [
             filter.EventType ?? string.Empty,
             FormatInstant(filter.FromUtc),
             FormatInstant(filter.ToUtc),
             filter.CorrelationId ?? string.Empty,
             filter.ActorUserId ?? string.Empty,
-            filter.RunId?.ToString("D") ?? string.Empty);
+            filter.RunId?.ToString("D") ?? string.Empty,
+        ];
+
+        return Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(fields)));
     }
 
     private static string FormatInstant(DateTime? instant)

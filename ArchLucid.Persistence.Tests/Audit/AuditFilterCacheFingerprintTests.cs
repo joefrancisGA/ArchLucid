@@ -16,52 +16,43 @@ public sealed class AuditFilterCacheFingerprintTests
     }
 
     [Fact]
-    public void Build_uses_empty_segments_for_unset_fields()
+    public void Build_treats_missing_and_empty_text_filters_equivalently()
     {
-        string fingerprint = AuditFilterCacheFingerprint.Build(new AuditEventFilter());
-
-        // Six joined segments (EventType, FromUtc, ToUtc, CorrelationId, ActorUserId, RunId) yield five '|' separators.
-        fingerprint.Should().Be("|||||");
-    }
-
-    [Fact]
-    public void Build_includes_event_type_and_actor_when_set()
-    {
-        AuditEventFilter filter = new()
+        AuditEventFilter emptyText = new()
         {
-            EventType = "com.archlucid.alert.fired",
-            CorrelationId = "corr-1",
-            ActorUserId = "user-1",
+            EventType = string.Empty,
+            CorrelationId = string.Empty,
+            ActorUserId = string.Empty,
         };
 
-        string fingerprint = AuditFilterCacheFingerprint.Build(filter);
-
-        fingerprint.Should().Be("com.archlucid.alert.fired|||corr-1|user-1|");
+        AuditFilterCacheFingerprint.Build(emptyText).Should()
+            .Be(AuditFilterCacheFingerprint.Build(new AuditEventFilter()));
     }
 
     [Fact]
-    public void Build_formats_from_and_to_instants_as_round_trip_utc()
+    public void Build_distinguishes_each_filter_field()
     {
-        DateTime fromUtc = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-        DateTime toUtc = new(2026, 1, 2, 6, 30, 0, DateTimeKind.Utc);
+        AuditEventFilter[] filters =
+        [
+            new(),
+            new() { EventType = "value" },
+            new() { CorrelationId = "value" },
+            new() { ActorUserId = "value" },
+            new() { FromUtc = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc) },
+            new() { ToUtc = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc) },
+            new() { RunId = Guid.Parse("11111111-2222-3333-4444-555555555555") },
+        ];
 
-        AuditEventFilter filter = new() { FromUtc = fromUtc, ToUtc = toUtc };
-
-        string fingerprint = AuditFilterCacheFingerprint.Build(filter);
-
-        fingerprint.Should().Be($"|{fromUtc:O}|{toUtc:O}|||");
+        filters.Select(AuditFilterCacheFingerprint.Build).Should().OnlyHaveUniqueItems();
     }
 
     [Fact]
-    public void Build_includes_run_id_in_hyphenated_format_as_last_segment()
+    public void Build_preserves_field_boundaries_when_text_contains_separators()
     {
-        Guid runId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        AuditEventFilter first = new() { CorrelationId = "a|b", ActorUserId = "c" };
+        AuditEventFilter second = new() { CorrelationId = "a", ActorUserId = "b|c" };
 
-        AuditEventFilter filter = new() { RunId = runId };
-
-        string fingerprint = AuditFilterCacheFingerprint.Build(filter);
-
-        fingerprint.Should().Be($"|||||{runId:D}");
+        AuditFilterCacheFingerprint.Build(first).Should().NotBe(AuditFilterCacheFingerprint.Build(second));
     }
 
     [Fact]
