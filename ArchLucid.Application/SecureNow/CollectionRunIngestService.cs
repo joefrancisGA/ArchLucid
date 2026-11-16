@@ -32,60 +32,25 @@ public sealed class CollectionRunIngestService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CollectionRunManifest manifest = artifact.Manifest;
         byte[] zipHash = SHA256.HashData(artifact.ZipBytes);
-        bool manifestHashMatches = IsManifestHashValid(manifest, zipHash);
 
         CollectionRun? existingRun = await _collectionRunRepository.GetAsync(
             scope,
             manifest.RunId,
             cancellationToken);
-        if (manifestHashMatches &&
+        string? rejectionReason = GetManifestRejectionReason(manifest, scope.TenantId, zipHash);
+        if (rejectionReason is null &&
             existingRun?.Status == CollectionRunStatus.Imported &&
             existingRun.ZipSha256 is not null &&
             existingRun.ZipSha256.SequenceEqual(zipHash))
             return existingRun;
 
         CollectionRun collectionRun = CreateRun(scope, manifest, zipHash);
-
-        if (!IsImportableManifestStatus(manifest.Status))
+        if (rejectionReason is not null)
         {
-            collectionRun = WithStatus(
-                collectionRun,
-                CollectionRunStatus.Rejected,
-                "Collection manifest is not in an importable terminal status.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (manifest.TenantId is not Guid manifestTenantId)
-        {
-            collectionRun = WithStatus(
-                collectionRun,
-                CollectionRunStatus.Rejected,
-                "Collection manifest does not include a tenant identifier.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (manifestTenantId != scope.TenantId)
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection manifest tenant does not match the current scope.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
-            return collectionRun;
-        }
-
-        if (!manifestHashMatches)
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection package hash does not match the manifest.");
+            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, rejectionReason);
             if (existingRun?.Status != CollectionRunStatus.Imported)
                 await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
 
-            return collectionRun;
-        }
-
-        if (manifest.SchemaVersion != AzureExtractorPackageZipValidator.SupportedSchemaVersion)
-        {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Unsupported collection manifest schema version.");
-            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
             return collectionRun;
         }
 
@@ -118,6 +83,29 @@ public sealed class CollectionRunIngestService(
 
         await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
         return collectionRun;
+    }
+
+    private static string? GetManifestRejectionReason(
+        CollectionRunManifest manifest,
+        Guid tenantId,
+        byte[] zipHash)
+    {
+        if (!IsImportableManifestStatus(manifest.Status))
+            return "Collection manifest is not in an importable terminal status.";
+
+        if (manifest.TenantId is not Guid manifestTenantId)
+            return "Collection manifest does not include a tenant identifier.";
+
+        if (manifestTenantId != tenantId)
+            return "Collection manifest tenant does not match the current scope.";
+
+        if (!IsManifestHashValid(manifest, zipHash))
+            return "Collection package hash does not match the manifest.";
+
+        if (manifest.SchemaVersion != AzureExtractorPackageZipValidator.SupportedSchemaVersion)
+            return "Unsupported collection manifest schema version.";
+
+        return null;
     }
 
     private static CollectionRun CreateRun(

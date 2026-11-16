@@ -164,6 +164,48 @@ public sealed class CollectionRunIngestServiceTests
         importer.Invocations.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task InvalidManifestCannotReuseOrReplaceAnImportedRun(bool samePackageBytes)
+    {
+        Guid runId = Guid.NewGuid();
+        byte[] originalBytes = [1, 2, 3];
+        CollectionRun original = new()
+        {
+            RunId = runId,
+            Status = CollectionRunStatus.Imported,
+            ZipSha256 = SHA256.HashData(originalBytes),
+            ImportedSnapshotId = Guid.NewGuid(),
+        };
+        Mock<ICollectionRunRepository> repository = CreateRepository(true);
+        repository.Setup(item => item.GetAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(original);
+        Mock<IAzureExtractorIngestService> importer = new();
+        CollectionRunIngestService service = CreateService(repository, importer);
+        CollectionRunArtifact artifact = new()
+        {
+            Manifest = new CollectionRunManifest
+            {
+                RunId = runId,
+                AgentVersion = "test",
+                StartedUtc = DateTime.UtcNow,
+                Status = "Succeeded",
+                TenantId = TestTenantId,
+                SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion + 1,
+            },
+            ZipBytes = samePackageBytes ? originalBytes : [4, 5, 6],
+        };
+
+        CollectionRun result = await service.IngestAsync(artifact);
+
+        result.Status.Should().Be(CollectionRunStatus.Rejected);
+        result.ErrorSummary.Should().Contain("schema version");
+        repository.Verify(item => item.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        importer.Invocations.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task RunningManifestRejectsWithoutImport()
     {
