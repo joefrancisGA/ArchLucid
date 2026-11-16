@@ -113,7 +113,7 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
     public async Task SuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
         await _inner.SuspendTenantAsync(tenantId, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -122,7 +122,7 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
         bool suspended = await _inner.TrySuspendTenantAsync(tenantId, ct);
 
         if (suspended)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return suspended;
     }
@@ -133,7 +133,7 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
         bool cleared = await _inner.TryUnsuspendTenantAsync(tenantId, ct);
 
         if (cleared)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return cleared;
     }
