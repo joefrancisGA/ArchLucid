@@ -79,7 +79,7 @@ public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadC
             return await _inner.GetFilteredAsync(tenantId, workspaceId, projectId, filter, ct);
 
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
-        int safeTake = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        int safeTake = filter.ResolveListFetchSize();
         long revision = await ReadAuditListScopeRevisionAsync(scope, ct);
         string fingerprint = AuditFilterCacheFingerprint.Build(filter);
         string key = HotPathCacheKeys.AuditListFilteredFirstPage(scope, fingerprint, safeTake, revision);

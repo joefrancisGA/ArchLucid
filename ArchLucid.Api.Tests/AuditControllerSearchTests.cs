@@ -126,7 +126,7 @@ public sealed class AuditControllerSearchTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.Is<AuditEventFilter>(f => f.Take == 501),
+                It.Is<AuditEventFilter>(f => f.Take == 501 && f.AllowListLookaheadRow),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

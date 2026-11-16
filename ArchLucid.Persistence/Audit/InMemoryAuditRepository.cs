@@ -73,7 +73,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(filter);
 
-        int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        int take = filter.ResolveListFetchSize();
         List<AuditEvent> snapshot;
         lock (_gate)
         {
