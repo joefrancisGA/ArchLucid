@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Application.Integration;
@@ -164,21 +165,14 @@ public sealed class AuthorityCommittedPipelineFinalizer(
                 scope.ProjectId,
                 ct);
 
-        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
-            _integrationEventOutbox,
-            _integrationEventPublisher,
-            _integrationEventsOptions.CurrentValue,
-            _logger,
-            IntegrationEventTypes.AuthorityRunCompletedV1,
-            integrationPayload,
-            integrationMessageId,
-            run.RunId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            uow.SupportsExternalTransaction ? uow.Connection : null,
-            uow.SupportsExternalTransaction ? uow.Transaction : null,
-            ct);
+        IntegrationEventsOptions integrationOptions = _integrationEventsOptions.CurrentValue;
+        IDbConnection? eventConnection = uow.SupportsExternalTransaction ? uow.Connection : null;
+        IDbTransaction? eventTransaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
+        bool enqueueInTransaction =
+            integrationOptions.TransactionalOutboxEnabled && eventConnection is not null && eventTransaction is not null;
+
+        if (enqueueInTransaction)
+            await PublishCompletionAsync(eventConnection, eventTransaction);
 
         run.GoldenManifestId = goldenManifestId;
         run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
@@ -191,6 +185,9 @@ public sealed class AuthorityCommittedPipelineFinalizer(
 
         if (uow.SupportsExternalTransaction)
             await _runRepository.EvictCachedRunAsync(scope, run.RunId, CancellationToken.None);
+
+        if (!enqueueInTransaction)
+            await PublishCompletionAsync(null, null);
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -226,6 +223,23 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
         return run;
+
+        Task PublishCompletionAsync(IDbConnection? connection, IDbTransaction? transaction) =>
+            OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+                _integrationEventOutbox,
+                _integrationEventPublisher,
+                integrationOptions,
+                _logger,
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                integrationPayload,
+                integrationMessageId,
+                run.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                connection,
+                transaction,
+                ct);
     }
 
     private static string BuildAuthorityRunCompletedMessageId(Guid runId)

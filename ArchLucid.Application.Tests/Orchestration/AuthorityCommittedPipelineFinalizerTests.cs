@@ -315,6 +315,60 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
         return runRepo.Object;
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FinalizeAsync_publishes_direct_completion_only_after_successful_commit(bool commitFails)
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        RunRecord run = CreateRun(runId, scope);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        bool committed = false;
+        uow.SetupGet(work => work.SupportsExternalTransaction).Returns(true);
+        uow.Setup(work => work.CommitAsync(It.IsAny<CancellationToken>())).Returns(() =>
+        {
+            if (commitFails)
+                return Task.FromException(new InvalidOperationException("Commit failed."));
+
+            committed = true;
+            return Task.CompletedTask;
+        });
+
+        Mock<IIntegrationEventPublisher> publisher = new();
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            Mock.Of<IAuthorityQueryService>(), CreateRunRepository(scope), publisher: publisher);
+        bool? wasCommittedAtPublish = null;
+        publisher.Setup(events => events.PublishAsync(
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback(() => wasCommittedAtPublish = committed)
+            .Returns(Task.CompletedTask);
+
+        Func<Task> finalize = () => sut.FinalizeAsync(
+            run, CreateContextSnapshot(runId, contextId), CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId), scope, uow.Object, CancellationToken.None);
+
+        if (commitFails)
+        {
+            await finalize.Should().ThrowAsync<InvalidOperationException>().WithMessage("Commit failed.");
+            wasCommittedAtPublish.Should().BeNull();
+        }
+        else
+        {
+            await finalize();
+            wasCommittedAtPublish.Should().BeTrue();
+        }
+    }
+
     private static ScopeContext CreateScope()
     {
         return new ScopeContext
