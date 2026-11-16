@@ -41,9 +41,16 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorker : IArchi
         }
         catch (OperationCanceledException)
         {
-            await onCreateFailureAsync(item, cancellationToken);
-            registrar.Release(item.Scope, item.RunId, item.Kind);
-            completion.TrySetResult();
+            try
+            {
+                await onCreateFailureAsync(item, CancellationToken.None);
+            }
+            finally
+            {
+                registrar.Release(item.Scope, item.RunId, item.Kind);
+                completion.TrySetResult();
+            }
+
             throw;
         }
 
