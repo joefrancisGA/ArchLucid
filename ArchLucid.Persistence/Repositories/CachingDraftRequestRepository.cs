@@ -78,7 +78,7 @@ public sealed class CachingDraftRequestRepository(
             document,
             cancellationToken);
 
-        await InvalidateDraftAsync(tenantId, workspaceId, projectId, created.DraftId, cancellationToken);
+        await InvalidateDraftAsync(tenantId, workspaceId, projectId, created.DraftId);
 
         return created;
     }
@@ -112,7 +112,7 @@ public sealed class CachingDraftRequestRepository(
 
         if (updated is not null)
         {
-            await InvalidateDraftAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
+            await InvalidateDraftAsync(tenantId, workspaceId, projectId, draftId);
         }
 
         return updated;
@@ -130,7 +130,7 @@ public sealed class CachingDraftRequestRepository(
         foreach (DraftIntakeReapedDraft draft in batch.DeletedDrafts)
         {
             await InvalidateDraftAsync(
-                draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId, CancellationToken.None);
+                draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId);
         }
 
         return batch;
@@ -268,7 +268,7 @@ public sealed class CachingDraftRequestRepository(
 
         if (updated)
         {
-            await InvalidateDraftAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
+            await InvalidateDraftAsync(tenantId, workspaceId, projectId, draftId);
         }
 
         return updated;
@@ -294,8 +294,7 @@ public sealed class CachingDraftRequestRepository(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        Guid draftId,
-        CancellationToken cancellationToken)
+        Guid draftId)
     {
         ScopeContext scope = new()
         {
@@ -304,6 +303,7 @@ public sealed class CachingDraftRequestRepository(
             ProjectId = projectId,
         };
 
-        return HotPathCacheEviction.RemoveDraftRequestAsync(_hotPathReadCache, scope, draftId, cancellationToken);
+        // The write has completed, so the cache entry still needs eviction if the caller disconnects.
+        return HotPathCacheEviction.RemoveDraftRequestAsync(_hotPathReadCache, scope, draftId, CancellationToken.None);
     }
 }
