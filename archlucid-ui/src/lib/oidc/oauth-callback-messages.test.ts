@@ -128,6 +128,14 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u203b\u203b")).toBe("");
   });
 
+  it("returns empty for plus-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("++")).toBe("");
+  });
+
+  it("returns empty for colon-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("::")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
