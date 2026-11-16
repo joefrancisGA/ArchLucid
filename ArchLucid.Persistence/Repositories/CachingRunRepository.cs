@@ -271,10 +271,7 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
             ct);
 
         if (updated)
-        {
-            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
-            await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
-        }
+            await EvictCachedRunAsync(scope, runId, CancellationToken.None);
 
         return updated;
     }
