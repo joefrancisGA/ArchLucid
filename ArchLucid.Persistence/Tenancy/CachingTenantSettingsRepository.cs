@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Caching;
 
 namespace ArchLucid.Persistence.Tenancy;
@@ -26,7 +27,9 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
         (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        if (WritesInFlight.ContainsKey(slot))
+        // Delete authorization needs the current setting even when a different host wrote it.
+        if (string.Equals(normalizedKey, TenantSettingKeys.AllowCreatorDeleteOwnedWork, StringComparison.OrdinalIgnoreCase)
+            || WritesInFlight.ContainsKey(slot))
             return await _inner.TryGetAsync(tenantId, normalizedKey, cancellationToken);
 
         // Wrapper distinguishes "cached miss" (null Value) from HybridCache absent entry.

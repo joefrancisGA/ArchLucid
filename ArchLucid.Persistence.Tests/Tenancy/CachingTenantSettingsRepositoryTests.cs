@@ -1,3 +1,4 @@
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 using Moq;
@@ -7,6 +8,24 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class CachingTenantSettingsRepositoryTests
 {
+    [Fact]
+    public async Task Creator_delete_policy_read_observes_a_change_from_another_host()
+    {
+        Guid tenantId = Guid.NewGuid();
+        const string key = TenantSettingKeys.AllowCreatorDeleteOwnedWork;
+        CancellationToken ct = CancellationToken.None;
+        Mock<ITenantSettingsRepository> inner = new(MockBehavior.Strict);
+        inner.SetupSequence(repository => repository.TryGetAsync(tenantId, key.ToLowerInvariant(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("true")
+            .ReturnsAsync("false");
+        CachingTenantSettingsRepository repository = new(
+            inner.Object,
+            HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+
+        (await repository.TryGetAsync(tenantId, key, ct)).Should().Be("true");
+        (await repository.TryGetAsync(tenantId, $" {key.ToUpperInvariant()} ", ct)).Should().Be("false");
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
