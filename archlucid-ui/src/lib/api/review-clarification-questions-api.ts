@@ -1,3 +1,4 @@
+import { encodeRequiredPathSegment } from "@/lib/api/api-boundary-normalization";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -8,7 +9,7 @@ export async function getReviewClarificationQuestions(
   runId: string,
   priorRunId?: string | null,
 ): Promise<ReviewClarificationQuestionsResponse> {
-  const trimmedRunId = runId.trim();
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
   const params = new URLSearchParams();
 
   if (priorRunId !== undefined && priorRunId !== null && priorRunId.trim().length > 0) {
@@ -18,8 +19,8 @@ export async function getReviewClarificationQuestions(
   const query = params.toString();
   const path =
     query.length > 0
-      ? `/v1/architecture/review/${encodeURIComponent(trimmedRunId)}/clarification-questions?${query}`
-      : `/v1/architecture/review/${encodeURIComponent(trimmedRunId)}/clarification-questions`;
+      ? `/v1/architecture/review/${encodedRunId}/clarification-questions?${query}`
+      : `/v1/architecture/review/${encodedRunId}/clarification-questions`;
 
   try {
     return await apiGetSealedManifestAware<ReviewClarificationQuestionsResponse>(path);

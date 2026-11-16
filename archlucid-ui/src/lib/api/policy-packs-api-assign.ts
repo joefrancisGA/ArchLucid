@@ -8,7 +8,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
 import { policyPackArchiveMutationBlockedReason } from "@/lib/policy/policy-pack-archive-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
+import { recordsOnly, trimRequiredPathSegment, trimRequiredText } from "./api-boundary-normalization";
 
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 
@@ -18,11 +18,12 @@ export async function assignPolicyPack(
   body: { version: string; scopeLevel?: string; isPinned?: boolean; isOrganizationRequired?: boolean },
 ): Promise<PolicyPackAssignment> {
   const normalizedPolicyPackId = trimRequiredPathSegment(policyPackId, "policyPackId");
+  const version = trimRequiredText(body.version, "version");
 
   try {
     return await apiPostJson<PolicyPackAssignment>(
       `/${ApiV1Routes.policyPacks}/${encodeURIComponent(normalizedPolicyPackId)}/assign`,
-      { ...body, version: body.version.trim(), scopeLevel: body.scopeLevel?.trim() },
+      { ...body, version, scopeLevel: body.scopeLevel?.trim() },
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

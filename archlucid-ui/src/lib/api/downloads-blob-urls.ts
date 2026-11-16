@@ -96,6 +96,7 @@ export function getArchitecturePackageDocxUrl(
   }
 
   const q = params.toString();
+  const encodedRunId = encodeURIComponent(runId.trim());
 
-  return `/api/proxy/v1/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
+  return `/api/proxy/v1/docx/runs/${encodedRunId}/architecture-package${q ? `?${q}` : ""}`;
 }

@@ -244,9 +244,11 @@ export async function executeArchitectureRunSelectiveInFlight(
 
 /** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+
   try {
     return await apiPostJson<{ resultCount?: number }>(
-      `/v1/internal/architecture/runs/${encodeURIComponent(runId)}/seed-fake-results`,
+      `/v1/internal/architecture/runs/${encodedRunId}/seed-fake-results`,
       {},
     );
   } catch (error: unknown) {

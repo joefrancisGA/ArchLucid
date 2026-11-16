@@ -13,7 +13,12 @@ import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutati
 import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
 import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { encodeRequiredPathSegment, trimTextFields } from "./api-boundary-normalization";
+import {
+  encodeRequiredPathSegment,
+  recordsOnly,
+  trimStringList,
+  trimTextFields,
+} from "./api-boundary-normalization";
 import { apiPostJson } from "./http";
 
 /** Creates a new policy pack with an initial content document. */
@@ -70,15 +75,25 @@ export async function dryRunPolicyPack(
   body: PolicyPackDryRunRequest,
   options?: { page?: number; pageSize?: number },
 ): Promise<PolicyPackDryRunResponse> {
+  const encodedPolicyPackId = encodeRequiredPathSegment(policyPackId, "policyPackId");
   const pageSize = clampDryRunPageSize(options?.pageSize);
   const page = clampDryRunPage(options?.page);
   const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  const normalizedBody: PolicyPackDryRunRequest = {
+    ...body,
+    evaluateAgainstRunIds: trimStringList(body.evaluateAgainstRunIds),
+  };
 
   try {
-    return await apiPostJson<PolicyPackDryRunResponse>(
-      `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/dry-run?${query.toString()}`,
-      body,
+    const response = await apiPostJson<PolicyPackDryRunResponse>(
+      `/${ApiV1Routes.policyPacks}/${encodedPolicyPackId}/dry-run?${query.toString()}`,
+      normalizedBody,
     );
+
+    return {
+      ...response,
+      items: recordsOnly(response.items),
+    };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = policyPackDryRunMutationBlockedReason(failure);
