@@ -34,11 +34,10 @@ import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
-import {
-  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
-  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
-} from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { cn } from "@/lib/utils";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
@@ -47,6 +46,7 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
   const partialCapture = useLatestSnapshotCaptureIsPartial(true);
   const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const [outcome, setOutcome] = useState("");
   const [rationale, setRationale] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -137,7 +137,11 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
         {partialCapture ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-partial-capture">
             {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
-            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+              data-testid="securenow-sponsor-path-partial-capture-cloud-connections"
+            >
               {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
             </Link>
           </p>
