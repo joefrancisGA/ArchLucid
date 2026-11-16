@@ -34,7 +34,11 @@ public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadC
 
         ScopeContext scope = ScopeForEvent(auditEvent);
 
-        await HotPathCacheEviction.InvalidateAuditListScopeAsync(_hotPathReadCache, scope, ct);
+        // A standalone append has already committed. A caller-owned transaction can still roll back.
+        CancellationToken invalidationToken = connection is not null && transaction is not null
+            ? ct
+            : CancellationToken.None;
+        await HotPathCacheEviction.InvalidateAuditListScopeAsync(_hotPathReadCache, scope, invalidationToken);
     }
 
     /// <inheritdoc />
