@@ -156,9 +156,12 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
 
     private static AuthorityCommittedPipelineFinalizer CreateFinalizer(
         IAuthorityQueryService authorityQuery,
-        IRunRepository runRepository)
+        IRunRepository runRepository,
+        Mock<IRetrievalIndexingOutboxRepository>? retrievalOutbox = null,
+        Mock<IIntegrationEventPublisher>? publisher = null,
+        Mock<IAuditService>? audit = null)
     {
-        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        retrievalOutbox ??= new();
         retrievalOutbox
             .Setup(outbox => outbox.EnqueueAsync(
                 It.IsAny<Guid>(),
@@ -168,7 +171,7 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher ??= new();
         publisher
             .Setup(events => events.PublishAsync(
                 It.IsAny<string>(),
@@ -190,7 +193,7 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
         Mock<IManifestHashService> manifestHash = new();
         manifestHash.Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sha256:pipeline");
 
-        Mock<IAuditService> audit = new();
+        audit ??= new();
         audit.Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -239,6 +242,60 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
             .Returns(Task.CompletedTask);
 
         return runRepo.Object;
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FinalizeAsync_publishes_direct_completion_only_after_successful_commit(bool commitFails)
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        RunRecord run = CreateRun(runId, scope);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        bool committed = false;
+        uow.SetupGet(work => work.SupportsExternalTransaction).Returns(true);
+        uow.Setup(work => work.CommitAsync(It.IsAny<CancellationToken>())).Returns(() =>
+        {
+            if (commitFails)
+                return Task.FromException(new InvalidOperationException("Commit failed."));
+
+            committed = true;
+            return Task.CompletedTask;
+        });
+
+        Mock<IIntegrationEventPublisher> publisher = new();
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            Mock.Of<IAuthorityQueryService>(), CreateRunRepository(scope), publisher: publisher);
+        bool? wasCommittedAtPublish = null;
+        publisher.Setup(events => events.PublishAsync(
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback(() => wasCommittedAtPublish = committed)
+            .Returns(Task.CompletedTask);
+
+        Func<Task> finalize = () => sut.FinalizeAsync(
+            run, CreateContextSnapshot(runId, contextId), CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId), scope, uow.Object, CancellationToken.None);
+
+        if (commitFails)
+        {
+            await finalize.Should().ThrowAsync<InvalidOperationException>().WithMessage("Commit failed.");
+            wasCommittedAtPublish.Should().BeNull();
+        }
+        else
+        {
+            await finalize();
+            wasCommittedAtPublish.Should().BeTrue();
+        }
     }
 
     private static ScopeContext CreateScope()

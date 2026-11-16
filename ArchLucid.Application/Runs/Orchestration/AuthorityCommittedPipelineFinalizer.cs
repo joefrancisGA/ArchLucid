@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Application.Integration;
@@ -137,21 +138,14 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             careerComplete = careerPosture.CareerComplete
         };
 
-        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
-            _integrationEventOutbox,
-            _integrationEventPublisher,
-            _integrationEventsOptions.CurrentValue,
-            _logger,
-            IntegrationEventTypes.AuthorityRunCompletedV1,
-            integrationPayload,
-            integrationMessageId,
-            run.RunId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            uow.SupportsExternalTransaction ? uow.Connection : null,
-            uow.SupportsExternalTransaction ? uow.Transaction : null,
-            ct);
+        IntegrationEventsOptions integrationOptions = _integrationEventsOptions.CurrentValue;
+        IDbConnection? eventConnection = uow.SupportsExternalTransaction ? uow.Connection : null;
+        IDbTransaction? eventTransaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
+        bool enqueueInTransaction =
+            integrationOptions.TransactionalOutboxEnabled && eventConnection is not null && eventTransaction is not null;
+
+        if (enqueueInTransaction)
+            await PublishCompletionAsync(eventConnection, eventTransaction);
 
         // Promote legacy status so list/export lifecycle resolvers treat the run as Complete
         // (AuthorityRunLifecyclePhaseListResolver requires Committed + GoldenManifestId).
@@ -186,6 +180,9 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         run.CompletedUtc = completedUtc;
 
         await uow.CommitAsync(ct);
+
+        if (!enqueueInTransaction)
+            await PublishCompletionAsync(null, null);
 
         if (run.GraphSnapshotId is { } graphSnapshotId)
             _graphSnapshotProjectionCache.Invalidate(scope, run.RunId, graphSnapshotId);
@@ -224,6 +221,23 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
         return run;
+
+        Task PublishCompletionAsync(IDbConnection? connection, IDbTransaction? transaction) =>
+            OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+                _integrationEventOutbox,
+                _integrationEventPublisher,
+                integrationOptions,
+                _logger,
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                integrationPayload,
+                integrationMessageId,
+                run.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                connection,
+                transaction,
+                ct);
     }
 
     private static string BuildAuthorityRunCompletedMessageId(Guid runId)
