@@ -11,6 +11,9 @@ public sealed class TenantEaDiscountMathTests
     [InlineData(0, 1.0)]
     [InlineData(15, 0.85)]
     [InlineData(50, 0.5)]
+    [InlineData(99.98, 0.0002)]
+    [InlineData(99.999, 0.0001)]
+    [InlineData(100, 0.0001)]
     public void MultiplierFromPercentage_maps_percentage_to_effective_price_multiplier(decimal pct, decimal expectedMultiplier)
     {
         TenantEaDiscountMath.MultiplierFromPercentage(pct).Should().Be(expectedMultiplier);
