@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 58 (batch 23): Second-capture return path, partial capture surfaces, drift Terraform honesty
+
+**Outcome.** Remediation factory ranked paths, pilot decision, and investigation effort name partial capture and link cloud connections with return path; extract-upload links and landing page honor `securenowReturnPath`. Drift Terraform ZIP export repeats advisory-not-apply discipline beside the control. Savings hero quarterly non-summing gains a render test.
+
+**Surfaces.** Remediation factory, collection setup, pilot decision, investigation effort, extract upload, drift workbench, scorecard tests, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 57 (batch 22): Rescore follow-ups — return path parity and scorecard operational bands
 
 **Outcome.** Partial-capture cloud-connections links on home, findings, sponsor path, connection-status help, and collection second-capture carry `securenowReturnPath`. Pilot scorecard operational metric tiles repeat non-summing discipline. Savings hero shows quarterly non-summing when a per-quarter estimate is present. Mounted contract and component tests cover return-path wiring and operational scorecard honesty.

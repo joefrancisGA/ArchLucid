@@ -129,6 +129,7 @@ import {
   shouldShowDriftEmptyDiffsUnchangedFilterOffHonesty,
 } from "@/lib/infra-evidence/drift-empty-diffs-unchanged-filter-off-copy";
 import { DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-inventory-not-failure-copy";
+import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
@@ -1601,6 +1602,12 @@ export function DriftWorkbenchClient() {
               </div>
 
               <SponsorExportSendHonestyStrip testIdPrefix="infra-drift-export-terraform" />
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-drift-export-terraform-not-apply"
+              >
+                {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
+              </p>
 
               <DriftSnapshotIdentifiers
                 snapshotId={selectedSnapshotId}

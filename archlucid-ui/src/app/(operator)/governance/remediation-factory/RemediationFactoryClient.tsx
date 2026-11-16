@@ -19,9 +19,19 @@ import {
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
-import { SECURENOW_SECOND_CAPTURE_CTA_HREFS } from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
@@ -285,6 +295,8 @@ export function RemediationFactoryClient() {
     snapshotCaptureSucceeded: null,
   });
   const latestCapturePartial = useLatestSnapshotCaptureIsPartial(productLine === "security");
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(latestCapturePartial);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const rankedPathsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_RANKED_PATHS_EMPTY => {
     if (productLine !== "security" || collectionInputPending || collectionInput === null) {
       return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
@@ -899,9 +911,22 @@ export function RemediationFactoryClient() {
       <section className="space-y-3" aria-label={SECURENOW_PATH_RANKED_PATHS_TITLE}>
         {productLine === "security" && latestCapturePartial ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-partial-capture-ranked-paths">
+            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
             {SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}{" "}
-            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.extractUpload}>
-              Open capture log
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+              data-testid="remediation-partial-capture-cloud-connections"
+            >
+              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
+              data-testid="remediation-partial-capture-extract-upload"
+            >
+              {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
             </Link>
           </p>
         ) : null}

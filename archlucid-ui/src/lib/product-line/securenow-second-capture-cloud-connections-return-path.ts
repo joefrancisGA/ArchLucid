@@ -1,20 +1,36 @@
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 
+import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
+
 import { SECURENOW_SECOND_CAPTURE_CTA_HREFS } from "./securenow-second-capture-cta-copy";
 
 export const SECURENOW_RETURN_PATH_QUERY_PARAM = "securenowReturnPath" as const;
 
-export function buildSecureNowSecondCaptureCloudConnectionsHref(returnPath: string | null | undefined): string {
+function buildSecureNowSecondCaptureHrefWithReturnPath(
+  basePath: string,
+  returnPath: string | null | undefined,
+): string {
   const trimmed = returnPath?.trim() ?? "";
 
   if (trimmed.length === 0 || !trimmed.startsWith("/")) {
-    return SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections;
+    return basePath;
   }
 
   const params = new URLSearchParams();
   params.set(SECURENOW_RETURN_PATH_QUERY_PARAM, trimmed);
 
-  return `${CLOUD_CONNECTIONS_PATH}?${params.toString()}`;
+  return `${basePath}?${params.toString()}`;
+}
+
+export function buildSecureNowSecondCaptureCloudConnectionsHref(returnPath: string | null | undefined): string {
+  return buildSecureNowSecondCaptureHrefWithReturnPath(
+    SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections,
+    returnPath,
+  );
+}
+
+export function buildSecureNowSecondCaptureExtractUploadHref(returnPath: string | null | undefined): string {
+  return buildSecureNowSecondCaptureHrefWithReturnPath(EXTRACT_UPLOAD_PATH, returnPath);
 }
 
 export function resolveSecureNowReturnPathFromSearch(searchParams: URLSearchParams): string | null {

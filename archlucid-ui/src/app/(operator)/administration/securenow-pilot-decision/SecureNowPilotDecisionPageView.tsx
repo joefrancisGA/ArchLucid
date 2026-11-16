@@ -4,6 +4,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
+
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -36,6 +43,9 @@ import { cn } from "@/lib/utils";
 
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
   const [outcome, setOutcome] = useState("");
@@ -121,6 +131,18 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_PILOT_DECISION_HEADING} subtitle={SECURENOW_PILOT_DECISION_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        {partialCapture ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-pilot-decision-partial-capture">
+            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+              data-testid="securenow-pilot-decision-partial-capture-cloud-connections"
+            >
+              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+          </p>
+        ) : null}
         <section aria-labelledby="securenow-pilot-decision-steps-heading" className="space-y-2">
           <h2 id="securenow-pilot-decision-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Close the review
