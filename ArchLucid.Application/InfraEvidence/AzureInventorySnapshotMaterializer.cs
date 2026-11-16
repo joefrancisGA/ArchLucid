@@ -336,16 +336,26 @@ public sealed class AzureInventorySnapshotMaterializer(
                 },
                 cancellationToken);
 
-            AzureInventorySnapshotRecord? materializedHeader =
-                await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
-
-            if (materializedHeader is not null)
+            try
             {
-                await postMaterializeCoordinator.OnSnapshotMaterializedAsync(
-                    scope,
-                    snapshotId,
-                    materializedHeader.SubscriptionId,
-                    cancellationToken);
+                AzureInventorySnapshotRecord? materializedHeader =
+                    await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+                if (materializedHeader is not null)
+                {
+                    await postMaterializeCoordinator.OnSnapshotMaterializedAsync(
+                        scope,
+                        snapshotId,
+                        materializedHeader.SubscriptionId,
+                        cancellationToken);
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Azure inventory snapshot was committed but post-materialization processing failed for SnapshotId={SnapshotId}.",
+                    snapshotId);
             }
 
             return new AzureInventorySnapshotMaterializeResult
