@@ -23,6 +23,9 @@ public sealed partial class DapperTenantRepository
     }
 
 
+    public Task<TenantRecord?> GetByIdUncachedAsync(Guid tenantId, CancellationToken ct) =>
+        GetByIdAsync(tenantId, ct);
+
     public async Task<TenantRecord?> GetByIdFromControlPlaneCatalogAsync(Guid tenantId, CancellationToken ct)
     {
         await using SqlConnection connection = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
