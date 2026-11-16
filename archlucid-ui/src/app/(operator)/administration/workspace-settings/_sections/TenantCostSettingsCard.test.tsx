@@ -54,7 +54,7 @@ describe("TenantCostSettingsCard", () => {
     fireEvent.change(screen.getByTestId("tenant-cost-hourly-rate"), { target: { value: "0" } });
 
     expect(screen.getByTestId("tenant-cost-settings-save")).toBeDisabled();
-    expect(screen.getByText("Enter a USD amount greater than zero.")).toBeInTheDocument();
+    expect(screen.getByText("Enter a USD amount that rounds to at least $0.01.")).toBeInTheDocument();
     expect(screen.getByTestId("tenant-cost-settings-save-readiness")).toHaveTextContent(
       TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE,
     );

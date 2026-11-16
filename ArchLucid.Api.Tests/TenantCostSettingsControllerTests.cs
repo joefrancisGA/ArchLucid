@@ -103,27 +103,34 @@ public sealed class TenantCostSettingsControllerTests
         act.Should().Throw<JsonException>(because);
     }
 
-    [Fact]
-    public async Task PutAsync_returns_bad_request_when_architect_rate_invalid()
+    [Theory]
+    [InlineData(0, 25_000)]
+    [InlineData(0.001, 25_000)]
+    [InlineData(150, 0.001)]
+    public async Task PutAsync_returns_bad_request_when_a_usd_amount_rounds_to_zero(
+        decimal hourlyRate,
+        decimal incidentCost)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
+        Mock<ITenantCostSettingsRepository> repository = new(MockBehavior.Strict);
         TenantCostSettingsController controller = CreateController(
-            Mock.Of<ITenantCostSettingsRepository>(),
+            repository.Object,
             scopeProvider.Object,
             Mock.Of<IAuditService>());
 
         TenantCostSettingsPutRequest body = new()
         {
-            ArchitectHourlyRateUsd = 0m,
-            AverageIncidentCostUsd = 25_000m
+            ArchitectHourlyRateUsd = hourlyRate,
+            AverageIncidentCostUsd = incidentCost
         };
 
         IActionResult action = await controller.PutAsync(body, CancellationToken.None);
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.VerifyNoOtherCalls();
     }
 
     [Fact]
