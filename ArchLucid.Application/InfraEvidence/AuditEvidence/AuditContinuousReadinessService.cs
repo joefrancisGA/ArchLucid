@@ -40,8 +40,9 @@ public sealed class AuditContinuousReadinessService(
                 };
             }
 
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
             IReadOnlyList<AuditAssessmentRecord> assessments =
-                await assessmentRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
+                await assessmentRepository.ListActiveByScopeAsync(projectScope, cancellationToken);
 
             if (assessments.Count == 0)
             {
@@ -78,8 +79,8 @@ public sealed class AuditContinuousReadinessService(
                     .ToHashSet();
 
                 IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> auditSnapshots =
-                    await auditEvidenceSnapshotRepository.ListByAssessmentAsync(
-                        scope.TenantId,
+                    await auditEvidenceSnapshotRepository.ListByAssessmentInScopeAsync(
+                        projectScope,
                         assessment.AssessmentId,
                         cancellationToken);
 
@@ -91,8 +92,8 @@ public sealed class AuditContinuousReadinessService(
                     continue;
 
                 IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                    await auditEvidenceSnapshotRepository.ListItemsAsync(
-                        scope.TenantId,
+                    await auditEvidenceSnapshotRepository.ListItemsInScopeAsync(
+                        projectScope,
                         latestAuditSnapshot.AuditEvidenceSnapshotId,
                         cancellationToken);
 
@@ -111,8 +112,8 @@ public sealed class AuditContinuousReadinessService(
 
                 if (freshnessUpdates.Count > 0)
                 {
-                    await auditEvidenceSnapshotRepository.UpdateItemFreshnessAsync(
-                        scope.TenantId,
+                    await auditEvidenceSnapshotRepository.UpdateItemFreshnessInScopeAsync(
+                        projectScope,
                         latestAuditSnapshot.AuditEvidenceSnapshotId,
                         freshnessUpdates,
                         cancellationToken);
