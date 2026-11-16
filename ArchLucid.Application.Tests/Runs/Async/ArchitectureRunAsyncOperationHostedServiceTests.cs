@@ -397,6 +397,50 @@ public sealed class ArchitectureRunAsyncOperationHostedServiceTests
         registrar.IsRegistered(DefaultScope, item.RunId, item.Kind).Should().BeFalse();
     }
 
+    [Fact]
+    public async Task Replay_canceled_before_worker_slot_records_terminal_state_and_releases_registration()
+    {
+        Guid sourceRunId = Guid.NewGuid();
+        Guid replayRunId = Guid.NewGuid();
+        ArchitectureRunAsyncOperationWorkItem item = ExecuteItem(sourceRunId) with
+        {
+            Kind = ArchitectureRunAsyncOperationKind.Replay,
+            PreparedReplayRunId = replayRunId.ToString("N"),
+        };
+        RunRecord prepared = new() { RunId = replayRunId };
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(DefaultScope, replayRunId, CancellationToken.None)).ReturnsAsync(prepared);
+        runs.Setup(r => r.UpdateAsync(prepared, CancellationToken.None, null, null)).Returns(Task.CompletedTask);
+        Mock<IArchitectureRunAsyncOperationQueueDrainWorker> drain = new();
+        drain.Setup(d => d.DrainAsync(
+                It.IsAny<Func<ArchitectureRunAsyncOperationWorkItem, CancellationToken, Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(async (Func<ArchitectureRunAsyncOperationWorkItem, CancellationToken, Task> dispatch, CancellationToken _) =>
+            {
+                Func<Task> canceledDispatch = () => dispatch(item, new CancellationToken(canceled: true));
+                await canceledDispatch.Should().ThrowAsync<OperationCanceledException>();
+            });
+
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        registrar.TryRegister(DefaultScope, item.RunId, item.Kind).Should().BeTrue();
+        using ArchitectureRunAsyncOperationHostedService sut = CreateSut(
+            new ArchitectureRunAsyncOperationQueue(),
+            registrar,
+            Mock.Of<IArchitectureRunCreateOrchestrator>(),
+            Mock.Of<IArchitectureRunExecuteOrchestrator>(),
+            runs.Object,
+            drain.Object);
+
+        await sut.StartAsync(CancellationToken.None);
+        await sut.ExecuteTask!.WaitAsync(TimeSpan.FromSeconds(5));
+
+        prepared.LegacyRunStatus.Should().Be(nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Failed));
+        prepared.CompletedUtc.Should().NotBeNull();
+        runs.Verify(r => r.UpdateAsync(prepared, CancellationToken.None, null, null), Times.Once);
+        runs.Verify(r => r.GetByIdAsync(DefaultScope, sourceRunId, It.IsAny<CancellationToken>()), Times.Never);
+        registrar.IsRegistered(DefaultScope, item.RunId, item.Kind).Should().BeFalse();
+    }
+
     private static ArchitectureRunAsyncOperationHostedService CreateSut(
         ArchitectureRunAsyncOperationQueue queue,
         ArchitectureRunAsyncOperationRegistrar registrar,

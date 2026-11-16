@@ -64,7 +64,23 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
             item,
             ProcessWorkItemAndReleaseAsync,
             (workItem, ct) => createCompletionWorker.WaitForCreateIfNeededAsync(workItem, registrar, ct),
+            CloseCanceledExecuteOrReplayAsync,
             cancellationToken);
+    }
+
+    private async Task CloseCanceledExecuteOrReplayAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        OperationCanceledException cancellation)
+    {
+        try
+        {
+            if (item.Kind == ArchitectureRunAsyncOperationKind.Replay)
+                await TryMarkExecuteOrReplayFailedAsync(item, cancellation, CancellationToken.None);
+        }
+        finally
+        {
+            registrar.Release(item.Scope, item.RunId, item.Kind);
+        }
     }
 
     private async Task ProcessWorkItemAndReleaseAsync(ArchitectureRunAsyncOperationWorkItem item, CancellationToken cancellationToken)
