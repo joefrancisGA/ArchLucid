@@ -68,6 +68,65 @@ public sealed class AzureInventoryDiffServiceTests
     }
 
     [Fact]
+    public async Task ComputeAndPersistDiffAsync_uses_committed_changes_when_another_writer_wins()
+    {
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        ScopeContext scope = CreateScope();
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        Guid resourceRowId = Guid.NewGuid();
+        const string armId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        AzureInventoryDiffSummaryRecord committedSummary = new()
+        {
+            DiffId = Guid.NewGuid(),
+            SnapshotAId = snapshotAId,
+            SnapshotBId = snapshotBId,
+            TotalChanges = 1,
+        };
+        AzureInventoryChangeRecord committedChange = new()
+        {
+            DiffId = committedSummary.DiffId,
+            ChangeId = Guid.NewGuid(),
+            ChangeType = AzureInventoryChangeType.TagChanged,
+        };
+
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(repository =>
+                repository.TryGetSnapshotDetailAsync(MatchesScope(scope), snapshotAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildSnapshot(snapshotAId, resourceRowId, armId, "prod"));
+        snapshots.Setup(repository =>
+                repository.TryGetSnapshotDetailAsync(MatchesScope(scope), snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildSnapshot(snapshotBId, resourceRowId, armId, "staging"));
+
+        Mock<IAzureInventoryDiffRepository> diffs = new();
+        diffs.Setup(repository =>
+                repository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, CancellationToken.None))
+            .ReturnsAsync((AzureInventoryDiffSummaryRecord?)null);
+        diffs.Setup(repository =>
+                repository.InsertDiffAsync(scope, It.IsAny<AzureInventoryDiffPersistRequest>(), CancellationToken.None))
+            .ReturnsAsync(new AzureInventoryDiffPersistResult
+            {
+                WasExisting = true,
+                DiffId = committedSummary.DiffId,
+                Summary = committedSummary,
+            });
+        diffs.Setup(repository =>
+                repository.ListChangesByDiffIdAsync(scope, committedSummary.DiffId, CancellationToken.None))
+            .ReturnsAsync([committedChange]);
+
+        RecordingDiffConsumer consumer = new();
+        AzureInventoryDiffService service = CreateService(diffs.Object, snapshots.Object, [consumer]);
+
+        AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(scope, snapshotAId, snapshotBId);
+
+        result.Succeeded.Should().BeTrue();
+        result.WasExisting.Should().BeTrue();
+        result.DiffId.Should().Be(committedSummary.DiffId);
+        result.Changes.Should().Equal(committedChange);
+        consumer.LastChanges.Should().Equal(committedChange);
+    }
+
+    [Fact]
     public async Task ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers()
     {
         using IDisposable run = SecureNowAnalysisRun.Begin();
