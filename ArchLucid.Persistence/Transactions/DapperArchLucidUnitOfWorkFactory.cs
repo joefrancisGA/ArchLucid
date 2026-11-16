@@ -19,7 +19,15 @@ public sealed class DapperArchLucidUnitOfWorkFactory(ISqlConnectionFactory conne
     public async Task<IArchLucidUnitOfWork> CreateAsync(CancellationToken ct)
     {
         SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        SqlTransaction? transaction = connection.BeginTransaction();
-        return new DapperArchLucidUnitOfWork(connection, transaction);
+        try
+        {
+            SqlTransaction transaction = connection.BeginTransaction();
+            return new DapperArchLucidUnitOfWork(connection, transaction);
+        }
+        catch
+        {
+            await connection.DisposeAsync();
+            throw;
+        }
     }
 }
