@@ -266,10 +266,10 @@ public static class AzureInventoryDiffComparer
         Guid snapshotAId,
         Guid snapshotBId)
     {
-        HashSet<string> assignmentsA = snapshotA.RoleAssignments.Select(FormatRoleAssignment).ToHashSet(StringComparer.Ordinal);
-        HashSet<string> assignmentsB = snapshotB.RoleAssignments.Select(FormatRoleAssignment).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> assignmentsA = snapshotA.RoleAssignments.Select(FormatRoleAssignment).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> assignmentsB = snapshotB.RoleAssignments.Select(FormatRoleAssignment).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string added in assignmentsB.Except(assignmentsA, StringComparer.Ordinal).OrderBy(a => a, StringComparer.Ordinal))
+        foreach (string added in assignmentsB.Where(a => !assignmentsA.Contains(a)).OrderBy(a => a, StringComparer.Ordinal))
         {
             AzureInventoryRoleAssignmentReadModel? assignment =
                 snapshotB.RoleAssignments.FirstOrDefault(a => FormatRoleAssignment(a) == added);
@@ -297,7 +297,7 @@ public static class AzureInventoryDiffComparer
                 newValue: assignment.RoleDefinitionId));
         }
 
-        foreach (string removed in assignmentsA.Except(assignmentsB, StringComparer.Ordinal).OrderBy(a => a, StringComparer.Ordinal))
+        foreach (string removed in assignmentsA.Where(a => !assignmentsB.Contains(a)).OrderBy(a => a, StringComparer.Ordinal))
         {
             AzureInventoryRoleAssignmentReadModel? assignment =
                 snapshotA.RoleAssignments.FirstOrDefault(a => FormatRoleAssignment(a) == removed);
