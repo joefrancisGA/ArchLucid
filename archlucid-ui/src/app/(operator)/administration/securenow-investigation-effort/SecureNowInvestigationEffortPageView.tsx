@@ -19,8 +19,14 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
 import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
   persistSecureNowInvestigationEffortInputs,
@@ -122,6 +128,14 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
                 data-testid="securenow-investigation-effort-partial-capture-cloud-connections"
               >
                 {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
+                data-testid="securenow-investigation-effort-partial-capture-extract-upload"
+              >
+                {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
               </Link>
             </p>
           </div>

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 59 (batch 24): Return-path labels, second-capture parity, drift export receipt
+
+**Outcome.** Return navigation labels name findings, sponsor path, pilot decision, investigation effort, and extract upload. Partial-capture strips on home, sponsor path, attack path, and the remediation priority queue add extract-upload links with return path and snapshot ids where missing. Drift Terraform export receipt states the ZIP is advisory text only.
+
+**Surfaces.** SecureNow home, sponsor path, pilot decision, investigation effort, remediation factory attack path and priority queue, cloud and extract return links, drift workbench, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 58 (batch 23): Second-capture return path, partial capture surfaces, drift Terraform honesty
 
 **Outcome.** Remediation factory ranked paths, pilot decision, and investigation effort name partial capture and link cloud connections with return path; extract-upload links and landing page honor `securenowReturnPath`. Drift Terraform ZIP export repeats advisory-not-apply discipline beside the control. Savings hero quarterly non-summing gains a render test.

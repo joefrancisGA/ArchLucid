@@ -29,11 +29,15 @@ import {
   REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE,
 } from "./remediation-factory-attack-path-report-copy";
 import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
-import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
 } from "@/lib/product-line/securenow-second-capture-cta-copy";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
   ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
@@ -62,6 +66,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
   readonly awaitingRankedSnapshot: boolean;
   readonly showRankedSnapshotHint: boolean;
   readonly partialCapture?: boolean;
+  readonly partialCaptureSnapshotId?: string | null;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -101,13 +106,21 @@ export function RemediationFactoryAttackPathReportSection(props: {
         ) : null}
         {props.partialCapture === true ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-partial-capture">
-            {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+            {formatPartialCaptureWithSnapshotIdLine(props.partialCaptureSnapshotId)}{" "}
             <Link
               className={OPERATOR_LINK.inline}
               href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
               data-testid="attack-path-report-partial-capture-cloud-connections"
             >
               {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
+              data-testid="attack-path-report-partial-capture-extract-upload"
+            >
+              {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
             </Link>
           </p>
         ) : null}

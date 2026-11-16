@@ -45,11 +45,18 @@ import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
-import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 
 const SNAPSHOT_PAGE_SIZE = 20;
 const CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
@@ -260,6 +267,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const searchParams = useSearchParams();
   const scope = useOperatorScopeQueryKey();
   const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const snapshotsQuery = useQuery({
     queryKey: operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE),
@@ -424,13 +432,21 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       />
       {partialCapture && !showCollectionSetup ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-partial-capture">
-          {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
+          {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
           <Link
             className={OPERATOR_LINK.inline}
             href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
             data-testid="securenow-home-partial-capture-cloud-connections"
           >
             {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
+            data-testid="securenow-home-partial-capture-extract-upload"
+          >
+            {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
           </Link>
         </p>
       ) : null}
