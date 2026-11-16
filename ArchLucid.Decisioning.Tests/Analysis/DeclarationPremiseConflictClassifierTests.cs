@@ -251,6 +251,25 @@ public sealed class DeclarationPremiseConflictClassifierTests
         signals[0].ConflictKind.Should().Be(DeclarationPremiseConflictClassifier.PrivateNetworkConflictKind);
     }
 
+    [Fact]
+    public void Classify_maps_network_isolation_to_admin_ingress_when_host_network_is_false()
+    {
+        GraphNode topology = CreateTopology("nsg", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ingress"] = "0.0.0.0/0:22",
+            ["k8s.hostNetwork"] = "false",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-admin", "Restricted ingress — no SSH from internet");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().ContainSingle();
+        signals[0].ConflictKind.Should().Be(DeclarationPremiseConflictClassifier.AdminIngressConflictKind);
+    }
+
     private static GraphNode CreateTopology(string label, Dictionary<string, string> properties) =>
         new()
         {

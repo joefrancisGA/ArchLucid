@@ -208,6 +208,14 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 
             if (existing is null)
             {
+                if (manifest.TenantId != scope.TenantId
+                    || manifest.WorkspaceId != scope.WorkspaceId
+                    || manifest.ProjectId != scope.ProjectId)
+                {
+                    throw new InvalidOperationException(
+                        $"Demo sealed-receipt repair did not update golden manifest '{manifest.ManifestId:D}' in scope.");
+                }
+
                 _store.Add(manifest);
             }
             else
