@@ -1014,4 +1014,92 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
         mismatch.InventoryValue.Should().Be("false");
         mismatch.SecurityTheme.Should().Be("transport-security");
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_does_not_mismatch_when_aws_declaration_uses_zero_and_inventory_publicly_accessible_is_false_string()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "rds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                        ["tf.publiclyaccessible"] = "0",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "name": "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                "resourceType": "AWS::RDS::DBInstance",
+                "properties": {
+                  "publiclyAccessible": "false"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_aws_declaration_uses_zero_and_inventory_is_public()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "rds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                        ["tf.publiclyaccessible"] = "0",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "name": "arn:aws:rds:us-east-1:123456789012:db:pay-db",
+                "resourceType": "AWS::RDS::DBInstance",
+                "properties": {
+                  "publiclyAccessible": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Aws,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationValue.Should().Be("0");
+        mismatch.InventoryValue.Should().Be("true");
+    }
 }

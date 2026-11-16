@@ -123,11 +123,13 @@ internal static class DeclarationInventorySecurityPropertyValueComparer
 
         if (string.Equals(trimmed, "enabled", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "1", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "allow", StringComparison.OrdinalIgnoreCase))
             return "true";
 
         if (string.Equals(trimmed, "disabled", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "false", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "0", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "deny", StringComparison.OrdinalIgnoreCase))
             return "false";
 
