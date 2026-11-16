@@ -9,6 +9,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Runs.Async;
 
 /// <summary>Accepts async execute/replay/create and returns unified operation handles (TB-2075).</summary>
@@ -61,7 +63,9 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
     IReplayRunService replayRunService,
     IArchitectureRunAsyncCreateAdmitter createAdmitter,
     IFailedRunRetryAdmission failedRunRetryAdmission,
-    IArchitectureRunExecuteAuditHook executeAuditHook) : IArchitectureRunAsyncOperationAcceptor
+    IArchitectureRunExecuteAuditHook executeAuditHook,
+    OperationRunCancellationMarker runCancellationMarker,
+    ILogger<ArchitectureRunAsyncOperationAcceptor> logger) : IArchitectureRunAsyncOperationAcceptor
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -145,18 +149,35 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
             string preparedReplayRunId = await _replayRunService.PrepareReplayRunAsync(originalRunId, cancellationToken);
             Guid parsedReplayRunId = ParseRunId(preparedReplayRunId);
 
-            await _queue.EnqueueAsync(
-                new ArchitectureRunAsyncOperationWorkItem(
-                    ArchitectureRunAsyncOperationKind.Replay,
-                    scope,
-                    actor,
-                    correlationId,
-                    originalRunId,
-                    executionMode,
-                    commitReplay,
-                    manifestVersionOverride,
-                    preparedReplayRunId),
-                cancellationToken);
+            try
+            {
+                await _queue.EnqueueAsync(
+                    new ArchitectureRunAsyncOperationWorkItem(
+                        ArchitectureRunAsyncOperationKind.Replay,
+                        scope,
+                        actor,
+                        correlationId,
+                        originalRunId,
+                        executionMode,
+                        commitReplay,
+                        manifestVersionOverride,
+                        preparedReplayRunId),
+                    cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await runCancellationMarker.TryMarkRunCanceledAsync(scope, parsedReplayRunId, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Could not close prepared replay run {RunId} after canceled queue handoff.",
+                        parsedReplayRunId);
+                }
+
+                throw;
+            }
 
             return OperationIdCodec.ForRun(parsedReplayRunId);
         }

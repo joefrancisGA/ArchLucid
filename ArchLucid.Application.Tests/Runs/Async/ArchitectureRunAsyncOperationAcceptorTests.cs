@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.Orchestration.Execute.Hooks;
@@ -12,6 +13,8 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -26,6 +29,38 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
         WorkspaceId = ScopeIds.DefaultWorkspace,
         ProjectId = ScopeIds.DefaultProject
     };
+
+    [Fact]
+    public async Task AcceptReplayAsync_records_cancellation_for_prepared_run_when_enqueue_is_canceled()
+    {
+        using CancellationTokenSource request = new();
+        Guid sourceId = Guid.NewGuid();
+        Guid preparedId = Guid.NewGuid();
+        RunRecord source = new() { RunId = sourceId, LegacyRunStatus = nameof(ArchitectureRunStatus.Committed) };
+        RunRecord prepared = new() { RunId = preparedId, LegacyRunStatus = nameof(ArchitectureRunStatus.Created) };
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(DefaultScope, sourceId, request.Token)).ReturnsAsync(source);
+        runs.Setup(r => r.GetByIdAsync(DefaultScope, preparedId, CancellationToken.None)).ReturnsAsync(prepared);
+        Mock<IReplayRunService> replay = new();
+        replay.Setup(r => r.PrepareReplayRunAsync(sourceId.ToString("D"), request.Token))
+            .Callback(request.Cancel).ReturnsAsync(preparedId.ToString("N"));
+        Mock<IArchitectureRunAsyncOperationQueue> queue = new();
+        queue.Setup(q => q.EnqueueAsync(It.IsAny<ArchitectureRunAsyncOperationWorkItem>(), request.Token))
+            .Returns(() => ValueTask.FromCanceled(request.Token));
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        ArchitectureRunAsyncOperationAcceptor acceptor = CreateSut(runs: runs, queue: queue, replay: replay, registrar: registrar);
+
+        Func<Task> accept = () => acceptor.AcceptReplayAsync(sourceId.ToString("D"), "current", false, null,
+            DefaultScope, "actor", "corr", request.Token);
+        await accept.Should().ThrowAsync<OperationCanceledException>();
+
+        OperationRunCancellationMarker.IsAlreadyCanceled(prepared).Should().BeTrue();
+        prepared.CompletedUtc.Should().NotBeNull();
+        runs.Verify(r => r.UpdateAsync(prepared, CancellationToken.None, null, null), Times.Once);
+        runs.Verify(r => r.UpdateAsync(source, It.IsAny<CancellationToken>(), null, null), Times.Never);
+        registrar.IsRegistered(DefaultScope, sourceId.ToString("D"), ArchitectureRunAsyncOperationKind.Replay)
+            .Should().BeFalse();
+    }
 
     [Fact]
     public async Task AcceptExecuteAsync_unknown_run_throws_not_found()
@@ -320,6 +355,8 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             replayService.Object,
             (admitter ?? new Mock<IArchitectureRunAsyncCreateAdmitter>()).Object,
             new FailedRunRetryAdmission(runRepo.Object),
-            (audit ?? new Mock<IArchitectureRunExecuteAuditHook>()).Object);
+            (audit ?? new Mock<IArchitectureRunExecuteAuditHook>()).Object,
+            new OperationRunCancellationMarker(runRepo.Object),
+            NullLogger<ArchitectureRunAsyncOperationAcceptor>.Instance);
     }
 }
