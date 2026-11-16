@@ -215,6 +215,9 @@ public interface IRunRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
 
+    /// <summary>Evicts run details and lists after the caller commits an externally managed lifecycle promotion.</summary>
+    Task EvictCachedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct) => Task.CompletedTask;
+
     /// <summary>
     ///     Sets <see cref="RunRecord.ArchivedUtc" /> for runs with <c>CreatedUtc</c> strictly before
     ///     <paramref name="cutoffUtc" />

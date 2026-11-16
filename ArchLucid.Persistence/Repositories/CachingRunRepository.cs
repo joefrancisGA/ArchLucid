@@ -240,6 +240,13 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
             connection,
             transaction);
 
+        if (transaction is null)
+            await EvictCachedRunAsync(scope, runId, CancellationToken.None);
+    }
+
+    /// <inheritdoc />
+    public async Task EvictCachedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
         await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
         await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
     }

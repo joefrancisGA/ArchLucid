@@ -190,6 +190,9 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         if (run.GraphSnapshotId is { } graphSnapshotId)
             _graphSnapshotProjectionCache.Invalidate(scope, run.RunId, graphSnapshotId);
 
+        if (uow.SupportsExternalTransaction)
+            await _runRepository.EvictCachedRunAsync(scope, run.RunId, CancellationToken.None);
+
         await _auditService.LogAsync(
             new AuditEvent
             {
