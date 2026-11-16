@@ -82,6 +82,7 @@ internal static class SqlTenantRuntimeInfrastructureRegistrar
         services.AddScoped<IAuthorityRunListConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
             ReadReplicaQueryRoute.AuthorityRunList,
             sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
             sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
@@ -89,6 +90,7 @@ internal static class SqlTenantRuntimeInfrastructureRegistrar
         services.AddScoped<IGovernanceResolutionReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
             ReadReplicaQueryRoute.GovernanceResolution,
             sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
             sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
@@ -96,6 +98,7 @@ internal static class SqlTenantRuntimeInfrastructureRegistrar
         services.AddScoped<IGoldenManifestLookupReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
             ReadReplicaQueryRoute.GoldenManifestLookup,
             sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
             sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
