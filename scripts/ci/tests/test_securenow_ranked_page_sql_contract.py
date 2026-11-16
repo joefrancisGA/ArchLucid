@@ -26,11 +26,26 @@ class RankedPageSqlContractTests(unittest.TestCase):
         self.assertIn("conn.QueryMultipleAsync(", method)
         self.assertIn("countSql + Environment.NewLine + listSql", method)
         self.assertIn("grid.ReadSingleAsync<int>()", method)
-        self.assertIn("grid.ReadAsync<RankRow>()", method)
+        self.assertIn("grid.ReadAsync<RankRow>(", method)
         self.assertIn("OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY", method)
         self.assertNotIn("conn.ExecuteScalarAsync<int>(", method)
         self.assertNotIn("conn.QueryAsync<RankRow>(", method)
 
+
+    def test_rank_refresh_cannot_change_the_scoped_set_between_count_and_page(self):
+        source = SOURCE.read_text(encoding="utf-8")
+        method = source.split("ListRankedPagedAsync(", 1)[1].split("TryGetWeightsAsync(", 1)[0]
+        start = method.index("BeginTransaction(System.Data.IsolationLevel.Serializable)")
+        batch = method.index("conn.QueryMultipleAsync(")
+        enlist = method.index("transaction: transaction")
+        count = method.index("grid.ReadSingleAsync<int>()")
+        page = method.index("grid.ReadAsync<RankRow>(buffered: true)")
+        commit = method.index("transaction.Commit()")
+        self.assertLess(start, batch)
+        self.assertLess(batch, enlist)
+        self.assertLess(enlist, count)
+        self.assertLess(count, page)
+        self.assertLess(page, commit)
 
 if __name__ == "__main__":
     unittest.main()

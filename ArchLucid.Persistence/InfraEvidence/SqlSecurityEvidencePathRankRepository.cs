@@ -327,20 +327,25 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        // Fetch the count and requested page in one database round trip. Both statements
-        // retain the same scoped JOIN/WHERE predicates and parameterized paging bounds.
-        using SqlMapper.GridReader grid = await conn.QueryMultipleAsync(
+        // A single round trip still runs two statements. Hold the scoped read stable
+        // across both so a concurrent rank replacement cannot change the page after the count.
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction(System.Data.IsolationLevel.Serializable);
+        int totalCount;
+        IEnumerable<RankRow> rows;
+        using (SqlMapper.GridReader grid = await conn.QueryMultipleAsync(
             new CommandDefinition(
                 countSql + Environment.NewLine + listSql,
                 parameters,
-                cancellationToken: cancellationToken));
+                transaction: transaction,
+                cancellationToken: cancellationToken)))
+        {
+            totalCount = await grid.ReadSingleAsync<int>();
+            rows = await grid.ReadAsync<RankRow>(buffered: true);
+        }
 
-        int totalCount = await grid.ReadSingleAsync<int>();
-        IEnumerable<RankRow> rows = await grid.ReadAsync<RankRow>();
+        transaction.Commit();
 
-        IReadOnlyList<SecurityEvidencePathRankRecord> items = rows.Select(MapRank).ToList();
-
-        return (items, totalCount);
+        return (rows.Select(MapRank).ToList(), totalCount);
     }
 
     public async Task<SecurityEvidencePathRankWeightsRecord?> TryGetWeightsAsync(
