@@ -34,6 +34,40 @@ public sealed class ClarificationAnswerReReviewCoordinatorTests
     result.Should().BeNull();
   }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryRunAfterApplyAsync_records_terminal_error_when_re_review_fails(bool completionWriteFails)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid runId = Guid.NewGuid();
+        ArchitectureKnowledgeModel model = new();
+        Mock<IArchitectureKnowledgeModelAccess> modelAccess = new();
+        modelAccess.Setup(access => access.GetForRunAsync(scope, runId, CancellationToken.None)).ReturnsAsync(model);
+        InvalidOperationException failure = new("Review failed.");
+        Mock<IIncrementalReReviewService> reReview = new();
+        reReview.Setup(service => service.ReReviewAsync(
+            model, It.IsAny<ReReviewScope>(), It.IsAny<IAsyncSpecialistReviewService>(), CancellationToken.None))
+            .ThrowsAsync(failure);
+        Mock<IRunStageOutcomesRepository> stages = new();
+        if (completionWriteFails)
+        {
+            stages.Setup(repo => repo.RecordStageCompletedAsync(
+                runId, "clarification-re-review", "error", It.IsAny<DateTime>(), CancellationToken.None))
+                .ThrowsAsync(new InvalidOperationException("Stage write failed."));
+        }
+
+        ClarificationAnswerReReviewCoordinator sut = CreateSut(
+            modelAccess.Object, reReview.Object, null, null, stages.Object, null);
+
+        Func<Task> run = () => sut.TryRunAfterApplyAsync(
+            scope, runId, 1, new Dictionary<string, string>(), CancellationToken.None);
+
+        (await run.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
+        stages.Verify(repo => repo.RecordStageCompletedAsync(
+            runId, "clarification-re-review", "error", It.IsAny<DateTime>(), CancellationToken.None), Times.Once);
+    }
+
     private static ClarificationAnswerReReviewCoordinator CreateSut(
       IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
       IIncrementalReReviewService? incrementalReReview,
