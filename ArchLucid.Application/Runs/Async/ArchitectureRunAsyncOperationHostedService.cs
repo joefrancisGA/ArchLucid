@@ -79,8 +79,8 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
 
             if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
                 await TryMarkCreateFailedAsync(item, cancellationToken);
-            else if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
-                await TryMarkExecuteFailedAsync(item, ex, cancellationToken);
+            else if (item.Kind is ArchitectureRunAsyncOperationKind.Execute or ArchitectureRunAsyncOperationKind.Replay)
+                await TryMarkExecuteOrReplayFailedAsync(item, ex, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -126,12 +126,14 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         }
     }
 
-    private async Task TryMarkExecuteFailedAsync(
+    private async Task TryMarkExecuteOrReplayFailedAsync(
         ArchitectureRunAsyncOperationWorkItem item,
         Exception fault,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(item.RunId, out Guid runId))
+        bool isReplay = item.Kind == ArchitectureRunAsyncOperationKind.Replay;
+
+        if (!Guid.TryParse(isReplay ? item.PreparedReplayRunId : item.RunId, out Guid runId))
             return;
 
         try
@@ -140,7 +142,7 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
             IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
             RunRecord? header = await runs.GetByIdAsync(item.Scope, runId, cancellationToken);
 
-            if (header is null)
+            if (header is null || (isReplay && header.CompletedUtc.HasValue))
                 return;
 
             if (string.Equals(
@@ -159,7 +161,7 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(ex, "Failed to mark async execute run {RunId} as Failed.", item.RunId);
+            logger.LogWarning(ex, "Failed to mark async {Kind} run {RunId} as Failed.", item.Kind, runId);
         }
     }
 
