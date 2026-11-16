@@ -100,8 +100,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -187,8 +187,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -280,8 +280,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -369,8 +369,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -465,8 +465,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -569,8 +569,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -827,8 +827,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -917,8 +917,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
         repository
             .Setup(r => r.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -994,8 +994,8 @@ public sealed class PollingCollectionRunDiscoveryTests
             .Setup(r => r.GetAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CollectionRun?)null);
         repository
-            .Setup(r => r.HasImportedHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.FindImportedSnapshotIdByHashAsync(It.IsAny<ScopeContext>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
 
         Mock<IAzureExtractorIngestService> azureIngest = new();
         azureIngest

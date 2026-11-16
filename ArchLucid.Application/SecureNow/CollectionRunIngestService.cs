@@ -40,6 +40,7 @@ public sealed class CollectionRunIngestService(
         string? rejectionReason = GetManifestRejectionReason(manifest, scope.TenantId, zipHash);
         if (rejectionReason is null &&
             existingRun?.Status == CollectionRunStatus.Imported &&
+            existingRun.ImportedSnapshotId.HasValue &&
             existingRun.ZipSha256 is not null &&
             existingRun.ZipSha256.SequenceEqual(zipHash))
             return existingRun;
@@ -54,9 +55,15 @@ public sealed class CollectionRunIngestService(
             return collectionRun;
         }
 
-        if (await _collectionRunRepository.HasImportedHashAsync(scope, zipHash, cancellationToken))
+        Guid? reusableSnapshotId = await _collectionRunRepository.FindImportedSnapshotIdByHashAsync(scope, zipHash, cancellationToken);
+        if (reusableSnapshotId.HasValue)
         {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Imported, null);
+            collectionRun = collectionRun with
+            {
+                Status = CollectionRunStatus.Imported,
+                ImportedSnapshotId = reusableSnapshotId,
+                ErrorSummary = null,
+            };
             await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
             return collectionRun;
         }
