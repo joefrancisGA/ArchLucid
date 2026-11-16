@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -15,6 +16,47 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class AuditContinuousReadinessServiceTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Drift_fan_out_reports_the_audit_readiness_result(bool readinessSucceeded)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        AzureInventoryDiffSummaryRecord summary = new()
+        {
+            DiffId = Guid.NewGuid(),
+            SnapshotAId = Guid.NewGuid(),
+            SnapshotBId = Guid.NewGuid(),
+            TotalChanges = 1,
+        };
+        IReadOnlyList<AzureInventoryChangeRecord> changes =
+        [
+            new() { ChangeId = Guid.NewGuid(), DiffId = summary.DiffId, ChangeType = AzureInventoryChangeType.ResourceAdded },
+        ];
+        Mock<IAzureInventoryDiffRepository> diffs = new();
+        diffs.Setup(repository => repository.TryGetBySnapshotPairAsync(
+                scope, summary.SnapshotAId, summary.SnapshotBId, CancellationToken.None))
+            .ReturnsAsync(summary);
+        diffs.Setup(repository => repository.ListChangesByDiffIdAsync(scope, summary.DiffId, CancellationToken.None))
+            .ReturnsAsync(changes);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+        Mock<IAuditContinuousReadinessService> readiness = new();
+        readiness.Setup(service => service.ProcessInventoryDiffAsync(scope, summary, changes, CancellationToken.None))
+            .ReturnsAsync(new AuditContinuousReadinessProcessResult { Succeeded = readinessSucceeded });
+        AzureInventoryDiffService diffsService = new(
+            Mock.Of<IAzureInventorySnapshotRepository>(),
+            diffs.Object,
+            [new AuditContinuousReadinessDiffConsumer(scopeProvider.Object, readiness.Object)],
+            NullLogger<AzureInventoryDiffService>.Instance);
+
+        AzureInventoryDiffComputeResult result = await diffsService.ComputeAndPersistDiffAsync(
+            scope, summary.SnapshotAId, summary.SnapshotBId);
+
+        result.Succeeded.Should().BeTrue();
+        result.ConsumerFanOutSucceeded.Should().Be(readinessSucceeded);
+    }
+
     [Fact]
     public async Task ProcessInventoryDiffAsync_public_ip_add_invalidates_network_evidence_and_reevaluates_control()
     {
