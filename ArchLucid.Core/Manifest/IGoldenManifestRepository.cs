@@ -53,6 +53,7 @@ public interface IGoldenManifestRepository
     /// <summary>
     ///     Marks active golden manifests in the scope as superseded when no non-archived run in that scope references them.
     ///     Intended immediately after finalize wires <paramref name="newManifestId" /> onto the committing run (same SQL transaction when provided).
+    ///     When supplying a transaction, call <see cref="EvictCachedManifestAsync" /> for the returned IDs after commit.
     /// </summary>
     /// <returns>Manifest identifiers transitioned to superseded; never null (empty when none).</returns>
     Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsAsync(
@@ -61,6 +62,10 @@ public interface IGoldenManifestRepository
         IDbConnection? connection,
         IDbTransaction? transaction,
         CancellationToken cancellationToken);
+
+    /// <summary>Evicts the scoped manifest read cache after its transaction commits. Uncached repositories have no work.</summary>
+    Task EvictCachedManifestAsync(ScopeContext scope, Guid manifestId, CancellationToken cancellationToken) =>
+        Task.CompletedTask;
 
     /// <summary>
     ///     Demo-seed / release-gate repair: updates <c>HasherBoundJson</c> and <c>ManifestHash</c> on an existing golden manifest row.
