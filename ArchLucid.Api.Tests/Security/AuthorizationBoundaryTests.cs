@@ -61,6 +61,19 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     }
 
     [SkippableFact]
+    public async Task Reader_can_read_creator_delete_policy_and_cannot_change_it()
+    {
+        const string path = "/v1/admin/settings/work-ownership-delete-policy";
+        using HttpClient client = CreateReaderClient();
+
+        using HttpResponseMessage read = await client.GetAsync(path);
+        read.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using HttpResponseMessage write = await client.PutAsJsonAsync(path, new { allowCreatorDeleteOwnedWork = false });
+        write.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
     public async Task Reader_key_cannot_GET_admin_config_summary_returns_403()
     {
         using HttpClient client = CreateReaderClient();

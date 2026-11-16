@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Core.Scoping;
@@ -11,19 +10,6 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 public sealed partial class SettingsController
 {
-    /// <summary>Whether creators may delete or archive their own unsealed architectures and in-flight reviews.</summary>
-    [HttpGet("work-ownership-delete-policy")]
-    [ProducesResponseType(typeof(TenantWorkOwnershipDeletePolicyResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<TenantWorkOwnershipDeletePolicyResponse>> GetWorkOwnershipDeletePolicy(
-        CancellationToken cancellationToken)
-    {
-        bool allowCreatorDelete = await _workOwnershipDeletePolicyService
-            .GetAllowCreatorDeleteOwnedWorkAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        return Ok(new TenantWorkOwnershipDeletePolicyResponse { AllowCreatorDeleteOwnedWork = allowCreatorDelete });
-    }
-
     /// <summary>Enable or disable creator delete/archive for unsealed work (admins always retain delete rights).</summary>
     [HttpPut("work-ownership-delete-policy")]
     [ProducesResponseType(typeof(TenantWorkOwnershipDeletePolicyResponse), StatusCodes.Status200OK)]
