@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -143,7 +143,7 @@ describe("CollectionAgentPageClient", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Collection is running.");
   });
 
-  it("shows a failed Run now request inline and allows a retry", async () => {
+  it("reuses the trigger key after an ambiguous failure and rotates it after success", async () => {
     useCollectionRunsQueryMock.mockReturnValue({
       data: [successfulRun()],
       isPending: false,
@@ -153,7 +153,10 @@ describe("CollectionAgentPageClient", () => {
       typeof import("@/hooks/use-collection-runs-query")
     >("@/hooks/use-collection-runs-query");
     useTriggerCollectionRunMutationMock.mockImplementation(useTriggerCollectionRunMutation);
-    vi.mocked(triggerCollectionRun).mockRejectedValueOnce(new Error("Collection is not configured."));
+    vi.mocked(triggerCollectionRun).mockClear()
+      .mockRejectedValueOnce(new Error("Network timeout"))
+      .mockResolvedValueOnce(successfulRun())
+      .mockResolvedValueOnce(successfulRun());
 
     render(
       <QueryClientProvider client={new QueryClient()}>
@@ -164,9 +167,19 @@ describe("CollectionAgentPageClient", () => {
     const runButton = screen.getByRole("button", { name: "Run now" });
     fireEvent.click(runButton);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Collection is not configured.");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Network timeout");
     expect(triggerCollectionRun).toHaveBeenCalledOnce();
     expect(runButton).toBeEnabled();
+    const firstKey = vi.mocked(triggerCollectionRun).mock.calls[0]?.[0];
+
+    fireEvent.click(runButton);
+    await waitFor(() => expect(triggerCollectionRun).toHaveBeenCalledTimes(2));
+    expect(triggerCollectionRun).toHaveBeenNthCalledWith(2, firstKey);
+    await waitFor(() => expect(runButton).toBeEnabled());
+
+    fireEvent.click(runButton);
+    await waitFor(() => expect(triggerCollectionRun).toHaveBeenCalledTimes(3));
+    expect(vi.mocked(triggerCollectionRun).mock.calls[2]?.[0]).not.toBe(firstKey);
   });
 
   it("expands a failed run to show its error summary", () => {
