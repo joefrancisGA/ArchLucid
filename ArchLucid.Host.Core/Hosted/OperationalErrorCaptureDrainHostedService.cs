@@ -33,6 +33,9 @@ public sealed class OperationalErrorCaptureDrainHostedService(
                 break;
             }
 
+            bool persisted = false;
+            Exception? failure = null;
+
             try
             {
                 using IServiceScope scope = _scopeFactory.CreateScope();
@@ -40,27 +43,37 @@ public sealed class OperationalErrorCaptureDrainHostedService(
                     scope.ServiceProvider.GetRequiredService<IOperationalErrorRepository>();
 
                 await DurableAuditLogRetry.TryLogAsync(
-                    ct => repository.AppendAsync(record, ct),
+                    async ct =>
+                    {
+                        await repository.AppendAsync(record, ct);
+                        persisted = true;
+                    },
                     _logger,
                     "OperationalErrorCaptureDrain",
                     stoppingToken);
-
-                _captureQueue.NotifyPersistedSuccess();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                if (_captureQueue.TryReturnToQueueAfterFailedDrain(record))
-                {
-                    if (_logger.IsEnabled(LogLevel.Debug))
-                        _logger.LogDebug(ex, "Operational error drain failed; row re-queued.");
-                }
-                else if (_logger.IsEnabled(LogLevel.Warning))
-                {
-                    _logger.LogWarning(
-                        ex,
-                        "Operational error drain failed and re-queue dropped; row {OperationalErrorId} may be lost.",
-                        record.Id);
-                }
+                failure = ex;
+            }
+
+            if (persisted)
+            {
+                _captureQueue.NotifyPersistedSuccess();
+                continue;
+            }
+
+            if (_captureQueue.TryReturnToQueueAfterFailedDrain(record))
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug(failure, "Operational error drain failed; row re-queued.");
+            }
+            else if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    failure,
+                    "Operational error drain failed and re-queue dropped; row {OperationalErrorId} may be lost.",
+                    record.Id);
             }
         }
     }
