@@ -75,6 +75,35 @@ describe("collection-agent-presentation", () => {
     ).toBe("Needs attention");
   });
 
+  it("uses a dated success ahead of an undated history row", () => {
+    const health = resolveCollectionAgentHealth([
+      run({ runId: "undated", startedUtc: undefined, finishedUtc: null }),
+      run({ runId: "dated" }),
+    ], Date.parse("2026-10-12T10:00:00.000Z"));
+
+    expect(health.label).toBe("Ready");
+    expect(health.successfulRun?.runId).toBe("dated");
+  });
+
+  it("uses the start timestamp if the finish timestamp is unreadable", () => {
+    const health = resolveCollectionAgentHealth(
+      [run({ finishedUtc: "not-a-date" })],
+      Date.parse("2026-10-13T10:00:00.000Z"),
+    );
+
+    expect(health.label).toBe("Needs attention");
+  });
+
+  it("requires a readable success timestamp to report Ready", () => {
+    const health = resolveCollectionAgentHealth(
+      [run({ startedUtc: undefined, finishedUtc: null })],
+      Date.parse("2026-10-12T10:00:00.000Z"),
+    );
+
+    expect(health.label).toBe("Needs attention");
+    expect(health.successfulRun?.runId).toBe("run");
+  });
+
   it("formats completed and in-progress durations", () => {
     expect(formatCollectionRunDuration(run())).toBe("5m 0s");
     expect(formatCollectionRunDuration(run({ finishedUtc: null, status: "Running" }))).toBe("In progress");
