@@ -19,6 +19,37 @@ public sealed class ArchitectureRunAsyncOperationCreateCompletionWorkerTests
     };
 
     [Fact]
+    public async Task Canceled_slot_wait_records_create_failure_and_releases_registration()
+    {
+        ArchitectureRunAsyncOperationCreateCompletionWorker worker = new();
+        ArchitectureRunAsyncOperationRegistrar registrar = new();
+        ArchitectureRunAsyncOperationWorkItem create = ExecuteItem(Guid.NewGuid()) with
+        {
+            Kind = ArchitectureRunAsyncOperationKind.Create,
+        };
+        registrar.TryRegister(create.Scope, create.RunId, create.Kind).Should().BeTrue();
+        using CancellationTokenSource shutdown = new();
+        shutdown.Cancel();
+        bool failureRecorded = false;
+
+        Func<Task> dispatch = () => worker.ProcessCreateBoundedAsync(
+            create,
+            (_, _) => throw new InvalidOperationException("Create should not run after shutdown."),
+            (_, cleanupToken) =>
+            {
+                cleanupToken.ThrowIfCancellationRequested();
+                failureRecorded = true;
+                return Task.CompletedTask;
+            },
+            registrar,
+            shutdown.Token);
+
+        await dispatch.Should().ThrowAsync<OperationCanceledException>();
+        failureRecorded.Should().BeTrue();
+        registrar.IsRegistered(create.Scope, create.RunId, create.Kind).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task WaitForCreateIfNeededAsync_returns_immediately_when_create_is_not_registered()
     {
         ArchitectureRunAsyncOperationCreateCompletionWorker sut = new(TimeSpan.FromMilliseconds(20));
