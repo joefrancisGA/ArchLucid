@@ -84,7 +84,6 @@ public sealed class AzureExtractorPreparedZipPersistStage(
 
                 if (headerResult.Succeeded && headerResult.SnapshotId is Guid createdSnapshotId)
                 {
-                    snapshotId = createdSnapshotId;
                     AzureInventoryCaptureMethod captureMethod = manifest.RawJson.Contains(
                         "\"captureMethod\":\"HostedReader\"",
                         StringComparison.OrdinalIgnoreCase)
@@ -94,7 +93,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                         ? AzureInventoryCaptureMethod.HostedReader
                         : AzureInventoryCaptureMethod.CustomerScript;
 
-                    await _inventorySnapshotMaterializer.TryMaterializePackageAsync(
+                    AzureInventorySnapshotMaterializeResult materialized = await _inventorySnapshotMaterializer.TryMaterializePackageAsync(
                         scope,
                         createdSnapshotId,
                         packageId,
@@ -102,6 +101,8 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                         captureMethod,
                         manifest.ScriptVersion,
                         ct);
+                    if (materialized.Succeeded)
+                        snapshotId = createdSnapshotId;
                 }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
