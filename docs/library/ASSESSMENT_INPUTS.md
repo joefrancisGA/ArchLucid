@@ -20,6 +20,8 @@ Use this sequence so **headline readiness** never mixes with **historical narrat
 
 **Execution prompts** for shipped improvements are **not** a second scorecard; align closure notes back into the **rolling assessment file** when the pass completes.
 
+**Light desk (Cursor):** **`/al-light`** — light rescore of the **47 qualities** for **SecureNow** and **ArchLucid**, explicit delta vs the latest **`LIGHT_DESK_*.md`** or **`FRESH_DESK_*_FULL_RESCORE.md`**, plus a numbered engineering-safe suggestion backlog (default **35** suggestions; optional count and focus). Procedure: **`.cursor/commands/al-light.md`**. Chat-only unless the user asks to write under **`docs/assessments/`**.
+
 Read these **before** grepping broadly or opening large code regions. For scoring rules and out-of-scope procurement items, load **`Assessment-Scope-V1_1.mdc`** explicitly (**`@Assessment-Scope-V1_1`** in Cursor — it is not always injected).
 
 | Order | Document | Role |
