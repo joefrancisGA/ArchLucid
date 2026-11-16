@@ -24,7 +24,7 @@ import {
   resolveCollectionAgentStaleSuccessDetail,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -188,6 +188,21 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
   );
 }
 
+function formatSuccessfulRunLabel(run: CollectionRun | null): string {
+  if (run === null) {
+    return "No successful run was stored.";
+  }
+
+  const finishedUtc = run.finishedUtc?.trim();
+  if (!finishedUtc) {
+    return "Last successful run finish time was not stored.";
+  }
+
+  return Number.isFinite(parseIsoUtcMs(finishedUtc))
+    ? `Last successful run ${formatRelativeTime(finishedUtc)}`
+    : "Last successful run finish time could not be read.";
+}
+
 export function CollectionAgentPageClient(): React.JSX.Element {
   const query = useCollectionRunsQuery();
   const triggerMutation = useTriggerCollectionRunMutation();
@@ -201,11 +216,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
     ? null
     : toApiLoadFailure(triggerMutation.error);
-  const successfulRunLabel = health.successfulRun === null
-    ? "No successful run was stored."
-    : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
-      ? "Last successful run finish time was not stored."
-      : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
+  const successfulRunLabel = formatSuccessfulRunLabel(health.successfulRun);
 
   if (query.isPending) {
     return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;
