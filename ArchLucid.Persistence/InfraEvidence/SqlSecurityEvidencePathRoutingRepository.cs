@@ -151,9 +151,10 @@ public sealed class SqlSecurityEvidencePathRoutingRepository(ISqlConnectionFacto
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction transaction = conn.BeginTransaction();
 
+        // Serialize replacements on the parent even when the path has no routing rows yet.
         const string ensurePathSql = """
                                      SELECT COUNT(1)
-                                     FROM dbo.SecurityEvidencePaths
+                                     FROM dbo.SecurityEvidencePaths WITH (UPDLOCK, HOLDLOCK)
                                      WHERE TenantId = @TenantId
                                        AND WorkspaceId = @WorkspaceId
                                        AND ProjectId = @ProjectId
