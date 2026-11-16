@@ -34,6 +34,8 @@ public sealed class InMemoryCollectionTriggerClaimRepository : ICollectionTrigge
             throw new ArgumentException("A nonempty run ID is required.", nameof(proposedRunId));
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         ClaimRecord created = new() { RunId = proposedRunId, State = 0 };
         ClaimRecord stored = _claims.GetOrAdd(ClaimKey(scope, key), created);
         bool acquired = ReferenceEquals(stored, created);
