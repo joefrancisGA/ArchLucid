@@ -22,6 +22,8 @@ import {
   encodeRequiredPathSegment,
   isRecord,
   positiveIntegerOrDefault,
+  recordsOnly,
+  requireRecord,
   trimOptionalText,
 } from "./api-boundary-normalization";
 
@@ -169,14 +171,42 @@ export async function fetchLearningPlanningListBundle(options?: {
   const q = params.toString();
   const suffix = q ? `?${q}` : "";
 
-  return apiGetSealedManifestAware(`/${ApiV1Routes.learning}/list-bundle${suffix}`);
+  const raw = requireRecord<{
+    summary: LearningSummaryResponse;
+    themes: LearningThemesListResponse;
+    plans: LearningPlansListResponse;
+  }>(
+    await apiGetSealedManifestAware<unknown>(`/${ApiV1Routes.learning}/list-bundle${suffix}`),
+    "Learning planning list bundle",
+  );
+
+  return {
+    summary: raw.summary,
+    themes: {
+      ...raw.themes,
+      themes: recordsOnly<LearningThemesListResponse["themes"][number]>(raw.themes?.themes),
+    },
+    plans: {
+      ...raw.plans,
+      plans: recordsOnly<LearningPlansListResponse["plans"][number]>(raw.plans?.plans),
+    },
+  };
 }
 
 /** Lists 60R evolution candidate change sets for the current scope (newest first server-side). */
 export async function fetchEvolutionCandidates(max?: number): Promise<EvolutionCandidateChangeSetListResponse> {
   const q = max !== undefined ? `?max=${encodeURIComponent(String(positiveIntegerOrDefault(max, 20)))}` : "";
+  const raw = requireRecord<{
+    candidates?: unknown;
+  }>(
+    await apiGetSealedManifestAware<unknown>(`/${ApiV1Routes.evolution}/candidates${q}`),
+    "Evolution candidates",
+  );
 
-  return apiGetSealedManifestAware<EvolutionCandidateChangeSetListResponse>(`/${ApiV1Routes.evolution}/candidates${q}`);
+  return {
+    ...raw,
+    candidates: recordsOnly(raw.candidates),
+  } as EvolutionCandidateChangeSetListResponse;
 }
 
 /** Loads candidate, plan snapshot JSON, and simulation runs with parsed evaluation fields. */

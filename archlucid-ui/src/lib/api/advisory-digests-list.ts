@@ -9,6 +9,7 @@ import {
   positiveIntegerOrDefault,
   recordsOnly,
   trimRequiredPathSegment,
+  trimRequiredText,
 } from "./api-boundary-normalization";
 import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
@@ -27,8 +28,8 @@ export async function createAdvisorySchedule(body: {
   const runProjectSlug = body.runProjectSlug?.trim();
 
   return apiPostJson<AdvisoryScanSchedule>("/v1/advisory-scheduling/schedules", {
-    name: body.name.trim(),
-    cronExpression: body.cronExpression.trim(),
+    name: trimRequiredText(body.name, "name"),
+    cronExpression: trimRequiredText(body.cronExpression, "cronExpression"),
     ...(runProjectSlug !== undefined && runProjectSlug.length > 0 ? { runProjectSlug } : {}),
     isEnabled: body.isEnabled ?? true,
   });
@@ -86,9 +87,9 @@ export async function createDigestSubscription(body: {
   const metadataJson = body.metadataJson?.trim();
 
   return apiPostJson<DigestSubscription>(`/${ApiV1Routes.digestSubscriptions}`, {
-    name: body.name.trim(),
-    channelType: body.channelType.trim(),
-    destination: body.destination.trim(),
+    name: trimRequiredText(body.name, "name"),
+    channelType: trimRequiredText(body.channelType, "channelType"),
+    destination: trimRequiredText(body.destination, "destination"),
     isEnabled: body.isEnabled ?? true,
     ...(metadataJson !== undefined && metadataJson.length > 0 ? { metadataJson } : {}),
   });

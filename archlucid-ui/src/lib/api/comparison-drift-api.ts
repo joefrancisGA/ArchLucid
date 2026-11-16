@@ -1,4 +1,5 @@
 import { comparisonDriftReportBlockedReason } from "@/lib/compare/comparison-drift-blocked-reason";
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
 /** Proxy URL for comparison drift report file download (markdown/html/docx). */
@@ -18,10 +19,14 @@ export async function downloadComparisonDriftReport(options: {
   readonly format?: "markdown" | "html" | "docx";
   readonly defaultFileName?: string;
 }): Promise<void> {
+  const normalizedComparisonRecordId = trimRequiredPathSegment(
+    options.comparisonRecordId,
+    "comparisonRecordId",
+  );
   const format = options.format ?? "markdown";
   const extension = format === "docx" ? "docx" : format === "html" ? "html" : "md";
   const defaultFileName =
-    options.defaultFileName ?? `comparison_drift_${options.comparisonRecordId.trim()}.${extension}`;
+    options.defaultFileName ?? `comparison_drift_${normalizedComparisonRecordId}.${extension}`;
 
   await downloadScopedProxyFileGet(getComparisonDriftReportDownloadUrl(options.comparisonRecordId, format), {
     accept:

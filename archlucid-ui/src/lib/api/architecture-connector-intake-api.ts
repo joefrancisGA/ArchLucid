@@ -1,6 +1,6 @@
 import type { CreateArchitectureRunRequestPayload } from "./architecture-runs";
 import { apiPostJson } from "./http";
-import { trimOptionalText } from "./api-boundary-normalization";
+import { trimOptionalText, trimRequiredText } from "./api-boundary-normalization";
 
 export type ConnectorIntakeSource = "terraform-show-json" | "git-terraform";
 
@@ -22,13 +22,25 @@ export type ConnectorIntakeArchitectureRequest = CreateArchitectureRunRequestPay
 export async function parseConnectorIntake(
   input: ConnectorIntakeRequest,
 ): Promise<ConnectorIntakeArchitectureRequest> {
+  const source = trimRequiredText(input.source, "source") as ConnectorIntakeSource;
+  const terraformShowJson = trimOptionalText(input.terraformShowJson);
+  const gitRepositoryUrl = trimOptionalText(input.gitRepositoryUrl);
+
+  if (source === "terraform-show-json" && terraformShowJson === undefined) {
+    throw new Error("terraformShowJson is required for terraform-show-json intake.");
+  }
+
+  if (source === "git-terraform" && gitRepositoryUrl === undefined) {
+    throw new Error("gitRepositoryUrl is required for git-terraform intake.");
+  }
+
   return apiPostJson<ConnectorIntakeArchitectureRequest>("/v1/architecture/connector-intake", {
-    source: input.source,
-    ...(trimOptionalText(input.terraformShowJson) !== undefined
-      ? { terraformShowJson: trimOptionalText(input.terraformShowJson) }
+    source,
+    ...(terraformShowJson !== undefined
+      ? { terraformShowJson }
       : {}),
-    ...(trimOptionalText(input.gitRepositoryUrl) !== undefined
-      ? { gitRepositoryUrl: trimOptionalText(input.gitRepositoryUrl) }
+    ...(gitRepositoryUrl !== undefined
+      ? { gitRepositoryUrl }
       : {}),
     ...(trimOptionalText(input.gitBranch) !== undefined ? { gitBranch: trimOptionalText(input.gitBranch) } : {}),
     ...(trimOptionalText(input.gitTerraformPath) !== undefined
