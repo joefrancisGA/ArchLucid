@@ -606,7 +606,7 @@ public sealed class RemediationInstanceService(
             return Blocked(verification.Failures.ToArray());
 
         RemediationInstanceOperationResult? associationFailure =
-            await TryWriteVerifiedAssociationAsync(scope, instance, updated, cancellationToken);
+            await TryWriteVerifiedAssociationAsync(scope, instance, updated);
 
         if (associationFailure is not null)
             return associationFailure;
@@ -617,8 +617,7 @@ public sealed class RemediationInstanceService(
     private async Task<RemediationInstanceOperationResult?> TryWriteVerifiedAssociationAsync(
         ScopeContext scope,
         RemediationInstanceRecord beforeVerify,
-        RemediationInstanceRecord verified,
-        CancellationToken cancellationToken)
+        RemediationInstanceRecord verified)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(beforeVerify);
@@ -638,7 +637,8 @@ public sealed class RemediationInstanceService(
 
         try
         {
-            await _associationRepository.UpsertAsync(scope.ToProjectScopeKey(), association, cancellationToken);
+            // The verified state has already been saved, so finish writing its evidence link.
+            await _associationRepository.UpsertAsync(scope.ToProjectScopeKey(), association, CancellationToken.None);
             return null;
         }
         catch (Exception writeFailure) when (writeFailure is not OperationCanceledException)
