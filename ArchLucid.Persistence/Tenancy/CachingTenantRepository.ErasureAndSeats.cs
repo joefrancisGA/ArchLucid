@@ -96,7 +96,7 @@ public sealed partial class CachingTenantRepository
             ct);
 
         if (set)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return set;
     }
@@ -107,7 +107,7 @@ public sealed partial class CachingTenantRepository
         bool cleared = await _inner.TryClearTenantErasureLegalHoldAsync(tenantId, ct);
 
         if (cleared)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return cleared;
     }
