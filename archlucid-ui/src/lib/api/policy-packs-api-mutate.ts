@@ -13,6 +13,7 @@ import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutati
 import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
 import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { encodeRequiredPathSegment, trimTextFields } from "./api-boundary-normalization";
 import { apiPostJson } from "./http";
 
 /** Creates a new policy pack with an initial content document. */
@@ -22,8 +23,11 @@ export async function createPolicyPack(body: {
   packType: string;
   initialContentJson?: string;
 }): Promise<PolicyPack> {
+  // The content JSON is sent exactly as authored; only the short text fields are trimmed.
+  const normalizedBody = trimTextFields(body, ["name", "description", "packType"]);
+
   try {
-    return await apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, body);
+    return await apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, normalizedBody);
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
 
@@ -39,10 +43,13 @@ export async function publishPolicyPackVersion(
   policyPackId: string,
   body: { version: string; contentJson?: string },
 ): Promise<PolicyPackVersion> {
+  const encodedPolicyPackId = encodeRequiredPathSegment(policyPackId, "policyPackId");
+  const normalizedBody = trimTextFields(body, ["version"]);
+
   try {
     return await apiPostJson<PolicyPackVersion>(
-      `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/publish`,
-      body,
+      `/${ApiV1Routes.policyPacks}/${encodedPolicyPackId}/publish`,
+      normalizedBody,
     );
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
@@ -107,10 +114,12 @@ function clampDryRunPage(input: number | undefined): number {
 export async function simulatePolicyPackAgainstRun(
   body: components["schemas"]["PolicyPackSimulateRequest"],
 ): Promise<components["schemas"]["PolicyPackGovernanceDryRunResult"]> {
+  const normalizedBody = trimTextFields(body, ["runId", "proposedPolicyPackId"]);
+
   try {
     return await apiPostJson<components["schemas"]["PolicyPackGovernanceDryRunResult"]>(
       `/${ApiV1Routes.policyPacks}/simulate`,
-      body,
+      normalizedBody,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

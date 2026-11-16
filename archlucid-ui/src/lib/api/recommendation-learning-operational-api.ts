@@ -10,7 +10,22 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { recommendationLearningMutationBlockedReason } from "@/lib/internal/recommendation-learning-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
+import {
+  isRecord,
+  positiveIntegerOrDefault,
+  recordsOnly,
+  requireRecord,
+  trimTextFields,
+} from "./api-boundary-normalization";
+import { apiGet, apiPostJson } from "./http";
+import { getLatestLearningProfile } from "./learning-evolution-api";
+
+const DEFAULT_HISTORY_TAKE = 20;
+
+/** Builds the `take` query value; a missing, fractional, or non-positive value falls back to the default. */
+function historyTakeQuery(take: number | undefined): string {
+  return encodeURIComponent(String(positiveIntegerOrDefault(take, DEFAULT_HISTORY_TAKE)));
+}
 
 export type RecommendationLearningOpsPageBundle = {
   status: RecommendationLearningOperationalStatus;
@@ -19,11 +34,19 @@ export type RecommendationLearningOpsPageBundle = {
 };
 
 export async function fetchRecommendationLearningOpsPageBundle(
-  take = 20,
+  take = DEFAULT_HISTORY_TAKE,
 ): Promise<RecommendationLearningOpsPageBundle> {
-  return apiGet<RecommendationLearningOpsPageBundle>(
-    `/v1/recommendation-learning/ops-page?take=${encodeURIComponent(String(take))}`,
+  const bundle = requireRecord<Record<string, unknown>>(
+    await apiGet<unknown>(`/v1/recommendation-learning/ops-page?take=${historyTakeQuery(take)}`),
+    "Recommendation learning page",
   );
+
+  // The status is required; a missing profile is a normal state and a malformed history shows as empty.
+  return {
+    status: requireRecord<RecommendationLearningOperationalStatus>(bundle.status, "Recommendation learning status"),
+    latestProfile: isRecord(bundle.latestProfile) ? (bundle.latestProfile as LearningProfile) : null,
+    history: recordsOnly<RecommendationLearningProfileHistoryItem>(bundle.history),
+  };
 }
 
 export async function fetchRecommendationLearningStatus(): Promise<RecommendationLearningOperationalStatus> {
@@ -41,17 +64,21 @@ export async function previewRecommendationLearningRebuild(): Promise<Recommenda
   }
 }
 
-export async function fetchRecommendationLearningHistory(take = 20): Promise<RecommendationLearningProfileHistoryItem[]> {
-  return apiGet<RecommendationLearningProfileHistoryItem[]>(
-    `/v1/recommendation-learning/history?take=${encodeURIComponent(String(take))}`,
+export async function fetchRecommendationLearningHistory(
+  take = DEFAULT_HISTORY_TAKE,
+): Promise<RecommendationLearningProfileHistoryItem[]> {
+  return recordsOnly<RecommendationLearningProfileHistoryItem>(
+    await apiGet<unknown>(`/v1/recommendation-learning/history?take=${historyTakeQuery(take)}`),
   );
 }
 
 export async function rollbackRecommendationLearningProfile(
   request: RecommendationLearningRollbackRequest,
 ): Promise<LearningProfile> {
+  const normalizedRequest = trimTextFields(request, ["profileId", "reason"]);
+
   try {
-    return await apiPostJson<LearningProfile>("/v1/recommendation-learning/rollback", request);
+    return await apiPostJson<LearningProfile>("/v1/recommendation-learning/rollback", normalizedRequest);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = recommendationLearningMutationBlockedReason(failure);
@@ -60,21 +87,7 @@ export async function rollbackRecommendationLearningProfile(
   }
 }
 
-/** Loads persisted profile without recomputing weights. */
+/** Loads persisted profile without recomputing weights. Shares the validated fetch used by the learning pages. */
 export async function loadPersistedRecommendationLearningProfile(): Promise<LearningProfile | null> {
-  await ensureOidcBearerReady();
-  const { url, headers } = await resolveRequest("/v1/recommendation-learning/latest");
-  const h = withCorrelationHeaders(headers);
-  const response = await fetch(url, { cache: "no-store", headers: h });
-  const text = await response.text();
-
-  if (response.status === 404) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throwApiRequestError(response, text);
-  }
-
-  return JSON.parse(text) as LearningProfile;
+  return getLatestLearningProfile();
 }
