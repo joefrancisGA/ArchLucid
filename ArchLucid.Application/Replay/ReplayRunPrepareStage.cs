@@ -13,6 +13,8 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Replay;
 
 /// <inheritdoc cref="IReplayRunPrepareStage" />
@@ -27,7 +29,8 @@ public sealed class ReplayRunPrepareStage(
     IRunPolicyPackPinService runPolicyPackPinService,
     IRunEvidencePackagePinService runEvidencePackagePinService,
     IReplayRunCloneStage cloneStage,
-    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate) : IReplayRunPrepareStage
+    IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
+    ILogger<ReplayRunPrepareStage> logger) : IReplayRunPrepareStage
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -61,6 +64,9 @@ public sealed class ReplayRunPrepareStage(
 
     private readonly IReRunExecuteSealedManifestPinGate _reRunExecuteSealedManifestPinGate =
         reRunExecuteSealedManifestPinGate ?? throw new ArgumentNullException(nameof(reRunExecuteSealedManifestPinGate));
+
+    private readonly ILogger<ReplayRunPrepareStage> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task<string> PrepareAsync(string originalRunId, CancellationToken cancellationToken = default)
@@ -114,24 +120,51 @@ public sealed class ReplayRunPrepareStage(
         ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow(scope, sourceAuthorityRun, originalRunId);
 
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
-        await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
         await _runPolicyPackPinService
             .VerifyPinIntegrityOrThrowAsync(replayAuthority, scope, cancellationToken)
             .ConfigureAwait(false);
         await _runEvidencePackagePinService
             .VerifyPinIntegrityOrThrowAsync(replayAuthority, scope, cancellationToken)
             .ConfigureAwait(false);
+        List<AgentTask> replayTasks = tasks.Count == 0 ? [] : _cloneStage.CloneTasksForReplay(tasks, replayRunId);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (tasks.Count == 0)
-            return replayRunId;
+        try
+        {
+            await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
-        List<AgentTask> replayTasks = _cloneStage.CloneTasksForReplay(tasks, replayRunId);
-
-        // SimulatorExecutionTraceRecordingExecutor persists dbo.AgentExecutionTraces with FK_AgentExecutionTraces_Task.
-        await _taskRepository.CreateManyAsync(replayTasks, cancellationToken);
+            // SimulatorExecutionTraceRecordingExecutor persists dbo.AgentExecutionTraces with FK_AgentExecutionTraces_Task.
+            if (replayTasks.Count > 0)
+                await _taskRepository.CreateManyAsync(replayTasks, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await TryMarkPreparationFailedAsync(scope, replayGuid, ex);
+            throw;
+        }
 
         return replayRunId;
+    }
+
+    private async Task TryMarkPreparationFailedAsync(ScopeContext scope, Guid replayRunId, Exception failure)
+    {
+        try
+        {
+            RunRecord? header = await _authorityRunRepository.GetByIdAsync(scope, replayRunId, CancellationToken.None);
+            if (header is null || header.CompletedUtc.HasValue || !string.IsNullOrEmpty(header.LegacyRunStatus))
+                return;
+
+            header.LegacyRunStatus = nameof(ArchitectureRunStatus.Failed);
+            header.CompletedUtc = TimeProvider.System.UtcNowDateTime();
+            header.LastFailureReason = AgentExecutionFailureSummaryJson.Serialize(
+                AgentExecutionFailureSummaryFactory.FromException(failure));
+            await _authorityRunRepository.UpdateAsync(header, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to close replay run {RunId} after preparation failed.", replayRunId);
+        }
     }
 
     /// <inheritdoc />
