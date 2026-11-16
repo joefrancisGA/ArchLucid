@@ -1,8 +1,7 @@
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-///     Thrown when a <c>dbo.Runs</c> update affects zero rows because <c>RowVersionStamp</c> did not match
-///     (concurrent writer won).
+///     Thrown when a run update cannot apply because its expected version or lifecycle state is no longer current.
 /// </summary>
 public sealed class RunConcurrencyConflictException : InvalidOperationException
 {

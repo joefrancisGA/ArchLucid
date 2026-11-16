@@ -205,6 +205,7 @@ public interface IRunRepository
     ///     Narrow lifecycle write after the authority pipeline seals a golden manifest: sets
     ///     <see cref="ArchitectureRunStatus.Committed" /> and <see cref="RunRecord.CompletedUtc" /> without
     ///     rewriting TB-310 evidence-anchor columns (full <see cref="UpdateAsync" /> would re-compare anchors).
+    ///     Fails if no active run in the requested scope can be updated.
     /// </summary>
     Task MarkAuthorityPipelineCommittedAsync(
         ScopeContext scope,
