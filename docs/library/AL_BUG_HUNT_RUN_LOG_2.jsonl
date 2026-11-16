@@ -2743,3 +2743,4 @@
 {"at":"2026-11-08T17:23:45.0615141Z","zoneId":"api-request-null-collection-elements","outcome":"dry","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER_2.md","docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl"]}
 {"at":"2026-11-08T17:30:01.6444551Z","zoneId":"api-request-null-collection-elements","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER_2.md","docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl"]}
 {"at":"2026-11-08T17:35:01.7299039Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER_2.md","docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl"]}
+{"productLine":"archlucid-shared","at":"2026-11-16T18:36:31.9493939Z","paths":["ArchLucid.Application/Tenancy/TenantOrganizationDuplicateDetector.cs","ArchLucid.Application.Tests/Tenancy/TenantOrganizationDuplicateDetectorTests.cs"],"outcome":"hit","zoneId":"application-tenancy-lifecycle"}
