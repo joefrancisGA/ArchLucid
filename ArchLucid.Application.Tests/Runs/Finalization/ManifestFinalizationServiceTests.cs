@@ -12,13 +12,16 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.TestSupport;
 
 using System.Data;
@@ -37,6 +40,76 @@ public sealed class ManifestFinalizationServiceTests
 {
     private const string VerifiedManifestHash =
         "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FinalizeAsync_evicts_superseded_manifest_after_sql_commit(bool evictionFails)
+    {
+        Guid runId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid supersededId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                FindingsSnapshotId = findingsId,
+            });
+
+        bool committed = false;
+        IDbConnection connection = Mock.Of<IDbConnection>();
+        IDbTransaction transaction = Mock.Of<IDbTransaction>();
+        Mock<IArchLucidUnitOfWork> unit = new();
+        unit.SetupGet(x => x.SupportsExternalTransaction).Returns(true);
+        unit.SetupGet(x => x.Connection).Returns(connection);
+        unit.SetupGet(x => x.Transaction).Returns(transaction);
+        unit.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => committed = true).Returns(Task.CompletedTask);
+        Mock<IArchLucidUnitOfWorkFactory> unitFactory = new();
+        unitFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(unit.Object);
+        Mock<IManifestFinalizationSqlRepository> sql = new();
+        sql.Setup(x => x.LockRunForFinalizationAsync(scope, runId, connection, transaction, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ManifestFinalizationLockedRunRow
+            {
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                FindingsSnapshotId = findingsId,
+                RowVersionStamp = [1],
+            });
+
+        ManifestDocument persisted = CreateMinimalManifest(runId, findingsId, traceId);
+        Mock<IGoldenManifestRepository> manifests = new();
+        manifests.Setup(m => m.SaveAsync(It.IsAny<GoldenManifest>(), scope, It.IsAny<SaveContractsManifestOptions>(),
+                It.IsAny<IManifestHashService>(), It.IsAny<CancellationToken>(), connection, transaction,
+                It.IsAny<ManifestDocument>()))
+            .ReturnsAsync(persisted);
+        manifests.Setup(m => m.SupersedeUnreferencedActiveGoldenManifestsAsync(
+                scope, persisted.ManifestId, connection, transaction, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([supersededId]);
+
+        List<bool> evictionOrder = [];
+        Mock<IHotPathReadCache> cache = new();
+        cache.Setup(c => c.RemoveAsync(HotPathCacheKeys.Manifest(scope, supersededId), It.IsAny<CancellationToken>()))
+            .Callback(() => evictionOrder.Add(committed))
+            .Returns(evictionFails ? Task.FromException(new InvalidOperationException("Cache unavailable")) : Task.CompletedTask);
+        ManifestFinalizationService sut = CreateSut(
+            scopeProvider: scopeProvider.Object, runRepository: runs.Object,
+            goldenManifestRepository: new CachingGoldenManifestRepository(manifests.Object, cache.Object),
+            unitOfWorkFactory: unitFactory.Object, sqlRepository: sql.Object);
+
+        ManifestFinalizationResult result = await sut.FinalizeAsync(CreateMinimalRequest(runId, findingsId, traceId));
+
+        result.ManifestId.Should().Be(persisted.ManifestId);
+        evictionOrder.Should().Equal(true);
+    }
 
     [SkippableFact]
     public async Task FinalizeAsync_throws_when_request_is_null()
@@ -762,7 +835,9 @@ public sealed class ManifestFinalizationServiceTests
         IAuditService? auditService = null,
         IIntegrationEventOutboxRepository? integrationEventOutbox = null,
         IFindingsSnapshotRepository? findingsSnapshotRepository = null,
-        IAuthorityQueryService? authorityQueryService = null)
+        IAuthorityQueryService? authorityQueryService = null,
+        IArchLucidUnitOfWorkFactory? unitOfWorkFactory = null,
+        IManifestFinalizationSqlRepository? sqlRepository = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(
@@ -789,7 +864,7 @@ public sealed class ManifestFinalizationServiceTests
             });
 
         return new ManifestFinalizationService(
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            unitOfWorkFactory ?? ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             scopeProvider ?? scope.Object,
             runRepository ?? Mock.Of<IRunRepository>(),
             findingsSnapshotRepository ?? CreateDefaultFindingsSnapshotRepository(),
@@ -799,7 +874,7 @@ public sealed class ManifestFinalizationServiceTests
             authorityQueryService ?? defaultAuthorityQuery.Object,
             auditService ?? Mock.Of<IAuditService>(),
             integrationEventOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
-            Mock.Of<IManifestFinalizationSqlRepository>(),
+            sqlRepository ?? Mock.Of<IManifestFinalizationSqlRepository>(),
             new RunStateTransitionService(),
             Mock.Of<ICommittedEffectiveGovernanceSnapshotCapturer>(),
             Mock.Of<ICommittedReviewStandardsSnapshotCapturer>(),

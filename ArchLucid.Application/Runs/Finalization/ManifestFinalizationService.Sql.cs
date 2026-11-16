@@ -15,6 +15,8 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Runs.Finalization;
 
 public sealed partial class ManifestFinalizationService
@@ -156,6 +158,19 @@ public sealed partial class ManifestFinalizationService
                 cancellationToken);
 
         await uow.CommitAsync(cancellationToken);
+
+        foreach (Guid supersededManifestId in supersededManifestIds)
+        {
+            try
+            {
+                await goldenManifestRepository.EvictCachedManifestAsync(scope, supersededManifestId, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not evict superseded manifest {ManifestId} after finalization.",
+                    supersededManifestId);
+            }
+        }
 
         await EmitManifestSupersededAuditsAsync(scope, request, supersededManifestIds, persisted.ManifestId, cancellationToken);
 
