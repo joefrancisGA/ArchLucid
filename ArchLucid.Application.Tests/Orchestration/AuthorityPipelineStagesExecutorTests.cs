@@ -220,6 +220,33 @@ public sealed class AuthorityPipelineStagesExecutorTests
         }
     }
 
+    [Fact]
+    public async Task ExecuteAfterRunPersistedAsync_preserves_stage_failure_if_outcome_write_is_canceled()
+    {
+        using CancellationTokenSource cancellation = new();
+        InvalidOperationException failure = new("Ingestion failed.");
+        Mock<IContextIngestionService> ingest = new();
+        ingest.Setup(service => service.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
+            .Returns((ContextIngestionRequest _, CancellationToken _) =>
+            {
+                cancellation.Cancel();
+                return Task.FromException<ContextSnapshot>(failure);
+            });
+
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture =
+            AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
+                ingestMock: ingest,
+                configureStageOutcomes: outcomes => outcomes.Setup(repository => repository.RecordStageCompletedAsync(
+                        It.IsAny<Guid>(), "context_ingestion", "failed", It.IsAny<DateTime>(),
+                        It.Is<CancellationToken>(token => token.IsCancellationRequested), null, null))
+                    .Returns(Task.FromCanceled(new CancellationToken(canceled: true))));
+
+        AuthorityPipelineContext context = AuthorityPipelineStagesExecutorTestFactory.CreateContext();
+        Func<Task> execute = () => fixture.Executor.ExecuteAfterRunPersistedAsync(context, cancellation.Token);
+
+        (await execute.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
+    }
+
     [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_propagates_error_status_on_stage_failure()
     {
