@@ -129,8 +129,10 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
         result!.Scope.AffectedElementIds.Should().Contain("component-legacy");
     }
 
-    [Fact]
-    public async Task TryRunAfterSelectiveExecuteAsync_runs_scoped_re_review_for_topology()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryRunAfterSelectiveExecuteAsync_records_terminal_outcome_for_topology(bool reviewFails)
     {
         string runId = Guid.NewGuid().ToString("N");
         string taskId = "task-topo";
@@ -194,17 +196,38 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        InvalidOperationException failure = new("Review failed.");
+        Mock<IIncrementalReReviewService> failingReview = new();
+        failingReview.Setup(service => service.ReReviewAsync(
+            It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<ReReviewScope>(),
+            It.IsAny<IAsyncSpecialistReviewService>(), It.IsAny<CancellationToken>())).ThrowsAsync(failure);
+
         SelectiveExecuteIncrementalReReviewCoordinator sut = CreateSut(
             knowledgeModelAccess.Object,
             taskRepo.Object,
             stages.Object,
-            audit.Object);
+            audit.Object,
+            reviewFails ? failingReview.Object : null);
 
-        IncrementalReReviewResult? result = await sut.TryRunAfterSelectiveExecuteAsync(
+        Func<Task<IncrementalReReviewResult?>> execute = () => sut.TryRunAfterSelectiveExecuteAsync(
             runId,
             new SelectiveAgentExecuteRequest { AgentTypes = ["Topology"] },
             CancellationToken.None);
 
+        if (reviewFails)
+        {
+            (await execute.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
+            stages.Verify(repo => repo.RecordStageCompletedAsync(
+                Guid.Parse(runId), "incremental-re-review", "error", It.IsAny<DateTime>(), CancellationToken.None),
+                Times.Once);
+            audit.VerifyNoOtherCalls();
+            return;
+        }
+
+        IncrementalReReviewResult? result = await execute();
+        stages.Verify(repo => repo.RecordStageCompletedAsync(
+            Guid.Parse(runId), "incremental-re-review", It.Is<string>(status => status != "error"),
+            It.IsAny<DateTime>(), CancellationToken.None), Times.Once);
         result.Should().NotBeNull();
         result!.Scope.AffectedElementIds.Should().Contain("component-1");
         result.SpecialistResults.Should().NotBeEmpty();
@@ -289,7 +312,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
         IArchitectureKnowledgeModelAccess knowledgeModelAccess,
         IAgentTaskRepository? taskRepository = null,
         IRunStageOutcomesRepository? stageOutcomesRepository = null,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IIncrementalReReviewService? incrementalReReview = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -298,7 +322,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             scopeProvider.Object,
             taskRepository ?? Mock.Of<IAgentTaskRepository>(),
             knowledgeModelAccess,
-            new IncrementalReReviewService(),
+            incrementalReReview ?? new IncrementalReReviewService(),
             new AsyncSpecialistReviewServiceAdapter(new SpecialistReviewService()),
             stageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),
             auditService ?? Mock.Of<IAuditService>(),

@@ -11,6 +11,8 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
@@ -22,7 +24,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuditService auditService,
     IReRunExecuteSealedManifestPinGate reRunExecuteSealedManifestPinGate,
-    IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null) : ISelectiveExecuteIncrementalReReviewCoordinator
+    IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null,
+    ILogger<SelectiveExecuteIncrementalReReviewCoordinator>? logger = null) : ISelectiveExecuteIncrementalReReviewCoordinator
 {
     private const string StageName = "incremental-re-review";
 
@@ -112,51 +115,67 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
 
         DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
-        if (Guid.TryParse(runId, out Guid runGuid))
+        await _runStageOutcomesRepository
+            .RecordStageStartedAsync(parsedRunId, StageName, startedUtc, cancellationToken)
+            .ConfigureAwait(false);
+
+        IncrementalReReviewResult result;
+        string outcomeStatus = "error";
+        bool reviewFailed = false;
+
+        try
         {
-            await _runStageOutcomesRepository
-                .RecordStageStartedAsync(runGuid, StageName, startedUtc, cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        IncrementalReReviewResult result = await _incrementalReReviewService.ReReviewAsync(
-            model,
-            reReviewScope,
-            _specialistReviewService,
-            cancellationToken).ConfigureAwait(false);
-
-        List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
-            .SelectMany(specialistResult => specialistResult.Findings)
-            .ToList();
-
-        IReadOnlyList<string> mergedFindingIds = [];
-
-        if (incrementalFindings.Count > 0
-            && _authorityFindingsSnapshotUpdater is not null
-            && Guid.TryParse(runId, out Guid runGuidForFindings))
-        {
-            mergedFindingIds = await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
-                scope,
-                runGuidForFindings,
-                incrementalFindings,
+            result = await _incrementalReReviewService.ReReviewAsync(
+                model,
+                reReviewScope,
+                _specialistReviewService,
                 cancellationToken).ConfigureAwait(false);
+
+            List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
+                .SelectMany(specialistResult => specialistResult.Findings)
+                .ToList();
+
+            IReadOnlyList<string> mergedFindingIds = [];
+
+            if (incrementalFindings.Count > 0
+                && _authorityFindingsSnapshotUpdater is not null
+                && Guid.TryParse(runId, out Guid runGuidForFindings))
+            {
+                mergedFindingIds = await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+                    scope,
+                    runGuidForFindings,
+                    incrementalFindings,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            result.MergedFindingIds = mergedFindingIds;
+
+            bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
+            outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
         }
-
-        result.MergedFindingIds = mergedFindingIds;
-
-        bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
-        string outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
-
-        if (Guid.TryParse(runId, out runGuid))
+        catch
         {
-            await _runStageOutcomesRepository
-                .RecordStageCompletedAsync(
-                    runGuid,
-                    StageName,
-                    outcomeStatus,
-                    TimeProvider.System.GetUtcNow().UtcDateTime,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            reviewFailed = true;
+            throw;
+        }
+        finally
+        {
+            try
+            {
+                await _runStageOutcomesRepository
+                    .RecordStageCompletedAsync(
+                        parsedRunId,
+                        StageName,
+                        outcomeStatus,
+                        TimeProvider.System.GetUtcNow().UtcDateTime,
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex) when (reviewFailed)
+            {
+                // A second failure while recording the outcome must not replace the review failure.
+                logger?.LogWarning(ex, "Failed to close selective re-review stage for run {RunId}.", parsedRunId);
+            }
         }
 
         await _auditService.LogAsync(
