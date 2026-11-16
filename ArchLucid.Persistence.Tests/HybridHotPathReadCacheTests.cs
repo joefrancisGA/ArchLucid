@@ -1,10 +1,53 @@
+using ArchLucid.Persistence.Options;
+
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 
 public sealed class HybridHotPathReadCacheTests
 {
+    [Theory]
+    [InlineData("Redis", true, 5, null, 60, 5)]
+    [InlineData("Auto", true, 0, null, 60, 15)]
+    [InlineData("Redis", true, 5, 2, 2, 2)]
+    [InlineData("Memory", true, 5, 30, 30, 30)]
+    [InlineData("Redis", false, 5, 30, 30, 30)]
+    public async Task GetOrCreateAsync_preserves_the_configured_local_ttl(
+        string provider,
+        bool enabled,
+        int localTtl,
+        int? absoluteTtlOverride,
+        int expectedAbsoluteTtl,
+        int expectedLocalTtl)
+    {
+        HotPathCacheOptions options = new()
+        {
+            Enabled = enabled,
+            Provider = provider,
+            ExpectedApiReplicaCount = 2,
+            RedisConnectionString = "test",
+            AbsoluteExpirationSeconds = 60,
+            LocalCacheExpirationSeconds = localTtl,
+        };
+        RecordingHybridCache hybrid = new();
+        HybridHotPathReadCache cache = new(
+            hybrid,
+            new FixedOptionsMonitor<HotPathCacheOptions>(options),
+            NullLogger<HybridHotPathReadCache>.Instance);
+
+        await cache.GetOrCreateAsync(
+            "ttl-check",
+            _ => Task.FromResult<string?>("row"),
+            CancellationToken.None,
+            absoluteTtlOverride);
+
+        hybrid.EntryOptions.Should().NotBeNull();
+        hybrid.EntryOptions!.Expiration.Should().Be(TimeSpan.FromSeconds(expectedAbsoluteTtl));
+        hybrid.EntryOptions.LocalCacheExpiration.Should().Be(TimeSpan.FromSeconds(expectedLocalTtl));
+    }
+
     [SkippableFact]
     public async Task GetOrCreateAsync_refreshes_invalid_present_slot_on_the_same_read()
     {
@@ -187,4 +230,34 @@ public sealed class HybridHotPathReadCacheTests
             throw new InvalidOperationException("loader failed");
         }
     }
+    private sealed class RecordingHybridCache : HybridCache
+    {
+        public HybridCacheEntryOptions? EntryOptions { get; private set; }
+
+        public override ValueTask<T> GetOrCreateAsync<TState, T>(
+            string key,
+            TState state,
+            Func<TState, CancellationToken, ValueTask<T>> factory,
+            HybridCacheEntryOptions? options = null,
+            IEnumerable<string>? tags = null,
+            CancellationToken cancellationToken = default)
+        {
+            EntryOptions = options;
+            return factory(state, cancellationToken);
+        }
+
+        public override ValueTask SetAsync<T>(
+            string key,
+            T value,
+            HybridCacheEntryOptions? options = null,
+            IEnumerable<string>? tags = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public override ValueTask RemoveAsync(string key, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public override ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+    }
+
 }
