@@ -14,10 +14,13 @@ public sealed class AuditContinuousReadinessDiffConsumer(
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        await continuousReadinessService.ProcessInventoryDiffAsync(
+        AuditContinuousReadinessProcessResult result = await continuousReadinessService.ProcessInventoryDiffAsync(
             scope,
             summary,
             changes,
             cancellationToken);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException("Audit continuous readiness processing failed.");
     }
 }
