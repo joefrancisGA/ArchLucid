@@ -19,7 +19,7 @@ public interface ICollectionRunRepository
         int limit,
         CancellationToken cancellationToken = default);
 
-    Task<bool> HasImportedHashAsync(
+    Task<Guid?> FindImportedSnapshotIdByHashAsync(
         ScopeContext scope,
         byte[] zipSha256,
         CancellationToken cancellationToken = default);

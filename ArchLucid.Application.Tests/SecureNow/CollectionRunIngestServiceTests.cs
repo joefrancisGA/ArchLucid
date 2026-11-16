@@ -17,6 +17,7 @@ namespace ArchLucid.Application.Tests.SecureNow;
 [Trait("Suite", "Application")]
 public sealed class CollectionRunIngestServiceTests
 {
+    private static readonly Guid ReusableSnapshotId = Guid.Parse("11111111-2222-3333-4444-555555555555");
     private static readonly Guid TestTenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
     [Theory]
@@ -59,6 +60,10 @@ public sealed class CollectionRunIngestServiceTests
         CollectionRun result = await service.IngestAsync(CreateArtifact(runId));
 
         result.Status.Should().Be(CollectionRunStatus.Imported);
+        result.ImportedSnapshotId.Should().Be(ReusableSnapshotId);
+        repository.Verify(item => item.UpsertAsync(
+            It.Is<CollectionRun>(run => run.RunId == runId && run.ImportedSnapshotId == ReusableSnapshotId),
+            It.IsAny<CancellationToken>()), Times.Once);
         importer.Verify(
             item => item.IngestZipBytesAsync(
                 It.IsAny<byte[]>(),
@@ -293,11 +298,11 @@ public sealed class CollectionRunIngestServiceTests
     {
         Mock<ICollectionRunRepository> repository = new();
         repository
-            .Setup(item => item.HasImportedHashAsync(
+            .Setup(item => item.FindImportedSnapshotIdByHashAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<byte[]>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(imported);
+            .ReturnsAsync(imported ? ReusableSnapshotId : null);
         return repository;
     }
 
