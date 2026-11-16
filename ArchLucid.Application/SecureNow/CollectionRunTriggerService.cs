@@ -156,8 +156,9 @@ public sealed class CollectionRunTriggerService(
             Status = CollectionRunStatus.Running,
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
-        await _collectionRunRepository.UpsertAsync(run, cancellationToken);
-        await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
+        // The trigger accepted the start. Keep the local run and claim recoverable if the caller disconnects.
+        await _collectionRunRepository.UpsertAsync(run, CancellationToken.None);
+        await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, CancellationToken.None);
         await LogTriggeredAsync(new AuditEvent
         {
             TenantId = scope.TenantId,
@@ -166,7 +167,7 @@ public sealed class CollectionRunTriggerService(
             EventType = AuditEventTypes.SecureNowCollectionRunTriggered,
             RunId = runId,
             DataJson = JsonSerializer.Serialize(new { runId, subscriptionIds, durableClaim = true }),
-        }, cancellationToken);
+        });
         return run;
     }
 
@@ -213,7 +214,7 @@ public sealed class CollectionRunTriggerService(
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
 
-        await _collectionRunRepository.UpsertAsync(run, cancellationToken);
+        await _collectionRunRepository.UpsertAsync(run, CancellationToken.None);
         _idempotencyStore.Set(scopedKey, runId, IdempotencyWindow);
 
         await LogTriggeredAsync(
@@ -230,18 +231,17 @@ public sealed class CollectionRunTriggerService(
                     subscriptionIds,
                     idempotencyWindowSeconds = IdempotencyWindow.TotalSeconds,
                 }),
-            },
-            cancellationToken);
+            });
 
         return run;
     }
 
-    private Task LogTriggeredAsync(AuditEvent auditEvent, CancellationToken cancellationToken) =>
+    private Task LogTriggeredAsync(AuditEvent auditEvent) =>
         DurableAuditLogRetry.TryLogAsync(
             ct => _auditService.LogAsync(auditEvent, ct),
             logger ?? NullLogger<CollectionRunTriggerService>.Instance,
             AuditEventTypes.SecureNowCollectionRunTriggered,
-            cancellationToken,
+            CancellationToken.None,
             maxAttempts: 1,
             auditEventTypeForMetrics: AuditEventTypes.SecureNowCollectionRunTriggered);
 }
