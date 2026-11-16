@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -18,15 +17,7 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
   SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
-import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
-import {
-  buildSecureNowSecondCaptureCloudConnectionsHref,
-  buildSecureNowSecondCaptureExtractUploadHref,
-} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import {
-  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
-  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
-} from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { SecureNowPartialCaptureRecoveryLinks } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import {
   isSecureNowInvestigationEffortAuditCandidate,
   persistSecureNowInvestigationEffortInputs,
@@ -119,24 +110,14 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             className="space-y-1 rounded border border-amber-500/30 bg-amber-50/30 p-3 dark:bg-amber-950/20"
             data-testid="securenow-investigation-effort-partial-capture"
           >
-            <p className={OPERATOR_TYPOGRAPHY.helper}>{formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}</p>
             <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_INVESTIGATION_EFFORT_PARTIAL_CAPTURE_CONTEXT_LINE}</p>
             <p className={OPERATOR_TYPOGRAPHY.helper}>
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
-                data-testid="securenow-investigation-effort-partial-capture-cloud-connections"
-              >
-                {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
-              </Link>
-              {" · "}
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
-                data-testid="securenow-investigation-effort-partial-capture-extract-upload"
-              >
-                {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
-              </Link>
+              <SecureNowPartialCaptureRecoveryLinks
+                partialCaptureSnapshotId={partialCaptureSnapshotId}
+                returnPath={partialCaptureReturnPath}
+                cloudConnectionsTestId="securenow-investigation-effort-partial-capture-cloud-connections"
+                extractUploadTestId="securenow-investigation-effort-partial-capture-extract-upload"
+              />
             </p>
           </div>
         ) : null}

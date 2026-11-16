@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -18,6 +19,11 @@ export function SecureNowSelfServicePageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_SELF_SERVICE_HEADING} subtitle={SECURENOW_SELF_SERVICE_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-self-service-partial-capture"
+          cloudConnectionsTestId="securenow-self-service-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-self-service-partial-capture-extract-upload"
+        />
         <SecureNowCollectionSetupStatusSection
           testIdPrefix="securenow-self-service"
           sectionId="collection"

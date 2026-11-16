@@ -3,6 +3,7 @@ import Link from "next/link";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowFirstHourCollectionSetupSection } from "@/components/product-line/SecureNowFirstHourCollectionSetupSection";
 import { SECURENOW_PILOT_SPINE_PATH } from "@/lib/product-line/securenow-pilot-spine-copy";
 import {
@@ -22,6 +23,11 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_FIRST_HOUR_HEADING} subtitle={SECURENOW_FIRST_HOUR_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-first-hour-partial-capture"
+          cloudConnectionsTestId="securenow-first-hour-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-first-hour-partial-capture-extract-upload"
+        />
         <SecureNowFirstHourCollectionSetupSection />
 
         <section aria-labelledby="securenow-first-hour-steps-heading" className="space-y-2">

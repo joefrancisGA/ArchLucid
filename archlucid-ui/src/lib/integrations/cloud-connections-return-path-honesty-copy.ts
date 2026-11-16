@@ -29,6 +29,10 @@ export function formatCloudConnectionsReturnLinkLabel(returnPath: string): strin
     return "Return to extract and upload";
   }
 
+  if (path.includes("help/connection-status")) {
+    return "Return to connection status help";
+  }
+
   if (path === "/" || returnPath.startsWith("/?")) {
     return "Return to operator home";
   }

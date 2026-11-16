@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -15,15 +15,12 @@ import type {
   ConnectionStatusHelpWorkspaceReadinessSnapshot,
 } from "@/lib/use-connection-status-help-workspace-readiness";
 import { useConnectionStatusHelpWorkspaceReadiness } from "@/lib/use-connection-status-help-workspace-readiness";
-import Link from "next/link";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
 
 export const HELP_CONNECTION_STATUS_WORKSPACE_READINESS_HEADING_ID =
   "help-connection-status-workspace-readiness-heading";
@@ -126,16 +123,13 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{headerMeta}</p>
         ) : null}
         {partialCapture ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-connection-status-partial-capture">
-            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
-              data-testid="help-connection-status-partial-capture-cloud-connections"
-            >
-              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
-            </Link>
-          </p>
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="help-connection-status-partial-capture"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="help-connection-status-partial-capture-cloud-connections"
+            extractUploadTestId="help-connection-status-partial-capture-extract-upload"
+          />
         ) : null}
       </header>
 

@@ -8,7 +8,10 @@ import { SecureNowCollectionLatestSnapshotLine } from "@/components/product-line
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useSecureNowLatestSucceededSnapshotId } from "@/hooks/use-securenow-latest-succeeded-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import {
   buildSecureNowSecondCaptureCloudConnectionsHref,
   buildSecureNowSecondCaptureExtractUploadHref,
@@ -30,6 +33,7 @@ import {
   SECURENOW_COLLECTION_READY_NEXT_LABEL,
   SECURENOW_COLLECTION_READY_NEXT_SUMMARY,
 } from "@/lib/product-line/securenow-collection-setup-ready-copy";
+import { SECURENOW_COLLECTION_READY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
 import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/securenow-second-capture-delta-copy";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
@@ -52,6 +56,8 @@ export function SecureNowCollectionSetupStatusSection(
     enabled: props.collectionInput === undefined,
   });
   const latestSnapshotQuery = useSecureNowLatestSucceededSnapshotId();
+  const latestCapturePartial = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(latestCapturePartial);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const collectionInput = props.collectionInput ?? hookResult.collectionInput;
   const isPending = props.collectionInput === undefined && hookResult.isPending;
@@ -95,6 +101,16 @@ export function SecureNowCollectionSetupStatusSection(
       </h2>
       {collectionReady ? (
         <div className="space-y-2" data-testid={`${props.testIdPrefix}-collection-ready`}>
+          {latestCapturePartial ? (
+            <SecureNowPartialCaptureRecoveryParagraph
+              testId={`${props.testIdPrefix}-collection-ready-partial-capture`}
+              partialCaptureSnapshotId={partialCaptureSnapshotId}
+              returnPath={partialCaptureReturnPath}
+              middleLine={SECURENOW_COLLECTION_READY_PARTIAL_CAPTURE_LINE}
+              cloudConnectionsTestId={`${props.testIdPrefix}-collection-ready-partial-capture-cloud`}
+              extractUploadTestId={`${props.testIdPrefix}-collection-ready-partial-capture-upload`}
+            />
+          ) : null}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Collection ready.</p>
           {latestSnapshotQuery.latestSnapshotId !== null ? (
             <SecureNowCollectionLatestSnapshotLine
