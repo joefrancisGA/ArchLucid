@@ -21,7 +21,7 @@ public sealed class AuditContinuousReadinessServiceTests
     [InlineData(false)]
     public async Task Drift_fan_out_reports_the_audit_readiness_result(bool readinessSucceeded)
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScope();
         AzureInventoryDiffSummaryRecord summary = new()
         {
             DiffId = Guid.NewGuid(),
@@ -60,7 +60,7 @@ public sealed class AuditContinuousReadinessServiceTests
     [Fact]
     public async Task ProcessInventoryDiffAsync_public_ip_add_invalidates_network_evidence_and_reevaluates_control()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScope();
         Guid assessmentId = Guid.NewGuid();
         Guid frameworkId = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
@@ -73,6 +73,8 @@ public sealed class AuditContinuousReadinessServiceTests
         {
             AssessmentId = assessmentId,
             TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
             FrameworkId = frameworkId,
             Status = AuditAssessmentStatus.Collecting,
             FrameworkVersion = "1.0",
@@ -190,6 +192,7 @@ public sealed class AuditContinuousReadinessServiceTests
         snapshotRepository.FreshnessUpdates.Should().ContainSingle();
         snapshotRepository.FreshnessUpdates[0].EvidenceRowId.Should().Be(evidenceRowId);
         snapshotRepository.FreshnessUpdates[0].FreshnessStatus.Should().Be(AuditEvidenceFreshnessStatus.Stale);
+        snapshotRepository.LastFreshnessUpdateScope.Should().Be(scope.ToProjectScopeKey());
 
         timelineRepository.Records.Should().ContainSingle();
         timelineRepository.Records[0].State.Should().Be(AuditControlTechnicalTimelineState.DriftDetected);
@@ -211,21 +214,22 @@ public sealed class AuditContinuousReadinessServiceTests
     [Fact]
     public async Task ProcessInventoryDiffAsync_does_not_record_drift_when_control_evaluation_fails()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScope();
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
         Guid controlId = Guid.NewGuid();
         AuditAssessmentRecord assessment = new() { AssessmentId = Guid.NewGuid(), FrameworkId = Guid.NewGuid() };
         AuditEvidenceSnapshotHeaderRecord snapshot = new() { AuditEvidenceSnapshotId = Guid.NewGuid() };
         Mock<IAuditAssessmentRepository> assessments = new();
-        assessments.Setup(repository => repository.ListActiveByTenantAsync(scope.TenantId, CancellationToken.None))
+        assessments.Setup(repository => repository.ListActiveByScopeAsync(projectScope, CancellationToken.None))
             .ReturnsAsync([assessment]);
         InMemoryAuditEvidenceRequirementRepository requirements = new(
             assessment.FrameworkId, scope.TenantId, Guid.NewGuid(), controlId, AuditEvidenceTypeNames.Network);
         Mock<IAuditEvidenceSnapshotRepository> snapshots = new();
         snapshots.Setup(repository =>
-                repository.ListByAssessmentAsync(scope.TenantId, assessment.AssessmentId, CancellationToken.None))
+                repository.ListByAssessmentInScopeAsync(projectScope, assessment.AssessmentId, CancellationToken.None))
             .ReturnsAsync([snapshot]);
         snapshots.Setup(repository =>
-                repository.ListItemsAsync(scope.TenantId, snapshot.AuditEvidenceSnapshotId, CancellationToken.None))
+                repository.ListItemsInScopeAsync(projectScope, snapshot.AuditEvidenceSnapshotId, CancellationToken.None))
             .ReturnsAsync([]);
         Mock<IAuditControlEvaluationService> evaluations = new();
         evaluations.Setup(service => service.TryEvaluateControlForCurrentAssessmentAsync(
@@ -259,7 +263,7 @@ public sealed class AuditContinuousReadinessServiceTests
     [Fact]
     public async Task ProcessInventoryDiffAsync_tag_only_change_does_not_reevaluate_controls()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScope();
         Guid assessmentId = Guid.NewGuid();
         Guid frameworkId = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
@@ -270,6 +274,8 @@ public sealed class AuditContinuousReadinessServiceTests
         {
             AssessmentId = assessmentId,
             TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
             FrameworkId = frameworkId,
             Status = AuditAssessmentStatus.Collecting,
             FrameworkVersion = "1.0",
@@ -401,6 +407,9 @@ public sealed class AuditContinuousReadinessServiceTests
         impacted.Should().ContainSingle().Which.Should().Be(AuditEvidenceTypeNames.Network);
     }
 
+    private static ScopeContext CreateScope() =>
+        new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
     private sealed class InMemoryAuditAssessmentRepository : IAuditAssessmentRepository
     {
         private readonly Dictionary<Guid, AuditAssessmentRecord> _assessments = new();
@@ -484,6 +493,8 @@ public sealed class AuditContinuousReadinessServiceTests
 
         public List<AuditEvidenceFreshnessItemUpdate> FreshnessUpdates { get; } = [];
 
+        public ProjectScopeKey? LastFreshnessUpdateScope { get; private set; }
+
         public Task InsertSnapshotAsync(AuditEvidenceSnapshotPersistRequest request, CancellationToken cancellationToken = default)
         {
             _headers[request.Header.AuditEvidenceSnapshotId] = request.Header;
@@ -518,6 +529,28 @@ public sealed class AuditContinuousReadinessServiceTests
                 _headers.Values
                     .Where(header => header.TenantId == tenantId && header.AssessmentId == assessmentId)
                     .ToList());
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            CancellationToken cancellationToken = default) =>
+            ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListByAssessmentInScopeAsync(
+            ProjectScopeKey scope,
+            Guid assessmentId,
+            CancellationToken cancellationToken = default) =>
+            ListByAssessmentAsync(scope.TenantId, assessmentId, cancellationToken);
+
+        public Task UpdateItemFreshnessInScopeAsync(
+            ProjectScopeKey scope,
+            Guid auditEvidenceSnapshotId,
+            IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
+            CancellationToken cancellationToken = default)
+        {
+            LastFreshnessUpdateScope = scope;
+            return UpdateItemFreshnessAsync(scope.TenantId, auditEvidenceSnapshotId, updates, cancellationToken);
+        }
 
         public Task UpdateItemFreshnessAsync(
             Guid tenantId,
