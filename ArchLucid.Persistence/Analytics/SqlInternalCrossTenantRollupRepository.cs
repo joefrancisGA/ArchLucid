@@ -40,6 +40,7 @@ public sealed class SqlInternalCrossTenantRollupRepository(
             return;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
 
         const string sql = """
                            MERGE dbo.InternalCrossTenantRollupDaily AS target
@@ -90,8 +91,11 @@ public sealed class SqlInternalCrossTenantRollupRepository(
                         row.LlmTokensUsed,
                         ComputedUtc = row.ComputedUtc.UtcDateTime,
                     },
+                    transaction,
                     cancellationToken: cancellationToken));
         }
+
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private async Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> ListDailyRowsCoreAsync(
