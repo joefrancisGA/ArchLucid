@@ -38,6 +38,36 @@ namespace ArchLucid.Application.Tests.Orchestration;
 public sealed class AuthorityCommittedPipelineFinalizerTests
 {
     [Fact]
+    public async Task FinalizeAsync_evicts_run_cache_after_external_commit()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        IRunRepository runs = CreateRunRepository(scope);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        uow.SetupGet(work => work.SupportsExternalTransaction).Returns(true);
+        bool committed = false;
+        uow.Setup(work => work.CommitAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => committed = true).Returns(Task.CompletedTask);
+
+        bool? committedAtEviction = null;
+        Mock.Get(runs).Setup(repo => repo.EvictCachedRunAsync(scope, runId, CancellationToken.None))
+            .Callback(() => committedAtEviction = committed).Returns(Task.CompletedTask);
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(Mock.Of<IAuthorityQueryService>(), runs);
+
+        await sut.FinalizeAsync(
+            CreateRun(runId, scope), CreateContextSnapshot(runId, contextId),
+            CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId), scope, uow.Object, CancellationToken.None);
+
+        committedAtEviction.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task FinalizeAsync_does_not_query_sealed_golden_manifest_during_first_create()
     {
         ScopeContext scope = CreateScope();
