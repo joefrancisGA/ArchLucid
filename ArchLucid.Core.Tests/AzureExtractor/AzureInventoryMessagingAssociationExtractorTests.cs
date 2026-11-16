@@ -269,4 +269,30 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
         row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(namespaceId));
         row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
     }
+
+    [Fact]
+    public void TryExtractServiceBusChild_reads_child_when_id_is_json_reference_with_percent_encoded_arm_scalar()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
+        const string queueId = $"{namespaceId}/queues/orders";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": {
+                                                                "id": "{{Uri.EscapeDataString(queueId)}}"
+                                                              },
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            namespaceId,
+            document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
+    }
 }
