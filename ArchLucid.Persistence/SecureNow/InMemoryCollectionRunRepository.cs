@@ -13,7 +13,12 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
     public Task UpsertAsync(CollectionRun collectionRun, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(collectionRun);
-        _runs[Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId)] = collectionRun;
+        _runs.AddOrUpdate(
+            Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId),
+            collectionRun,
+            (_, current) => collectionRun.Status == CollectionRunStatus.Running && current.Status != CollectionRunStatus.Running
+                ? current
+                : collectionRun);
         return Task.CompletedTask;
     }
 

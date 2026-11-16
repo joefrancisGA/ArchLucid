@@ -14,29 +14,29 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         ArgumentNullException.ThrowIfNull(collectionRun);
 
         const string sql = """
-                           UPDATE dbo.SecureNowCollectionRuns
-                           SET AgentVersion = @AgentVersion,
-                               Schedule = @Schedule,
-                               StartedUtc = @StartedUtc,
-                               FinishedUtc = @FinishedUtc,
-                               Status = @Status,
-                               SubscriptionsCoveredJson = @SubscriptionsCoveredJson,
-                               ErrorSummary = @ErrorSummary,
-                               ZipPath = @ZipPath,
-                               ZipSha256 = @ZipSha256,
-                               ImportedSnapshotId = @ImportedSnapshotId
-                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId AND RunId = @RunId;
-
-                           IF @@ROWCOUNT = 0
-                           BEGIN
-                               INSERT INTO dbo.SecureNowCollectionRuns
-                               (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
-                                Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId)
-                               VALUES
-                               (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @Schedule, @StartedUtc, @FinishedUtc,
-                                @Status, @SubscriptionsCoveredJson, @ErrorSummary, @ZipPath, @ZipSha256, @ImportedSnapshotId);
-                           END;
+                           MERGE dbo.SecureNowCollectionRuns WITH (HOLDLOCK) AS target
+                           USING (SELECT @TenantId AS TenantId, @WorkspaceId AS WorkspaceId,
+                                         @ProjectId AS ProjectId, @RunId AS RunId) AS source
+                              ON target.TenantId = source.TenantId
+                             AND target.WorkspaceId = source.WorkspaceId
+                             AND target.ProjectId = source.ProjectId
+                             AND target.RunId = source.RunId
+                           WHEN MATCHED AND (@Status <> @RunningStatus OR target.Status = @RunningStatus) THEN
+                               UPDATE SET AgentVersion = @AgentVersion,
+                                          Schedule = @Schedule,
+                                          StartedUtc = @StartedUtc,
+                                          FinishedUtc = @FinishedUtc,
+                                          Status = @Status,
+                                          SubscriptionsCoveredJson = @SubscriptionsCoveredJson,
+                                          ErrorSummary = @ErrorSummary,
+                                          ZipPath = @ZipPath,
+                                          ZipSha256 = @ZipSha256,
+                                          ImportedSnapshotId = @ImportedSnapshotId
+                           WHEN NOT MATCHED BY TARGET THEN
+                               INSERT (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
+                                       Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId)
+                               VALUES (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @Schedule, @StartedUtc, @FinishedUtc,
+                                       @Status, @SubscriptionsCoveredJson, @ErrorSummary, @ZipPath, @ZipSha256, @ImportedSnapshotId);
                            """;
 
         using System.Data.IDbConnection connection =
@@ -54,6 +54,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                 collectionRun.StartedUtc,
                 collectionRun.FinishedUtc,
                 Status = (int)collectionRun.Status,
+                RunningStatus = (int)CollectionRunStatus.Running,
                 collectionRun.SubscriptionsCoveredJson,
                 collectionRun.ErrorSummary,
                 collectionRun.ZipPath,
