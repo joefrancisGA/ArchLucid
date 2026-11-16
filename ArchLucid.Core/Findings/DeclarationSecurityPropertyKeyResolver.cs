@@ -31,6 +31,7 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.supportshttpstrafficonly",
                 "tf.https_traffic_only_enabled",
                 "tf.enable_https_traffic_only",
+                "tf.enablehttpstrafficonly",
                 "supportsHttpsTrafficOnly",
             ],
             [DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion] =
