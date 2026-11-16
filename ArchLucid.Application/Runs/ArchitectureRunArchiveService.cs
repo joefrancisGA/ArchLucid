@@ -74,7 +74,15 @@ public sealed class ArchitectureRunArchiveService(
             .ConfigureAwait(false);
 
         if (batch.SucceededRunIds.Count == 0)
-            return ArchitectureRunArchiveOutcome.NotFound;
+        {
+            RunRecord? latest = await _runRepository
+                .GetByIdIncludingArchivedAsync(scope, runId, cancellationToken)
+                .ConfigureAwait(false);
+
+            return latest?.ArchivedUtc is not null
+                ? ArchitectureRunArchiveOutcome.AlreadyArchived
+                : ArchitectureRunArchiveOutcome.NotFound;
+        }
 
         string actor = _actorContext.GetActor();
 
