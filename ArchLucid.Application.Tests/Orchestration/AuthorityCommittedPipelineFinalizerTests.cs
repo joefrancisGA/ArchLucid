@@ -17,6 +17,7 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
@@ -36,6 +37,36 @@ namespace ArchLucid.Application.Tests.Orchestration;
 [Trait("Suite", "Core")]
 public sealed class AuthorityCommittedPipelineFinalizerTests
 {
+    [Fact]
+    public async Task FinalizeAsync_evicts_run_cache_after_external_commit()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        IRunRepository runs = CreateRunRepository(scope);
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        uow.SetupGet(work => work.SupportsExternalTransaction).Returns(true);
+        bool committed = false;
+        uow.Setup(work => work.CommitAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => committed = true).Returns(Task.CompletedTask);
+
+        bool? committedAtEviction = null;
+        Mock.Get(runs).Setup(repo => repo.EvictCachedRunAsync(scope, runId, CancellationToken.None))
+            .Callback(() => committedAtEviction = committed).Returns(Task.CompletedTask);
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(Mock.Of<IAuthorityQueryService>(), runs);
+
+        await sut.FinalizeAsync(
+            CreateRun(runId, scope), CreateContextSnapshot(runId, contextId),
+            CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId), scope, uow.Object, CancellationToken.None);
+
+        committedAtEviction.Should().BeTrue();
+    }
+
     [Fact]
     public async Task FinalizeAsync_does_not_query_sealed_golden_manifest_during_first_create()
     {
@@ -152,6 +183,46 @@ public sealed class AuthorityCommittedPipelineFinalizerTests
                 null),
             Times.Once);
         uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task FinalizeAsync_rejects_archived_run_before_completion_side_effects()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        RunRecord run = CreateRun(runId, scope);
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(CreateRun(runId, scope), CancellationToken.None);
+        await runs.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
+
+        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
+        Mock<IIntegrationEventPublisher> publisher = new();
+        Mock<IAuditService> audit = new();
+        Mock<IArchLucidUnitOfWork> uow = CreateUnitOfWork();
+        AuthorityCommittedPipelineFinalizer sut = CreateFinalizer(
+            Mock.Of<IAuthorityQueryService>(), runs, retrieval, publisher, audit);
+
+        Func<Task> finalize = () => sut.FinalizeAsync(
+            run,
+            CreateContextSnapshot(runId, contextId),
+            CreateFindingsSnapshot(runId, contextId, findingsId),
+            CreateManifest(scope, runId, contextId, findingsId, traceId, manifestId),
+            CreateTrace(scope, runId, traceId),
+            scope,
+            uow.Object,
+            CancellationToken.None);
+
+        await finalize.Should().ThrowAsync<RunConcurrencyConflictException>();
+        run.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Created));
+        run.GoldenManifestId.Should().BeNull();
+        uow.Verify(work => work.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        retrieval.VerifyNoOtherCalls();
+        publisher.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
     }
 
     private static AuthorityCommittedPipelineFinalizer CreateFinalizer(

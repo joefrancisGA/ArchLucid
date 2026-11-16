@@ -92,27 +92,6 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(uow);
 
-        if (uow.SupportsExternalTransaction)
-
-            await _retrievalIndexingOutbox.EnqueueAsync(
-                run.RunId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                uow.Connection,
-                uow.Transaction,
-                ct);
-
-        else
-
-            await _retrievalIndexingOutbox.EnqueueAsync(
-                run.RunId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                ct);
-
-
         string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
         string publicBaseUrl = NormalizePublicSiteBaseUrl(_publicSiteOptions.CurrentValue.BaseUrl);
         Guid? previousRunId = await TryResolvePreviousCommittedGoldenRunIdAsync(scope, run, ct);
@@ -137,15 +116,6 @@ public sealed class AuthorityCommittedPipelineFinalizer(
             workingCareerRehearsalDoor = careerPosture.WorkingCareerRehearsalDoor,
             careerComplete = careerPosture.CareerComplete
         };
-
-        IntegrationEventsOptions integrationOptions = _integrationEventsOptions.CurrentValue;
-        IDbConnection? eventConnection = uow.SupportsExternalTransaction ? uow.Connection : null;
-        IDbTransaction? eventTransaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
-        bool enqueueInTransaction =
-            integrationOptions.TransactionalOutboxEnabled && eventConnection is not null && eventTransaction is not null;
-
-        if (enqueueInTransaction)
-            await PublishCompletionAsync(eventConnection, eventTransaction);
 
         // Promote legacy status so list/export lifecycle resolvers treat the run as Complete
         // (AuthorityRunLifecyclePhaseListResolver requires Committed + GoldenManifestId).
@@ -175,17 +145,49 @@ public sealed class AuthorityCommittedPipelineFinalizer(
                 .ConfigureAwait(false);
         }
 
+        if (uow.SupportsExternalTransaction)
+
+            await _retrievalIndexingOutbox.EnqueueAsync(
+                run.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                uow.Connection,
+                uow.Transaction,
+                ct);
+
+        else
+
+            await _retrievalIndexingOutbox.EnqueueAsync(
+                run.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                ct);
+
+        IntegrationEventsOptions integrationOptions = _integrationEventsOptions.CurrentValue;
+        IDbConnection? eventConnection = uow.SupportsExternalTransaction ? uow.Connection : null;
+        IDbTransaction? eventTransaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
+        bool enqueueInTransaction =
+            integrationOptions.TransactionalOutboxEnabled && eventConnection is not null && eventTransaction is not null;
+
+        if (enqueueInTransaction)
+            await PublishCompletionAsync(eventConnection, eventTransaction);
+
         run.GoldenManifestId = goldenManifestId;
         run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
         run.CompletedUtc = completedUtc;
 
         await uow.CommitAsync(ct);
 
-        if (!enqueueInTransaction)
-            await PublishCompletionAsync(null, null);
-
         if (run.GraphSnapshotId is { } graphSnapshotId)
             _graphSnapshotProjectionCache.Invalidate(scope, run.RunId, graphSnapshotId);
+
+        if (uow.SupportsExternalTransaction)
+            await _runRepository.EvictCachedRunAsync(scope, run.RunId, CancellationToken.None);
+
+        if (!enqueueInTransaction)
+            await PublishCompletionAsync(null, null);
 
         await _auditService.LogAsync(
             new AuditEvent

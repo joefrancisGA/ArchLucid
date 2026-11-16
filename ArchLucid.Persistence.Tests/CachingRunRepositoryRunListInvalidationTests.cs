@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -14,6 +16,40 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class CachingRunRepositoryRunListInvalidationTests
 {
+    [Fact]
+    public async Task Transactional_promotion_keeps_cache_until_the_commit_owner_evicts_it()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(),
+        };
+        Guid runId = Guid.NewGuid();
+        bool committed = false;
+        RunRecord Read() => new() { RunId = runId, LegacyRunStatus = committed ? "Committed" : "Created" };
+        Mock<IRunRepository> inner = new();
+        inner.Setup(repo => repo.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(Read);
+        inner.Setup(repo => repo.ListRecentInScopeAsync(scope, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new[] { Read() });
+        CachingRunRepository cache = new(inner.Object, HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+        CancellationToken ct = CancellationToken.None;
+
+        (await cache.GetByIdAsync(scope, runId, ct))!.LegacyRunStatus.Should().Be("Created");
+        (await cache.ListRecentInScopeAsync(scope, 10, ct)).Should().ContainSingle().Which.LegacyRunStatus.Should().Be("Created");
+
+        await cache.MarkAuthorityPipelineCommittedAsync(
+            scope, runId, Guid.NewGuid(), DateTime.UtcNow, ct,
+            Mock.Of<IDbConnection>(), Mock.Of<IDbTransaction>());
+
+        committed = true;
+        (await cache.GetByIdAsync(scope, runId, ct))!.LegacyRunStatus.Should().Be("Created");
+        (await cache.ListRecentInScopeAsync(scope, 10, ct)).Should().ContainSingle().Which.LegacyRunStatus.Should().Be("Created");
+
+        await cache.EvictCachedRunAsync(scope, runId, ct);
+
+        (await cache.GetByIdAsync(scope, runId, ct))!.LegacyRunStatus.Should().Be("Committed");
+        (await cache.ListRecentInScopeAsync(scope, 10, ct)).Should().ContainSingle().Which.LegacyRunStatus.Should().Be("Committed");
+    }
+
     [SkippableFact]
     public async Task SaveAsync_refreshes_cached_ListRecentInScope_first_page()
     {

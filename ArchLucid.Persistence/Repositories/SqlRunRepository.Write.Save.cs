@@ -176,24 +176,25 @@ public sealed partial class SqlRunRepository
             GoldenManifestId = goldenManifestId,
         };
 
+        CommandDefinition command = new(
+            RunRepositorySql.MarkAuthorityPipelineCommitted,
+            args,
+            connection is null ? null : transaction,
+            cancellationToken: ct);
+
+        int affectedRows;
         if (connection is not null)
         {
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    RunRepositorySql.MarkAuthorityPipelineCommitted,
-                    args,
-                    transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
-
-            return;
+            affectedRows = await connection.ExecuteScalarAsync<int>(command).ConfigureAwait(false);
+        }
+        else
+        {
+            await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            affectedRows = await owned.ExecuteScalarAsync<int>(command).ConfigureAwait(false);
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await owned.ExecuteAsync(
-            new CommandDefinition(
-                RunRepositorySql.MarkAuthorityPipelineCommitted,
-                args,
-                cancellationToken: ct)).ConfigureAwait(false);
+        if (affectedRows == 0)
+            throw new RunConcurrencyConflictException(runId);
     }
 
     /// <inheritdoc />
