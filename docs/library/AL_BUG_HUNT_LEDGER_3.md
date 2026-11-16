@@ -4454,6 +4454,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-16 thorough hunt (hit): no rotation (`shouldRotate: false`). Scoped vitest on `src/lib/oidc` surfaced **406/1020** failures: `normalizeOidcOAuthFormString is not a function` because `oauth-callback-messages.ts` on `bugsmash-3` had dropped ~1.8k lines including OAuth form normalization and token-endpoint error helpers while `token-client` still imported them; restored `oauth-callback-messages.ts` from `origin/master`. `persistTokenResponse` and `syncBffSessionCookieFromTokenResponse` had reverted to `normalizeOidcConfigurationString` for bearer tokens, so soft-hyphen copy/paste in `access_token` reached the BFF POST again; realigned persist + BFF sync with `normalizeOidcOAuthFormString` helpers. Regressions existing `token-client.test.ts` suite and `strips soft hyphens from access_token before syncing to the BFF session cookie`; cheap-disproof closed five pass-23 `(candidate)` rows and five hunt #121 monitor rows (**valid-no-repro**). Scoped vitest `src/lib/oidc` + `OidcTokenExpiryWarningGuard.test.tsx` **1026/1026**. Private beta: invited operators signing in under JwtBearer get working token exchange, error humanization, and HttpOnly BFF cookies when bearer material contains portal copy/paste artifacts.
+
+- [x] (proven) `oauth-callback-messages.ts` — OAuth form normalization exports removed while `token-client` still imported them — **hit 2026-11-16 thorough hunt:** restore module exports; regressions `token-client.test.ts` (**406** failures before fix). [class:fail-open-validation]
+- [x] (proven) `persistTokenResponse` + `syncBffSessionCookieFromTokenResponse` — bearer tokens used configuration trim instead of OAuth form normalization — **hit 2026-11-16 thorough hunt:** `normalizeOidcOAuthFormString` / `normalizeRequiredOidcOAuthFormToken`; regression `strips soft hyphens from access_token before syncing to the BFF session cookie`. [class:fail-open-validation]
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` with interior bell — **cheap-disproof 2026-11-16:** `pkceStoredValueContainsUnsafeControlCharacters` already checks verifier.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — plus-only JSON `++` — **cheap-disproof 2026-11-16:** `isReadableOAuthErrorDetail` returns false for plus-only detail.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — `%2B%2B` — **cheap-disproof 2026-11-16:** existing regression.
+- [x] (valid-no-repro) `token-client.postTokenForm` — JSON number root `13` — **cheap-disproof 2026-11-16:** `parseOidcTokenResponse` rejects non-object roots (parity with `10`–`12` tests).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — HTTP `518` — **cheap-disproof 2026-11-16:** non-401/403 refresh soft-fails without session clear (parity with `515`–`517`).
+- [x] (valid-no-repro) Hunt #121 monitor rows (`OidcTokenExpiryWarningGuard`, `signOutAndRedirectHome`, `ensureAccessTokenFresh`, `consumeAuthorizeCallbackFailedRetry`, `syncBffSessionCookieFromTokenResponse`) — **cheap-disproof 2026-11-16:** unchanged from 2026-11-03/2026-11-08 ledger closures; expiry guard hit remains on branch.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `nonce` session value with interior bell before callback — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered nonce key; monitor; pass 24 reseed.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — colon-only JSON `::` — locus: readable-detail guard; input: token-endpoint `"::"`; monitor; pass 24 reseed.
+- [ ] (candidate) `decodeOAuthErrorDescription` — percent-encoded colon-only authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: `%3A%3A`; monitor; pass 24 reseed.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `14` — locus: `parseOidcTokenResponse`; input: numeric root `14`; monitor; pass 24 reseed.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `519` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `519`; monitor; pass 24 reseed.
+
 2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The local picker still had the hunt #121 expiry-warning row open; on `bugsmash-3` the 2026-11-03 seed hunt had closed it as valid-no-repro because the guard was thought to share the keepalive hook. It does not. `OidcTokenExpiryWarningGuard` calls `pulseBffSessionActivity` and ignores `unauthorized`, while `useOidcSessionKeepalive` clears the local session. The warning guard now clears the session on that result. Regression `clears the OIDC session when the expiry-warning activity pulse is unauthorized` failed first (`clearOidcSession` was not called) and then passed with the warning-guard and keepalive tests (**10/10**). Private beta: when an invited operator is on a long review and the server rejects the session activity pulse, the page clears the local sign-in instead of still looking signed in.
 
 - [x] (proven) `OidcTokenExpiryWarningGuard` — expiry warning pulsed BFF activity without clearing the session on unauthorized — **hit 2026-11-08 thorough hunt:** clear the local session on `unauthorized`, matching `useOidcSessionKeepalive`; regression `clears the OIDC session when the expiry-warning activity pulse is unauthorized`. [class:fail-open-validation]
@@ -7726,13 +7743,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 104
-- **bugs-found:** 75
+- **hunts:** 105
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — expiry warning ignored an unauthorized BFF activity pulse
+- **last-hunt:** 2026-11-16
+- **last-bug:** 2026-11-16 — `oauth-callback-messages` truncation broke token client and BFF bearer normalization
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-30 seed hunt (seed-only): re-read the OIDC discovery, PKCE, token, session, and BFF sync library; all 58 scoped OIDC tests passed; retained two discovery/redirect candidates for a later repro pass.
 
