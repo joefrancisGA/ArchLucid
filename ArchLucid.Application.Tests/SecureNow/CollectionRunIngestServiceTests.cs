@@ -50,6 +50,39 @@ public sealed class CollectionRunIngestServiceTests
     }
 
     [Fact]
+    public async Task SuccessfulImportPreservesSnapshotLinkWhenCancellationArrives()
+    {
+        using CancellationTokenSource cancellation = new();
+        Guid runId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        Mock<ICollectionRunRepository> repository = CreateRepository(false);
+        repository.Setup(repo => repo.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
+            .Returns((CollectionRun _, CancellationToken token) =>
+            {
+                token.ThrowIfCancellationRequested();
+                return Task.CompletedTask;
+            });
+        Mock<IAzureExtractorIngestService> importer = new();
+        importer.Setup(service => service.IngestZipBytesAsync(
+                It.IsAny<byte[]>(), It.IsAny<string>(), null, cancellation.Token, null, It.IsAny<long>()))
+            .Returns(() =>
+            {
+                cancellation.Cancel();
+                return Task.FromResult(new AzureExtractorIngestResult { Succeeded = true, SnapshotId = snapshotId });
+            });
+
+        CollectionRunIngestService service = CreateService(repository, importer);
+
+        CollectionRun result = await service.IngestAsync(CreateArtifact(runId), cancellation.Token);
+
+        result.ImportedSnapshotId.Should().Be(snapshotId);
+        repository.Verify(repo => repo.UpsertAsync(
+            It.Is<CollectionRun>(run => run.RunId == runId && run.ImportedSnapshotId == snapshotId
+                && run.Status == CollectionRunStatus.Imported),
+            CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task ExistingHashDoesNotImportAgain()
     {
         Guid runId = Guid.NewGuid();

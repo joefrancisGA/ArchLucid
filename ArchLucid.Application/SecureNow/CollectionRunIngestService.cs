@@ -88,7 +88,10 @@ public sealed class CollectionRunIngestService(
                 importResult.IsSchemaRejection ? CollectionRunStatus.Rejected : CollectionRunStatus.Failed,
                 importResult.FailureDetail);
 
-        await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+        // A successful import has already written the snapshot. Preserve its link if the caller disconnects.
+        await _collectionRunRepository.UpsertAsync(
+            collectionRun,
+            importResult.Succeeded ? CancellationToken.None : cancellationToken);
         return collectionRun;
     }
 
