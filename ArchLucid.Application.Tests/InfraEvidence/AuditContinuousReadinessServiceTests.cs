@@ -167,6 +167,54 @@ public sealed class AuditContinuousReadinessServiceTests
     }
 
     [Fact]
+    public async Task ProcessInventoryDiffAsync_does_not_record_drift_when_control_evaluation_fails()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid controlId = Guid.NewGuid();
+        AuditAssessmentRecord assessment = new() { AssessmentId = Guid.NewGuid(), FrameworkId = Guid.NewGuid() };
+        AuditEvidenceSnapshotHeaderRecord snapshot = new() { AuditEvidenceSnapshotId = Guid.NewGuid() };
+        Mock<IAuditAssessmentRepository> assessments = new();
+        assessments.Setup(repository => repository.ListActiveByTenantAsync(scope.TenantId, CancellationToken.None))
+            .ReturnsAsync([assessment]);
+        InMemoryAuditEvidenceRequirementRepository requirements = new(
+            assessment.FrameworkId, scope.TenantId, Guid.NewGuid(), controlId, AuditEvidenceTypeNames.Network);
+        Mock<IAuditEvidenceSnapshotRepository> snapshots = new();
+        snapshots.Setup(repository =>
+                repository.ListByAssessmentAsync(scope.TenantId, assessment.AssessmentId, CancellationToken.None))
+            .ReturnsAsync([snapshot]);
+        snapshots.Setup(repository =>
+                repository.ListItemsAsync(scope.TenantId, snapshot.AuditEvidenceSnapshotId, CancellationToken.None))
+            .ReturnsAsync([]);
+        Mock<IAuditControlEvaluationService> evaluations = new();
+        evaluations.Setup(service => service.TryEvaluateControlForCurrentAssessmentAsync(
+                scope, snapshot.AuditEvidenceSnapshotId, assessment.FrameworkId, controlId,
+                It.IsAny<IReadOnlyList<string>>(), It.IsAny<IReadOnlyList<string>>(), CancellationToken.None))
+            .ReturnsAsync(new AuditControlEvaluationResult { Succeeded = false, ErrorMessage = "Evaluation write failed." });
+        CapturingTimelineRepository timeline = new();
+        CapturingFindingHandoffService handoff = new();
+        AuditContinuousReadinessService service = new(
+            assessments.Object, requirements, snapshots.Object, evaluations.Object, timeline, handoff,
+            NullLogger<AuditContinuousReadinessService>.Instance);
+
+        AuditContinuousReadinessProcessResult result = await service.ProcessInventoryDiffAsync(
+            scope,
+            new AzureInventoryDiffSummaryRecord { DiffId = Guid.NewGuid() },
+            [
+                new AzureInventoryChangeRecord
+                {
+                    ChangeType = AzureInventoryChangeType.ResourceAdded,
+                    AzureResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-new",
+                },
+            ]);
+
+        result.Succeeded.Should().BeFalse();
+        result.AffectedControlIds.Should().Equal(controlId);
+        result.ReEvaluatedControlIds.Should().BeEmpty();
+        timeline.Records.Should().BeEmpty();
+        handoff.Requests.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ProcessInventoryDiffAsync_tag_only_change_does_not_reevaluate_controls()
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
