@@ -80,16 +80,20 @@ describe("CollectionAgentPageClient", () => {
     });
   });
 
-  it("labels a successful run with missing finish time (P-17)", () => {
+  it.each([
+    [null, "Last successful run finish time was not stored."],
+    ["   ", "Last successful run finish time was not stored."],
+    ["unreadable-finish", "Last successful run finish time could not be read."],
+  ] as const)("labels the successful run when the finish time is %s (P-17)", (finishedUtc, expectedLabel) => {
     useCollectionRunsQueryMock.mockReturnValue({
-      data: [{ ...successfulRun(), finishedUtc: null }],
+      data: [{ ...successfulRun(), finishedUtc }],
       isPending: false,
       isError: false,
     });
 
     render(<CollectionAgentPageClient />);
 
-    expect(screen.getByText("Last successful run finish time was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(expectedLabel)).toBeInTheDocument();
     expect(screen.queryByText("No successful run recorded")).not.toBeInTheDocument();
   });
 
