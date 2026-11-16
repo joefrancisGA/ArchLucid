@@ -78,6 +78,7 @@ public sealed class ArchitectureRunArchiveService(
 
         string actor = _actorContext.GetActor();
 
+        // The archive has committed, so request cancellation must not skip its audit event.
         await DurableAuditLogRetry.LogOrThrowAsync(
             ct => _auditService.LogAsync(
                 new AuditEvent
@@ -95,7 +96,7 @@ public sealed class ArchitectureRunArchiveService(
                 ct),
             _logger,
             $"ArchitectureReviewArchived:{runId:D}",
-            cancellationToken,
+            CancellationToken.None,
             auditEventTypeForMetrics: AuditEventTypes.ArchitectureReviewArchived).ConfigureAwait(false);
 
         return ArchitectureRunArchiveOutcome.Archived;

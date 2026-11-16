@@ -47,8 +47,10 @@ public sealed class ArchitectureRunArchiveServiceTests
         outcome.Should().Be(ArchitectureRunArchiveOutcome.SealedReviewBlocked);
     }
 
-    [Fact]
-    public async Task TryArchiveAsync_archives_in_flight_review_and_emits_audit()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryArchiveAsync_archives_in_flight_review_and_emits_audit(bool cancelWhenAuditStarts)
     {
         Guid runId = Guid.NewGuid();
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -66,17 +68,25 @@ public sealed class ArchitectureRunArchiveServiceTests
             },
             CancellationToken.None);
 
+        using CancellationTokenSource request = new();
         Mock<IAuditService> audit = new();
         AuditEvent? captured = null;
         audit
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Callback<AuditEvent, CancellationToken>((evt, _) => captured = evt)
+            .Callback<AuditEvent, CancellationToken>((evt, ct) =>
+            {
+                if (cancelWhenAuditStarts)
+                    request.Cancel();
+
+                ct.ThrowIfCancellationRequested();
+                captured = evt;
+            })
             .Returns(Task.CompletedTask);
 
         ArchitectureRunArchiveService service = CreateService(runs, scope, audit.Object);
 
         ArchitectureRunArchiveOutcome outcome =
-            await service.TryArchiveAsync(runId, CancellationToken.None);
+            await service.TryArchiveAsync(runId, request.Token);
 
         outcome.Should().Be(ArchitectureRunArchiveOutcome.Archived);
 
@@ -86,6 +96,7 @@ public sealed class ArchitectureRunArchiveServiceTests
         secondOutcome.Should().Be(ArchitectureRunArchiveOutcome.AlreadyArchived);
         captured.Should().NotBeNull();
         captured!.EventType.Should().Be(AuditEventTypes.ArchitectureReviewArchived);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static ArchitectureRunArchiveService CreateService(
