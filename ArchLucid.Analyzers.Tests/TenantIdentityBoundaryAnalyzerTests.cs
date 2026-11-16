@@ -27,6 +27,8 @@ namespace ArchLucid.Api.Http
     public static class HttpContextProvider
     {
         public static Microsoft.AspNetCore.Http.HttpContext Resolve() => null!;
+
+        public static Microsoft.AspNetCore.Http.HttpContext ResolveViaExtension(this object target) => null!;
     }
 }
 
@@ -1020,6 +1022,55 @@ namespace N
     DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
         .WithLocation(0)
         .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_dynamic_local_assigned_from_HttpContext_returning_call()
+  {
+    const string testCode = """
+
+namespace N
+{
+    public sealed class C
+    {
+        void M()
+        {
+            dynamic ctx = ArchLucid.Api.Http.HttpContextProvider.{|#0:Resolve|}();
+            _ = ctx;
+        }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_reduced_extension_call_returning_HttpContext_without_HttpContext_identifier()
+  {
+    const string testCode = """
+
+namespace N
+{
+    public sealed class C
+    {
+        void M(object services)
+        {
+            ArchLucid.Api.Http.HttpContextProvider.{|#0:ResolveViaExtension|}(services);
+        }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
 
     await RunInnerLayerTestAsync(testCode, expected);
   }

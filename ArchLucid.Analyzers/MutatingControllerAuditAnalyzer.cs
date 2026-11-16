@@ -724,6 +724,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (IsLogAsyncSyntaxInNeverTakenConstantIfBranch(logAsyncSyntaxNode, semanticModel, cancellationToken))
                 return false;
 
+            if (IsLogAsyncSyntaxInNeverExecutedConstantWhileLoop(logAsyncSyntaxNode, semanticModel, cancellationToken))
+                return false;
+
             if (IsLogAsyncSyntaxAfterUnreachableSibling(logAsyncSyntaxNode, semanticModel, cancellationToken))
                 return false;
         }
@@ -933,6 +936,29 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         }
 
         return false;
+    }
+
+    private static bool IsLogAsyncSyntaxInNeverExecutedConstantWhileLoop(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        WhileStatementSyntax? whileStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<WhileStatementSyntax>();
+
+        if (whileStatementSyntax is null)
+            return false;
+
+        Optional<object?> conditionOptional =
+            semanticModel.GetConstantValue(whileStatementSyntax.Condition, cancellationToken);
+
+        if (!conditionOptional.HasValue)
+            return false;
+
+        if (AuditProofConstantValueIsTrue(conditionOptional.Value))
+            return false;
+
+        return whileStatementSyntax.Statement.DescendantNodesAndSelf()
+            .Any(node => ReferenceEquals(node, logAsyncSyntaxNode));
     }
 
     private static bool IsLogAsyncSyntaxAfterUnreachableSibling(

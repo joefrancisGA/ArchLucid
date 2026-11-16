@@ -2471,6 +2471,39 @@ namespace N
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task Does_not_report_AL0001_when_AllowAnonymous_only_on_partial_action_implementation()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public partial class PartialAllowAnonymousController : ControllerBase
+    {
+        [HttpPost]
+        public partial IActionResult Post();
+    }
+
+    public partial class PartialAllowAnonymousController
+    {
+        [AllowAnonymous]
+        public partial IActionResult Post() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 
