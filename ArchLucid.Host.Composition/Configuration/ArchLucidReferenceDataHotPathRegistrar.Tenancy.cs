@@ -20,12 +20,14 @@ partial class ArchLucidReferenceDataHotPathRegistrar
         IServiceCollection services,
         HotPathCacheOptions hotPath)
     {
+        // An in-flight cache fill can republish old cost assumptions after a successful settings write.
+        services.AddScoped<ITenantCostSettingsRepository, DapperTenantCostSettingsRepository>();
+
         if (!hotPath.Enabled)
         {
             services.AddScoped<IScimUserRepository, DapperScimUserRepository>();
             services.AddScoped<ITenantRepository, DapperTenantRepository>();
             services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
-            services.AddScoped<ITenantCostSettingsRepository, DapperTenantCostSettingsRepository>();
             services.AddScoped<ITenantIdentityProviderConfigurationRepository, SqlTenantIdentityProviderConfigurationRepository>();
             services.AddScoped<ITenantSignInEmailDomainRepository, DapperTenantSignInEmailDomainRepository>();
             return;
@@ -44,11 +46,6 @@ partial class ArchLucidReferenceDataHotPathRegistrar
         services.AddScoped<SqlTenantSettingsRepository>();
         services.AddScoped<ITenantSettingsRepository>(static sp => new CachingTenantSettingsRepository(
             sp.GetRequiredService<SqlTenantSettingsRepository>(),
-            sp.GetRequiredService<IHotPathReadCache>()));
-
-        services.AddScoped<DapperTenantCostSettingsRepository>();
-        services.AddScoped<ITenantCostSettingsRepository>(static sp => new CachingTenantCostSettingsRepository(
-            sp.GetRequiredService<DapperTenantCostSettingsRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));
 
         services.AddScoped<SqlTenantIdentityProviderConfigurationRepository>();
