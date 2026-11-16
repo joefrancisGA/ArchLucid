@@ -8,8 +8,14 @@ import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-c
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import {
+  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
+  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
+} from "@/lib/product-line/securenow-second-capture-cta-copy";
 
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
@@ -140,6 +146,14 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
               data-testid="securenow-pilot-decision-partial-capture-cloud-connections"
             >
               {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
+              data-testid="securenow-pilot-decision-partial-capture-extract-upload"
+            >
+              {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
             </Link>
           </p>
         ) : null}

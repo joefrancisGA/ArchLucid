@@ -129,6 +129,7 @@ import {
   shouldShowDriftEmptyDiffsUnchangedFilterOffHonesty,
 } from "@/lib/infra-evidence/drift-empty-diffs-unchanged-filter-off-copy";
 import { DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-inventory-not-failure-copy";
+import { DRIFT_TERRAFORM_EXPORT_RECEIPT_ADVISORY_LINE } from "@/lib/infra-evidence/drift-terraform-export-receipt-advisory-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
@@ -1625,6 +1626,12 @@ export function DriftWorkbenchClient() {
                   </p>
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {formatAbsoluteUpdatedAtTitle(exportReceipt.exportedAtUtc)}
+                  </p>
+                  <p
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-drift-export-receipt-advisory"
+                  >
+                    {DRIFT_TERRAFORM_EXPORT_RECEIPT_ADVISORY_LINE}
                   </p>
                 </div>
               ) : null}

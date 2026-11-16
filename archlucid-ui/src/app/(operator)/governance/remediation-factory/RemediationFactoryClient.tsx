@@ -834,6 +834,7 @@ export function RemediationFactoryClient() {
             }
             showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
             partialCapture={productLine === "security" && latestCapturePartial}
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
           />
 
           <RemediationFactoryTopCutPointsSection
@@ -861,6 +862,27 @@ export function RemediationFactoryClient() {
       )}
 
       <section className="space-y-3" aria-label="Operator priority table">
+        {productLine === "security" && latestCapturePartial ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-partial-capture-priority-queue">
+            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
+            {SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}{" "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+              data-testid="remediation-priority-queue-partial-capture-cloud-connections"
+            >
+              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
+              data-testid="remediation-priority-queue-partial-capture-extract-upload"
+            >
+              {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
+            </Link>
+          </p>
+        ) : null}
         {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-priority-queue-collapsed">
             Priority queue: {ranked.length} finding{ranked.length === 1 ? "" : "s"} on this snapshot. Step focus is on the
