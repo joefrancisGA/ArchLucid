@@ -453,6 +453,35 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("button", { name: "Filter reviews: All (2)" })).toBeInTheDocument();
   });
 
+  it("reconciles the active inventory filter when useSearchParams changes without a popstate event", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    const runs = [
+      {
+        runId: "active-review",
+        projectId: "default",
+        description: "Active package",
+        createdUtc: "2026-08-10T12:00:00.000Z",
+      } satisfies RunSummary,
+    ];
+
+    const view = render(
+      <ReviewsHubReviewInventory runs={runs} summary={emptySummary()} />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
+    expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
+
+    useSearchParams.mockReturnValue(new URLSearchParams("filter=all"));
+    view.rerender(<ReviewsHubReviewInventory runs={runs} summary={emptySummary()} />);
+
+    expect(screen.getByRole("button", { name: /Filter reviews: All/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
+  });
+
   it("shows a clear action when search filters out all reviews", () => {
     useSearchParams.mockReturnValue(new URLSearchParams("q=no-such-review"));
 

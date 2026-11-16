@@ -134,10 +134,28 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     [inFlightOperations],
   );
   const searchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
-  const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
+  const urlFilterParam = searchParams.get("filter");
+  const filterFromSearchParams = parseReviewsHubInventoryFilter(urlFilterParam);
+  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(filterFromSearchParams);
   const activeFilterRef = useRef(activeFilter);
   activeFilterRef.current = activeFilter;
+  const lastUrlFilterParamRef = useRef<string | null | undefined>(urlFilterParam);
+
+  useEffect(() => {
+    if (lastUrlFilterParamRef.current === urlFilterParam) {
+      return;
+    }
+
+    lastUrlFilterParamRef.current = urlFilterParam;
+    const next = parseReviewsHubInventoryFilter(urlFilterParam);
+
+    if (activeFilterRef.current === next) {
+      return;
+    }
+
+    activeFilterRef.current = next;
+    setActiveFilter(next);
+  }, [urlFilterParam]);
 
   useEffect(() => {
     const syncActiveFilterFromUrl = (): void => {
