@@ -56,6 +56,7 @@ public sealed class AuditContinuousReadinessService(
             List<Guid> affectedControlIds = [];
             List<Guid> reEvaluatedControlIds = [];
             int findingHandoffCount = 0;
+            string? evaluationError = null;
 
             foreach (AuditAssessmentRecord assessment in assessments)
             {
@@ -131,6 +132,12 @@ public sealed class AuditContinuousReadinessService(
                             [],
                             cancellationToken);
 
+                    if (!evaluationResult.Succeeded)
+                    {
+                        evaluationError ??= evaluationResult.ErrorMessage ?? "Audit control re-evaluation failed.";
+                        continue;
+                    }
+
                     reEvaluatedControlIds.Add(controlId);
 
                     AuditControlTechnicalTimelineState nextState =
@@ -174,7 +181,8 @@ public sealed class AuditContinuousReadinessService(
 
             return new AuditContinuousReadinessProcessResult
             {
-                Succeeded = true,
+                Succeeded = evaluationError is null,
+                ErrorMessage = evaluationError,
                 AffectedControlIds = affectedControlIds.Distinct().ToList(),
                 ReEvaluatedControlIds = reEvaluatedControlIds.Distinct().ToList(),
                 FindingHandoffCount = findingHandoffCount,
