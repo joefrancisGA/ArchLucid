@@ -100,15 +100,7 @@ public sealed class AzureInventoryDiffService(
                 },
                 cancellationToken);
 
-            return new AzureInventoryDiffComputeResult
-            {
-                Succeeded = true,
-                WasExisting = persisted.WasExisting,
-                DiffId = persisted.DiffId,
-                Summary = persisted.Summary,
-                Changes = changes,
-                ConsumerFanOutSucceeded = await NotifyDiffConsumersAsync(persisted.Summary, changes, cancellationToken),
-            };
+            return await CompletePersistedDiffAsync(scope, persisted, changes, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -177,8 +169,18 @@ public sealed class AzureInventoryDiffService(
             },
             cancellationToken);
 
-        bool consumerFanOutSucceeded =
-            await NotifyDiffConsumersAsync(persisted.Summary, [], cancellationToken);
+        return await CompletePersistedDiffAsync(scope, persisted, [], cancellationToken);
+    }
+
+    private async Task<AzureInventoryDiffComputeResult> CompletePersistedDiffAsync(
+        ScopeContext scope,
+        AzureInventoryDiffPersistResult persisted,
+        IReadOnlyList<AzureInventoryChangeRecord> computedChanges,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<AzureInventoryChangeRecord> changes = persisted.WasExisting
+            ? await diffRepository.ListChangesByDiffIdAsync(scope, persisted.DiffId, cancellationToken)
+            : computedChanges;
 
         return new AzureInventoryDiffComputeResult
         {
@@ -186,8 +188,8 @@ public sealed class AzureInventoryDiffService(
             WasExisting = persisted.WasExisting,
             DiffId = persisted.DiffId,
             Summary = persisted.Summary,
-            Changes = [],
-            ConsumerFanOutSucceeded = consumerFanOutSucceeded,
+            Changes = changes,
+            ConsumerFanOutSucceeded = await NotifyDiffConsumersAsync(persisted.Summary, changes, cancellationToken),
         };
     }
 
