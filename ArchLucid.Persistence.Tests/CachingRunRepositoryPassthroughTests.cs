@@ -67,6 +67,45 @@ public sealed class CachingRunRepositoryPassthroughTests
     }
 
     [Fact]
+    public async Task TrySetOperatorGovernanceDispositionAsync_finishes_cache_invalidation_after_write()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Guid runId = Guid.NewGuid();
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
+        using CancellationTokenSource caller = new();
+        Mock<IRunRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(r => r.TrySetOperatorGovernanceDispositionAsync(
+                scope, runId, "Approved", null, "actor", occurredUtc, caller.Token))
+            .Callback(caller.Cancel)
+            .ReturnsAsync(true);
+
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken ct) =>
+                ct.IsCancellationRequested ? Task.FromCanceled(ct) : Task.CompletedTask);
+        string revisionKey = HotPathCacheKeys.RunListScopeRevision(scope);
+        cache.Setup(c => c.GetOrCreateAsync(
+                revisionKey,
+                It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                CancellationToken.None,
+                null))
+            .ReturnsAsync(new RunListScopeRevisionState { Revision = 1 });
+        CachingRunRepository sut = new(inner.Object, cache.Object);
+
+        bool updated = await sut.TrySetOperatorGovernanceDispositionAsync(
+            scope, runId, "Approved", null, "actor", occurredUtc, caller.Token);
+
+        updated.Should().BeTrue();
+        cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.Run(scope, runId), CancellationToken.None), Times.Once);
+        cache.Verify(c => c.RemoveAsync(revisionKey, CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task TrySetOperatorGovernanceDispositionAsync_when_inner_false_does_not_invalidate_cache()
     {
         ScopeContext scope = new()
