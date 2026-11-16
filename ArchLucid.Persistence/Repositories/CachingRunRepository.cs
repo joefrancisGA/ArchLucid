@@ -217,8 +217,8 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
         await _inner.UpdateAsync(run, ct, connection, transaction);
 
         ScopeContext scope = ScopeForRun(run);
-        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, ct);
-        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, CancellationToken.None);
+        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, CancellationToken.None);
     }
 
     /// <inheritdoc />

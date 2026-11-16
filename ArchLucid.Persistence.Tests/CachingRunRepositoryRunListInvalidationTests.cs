@@ -112,6 +112,57 @@ public sealed class CachingRunRepositoryRunListInvalidationTests
     }
 
     [SkippableFact]
+    public async Task UpdateAsync_refreshes_run_and_list_when_caller_cancels_after_write()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Guid runId = Guid.NewGuid();
+        RunRecord CreateRun(string status) => new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "default",
+            LegacyRunStatus = status,
+        };
+
+        using CancellationTokenSource caller = new();
+        RunRecord stored = CreateRun("Created");
+        Mock<IRunRepository> inner = new();
+        inner.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => stored);
+        inner.Setup(r => r.ListRecentInScopeAsync(scope, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new[] { stored });
+        RunRecord updated = CreateRun("Failed");
+        inner.Setup(r => r.UpdateAsync(updated, caller.Token, null, null))
+            .Returns(() =>
+            {
+                stored = updated;
+                caller.Cancel();
+                return Task.CompletedTask;
+            });
+        CachingRunRepository repo = new(
+            inner.Object,
+            HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+
+        (await repo.GetByIdAsync(scope, runId, CancellationToken.None))!.LegacyRunStatus.Should().Be("Created");
+        (await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None)).Single()
+            .LegacyRunStatus.Should().Be("Created");
+
+        Exception? updateError = await Record.ExceptionAsync(() => repo.UpdateAsync(updated, caller.Token));
+
+        (await repo.GetByIdAsync(scope, runId, CancellationToken.None))!.LegacyRunStatus.Should().Be("Failed");
+        (await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None)).Single()
+            .LegacyRunStatus.Should().Be("Failed");
+        updateError.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task ListByProject_does_not_coalesce_unpaged_and_keyset_cache_misses()
     {
         Mock<IRunRepository> inner = new();
