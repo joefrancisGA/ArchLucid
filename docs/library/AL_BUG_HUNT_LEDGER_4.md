@@ -1985,6 +1985,13 @@
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **consecutive-dry-hunts:** 0
 
+
+2026-11-16 thorough hunt #1696 (hit): no rotation at pick time (`shouldRotate: false`). Promoted carried `(candidate)` `TenantIdentityBoundaryAnalyzer` — discarded calls to methods returning `HttpContext` from referenced assemblies stayed silent for ARCH001 because only identifier and generic syntax were analyzed. Added `InvocationExpression` analysis via method return types. Regression `Reports_discarded_call_returning_HttpContext_from_referenced_assembly` failed first (expected 1 diagnostic, actual 0). **Valid-no-repro** catch-filter `LogAsync` — `CatchFilterClauseSyntax` is already excluded in `LogAsyncSyntaxIsOnExecutedPath` (regressions `AL0003_reports_when_LogAsync_runs_only_from_catch_filter_local` and `AL0003_reports_when_default_interface_LogAsync_runs_only_from_catch_filter`). Removed duplicate `MutatingControllerAuditAnalyzerTests` methods (CS0111 merge artifact on `bugsmash-4`). Scoped analyzer filter **190/190** (`RunAnalyzers=false`). Private beta: inner-layer code that touches `HttpContext` only through discarded calls from referenced assemblies now fails the invited build at compile time via ARCH001, closing a tenant-boundary leak before RC35 absorbs the fix.
+
+- [x] (proven) `TenantIdentityBoundaryAnalyzer` — a call whose return type is `HttpContext` is missed when the call site never writes that type name and the method is declared in a referenced assembly — **hit 2026-11-16 thorough hunt #1696:** invocation return-type analysis; regression `Reports_discarded_call_returning_HttpContext_from_referenced_assembly`.
+
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` inside a `catch` `when` filter suppresses AL0003 when the action body never throws — **cheap-disproof 2026-11-16 thorough hunt #1696:** hunt #1695 carried row; `CatchFilterClauseSyntax` exclusion on shipped scan.
+
 2026-11-08 thorough hunt #1695 (hit): picker kept `security-analyzers` with three candidates and no hunt-ready rows. Proved `IsLogAsyncSyntaxProofReachable` was absent, so `LogAsync` in a `switch` arm still counted when the discriminant was a compile-time constant that selects another arm. A mutating `[HttpPost]` with `const int route = 0` and `LogAsync` only in `default` stayed silent for AL0003. Fixed by folding the switch discriminant and ignoring arms the constant cannot select. Regression `AL0003_reports_when_LogAsync_only_in_switch_default_never_selected_by_constant` failed first (expected 1 diagnostic, actual 0); `AL0003_is_absent_when_LogAsync_is_in_constant_switch_arm_that_runs` keeps the taken arm silent. Scoped `MutatingControllerAuditAnalyzerTests` **58/58** (`RunAnalyzers=false`). Private beta: a mutating API action on the invited build no longer treats `LogAsync` in a switch arm the constant discriminant never selects as proof the mutation was audited, so AL0003 fails the build before that action ships.
 
 - [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` only in a `switch` `default` arm suppresses AL0003 when a constant discriminant selects another arm — **hit 2026-11-08 thorough hunt #1695:** constant-discriminant switch reachability; regression `AL0003_reports_when_LogAsync_only_in_switch_default_never_selected_by_constant`.
@@ -2200,13 +2207,13 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 51
-- **bugs-found:** 45
+- **hunts:** 52
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — AL0003 treated LogAsync in an unselected constant switch arm as audit proof
+- **last-hunt:** 2026-11-16
+- **last-bug:** 2026-11-16 — ARCH001 missed discarded HttpContext-returning calls from referenced assemblies
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-09 seed hunt (seed→hit): concrete inherited-action scan ignored interface `[Authorize]`/`[AllowAnonymous]` that declared actions and the abstract empty-type helper already accepted; empty derived controllers reported AL0001 for a base action authorized on its implemented interface; inherited actions now use `ActionHasAuthorization`; regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).

@@ -22,6 +22,14 @@ namespace Microsoft.AspNetCore.Http
     }
 }
 
+namespace ArchLucid.Api.Http
+{
+    public static class HttpContextProvider
+    {
+        public static Microsoft.AspNetCore.Http.HttpContext Resolve() => null!;
+    }
+}
+
 """;
 
   [Fact]
@@ -798,6 +806,30 @@ namespace N
     DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
         .WithLocation(0)
         .WithArguments("System.Action<Microsoft.AspNetCore.Http.HttpContext>");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_discarded_call_returning_HttpContext_from_referenced_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    public sealed class C
+    {
+        void M()
+        {
+            _ = ArchLucid.Api.Http.HttpContextProvider.{|#0:Resolve|}();
+        }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
 
     await RunInnerLayerTestAsync(testCode, expected);
   }
