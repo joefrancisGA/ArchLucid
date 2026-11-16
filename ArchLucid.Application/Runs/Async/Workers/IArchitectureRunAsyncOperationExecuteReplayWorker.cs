@@ -6,5 +6,6 @@ public interface IArchitectureRunAsyncOperationExecuteReplayWorker
         ArchitectureRunAsyncOperationWorkItem item,
         Func<ArchitectureRunAsyncOperationWorkItem, CancellationToken, Task> processWorkItemAsync,
         Func<ArchitectureRunAsyncOperationWorkItem, CancellationToken, Task> waitForCreateIfNeededAsync,
+        Func<ArchitectureRunAsyncOperationWorkItem, OperationCanceledException, Task> onAdmissionCanceledAsync,
         CancellationToken cancellationToken);
 }
