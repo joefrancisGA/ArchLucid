@@ -22689,6 +22689,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-11-16 thorough hunt (hit #228): no rotation (`shouldRotate: false`). Promoted `Tenant slug expired`, `Tenant slug locked`, and `Tenant slug pending` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#227**); `IsTenantSlugPhraseExcludedWord` now rejects leading `expired`, `locked`, and `pending`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_expired_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_locked_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_pending_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows — **valid-no-repro** migration complete after verification stamp rolled back (`CompleteAsync` reads active migration once at entry; a concurrent verification failure clears `VerificationPassedUtc` before a second complete attempt, not mid-flight without a stale client), **valid-no-repro** offboard without suspend (`TryOffboardTenantAsync` calls `SuspendTenantAsync` immediately after atomic offboard start ~80). Scoped filter **440/440** (`RunAnalyzers=false`). Private beta: when an invited operator retries tenant provisioning after a generic “already exists” error that mentions expired, locked, or pending slug lifecycle wording, the app does not misclassify that message as an organization-name collision.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug expired` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #228:** excluded slug phrase word `expired`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug locked` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #228:** excluded slug phrase word `locked`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug pending` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #228:** excluded slug phrase word `pending`; regression above.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes migration when verification passed timestamp rolled back between reads — **cheap-disproof 2026-11-16 thorough hunt #228:** orchestrator gates on `active.VerificationPassedUtc` from the single `GetActiveByTenantIdAsync` at call entry; stamp rollback requires a second complete after failed verification, not an in-process stale row without re-fetch.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard without suspend when migration suspend expected — **cheap-disproof 2026-11-16 thorough hunt #228:** `SuspendTenantAsync` after successful `TryStartTenantErasureOffboardAsync` ~80.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug revoked` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug revoked elsewhere already exists` (monitor hit **#228**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug disabled` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug disabled incorrectly already exists` (monitor hit **#228**).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug terminated` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug terminated automatically already exists` (monitor hit **#228**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completes when `VerificationPassedUtc` cleared in DB but in-memory active still set — locus: `CompleteAsync` migration re-read; input: parallel verify fail + complete (monitor hit **#228**).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — advances to Verification stage when probe throws before mark — locus: stage update ordering; input: probe fault after `UpdateStageAsync` (monitor hit **#228**).
+
 2026-11-16 thorough hunt (hit #227): promoted `Tenant slug suspended`, `Tenant slug unsuspended`, and `Tenant slug provisioned` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from hit **#226**); `IsTenantSlugPhraseExcludedWord` now rejects leading `suspended`, `unsuspended`, and `provisioned`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_suspended_substring_in_already_exists_message`, `IsDuplicateOrganization_does_not_match_tenant_slug_unsuspended_substring_in_already_exists_message`, and `IsDuplicateOrganization_does_not_match_tenant_slug_provisioned_substring_in_already_exists_message`; cheap-disproof closed two remaining open `(candidate)` rows from hit **#226** — **valid-no-repro** migration complete unsuspend for admin suspend before start (`CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start`; unsuspend only when `SuspendedUtc >= active.StartedUtc` ~173–186), **valid-no-repro** quarantine restore clearing suspend (`TryRestoreQuarantineAsync_clears_suspend_set_during_offboard`); reseeded five follow-on `(candidate)` monitor rows; scoped filter **439/439** Application tenancy tests passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug suspended/unsuspended/provisioned phrasing as duplicate slug SQL conflicts when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug suspended` substring satisfies slug context without index tokens — **hit 2026-11-16 thorough hunt #227:** excluded slug phrase word `suspended`; regression above.
@@ -23306,11 +23320,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 218
-- **bugs-found:** 198
+- **hunts:** 219
+- **bugs-found:** 199
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-16
-- **last-bug:** 2026-11-16 — Tenant slug suspended/unsuspended/provisioned prose duplicate-detector false positive
+- **last-bug:** 2026-11-16 — Tenant slug expired/locked/pending prose duplicate-detector false positive
 
 ### Hypotheses
 
