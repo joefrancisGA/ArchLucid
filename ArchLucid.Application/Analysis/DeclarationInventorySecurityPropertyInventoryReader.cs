@@ -38,9 +38,20 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return true;
         }
 
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+            && cloudProvider is InventoryTopologyCloudProvider.Azure)
+        {
+            // Book ch. 6 storage_public_exposure treats an omitted publicNetworkAccess as Enabled.
+            value = "Enabled";
+            return true;
+        }
+
         value = null;
         return false;
     }
+
+    internal static bool IsUncontradictableAzurePublicNetworkAccessInventoryValue(string? inventoryValue) =>
+        string.Equals(inventoryValue?.Trim(), "SecuredByPerimeter", StringComparison.OrdinalIgnoreCase);
 
     internal static bool TryResolveSecurityTheme(string logicalName, out string theme)
     {

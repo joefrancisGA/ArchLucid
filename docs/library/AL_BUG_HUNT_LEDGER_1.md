@@ -11065,6 +11065,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-16 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `DeclarationInventoryContradictionAnalyzer` public-network compare gaps carried since hunt **2026-11-08** cheap-disproof: Azure inventory rows with no `publicNetworkAccess` now compare as **Enabled** (book ch. 6 `storage_public_exposure`), so a declaration that disables public access contradicts omitted inventory instead of staying silent. Inventory `SecuredByPerimeter` is now uncontradictable because perimeter rules are unknown (book ch. 6). Regressions `CompareQuality_Analyze_detects_mismatch_when_inventory_omits_public_network_access_but_declaration_disables` and `CompareQuality_Analyze_skips_mismatch_when_inventory_public_network_access_is_secured_by_perimeter` failed first, then passed. Scoped filter **1109/1109** (`RunAnalyzers=false`). Private beta: invited operators see declaration-versus-inventory findings when Terraform disables public network access but Azure inventory omits `publicNetworkAccess`, and no longer get false data-protection mismatches solely because inventory is `SecuredByPerimeter`.
+
+- [x] (proven) `DeclarationInventoryContradictionAnalyzer.Analyze` — omitted storage `publicNetworkAccess` is not compared — **hit 2026-11-16 thorough hunt:** Azure default `Enabled` when the key is absent; regression `CompareQuality_Analyze_detects_mismatch_when_inventory_omits_public_network_access_but_declaration_disables`. [class:fail-open-validation]
+
+- [x] (proven) `DeclarationInventoryContradictionAnalyzer.Analyze` — `SecuredByPerimeter` versus a Disabled declaration is a mismatch — **hit 2026-11-16 thorough hunt:** skip uncontradictable perimeter-scoped inventory value; regression `CompareQuality_Analyze_skips_mismatch_when_inventory_public_network_access_is_secured_by_perimeter`. [class:other]
+
+
 2026-11-16 seed hunt (seed→hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed with zero open rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` surfaced **4/1107** failures. Promoted `MarkdownArchitectureAnalysisExportService` request-context lists: the list-honesty refactor routed constraints, capabilities, and assumptions through `AppendEvidenceRequestStringList` without `FormatMarkdownListText`, so stored newlines could inject Markdown headings, and empty lists used stored-empty copy instead of the DOCX-aligned not-recorded copy; restored inline list rendering. `ArchitectureEvidenceRequestExport.FormatTraceErrorForExport` had dropped the parse-success null-error sentence during the same refactor; restored `TraceErrorNotStoredBecauseParseSucceededCopy`; updated minimal-run trace empty copy assertion. Regressions existing `MarkdownArchitectureAnalysisExportServiceTests` (**1107/1107**, Debug, `RunAnalyzers=false`). Private beta: when an invited operator downloads an architecture analysis Markdown report, constraint bullets stay on one line, request list omissions match Word export honesty, and successful parses no longer show a generic “error was not stored” line.
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` — request list items skipped `FormatMarkdownListText` after list-honesty refactor — **hit 2026-11-16 seed hunt:** inline not-recorded empty lists and sanitize list bullets; regressions `CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored` and related export tests. [class:other]
@@ -20135,11 +20142,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 96
-- **bugs-found:** 91
+- **hunts:** 97
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-16
-- **last-bug:** 2026-11-16 — Markdown evidence/trace export regressed after list-honesty refactor
+- **last-bug:** 2026-11-16 — declaration-inventory publicNetworkAccess default and SecuredByPerimeter false positives
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
