@@ -17,6 +17,12 @@ import {
   resolveBinaryGetRequest,
   withCorrelationHeaders,
 } from "./http";
+import {
+  isRecord,
+  positiveIntegerOrDefault,
+  recordsOnly,
+  trimRequiredText,
+} from "./api-boundary-normalization";
 
 export interface CursorPagedResponse<T> {
   items: T[];
@@ -79,11 +85,25 @@ export async function searchAuditEvents(params: {
   setTrimmed("actorUserId", params.actorUserId);
   setTrimmed("runId", params.runId);
 
-  if (params.take !== undefined && Number.isFinite(params.take) && params.take >= 1) {
-    query.set("take", String(Math.floor(params.take)));
+  if (params.take !== undefined) {
+    query.set("take", String(positiveIntegerOrDefault(params.take, 100)));
   }
   const qs = query.toString();
-  return apiGet<CursorPagedResponse<AuditEvent>>(`/v1/audit/search${qs ? `?${qs}` : ""}`);
+  const raw = await apiGet<unknown>(`/v1/audit/search${qs ? `?${qs}` : ""}`);
+
+  if (!isRecord(raw)) {
+    throw new Error("Audit search response was not recognized.");
+  }
+
+  return {
+    items: recordsOnly<AuditEvent>(raw.items),
+    nextCursor: typeof raw.nextCursor === "string" ? raw.nextCursor.trim() : null,
+    hasMore: raw.hasMore === true,
+    requestedTake: positiveIntegerOrDefault(
+      typeof raw.requestedTake === "number" ? raw.requestedTake : undefined,
+      100,
+    ),
+  };
 }
 
 /** Core registry constants for event-type dropdowns (`GET /v1/audit/event-types`). */
@@ -117,26 +137,25 @@ export async function downloadAuditExportCsv(params: {
   }
 
   const query = new URLSearchParams();
-  query.set("fromUtc", params.fromUtcIso);
-  query.set("toUtc", params.toUtcIso);
-  if (params.eventType !== undefined && params.eventType.length > 0) {
-    query.set("eventType", params.eventType);
-  }
+  query.set("fromUtc", trimRequiredText(params.fromUtcIso, "fromUtcIso"));
+  query.set("toUtc", trimRequiredText(params.toUtcIso, "toUtc"));
+  const optionalFilters = {
+    eventType: params.eventType,
+    correlationId: params.correlationId,
+    actorUserId: params.actorUserId,
+    runId: params.runId,
+  };
 
-  if (params.correlationId !== undefined && params.correlationId.length > 0) {
-    query.set("correlationId", params.correlationId);
-  }
+  for (const [key, value] of Object.entries(optionalFilters)) {
+    const trimmed = value?.trim() ?? "";
 
-  if (params.actorUserId !== undefined && params.actorUserId.length > 0) {
-    query.set("actorUserId", params.actorUserId);
-  }
-
-  if (params.runId !== undefined && params.runId.length > 0) {
-    query.set("runId", params.runId);
+    if (trimmed.length > 0) {
+      query.set(key, trimmed);
+    }
   }
 
   if (params.maxRows !== undefined) {
-    query.set("maxRows", String(params.maxRows));
+    query.set("maxRows", String(positiveIntegerOrDefault(params.maxRows, 10_000)));
   }
 
   await ensureOidcBearerReady();

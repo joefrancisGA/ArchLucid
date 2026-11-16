@@ -65,7 +65,7 @@ export async function listApprovalRequests(
 ): Promise<GovernanceApprovalRequest[]> {
   const normalizedRunId = trimRequiredPathSegment(runId, "runId");
 
-  if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
+  if (shouldSkipLiveAuthorityRunScopedApi(normalizedRunId)) {
     return [];
   }
 
@@ -171,6 +171,10 @@ export async function batchReviewGovernanceApprovalRequests(body: {
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
 
+  if (approvalRequestIds.length === 0) {
+    throw new Error("approvalRequestIds is required.");
+  }
+
   try {
     return await apiPostJson<GovernanceBatchReviewResponse>(`${governanceBase()}/approval-requests/batch-review`, {
       approvalRequestIds,
@@ -223,7 +227,7 @@ export async function promoteManifest(body: {
 export async function listPromotions(runId: string): Promise<GovernancePromotionRecord[]> {
   const normalizedRunId = trimRequiredPathSegment(runId, "runId");
 
-  if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
+  if (shouldSkipLiveAuthorityRunScopedApi(normalizedRunId)) {
     return [];
   }
 

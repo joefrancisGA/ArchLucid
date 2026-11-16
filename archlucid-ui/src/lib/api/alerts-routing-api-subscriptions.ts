@@ -1,5 +1,6 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
+import { recordsOnly, trimRequiredText } from "./api-boundary-normalization";
 import { apiGet, apiPostJson } from "./http";
 
 function encodeRequiredSubscriptionId(value: string): string {
@@ -42,6 +43,13 @@ export async function createAlertRoutingSubscription(body: {
   const channelType = body.channelType.trim();
   const destination = body.destination.trim();
   const minimumSeverity = body.minimumSeverity.trim();
+  const routingCriteria = body.routingCriteria === undefined
+    ? undefined
+    : {
+        severities: body.routingCriteria.severities?.map((value) => value.trim()).filter(Boolean),
+        findingTypes: body.routingCriteria.findingTypes?.map((value) => value.trim()).filter(Boolean),
+        tags: body.routingCriteria.tags?.map((value) => value.trim()).filter(Boolean),
+      };
 
   if (name.length === 0 || channelType.length === 0 || destination.length === 0 || minimumSeverity.length === 0) {
     throw new Error("Routing subscription name, channel, destination, and severity are required.");
@@ -54,7 +62,7 @@ export async function createAlertRoutingSubscription(body: {
     minimumSeverity,
     isEnabled: body.isEnabled ?? true,
     metadataJson: body.metadataJson ?? "{}",
-    routingCriteria: body.routingCriteria,
+    routingCriteria,
   });
 }
 
@@ -75,9 +83,9 @@ export async function listAlertRoutingDeliveryAttempts(
 ): Promise<AlertRoutingDeliveryAttempt[]> {
   const normalizedTake = Number.isFinite(take) && take >= 1 ? Math.floor(take) : 30;
 
-  return apiGet<AlertRoutingDeliveryAttempt[]>(
+  return recordsOnly<AlertRoutingDeliveryAttempt>(await apiGet<unknown>(
     `/${ApiV1Routes.alertRoutingSubscriptions}/${encodeRequiredSubscriptionId(routingSubscriptionId)}/attempts?take=${normalizedTake}`,
-  );
+  ));
 }
 
 /** Sends a synthetic signed ping to a webhook routing subscription and returns the remote HTTP outcome. */
@@ -96,7 +104,7 @@ export type OutboundWebhookDryRunRequestBody = {
 /** Probes a webhook URL without persisting a subscription (POST `/v1/webhooks/dry-run`). */
 export async function dryRunOutboundWebhook(body: OutboundWebhookDryRunRequestBody): Promise<WebhookTestResponse> {
   const payload: OutboundWebhookDryRunRequestBody = {
-    targetUrl: body.targetUrl.trim(),
+    targetUrl: trimRequiredText(body.targetUrl, "targetUrl"),
   };
 
   const trimmedSecret = body.sharedSecret?.trim() ?? "";

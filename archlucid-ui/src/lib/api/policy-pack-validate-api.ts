@@ -1,4 +1,5 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { isRecord } from "./api-boundary-normalization";
 
 import { apiPostJson } from "./http";
 
@@ -30,6 +31,10 @@ export type PolicyPackContentValidationResponse = {
 export async function validatePolicyPackContentDocument(
   content: unknown,
 ): Promise<PolicyPackContentValidationResponse> {
+  if (!isRecord(content)) {
+    throw new Error("Policy pack content must be a JSON object.");
+  }
+
   return apiPostJson<PolicyPackContentValidationResponse>(
     `/${ApiV1Routes.policyPacks}/validate`,
     content,

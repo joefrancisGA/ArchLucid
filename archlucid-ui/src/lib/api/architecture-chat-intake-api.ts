@@ -1,4 +1,5 @@
 import type { CreateArchitectureRunRequestPayload } from "./architecture-runs";
+import { trimRequiredText } from "./api-boundary-normalization";
 import { apiPostJson } from "./http";
 
 /** Body for POST /v1/architecture/chat-intake. */
@@ -14,6 +15,6 @@ export type ChatIntakeArchitectureRequest = CreateArchitectureRunRequestPayload 
 /** Calls POST /v1/architecture/chat-intake to map unstructured text into a wizard-ready request. */
 export async function parseChatIntake(rawText: string): Promise<ChatIntakeArchitectureRequest> {
   return apiPostJson<ChatIntakeArchitectureRequest>("/v1/architecture/chat-intake", {
-    rawText: rawText.trim(),
+    rawText: trimRequiredText(rawText, "rawText"),
   });
 }

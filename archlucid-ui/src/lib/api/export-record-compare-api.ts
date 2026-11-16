@@ -5,6 +5,7 @@ import { exportRecordCompareBlockedReason } from "@/lib/exports/export-record-co
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 
 export type ExportRecordDiffResponse = components["schemas"]["ExportRecordDiffResponse"];
 
@@ -13,9 +14,11 @@ export async function compareExportRecords(
   leftExportRecordId: string,
   rightExportRecordId: string,
 ): Promise<ExportRecordDiffResponse> {
+  const normalizedLeftExportRecordId = trimRequiredPathSegment(leftExportRecordId, "leftExportRecordId");
+  const normalizedRightExportRecordId = trimRequiredPathSegment(rightExportRecordId, "rightExportRecordId");
   const query = new URLSearchParams({
-    leftExportRecordId: leftExportRecordId.trim(),
-    rightExportRecordId: rightExportRecordId.trim(),
+    leftExportRecordId: normalizedLeftExportRecordId,
+    rightExportRecordId: normalizedRightExportRecordId,
   });
 
   try {
