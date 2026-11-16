@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 57 (batch 22): Rescore follow-ups — return path parity and scorecard operational bands
+
+**Outcome.** Partial-capture cloud-connections links on home, findings, sponsor path, connection-status help, and collection second-capture carry `securenowReturnPath`. Pilot scorecard operational metric tiles repeat non-summing discipline. Savings hero shows quarterly non-summing when a per-quarter estimate is present. Mounted contract and component tests cover return-path wiring and operational scorecard honesty.
+
+**Surfaces.** SecureNow home, findings header, sponsor path, connection-status help, collection setup, architecture scorecard, honesty and mounted contract tests.
+
 ## 2026-11-15 - Score lift round 56 (batch 21): Scorecard non-summing bands, capture return path, and mounted contracts
 
 **Outcome.** Pilot scorecard summary tiles and savings hero repeat ROI non-summing beside headline bands. Attack-path partial capture links to cloud connections with a return path query; cloud connections shows return navigation when present. Stop ITSM handoff repeats confirm-before-send discipline. Mounted contract tests assert drift empties, Ask snapshot lines, and decision-register Report Problem wiring.
