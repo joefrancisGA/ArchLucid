@@ -36,6 +36,7 @@ import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-
 import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/resource-hub-inventory-snapshot-honesty-copy";
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
+import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -2173,8 +2174,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             ) : (
               <section className={cnCard}>
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
-                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                  This mapping is advisory. Exporting it does not apply Terraform.
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="resource-hub-terraform-advisory-not-apply">
+                  {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Not mapped means no Terraform address was captured; it does not mean the resource is unmanaged in Azure.

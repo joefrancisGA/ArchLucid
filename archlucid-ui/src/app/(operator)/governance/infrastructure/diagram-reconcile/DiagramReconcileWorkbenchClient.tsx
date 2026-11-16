@@ -74,6 +74,9 @@ import {
 } from "@/lib/infra-evidence/diagram-reconcile-readiness";
 import type { DiagramReconcileWorkbenchMode } from "@/lib/infra-evidence/diagram-reconcile-workbench-mode";
 import { resolveDiagramReconcileSnapshotSelectionSummary } from "@/lib/infra-evidence/diagram-reconcile-snapshot-selection";
+import { DIAGRAM_RECONCILE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { DIAGRAM_RECONCILE_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-page-shortcuts";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
@@ -1578,6 +1581,14 @@ export function DiagramReconcileWorkbenchClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-snapshot-honesty">
         {DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE}
       </p>
+      {isSecureNowProductLine(productLine) ? (
+        <SecureNowInfraPartialCaptureStrip
+          testId="infra-diagram-reconcile-partial-capture"
+          middleLine={DIAGRAM_RECONCILE_PARTIAL_CAPTURE_LINE}
+          cloudConnectionsTestId="infra-diagram-reconcile-partial-capture-cloud"
+          extractUploadTestId="infra-diagram-reconcile-partial-capture-extract"
+        />
+      ) : null}
 
       {loadError != null ? (
         <div className="space-y-2" data-testid="infra-diagram-reconcile-load-error">
