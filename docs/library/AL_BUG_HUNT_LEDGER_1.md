@@ -11065,6 +11065,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-16 seed hunt (seed→hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed with zero open rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` surfaced **4/1107** failures. Promoted `MarkdownArchitectureAnalysisExportService` request-context lists: the list-honesty refactor routed constraints, capabilities, and assumptions through `AppendEvidenceRequestStringList` without `FormatMarkdownListText`, so stored newlines could inject Markdown headings, and empty lists used stored-empty copy instead of the DOCX-aligned not-recorded copy; restored inline list rendering. `ArchitectureEvidenceRequestExport.FormatTraceErrorForExport` had dropped the parse-success null-error sentence during the same refactor; restored `TraceErrorNotStoredBecauseParseSucceededCopy`; updated minimal-run trace empty copy assertion. Regressions existing `MarkdownArchitectureAnalysisExportServiceTests` (**1107/1107**, Debug, `RunAnalyzers=false`). Private beta: when an invited operator downloads an architecture analysis Markdown report, constraint bullets stay on one line, request list omissions match Word export honesty, and successful parses no longer show a generic “error was not stored” line.
+
+- [x] (proven) `MarkdownArchitectureAnalysisExportService` — request list items skipped `FormatMarkdownListText` after list-honesty refactor — **hit 2026-11-16 seed hunt:** inline not-recorded empty lists and sanitize list bullets; regressions `CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored` and related export tests. [class:other]
+- [x] (proven) `ArchitectureEvidenceRequestExport.FormatTraceErrorForExport` — null error on successful parse regressed to generic not-stored copy — **hit 2026-11-16 seed hunt:** restore parse-success sentence; regression `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty`. [class:other]
+
+- [ ] (candidate) `DeclarationInventoryContradictionAnalyzer.TryReadPropertiesBag` — security values only under `configuration` or `attributes` — locus: inventory row reader; input: row with `configuration.default_action` deny vs declaration Allow; wrong outcome: skip compare; reachability: Azure Policy export snapshots.
+- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — nested property `id` shadows row ARM id — locus: property-bag id scan order; input: storage row with unrelated `properties.id`; wrong outcome: wrong resource key; reachability: nested resource templates in inventory JSON.
+- [ ] (candidate) `ReplayComparisonInterpretationDiffSlice` — agent change note when only `ParseSucceeded` flips with identical claims — locus: materiality gate; input: left parse false right true, same claims; wrong outcome: silent or noisy; reachability: flaky agent reruns.
+- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — recommended use cases list items skip `FormatMarkdownListText` — locus: service catalog section; input: use case with embedded newline; wrong outcome: injected heading; reachability: agent-filled catalog hints.
+- [ ] (candidate) `ExportRecordDiffMateriality` — whitespace-only manifest governance tags treated as material — locus: diff materiality; input: tag change with trim-only delta; wrong outcome: false material diff; reachability: repeated export compares.
+
 2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId`: a `Microsoft.Maintenance/configurationAssignments` row stores the target VM on `properties.resourceId` and the assignment's own id on `id`. Wrapper search returned the target, so the assignment was indexed as the VM. The row's own ARM id is now read before the property bag. Regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target` failed first (`HasMismatches` true) and then passed with the properties-bag-only and nested `resourceId` regressions (**3/3**, `RunAnalyzers=false`). Storage accounts still have no `properties.id`; this is the reachable property-bag id. Private beta: when an invited operator reconciles a maintenance configuration assignment, that assignment stays matched to its own resource id instead of being indexed as the virtual machine named in the property bag.
 
 - [x] (proven) `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — `properties.resourceId` on a configuration assignment replaced the row id — **hit 2026-11-08 thorough hunt:** read the row's own ARM id before the property bag; regression `CompareQuality_Analyze_matches_configuration_assignment_when_properties_resource_id_is_the_target`. [class:identity-alias]
@@ -20124,13 +20135,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 95
-- **bugs-found:** 90
+- **hunts:** 96
+- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — configuration assignment properties.resourceId replaced the row id
+- **last-hunt:** 2026-11-16
+- **last-bug:** 2026-11-16 — Markdown evidence/trace export regressed after list-honesty refactor
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ComparisonAuditService.RecordEndToEndAsync` — canonical record columns but dashed `LeftRunId`/`RightRunId` inside `PayloadJson` broke verify replay — **hit 2026-10-16 seed hunt:** regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`.
 
