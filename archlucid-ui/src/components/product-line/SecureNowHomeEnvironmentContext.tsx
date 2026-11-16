@@ -48,15 +48,7 @@ import { cn } from "@/lib/utils";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import {
-  buildSecureNowSecondCaptureCloudConnectionsHref,
-  buildSecureNowSecondCaptureExtractUploadHref,
-} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
-import {
-  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
-  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
-} from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 
 const SNAPSHOT_PAGE_SIZE = 20;
 const CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
@@ -431,24 +423,13 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         reportQueries={pathDeltaReportQueryViews}
       />
       {partialCapture && !showCollectionSetup ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-partial-capture">
-          {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
-          <Link
-            className={OPERATOR_LINK.inline}
-            href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
-            data-testid="securenow-home-partial-capture-cloud-connections"
-          >
-            {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
-          </Link>
-          {" · "}
-          <Link
-            className={OPERATOR_LINK.inline}
-            href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
-            data-testid="securenow-home-partial-capture-extract-upload"
-          >
-            {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
-          </Link>
-        </p>
+        <SecureNowPartialCaptureRecoveryParagraph
+          testId="securenow-home-partial-capture"
+          partialCaptureSnapshotId={partialCaptureSnapshotId}
+          returnPath={partialCaptureReturnPath}
+          cloudConnectionsTestId="securenow-home-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-home-partial-capture-extract-upload"
+        />
       ) : null}
     </div>
   );

@@ -11,5 +11,6 @@ describe("formatCloudConnectionsReturnLinkLabel", () => {
       "investigation",
     );
     expect(formatCloudConnectionsReturnLinkLabel("/administration/extract-upload")).toContain("extract");
+    expect(formatCloudConnectionsReturnLinkLabel("/help/connection-status")).toContain("connection status");
   });
 });

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_PILOT_SPINE_GUARDRAIL,
@@ -17,6 +18,11 @@ export function SecureNowPilotSpinePageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_PILOT_SPINE_HEADING} subtitle={SECURENOW_PILOT_SPINE_LEAD} />
 
       <main className="mt-6 max-w-4xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-pilot-spine-partial-capture"
+          cloudConnectionsTestId="securenow-pilot-spine-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-pilot-spine-partial-capture-extract-upload"
+        />
         <ol className="m-0 list-decimal space-y-4 pl-5" aria-label="SecureNow pilot walkthrough beats">
           {SECURENOW_PILOT_SPINE_STEPS.map((step) => (
             <li

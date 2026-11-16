@@ -35,15 +35,7 @@ import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPage
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import {
-  buildSecureNowSecondCaptureCloudConnectionsHref,
-  buildSecureNowSecondCaptureExtractUploadHref,
-} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
-import {
-  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
-  SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
-} from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { cn } from "@/lib/utils";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
@@ -141,24 +133,13 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
           {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
         {partialCapture ? (
-          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-partial-capture">
-            {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
-              data-testid="securenow-sponsor-path-partial-capture-cloud-connections"
-            >
-              {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
-            </Link>
-            {" · "}
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
-              data-testid="securenow-sponsor-path-partial-capture-extract-upload"
-            >
-              {SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL}
-            </Link>
-          </p>
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="securenow-sponsor-path-partial-capture"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="securenow-sponsor-path-partial-capture-cloud-connections"
+            extractUploadTestId="securenow-sponsor-path-partial-capture-extract-upload"
+          />
         ) : null}
         {pathId.length === 0 ? (
           <section className="space-y-3" data-testid="securenow-sponsor-path-no-path">

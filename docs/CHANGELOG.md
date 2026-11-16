@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 60 (batch 25): Shared partial-capture recovery links and admin spine honesty
+
+**Outcome.** `SecureNowPartialCaptureRecoveryLinks` centralizes snapshot id plus cloud connections and extract-upload CTAs with return path. Home, findings, help, factory, sponsor flows, and collection ready states consume the shared component. Admin spine pages (first hour, self-service, pilot spine) and cloud connections show partial-capture recovery when setup is ready but the latest snapshot had gaps. Simulator output states breakdown does not re-run capture.
+
+**Surfaces.** Partial-capture recovery component, SecureNow home, findings, help connection status, remediation factory, collection setup, cloud connections, admin spine routes, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 59 (batch 24): Return-path labels, second-capture parity, drift export receipt
 
 **Outcome.** Return navigation labels name findings, sponsor path, pilot decision, investigation effort, and extract upload. Partial-capture strips on home, sponsor path, attack path, and the remediation priority queue add extract-upload links with return path and snapshot ids where missing. Drift Terraform export receipt states the ZIP is advisory text only.
