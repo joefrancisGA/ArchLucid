@@ -719,6 +719,15 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         if (logAsyncSyntaxNode.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
             return false;
 
+        if (semanticModel is not null)
+        {
+            if (IsLogAsyncSyntaxInNeverTakenConstantIfBranch(logAsyncSyntaxNode, semanticModel, cancellationToken))
+                return false;
+
+            if (IsLogAsyncSyntaxAfterUnreachableSibling(logAsyncSyntaxNode, semanticModel, cancellationToken))
+                return false;
+        }
+
         return IsLogAsyncSyntaxProofReachable(semanticModel, logAsyncSyntaxNode, cancellationToken);
     }
 
@@ -877,6 +886,150 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return leftLong == rightLong;
 
         return string.Equals(left.ToString(), right.ToString(), StringComparison.Ordinal);
+    }
+
+    private static bool AuditProofConstantValueIsTrue(object? value)
+    {
+        return value switch
+        {
+            bool booleanValue => booleanValue,
+            int intValue => intValue != 0,
+            _ => false,
+        };
+    }
+
+    private static bool IsLogAsyncSyntaxInNeverTakenConstantIfBranch(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        IfStatementSyntax? ifStatementSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<IfStatementSyntax>();
+
+        while (ifStatementSyntax is not null)
+        {
+            Optional<object?> conditionOptional =
+                semanticModel.GetConstantValue(ifStatementSyntax.Condition, cancellationToken);
+
+            if (conditionOptional.HasValue)
+            {
+                bool conditionIsTrue = AuditProofConstantValueIsTrue(conditionOptional.Value);
+
+                if (!conditionIsTrue && StatementContainsLogAsyncSyntax(ifStatementSyntax.Statement, logAsyncSyntaxNode))
+                    return true;
+
+                if (conditionIsTrue &&
+                    ifStatementSyntax.Else is not null &&
+                    StatementContainsLogAsyncSyntax(ifStatementSyntax.Else.Statement, logAsyncSyntaxNode))
+                {
+                    return true;
+                }
+            }
+
+            SyntaxNode? parent = ifStatementSyntax.Parent;
+
+            ifStatementSyntax = parent?.Kind() == SyntaxKind.ElseClause
+                ? parent.Parent as IfStatementSyntax ?? parent.Parent?.FirstAncestorOrSelf<IfStatementSyntax>()
+                : parent?.FirstAncestorOrSelf<IfStatementSyntax>();
+        }
+
+        return false;
+    }
+
+    private static bool IsLogAsyncSyntaxAfterUnreachableSibling(
+        SyntaxNode logAsyncSyntaxNode,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        BlockSyntax? blockSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (blockSyntax is null)
+            return false;
+
+        bool followingStatementsAreUnreachable = false;
+
+        foreach (StatementSyntax statementSyntax in blockSyntax.Statements)
+        {
+            if (followingStatementsAreUnreachable &&
+                StatementContainsLogAsyncSyntax(statementSyntax, logAsyncSyntaxNode))
+            {
+                return true;
+            }
+
+            if (StatementContainsLogAsyncSyntax(statementSyntax, logAsyncSyntaxNode))
+                return false;
+
+            if (StatementMakesFollowingSiblingsUnreachable(statementSyntax, semanticModel, cancellationToken))
+                followingStatementsAreUnreachable = true;
+        }
+
+        return false;
+    }
+
+    private static bool StatementContainsLogAsyncSyntax(StatementSyntax statementSyntax, SyntaxNode logAsyncSyntaxNode)
+    {
+        return statementSyntax.DescendantNodesAndSelf().Any(node => ReferenceEquals(node, logAsyncSyntaxNode));
+    }
+
+    private static bool StatementMakesFollowingSiblingsUnreachable(
+        StatementSyntax statementSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (statementSyntax is ReturnStatementSyntax or ThrowStatementSyntax)
+            return true;
+
+        if (statementSyntax is BlockSyntax blockSyntax)
+        {
+            if (blockSyntax.Statements.Count == 0)
+                return false;
+
+            StatementSyntax lastStatementSyntax = blockSyntax.Statements[blockSyntax.Statements.Count - 1];
+
+            return StatementMakesFollowingSiblingsUnreachable(
+                lastStatementSyntax,
+                semanticModel,
+                cancellationToken);
+        }
+
+        if (statementSyntax is not IfStatementSyntax ifStatementSyntax)
+            return false;
+
+        Optional<object?> conditionOptional =
+            semanticModel.GetConstantValue(ifStatementSyntax.Condition, cancellationToken);
+
+        if (!conditionOptional.HasValue)
+            return false;
+
+        bool conditionIsTrue = AuditProofConstantValueIsTrue(conditionOptional.Value);
+
+        if (conditionIsTrue)
+            return StatementAlwaysExits(ifStatementSyntax.Statement, semanticModel, cancellationToken);
+
+        if (ifStatementSyntax.Else is null)
+            return false;
+
+        return StatementAlwaysExits(ifStatementSyntax.Else.Statement, semanticModel, cancellationToken);
+    }
+
+    private static bool StatementAlwaysExits(
+        StatementSyntax statementSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        if (statementSyntax is ReturnStatementSyntax or ThrowStatementSyntax)
+            return true;
+
+        if (statementSyntax is BlockSyntax blockSyntax)
+        {
+            if (blockSyntax.Statements.Count == 0)
+                return false;
+
+            StatementSyntax lastStatementSyntax = blockSyntax.Statements[blockSyntax.Statements.Count - 1];
+
+            return StatementAlwaysExits(lastStatementSyntax, semanticModel, cancellationToken);
+        }
+
+        return StatementMakesFollowingSiblingsUnreachable(statementSyntax, semanticModel, cancellationToken);
     }
 
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
