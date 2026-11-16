@@ -34,6 +34,7 @@ import {
   SECURENOW_COLLECTION_READY_NEXT_SUMMARY,
 } from "@/lib/product-line/securenow-collection-setup-ready-copy";
 import { SECURENOW_COLLECTION_READY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
+import { SECURENOW_COLLECTION_SECOND_CAPTURE_REMAINING_LINE } from "@/lib/product-line/securenow-collection-second-capture-remaining-copy";
 import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/securenow-second-capture-delta-copy";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
@@ -120,6 +121,12 @@ export function SecureNowCollectionSetupStatusSection(
           ) : null}
           {latestSnapshotQuery.succeededSnapshotCountOnFirstPage < 2 ? (
             <div className="space-y-1" data-testid={`${props.testIdPrefix}-collection-second-capture-honesty`}>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid={`${props.testIdPrefix}-collection-second-capture-remaining`}
+              >
+                {SECURENOW_COLLECTION_SECOND_CAPTURE_REMAINING_LINE}
+              </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE}</p>
               <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
                 <Link

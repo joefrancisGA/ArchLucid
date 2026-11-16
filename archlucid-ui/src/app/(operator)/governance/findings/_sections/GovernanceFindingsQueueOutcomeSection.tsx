@@ -48,6 +48,11 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 import { shouldShowSecureNowCollectionMissingBlock } from "@/lib/product-line/securenow-collection-missing-reason";
 import { resolveSecureNowGovernanceFindingsEmptyStateCopy } from "@/lib/product-line/securenow-governance-findings-copy";
 import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-findings-empty-partial-capture-copy";
 
 export function GovernanceFindingsQueueOutcomeSection(
   props: GovernanceFindingsQueueAssignedToMeShellProps,
@@ -83,6 +88,39 @@ export function GovernanceFindingsQueueOutcomeSection(
           captureEvaluatedEmpty: secureNowCaptureEvaluatedEmpty,
         })
       : null;
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
+  const showFindingsEmptyPartialCapture =
+    isSecureNowProductLine(productLine)
+    && partialCapture
+    && !secureNowCollectionMissing
+    && !props.loading
+    && props.rows.length === 0
+    && !props.loadFailed;
+
+  const findingsEmptyPartialCaptureStrip = showFindingsEmptyPartialCapture ? (
+    <SecureNowPartialCaptureRecoveryParagraph
+      testId={
+        props.isAssignedToMe
+          ? "governance-assigned-findings-empty-partial-capture"
+          : "governance-findings-empty-partial-capture"
+      }
+      partialCaptureSnapshotId={partialCaptureSnapshotId}
+      returnPath={partialCaptureReturnPath}
+      middleLine={SECURENOW_FINDINGS_EMPTY_PARTIAL_CAPTURE_LINE}
+      cloudConnectionsTestId={
+        props.isAssignedToMe
+          ? "governance-assigned-findings-empty-partial-capture-cloud"
+          : "governance-findings-empty-partial-capture-cloud"
+      }
+      extractUploadTestId={
+        props.isAssignedToMe
+          ? "governance-assigned-findings-empty-partial-capture-extract"
+          : "governance-findings-empty-partial-capture-extract"
+      }
+    />
+  ) : null;
 
   return (
     <>
@@ -217,6 +255,7 @@ export function GovernanceFindingsQueueOutcomeSection(
             footer={
               props.isAssignedToMe ? (
                 <div className="space-y-3">
+                  {findingsEmptyPartialCaptureStrip}
                   {secureNowCollectionMissing && collectionInput !== null ? (
                     <SecureNowCollectionPrimaryBlockerLine
                       input={collectionInput}
@@ -233,6 +272,7 @@ export function GovernanceFindingsQueueOutcomeSection(
                 </div>
               ) : secureNowEmptyState !== null ? (
                 <div className="space-y-3">
+                  {findingsEmptyPartialCaptureStrip}
                   {secureNowCollectionMissing && collectionInput !== null ? (
                     <SecureNowCollectionPrimaryBlockerLine
                       input={collectionInput}
