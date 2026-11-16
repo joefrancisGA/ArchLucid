@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,11 @@ import { SecureNowCollectionSetupStatusSection } from "@/components/product-line
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
 import { CLOUD_CONNECTIONS_READER_PULL_HONESTY_LINE } from "@/lib/integrations/cloud-connections-reader-pull-honesty-copy";
+import {
+  CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE,
+  formatCloudConnectionsReturnLinkLabel,
+} from "@/lib/integrations/cloud-connections-return-path-honesty-copy";
+import { resolveSecureNowReturnPathFromSearch } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 
 import { CloudConnectionsProviderList } from "./CloudConnectionsProviderList";
 import {
@@ -52,6 +58,8 @@ export type CloudConnectionsPageShellProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps) {
   const { showConnectionContent, cloudConnectSteps, cloudConnectEmphasizedStepId, productLine } = props;
+  const searchParams = useSearchParams();
+  const secureNowReturnPath = resolveSecureNowReturnPathFromSearch(searchParams);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const collectionMissingInput = {
     hasConfiguredProvider: props.hasConfiguredProvider,
@@ -170,6 +178,18 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
 
   const providerList = <CloudConnectionsProviderList {...props} />;
 
+  const returnPathStrip =
+    secureNowReturnPath !== null ? (
+      <div className="space-y-1" data-testid="cloud-connections-return-path">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={OPERATOR_LINK.inline} href={secureNowReturnPath}>
+            {formatCloudConnectionsReturnLinkLabel(secureNowReturnPath)}
+          </Link>
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_RETURN_PATH_HONESTY_LINE}</p>
+      </div>
+    ) : null;
+
   if (!buyerPolishedShell) {
     return (
       <OperatorPageContainer
@@ -195,6 +215,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
         />
 
         <SecureNowPilotWalkthroughBanner productLine={productLine} />
+        {returnPathStrip}
 
         {collectionStatus}
         {collectionInProgress}
@@ -268,6 +289,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           </section>
 
           <SecureNowPilotWalkthroughBanner productLine={productLine} />
+          {returnPathStrip}
 
           {collectionStatus}
           {collectionInProgress}
