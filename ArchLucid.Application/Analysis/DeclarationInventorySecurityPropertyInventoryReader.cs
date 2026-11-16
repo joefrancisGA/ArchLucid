@@ -100,7 +100,12 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
         {
             DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess => ["publicNetworkAccess"],
             DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess => ["allowBlobPublicAccess"],
-            DeclarationSecurityPropertyLogicalNames.HttpsOnly => ["httpsOnly", "supportsHttpsTrafficOnly"],
+            DeclarationSecurityPropertyLogicalNames.HttpsOnly =>
+            [
+                "httpsOnly",
+                "supportsHttpsTrafficOnly",
+                "enableHttpsTrafficOnly",
+            ],
             DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion => ["minimalTlsVersion", "minimumTlsVersion"],
             DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled"],
             DeclarationSecurityPropertyLogicalNames.StorageEncrypted => ["encryptionEnabled", "storageEncrypted"],
