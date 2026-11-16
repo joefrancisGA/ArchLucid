@@ -24330,6 +24330,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — falsy `k8s.hostNetwork` still cited on workload premise conflicts — locus: property picker; input: `hostNetwork=false` with pod-security intent; wrong outcome: conflicts cite disabled host network; reachability: mixed baseline and premise paths.
+- [ ] (candidate) `DatastoreSkuReader.TryRead` — `geoRedundant=no` token before SKU read — locus: boolean token list; input: Helm-style `no` on geo flag; wrong outcome: early single-region; reachability: graph bags without scalar normalization.
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.TryGetWorkloadIsolationDeclarationProperty` — `allowPrivilegeEscalation=no` treated as present escalation property — locus: k8s property read; input: `no` token; wrong outcome: workload conflict cites `no`; reachability: values not passed through `GraphJsonScalarReaders`.
+- [ ] (candidate) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `replicaCount=0` string not disabled — locus: replica heuristics; input: zero replica count as string; wrong outcome: replica evidence; reachability: Terraform count fields.
+- [ ] (candidate) `RequirementSkuTierAnalyzer` — compact `tf.zone_redundant` key not read — locus: redundancy property keys; input: underscored compact key; wrong outcome: tier gap silent; reachability: ARM compact ingest.
+
+2026-11-16 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed with zero picker-open rows; promoted monitor candidate `DeclarationSecurityBaselineClassifier.IsTruthy` — graph scalar normalization maps Kubernetes booleans `1`/`0` to true/false, but baseline k8s readers only accepted word tokens, so `k8s.privileged=1` never raised workload-isolation baseline signals; align `IsTruthy`/`IsFalsy` with numeric tokens and `IsK8sPropertyTruthy` for premise remap parity. Regression `Classify_flags_k8s_privileged_workload_when_privileged_is_numeric_one`. Cheap-disproof: `CachingGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` already evicts cache after repair; in-memory sealed slice already enforces tenant/workspace/project on insert (hunt **2026-11-16**). Scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1403/1424** (`RunAnalyzers=false`; 21 pre-existing failures unchanged). Private beta: when an invited operator's package records privileged pods as `1`, the review flags workload-isolation baseline posture instead of staying silent.
+
+- [x] (proven) `DeclarationSecurityBaselineClassifier.IsTruthy` — `k8s.privileged` value `1` is not truthy — **hit 2026-11-16 seed hunt:** treat `1`/`0` like true/false; regression `Classify_flags_k8s_privileged_workload_when_privileged_is_numeric_one`. [class:boolean-coercion]
+- [x] (valid-no-repro) `CachingGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — cache not invalidated after sealed slice update — **cheap-disproof 2026-11-16 seed hunt:** decorator calls `HotPathCacheEviction.RemoveManifestAsync` after inner update.
+- [x] (valid-no-repro) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — missing row with matching tenant but wrong workspace inserts — **cheap-disproof 2026-11-16 seed hunt:** tenant/workspace/project gate on insert (hunt **2026-11-16** thorough).
+
 2026-11-08 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `DatastoreSkuReader.TryRead`: `zoneRedundant=false` returned SingleRegion before `accountReplicationType=GRS`. GRS is geo-redundant and not zone-redundant (`templates/context-ingestion/simple-terraform-sketch.json` stores `account_replication_type = "GRS"`; DX-25 reads that key and `zoneRedundant` on the same datastore). A false geo or zone flag now falls through to the SKU token, and a false flag still means single-region when no SKU token maps. Regression `TryRead_maps_grs_when_zone_redundant_is_false` failed first (`SingleRegion`) and then passed with the SKU reader and requirement-tier tests (**12/12**, `RunAnalyzers=false`). Cheap-disproof: `httpsOnly` `0` and `zone_redundant` `no` are coerced to `false` by `GraphJsonScalarReaders.TryNormalizeBooleanString` before these classifiers. `hostNetwork=false` remap and the in-memory sealed-slice insert stay candidates. Private beta: when an invited operator's storage account is GRS and that datastore also records zone redundancy as false, the review treats the account as geo-redundant instead of single-region.
 
 - [x] (proven) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returned SingleRegion before the SKU token — **hit 2026-11-08 thorough hunt:** read a mapped SKU before a false zone or geo flag becomes single-region; regression `TryRead_maps_grs_when_zone_redundant_is_false`. [class:boolean-coercion]
@@ -24430,11 +24442,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 67
-- **bugs-found:** 55
+- **hunts:** 68
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — zoneRedundant false hid a GRS datastore SKU as single-region
+- **last-hunt:** 2026-11-16
+- **last-bug:** 2026-11-16 — numeric `k8s.privileged=1` skipped workload-isolation baseline
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

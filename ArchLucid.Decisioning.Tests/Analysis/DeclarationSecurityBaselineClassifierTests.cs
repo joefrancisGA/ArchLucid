@@ -134,6 +134,20 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_k8s_privileged_workload_when_privileged_is_numeric_one()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["k8s.privileged"] = "1",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("api", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "workload-isolation");
+    }
+
+    [Fact]
     public void Classify_does_not_flag_nosql_terraform_type_as_weak_sql_posture()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

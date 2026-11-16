@@ -132,6 +132,7 @@ public static partial class DeclarationPremiseConflictClassifier
             return false;
 
         return string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, "allow", StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
     }

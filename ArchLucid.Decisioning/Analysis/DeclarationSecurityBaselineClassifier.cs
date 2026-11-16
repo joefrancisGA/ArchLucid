@@ -114,10 +114,12 @@ public static partial class DeclarationSecurityBaselineClassifier
 
     private static bool IsTruthy(string? value) =>
         string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
         || string.Equals(value, "allow", StringComparison.OrdinalIgnoreCase)
         || string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsFalsy(string? value) =>
         string.Equals(value, "false", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(value, "0", StringComparison.OrdinalIgnoreCase)
         || string.Equals(value, "disabled", StringComparison.OrdinalIgnoreCase);
 }
