@@ -83,8 +83,8 @@ public sealed partial class AuditController
                 Take = exportMaxRows
             };
 
-            IActionResult? rowCapProblem =
-                await EnsureAuditExportWithinRowCapOrConflictAsync(scope, filter, exportMaxRows, ct);
+            (IReadOnlyList<AuditEvent> events, IActionResult? rowCapProblem) =
+                await ReadAuditExportAsync(scope, filter, ct);
 
             if (rowCapProblem is not null)
                 return rowCapProblem;
@@ -96,17 +96,10 @@ public sealed partial class AuditController
                 nameTo,
                 postureStamp?.RehearsalIncomplete == true);
 
-            IAsyncEnumerable<AuditEvent> events = repo.StreamFilteredExportAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                filter,
-                ct);
-
             await AuditEventCsvResponseWriter.WriteAsync(
                 Response,
                 exportFormatter,
-                events,
+                events.ToAsyncEnumerable(),
                 attachmentName,
                 ct,
                 postureStamp);

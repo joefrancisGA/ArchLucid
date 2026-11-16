@@ -172,7 +172,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 nameof(filter));
         }
 
-        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000) + (filter.IncludeExportOverflowRow ? 1 : 0);
         List<AuditEvent> snapshot;
 
         lock (_gate)

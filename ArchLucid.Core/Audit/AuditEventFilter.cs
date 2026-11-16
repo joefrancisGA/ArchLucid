@@ -63,6 +63,9 @@ public sealed class AuditEventFilter
         set;
     } = 100;
 
+    /// <summary>Read one extra row in a filtered export to detect overflow before writing the response.</summary>
+    public bool IncludeExportOverflowRow { get; set; }
+
     /// <summary>
     ///     When true, filtered list queries include <see cref="AuditEvent.DataJson" />.
     ///     Default false for admin list/search hot paths (TB-577); export APIs always load payloads.
