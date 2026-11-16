@@ -1,3 +1,4 @@
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 using Moq;
@@ -7,6 +8,53 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class CachingTenantSettingsRepositoryTests
 {
+    [Fact]
+    public async Task Creator_delete_policy_read_observes_a_change_from_another_host()
+    {
+        Guid tenantId = Guid.NewGuid();
+        const string key = TenantSettingKeys.AllowCreatorDeleteOwnedWork;
+        CancellationToken ct = CancellationToken.None;
+        Mock<ITenantSettingsRepository> inner = new(MockBehavior.Strict);
+        inner.SetupSequence(repository => repository.TryGetAsync(tenantId, key.ToLowerInvariant(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("true")
+            .ReturnsAsync("false");
+        CachingTenantSettingsRepository repository = new(
+            inner.Object,
+            HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+
+        (await repository.TryGetAsync(tenantId, key, ct)).Should().Be("true");
+        (await repository.TryGetAsync(tenantId, $" {key.ToUpperInvariant()} ", ct)).Should().Be("false");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Committed_write_finishes_cache_eviction_after_caller_cancels(bool delete)
+    {
+        using CancellationTokenSource request = new();
+        Guid tenantId = Guid.NewGuid();
+        const string key = "example-setting";
+        Mock<ITenantSettingsRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.UpsertAsync(tenantId, key, "new", request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+        inner.Setup(x => x.DeleteAsync(tenantId, key, request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(x => x.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken ct) => ct.IsCancellationRequested ? Task.FromCanceled(ct) : Task.CompletedTask);
+        CachingTenantSettingsRepository repository = new(inner.Object, cache.Object);
+
+        if (delete)
+            await repository.DeleteAsync(tenantId, key, request.Token);
+        else
+            await repository.UpsertAsync(tenantId, key, "new", request.Token);
+
+        string cacheKeyPrefix = HotPathCacheKeys.TenantSetting(tenantId, key) + ":";
+        cache.Verify(x => x.RemoveAsync(
+            It.Is<string>(cacheKey => cacheKey.StartsWith(cacheKeyPrefix, StringComparison.Ordinal)),
+            CancellationToken.None), Times.Once);
+    }
+
     [Fact]
     public async Task Reads_bypass_cache_until_all_overlapping_writes_finish()
     {

@@ -8,6 +8,8 @@ import { SecureNowCollectionLatestSnapshotLine } from "@/components/product-line
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useSecureNowLatestSucceededSnapshotId } from "@/hooks/use-securenow-latest-succeeded-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
@@ -48,6 +50,7 @@ export function SecureNowCollectionSetupStatusSection(
     enabled: props.collectionInput === undefined,
   });
   const latestSnapshotQuery = useSecureNowLatestSucceededSnapshotId();
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const collectionInput = props.collectionInput ?? hookResult.collectionInput;
   const isPending = props.collectionInput === undefined && hookResult.isPending;
   const collectionUnavailable = props.collectionInput === undefined && hookResult.isError;
@@ -102,7 +105,7 @@ export function SecureNowCollectionSetupStatusSection(
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE}</p>
               <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
                 <Link
-                  href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}
+                  href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
                   className={OPERATOR_LINK.inline}
                   data-testid={`${props.testIdPrefix}-collection-second-capture-cloud-link`}
                 >

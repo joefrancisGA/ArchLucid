@@ -12,7 +12,14 @@ import type {
   TeamsIncomingWebhookSecretValidationResponse,
 } from "@/types/teams-incoming-webhook-connection";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
-import { recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
+import {
+  recordsOnly,
+  requireRecord,
+  trimRequiredPathSegment,
+  trimRequiredText,
+  trimStringList,
+  trimTextFields,
+} from "./api-boundary-normalization";
 import { apiDelete, apiGet, apiPostJson } from "./http";
 
 /** Loads weekly sponsor digest email preferences for the current tenant. */
@@ -30,10 +37,36 @@ export async function tryGetTenantTrialStatus(): Promise<TenantTrialStatusPayloa
 }
 
 /** Saves weekly sponsor digest email preferences (Execute+). */
+function normalizeExecDigestPreferencesUpsert(
+  body: ExecDigestPreferencesUpsertRequest,
+): ExecDigestPreferencesUpsertRequest {
+  const dayOfWeek = Math.floor(body.dayOfWeek);
+  const hourOfDay = Math.floor(body.hourOfDay);
+
+  if (!Number.isFinite(body.dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+    throw new Error("dayOfWeek must be between 0 and 6.");
+  }
+
+  if (!Number.isFinite(body.hourOfDay) || hourOfDay < 0 || hourOfDay > 23) {
+    throw new Error("hourOfDay must be between 0 and 23.");
+  }
+
+  return {
+    ...body,
+    recipientEmails: trimStringList(body.recipientEmails),
+    ianaTimeZoneId: trimRequiredText(body.ianaTimeZoneId, "ianaTimeZoneId"),
+    dayOfWeek,
+    hourOfDay,
+  };
+}
+
 export async function saveExecDigestPreferences(
   body: ExecDigestPreferencesUpsertRequest,
 ): Promise<ExecDigestPreferencesResponse> {
-  return apiPostJson<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`, body);
+  return apiPostJson<ExecDigestPreferencesResponse>(
+    `/${ApiV1Routes.tenantExecDigestPreferences}`,
+    normalizeExecDigestPreferencesUpsert(body),
+  );
 }
 
 /** Loads Teams incoming-webhook connection and trigger catalog in one GET. */
@@ -41,7 +74,19 @@ export async function fetchTeamsIncomingWebhookPageBundle(): Promise<{
   connection: TeamsIncomingWebhookConnectionResponse;
   triggerCatalog: string[];
 }> {
-  return apiGet(`/${ApiV1Routes.teamsIncomingWebhookPageBundle}`);
+  const raw = requireRecord<{
+    connection: TeamsIncomingWebhookConnectionResponse;
+    triggerCatalog: unknown;
+  }>(await apiGet<unknown>(`/${ApiV1Routes.teamsIncomingWebhookPageBundle}`), "Teams incoming webhook page bundle");
+
+  return {
+    connection: raw.connection,
+    triggerCatalog: Array.isArray(raw.triggerCatalog)
+      ? raw.triggerCatalog
+          .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+          .map((item) => item.trim())
+      : [],
+  };
 }
 
 /** Loads Teams incoming-webhook Key Vault reference for the current tenant (secret value never returned). */
@@ -53,7 +98,10 @@ export async function getTeamsIncomingWebhookConnection(): Promise<TeamsIncoming
 export async function upsertTeamsIncomingWebhookConnection(
   body: TeamsIncomingWebhookConnectionUpsertRequest,
 ): Promise<TeamsIncomingWebhookConnectionResponse> {
-  return apiPostJson<TeamsIncomingWebhookConnectionResponse>(`/${ApiV1Routes.teamsIncomingWebhookConnections}`, body);
+  return apiPostJson<TeamsIncomingWebhookConnectionResponse>(
+    `/${ApiV1Routes.teamsIncomingWebhookConnections}`,
+    trimTextFields(body, ["keyVaultSecretName"]),
+  );
 }
 
 /** Removes Teams Key Vault reference (Execute+). */
@@ -76,7 +124,7 @@ export async function validateTeamsIncomingWebhookSecret(
 ): Promise<TeamsIncomingWebhookSecretValidationResponse> {
   return apiPostJson<TeamsIncomingWebhookSecretValidationResponse>(
     `/${ApiV1Routes.teamsIncomingWebhookConnections}/validate-secret`,
-    { keyVaultSecretName: keyVaultSecretName.trim() },
+    { keyVaultSecretName: trimRequiredText(keyVaultSecretName, "keyVaultSecretName") },
   );
 }
 

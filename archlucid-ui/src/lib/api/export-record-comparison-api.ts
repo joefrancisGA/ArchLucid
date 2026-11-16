@@ -4,6 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { exportRecordComparisonHistoryBlockedReason } from "@/lib/compare/export-record-comparison-history-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type ExportRecordComparisonHistoryResponse = components["schemas"]["ComparisonHistoryResponse"];
@@ -12,9 +13,11 @@ export type ExportRecordComparisonHistoryResponse = components["schemas"]["Compa
 export async function getExportRecordComparisonHistory(
   exportRecordId: string,
 ): Promise<ExportRecordComparisonHistoryResponse> {
+  const normalizedExportRecordId = trimRequiredPathSegment(exportRecordId, "exportRecordId");
+
   try {
     return await apiGetSealedManifestAware<ExportRecordComparisonHistoryResponse>(
-      `/v1/architecture/run/exports/${encodeURIComponent(exportRecordId)}/comparisons`,
+      `/v1/architecture/run/exports/${encodeURIComponent(normalizedExportRecordId)}/comparisons`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

@@ -76,6 +76,43 @@ public sealed class HostCorePackageCoverageBatch6Tests
     }
 
     [Fact]
+    public async Task TenantErasureEligiblePurgeBackgroundWork_continues_after_one_tenant_fails()
+    {
+        Guid failedId = Guid.NewGuid();
+        Guid nextId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 11, 16, 12, 0, 0, TimeSpan.Zero);
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.ListTenantIdsEligibleForScheduledHardPurgeAsync(now, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([failedId, nextId]);
+        tenants.Setup(t => t.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => new TenantRecord
+            {
+                Id = id,
+                OffboardedUtc = now.AddDays(-40),
+                ErasureEligibleUtc = now.AddDays(-1),
+                TenantErasureApprovedUtc = now.AddDays(-2),
+            });
+
+        Mock<ITenantDeletionService> deletion = new();
+        deletion.Setup(d => d.DeleteTenantAsync(failedId, It.IsAny<TenantDeletionInvocation>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("A legal hold was added after eligibility was read."));
+        deletion.Setup(d => d.DeleteTenantAsync(nextId, It.IsAny<TenantDeletionInvocation>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantDeletionResult { TenantId = nextId });
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions { Enabled = true, BatchSize = 10 });
+
+        await TenantErasureEligiblePurgeBackgroundWork.RunSinglePassAsync(
+            BuildScopeFactory(tenants.Object, deletion.Object, new FakeTimeProvider(now)),
+            options.Object, NullLogger.Instance, CancellationToken.None);
+
+        deletion.Verify(d => d.DeleteTenantAsync(failedId, It.IsAny<TenantDeletionInvocation>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        deletion.Verify(d => d.DeleteTenantAsync(nextId, It.IsAny<TenantDeletionInvocation>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task OrphanedTenantCatalogCleanupBackgroundWork_skips_legal_hold_and_purges_eligible()
     {
         Guid purgeId = Guid.NewGuid();

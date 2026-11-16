@@ -45,11 +45,8 @@ public sealed class ScopedRoutingSqlConnectionFactory : ISqlConnectionFactory
         SqlTopologyOptions snapshot = _topologyOptions.CurrentValue;
 
         if (snapshot.Mode == SqlTopologyMode.SingleCatalog)
-        {
-            SqlConnection single = new(_singleCatalogConnectionString);
-            await single.OpenAsync(cancellationToken);
-            return single;
-        }
+            return await SqlConnectionOpen.OpenAsync(
+                new SqlConnection(_singleCatalogConnectionString), cancellationToken);
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
@@ -61,9 +58,7 @@ public sealed class ScopedRoutingSqlConnectionFactory : ISqlConnectionFactory
 
         EnsureTenantScopedRequestDoesNotTargetSystemCatalog(tenantId, tenantCs);
 
-        SqlConnection tenant = new(tenantCs);
-        await tenant.OpenAsync(cancellationToken);
-        return tenant;
+        return await SqlConnectionOpen.OpenAsync(new SqlConnection(tenantCs), cancellationToken);
     }
 
     private void EnsureTenantScopedRequestDoesNotTargetSystemCatalog(Guid tenantId, string tenantConnectionString)

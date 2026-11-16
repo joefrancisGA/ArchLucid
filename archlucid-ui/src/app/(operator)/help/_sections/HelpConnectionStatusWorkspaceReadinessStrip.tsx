@@ -21,10 +21,9 @@ import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-c
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
-import {
-  SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
-  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
-} from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
 
 export const HELP_CONNECTION_STATUS_WORKSPACE_READINESS_HEADING_ID =
   "help-connection-status-workspace-readiness-heading";
@@ -80,6 +79,7 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
   const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(
     isSecureNowProductLine(productLine) && partialCapture,
   );
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
 
   const scopeLine = useMemo((): string | null => {
     if (readiness.loading || readiness.workspaceScopeLabel === null) {
@@ -128,7 +128,11 @@ export function HelpConnectionStatusWorkspaceReadinessStrip(
         {partialCapture ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="help-connection-status-partial-capture">
             {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
-            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+              data-testid="help-connection-status-partial-capture-cloud-connections"
+            >
               {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
             </Link>
           </p>

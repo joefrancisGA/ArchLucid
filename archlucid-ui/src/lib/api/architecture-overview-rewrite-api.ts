@@ -1,3 +1,4 @@
+import { trimRequiredText, trimTextFields } from "./api-boundary-normalization";
 import { apiPostJson } from "./http";
 import type { ArchitectureDraftStructuredBriefState } from "@/lib/architecture/architecture-draft-structured-brief";
 import { structuredBriefToPatchPayload } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -22,7 +23,23 @@ export type RewriteArchitectureOverviewResponse = {
 export async function rewriteArchitectureOverviewFromBrief(
   input: RewriteArchitectureOverviewInput,
 ): Promise<RewriteArchitectureOverviewResponse> {
-  return apiPostJson<RewriteArchitectureOverviewResponse>("/v1/architecture/request/draft/overview-rewrite", input);
+  const currentOverview = trimRequiredText(input.currentOverview, "currentOverview");
+
+  if (currentOverview.length < ARCHITECTURE_OVERVIEW_REWRITE_MIN_OVERVIEW_CHARS) {
+    throw new Error(
+      `currentOverview must be at least ${ARCHITECTURE_OVERVIEW_REWRITE_MIN_OVERVIEW_CHARS} characters.`,
+    );
+  }
+
+  const normalizedInput = trimTextFields(
+    { ...input, currentOverview },
+    ["currentOverview", "systemName", "businessOutcome"],
+  );
+
+  return apiPostJson<RewriteArchitectureOverviewResponse>(
+    "/v1/architecture/request/draft/overview-rewrite",
+    normalizedInput,
+  );
 }
 
 export function buildRewriteArchitectureOverviewInput(input: {

@@ -8,7 +8,7 @@ import type {
   OperatorSavedViewPayload,
   OperatorSavedViewSurface,
 } from "@/lib/operator/operator-saved-view-types";
-import { recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
+import { recordsOnly, trimRequiredPathSegment, trimRequiredText } from "./api-boundary-normalization";
 
 export type { OperatorSavedView, OperatorSavedViewPayload, OperatorSavedViewSurface };
 
@@ -31,10 +31,12 @@ export async function listOperatorSavedViews(
 export async function createOperatorSavedView(
   request: CreateOperatorSavedViewRequest,
 ): Promise<OperatorSavedView> {
+  const name = trimRequiredText(request.name, "name");
+
   try {
     return await apiPostJson<OperatorSavedView>("/v1/operator/saved-views", {
       ...request,
-      name: request.name.trim(),
+      name,
     });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

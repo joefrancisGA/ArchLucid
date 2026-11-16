@@ -5,7 +5,7 @@ export const SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT =
   "Downloads aren't available for this sample review. Start a review with your own input to export a package.";
 
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {
-  return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}`;
+  return `/api/proxy/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
 }
 
 /**
@@ -18,7 +18,7 @@ export function getRunPackageExportUrl(runId: string, format: RunPackageExportFo
 
 /** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
-  return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/bundle`;
+  return `/api/proxy/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/bundle`;
 }
 
 /** Returns the proxy URL for the advisory Terraform placeholder export ZIP. */
@@ -28,7 +28,7 @@ export function getTerraformAdvisoryExportDownloadUrl(runId: string): string {
 
 /** Returns the proxy URL for downloading the full run export ZIP. */
 export function getRunExportDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/artifacts/runs/${runId}/export`;
+  return `/api/proxy/v1/artifacts/runs/${encodeURIComponent(runId)}/export`;
 }
 
 /** Returns the proxy URL for the ADR 0052 decision receipt JSON on a committed infeasible run. */
@@ -96,6 +96,7 @@ export function getArchitecturePackageDocxUrl(
   }
 
   const q = params.toString();
+  const encodedRunId = encodeURIComponent(runId.trim());
 
-  return `/api/proxy/v1/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
+  return `/api/proxy/v1/docx/runs/${encodedRunId}/architecture-package${q ? `?${q}` : ""}`;
 }

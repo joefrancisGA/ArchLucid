@@ -77,8 +77,14 @@ public sealed class DapperArchLucidUnitOfWork(IDbConnection connection, IDbTrans
             _completed = true;
         }
 
-        Transaction.Dispose();
-        Connection.Dispose();
+        try
+        {
+            Transaction.Dispose();
+        }
+        finally
+        {
+            Connection.Dispose();
+        }
         return ValueTask.CompletedTask;
     }
 }

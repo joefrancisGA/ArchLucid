@@ -5,6 +5,24 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 57 (batch 22): Rescore follow-ups — return path parity and scorecard operational bands
+
+**Outcome.** Partial-capture cloud-connections links on home, findings, sponsor path, connection-status help, and collection second-capture carry `securenowReturnPath`. Pilot scorecard operational metric tiles repeat non-summing discipline. Savings hero shows quarterly non-summing when a per-quarter estimate is present. Mounted contract and component tests cover return-path wiring and operational scorecard honesty.
+
+**Surfaces.** SecureNow home, findings header, sponsor path, connection-status help, collection setup, architecture scorecard, honesty and mounted contract tests.
+
+## 2026-11-15 - Score lift round 56 (batch 21): Scorecard non-summing bands, capture return path, and mounted contracts
+
+**Outcome.** Pilot scorecard summary tiles and savings hero repeat ROI non-summing beside headline bands. Attack-path partial capture links to cloud connections with a return path query; cloud connections shows return navigation when present. Stop ITSM handoff repeats confirm-before-send discipline. Mounted contract tests assert drift empties, Ask snapshot lines, and decision-register Report Problem wiring.
+
+**Surfaces.** Architecture scorecard, remediation factory attack path, cloud connections, pilot Stop ITSM handoff, decision register tests, honesty and mounted contract tests.
+
+## 2026-11-15 - Score lift round 55 (batch 20): Row expiry, KPI as-of, Ask stale pin, and sponsor partial capture
+
+**Outcome.** Declared connections repeat per-row expiry honesty beside stored UTC instants. Workspace health KPI cards repeat a short point-in-time line on every tile. Investigation effort shows a blocking banner when ROI cannot compute. Policy pack empty assignments are distinct from load failure. Guided intake scope states how policy packs and pilot mode bound agents. Infrastructure Ask marks answers when the snapshot pin moved after the question. Sponsor path repeats partial-capture recovery with snapshot id and cloud connections CTA.
+
+**Surfaces.** Declared connections, workspace health, investigation effort, policy packs, guided intake, infrastructure Ask, sponsor path, honesty tests.
+
 ## 2026-11-15 - Score lift round 54 (batch 19): Filter honesty, catalog empties, and subscription catalog report problem
 
 **Outcome.** Terraform snippet preview states plan output does not apply in the subscription. Drift empty diffs name when unchanged rows are hidden. Diagram reconcile says when filters hide stored rows. Standards catalog empty and decision register success empty are distinct from load failure. Compare insufficient-finalized repeats two-sealed counts discipline. Resource hub findings empty aligns with explorer not-failure copy. Factory rank table shows long path-id overflow. Partial-capture strips name the partial snapshot id. First-review prerequisites distinguish sample spine from tenant seal. Golden manifest legacy blocked exports repeat commit-before-seal. Remediation patterns and digest subscription list hard failures register Report Problem.

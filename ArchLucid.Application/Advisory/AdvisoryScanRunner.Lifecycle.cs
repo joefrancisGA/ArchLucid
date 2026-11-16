@@ -60,6 +60,20 @@ public sealed partial class AdvisoryScanRunner
         }
         catch (OperationCanceledException)
         {
+            try
+            {
+                await executionRepository.MarkFailedIfStartedAsync(
+                    scope,
+                    execution.ExecutionId,
+                    TimeProvider.System.UtcNowDateTime(),
+                    "Advisory scan was canceled.",
+                    CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Could not close canceled advisory scan execution {ExecutionId}.", execution.ExecutionId);
+            }
+
             throw;
         }
         catch (Exception ex)

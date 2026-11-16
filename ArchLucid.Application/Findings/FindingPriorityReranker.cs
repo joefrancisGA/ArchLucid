@@ -180,9 +180,13 @@ public sealed class FindingPriorityReranker(
             if (ids is null || ids.Length == 0)
                 return [];
 
+            HashSet<string> tierFindingIds = tierRows.Select(static row => row.FindingId)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             return ids
                 .Where(static id => !string.IsNullOrWhiteSpace(id))
-                .Select(static id => id.Trim())
+                .Select(id => tierFindingIds.TryGetValue(id.Trim(), out string? canonicalId) ? canonicalId : null)
+                .OfType<string>()
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
         }

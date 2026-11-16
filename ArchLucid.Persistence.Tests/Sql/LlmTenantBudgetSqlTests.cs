@@ -49,6 +49,17 @@ public sealed class LlmTenantBudgetSqlTests
     }
 
     [Fact]
+    public void Daily_reserve_returns_committed_counters_and_row_version()
+    {
+        string sql = LlmTenantBudgetSql.ReserveDaily;
+
+        sql.Should().Contain("OUTPUT INSERTED.TotalTokens AS TokensConsumed");
+        sql.Should().Contain("INSERTED.ReservedAssumedTokens AS ReservedTokens");
+        sql.Should().Contain("INSERTED.WarnedApproaching");
+        sql.Should().Contain("INSERTED.RowVersion");
+    }
+
+    [Fact]
     public void Daily_settle_outputs_warn_transition_columns()
     {
         string sql = LlmTenantBudgetSql.SettleDaily;

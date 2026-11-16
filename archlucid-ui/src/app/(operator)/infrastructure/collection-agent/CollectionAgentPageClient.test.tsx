@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,7 +7,7 @@ import {
   collectionRunStartedUtcDisplay,
   collectionRunStatusLabel,
 } from "@/app/(operator)/infrastructure/collection-agent/CollectionAgentPageClient";
-import { triggerCollectionRun } from "@/lib/collection-runs-api";
+import { fetchCollectionRuns, triggerCollectionRun } from "@/lib/collection-runs-api";
 
 const useCollectionRunsQueryMock = vi.fn();
 const useTriggerCollectionRunMutationMock = vi.fn();
@@ -18,6 +18,7 @@ vi.mock("@/hooks/use-collection-runs-query", () => ({
 }));
 
 vi.mock("@/lib/collection-runs-api", () => ({
+  fetchCollectionRuns: vi.fn(),
   triggerCollectionRun: vi.fn(),
 }));
 
@@ -142,7 +143,7 @@ describe("CollectionAgentPageClient", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Collection is running.");
   });
 
-  it("shows a failed Run now request inline and allows a retry", async () => {
+  it("reuses the trigger key after an ambiguous failure and rotates it after success", async () => {
     useCollectionRunsQueryMock.mockReturnValue({
       data: [successfulRun()],
       isPending: false,
@@ -152,7 +153,10 @@ describe("CollectionAgentPageClient", () => {
       typeof import("@/hooks/use-collection-runs-query")
     >("@/hooks/use-collection-runs-query");
     useTriggerCollectionRunMutationMock.mockImplementation(useTriggerCollectionRunMutation);
-    vi.mocked(triggerCollectionRun).mockRejectedValueOnce(new Error("Collection is not configured."));
+    vi.mocked(triggerCollectionRun).mockClear()
+      .mockRejectedValueOnce(new Error("Network timeout"))
+      .mockResolvedValueOnce(successfulRun())
+      .mockResolvedValueOnce(successfulRun());
 
     render(
       <QueryClientProvider client={new QueryClient()}>
@@ -163,9 +167,19 @@ describe("CollectionAgentPageClient", () => {
     const runButton = screen.getByRole("button", { name: "Run now" });
     fireEvent.click(runButton);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Collection is not configured.");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Network timeout");
     expect(triggerCollectionRun).toHaveBeenCalledOnce();
     expect(runButton).toBeEnabled();
+    const firstKey = vi.mocked(triggerCollectionRun).mock.calls[0]?.[0];
+
+    fireEvent.click(runButton);
+    await waitFor(() => expect(triggerCollectionRun).toHaveBeenCalledTimes(2));
+    expect(triggerCollectionRun).toHaveBeenNthCalledWith(2, firstKey);
+    await waitFor(() => expect(runButton).toBeEnabled());
+
+    fireEvent.click(runButton);
+    await waitFor(() => expect(triggerCollectionRun).toHaveBeenCalledTimes(3));
+    expect(vi.mocked(triggerCollectionRun).mock.calls[2]?.[0]).not.toBe(firstKey);
   });
 
   it("expands a failed run to show its error summary", () => {
@@ -199,6 +213,47 @@ describe("CollectionAgentPageClient", () => {
     rerender(<CollectionAgentPageClient />);
 
     expect(screen.getByRole("alert")).toHaveTextContent("API unavailable");
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+
+  it("keeps loaded collection history visible when a refresh times out", async () => {
+    const { useCollectionRunsQuery } = await vi.importActual<
+      typeof import("@/hooks/use-collection-runs-query")
+    >("@/hooks/use-collection-runs-query");
+    useCollectionRunsQueryMock.mockImplementation(useCollectionRunsQuery);
+    vi.mocked(fetchCollectionRuns)
+      .mockResolvedValueOnce([{ ...successfulRun(), status: "Succeeded" }])
+      .mockRejectedValueOnce(new Error("Network timeout"));
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <CollectionAgentPageClient />
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByRole("table", { name: "Recent collection runs" })).toBeInTheDocument();
+
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ["collection-runs", "list"] });
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Network timeout");
+    expect(screen.getByRole("link", { name: "Open drift for this snapshot" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Run now" })).toBeDisabled();
+  });
+
+  it("hides loaded collection history when a refresh is forbidden", () => {
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [successfulRun()],
+      isPending: false,
+      isError: true,
+      isRefetchError: true,
+      error: { message: "Forbidden", httpStatus: 403, problem: null, correlationId: null, retryAfterSeconds: null },
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Forbidden");
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 });

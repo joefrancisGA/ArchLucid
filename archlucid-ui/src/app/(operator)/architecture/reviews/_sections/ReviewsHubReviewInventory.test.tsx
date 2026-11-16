@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
-import { writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
+import { archivedReviewsClientCacheKey, writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
 import { writeFavoriteReviews } from "@/lib/favorite-reviews";
 import { REVIEW_PACKAGE_OWNER_UNAVAILABLE } from "@/lib/review-package-validation-picker";
 
@@ -10,12 +10,21 @@ const useArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 const useSearchParams = vi.fn();
 const useRouter = vi.fn();
+const archiveScope = vi.hoisted(() => ({
+  tenantId: "tenant-a",
+  workspaceId: "workspace-a",
+  projectId: "project-a",
+}));
 const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false }));
 const inFlightOperationsMock = vi.hoisted(() => [] as readonly unknown[]);
 const liveShellRecoveryMock = vi.hoisted(() => ({ value: false }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("@/hooks/use-operator-scope-query-key", () => ({
+  useOperatorScopeQueryKey: () => archiveScope,
 }));
 
 vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
@@ -107,6 +116,7 @@ function emptySummary() {
 
 beforeEach(() => {
   window.localStorage.clear();
+  archiveScope.workspaceId = "workspace-a";
   window.history.replaceState({}, "", "/");
   useArchitectureDraftRegistryEntries.mockReset();
   useArchitectureDraftRegistryEntries.mockReturnValue([]);
@@ -361,28 +371,16 @@ describe("ReviewsHubReviewInventory", () => {
         createdUtc: "2026-08-01T12:00:00.000Z",
         isArchived: true,
       } satisfies RunSummary,
-    ]);
+    ], archivedReviewsClientCacheKey(archiveScope));
 
-    render(
-      <ReviewsHubReviewInventory
-        runs={[
-          {
-            runId: "active-review",
-            projectId: "default",
-            description: "Active package",
-            createdUtc: "2026-08-10T12:00:00.000Z",
-          } satisfies RunSummary,
-        ]}
-        summary={deriveReviewsWorkspaceSummary([
-          {
-            runId: "active-review",
-            projectId: "default",
-            description: "Active package",
-            createdUtc: "2026-08-10T12:00:00.000Z",
-          } satisfies RunSummary,
-        ])}
-      />,
-    );
+    const runs = [{
+      runId: "active-review",
+      projectId: "default",
+      description: "Active package",
+      createdUtc: "2026-08-10T12:00:00.000Z",
+    } satisfies RunSummary];
+    const inventory = <ReviewsHubReviewInventory runs={runs} summary={deriveReviewsWorkspaceSummary(runs)} />;
+    const { rerender } = render(inventory);
 
     expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
     expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
@@ -391,6 +389,11 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-active-review")).toBeNull();
+
+    archiveScope.workspaceId = "workspace-b";
+    rerender(<ReviewsHubReviewInventory runs={runs} summary={deriveReviewsWorkspaceSummary(runs)} />);
+
+    expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
   });
 
   it("shows archived count on the Archived chip before the filter is selected", () => {
@@ -402,7 +405,7 @@ describe("ReviewsHubReviewInventory", () => {
         createdUtc: "2026-08-01T12:00:00.000Z",
         isArchived: true,
       } satisfies RunSummary,
-    ]);
+    ], archivedReviewsClientCacheKey(archiveScope));
 
     render(
       <ReviewsHubReviewInventory

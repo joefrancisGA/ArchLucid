@@ -202,9 +202,7 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
     {
         await _inner.SaveAsync(run, ct, connection, transaction);
 
-        ScopeContext scope = ScopeForRun(run);
-        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, ct);
-        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
+        await EvictCachedRunAsync(ScopeForRun(run), run.RunId, transaction is null ? CancellationToken.None : ct);
     }
 
     /// <inheritdoc />
@@ -217,8 +215,8 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
         await _inner.UpdateAsync(run, ct, connection, transaction);
 
         ScopeContext scope = ScopeForRun(run);
-        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, ct);
-        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, run.RunId, CancellationToken.None);
+        await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -240,6 +238,13 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
             connection,
             transaction);
 
+        if (transaction is null)
+            await EvictCachedRunAsync(scope, runId, CancellationToken.None);
+    }
+
+    /// <inheritdoc />
+    public async Task EvictCachedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
         await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
         await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
     }
@@ -264,10 +269,7 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
             ct);
 
         if (updated)
-        {
-            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
-            await HotPathCacheEviction.InvalidateRunListScopeAsync(_hotPathReadCache, scope, ct);
-        }
+            await EvictCachedRunAsync(scope, runId, CancellationToken.None);
 
         return updated;
     }

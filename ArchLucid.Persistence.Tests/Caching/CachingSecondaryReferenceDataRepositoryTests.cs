@@ -1,12 +1,17 @@
 using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AiUsage;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Roi;
+
+using Moq;
 
 namespace ArchLucid.Persistence.Tests.Caching;
 
@@ -125,6 +130,62 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task AlertRule_UpdateAsync_finishes_cache_invalidation_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        AlertRule rule = new()
+        {
+            RuleId = Guid.NewGuid(), TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+        };
+        Mock<IAlertRuleRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.UpdateAsync(rule, request.Token)).Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingAlertRuleRepository repository = new(inner.Object, cache.Object);
+
+        await repository.UpdateAsync(rule, request.Token);
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.AlertRuleListScopeRevision(scope), CancellationToken.None), Times.Once);
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.AlertRuleById(scope, rule.RuleId), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompositeAlertRule_UpdateAsync_finishes_cache_invalidation_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        CompositeAlertRule rule = new()
+        {
+            CompositeRuleId = Guid.NewGuid(), TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+        };
+        Mock<ICompositeAlertRuleRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.UpdateAsync(rule, request.Token)).Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingCompositeAlertRuleRepository repository = new(inner.Object, cache.Object);
+
+        await repository.UpdateAsync(rule, request.Token);
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.CompositeAlertRuleListScopeRevision(scope), CancellationToken.None), Times.Once);
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.CompositeAlertRuleById(scope, rule.CompositeRuleId), CancellationToken.None), Times.Once);
+    }
+
+    private static Mock<IHotPathReadCache> CreateCancellationAwareCache()
+    {
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(x => x.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken ct) =>
+                ct.IsCancellationRequested ? Task.FromCanceled(ct) : Task.CompletedTask);
+        cache.Setup(x => x.GetOrCreateAsync(
+                It.IsAny<string>(),
+                It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                CancellationToken.None,
+                null))
+            .Returns((string _, Func<CancellationToken, Task<RunListScopeRevisionState?>> factory,
+                CancellationToken ct, int? _) => factory(ct));
+        return cache;
+    }
+
+    [Fact]
     public async Task TenantAiBudgetPolicy_GetByTenantIdAsync_invalidates_when_default_inserted()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
@@ -145,6 +206,25 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
         TenantAiBudgetPolicyRow? row = await repo.GetByTenantIdAsync(tenantId, CancellationToken.None);
         row.Should().NotBeNull();
         row!.BudgetAmountUsd.Should().Be(12m);
+    }
+
+    [Fact]
+    public async Task TenantAiBudgetPolicy_EnsureDefault_finishes_cache_eviction_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset expiresUtc = TimeProvider.System.GetUtcNow().AddDays(14);
+        Mock<ITenantAiBudgetPolicyRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.EnsureDefaultTrialPolicyIfAbsentAsync(tenantId, 12m, expiresUtc, request.Token))
+            .Callback(request.Cancel)
+            .ReturnsAsync(true);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingTenantAiBudgetPolicyRepository repository = new(inner.Object, cache.Object);
+
+        (await repository.EnsureDefaultTrialPolicyIfAbsentAsync(tenantId, 12m, expiresUtc, request.Token))
+            .Should().BeTrue();
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.TenantAiBudgetPolicy(tenantId), CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -186,6 +266,21 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantCostSettings_UpsertAsync_finishes_cache_eviction_after_caller_cancels()
+    {
+        using CancellationTokenSource request = new();
+        TenantCostSettingsRecord record = new() { TenantId = Guid.NewGuid() };
+        Mock<ITenantCostSettingsRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(x => x.UpsertAsync(record, request.Token)).Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingTenantCostSettingsRepository repository = new(inner.Object, cache.Object);
+
+        await repository.UpsertAsync(record, request.Token);
+
+        cache.Verify(x => x.RemoveAsync(HotPathCacheKeys.TenantCostSettings(record.TenantId), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task TenantIdentityProvider_TryGetAsync_refreshes_after_upsert()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
@@ -209,6 +304,47 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
             CancellationToken.None);
 
         (await repo.TryGetAsync(tenantId, CancellationToken.None))!.IssuerUri.Should().Be("https://login.example/");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TenantSignInEmailDomain_committed_write_evicts_cache_after_request_cancellation(bool update)
+    {
+        using CancellationTokenSource request = new();
+        TenantSignInEmailDomainRecord record = new()
+        {
+            TenantId = Guid.NewGuid(),
+            DisplayDomain = "example.com",
+            NormalizedDomain = "EXAMPLE.COM",
+            CreatedUtc = TimeProvider.System.GetUtcNow()
+        };
+
+        Mock<ITenantSignInEmailDomainRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repository => repository.InsertAsync(record, request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+        inner.Setup(repository => repository.UpdateAsync(record, request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(value => value.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+
+        CachingTenantSignInEmailDomainRepository repository = new(inner.Object, cache.Object);
+
+        if (update)
+            await repository.UpdateAsync(record, request.Token);
+        else
+            await repository.InsertAsync(record, request.Token);
+
+        cache.Verify(value => value.RemoveAsync(
+            HotPathCacheKeys.TenantSignInEmailDomainListByTenant(record.TenantId), CancellationToken.None), Times.Once);
+        cache.Verify(value => value.RemoveAsync(
+            HotPathCacheKeys.TenantSignInEmailDomainByNormalized(record.NormalizedDomain), CancellationToken.None), Times.Once);
+        cache.Verify(value => value.RemoveAsync(
+            HotPathCacheKeys.TenantSignInEmailDomainByTenantAndNormalized(record.TenantId, record.NormalizedDomain),
+            CancellationToken.None), Times.Once);
     }
 
     [Fact]

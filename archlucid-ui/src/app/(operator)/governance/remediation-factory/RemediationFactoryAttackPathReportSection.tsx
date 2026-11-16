@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -31,8 +32,8 @@ import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediatio
 import { SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE } from "@/lib/governance/findings-header-partial-capture-honesty-copy";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
-  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
 } from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
   ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
@@ -62,6 +63,14 @@ export function RemediationFactoryAttackPathReportSection(props: {
   readonly showRankedSnapshotHint: boolean;
   readonly partialCapture?: boolean;
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const partialCaptureReturnPath = useMemo(() => {
+    const query = searchParams.toString();
+
+    return query.length > 0 ? `${pathname}?${query}` : pathname;
+  }, [pathname, searchParams]);
+
   if (props.snapshotId === null) {
     return (
       <section className="space-y-2" aria-label={REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE} data-testid="attack-path-report-section">
@@ -93,7 +102,11 @@ export function RemediationFactoryAttackPathReportSection(props: {
         {props.partialCapture === true ? (
           <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-partial-capture">
             {SECURENOW_FINDINGS_HEADER_PARTIAL_CAPTURE_LINE}{" "}
-            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.cloudConnections}>
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
+              data-testid="attack-path-report-partial-capture-cloud-connections"
+            >
               {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
             </Link>
           </p>

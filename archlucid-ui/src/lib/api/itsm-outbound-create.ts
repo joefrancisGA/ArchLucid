@@ -1,4 +1,10 @@
 import {
+  parseJsonRecord,
+  requireRecord,
+  trimOptionalText,
+  trimRequiredText,
+} from "@/lib/api/api-boundary-normalization";
+import {
   applyCorrelationHeaders,
   ensureOidcBearerReady,
   resolveRequest,
@@ -37,7 +43,10 @@ function mapJobResultToResponse(result: ItsmOutboundCreateJobResult): CreateItsm
 async function postOutboundCreateRequest(
   findingId: string,
   provider: "Jira" | "ServiceNow" | "Azure Boards",
-): Promise<{ status: number; body: unknown }> {
+): Promise<{ status: number; body: Record<string, unknown> | null }> {
+  // A blank finding id throws here, before any request is sent.
+  const normalizedFindingId = trimRequiredText(findingId, "findingId");
+
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest("/v1/integrations/itsm/outbound/issues");
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
@@ -48,7 +57,7 @@ async function postOutboundCreateRequest(
     {
       method: "POST",
       headers: h,
-      body: JSON.stringify({ findingId, provider }),
+      body: JSON.stringify({ findingId: normalizedFindingId, provider }),
     },
   );
 
@@ -58,9 +67,13 @@ async function postOutboundCreateRequest(
     throwApiRequestError(response, text, correlationId);
   }
 
-  const body = text.length > 0 ? (JSON.parse(text) as unknown) : null;
+  // An empty, invalid, or non-object body becomes null; the caller decides what that means per status.
+  return { status: response.status, body: parseJsonRecord(text) };
+}
 
-  return { status: response.status, body };
+/** Reads the background job id from a 202 body, or returns undefined when it is missing or blank. */
+function acceptedJobId(body: Record<string, unknown> | null): string | undefined {
+  return typeof body?.jobId === "string" ? trimOptionalText(body.jobId) : undefined;
 }
 
 /** Creates a linked ITSM issue — polls the background job when the API returns 202 (TB-394). */
@@ -72,12 +85,12 @@ export async function createItsmOutboundIssueWithJobPolling(
   const { status, body } = await postOutboundCreateRequest(findingId, provider);
 
   if (status === 200) {
-    return body as CreateItsmOutboundIssueResponse;
+    return requireRecord<CreateItsmOutboundIssueResponse>(body, "ITSM create");
   }
 
-  const jobId = (body as { jobId?: string }).jobId;
+  const jobId = acceptedJobId(body);
 
-  if (!jobId) {
+  if (jobId === undefined) {
     throw new Error("ITSM create accepted but no job id was returned.");
   }
 

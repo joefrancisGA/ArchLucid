@@ -10,7 +10,7 @@ WORKFLOW = Path(__file__).resolve().parents[3] / ".github" / "workflows" / "ci.y
 class ReleaseCandidateCiWiringTests(unittest.TestCase):
     def test_full_non_deploying_ci_pushes_only_explicit_rc_branches(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44, RC46\]$")
+        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44, RC46, RC47\]$")
         self.assertNotIn("branches: [master]", workflow)
         self.assertNotIn("branches: [main]", workflow)
         self.assertNotIn("branches: [RC41]", workflow)
@@ -34,7 +34,7 @@ class ReleaseCandidateCiWiringTests(unittest.TestCase):
         self.assertIn("if: inputs.sql", repair)
         for text in (workflow, repair):
             self.assertRegex(text, r"(?m)^  workflow_dispatch:$")
-        # Full release checks must run on RC46 push, not just be available by dispatch.
+        # Full release checks must run on RC47 push as well as manual dispatch.
         for job in ("gitleaks", "guards-pre-corset", "dotnet-fast-core-build",
                     "sql-dbup-empty-catalog", "dotnet-full-regression-core-complete", "ui-unit"):
             self.assertRegex(workflow, rf"(?m)^  {re.escape(job)}:$")
@@ -47,6 +47,7 @@ class ReleaseCandidateCiWiringTests(unittest.TestCase):
         self.assertIn("github.ref != 'refs/heads/RC44'", workflow)
         self.assertIn("github.ref != 'refs/heads/RC45'", workflow)
         self.assertIn("github.ref != 'refs/heads/RC46'", workflow)
+        self.assertIn("github.ref != 'refs/heads/RC47'", workflow)
         self.assertNotIn("github.ref != 'refs/heads/RC41'", workflow)
         self.assertNotIn("refs/heads/RC40", workflow)
         self.assertNotIn("refs/heads/RC36", workflow)
@@ -84,6 +85,7 @@ class ReleaseCandidateCiWiringTests(unittest.TestCase):
         self.assertIn("github.ref == 'refs/heads/RC43'", build)
         self.assertIn("github.ref == 'refs/heads/RC44'", build)
         self.assertIn("github.ref == 'refs/heads/RC46'", build)
+        self.assertIn("github.ref == 'refs/heads/RC47'", build)
         self.assertIn("needs.openapi-contract-snapshot.result == 'success'", build)
         for prerequisite in (
             "gitleaks",

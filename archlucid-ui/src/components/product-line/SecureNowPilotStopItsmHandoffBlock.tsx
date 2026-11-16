@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { ITSM_OUTBOUND_CREATE_SUBMIT_DISCIPLINE_LINE } from "@/lib/itsm/itsm-outbound-create-submit-honesty-copy";
 import {
   resolveSecureNowStopItsmOutboundHandoffHref,
   SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE,
@@ -39,6 +40,12 @@ export function SecureNowPilotStopItsmHandoffBlock(
         {findingScoped
           ? SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE
           : SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE}
+      </span>
+      <span
+        className={cn("block", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="securenow-pilot-stop-itsm-confirm-discipline"
+      >
+        {ITSM_OUTBOUND_CREATE_SUBMIT_DISCIPLINE_LINE}
       </span>
     </p>
   );

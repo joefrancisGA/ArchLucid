@@ -86,7 +86,7 @@ public sealed partial class DapperAuditRepository
         ArgumentNullException.ThrowIfNull(filter);
         ValidateFilteredExportFilter(filter);
 
-        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000) + (filter.IncludeExportOverflowRow ? 1 : 0);
         StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock);
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);

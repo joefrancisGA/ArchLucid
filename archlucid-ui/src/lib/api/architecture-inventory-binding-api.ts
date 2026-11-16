@@ -4,6 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { architectureInventoryBindingBlockedReason } from "@/lib/architecture/architecture-inventory-binding-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
+import { encodeRequiredPathSegment, trimRequiredText } from "./api-boundary-normalization";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiDelete, apiPostJson } from "./http";
 
@@ -15,23 +16,30 @@ export type ArchitectureInventoryBindingResponse =
 export type AttachArchitectureInventoryBindingRequest =
   components["schemas"]["AttachArchitectureInventoryBindingRequest"];
 
+/** Builds the binding path. A blank architecture id throws before any request is sent. */
+function inventoryBindingPath(architectureId: string): string {
+  return `${ARCHITECTURES_BASE}/${encodeRequiredPathSegment(architectureId, "architectureId")}/inventory-binding`;
+}
+
 export async function getArchitectureInventoryBinding(
   architectureId: string,
 ): Promise<ArchitectureInventoryBindingResponse> {
-  return apiGetSealedManifestAware<ArchitectureInventoryBindingResponse>(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/inventory-binding`,
-  );
+  const path = inventoryBindingPath(architectureId);
+
+  return apiGetSealedManifestAware<ArchitectureInventoryBindingResponse>(path);
 }
 
 export async function attachArchitectureInventoryBinding(
   architectureId: string,
   body: AttachArchitectureInventoryBindingRequest,
 ): Promise<ArchitectureInventoryBindingResponse> {
+  const path = inventoryBindingPath(architectureId);
+  const normalizedBody: AttachArchitectureInventoryBindingRequest = {
+    snapshotId: trimRequiredText(body.snapshotId, "snapshotId"),
+  };
+
   try {
-    return await apiPostJson<ArchitectureInventoryBindingResponse>(
-      `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/inventory-binding`,
-      body,
-    );
+    return await apiPostJson<ArchitectureInventoryBindingResponse>(path, normalizedBody);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureInventoryBindingBlockedReason(failure);
@@ -41,10 +49,10 @@ export async function attachArchitectureInventoryBinding(
 }
 
 export async function detachArchitectureInventoryBinding(architectureId: string): Promise<void> {
+  const path = inventoryBindingPath(architectureId);
+
   try {
-    await apiDelete(
-      `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/inventory-binding`,
-    );
+    await apiDelete(path);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureInventoryBindingBlockedReason(failure);

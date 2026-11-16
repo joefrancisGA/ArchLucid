@@ -5,7 +5,10 @@ import { policyPackTypeBuyerDisplayLabel } from "@/lib/policy/policy-pack-type-l
 import { isStandardBaselinePolicyPackName } from "@/lib/policy/policy-pack-standard-baseline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
-import { resolvePolicyPacksWorkspaceAssignmentsEmptyLine } from "@/lib/policy/policy-packs-workspace-status-copy";
+import {
+  POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE,
+  resolvePolicyPacksWorkspaceAssignmentsEmptyLine,
+} from "@/lib/policy/policy-packs-workspace-status-copy";
 import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 
 export type PolicyPacksWorkspaceSelectionSectionProps = {
@@ -46,12 +49,17 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
       ) : null}
 
       {!loading && items.length === 0 ? (
-        <p
-          className={cn("max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="policy-packs-workspace-selection-empty"
-        >
-          {resolvePolicyPacksWorkspaceAssignmentsEmptyLine(registeredPackCount)}
-        </p>
+        <div className="max-w-3xl space-y-2" data-testid="policy-packs-workspace-selection-empty">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {resolvePolicyPacksWorkspaceAssignmentsEmptyLine(registeredPackCount)}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="policy-packs-workspace-selection-empty-not-load-failure"
+          >
+            {POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </div>
       ) : null}
 
       {items.length > 0 ? (

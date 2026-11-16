@@ -18,6 +18,12 @@ import { internalArchitectureSeedFakeMutationBlockedReason } from "@/lib/runs/in
 import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  encodeRequiredPathSegment,
+  trimOptionalText,
+  trimRequiredPathSegment,
+  trimStringList,
+} from "./api-boundary-normalization";
+import {
   apiPatchJson,
   apiPostAcceptedWithLocation,
   apiPostJson,
@@ -25,16 +31,23 @@ import {
   apiDelete,
 } from "./http";
 
+function reviewPath(runId: string): string {
+  return `/v1/architecture/review/${encodeRequiredPathSegment(runId, "runId")}`;
+}
+
+function architectureRequestPath(requestId: string): string {
+  return `/v1/architecture/request/${encodeRequiredPathSegment(requestId, "requestId")}`;
+}
+
 /** Pins or unpins a run (PATCH /v1/architecture/review/{runId}/pin). Omit `isPinned` to toggle. */
 export async function pinArchitectureRun(
   runId: string,
   body: { readonly isPinned?: boolean } = {},
 ): Promise<{ runId: string; isPinned: boolean }> {
+  const path = `${reviewPath(runId)}/pin`;
+
   try {
-    return await apiPatchJson<{ runId: string; isPinned: boolean }>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/pin`,
-      body,
-    );
+    return await apiPatchJson<{ runId: string; isPinned: boolean }>(path, body);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = reviewPinMutationBlockedReason(failure);
@@ -55,13 +68,18 @@ export async function commitArchitectureRun(
   const idempotencyKey = requestOptions?.idempotencyKey?.trim() ?? "";
   const extraHeaders =
     idempotencyKey.length > 0 ? { "Idempotency-Key": idempotencyKey } : undefined;
+  const path = `${reviewPath(runId)}/finalize`;
 
   try {
     return await apiPostJson<unknown>(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/finalize`,
+      path,
       {
         notifySponsor: options?.notifySponsor === true,
-        acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
+        // Omitted stays omitted, so the server can tell "none sent" from "an empty list".
+        acknowledgedAssumptionIds:
+          options?.acknowledgedAssumptionIds !== undefined
+            ? trimStringList(options.acknowledgedAssumptionIds)
+            : undefined,
       },
       { extraHeaders },
     );
@@ -77,8 +95,10 @@ export async function commitArchitectureRun(
 
 /** Runs agent pipeline for an architecture review (POST /v1/architecture/review/{runId}/execute). */
 export async function executeArchitectureRun(runId: string): Promise<unknown> {
+  const path = `${reviewPath(runId)}/execute`;
+
   try {
-    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+    return await apiPostJson<unknown>(path, {});
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = reviewExecuteMutationBlockedReason(failure);
@@ -99,19 +119,18 @@ export type ExecuteArchitectureRunAsyncResult = {
 export async function executeArchitectureRunAsync(
   runId: string,
 ): Promise<ExecuteArchitectureRunAsyncResult> {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
   try {
-    const accepted = await apiPostAcceptedWithLocation(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
-      {},
-    );
+    const accepted = await apiPostAcceptedWithLocation(`${reviewPath(normalizedRunId)}/execute/async`, {});
     const operationId =
-      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(normalizedRunId);
 
     trackInFlightOperation({
       operationId,
       title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-      href: reviewPipelineDetailHref(runId),
-      runId,
+      href: reviewPipelineDetailHref(normalizedRunId),
+      runId: normalizedRunId,
       stepLabel: "Queued",
       state: "Pending",
     });
@@ -139,23 +158,25 @@ export async function replayArchitectureRunAsync(
     readonly manifestVersionOverride?: string | null;
   } = {},
 ): Promise<ReplayArchitectureRunAsyncResult> {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
   try {
     const accepted = await apiPostAcceptedWithLocation(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
+      `${reviewPath(normalizedRunId)}/replay/async`,
       {
-        executionMode: body.executionMode,
+        executionMode: trimOptionalText(body.executionMode),
         commitReplay: body.commitReplay,
-        manifestVersionOverride: body.manifestVersionOverride ?? undefined,
+        manifestVersionOverride: trimOptionalText(body.manifestVersionOverride),
       },
     );
     const operationId =
-      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(normalizedRunId);
 
     trackInFlightOperation({
       operationId,
       title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-      href: reviewPipelineDetailHref(runId),
-      runId,
+      href: reviewPipelineDetailHref(normalizedRunId),
+      runId: normalizedRunId,
       stepLabel: "Replay queued",
       state: "Pending",
     });
@@ -178,10 +199,12 @@ export async function executeArchitectureRunSelective(
     readonly includeDependents?: boolean;
   },
 ): Promise<unknown> {
+  const path = `${reviewPath(runId)}/execute/selective`;
+
   try {
-    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute/selective`, {
-      agentTypes: body.agentTypes ?? [],
-      taskIds: body.taskIds ?? [],
+    return await apiPostJson<unknown>(path, {
+      agentTypes: trimStringList(body.agentTypes),
+      taskIds: trimStringList(body.taskIds),
       includeDependents: body.includeDependents !== false,
     });
   } catch (error: unknown) {
@@ -203,7 +226,8 @@ export async function executeArchitectureRunSelectiveInFlight(
     readonly includeDependents?: boolean;
   },
 ): Promise<unknown> {
-  const trimmedRunId = runId.trim();
+  // Reject a blank id here, before the shell registers an in-flight row for a run that does not exist.
+  const trimmedRunId = trimRequiredPathSegment(runId, "runId");
   const operationId = reviewPipelineOperationId(trimmedRunId);
 
   trackInFlightOperation({
@@ -220,9 +244,11 @@ export async function executeArchitectureRunSelectiveInFlight(
 
 /** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+
   try {
     return await apiPostJson<{ resultCount?: number }>(
-      `/v1/internal/architecture/runs/${encodeURIComponent(runId)}/seed-fake-results`,
+      `/v1/internal/architecture/runs/${encodedRunId}/seed-fake-results`,
       {},
     );
   } catch (error: unknown) {
@@ -235,8 +261,10 @@ export async function seedFakeArchitectureRunResults(runId: string): Promise<{ r
 
 /** Restores a soft-archived architecture request (POST /v1/architecture/request/{requestId}/restore). */
 export async function restoreArchitectureRequest(requestId: string): Promise<void> {
+  const path = `${architectureRequestPath(requestId)}/restore`;
+
   try {
-    await apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
+    await apiPostNoContent(path, {});
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
@@ -247,8 +275,10 @@ export async function restoreArchitectureRequest(requestId: string): Promise<voi
 
 /** Clones an architecture request as a new template (POST /v1/architecture/request/{requestId}/clone). */
 export async function cloneArchitectureRequest(requestId: string): Promise<unknown> {
+  const path = `${architectureRequestPath(requestId)}/clone`;
+
   try {
-    return await apiPostJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/clone`, {});
+    return await apiPostJson<unknown>(path, {});
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
@@ -259,8 +289,10 @@ export async function cloneArchitectureRequest(requestId: string): Promise<unkno
 
 /** Archives an architecture request (PATCH /v1/architecture/request/{requestId}/archive). */
 export async function archiveArchitectureRequest(requestId: string): Promise<void> {
+  const path = `${architectureRequestPath(requestId)}/archive`;
+
   try {
-    await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
+    await apiPatchJson<unknown>(path, {});
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = reviewArchiveMutationBlockedReason(failure);
@@ -271,8 +303,10 @@ export async function archiveArchitectureRequest(requestId: string): Promise<voi
 
 /** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */
 export async function deleteArchitectureRequest(requestId: string): Promise<void> {
+  const path = architectureRequestPath(requestId);
+
   try {
-    await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+    await apiDelete(path);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);

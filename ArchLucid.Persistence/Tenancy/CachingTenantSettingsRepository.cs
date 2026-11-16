@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Caching;
 
 namespace ArchLucid.Persistence.Tenancy;
@@ -26,7 +27,9 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
         (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        if (WritesInFlight.ContainsKey(slot))
+        // Delete authorization needs the current setting even when a different host wrote it.
+        if (string.Equals(normalizedKey, TenantSettingKeys.AllowCreatorDeleteOwnedWork, StringComparison.OrdinalIgnoreCase)
+            || WritesInFlight.ContainsKey(slot))
             return await _inner.TryGetAsync(tenantId, normalizedKey, cancellationToken);
 
         // Wrapper distinguishes "cached miss" (null Value) from HybridCache absent entry.
@@ -62,7 +65,7 @@ public sealed class CachingTenantSettingsRepository(
         {
             BumpCacheGeneration(tenantId, normalizedKey);
             await _inner.UpsertAsync(tenantId, normalizedKey, settingValue, cancellationToken);
-            await InvalidateCurrentGenerationCacheAsync(tenantId, normalizedKey, cancellationToken);
+            await InvalidateCurrentGenerationCacheAsync(tenantId, normalizedKey);
             BumpCacheGeneration(tenantId, normalizedKey);
         }
         finally
@@ -83,7 +86,7 @@ public sealed class CachingTenantSettingsRepository(
         {
             BumpCacheGeneration(tenantId, normalizedKey);
             await _inner.DeleteAsync(tenantId, normalizedKey, cancellationToken);
-            await InvalidateCurrentGenerationCacheAsync(tenantId, normalizedKey, cancellationToken);
+            await InvalidateCurrentGenerationCacheAsync(tenantId, normalizedKey);
             BumpCacheGeneration(tenantId, normalizedKey);
         }
         finally
@@ -105,11 +108,9 @@ public sealed class CachingTenantSettingsRepository(
         }
     }
 
-    private Task InvalidateCurrentGenerationCacheAsync(
-        Guid tenantId,
-        string normalizedKey,
-        CancellationToken cancellationToken) =>
-        _hotPathReadCache.RemoveAsync(BuildCacheKey(tenantId, normalizedKey), cancellationToken);
+    // Writes have already committed when this runs, so complete eviction even if the caller disconnects.
+    private Task InvalidateCurrentGenerationCacheAsync(Guid tenantId, string normalizedKey) =>
+        _hotPathReadCache.RemoveAsync(BuildCacheKey(tenantId, normalizedKey), CancellationToken.None);
 
     private static string BuildCacheKey(Guid tenantId, string normalizedKey)
     {

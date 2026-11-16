@@ -1,8 +1,9 @@
+import { trimRequiredPathSegment } from "./api-boundary-normalization";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
 /** Downloads server-generated manifest Markdown export for a sealed manifest version (browser only). */
 export async function downloadManifestMarkdownExport(manifestVersion: string): Promise<void> {
-  const trimmed = manifestVersion.trim();
+  const trimmed = trimRequiredPathSegment(manifestVersion, "manifestVersion");
 
   await downloadScopedProxyFileGet(
     `/api/proxy/v1/architecture/manifest/${encodeURIComponent(trimmed)}/export/download`,

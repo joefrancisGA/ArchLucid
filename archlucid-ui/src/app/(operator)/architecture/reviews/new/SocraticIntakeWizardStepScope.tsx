@@ -39,6 +39,8 @@ import {
 import type { ActorSet } from "@/types/draft-intake";
 import type { Dispatch, SetStateAction } from "react";
 
+import { formatGuidedIntakeScopeLimitsAgentsHelper } from "@/lib/guided-intake-scope-limits-agents-copy";
+
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { GuidedIntakeEvidenceSection } from "./GuidedIntakeEvidenceSection";
 import { INTAKE_STEPS } from "./guided-intake-steps";
@@ -272,6 +274,12 @@ export function SocraticIntakeWizardStepScope({
         </div>
 
         <div className={GUIDED_INTAKE_STEP_SCOPE_SECTION_DIVIDER_CLASS}>
+        <p
+          className={OPERATOR_FORM_FIELD_HELPER_CLASS}
+          data-testid="guided-intake-scope-limits-agents"
+        >
+          {formatGuidedIntakeScopeLimitsAgentsHelper({ focusedPilotModeEnabled, isCreateArchitectureFlow })}
+        </p>
         <ReviewAssuranceCoverageSection
           focusedPilotModeEnabled={focusedPilotModeEnabled}
           onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}

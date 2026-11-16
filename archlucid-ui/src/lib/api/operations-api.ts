@@ -1,3 +1,8 @@
+import {
+  encodeRequiredPathSegment,
+  requireRecord,
+  trimRequiredPathSegment,
+} from "@/lib/api/api-boundary-normalization";
 import { apiGet, apiPostNoContent } from "@/lib/api/http";
 import {
   normalizeOperationState,
@@ -53,11 +58,19 @@ function mapResultRef(
 
 /** Polls TB-2074 unified operation projection. */
 export async function getOperation(operationId: string): Promise<OperationDetail> {
-  const encoded = encodeURIComponent(operationId);
-  const raw = await apiGet<OperationResponseJson>(`/v1/operations/${encoded}`);
+  const trimmedOperationId = trimRequiredPathSegment(operationId, "operationId");
+  const encoded = encodeRequiredPathSegment(operationId, "operationId");
+  const raw = requireRecord<OperationResponseJson>(
+    await apiGet<unknown>(`/v1/operations/${encoded}`),
+    "Operation",
+  );
+  const operationIdFromBody =
+    typeof raw.operationId === "string" && raw.operationId.trim().length > 0
+      ? raw.operationId.trim()
+      : trimmedOperationId;
 
   return {
-    operationId: raw.operationId ?? operationId,
+    operationId: operationIdFromBody,
     state: normalizeOperationState(raw.state),
     stepLabel: resolveOperationStepLabel(raw.stepLabel),
     currentStep: raw.currentStep ?? null,
@@ -72,12 +85,6 @@ export async function getOperation(operationId: string): Promise<OperationDetail
  * OpenAPI returns 200 + OperationResponse; body is discarded — poll/patch updates the shell row.
  */
 export async function cancelOperation(operationId: string): Promise<void> {
-  const trimmed = operationId.trim();
-
-  if (trimmed.length === 0) {
-    throw new Error("operationId is required.");
-  }
-
-  const encoded = encodeURIComponent(trimmed);
+  const encoded = encodeRequiredPathSegment(operationId, "operationId");
   await apiPostNoContent(`/v1/operations/${encoded}/cancel`, {});
 }

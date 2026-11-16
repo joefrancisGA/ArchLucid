@@ -205,6 +205,7 @@ public interface IRunRepository
     ///     Narrow lifecycle write after the authority pipeline seals a golden manifest: sets
     ///     <see cref="ArchitectureRunStatus.Committed" /> and <see cref="RunRecord.CompletedUtc" /> without
     ///     rewriting TB-310 evidence-anchor columns (full <see cref="UpdateAsync" /> would re-compare anchors).
+    ///     Fails if no active run in the requested scope can be updated.
     /// </summary>
     Task MarkAuthorityPipelineCommittedAsync(
         ScopeContext scope,
@@ -214,6 +215,9 @@ public interface IRunRepository
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
+
+    /// <summary>Evicts run details and lists after the caller commits an externally managed lifecycle promotion.</summary>
+    Task EvictCachedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct) => Task.CompletedTask;
 
     /// <summary>
     ///     Sets <see cref="RunRecord.ArchivedUtc" /> for runs with <c>CreatedUtc</c> strictly before
@@ -236,6 +240,9 @@ public interface IRunRepository
     ///     <see cref="RunArchiveByIdsResult.Failed" /> without failing the whole operation.
     /// </summary>
     Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct);
+
+    /// <summary>Archives an active run in the caller's scope only while it has no golden manifest.</summary>
+    Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct);
 
     /// <summary>
     ///     Counts runs in <paramref name="scope" /> for <paramref name="architectureRequestId" /> that are not archived

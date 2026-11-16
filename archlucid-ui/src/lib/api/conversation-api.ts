@@ -3,7 +3,12 @@ import type { PagedResponse } from "@/types/pagination";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { positiveIntegerOrDefault, recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
+import {
+  positiveIntegerOrDefault,
+  recordsOnly,
+  trimRequiredPathSegment,
+  trimRequiredText,
+} from "./api-boundary-normalization";
 
 import { apiGet, apiPostJson } from "./http";
 
@@ -19,7 +24,7 @@ export async function askArchLucid(payload: {
   targetRunId?: string;
 }): Promise<AskResponse> {
   const body: Record<string, unknown> = {
-    question: payload.question,
+    question: trimRequiredText(payload.question, "question"),
   };
   if (payload.threadId?.trim()) body.threadId = payload.threadId.trim();
   if (payload.runId?.trim()) body.runId = payload.runId.trim();

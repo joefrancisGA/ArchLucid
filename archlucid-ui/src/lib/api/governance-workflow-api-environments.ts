@@ -8,6 +8,12 @@ import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-e
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import {
+  encodeRequiredPathSegment,
+  trimRequiredPathSegment,
+  trimRequiredText,
+  trimTextFields,
+} from "./api-boundary-normalization";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, apiPutJson } from "./http";
 
@@ -30,11 +36,13 @@ export async function activateEnvironment(body: {
 }): Promise<GovernanceEnvironmentActivation> {
   void body.activatedBy;
 
+  const normalizedBody = trimTextFields(body, ["runId", "manifestVersion", "environment", "activatedBy"]);
+
   try {
     return await apiPostJson<GovernanceEnvironmentActivation>(`${governanceBase()}/activations`, {
-      runId: body.runId,
-      manifestVersion: body.manifestVersion,
-      environment: body.environment,
+      runId: trimRequiredText(normalizedBody.runId, "runId"),
+      manifestVersion: trimRequiredText(normalizedBody.manifestVersion, "manifestVersion"),
+      environment: trimRequiredText(normalizedBody.environment, "environment"),
     });
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
@@ -47,13 +55,15 @@ export async function activateEnvironment(body: {
 
 /** Lists environment activation rows for a run. */
 export async function listActivations(runId: string): Promise<GovernanceEnvironmentActivation[]> {
-  if (shouldSkipLiveAuthorityRunScopedApi(runId)) {
+  const normalizedRunId = trimRequiredPathSegment(runId, "runId");
+
+  if (shouldSkipLiveAuthorityRunScopedApi(normalizedRunId)) {
     return [];
   }
 
   try {
     return await apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
-      `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
+      `${governanceBase()}/runs/${encodeRequiredPathSegment(runId, "runId")}/activations`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
@@ -79,8 +89,22 @@ export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnv
 export async function replaceGovernanceEnvironmentCatalog(
   body: ReplaceGovernanceEnvironmentCatalogRequest,
 ): Promise<GovernanceEnvironmentCatalog> {
+  const normalizedBody: ReplaceGovernanceEnvironmentCatalogRequest = {
+    ...body,
+    environments: body.environments?.map((environment) => ({
+      ...environment,
+      slug: environment.slug?.trim() ?? "",
+      displayName: environment.displayName?.trim() ?? "",
+    })),
+    transitions: body.transitions?.map((transition) => ({
+      ...transition,
+      sourceSlug: transition.sourceSlug?.trim() ?? "",
+      targetSlug: transition.targetSlug?.trim() ?? "",
+    })),
+  };
+
   try {
-    return await apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, body);
+    return await apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, normalizedBody);
   } catch (error: unknown) {
     rethrowLivelihoodMutate401(error);
     const failure = toApiLoadFailure(error);

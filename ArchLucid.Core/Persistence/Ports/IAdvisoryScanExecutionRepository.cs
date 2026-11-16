@@ -10,6 +10,14 @@ public interface IAdvisoryScanExecutionRepository
 
     Task UpdateAsync(AdvisoryScanExecution execution, CancellationToken ct);
 
+    /// <summary>Records a failure only while the execution is still started.</summary>
+    Task MarkFailedIfStartedAsync(
+        ScopeContext scope,
+        Guid executionId,
+        DateTime completedUtc,
+        string errorMessage,
+        CancellationToken ct);
+
     Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         ScopeContext scope,
         Guid scheduleId,

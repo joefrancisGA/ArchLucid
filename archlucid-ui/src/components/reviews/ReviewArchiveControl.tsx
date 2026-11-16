@@ -28,7 +28,14 @@ import {
   reviewArchiveConfirmDescription,
 } from "@/lib/review-archive-confirm-copy";
 import { invalidateRunsByProjectPagedCache } from "@/lib/runs-by-project-paged-client";
-import { addArchivedReviewToClientCache } from "@/lib/archived-reviews-client-cache";
+import {
+  addArchivedReviewToClientCache,
+  archivedReviewsClientCacheKey,
+} from "@/lib/archived-reviews-client-cache";
+import {
+  getOperatorScopeQueryKeySnapshot,
+  parseOperatorScopeQueryKey,
+} from "@/lib/operator/operator-scope-query-key";
 import { ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT } from "@/hooks/use-archived-reviews-client-cache";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -146,9 +153,9 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
     callerPrincipal: currentPrincipal,
   });
 
-  const finishArchive = useCallback(async () => {
+  const finishArchive = useCallback(async (cacheKey: string | null) => {
     if (props.archivedRunSnapshot !== undefined) {
-      addArchivedReviewToClientCache({ ...props.archivedRunSnapshot, isArchived: true });
+      addArchivedReviewToClientCache(props.archivedRunSnapshot, cacheKey);
       window.dispatchEvent(new Event(ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT));
     }
 
@@ -168,10 +175,13 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
     setBusy(true);
 
     try {
+      const cacheKey = archivedReviewsClientCacheKey(
+        parseOperatorScopeQueryKey(getOperatorScopeQueryKeySnapshot()),
+      );
       const result = await archiveReview(props.run.runId);
 
       if (result.ok) {
-        await finishArchive();
+        await finishArchive(cacheKey);
 
         return;
       }

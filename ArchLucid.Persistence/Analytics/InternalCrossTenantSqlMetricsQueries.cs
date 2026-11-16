@@ -123,7 +123,7 @@ internal static class InternalCrossTenantSqlMetricsQueries
                            """;
 
         IEnumerable<(Guid TenantId, long TotalTokens)> rows = await connection.QueryAsync<(Guid TenantId, long TotalTokens)>(
-            new CommandDefinition(sql, new { UtcDay = rollupDate }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { UtcDay = rollupDate.ToDateTime(TimeOnly.MinValue) }, cancellationToken: cancellationToken));
 
         return rows.ToDictionary(static row => row.TenantId, static row => row.TotalTokens);
     }

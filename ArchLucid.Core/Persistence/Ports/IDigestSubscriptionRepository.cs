@@ -10,6 +10,9 @@ public interface IDigestSubscriptionRepository
 
     Task UpdateAsync(DigestSubscription subscription, CancellationToken ct);
 
+    /// <summary>Records a successful delivery without changing the subscription's routing settings.</summary>
+    Task RecordDeliveryAsync(DigestSubscription subscription, DateTime deliveredUtc, CancellationToken ct);
+
     Task<DigestSubscription?> GetByIdAsync(ScopeContext scope, Guid subscriptionId, CancellationToken ct);
 
     Task<IReadOnlyList<DigestSubscription>> ListByScopeAsync(
