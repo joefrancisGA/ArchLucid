@@ -9,6 +9,8 @@ using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Moq;
+
 namespace ArchLucid.Application.Tests.Planning.AdvisoryDraft;
 
 [Trait("Category", "Unit")]
@@ -20,6 +22,34 @@ public sealed class SqlAdvisoryDraftOperationStoreTests
         WorkspaceId = ScopeIds.DefaultWorkspace,
         ProjectId = ScopeIds.DefaultProject,
     };
+
+    [Fact]
+    public async Task Canceled_queue_handoff_closes_the_persisted_operation()
+    {
+        using CancellationTokenSource request = new();
+        SqlAdvisoryDraftOperationStore persisted = new(new InMemoryAdvisoryDraftOperationRepository());
+        Mock<IAdvisoryDraftOperationStore> store = new(MockBehavior.Strict);
+        string? operationId = null;
+        store.Setup(s => s.CreatePendingAsync(DefaultScope, request.Token)).Returns(async () =>
+        {
+            AdvisoryDraftOperationCreateResult result = await persisted.CreatePendingAsync(DefaultScope, request.Token);
+            operationId = OperationIdCodec.ForDraft(result.Record.OperationId);
+            request.Cancel();
+            return result;
+        });
+        store.Setup(s => s.MarkCanceledAsync(DefaultScope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((ScopeContext scope, string id, CancellationToken ct) => persisted.MarkCanceledAsync(scope, id, ct));
+        AdvisoryDraftOperationQueue queue = new();
+        AdvisoryDraftOperationAcceptor acceptor = new(store.Object, queue);
+
+        Func<Task> accept = () => acceptor.AcceptAsync(
+            new DraftArchitectureRequestInput(), DefaultScope, request.Token);
+        await accept.Should().ThrowAsync<OperationCanceledException>();
+
+        AdvisoryDraftOperationRecord? record = await persisted.GetAsync(operationId!, DefaultScope);
+        record!.State.Should().Be(OperationState.Canceled);
+        record.CompletedUtc.Should().NotBeNull();
+    }
 
     [Fact]
     public async Task CreatePending_persists_and_survives_new_store_instance()
