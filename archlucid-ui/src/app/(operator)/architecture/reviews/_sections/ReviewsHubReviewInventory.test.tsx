@@ -69,6 +69,10 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntries(),
 }));
 
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
 vi.mock("@/lib/operator/operator-scope-storage", async () => {
   const actual = await vi.importActual<typeof import("@/lib/operator/operator-scope-storage")>(
     "@/lib/operator/operator-scope-storage",
@@ -415,6 +419,38 @@ describe("ReviewsHubReviewInventory", () => {
     );
 
     expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
+  });
+
+  it("recomputes non-archived filter chip counts after the Archived filter changes the visibility pool", () => {
+    writeArchivedReviewsClientCache([
+      {
+        runId: "archived-review",
+        projectId: "default",
+        description: "Archived package",
+        createdUtc: "2026-08-01T12:00:00.000Z",
+        isArchived: true,
+      } satisfies RunSummary,
+    ]);
+
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "active-review",
+            projectId: "default",
+            description: "Active package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+        summary={emptySummary()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Filter reviews: All (1)" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
+
+    expect(screen.getByRole("button", { name: "Filter reviews: All (2)" })).toBeInTheDocument();
   });
 
   it("shows a clear action when search filters out all reviews", () => {
