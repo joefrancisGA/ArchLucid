@@ -148,6 +148,48 @@ public sealed class CachingRunRepositoryRunListInvalidationTests
     }
 
     [SkippableFact]
+    public async Task SaveAsync_refreshes_run_list_when_caller_cancels_after_insert()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        RunRecord run = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "default",
+        };
+        using CancellationTokenSource caller = new();
+        IReadOnlyList<RunRecord> stored = [];
+        Mock<IRunRepository> inner = new();
+        inner.Setup(r => r.ListRecentInScopeAsync(scope, 10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => stored);
+        inner.Setup(r => r.SaveAsync(run, caller.Token, null, null))
+            .Returns(() =>
+            {
+                stored = [run];
+                caller.Cancel();
+                return Task.CompletedTask;
+            });
+        CachingRunRepository repo = new(
+            inner.Object,
+            HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions()));
+
+        (await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None)).Should().BeEmpty();
+
+        Exception? saveError = await Record.ExceptionAsync(() => repo.SaveAsync(run, caller.Token));
+
+        (await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None)).Should().ContainSingle()
+            .Which.RunId.Should().Be(run.RunId);
+        saveError.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task UpdateAsync_refreshes_run_and_list_when_caller_cancels_after_write()
     {
         ScopeContext scope = new()
