@@ -83,7 +83,7 @@ public sealed class AuditExportControllerTests
             DataJson = "{\"x\":1}"
         };
 
-        AuditExportRepositoryTestDoubles.SetupStreamFilteredExport(repo, evt);
+        AuditExportRepositoryTestDoubles.SetupFilteredExport(repo, evt);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));

@@ -5,35 +5,20 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>Moq helpers for streaming audit CSV export tests.</summary>
+/// <summary>Moq helpers for audit CSV export tests.</summary>
 internal static class AuditExportRepositoryTestDoubles
 {
-    public static void SetupStreamFilteredExport(Mock<IAuditRepository> repository, params AuditEvent[] events)
+    public static void SetupFilteredExport(Mock<IAuditRepository> repository, params AuditEvent[] events)
     {
         ArgumentNullException.ThrowIfNull(repository);
 
         repository
-            .Setup(r => r.StreamFilteredExportAsync(
+            .Setup(r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(ToAsyncEnumerable(events));
-
-        repository
-            .Setup(r => r.CountFilteredAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<AuditEventFilter>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(events.Count);
-    }
-
-    private static async IAsyncEnumerable<AuditEvent> ToAsyncEnumerable(IReadOnlyList<AuditEvent> events)
-    {
-        foreach (AuditEvent auditEvent in events)
-            yield return auditEvent;
+            .ReturnsAsync(events);
     }
 }
