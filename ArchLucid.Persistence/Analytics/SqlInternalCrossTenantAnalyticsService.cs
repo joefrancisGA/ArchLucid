@@ -47,7 +47,9 @@ public sealed class SqlInternalCrossTenantAnalyticsService(
 
     /// <inheritdoc />
     public Task<InternalCrossTenantAnalyticsSummary> GetSummaryAsync(CancellationToken cancellationToken = default) =>
-        _sqlOperations.ExecuteAsync(ct => GetSummaryCoreAsync(ct), cancellationToken);
+        _topologyOptions.CurrentValue.Mode == SqlTopologyMode.SingleCatalog
+            ? _sqlOperations.ExecuteAsync(GetSingleCatalogSummaryAsync, cancellationToken)
+            : GetPerTenantCatalogSummaryAsync(cancellationToken);
 
     /// <inheritdoc />
     public Task<IReadOnlyList<InternalCrossTenantRollupDailyRow>> GetDailyRollupsAsync(
@@ -67,26 +69,25 @@ public sealed class SqlInternalCrossTenantAnalyticsService(
     public string ExportDailyRollupsJson(IReadOnlyList<InternalCrossTenantRollupDailyRow> rows) =>
         InternalCrossTenantRollupExportFormatter.ToJson(rows);
 
-    private async Task<InternalCrossTenantAnalyticsSummary> GetSummaryCoreAsync(CancellationToken cancellationToken)
+    private async Task<InternalCrossTenantAnalyticsSummary> GetSingleCatalogSummaryAsync(CancellationToken cancellationToken)
     {
-        SqlTopologyOptions snapshot = _topologyOptions.CurrentValue;
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        if (snapshot.Mode == SqlTopologyMode.SingleCatalog)
-        {
-            await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow rowTotals =
+            await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(connection, cancellationToken);
 
-            InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow rowTotals =
-                await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(connection, cancellationToken);
+        decimal hoursSaved =
+            await InternalCrossTenantSqlMetricsQueries.QueryEngineeringHoursSavedAsync(connection, null, cancellationToken);
 
-            decimal hoursSaved =
-                await InternalCrossTenantSqlMetricsQueries.QueryEngineeringHoursSavedAsync(connection, null, cancellationToken);
+        return BuildSummary(1, rowTotals, hoursSaved);
+    }
 
-            return BuildSummary(1, rowTotals, hoursSaved);
-        }
-
+    private async Task<InternalCrossTenantAnalyticsSummary> GetPerTenantCatalogSummaryAsync(
+        CancellationToken cancellationToken)
+    {
         IReadOnlyList<TenantDatabaseBindingRecord> bindings =
-            await _tenantDatabaseBindingRepository.ListBindingsWithStateAsync(
-                TenantDatabaseProvisioningState.Active,
+            await _sqlOperations.ExecuteAsync(
+                ct => _tenantDatabaseBindingRepository.ListBindingsWithStateAsync(TenantDatabaseProvisioningState.Active, ct),
                 cancellationToken);
 
         if (bindings.Count == 0)
