@@ -10,12 +10,36 @@ WORKFLOW = Path(__file__).resolve().parents[3] / ".github" / "workflows" / "ci.y
 class ReleaseCandidateCiWiringTests(unittest.TestCase):
     def test_full_non_deploying_ci_pushes_only_explicit_rc_branches(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44, RC46\]$")
+        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC43, RC44\]$")
         self.assertNotIn("branches: [master]", workflow)
         self.assertNotIn("branches: [main]", workflow)
         self.assertNotIn("branches: [RC41]", workflow)
         self.assertNotIn("branches: [RC40]", workflow)
         self.assertNotIn("branches: [RC36]", workflow)
+
+
+    def test_repair_branches_keep_focused_checks_and_explicit_full_validation(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        repair = WORKFLOW.with_name("rc45-repair.yml").read_text(encoding="utf-8")
+        self.assertRegex(repair, r"(?m)^  push:\n    branches: \[RC45, RC46\]$")
+        self.assertIn("if: github.ref == 'refs/heads/RC45' || github.ref == 'refs/heads/RC46'", repair)
+        self.assertIn("bash scripts/ci/run_guards_pre_corset.sh", repair)
+        self.assertNotIn("continue-on-error:", repair)
+        self.assertIn("group: rc45-repair-${{ github.event_name }}-${{ github.ref }}", repair)
+        self.assertIn("cancel-in-progress: true", repair)
+        self.assertIn("if: github.event_name == 'workflow_dispatch' && inputs.test_project != ''", repair)
+        self.assertIn("needs: guards", repair)
+        self.assertIn('--filter "$TEST_FILTER"', repair)
+        self.assertIn("The filter did not execute any tests.", repair)
+        self.assertIn("if: inputs.sql", repair)
+        for text in (workflow, repair):
+            self.assertRegex(text, r"(?m)^  workflow_dispatch:$")
+        # Full release checks remain available, not replaced by repair-only evidence.
+        for job in ("gitleaks", "guards-pre-corset", "dotnet-fast-core-build",
+                    "sql-dbup-empty-catalog", "dotnet-full-regression-core-complete", "ui-unit"):
+            self.assertRegex(workflow, rf"(?m)^  {re.escape(job)}:$")
+        self.assertRegex(workflow, r"(?m)^  pull_request:\n    branches: \[main, master\]$")
+        self.assertRegex(workflow, r"(?m)^  merge_group:\n    branches: \[main, master\]$")
 
     def test_live_azure_openai_cannot_run_on_release_branches(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
