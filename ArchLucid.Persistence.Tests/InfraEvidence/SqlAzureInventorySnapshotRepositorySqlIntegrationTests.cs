@@ -125,7 +125,7 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
   }
 
   [SkippableFact]
-  public async Task Drift_slices_load_changes_resources_and_properties_for_more_than_2100_ids()
+  public async Task Drift_and_routing_slices_load_inventory_for_more_than_2100_ids()
   {
     Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
@@ -158,6 +158,12 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
         ResourceRowId = resource.ResourceRowId,
         PropertyKey = "network",
         PropertyValue = "private",
+      }).ToList(),
+      Tags = resources.Select(resource => new AzureInventoryTagWrite
+      {
+        ResourceRowId = resource.ResourceRowId,
+        TagKey = "owner",
+        TagValue = "routing-test",
       }).ToList(),
     });
 
@@ -196,6 +202,14 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
     changes.Should().ContainSingle().Which.ChangeId.Should().Be(changeId);
     priorResources.Select(resource => resource.CloudResourceId).Should().BeEquivalentTo(cloudResourceIds.Select(id => (Guid?)id));
     priorProperties.Select(property => property.ResourceRowId).Should().BeEquivalentTo(resources.Select(resource => resource.ResourceRowId));
+
+    IReadOnlyList<AzureInventoryResourceRecord> routingResources =
+      await snapshots.ListResourcesByCloudResourceIdsAsync(scope, priorId, cloudResourceIds);
+    IReadOnlyList<AzureInventoryTagReadModel> routingTags =
+      await snapshots.ListTagsByResourceRowIdsAsync(scope, priorId, resources.Select(resource => resource.ResourceRowId).ToArray());
+
+    routingResources.Select(resource => resource.CloudResourceId).Should().BeEquivalentTo(cloudResourceIds.Select(id => (Guid?)id));
+    routingTags.Select(tag => tag.ResourceRowId).Should().BeEquivalentTo(resources.Select(resource => resource.ResourceRowId));
 
     async Task<Guid> InsertSnapshotAsync()
     {
