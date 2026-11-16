@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -32,7 +34,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                    FROM dbo.AzureInventoryResources
                                    WHERE TenantId = @TenantId
                                      AND SnapshotId = @SnapshotId
-                                     AND CloudResourceId IN @CloudResourceIds;
+                                     AND CloudResourceId IN (
+                                         SELECT Id FROM OPENJSON(@CloudResourceIdsJson) WITH (Id uniqueidentifier '$'));
                                    """;
 
         using System.Data.IDbConnection conn =
@@ -45,7 +48,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 {
                     scope.TenantId,
                     SnapshotId = snapshotId,
-                    CloudResourceIds = distinctIds,
+                    CloudResourceIdsJson = JsonSerializer.Serialize(distinctIds),
                 },
                 cancellationToken: cancellationToken))).ToList();
 
@@ -59,7 +62,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                    FROM dbo.AzureInventoryResourceProperties
                                    WHERE TenantId = @TenantId
                                      AND SnapshotId = @SnapshotId
-                                     AND ResourceRowId IN @ResourceRowIds;
+                                     AND ResourceRowId IN (
+                                         SELECT Id FROM OPENJSON(@ResourceRowIdsJson) WITH (Id uniqueidentifier '$'));
                                    """;
 
         List<AzureInventoryResourcePropertyReadModel> properties =
@@ -70,7 +74,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     {
                         scope.TenantId,
                         SnapshotId = snapshotId,
-                        ResourceRowIds = resourceRowIds,
+                        ResourceRowIdsJson = JsonSerializer.Serialize(resourceRowIds),
                     },
                     cancellationToken: cancellationToken))).ToList();
 
