@@ -189,13 +189,15 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
-    public void Audit_filtered_list_shape_omits_data_json_export_shape_includes_it()
+    public void Audit_filtered_list_shape_omits_payload_and_export_shape_uses_committed_reads()
     {
         const string listPrefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeNoLock;
-        const string exportPrefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock;
+        const string exportPrefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScopeWithDataJson;
 
         listPrefix.Should().NotContain("DataJson");
         exportPrefix.Should().Contain("DataJson");
+        exportPrefix.Should().NotContain("NOLOCK");
+        exportPrefix.Should().NotContain("READUNCOMMITTED");
     }
 
     [SkippableFact]
