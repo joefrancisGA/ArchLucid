@@ -34,12 +34,12 @@ name: CI
 
 # PR (main/master): Tier 0–0.9 + trimmed `dotnet-fast-core` (no Tier 1.0 artifacts, no coverlet, no finding-engine template).
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
-# Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
+# Full CI: RC43/RC44/RC46 pushes and explicit workflow_dispatch include full post-corset regression gates.
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC43/RC44 full regression on push; RC45/RC46 use separate repair checks. No production deployment.
+# RC43/RC44/RC46 full regression on push; RC45 uses separate repair checks. No production deployment.
 on:
   push:
-    branches: [RC43, RC44]
+    branches: [RC43, RC44, RC46]
   pull_request:
     branches: [main, master]
   merge_group:

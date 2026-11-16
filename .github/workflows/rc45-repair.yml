@@ -2,7 +2,7 @@ name: RC45 / RC46 repair checks
 
 on:
   push:
-    branches: [RC45, RC46]
+    branches: [RC45]
   workflow_dispatch:
     inputs:
       test_project:

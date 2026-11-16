@@ -100,10 +100,10 @@ class DetectCiPathLanesTests(unittest.TestCase):
         match = re.search(r"(?m)^  push:\n    branches: \[([^\]]+)\]$", workflow)
         self.assertIsNotNone(match)
         branches = {branch.strip() for branch in match.group(1).split(",")}
-        self.assertEqual({"RC43", "RC44"}, branches)
-        self.assertTrue({"RC45", "RC46"}.isdisjoint(branches))  # Separate repair workflow.
+        self.assertEqual({"RC43", "RC44", "RC46"}, branches)
+        self.assertTrue({"RC45"}.isdisjoint(branches))  # RC45 retains separate repair workflow.
 
-        # Full-CI release pushes use separate groups; RC45/RC46 use repair checks.
+        # Full-CI release pushes use separate groups; RC45 uses repair checks.
         self.assertIn("github.event_name == 'push'", concurrency)
         self.assertIn("github.ref == 'refs/heads/RC43'", concurrency)
         self.assertIn("github.ref == 'refs/heads/RC44'", concurrency)
