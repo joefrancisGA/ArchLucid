@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
-  ARCHIVED_REVIEWS_CLIENT_CACHE_KEY,
+  archivedReviewsClientCacheKey,
   addArchivedReviewToClientCache,
   listArchivedReviewsClientCache,
 } from "@/lib/archived-reviews-client-cache";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import type { RunSummary } from "@/types/authority";
 
 export const ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT =
@@ -17,17 +18,21 @@ export function useArchivedReviewsClientCache(): {
   readonly archivedRuns: RunSummary[];
   readonly rememberArchivedRun: (run: RunSummary) => void;
 } {
-  const [archivedRuns, setArchivedRuns] = useState<RunSummary[]>([]);
+  const cacheKey = archivedReviewsClientCacheKey(useOperatorScopeQueryKey());
+  const [cached, setCached] = useState<{ key: string | null; runs: RunSummary[] }>({
+    key: null,
+    runs: [],
+  });
 
   useEffect(() => {
-    setArchivedRuns(listArchivedReviewsClientCache());
-
     const refresh = (): void => {
-      setArchivedRuns(listArchivedReviewsClientCache());
+      setCached({ key: cacheKey, runs: listArchivedReviewsClientCache(cacheKey) });
     };
 
+    refresh();
+
     const onStorage = (event: StorageEvent): void => {
-      if (event.key === ARCHIVED_REVIEWS_CLIENT_CACHE_KEY) {
+      if (event.key === cacheKey || event.key === null) {
         refresh();
       }
     };
@@ -39,14 +44,14 @@ export function useArchivedReviewsClientCache(): {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener(ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT, refresh);
     };
-  }, []);
+  }, [cacheKey]);
 
   const rememberArchivedRun = useCallback((run: RunSummary) => {
-    const next = addArchivedReviewToClientCache(run);
+    const next = addArchivedReviewToClientCache(run, cacheKey);
 
-    setArchivedRuns(next);
+    setCached({ key: cacheKey, runs: next });
     window.dispatchEvent(new Event(ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT));
-  }, []);
+  }, [cacheKey]);
 
-  return { archivedRuns, rememberArchivedRun };
+  return { archivedRuns: cached.key === cacheKey ? cached.runs : [], rememberArchivedRun };
 }

@@ -1,7 +1,15 @@
+import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import type { RunSummary } from "@/types/authority";
 
 /** Browser-local cache of soft-archived reviews (list API excludes them until includeArchived ships). */
-export const ARCHIVED_REVIEWS_CLIENT_CACHE_KEY = "archlucid.archivedReviewsClientCache.v1";
+const LEGACY_CACHE_KEY = "archlucid.archivedReviewsClientCache.v1";
+const CACHE_KEY_PREFIX = "archlucid.archivedReviewsClientCache.v2";
+
+export function archivedReviewsClientCacheKey(scope: OperatorScopeQueryKey): string | null {
+  const parts = [scope.tenantId, scope.workspaceId, scope.projectId];
+
+  return parts.every(Boolean) ? `${CACHE_KEY_PREFIX}:${JSON.stringify(parts)}` : null;
+}
 
 export const ARCHIVED_REVIEWS_CLIENT_CACHE_MAX = 200;
 
@@ -35,13 +43,15 @@ function normalizeArchivedRun(run: RunSummary): RunSummary {
 }
 
 /** Reads archived review snapshots from localStorage (newest archive first). */
-export function listArchivedReviewsClientCache(): RunSummary[] {
-  if (typeof window === "undefined") {
+export function listArchivedReviewsClientCache(cacheKey: string | null): RunSummary[] {
+  if (cacheKey === null || typeof window === "undefined") {
     return [];
   }
 
   try {
-    const raw = window.localStorage.getItem(ARCHIVED_REVIEWS_CLIENT_CACHE_KEY);
+    // Old entries carry no tenant/workspace/project identity and cannot be assigned a scope.
+    window.localStorage.removeItem(LEGACY_CACHE_KEY);
+    const raw = window.localStorage.getItem(cacheKey);
 
     if (raw === null || raw.trim().length === 0) {
       return [];
@@ -62,8 +72,8 @@ export function listArchivedReviewsClientCache(): RunSummary[] {
   }
 }
 
-export function writeArchivedReviewsClientCache(runs: readonly RunSummary[]): void {
-  if (typeof window === "undefined") {
+export function writeArchivedReviewsClientCache(runs: readonly RunSummary[], cacheKey: string | null): void {
+  if (cacheKey === null || typeof window === "undefined") {
     return;
   }
 
@@ -73,18 +83,22 @@ export function writeArchivedReviewsClientCache(runs: readonly RunSummary[]): vo
       .map(normalizeArchivedRun)
       .slice(0, ARCHIVED_REVIEWS_CLIENT_CACHE_MAX);
 
-    window.localStorage.setItem(ARCHIVED_REVIEWS_CLIENT_CACHE_KEY, JSON.stringify(normalized));
+    window.localStorage.setItem(cacheKey, JSON.stringify(normalized));
   } catch {
     /* ignore quota / private mode */
   }
 }
 
-export function addArchivedReviewToClientCache(run: RunSummary): RunSummary[] {
+export function addArchivedReviewToClientCache(run: RunSummary, cacheKey: string | null): RunSummary[] {
+  if (cacheKey === null) {
+    return [];
+  }
+
   const normalized = normalizeArchivedRun(run);
-  const without = listArchivedReviewsClientCache().filter((row) => row.runId !== normalized.runId);
+  const without = listArchivedReviewsClientCache(cacheKey).filter((row) => row.runId !== normalized.runId);
   const next = [normalized, ...without].slice(0, ARCHIVED_REVIEWS_CLIENT_CACHE_MAX);
 
-  writeArchivedReviewsClientCache(next);
+  writeArchivedReviewsClientCache(next, cacheKey);
 
   return next;
 }
