@@ -14,6 +14,8 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
     private const string CacheKeyPrefix = "ArchLucid:TenantSqlCs:";
     private const string ReadOnlyCacheKeyPrefix = "ArchLucid:TenantSqlReadCs:";
 
+    private sealed record CachedConnectionString(string Template, string Value);
+
     private readonly ITenantDatabaseBindingRepository _bindings;
     private readonly IMemoryCache _cache;
     private readonly string _singleCatalogConnectionString;
@@ -57,9 +59,11 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
             return _singleCatalogConnectionString;
 
         string cacheKey = CacheKeyPrefix + tenantId.ToString("D");
+        string? template = snapshot.TenantCatalogConnectionStringTemplate?.Trim();
 
-        if (_cache.TryGetValue(cacheKey, out string? cached) && !string.IsNullOrWhiteSpace(cached))
-            return cached;
+        if (_cache.TryGetValue(cacheKey, out CachedConnectionString? cached)
+            && cached is not null && cached.Template == template)
+            return cached.Value;
 
         TenantDatabaseBindingRecord? row = await _bindings.GetByTenantIdAsync(tenantId, cancellationToken);
 
@@ -68,17 +72,14 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
             throw new InvalidOperationException(
                 "Tenant SQL catalog binding is missing or not active for tenant '" + tenantId.ToString("D") + "'.");
 
-        if (string.IsNullOrWhiteSpace(snapshot.TenantCatalogConnectionStringTemplate))
-
+        if (string.IsNullOrEmpty(template))
             throw new InvalidOperationException(
                 "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when SqlTopology:Mode is SystemWithPerTenantCatalogs.");
 
-        string resolved = SqlTenantCatalogConnectionStringFactory.FromTemplate(
-            snapshot.TenantCatalogConnectionStringTemplate.Trim(),
-            row.SqlLogicalDatabaseName);
+        string resolved = SqlTenantCatalogConnectionStringFactory.FromTemplate(template, row.SqlLogicalDatabaseName);
 
         int seconds = Math.Clamp(snapshot.TenantBindingCacheSeconds, 1, 600);
-        _cache.Set(cacheKey, resolved, TimeSpan.FromSeconds(seconds));
+        _cache.Set(cacheKey, new CachedConnectionString(template, resolved), TimeSpan.FromSeconds(seconds));
 
         return resolved;
     }
@@ -101,8 +102,9 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
 
         string cacheKey = ReadOnlyCacheKeyPrefix + tenantId.ToString("D");
 
-        if (_cache.TryGetValue(cacheKey, out string? cached) && !string.IsNullOrWhiteSpace(cached))
-            return cached;
+        if (_cache.TryGetValue(cacheKey, out CachedConnectionString? cached)
+            && cached is not null && cached.Template == template)
+            return cached.Value;
 
         TenantDatabaseBindingRecord? row = await _bindings.GetByTenantIdAsync(tenantId, cancellationToken);
 
@@ -118,7 +120,7 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
 
         string resolved = SqlTenantCatalogConnectionStringFactory.FromTemplate(template, row.SqlLogicalDatabaseName);
         int seconds = Math.Clamp(snapshot.TenantBindingCacheSeconds, 1, 600);
-        _cache.Set(cacheKey, resolved, TimeSpan.FromSeconds(seconds));
+        _cache.Set(cacheKey, new CachedConnectionString(template, resolved), TimeSpan.FromSeconds(seconds));
 
         return resolved;
     }
