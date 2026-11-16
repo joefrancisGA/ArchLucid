@@ -52,9 +52,10 @@ public sealed class OperationalErrorCaptureService(
             if (!_queue.TryEnqueue(record) && _logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug("Operational error capture queue full; dropped row {OperationalErrorId}.", record.Id);
         }
-        catch (Exception ex) when (_logger.IsEnabled(LogLevel.Warning))
+        catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Operational error capture failed before enqueue.");
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Operational error capture failed before enqueue.");
         }
     }
 
