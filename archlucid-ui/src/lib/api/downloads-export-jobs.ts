@@ -7,6 +7,11 @@ import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
+  encodeRequiredPathSegment,
+  trimRequiredPathSegment,
+  trimTextFields,
+} from "./api-boundary-normalization";
+import {
   apiPostNoContent,
   ensureOidcBearerReady,
   getBearerToken,
@@ -27,8 +32,11 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
     throw new Error("downloadComparisonReplayPdf is only supported in the browser.");
   }
 
+  const trimmedComparisonRecordId = trimRequiredPathSegment(comparisonRecordId, "comparisonRecordId");
+  const encodedComparisonRecordId = encodeRequiredPathSegment(comparisonRecordId, "comparisonRecordId");
+
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}/replay?format=pdf`;
+  const path = `/v1/architecture/comparisons/${encodedComparisonRecordId}/replay?format=pdf`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
@@ -54,7 +62,7 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `comparison-report-${comparisonRecordId}.pdf`;
+    `comparison-report-${trimmedComparisonRecordId}.pdf`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }
@@ -67,8 +75,11 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
     throw new Error("createAndDownloadComparisonPdf is only supported in the browser.");
   }
 
+  const encodedLeftRunId = encodeRequiredPathSegment(leftRunId, "leftRunId");
+  const encodedRightRunId = encodeRequiredPathSegment(rightRunId, "rightRunId");
+
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/review/compare/end-to-end/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`;
+  const path = `/v1/architecture/review/compare/end-to-end/summary?leftRunId=${encodedLeftRunId}&rightRunId=${encodedRightRunId}`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set("Accept", "application/json");
@@ -105,10 +116,14 @@ export async function markSponsorPackSent(
   runId: string,
   body?: { readonly recipientEmail?: string; readonly deliveryMethod?: string },
 ): Promise<void> {
-  const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-pack-sent`;
+  const encodedRunId = encodeRequiredPathSegment(runId, "runId");
+  const path = `/v1/pilots/runs/${encodedRunId}/sponsor-pack-sent`;
+  const payload = body === undefined
+    ? { deliveryMethod: "email" }
+    : trimTextFields(body, ["recipientEmail", "deliveryMethod"]);
 
   try {
-    await apiPostNoContent(path, body ?? { deliveryMethod: "email" });
+    await apiPostNoContent(path, payload);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = sponsorPackSentMutationBlockedReason(failure);
@@ -123,8 +138,11 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
     throw new Error("downloadValueReportDocx is only supported in the browser.");
   }
 
+  const trimmedFromIso = trimRequiredPathSegment(fromIso, "fromIso");
+  const trimmedToIso = trimRequiredPathSegment(toIso, "toIso");
+
   await ensureOidcBearerReady();
-  const path = `/v1/value-report/generate?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`;
+  const path = `/v1/value-report/generate?from=${encodeURIComponent(trimmedFromIso)}&to=${encodeURIComponent(trimmedToIso)}`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set(

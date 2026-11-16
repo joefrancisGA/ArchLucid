@@ -1,8 +1,12 @@
 import type { ArchitectureWorkLeaseConflictResponse, ArchitectureWorkLeaseResponse } from "@/types/draft-intake-work-lease";
 
-import { encodeRequiredPathSegment, parseJsonRecord } from "@/lib/api/api-boundary-normalization";
+import {
+  encodeRequiredPathSegment,
+  parseJsonRecord,
+  requireRecord,
+} from "@/lib/api/api-boundary-normalization";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { ensureOidcBearerReady, apiDelete, apiPostJson } from "@/lib/api/http";
+import { ensureOidcBearerReady, apiDelete, throwApiRequestError } from "@/lib/api/http";
 import { applyCorrelationHeaders, resolveRequest, serverFetchInit } from "@/lib/api/http-proxy";
 import { captureTraceContextFromResponse } from "@/lib/correlation";
 
@@ -51,12 +55,37 @@ export async function tryAcquireDraftWorkLease(draftId: string): Promise<DraftWo
   return lease === null ? { kind: "unavailable" } : { kind: "acquired", lease };
 }
 
+async function postDraftWorkLeaseMutation(
+  draftId: string,
+  suffix: string,
+): Promise<ArchitectureWorkLeaseResponse> {
+  await ensureOidcBearerReady();
+  const { url, headers } = await resolveRequest(draftWorkLeasePath(draftId, suffix));
+  const { headers: requestHeaders } = applyCorrelationHeaders(headers);
+  requestHeaders.set("Content-Type", "application/json");
+
+  const response = await fetch(
+    url,
+    serverFetchInit(requestHeaders, { method: "POST", body: "{}" }),
+  );
+  captureTraceContextFromResponse(response);
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text);
+  }
+
+  const lease = parseJsonRecord<ArchitectureWorkLeaseResponse>(text);
+
+  return requireRecord(lease, "Work lease");
+}
+
 export async function heartbeatDraftWorkLease(draftId: string): Promise<ArchitectureWorkLeaseResponse> {
-  return apiPostJson<ArchitectureWorkLeaseResponse>(draftWorkLeasePath(draftId, "/heartbeat"), {});
+  return postDraftWorkLeaseMutation(draftId, "/heartbeat");
 }
 
 export async function stealDraftWorkLease(draftId: string): Promise<ArchitectureWorkLeaseResponse> {
-  return apiPostJson<ArchitectureWorkLeaseResponse>(draftWorkLeasePath(draftId, "/steal"), {});
+  return postDraftWorkLeaseMutation(draftId, "/steal");
 }
 
 export async function releaseDraftWorkLease(draftId: string): Promise<void> {

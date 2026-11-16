@@ -1,6 +1,7 @@
 import type { AlertRecord } from "@/types/alerts";
 
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { trimNullableText } from "./api-boundary-normalization";
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
 import type { CursorPagedResponse } from "./audit-api";
 import type { PagedResponse } from "@/types/pagination";
@@ -128,7 +129,7 @@ export async function applyAlertAction(
 
   return apiPostJson<AlertRecord>(`/${ApiV1Routes.alerts}/${encodeURIComponent(normalizedAlertId)}/action`, {
     action,
-    comment: comment ?? "",
+    comment: trimNullableText(comment ?? "") ?? "",
   });
 }
 
@@ -139,9 +140,13 @@ export async function acknowledgeAlertsBatch(
 ): Promise<AlertsAcknowledgeBatchResponse> {
   const normalizedAlertIds = alertIds.map((alertId) => alertId.trim()).filter((alertId) => alertId.length > 0);
 
+  if (normalizedAlertIds.length === 0) {
+    throw new Error("alertIds is required.");
+  }
+
   return apiPostJson<AlertsAcknowledgeBatchResponse>(`/${ApiV1Routes.alerts}/acknowledge-batch`, {
     alertIds: normalizedAlertIds,
-    comment: comment ?? "",
+    comment: trimNullableText(comment ?? "") ?? "",
   });
 }
 
