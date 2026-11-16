@@ -247,20 +247,34 @@ internal static class TenantScopedSqlExpressionResolver
         ResolutionResult left = ResolveCore(add.Left, semanticModel, visitingInterpolatedHole: false);
         ResolutionResult right = ResolveCore(add.Right, semanticModel, visitingInterpolatedHole: false);
 
-        if (!left.IsStaticallyResolved || !right.IsStaticallyResolved)
+        bool hasScopeHelper = left.HasScopeHelperInvocation || right.HasScopeHelperInvocation ||
+            IsScopeHelperExpression(add.Left, semanticModel) ||
+            IsScopeHelperExpression(add.Right, semanticModel);
+
+        if (left.IsStaticallyResolved && right.IsStaticallyResolved)
         {
             return new ResolutionResult(
-                null,
-                false,
-                left.HasScopeHelperInvocation || right.HasScopeHelperInvocation ||
-                IsScopeHelperExpression(add.Left, semanticModel) ||
-                IsScopeHelperExpression(add.Right, semanticModel));
+                (left.SqlText ?? string.Empty) + (right.SqlText ?? string.Empty),
+                true,
+                hasScopeHelper);
         }
 
-        return new ResolutionResult(
-            (left.SqlText ?? string.Empty) + (right.SqlText ?? string.Empty),
-            true,
-            left.HasScopeHelperInvocation || right.HasScopeHelperInvocation);
+        // A runtime operand must not drop a static SQL literal that names a scoped table.
+        if (left.IsStaticallyResolved && left.SqlText is not null)
+            return new ResolutionResult(left.SqlText, true, hasScopeHelper);
+
+        if (right.IsStaticallyResolved && right.SqlText is not null)
+            return new ResolutionResult(right.SqlText, true, hasScopeHelper);
+
+        List<string> branchSqlTexts = new();
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, left);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, right);
+
+        if (branchSqlTexts.Count > 0)
+            return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+
+        return new ResolutionResult(null, false, hasScopeHelper);
     }
 
     private static ResolutionResult ResolveInterpolatedString(
@@ -325,6 +339,10 @@ internal static class TenantScopedSqlExpressionResolver
         }
 
         if (allStatic)
+            return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
+
+        // A runtime Concat argument must not drop static literal fragments (see ResolveBinaryAdd).
+        if (builder.Length > 0)
             return new ResolutionResult(builder.ToString(), true, hasScopeHelper);
 
         return new ResolutionResult(null, false, hasScopeHelper);

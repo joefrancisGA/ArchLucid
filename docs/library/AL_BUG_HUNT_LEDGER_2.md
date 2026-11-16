@@ -1569,14 +1569,25 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-11-16 thorough hunt (hit): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted both **#364** monitor rows: `ResolveBinaryAdd` and `ResolveStringConcat` dropped static SQL literals when another operand was non-static, so a `const` head plus runtime filter forwarded to Dapper with no ARCH006 because diagnostic text only showed `RunsSelectHead + filter`. Static fragments are now kept (parity with `string.Format` non-static arguments). Regressions `ARCH006_reports_unscoped_sql_when_const_head_concatenated_with_runtime_filter` and `ARCH006_reports_unscoped_sql_when_string_concat_merges_runtime_argument`; three partial-literal call sites now expect ARCH006 instead of ARCH006a. Scoped analyzer tests **71/71** on CI line bases (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that assemble tenant SQL from a const fragment plus runtime predicates now get ARCH006 in CI when that fragment names `dbo.Runs`, closing a silent bypass before code review.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — **hit 2026-11-16 thorough hunt:** keep the static SQL literal; regression `ARCH006_reports_unscoped_sql_when_const_head_concatenated_with_runtime_filter`.
+- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — **hit 2026-11-16 thorough hunt:** append resolved static literal fragments; regression `ARCH006_reports_unscoped_sql_when_string_concat_merges_runtime_argument`.
+
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveCore` — compound assignment `+=` on a field when the right-hand literal names `dbo.Runs` — locus: assignment folding after `+=`; input: `unscopedRunsSql += "SELECT … dbo.Runs …"`; wrong outcome: ARCH006 missed; reachability: incremental SQL builders in repositories.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.ReportUnanalyzableIfScopedTableReferenced` — `HasScopeHelperInvocation` returns early before a static partial literal still names a scoped table — locus: scope-helper guard; input: `"SELECT … dbo.Runs …" + ScopeHelper.AndTripleWhere(...)`; wrong outcome: ARCH006 missed; reachability: scope-helper suffix patterns.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveInterpolatedString` — non-static hole drops literal segments that name scoped tables — locus: `allStatic` false branch; input: `$"SELECT … dbo.Runs … {tenantId}"`; wrong outcome: ARCH006 missed; reachability: interpolated SQL at Dapper call sites not folded through methods.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.TryResolveFromSimpleAssignments` — chained `+=` on locals never merges prior static SQL text — locus: compound assignment walk; input: `sql += " AND TenantId = @TenantId"` after prior unscoped fragment; wrong outcome: ARCH006a instead of ARCH006 on final folded text; reachability: multi-step SQL assembly.
+- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — nested adds where the inner add is static but the outer operand is not — locus: nested `+` fold; input: `("SELECT … dbo.Runs …" + col) + suffix`; wrong outcome: only outer operand analyzed; reachability: repository SQL suffix chains.
+
 2026-11-08 thorough hunt (hit #364): no rotation at pick time (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the direct Dapper call from hit **#363**: `Query(FormatRunSql(tenantId))` still missed ARCH006 when `FormatRunSql` returned an interpolated string, because `ResolveCore` called `TryResolveFromMethodInvocation` with parameterized callees rejected. The call site now folds those callees the same way record `: this(...)` chains do. Regression `ARCH006_reports_unscoped_sql_for_direct_interpolated_method_invocation` failed with 0 diagnostics before the fold and passes after. The same fold covers a local function in the calling method (`TryGetSingleReturnExpression` already accepts `LocalFunctionStatementSyntax`) and `new CommandDefinition(FormatRunSql(tenantId))` (`AnalyzeObjectCreation` resolves the SQL argument through `Resolve`). Left binary `+` and `string.Concat` open: a non-static operand still drops the literal side. Scoped analyzer tests **69/69** (`FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzer`; `RunAnalyzers=false`). Private beta: Persistence repositories that pass a parameterized SQL formatter straight to Dapper now get ARCH006 in CI when that formatter returns an interpolated query naming a tenant table such as `dbo.Runs`, so the unscoped query is caught before it ships. No operator-visible change today.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — direct `Query(FormatRunSql(tenantId))` where the method returns an interpolated string — **hit 2026-11-08 thorough hunt #364:** `allowParameterizedCallee: true` on the `ResolveCore` invocation fold; regression `ARCH006_reports_unscoped_sql_for_direct_interpolated_method_invocation`.
 - [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromMethodInvocation` — local function in the calling method returns interpolated SQL — **hit 2026-11-08 thorough hunt #364:** same parameterized-callee fold; local-function bodies were already extracted by `TryGetSingleReturnExpression`.
 - [x] (proven) `TenantScopedQueryScopeBindingAnalyzer` — `new CommandDefinition(FormatRunSql(tenantId))` where the method returns interpolated SQL — **hit 2026-11-08 thorough hunt #364:** object creation passes the SQL argument to `Resolve`, which now folds the invocation.
 
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — locus: early return that discards both sides; input: `"SELECT … dbo.Runs …" + suffix`; wrong outcome: ARCH006 missed; reachability: SQL built by appending a runtime predicate.
-- [ ] (candidate) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — locus: `allStatic` false returns null SQL; input: `string.Concat("SELECT … dbo.Runs …", suffix)`; wrong outcome: ARCH006 missed; reachability: concat helpers in repositories.
+- [x] (superseded) `TenantScopedSqlExpressionResolver.ResolveBinaryAdd` — left literal contains `dbo.Runs` and the right operand is not static — **hit 2026-11-16 thorough hunt** (see zone header).
+- [x] (superseded) `TenantScopedSqlExpressionResolver.ResolveStringConcat` — `string.Concat` drops literal SQL when one argument is not static — **hit 2026-11-16 thorough hunt** (see zone header).
 
 - **id:** tenant-scoped-analyzer
 - **status:** open
@@ -1584,11 +1595,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs; ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests|FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerParityProbeTests
-- **hunts:** 57
-- **bugs-found:** 35
+- **hunts:** 58
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-08
-- **last-bug:** 2026-11-08 — direct `Query(FormatRunSql(tenantId))` rejected the parameterized interpolated return
+- **last-hunt:** 2026-11-16
+- **last-bug:** 2026-11-16 — `+` / `string.Concat` with non-static operand dropped static `dbo.Runs` literals
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
