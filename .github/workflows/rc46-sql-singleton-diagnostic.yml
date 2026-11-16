@@ -1,0 +1,121 @@
+name: RC46 SQL singleton hang diagnostic
+
+# Temporary, non-deploying evidence collection. Does not replace full CI or release gates.
+on:
+  push:
+    branches: [RC46]
+    paths:
+      - .github/workflows/rc46-sql-singleton-diagnostic.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rc46-sql-singleton-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  idempotency-sql-singleton:
+    name: SQL forensic - one idempotency concurrency test
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: 'LocalTesting123!'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            '**/*.csproj'
+      - name: Restore API tests
+        run: dotnet restore ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+      - name: Build API tests
+        run: dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+      - name: Wait for disposable SQL Server
+        uses: ./.github/actions/wait-for-sqlserver
+      - name: Create SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+      - name: Record slow-test discovery and exact-head selection
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/rc46-sql-singleton"
+          mkdir -p "$out"
+          git rev-parse HEAD > "$out/head.txt"
+          printf '%s\n' 'Category=Slow&FullyQualifiedName=ArchLucid.Api.Tests.CreateRunIdempotencyConcurrencyIntegrationTests.Parallel_posts_with_same_idempotency_key_yield_single_run_id' > "$out/filter.txt"
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --list-tests \
+            --filter 'Category=Slow&FullyQualifiedName!~AskThreadIntegrationTests&FullyQualifiedName!~RetrievalQuerySmokeIntegrationTests' \
+            > "$out/discovered-slow-tests.txt" 2>&1
+          grep -F 'Parallel_posts_with_same_idempotency_key_yield_single_run_id' "$out/discovered-slow-tests.txt"
+      - name: Run singleton with bounded diagnostics and live SQL wait sampling
+        timeout-minutes: 58
+        env:
+          ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+          ARCHLUCID_INTEGRATION_TEST_DIAG: '1'
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/rc46-sql-singleton"
+          mkdir -p "$out"
+          container=$(docker ps --filter 'ancestor=mcr.microsoft.com/mssql/server:2022-latest' --format '{{.ID}}' | head -n 1)
+          if [ -z "$container" ]; then echo 'SQL service container not found' > "$out/diagnostic-error.txt"; exit 1; fi
+          (
+            while true; do
+              printf '\n---- SQL sample UTC %s ----\n' "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$out/sql-waits.log"
+              docker exec "$container" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -W \
+                -Q "SET NOCOUNT ON; SELECT session_id, blocking_session_id, wait_type, wait_time, status, command FROM sys.dm_exec_requests WHERE session_id > 50 ORDER BY wait_time DESC; SELECT request_session_id, resource_type, request_mode, request_status FROM sys.dm_tran_locks WHERE request_status = 'WAIT';" \
+                >> "$out/sql-waits.log" 2>&1 || true
+              sleep 20
+            done
+          ) &
+          sampler_pid=$!
+          trap 'kill "$sampler_pid" 2>/dev/null || true' EXIT
+          filter='Category=Slow&FullyQualifiedName=ArchLucid.Api.Tests.CreateRunIdempotencyConcurrencyIntegrationTests.Parallel_posts_with_same_idempotency_key_yield_single_run_id'
+          set +e
+          timeout --signal=TERM --kill-after=30s 53m \
+            dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release \
+            --filter "$filter" --results-directory "$out" \
+            --logger 'trx;LogFileName=singleton.trx' \
+            --diag "$out/vstest.diag.log" \
+            --blame-hang --blame-hang-timeout 40min --blame-hang-dump-type mini \
+            > "$out/vstest.stdout.log" 2> "$out/vstest.stderr.log"
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > "$out/exit-code.txt"
+          cat "$out/vstest.stdout.log"
+          if [ "$rc" -ne 0 ]; then
+            echo "Diagnostic singleton exited $rc; this is NOT a release acceptance result"
+            exit "$rc"
+          fi
+          python3 - "$out/singleton.trx" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          root = ET.parse(sys.argv[1]).getroot()
+          tests = list(root.iterfind('.//{*}UnitTestResult'))
+          if len(tests) != 1 or tests[0].get('outcome') != 'Passed':
+              sys.exit(f'Expected exactly one passing, executed singleton test; got {len(tests)}: {[t.get("outcome") for t in tests]}')
+          print('Exactly one singleton passed. This diagnostic alone is not full SQL or release acceptance.')
+          PY
+      - name: Upload singleton evidence (TRX, blame, VSTest logs, SQL wait samples)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rc46-sql-idempotency-singleton-evidence
+          path: ${{ runner.temp }}/rc46-sql-singleton
+          retention-days: 3
+          if-no-files-found: warn
