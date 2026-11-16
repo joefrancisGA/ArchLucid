@@ -29,7 +29,8 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
 
         BoundedChannelOptions options = new(capacity)
         {
-            FullMode = BoundedChannelFullMode.DropWrite, SingleReader = true, SingleWriter = false
+            // TryWrite returns false on a full channel in Wait mode without blocking the producer.
+            FullMode = BoundedChannelFullMode.Wait, SingleReader = true, SingleWriter = false
         };
 
         _channel = Channel.CreateBounded<AuditEvent>(options);
