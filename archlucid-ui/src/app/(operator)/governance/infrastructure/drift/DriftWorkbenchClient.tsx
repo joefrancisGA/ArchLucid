@@ -131,6 +131,9 @@ import {
 import { DRIFT_WORKBENCH_EMPTY_INVENTORY_NOT_FAILURE_LINE } from "@/lib/infra-evidence/drift-empty-inventory-not-failure-copy";
 import { DRIFT_TERRAFORM_EXPORT_RECEIPT_ADVISORY_LINE } from "@/lib/infra-evidence/drift-terraform-export-receipt-advisory-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { DRIFT_WORKBENCH_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   formatGovernanceInfrastructureDriftCrossSubscriptionDiffDialogDescription,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
@@ -1384,6 +1387,14 @@ export function DriftWorkbenchClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-drift-two-snapshots-stored-honesty">
           {DRIFT_TWO_SNAPSHOTS_STORED_HONESTY_LINE}
         </p>
+        {isSecureNowProductLine(productLine) ? (
+          <SecureNowInfraPartialCaptureStrip
+            testId="infra-drift-partial-capture"
+            middleLine={DRIFT_WORKBENCH_PARTIAL_CAPTURE_LINE}
+            cloudConnectionsTestId="infra-drift-partial-capture-cloud"
+            extractUploadTestId="infra-drift-partial-capture-extract"
+          />
+        ) : null}
 
         {showResumeLastComparisonRow && validatedResumeLastComparison != null ? (
           <DriftResumeLastComparisonRow onResume={handleResumeLastComparison} />

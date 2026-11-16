@@ -9,3 +9,7 @@ export const PILOT_SCORECARD_OPERATIONAL_METRIC_ROI_NON_SUMMING_LINE =
 /** Beside quarterly savings estimate when shown under the annual headline. */
 export const PILOT_SCORECARD_QUARTERLY_BAND_ROI_NON_SUMMING_LINE =
   "Quarterly estimate is not additive with the annual headline or other KPI tiles — do not sum bands." as const;
+
+/** When only the annual savings headline is shown without a quarterly estimate. */
+export const PILOT_SCORECARD_ANNUAL_WITHOUT_QUARTERLY_NON_SUMMING_LINE =
+  "Annual headline is not a sum of quarters when no quarterly estimate is shown — do not invent quarter bands to add." as const;

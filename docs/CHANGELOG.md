@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 62 (batch 27): Infra workbench partial capture and scorecard annual discipline
+
+**Outcome.** Drift and diagram reconcile workbenches, path inspect, decision register empty, first-review prerequisites, and resource hub Terraform tab repeat partial-capture recovery or advisory-not-apply discipline. Scorecard savings hero states annual headline is not a sum of quarters when no quarterly estimate is shown.
+
+**Surfaces.** Drift, diagram reconcile, resource hub Terraform, path inspect, decision register empty, first-review guide, architecture scorecard savings hero, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 61 (batch 26): Satellite partial-capture honesty
 
 **Outcome.** Workspace health, findings empty queue, extract-upload accepted panel, remediation workbench, Infrastructure Ask drawer, collection second-capture, and attack path report name partial capture and recovery discipline. Execute advisory repeats gap posture under partial snapshots.

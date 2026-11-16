@@ -11,6 +11,7 @@ import {
   PILOT_SCORECARD_HEADLINE_BAND_ROI_NON_SUMMING_LINE,
   PILOT_SCORECARD_OPERATIONAL_METRIC_ROI_NON_SUMMING_LINE,
   PILOT_SCORECARD_QUARTERLY_BAND_ROI_NON_SUMMING_LINE,
+  PILOT_SCORECARD_ANNUAL_WITHOUT_QUARTERLY_NON_SUMMING_LINE,
 } from "@/lib/scorecard/pilot-scorecard-headline-band-roi-non-summing-copy";
 import {
   REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -276,7 +277,14 @@ export function ScorecardSavingsHero({
             {PILOT_SCORECARD_QUARTERLY_BAND_ROI_NON_SUMMING_LINE}
           </p>
         </>
-      ) : null}
+      ) : (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+          data-testid="scorecard-savings-hero-annual-without-quarterly-non-summing"
+        >
+          {PILOT_SCORECARD_ANNUAL_WITHOUT_QUARTERLY_NON_SUMMING_LINE}
+        </p>
+      )}
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{detail}</p>
       <p
         className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
