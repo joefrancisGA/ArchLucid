@@ -56,10 +56,11 @@ public sealed partial class SqlFindingsSnapshotRepository
             return;
 
         await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         await SqlChunkedDapperBatch.ExecuteChunksAsync(
             connection,
-            transaction: null,
+            transaction,
             normalized.Count,
             SqlChunkedDapperBatch.DefaultMaxRowsPerCommand,
             (offset, rowCount) => FindingPriorityRankUpdateBatch.BuildChunk(
@@ -69,5 +70,7 @@ public sealed partial class SqlFindingsSnapshotRepository
                 offset,
                 rowCount),
             ct).ConfigureAwait(false);
+
+        await transaction.CommitAsync(ct).ConfigureAwait(false);
     }
 }
