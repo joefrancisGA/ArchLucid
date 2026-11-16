@@ -95,7 +95,7 @@ public sealed class InternalCrossTenantAnalyticsController(
                 CorrelationId = HttpContext.TraceIdentifier,
                 DataJson = JsonSerializer.Serialize(new { rollupDate = date.ToString("yyyy-MM-dd") }),
             },
-            cancellationToken);
+            CancellationToken.None);
 
         return NoContent();
     }
