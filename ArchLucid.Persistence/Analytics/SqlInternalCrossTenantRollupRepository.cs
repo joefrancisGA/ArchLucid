@@ -82,7 +82,7 @@ public sealed class SqlInternalCrossTenantRollupRepository(
                     sql,
                     new
                     {
-                        RollupDate = row.RollupDate,
+                        RollupDate = row.RollupDate.ToDateTime(TimeOnly.MinValue),
                         AnalyticsTenantKey = row.AnalyticsTenantKey,
                         row.TotalRunsNonArchived,
                         row.TotalCompletedRuns,
@@ -122,7 +122,7 @@ public sealed class SqlInternalCrossTenantRollupRepository(
                            """;
 
         IEnumerable<RollupDailyDbRow> rows = await connection.QueryAsync<RollupDailyDbRow>(
-            new CommandDefinition(sql, new { RollupDate = rollupDate }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { RollupDate = rollupDate.ToDateTime(TimeOnly.MinValue) }, cancellationToken: cancellationToken));
 
         return rows.Select(MapRow).ToList();
     }
@@ -130,7 +130,7 @@ public sealed class SqlInternalCrossTenantRollupRepository(
     private static InternalCrossTenantRollupDailyRow MapRow(RollupDailyDbRow row) =>
         new()
         {
-            RollupDate = row.RollupDate,
+            RollupDate = DateOnly.FromDateTime(row.RollupDate),
             AnalyticsTenantKey = row.AnalyticsTenantKey.Trim(),
             TotalRunsNonArchived = row.TotalRunsNonArchived,
             TotalCompletedRuns = row.TotalCompletedRuns,
@@ -142,7 +142,7 @@ public sealed class SqlInternalCrossTenantRollupRepository(
 
     private sealed class RollupDailyDbRow
     {
-        public DateOnly RollupDate
+        public DateTime RollupDate
         {
             get;
             init;
