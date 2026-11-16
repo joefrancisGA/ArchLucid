@@ -31,6 +31,25 @@ public sealed class InMemoryCollectionTriggerClaimRepositoryTests
     }
 
     [Fact]
+    public async Task TryReserveAsync_canceled_request_leaves_key_available_for_retry()
+    {
+        InMemoryCollectionTriggerClaimRepository repository = new();
+        ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        Guid retryRunId = Guid.NewGuid();
+
+        Func<Task> reserve = () => repository.TryReserveAsync(
+            scope, "canceled", Guid.NewGuid(), new CancellationToken(canceled: true));
+
+        await reserve.Should().ThrowAsync<OperationCanceledException>();
+        (bool acquired, Guid storedRunId, byte state) =
+            await repository.TryReserveAsync(scope, "canceled", retryRunId);
+
+        acquired.Should().BeTrue();
+        storedRunId.Should().Be(retryRunId);
+        state.Should().Be(0);
+    }
+
+    [Fact]
     public async Task ReconcilePersistedRunAsync_marks_matching_pending_claim_scheduled()
     {
         InMemoryCollectionTriggerClaimRepository repository = new();
