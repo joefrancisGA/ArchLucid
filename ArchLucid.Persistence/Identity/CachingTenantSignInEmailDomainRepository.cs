@@ -70,7 +70,7 @@ public sealed class CachingTenantSignInEmailDomainRepository(
             _hotPathReadCache,
             record.TenantId,
             record.NormalizedDomain,
-            cancellationToken);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -83,7 +83,7 @@ public sealed class CachingTenantSignInEmailDomainRepository(
             _hotPathReadCache,
             record.TenantId,
             record.NormalizedDomain,
-            cancellationToken);
+            CancellationToken.None);
     }
 }
 

@@ -306,6 +306,47 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
         (await repo.TryGetAsync(tenantId, CancellationToken.None))!.IssuerUri.Should().Be("https://login.example/");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TenantSignInEmailDomain_committed_write_evicts_cache_after_request_cancellation(bool update)
+    {
+        using CancellationTokenSource request = new();
+        TenantSignInEmailDomainRecord record = new()
+        {
+            TenantId = Guid.NewGuid(),
+            DisplayDomain = "example.com",
+            NormalizedDomain = "EXAMPLE.COM",
+            CreatedUtc = TimeProvider.System.GetUtcNow()
+        };
+
+        Mock<ITenantSignInEmailDomainRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repository => repository.InsertAsync(record, request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+        inner.Setup(repository => repository.UpdateAsync(record, request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(value => value.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, CancellationToken token) =>
+                token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
+
+        CachingTenantSignInEmailDomainRepository repository = new(inner.Object, cache.Object);
+
+        if (update)
+            await repository.UpdateAsync(record, request.Token);
+        else
+            await repository.InsertAsync(record, request.Token);
+
+        cache.Verify(value => value.RemoveAsync(
+            HotPathCacheKeys.TenantSignInEmailDomainListByTenant(record.TenantId), CancellationToken.None), Times.Once);
+        cache.Verify(value => value.RemoveAsync(
+            HotPathCacheKeys.TenantSignInEmailDomainByNormalized(record.NormalizedDomain), CancellationToken.None), Times.Once);
+        cache.Verify(value => value.RemoveAsync(
+            HotPathCacheKeys.TenantSignInEmailDomainByTenantAndNormalized(record.TenantId, record.NormalizedDomain),
+            CancellationToken.None), Times.Once);
+    }
+
     [Fact]
     public async Task TenantSignInEmailDomain_FindByNormalizedDomainAsync_refreshes_after_insert()
     {
