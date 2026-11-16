@@ -237,6 +237,9 @@ public interface IRunRepository
     /// </summary>
     Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct);
 
+    /// <summary>Archives an active run in the caller's scope only while it has no golden manifest.</summary>
+    Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct);
+
     /// <summary>
     ///     Counts runs in <paramref name="scope" /> for <paramref name="architectureRequestId" /> that are not archived
     ///     and whose <see cref="RunRecord.LegacyRunStatus" /> is not terminal (<see cref="ArchitectureRunStatus.Committed" />

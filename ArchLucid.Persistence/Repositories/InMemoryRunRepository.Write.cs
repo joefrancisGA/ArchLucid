@@ -141,6 +141,29 @@ public sealed partial class InMemoryRunRepository
     }
 
     /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.MatchesScope(run, scope))
+            return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
+
+        lock (run)
+        {
+            if (run.ArchivedUtc is not null)
+                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [runId], new()));
+
+            if (run.GoldenManifestId is not null)
+                return Task.FromResult(RunArchiveByIdsOutcome.Assemble([runId], [], [], new()));
+
+            run.ArchivedUtc = TimeProvider.System.UtcNowDateTime();
+            return Task.FromResult(RunArchiveByIdsOutcome.Assemble(
+                [runId], [RunRepositoryCore.ToArchivedRunScopeRow(run)], [], new()));
+        }
+    }
+
+    /// <inheritdoc />
     public Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,
@@ -213,14 +236,20 @@ public sealed partial class InMemoryRunRepository
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (!_store.TryGetValue(runId, out RunRecord? run) || !RunRepositoryCore.IsActiveInScope(run, scope))
+        if (!_store.TryGetValue(runId, out RunRecord? run))
             return Task.CompletedTask;
 
-        run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-        run.CompletedUtc ??= completedUtc;
+        lock (run)
+        {
+            if (!RunRepositoryCore.IsActiveInScope(run, scope))
+                return Task.CompletedTask;
 
-        if (run.GoldenManifestId is null || run.GoldenManifestId == Guid.Empty)
-            run.GoldenManifestId = goldenManifestId;
+            run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            run.CompletedUtc ??= completedUtc;
+
+            if (run.GoldenManifestId is null || run.GoldenManifestId == Guid.Empty)
+                run.GoldenManifestId = goldenManifestId;
+        }
 
         return Task.CompletedTask;
     }
