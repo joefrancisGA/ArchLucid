@@ -223,6 +223,41 @@ public sealed class AzureInventoryDiffServiceTests
         result.ConsumerFanOutSucceeded.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task ComputeAndPersistDiffAsync_reports_tag_changes_when_topology_hashes_match()
+    {
+        ScopeContext scope = CreateScope();
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        byte[] sharedHash = [0x01, 0x02, 0x03];
+        const string armId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(repository => repository.TryGetSnapshotDetailAsync(
+                MatchesScope(scope), snapshotAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildSnapshot(snapshotAId, Guid.NewGuid(), armId, "prod", sharedHash));
+        snapshots.Setup(repository => repository.TryGetSnapshotDetailAsync(
+                MatchesScope(scope), snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildSnapshot(snapshotBId, Guid.NewGuid(), armId, "staging", sharedHash));
+        Mock<IAzureInventoryDiffRepository> diffs = new();
+        diffs.Setup(repository => repository.InsertDiffAsync(
+                scope, It.IsAny<AzureInventoryDiffPersistRequest>(), CancellationToken.None))
+            .ReturnsAsync((ScopeContext _, AzureInventoryDiffPersistRequest request, CancellationToken _) =>
+                new AzureInventoryDiffPersistResult { DiffId = request.DiffId, Summary = request.Summary });
+        RecordingDiffConsumer consumer = new();
+        AzureInventoryDiffService service = CreateService(diffs.Object, snapshots.Object, [consumer]);
+
+        AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(scope, snapshotAId, snapshotBId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Summary!.TotalChanges.Should().Be(1);
+        result.Changes.Should().ContainSingle(change =>
+            change.ChangeType == AzureInventoryChangeType.TagChanged
+            && change.OldValue == "prod"
+            && change.NewValue == "staging");
+        consumer.LastChanges.Should().BeEquivalentTo(result.Changes);
+    }
+
     private static AzureInventoryDiffService CreateService(
         IAzureInventoryDiffRepository diffRepository,
         IAzureInventorySnapshotRepository? snapshotRepository,
@@ -273,7 +308,8 @@ public sealed class AzureInventoryDiffServiceTests
         Guid snapshotId,
         Guid resourceRowId,
         string armId,
-        string tagValue)
+        string tagValue,
+        byte[]? contentHash = null)
     {
         return new AzureInventorySnapshotDetailReadModel
         {
@@ -283,6 +319,7 @@ public sealed class AzureInventoryDiffServiceTests
                 TenantId = Guid.NewGuid(),
                 SubscriptionId = "sub",
                 CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                ContentHashSha256 = contentHash,
             },
             Resources =
             [

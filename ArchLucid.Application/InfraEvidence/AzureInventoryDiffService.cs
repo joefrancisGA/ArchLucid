@@ -72,17 +72,16 @@ public sealed class AzureInventoryDiffService(
                 };
             }
 
-            if (snapshotA.Header.ContentHashSha256 is not null
-                && snapshotB.Header.ContentHashSha256 is not null
-                && snapshotA.Header.ContentHashSha256.SequenceEqual(snapshotB.Header.ContentHashSha256))
-            {
-                return await PersistEmptyDiffAsync(scope, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId, cancellationToken);
-            }
-
+            // The topology hash omits evidence such as tags and role assignments.
             List<AzureInventoryChangeRecord> changes = AzureInventoryChangeAttributionResolver.Enrich(
                 AzureInventoryDiffComparer.Compare(snapshotA, snapshotB, snapshotAId, snapshotBId),
                 snapshotA,
                 snapshotB);
+
+            if (changes.Count == 0)
+            {
+                return await PersistEmptyDiffAsync(scope, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId, cancellationToken);
+            }
 
             Guid diffId = Guid.NewGuid();
             AzureInventoryDiffSummaryRecord summary = BuildSummary(diffId, changes, snapshotAId, snapshotBId, snapshotA.Header.SubscriptionId);
