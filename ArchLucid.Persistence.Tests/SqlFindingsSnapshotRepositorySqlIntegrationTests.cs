@@ -4,6 +4,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -933,6 +934,71 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Findings.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task UpdatePriorityRanksAsync_rolls_back_prior_chunks_if_a_later_chunk_fails()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        CancellationToken ct = CancellationToken.None;
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(ct);
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, ct);
+
+        Guid findingsId = Guid.NewGuid();
+        int chunkSize = SqlChunkedDapperBatch.DefaultMaxRowsPerCommand;
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = new DateTime(2026, 11, 16, 12, 0, 0, DateTimeKind.Utc),
+            SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
+            Findings = Enumerable.Range(0, chunkSize + 1).Select(i => new Finding
+            {
+                FindingId = $"rank-{i}",
+                FindingType = "RequirementFinding",
+                Category = "Requirement",
+                EngineType = "TestEngine",
+                Severity = FindingSeverity.Warning,
+                Title = $"Finding {i}",
+                Rationale = "Fixture",
+            }).ToList(),
+        };
+
+        FindingsSnapshotMigrator.Apply(snapshot);
+        await repository.SaveAsync(snapshot, ct);
+
+        string constraint = $"CK_TestPriorityRank_{findingsId:N}";
+        await connection.ExecuteAsync($"""
+            ALTER TABLE dbo.FindingRecords ADD CONSTRAINT {constraint}
+            CHECK (FindingsSnapshotId <> '{findingsId:D}' OR PriorityRank >= 0);
+            """);
+        try
+        {
+            List<(string FindingId, int PriorityRank)> ranks = snapshot.Findings
+                .Select((finding, i) => (finding.FindingId, PriorityRank: i == chunkSize ? -1 : i))
+                .ToList();
+
+            SqlException error = await Assert.ThrowsAsync<SqlException>(() =>
+                repository.UpdatePriorityRanksAsync(Empty.GetCurrentScope(), findingsId, ranks, ct));
+            error.Number.Should().Be(547);
+
+            int?[] storedRanks = (await connection.QueryAsync<int?>(
+                "SELECT PriorityRank FROM dbo.FindingRecords WHERE FindingsSnapshotId = @findingsId;",
+                new { findingsId })).ToArray();
+            storedRanks.Should().HaveCount(chunkSize + 1).And.OnlyContain(rank => rank == null);
+        }
+        finally
+        {
+            await connection.ExecuteAsync($"ALTER TABLE dbo.FindingRecords DROP CONSTRAINT {constraint};");
+        }
     }
 
     private static async Task SeedAuthorityParentsAsync(
