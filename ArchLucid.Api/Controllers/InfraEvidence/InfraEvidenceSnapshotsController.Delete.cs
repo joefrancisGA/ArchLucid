@@ -38,6 +38,7 @@ public sealed partial class InfraEvidenceSnapshotsController
 
             if (result.Outcome == AzureInventorySnapshotDeleteOutcome.Deleted)
             {
+                // The delete has committed, so a client disconnect must not suppress its audit event.
                 await _auditService.LogAsync(
                     new AuditEvent
                     {
@@ -47,7 +48,7 @@ public sealed partial class InfraEvidenceSnapshotsController
                         EventType = AuditEventTypes.AzureInventorySnapshotDeleted,
                         DataJson = System.Text.Json.JsonSerializer.Serialize(new { snapshotId }),
                     },
-                    cancellationToken);
+                    CancellationToken.None);
             }
 
             return MapDeleteSnapshotResult(snapshotId, result);
