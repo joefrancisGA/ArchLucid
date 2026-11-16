@@ -76,7 +76,8 @@ public sealed class CollectionRunIngestService(
             correlationId: null,
             maxAcceptedZipBytes: AzureExtractorIngestService.MaxUploadedZipBytes);
 
-        collectionRun = importResult.Succeeded
+        bool snapshotImported = importResult.Succeeded && importResult.SnapshotId.HasValue;
+        collectionRun = snapshotImported
             ? collectionRun with
             {
                 Status = CollectionRunStatus.Imported,
@@ -86,12 +87,14 @@ public sealed class CollectionRunIngestService(
             : WithStatus(
                 collectionRun,
                 importResult.IsSchemaRejection ? CollectionRunStatus.Rejected : CollectionRunStatus.Failed,
-                importResult.FailureDetail);
+                importResult.Succeeded
+                    ? "The uploaded package did not produce an inventory snapshot."
+                    : importResult.FailureDetail);
 
         // A successful import has already written the snapshot. Preserve its link if the caller disconnects.
         await _collectionRunRepository.UpsertAsync(
             collectionRun,
-            importResult.Succeeded ? CancellationToken.None : cancellationToken);
+            snapshotImported ? CancellationToken.None : cancellationToken);
         return collectionRun;
     }
 

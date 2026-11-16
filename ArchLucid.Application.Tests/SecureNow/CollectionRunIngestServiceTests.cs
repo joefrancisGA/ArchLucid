@@ -50,6 +50,20 @@ public sealed class CollectionRunIngestServiceTests
     }
 
     [Fact]
+    public async Task PackageSavedWithoutSnapshotDoesNotCountAsImported()
+    {
+        Mock<ICollectionRunRepository> repository = CreateRepository(false);
+        CollectionRunIngestService service = CreateService(repository, CreateImporter(null));
+
+        CollectionRun result = await service.IngestAsync(CreateArtifact(Guid.NewGuid()));
+
+        result.Status.Should().Be(CollectionRunStatus.Failed);
+        result.ImportedSnapshotId.Should().BeNull();
+        result.ErrorSummary.Should().Be("The uploaded package did not produce an inventory snapshot.");
+        repository.Verify(store => store.UpsertAsync(result, CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task SuccessfulImportPreservesSnapshotLinkWhenCancellationArrives()
     {
         using CancellationTokenSource cancellation = new();
@@ -339,7 +353,7 @@ public sealed class CollectionRunIngestServiceTests
         return repository;
     }
 
-    private static Mock<IAzureExtractorIngestService> CreateImporter(Guid snapshotId)
+    private static Mock<IAzureExtractorIngestService> CreateImporter(Guid? snapshotId)
     {
         Mock<IAzureExtractorIngestService> importer = new();
         importer
