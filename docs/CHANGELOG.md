@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-16 - Score lift round 61 (batch 26): Satellite partial-capture honesty
+
+**Outcome.** Workspace health, findings empty queue, extract-upload accepted panel, remediation workbench, Infrastructure Ask drawer, collection second-capture, and attack path report name partial capture and recovery discipline. Execute advisory repeats gap posture under partial snapshots.
+
+**Surfaces.** Workspace health, governance findings empty, extract upload, remediation workbench, infrastructure Ask drawer, collection setup second capture, attack path report, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 60 (batch 25): Shared partial-capture recovery links and admin spine honesty
 
 **Outcome.** `SecureNowPartialCaptureRecoveryLinks` centralizes snapshot id plus cloud connections and extract-upload CTAs with return path. Home, findings, help, factory, sponsor flows, and collection ready states consume the shared component. Admin spine pages (first hour, self-service, pilot spine) and cloud connections show partial-capture recovery when setup is ready but the latest snapshot had gaps. Simulator output states breakdown does not re-run capture.

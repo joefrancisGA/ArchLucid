@@ -30,6 +30,7 @@ import {
 } from "./remediation-factory-attack-path-report-copy";
 import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
   ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
@@ -101,6 +102,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
             testId="attack-path-report-partial-capture"
             partialCaptureSnapshotId={props.partialCaptureSnapshotId ?? null}
             returnPath={partialCaptureReturnPath}
+            middleLine={REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE}
             cloudConnectionsTestId="attack-path-report-partial-capture-cloud-connections"
             extractUploadTestId="attack-path-report-partial-capture-extract-upload"
           />
