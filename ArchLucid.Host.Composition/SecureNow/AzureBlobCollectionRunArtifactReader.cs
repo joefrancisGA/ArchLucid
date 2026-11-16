@@ -134,6 +134,8 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         {
             using JsonDocument document = JsonDocument.Parse(content);
             JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                return null;
 
             if (!Guid.TryParse(GetString(root, "runId"), out Guid runId))
                 return null;

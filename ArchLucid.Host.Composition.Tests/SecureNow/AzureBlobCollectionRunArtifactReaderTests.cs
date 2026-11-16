@@ -76,6 +76,18 @@ public sealed class AzureBlobCollectionRunArtifactReaderTests
         manifest.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("[]")]
+    [InlineData("null")]
+    [InlineData("\"manifest\"")]
+    public void ParseManifestContent_skips_valid_json_with_a_non_object_root(string content)
+    {
+        CollectionRunManifest? manifest = AzureBlobCollectionRunArtifactReader.ParseManifestContent(
+            BinaryData.FromString(content));
+
+        manifest.Should().BeNull();
+    }
+
     [Fact]
     public async Task ReadManifestAsync_returns_null_when_manifest_blob_download_fails()
     {
