@@ -41,7 +41,7 @@ public sealed partial class AuditController
 
         CursorPagedResponse<AuditEvent> page = ToCursorPage(rows, clampedTake);
         string fingerprint = $"audit|take={clampedTake}|cursor={cursor}";
-        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, fingerprint);
+        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, $"{fingerprint}|hasMore={page.HasMore}");
 
         return this.OkWithConditionalEtag(page, etag);
     }
@@ -137,7 +137,7 @@ public sealed partial class AuditController
         CursorPagedResponse<AuditEvent> page = ToCursorPage(rows, clampedTake);
         string fingerprint =
             $"audit-search|take={clampedTake}|cursor={cursor}|eventType={eventType}|from={fromUtc:O}|to={toUtc:O}|before={effectiveBeforeUtc:O}|beforeId={effectiveBeforeEventId}|corr={correlationId}|actor={actorUserId}|run={runId}|data={includeDataJson}";
-        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, fingerprint);
+        string etag = ConditionalGetNegotiation.ComputeAuditPageEtag(page.Items, $"{fingerprint}|hasMore={page.HasMore}");
 
         return this.OkWithConditionalEtag(page, etag);
     }
