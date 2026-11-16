@@ -17,13 +17,14 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useCollectionRunsQuery, useTriggerCollectionRunMutation } from "@/hooks/use-collection-runs-query";
 import {
+  collectionRunTimeMs,
   formatCollectionRunDuration,
   formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
   resolveCollectionAgentStaleSuccessDetail,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
-import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
@@ -45,7 +46,8 @@ import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-fail
 import { cn } from "@/lib/utils";
 
 function collectionRunSortTime(run: CollectionRun): number {
-  return parseIsoUtcMs(run.finishedUtc ?? run.startedUtc ?? "");
+  const time = collectionRunTimeMs(run);
+  return Number.isFinite(time) ? time : Number.NEGATIVE_INFINITY;
 }
 
 function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
@@ -53,7 +55,13 @@ function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
     const leftRunning = left.status === "Running" ? 1 : 0;
     const rightRunning = right.status === "Running" ? 1 : 0;
 
-    return rightRunning - leftRunning || collectionRunSortTime(right) - collectionRunSortTime(left);
+    if (leftRunning !== rightRunning) {
+      return rightRunning - leftRunning;
+    }
+
+    const leftTime = collectionRunSortTime(left);
+    const rightTime = collectionRunSortTime(right);
+    return leftTime === rightTime ? 0 : rightTime - leftTime;
   });
 }
 

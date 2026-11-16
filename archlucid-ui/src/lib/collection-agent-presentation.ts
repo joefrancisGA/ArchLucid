@@ -10,7 +10,7 @@ export type CollectionAgentHealth = {
   readonly successfulRun: CollectionRun | null;
 };
 
-function runTimeMs(run: CollectionRun): number {
+export function collectionRunTimeMs(run: CollectionRun): number {
   const finishTime = parseIsoUtcMs(run.finishedUtc ?? "");
   return Number.isFinite(finishTime) ? finishTime : parseIsoUtcMs(run.startedUtc ?? "");
 }
@@ -20,7 +20,7 @@ function newestRun(runs: readonly CollectionRun[]): CollectionRun | null {
   let newestTime = Number.NEGATIVE_INFINITY;
 
   for (const run of runs) {
-    const time = runTimeMs(run);
+    const time = collectionRunTimeMs(run);
     if (newest === null || time > newestTime) {
       newest = run;
       newestTime = Number.isFinite(time) ? time : Number.NEGATIVE_INFINITY;
@@ -44,7 +44,7 @@ export function resolveCollectionAgentHealth(
     return { kind: "blocked", label: "No successful run stored", successfulRun: null };
   }
 
-  const successTime = runTimeMs(successfulRun);
+  const successTime = collectionRunTimeMs(successfulRun);
   if (
     !Number.isFinite(successTime)
     || latestRun?.status === "Failed"
@@ -84,7 +84,7 @@ export function resolveCollectionAgentStaleSuccessDetail(
 
   const successfulRun = health.successfulRun;
 
-  if (successfulRun !== null && nowMs - runTimeMs(successfulRun) > expectedIntervalMs) {
+  if (successfulRun !== null && nowMs - collectionRunTimeMs(successfulRun) > expectedIntervalMs) {
     return COLLECTION_AGENT_STALE_SUCCESS_NEEDS_ATTENTION_DETAIL;
   }
 
