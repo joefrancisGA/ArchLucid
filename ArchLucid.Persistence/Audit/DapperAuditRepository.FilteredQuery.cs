@@ -58,7 +58,7 @@ public sealed partial class DapperAuditRepository
     {
         ArgumentNullException.ThrowIfNull(filter);
 
-        int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        int take = filter.ResolveListFetchSize();
 
         // RCSI-backed read committed: no dirty reads on audit listing (see migration 091).
         string selectPrefix = filter.IncludeDataJson
