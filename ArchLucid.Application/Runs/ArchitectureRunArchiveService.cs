@@ -70,7 +70,7 @@ public sealed class ArchitectureRunArchiveService(
         }
 
         RunArchiveByIdsResult batch = await _runRepository
-            .ArchiveRunsByIdsAsync([runId], cancellationToken)
+            .ArchiveUnsealedRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         if (batch.SucceededRunIds.Count == 0)
@@ -79,9 +79,12 @@ public sealed class ArchitectureRunArchiveService(
                 .GetByIdIncludingArchivedAsync(scope, runId, cancellationToken)
                 .ConfigureAwait(false);
 
-            return latest?.ArchivedUtc is not null
-                ? ArchitectureRunArchiveOutcome.AlreadyArchived
-                : ArchitectureRunArchiveOutcome.NotFound;
+            return latest switch
+            {
+                { ArchivedUtc: not null } => ArchitectureRunArchiveOutcome.AlreadyArchived,
+                { GoldenManifestId: not null } => ArchitectureRunArchiveOutcome.SealedReviewBlocked,
+                _ => ArchitectureRunArchiveOutcome.NotFound,
+            };
         }
 
         string actor = _actorContext.GetActor();

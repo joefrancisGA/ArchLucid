@@ -87,7 +87,20 @@ public sealed partial class CachingRunRepository
     public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
     {
         RunArchiveByIdsResult result = await _inner.ArchiveRunsByIdsAsync(runIds, ct);
+        await InvalidateArchiveByIdsAsync(result);
+        return result;
+    }
 
+    /// <inheritdoc />
+    public async Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        RunArchiveByIdsResult result = await _inner.ArchiveUnsealedRunAsync(scope, runId, ct);
+        await InvalidateArchiveByIdsAsync(result);
+        return result;
+    }
+
+    private async Task InvalidateArchiveByIdsAsync(RunArchiveByIdsResult result)
+    {
         await InvalidateRunListCachesForArchivedRowsAsync(result.ArchivedRuns, CancellationToken.None);
 
         foreach (ArchivedRunScopeRow row in result.ArchivedRuns)
@@ -96,8 +109,6 @@ public sealed partial class CachingRunRepository
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, CancellationToken.None);
         }
-
-        return result;
     }
 
     private async Task InvalidateRunListCachesForArchivedRowsAsync(
