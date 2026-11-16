@@ -2,6 +2,7 @@ using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
+using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
 
@@ -106,6 +107,26 @@ public sealed class HotPathCacheRegistrationTests
 
         services.Should().Contain(static d => d.ServiceType == typeof(IDistributedCache));
         services.Should().Contain(static d => d.ImplementationType == typeof(HotPathRedisDistributedCacheHostedLogger));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void RegisterReferenceDataHotPathRepositories_reads_tenant_cost_settings_directly(bool cacheEnabled)
+    {
+        ServiceCollection services = [];
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["HotPathCache:Enabled"] = cacheEnabled.ToString(),
+            })
+            .Build();
+
+        ArchLucidStorageServiceCollectionExtensions.RegisterReferenceDataHotPathRepositories(services, configuration);
+
+        ServiceDescriptor registration = services.Should()
+            .ContainSingle(d => d.ServiceType == typeof(ITenantCostSettingsRepository)).Which;
+        registration.ImplementationType.Should().Be(typeof(DapperTenantCostSettingsRepository));
     }
 
     [Theory]
