@@ -48,19 +48,22 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         await drainWorker.DrainInFlightAsync();
     }
 
-    private Task DispatchAsync(ArchitectureRunAsyncOperationWorkItem item, CancellationToken cancellationToken)
+    private async Task DispatchAsync(ArchitectureRunAsyncOperationWorkItem item, CancellationToken cancellationToken)
     {
+        using IDisposable _ = AmbientScopeContext.Push(item.Scope);
+
         if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
         {
-            return createCompletionWorker.ProcessCreateBoundedAsync(
+            await createCompletionWorker.ProcessCreateBoundedAsync(
                 item,
                 ProcessWorkItemAndReleaseAsync,
                 TryMarkCreateFailedAsync,
                 registrar,
                 cancellationToken);
+            return;
         }
 
-        return executeReplayWorker.ProcessExecuteOrReplayAsync(
+        await executeReplayWorker.ProcessExecuteOrReplayAsync(
             item,
             ProcessWorkItemAndReleaseAsync,
             (workItem, ct) => createCompletionWorker.WaitForCreateIfNeededAsync(workItem, registrar, ct),
@@ -168,7 +171,6 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
     private async Task ProcessWorkItemAsync(ArchitectureRunAsyncOperationWorkItem item, CancellationToken cancellationToken)
     {
         await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-        using IDisposable _ = AmbientScopeContext.Push(item.Scope);
 
         string operationRunId = item.Kind == ArchitectureRunAsyncOperationKind.Replay
             ? item.PreparedReplayRunId ?? item.RunId
