@@ -9,7 +9,10 @@ import {
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
-import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
+import {
+  getOperatorScopeQueryKeySnapshot,
+  parseOperatorScopeQueryKey,
+} from "@/lib/operator/operator-scope-query-key";
 
 export const collectionRunsQueryKeys = {
   list: (scopeKey: ReturnType<typeof useOperatorScopeQueryKey>) =>
@@ -32,7 +35,6 @@ export function useCollectionRunsQuery() {
 
 export function useTriggerCollectionRunMutation() {
   const queryClient = useQueryClient();
-  const scopeKey = useOperatorScopeQueryKey();
   const pendingKeys = useRef(new Map<string, string>());
 
   return useMutation({
@@ -45,10 +47,11 @@ export function useTriggerCollectionRunMutation() {
       if (pendingKeys.current.get(scopeId) === key) {
         pendingKeys.current.delete(scopeId);
       }
+      await queryClient.invalidateQueries({
+        queryKey: collectionRunsQueryKeys.list(parseOperatorScopeQueryKey(scopeId)),
+        refetchType: scopeId === getOperatorScopeQueryKeySnapshot() ? "active" : "none",
+      });
       return run;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: collectionRunsQueryKeys.list(scopeKey) });
     },
   });
 }
