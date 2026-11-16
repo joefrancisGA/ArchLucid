@@ -9,7 +9,8 @@ public sealed class ScimTokenRotationReminderHostedService(
     IServiceScopeFactory scopeFactory,
     IOptionsMonitor<ScimOptions> options,
     ILogger<ScimTokenRotationReminderHostedService> logger,
-    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
+    HostLeaderElectionCoordinator electionCoordinator,
+    TimeProvider? timeProvider = null) : BackgroundService
 {
     private static readonly TimeSpan Cadence = TimeSpan.FromHours(24);
 
@@ -25,6 +26,8 @@ public sealed class ScimTokenRotationReminderHostedService(
     private readonly HostLeaderElectionCoordinator _electionCoordinator =
         electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         return _electionCoordinator.RunLeaderWorkAsync(
@@ -37,7 +40,7 @@ public sealed class ScimTokenRotationReminderHostedService(
     {
         try
         {
-            await Task.Delay(TimeSpan.FromMinutes(2), leaderToken).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromMinutes(2), _timeProvider, leaderToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
         {
@@ -58,14 +61,15 @@ public sealed class ScimTokenRotationReminderHostedService(
             {
                 break;
             }
-            catch (Exception ex) when (_logger.IsEnabled(LogLevel.Error))
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "SCIM token rotation reminder scan failed.");
+                if (_logger.IsEnabled(LogLevel.Error))
+                    _logger.LogError(ex, "SCIM token rotation reminder scan failed.");
             }
 
             try
             {
-                await Task.Delay(Cadence, leaderToken).ConfigureAwait(false);
+                await Task.Delay(Cadence, _timeProvider, leaderToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
