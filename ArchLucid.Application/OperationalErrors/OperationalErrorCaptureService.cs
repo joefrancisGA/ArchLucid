@@ -1,7 +1,3 @@
-using System.Collections.Concurrent;
-
-using System.Text.Json;
-
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.OperationalErrors;
 
@@ -14,7 +10,8 @@ namespace ArchLucid.Application.OperationalErrors;
 public sealed class OperationalErrorCaptureService(
     IOperationalErrorCaptureQueue queue,
     IOptionsMonitor<OperationalErrorOptions> options,
-    ILogger<OperationalErrorCaptureService> logger) : IOperationalErrorCaptureService
+    ILogger<OperationalErrorCaptureService> logger,
+    TimeProvider? timeProvider = null) : IOperationalErrorCaptureService
 {
     private readonly IOperationalErrorCaptureQueue _queue =
         queue ?? throw new ArgumentNullException(nameof(queue));
@@ -25,7 +22,10 @@ public sealed class OperationalErrorCaptureService(
     private readonly ILogger<OperationalErrorCaptureService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private readonly ConcurrentDictionary<string, FingerprintWindow> _fingerprintWindows = new();
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+    private readonly Lock _fingerprintLock = new();
+    private Dictionary<string, int> _fingerprintWindows = new(StringComparer.Ordinal);
+    private DateTime _windowStartUtc;
 
     public void TryCapture(OperationalErrorCaptureRequest request)
     {
@@ -64,26 +64,25 @@ public sealed class OperationalErrorCaptureService(
             return false;
 
         string fingerprint = BuildFingerprint(request);
-        DateTime now = TimeProvider.System.UtcNowDateTime();
-        DateTime windowStart = new(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
-
-        FingerprintWindow window = _fingerprintWindows.GetOrAdd(fingerprint, _ => new FingerprintWindow(windowStart, 0));
-
-        lock (window)
+        lock (_fingerprintLock)
         {
-            if (window.WindowStartUtc != windowStart)
+            DateTime now = _timeProvider.UtcNowDateTime();
+            DateTime windowStart = new(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
+
+            if (_windowStartUtc != windowStart)
             {
-                window.WindowStartUtc = windowStart;
-                window.Count = 0;
+                // Replacing the map also releases capacity retained after a busy minute.
+                _fingerprintWindows = new Dictionary<string, int>(StringComparer.Ordinal);
+                _windowStartUtc = windowStart;
             }
 
-            if (window.Count >= opts.MaxCapturesPerFingerprintPerMinute)
+            _fingerprintWindows.TryGetValue(fingerprint, out int count);
+            if (count >= opts.MaxCapturesPerFingerprintPerMinute)
                 return true;
 
-            window.Count++;
+            _fingerprintWindows[fingerprint] = count + 1;
+            return false;
         }
-
-        return false;
     }
 
     private static string BuildFingerprint(OperationalErrorCaptureRequest request)
@@ -97,20 +96,5 @@ public sealed class OperationalErrorCaptureService(
             request.HttpStatusCode?.ToString() ?? string.Empty,
             request.RequestPath ?? string.Empty,
             exceptionType);
-    }
-
-    private sealed class FingerprintWindow(DateTime windowStartUtc, int count)
-    {
-        public DateTime WindowStartUtc
-        {
-            get;
-            set;
-        } = windowStartUtc;
-
-        public int Count
-        {
-            get;
-            set;
-        } = count;
     }
 }
