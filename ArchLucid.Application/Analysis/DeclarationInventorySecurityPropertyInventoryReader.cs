@@ -40,9 +40,17 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
 
         if (logicalName == DeclarationSecurityPropertyLogicalNames.HttpsOnly
             && cloudProvider is InventoryTopologyCloudProvider.Gcp
-            && TryReadNestedGcpIpConfigurationRequireSsl(properties, out string? nestedRequireSsl))
+            && TryReadNestedGcpIpConfigurationField(properties, "requireSsl", out string? nestedRequireSsl))
         {
             value = nestedRequireSsl;
+            return true;
+        }
+
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
+            && cloudProvider is InventoryTopologyCloudProvider.Gcp
+            && TryReadNestedGcpIpConfigurationField(properties, "ipv4Enabled", out string? nestedIpv4Enabled))
+        {
+            value = nestedIpv4Enabled;
             return true;
         }
 
@@ -178,7 +186,10 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
         return TryReadPropertyIgnoreCase(siteConfig, "minTlsVersion", out value);
     }
 
-    private static bool TryReadNestedGcpIpConfigurationRequireSsl(JsonElement properties, out string? value)
+    private static bool TryReadNestedGcpIpConfigurationField(
+        JsonElement properties,
+        string fieldName,
+        out string? value)
     {
         value = null;
 
@@ -189,7 +200,7 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             && settings.ValueKind is JsonValueKind.Object
             && TryGetPropertyIgnoreCase(settings, "ipConfiguration", out JsonElement ipConfiguration)
             && ipConfiguration.ValueKind is JsonValueKind.Object
-            && TryReadPropertyIgnoreCase(ipConfiguration, "requireSsl", out value))
+            && TryReadPropertyIgnoreCase(ipConfiguration, fieldName, out value))
         {
             return true;
         }
@@ -197,7 +208,7 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
         if (TryGetPropertyIgnoreCase(properties, "ipConfiguration", out JsonElement flatIpConfiguration)
             && flatIpConfiguration.ValueKind is JsonValueKind.Object)
         {
-            return TryReadPropertyIgnoreCase(flatIpConfiguration, "requireSsl", out value);
+            return TryReadPropertyIgnoreCase(flatIpConfiguration, fieldName, out value);
         }
 
         return false;

@@ -1582,6 +1582,58 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_public_network_mismatch_when_gcp_inventory_nests_ipv4_enabled_under_ip_configuration()
+    {
+        const string resourceId = "projects/demo-project/instances/pay-sql";
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-sql",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = resourceId,
+                        ["tf.ipv4_enabled"] = "false",
+                    },
+                },
+            ],
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "name": "{{resourceId}}",
+                "assetType": "sqladmin.googleapis.com/Instance",
+                "properties": {
+                  "settings": {
+                    "ipConfiguration": {
+                      "ipv4Enabled": true
+                    }
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Gcp,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.ipv4_enabled");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_detects_storage_encryption_mismatch_when_azure_declaration_uses_compacted_tf_encryptionenabled()
     {
         GraphSnapshot graph = new()
