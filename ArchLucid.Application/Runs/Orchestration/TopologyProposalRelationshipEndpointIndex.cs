@@ -110,29 +110,8 @@ public static partial class TopologyProposalRelationshipEndpointIndex
             StringComparison.OrdinalIgnoreCase);
     }
 
-    internal static bool DeclaredEndpointKeySetContains(HashSet<string> declaredEndpointKeys, string? endpoint)
-    {
-        if (string.IsNullOrWhiteSpace(endpoint))
-            return false;
-
-        string trimmed = endpoint.Trim();
-
-        if (declaredEndpointKeys.Contains(trimmed))
-            return true;
-
-        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
-
-        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase)
-            && declaredEndpointKeys.Contains(canonical))
-        {
-            return true;
-        }
-
-        string? normalizedIdentity =
-            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
-
-        return normalizedIdentity is not null && declaredEndpointKeys.Contains(normalizedIdentity);
-    }
+    internal static bool DeclaredEndpointKeySetContains(HashSet<string> declaredEndpointKeys, string? endpoint) =>
+        EndpointKeyIsKnown(endpoint, declaredEndpointKeys);
 
     internal static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {

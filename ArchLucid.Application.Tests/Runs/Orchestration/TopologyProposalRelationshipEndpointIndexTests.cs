@@ -1871,6 +1871,21 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void DeclaredEndpointKeySetContains_matches_declared_label_when_endpoint_has_zero_width_format_character()
+    {
+        const string withZeroWidth = "ap\u200Bi";
+        HashSet<string> declaredKeys = [];
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(
+            declaredKeys,
+            new ManifestService { ServiceName = "api", ServiceId = "svc-api" });
+
+        TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(declaredKeys, withZeroWidth)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void ManifestEndpointReferencesEqual_returns_false_when_either_reference_is_null()
     {
         TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, "svc-api")
