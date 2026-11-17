@@ -18,6 +18,7 @@ internal static class InfrastructureDeclarationSecurityPropertyWriter
             ["min_tls_version"] = "minTlsVersion",
             ["supportshttpstrafficonly"] = "supportsHttpsTrafficOnly",
             ["enablehttpstrafficonly"] = "enableHttpsTrafficOnly",
+            ["requiressl"] = "requireSsl",
         };
 
     internal static bool TryAddTfPropertyWithArmAlias(

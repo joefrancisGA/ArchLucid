@@ -10857,6 +10857,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-11-17 seed hunt (seed→hit): no rotation (`shouldRotate: false`; post-catalog-reset re-read `ArchLucid.Application/Analysis/` with zero open candidates). Promoted compact `tf.requiressl` on GCP topology bags — `DeclarationSecurityPropertyKeyResolver` listed HTTPS-only storage keys but not Cloud SQL–style `requireSsl` compaction, so declaration-versus-inventory transport contradictions stayed silent against inventory `requireSsl`. Added resolver aliases `tf.requiressl` / `tf.require_ssl` / `requireSsl` and ingest dual-write `requiressl` → `requireSsl`. Regressions `TryGet_resolves_compacted_tf_requiressl_for_https_only_logical_name` and `CompareQuality_Analyze_detects_https_only_mismatch_when_gcp_declaration_uses_compacted_tf_requiressl`. Reseeded five monitor `(candidate)` rows below. Scoped Compare Quality **1122/1122** + resolver **16/16** (`RunAnalyzers=false`, Release). Private beta: invited operators running GCP Compare Quality now see HTTPS/SSL transport contradictions when topology bags use compact `tf.requiressl` from Terraform ingest.
+
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.requiressl` on GCP Cloud SQL bags — **hit 2026-11-17 seed hunt:** resolver alias + ingest dual-write; regressions above. [class:other]
+
+- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.ipv4enabled` on GCP bags vs inventory `ipv4Enabled` — locus: `PublicNetworkAccess` candidate keys; input: topology bag with `tf.ipv4enabled=false` and inventory `ipv4Enabled=true`; wrong outcome: public-network contradiction stays silent; reachability: Cloud SQL / AlloyDB public IP compare.
+- [ ] (candidate) `DeclarationInventorySecurityPropertyInventoryReader` — GCP `requireSsl` nested under `ipConfiguration` when flat key absent — locus: `TryReadInventoryValue`; input: CAI export with only `settings.ipConfiguration.requireSsl`; wrong outcome: declaration `tf.require_ssl` cannot pair; reachability: defender-normalized Cloud SQL inventory rows.
+- [ ] (candidate) `CompareQualityDeltaCalculator.MapFindings` — non-muted architecture findings always map to `QualityDimension.Reliability` fails — locus: `MapFindings`; input: compare-quality delta between runs with Cost/Security architecture findings; wrong outcome: delta metrics mis-attribute specialist dimension; reachability: compare-quality delta API chrome.
+- [ ] (candidate) `CrossReviewFindingLifecycleNormalizer` — `DedupeLifecycleRecordsKeepFirstInPlace` keeps earliest duplicate record — locus: dedupe pass; input: replay export with two records for same finding id different resolution basis; wrong outcome: stale resolution basis shown; reachability: end-to-end replay comparison exports.
+- [ ] (candidate) `DeclarationInventorySecurityPropertyInventoryReader` — Azure inventory `encryptionEnabled` vs declaration `tf.encryptionenabled` only — locus: Azure storage key list; input: storage account row with `encryptionEnabled` and compact declaration without `storageEncrypted`; wrong outcome: encryption contradiction silent; reachability: storage encryption compare after compact ingest.
+
+
 2026-11-16 thorough hunt #2 (hit): no rotation (`shouldRotate: false`). Promoted compact `tf.enablehttpstrafficonly` on topology declaration bags (`DeclarationSecurityPropertyKeyResolver` resolved `tf.supportshttpstrafficonly` and snake `tf.enable_https_traffic_only` but not ARM/Bicep-compacted `enableHttpsTrafficOnly` keys, so Compare Quality skipped HTTPS-only contradictions); alias `tf.enablehttpstrafficonly`; ingestion dual-write `enablehttpstrafficonly` → `enableHttpsTrafficOnly`; regressions `TryGet_resolves_compacted_tf_enablehttpstrafficonly` and `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_compacted_tf_enablehttpstrafficonly`. Cheap-disproof closed five picker `(candidate)` rows — **valid-no-repro** omitted `publicNetworkAccess` and **SecuredByPerimeter** (hunt **2026-11-16**), **valid-no-repro** nested `properties.id` shadowing and **GraphGcp** `tf.self_link` (hunts **2026-11-08** / **2026-11-16**), **invalid** shared-key `allowSharedKeyAccess` (declaration `shared_access_key_enabled` redacted in ingest). Reseeded four monitor `(candidate)` rows below. Scoped filter **1111/1111** (`FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality`, Release, `RunAnalyzers=false`). Private beta: invited operators see declaration-versus-inventory HTTPS-only mismatches when topology bags use compact `tf.enablehttpstrafficonly` from ARM or Bicep ingest.
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — **hit 2026-11-16 thorough hunt #2:** resolver alias + ingest ARM dual-write; regressions above. [class:other]
@@ -17985,16 +17996,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `RunExportQueryFacade.CompareExportRecordsAsync` — reachable `GET /v1/architecture/review/exports/compare` bypassed `IRunExportCareerPostureGate` while `GetExportRecordAsync` blocked metadata for simulator-rehearsal runs — regression above.
 
 - **id:** application-analysis
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-17
+- **last-bug:** 2026-11-17
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
