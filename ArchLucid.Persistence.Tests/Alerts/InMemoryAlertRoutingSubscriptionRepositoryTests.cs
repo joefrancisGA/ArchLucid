@@ -89,6 +89,25 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
     }
 
     [SkippableFact]
+    public async Task UpdateAsync_preserves_a_delivery_recorded_after_settings_were_loaded()
+    {
+        InMemoryAlertRoutingSubscriptionRepository repo = new();
+        Guid id = Guid.NewGuid();
+        AlertRoutingSubscription initial = BuildSubscription(id, true, BaseUtc, "a@b.com");
+        AlertRoutingSubscription staleSettings = BuildSubscription(id, false, BaseUtc, "a@b.com");
+        DateTime deliveredUtc = BaseUtc.AddHours(1);
+
+        await repo.CreateAsync(initial, CancellationToken.None);
+        await repo.RecordDeliveryAsync(initial, deliveredUtc, CancellationToken.None);
+        await repo.UpdateAsync(staleSettings, CancellationToken.None);
+
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Scope, id, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.IsEnabled.Should().BeFalse();
+        loaded.LastDeliveredUtc.Should().Be(deliveredUtc);
+    }
+
+    [SkippableFact]
     public async Task UpdateAsync_is_no_op_when_id_not_found()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();

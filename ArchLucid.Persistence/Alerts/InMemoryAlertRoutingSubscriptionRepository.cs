@@ -21,11 +21,24 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         _ = ct;
         lock (_gate)
         {
-            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
-            int i = _items.FindIndex(x =>
+            AlertRoutingSubscription? stored = _items.Find(x =>
                 x.RoutingSubscriptionId == subscription.RoutingSubscriptionId && SameScope(x, subscription));
-            if (i >= 0)
-                _items[i] = subscription;
+            if (stored is not null)
+            {
+                stored.Name = subscription.Name;
+                stored.ChannelType = subscription.ChannelType;
+                stored.Destination = subscription.Destination;
+                stored.MinimumSeverity = subscription.MinimumSeverity;
+                stored.IsEnabled = subscription.IsEnabled;
+                stored.CreatedUtc = subscription.CreatedUtc;
+                stored.CreatedByActor = subscription.CreatedByActor;
+                stored.LastModifiedByActor = subscription.LastModifiedByActor;
+                stored.LastModifiedUtc = subscription.LastModifiedUtc;
+                stored.MetadataJson = subscription.MetadataJson;
+
+                if (stored.LastDeliveredUtc is null || subscription.LastDeliveredUtc > stored.LastDeliveredUtc)
+                    stored.LastDeliveredUtc = subscription.LastDeliveredUtc;
+            }
         }
 
         return Task.CompletedTask;
