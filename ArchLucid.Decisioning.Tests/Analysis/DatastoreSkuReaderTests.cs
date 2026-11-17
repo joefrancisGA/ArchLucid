@@ -91,6 +91,22 @@ public sealed class DatastoreSkuReaderTests
     }
 
     [Fact]
+    public void TryRead_maps_zone_redundant_when_zone_redundant_is_on_token()
+    {
+        bool parsed = DatastoreSkuReader.TryRead(
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["zoneRedundant"] = "on",
+            },
+            out DatastoreSkuTier tier,
+            out string observedSku);
+
+        parsed.Should().BeTrue();
+        tier.Should().Be(DatastoreSkuTier.ZoneRedundant);
+        observedSku.Should().Be("zoneRedundant=true");
+    }
+
+    [Fact]
     public void TryRead_maps_single_region_when_zone_redundant_is_no_token()
     {
         bool parsed = DatastoreSkuReader.TryRead(
