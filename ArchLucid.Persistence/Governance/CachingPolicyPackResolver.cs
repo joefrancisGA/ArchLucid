@@ -54,7 +54,7 @@ public sealed class CachingPolicyPackResolver(IPolicyPackResolver inner, IHotPat
             .GetOrCreateAsync(
                 revisionKey,
                 _ => Task.FromResult<PolicyPackResolverRevisionState?>(
-                    new PolicyPackResolverRevisionState { Revision = 0 }),
+                    new PolicyPackResolverRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
                 ct);
 
         return state?.Revision ?? 0;
