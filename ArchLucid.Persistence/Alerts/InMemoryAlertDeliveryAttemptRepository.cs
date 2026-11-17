@@ -38,7 +38,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertDeliveryAttempt> result = _items
@@ -58,7 +58,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<AlertDeliveryAttempt> result = _items
