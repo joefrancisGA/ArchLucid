@@ -51,7 +51,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(assignment);
+            _items.Add(Copy(assignment));
         }
 
         _logger.LogInformationPolicyPackAssignmentAssigned(assignment.PolicyPackId, assignment.TenantId,
@@ -69,7 +69,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         {
             int i = _items.FindIndex(x => x.AssignmentId == assignment.AssignmentId);
             if (i >= 0)
-                _items[i] = assignment;
+                _items[i] = Copy(assignment);
         }
 
         return Task.CompletedTask;
@@ -96,6 +96,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
                     (string.Equals(x.ScopeLevel, GovernanceScopeLevel.Project, StringComparison.Ordinal) &&
                      x.WorkspaceId == workspaceId && x.ProjectId == projectId))
                 .OrderByDescending(x => x.AssignedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPackAssignment>>(result);
         }
@@ -111,7 +112,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
             PolicyPackAssignment? row =
                 _items.FirstOrDefault(x => x.TenantId == tenantId && x.AssignmentId == assignmentId);
 
-            return Task.FromResult(row);
+            return Task.FromResult(row is null ? null : Copy(row));
         }
     }
 
@@ -144,4 +145,23 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
 
         return Task.FromResult(true);
     }
+
+    private static PolicyPackAssignment Copy(PolicyPackAssignment assignment) =>
+        new()
+        {
+            AssignmentId = assignment.AssignmentId,
+            TenantId = assignment.TenantId,
+            WorkspaceId = assignment.WorkspaceId,
+            ProjectId = assignment.ProjectId,
+            PolicyPackId = assignment.PolicyPackId,
+            PolicyPackVersion = assignment.PolicyPackVersion,
+            IsEnabled = assignment.IsEnabled,
+            ScopeLevel = assignment.ScopeLevel,
+            IsPinned = assignment.IsPinned,
+            IsOrganizationRequired = assignment.IsOrganizationRequired,
+            AssignedUtc = assignment.AssignedUtc,
+            ArchivedUtc = assignment.ArchivedUtc,
+            BlockCommitOnCritical = assignment.BlockCommitOnCritical,
+            BlockCommitMinimumSeverity = assignment.BlockCommitMinimumSeverity,
+        };
 }
