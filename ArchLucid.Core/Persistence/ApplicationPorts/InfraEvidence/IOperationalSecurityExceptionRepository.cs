@@ -94,15 +94,17 @@ public interface IOperationalSecurityExceptionRepository
             && row.ExpirationUtc > asOfUtc);
     }
 
+    /// <summary>Marks due exceptions expired and returns scoped expiry work still awaiting processing.</summary>
     async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> MarkExpiredInScopeAsync(
         ProjectScopeKey scope,
         DateTime asOfUtc,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<OperationalSecurityExceptionRecord> rows =
-            await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+        await MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
+        IReadOnlyList<OperationalSecurityExceptionRecord> rows = await ListByScopeAsync(scope, cancellationToken);
 
-        return rows.Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)).ToList();
+        return rows.Where(row => row.Status == OperationalSecurityExceptionStatus.Expired
+            && !row.ExpiryProcessedUtc.HasValue).ToList();
     }
 
     async Task MarkExpiryProcessedInScopeAsync(

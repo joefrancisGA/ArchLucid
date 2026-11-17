@@ -143,5 +143,6 @@ describe("useGuidedIntakeWizard session restore", () => {
     });
 
     expect(hydrateClarificationsFromDraft).toHaveBeenCalledWith("draft-confirm-bookmark");
+    expect(hydrateClarificationsFromDraft).toHaveBeenCalledTimes(1);
   });
 });

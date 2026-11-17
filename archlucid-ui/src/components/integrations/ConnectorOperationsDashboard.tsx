@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from "rea
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { ConnectionStatusEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusEmptyPartialHonesty";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -200,6 +201,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         title={CONNECTION_STATUS_EMPTY_STATE.title}
         description={CONNECTION_STATUS_EMPTY_STATE.description}
         testId="connection-status-empty-state"
+        footer={<ConnectionStatusEmptyPartialHonesty />}
       />
     );
   }

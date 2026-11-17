@@ -775,6 +775,36 @@ public sealed class RemediationInstanceServiceTests
         harness.Instances.Instances.Single().VerificationSnapshotId.Should().BeNull();
     }
 
+    [Fact]
+    public async Task Passing_verify_saves_the_association_when_the_caller_cancels_after_verifying()
+    {
+        using CancellationTokenSource cancellation = new();
+        Guid controlId = Guid.NewGuid();
+        Mock<IVerifiedRemediationControlAssociationRepository> associations = new();
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null, associations.Object);
+        associations.Setup(repository => repository.UpsertAsync(
+                It.IsAny<ProjectScopeKey>(), It.IsAny<VerifiedRemediationControlAssociationRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((ProjectScopeKey _, VerifiedRemediationControlAssociationRecord record, CancellationToken ct) =>
+            {
+                harness.Instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.Verified);
+                cancellation.Cancel();
+                return ct.IsCancellationRequested
+                    ? Task.FromCanceled<VerifiedRemediationControlAssociationRecord>(ct)
+                    : Task.FromResult(record);
+            });
+
+        RemediationInstanceOperationResult result = await harness.Service.VerifyAsync(
+            CreateScope(), harness.InstanceId, SnapshotB, "verifier", cancellation.Token);
+
+        result.Succeeded.Should().BeTrue();
+        associations.Verify(repository => repository.UpsertAsync(
+            CreateScope().ToProjectScopeKey(),
+            It.Is<VerifiedRemediationControlAssociationRecord>(record =>
+                record.InstanceId == harness.InstanceId && record.VerificationSnapshotId == SnapshotB && record.ControlId == controlId),
+            CancellationToken.None), Times.Once);
+    }
+
     private static async Task AssertMissingControlWritesNoRowAsync(Guid? controlId)
     {
         PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null);

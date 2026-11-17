@@ -227,22 +227,43 @@ public static class DatastoreSkuReader
             return false;
         }
 
-        if (bool.TryParse(text, out value))
+        if (TryNormalizeBooleanToken(text, out value))
         {
             return true;
         }
 
-        if (string.Equals(text, "1", StringComparison.OrdinalIgnoreCase))
+        value = false;
+
+        return false;
+    }
+
+    /// <summary>Parity with <c>GraphJsonScalarReaders.TryNormalizeBooleanString</c> for declaration bags that skip graph ingest.</summary>
+    private static bool TryNormalizeBooleanToken(string text, out bool value)
+    {
+        if (text.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("yes", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("on", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("enabled", StringComparison.OrdinalIgnoreCase))
         {
             value = true;
 
             return true;
         }
 
-        if (string.Equals(text, "0", StringComparison.OrdinalIgnoreCase))
+        if (text.Equals("false", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("0", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("no", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("off", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("disabled", StringComparison.OrdinalIgnoreCase))
         {
             value = false;
 
+            return true;
+        }
+
+        if (bool.TryParse(text, out value))
+        {
             return true;
         }
 

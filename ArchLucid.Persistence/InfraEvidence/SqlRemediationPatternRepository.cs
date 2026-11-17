@@ -66,10 +66,18 @@ public sealed partial class SqlRemediationPatternRepository(ISqlConnectionFactor
                                ApprovedByActorKey = @ApprovedByActorKey,
                                ApprovedUtc = @ApprovedUtc,
                                UpdatedUtc = @UpdatedUtc
-                           WHERE TenantId = @TenantId AND VersionId = @VersionId;
+                           WHERE TenantId = @TenantId AND PatternId = @PatternId AND VersionId = @VersionId;
+
+                           IF @@ROWCOUNT = 1 AND @Status <> @ApprovedStatus
+                               UPDATE dbo.RemediationPatterns
+                               SET CurrentApprovedVersion = NULL, UpdatedUtc = @UpdatedUtc
+                               WHERE TenantId = @TenantId AND PatternId = @PatternId
+                                 AND CurrentApprovedVersion = @Version;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction();
 
         await conn.ExecuteAsync(
             new CommandDefinition(
@@ -78,12 +86,18 @@ public sealed partial class SqlRemediationPatternRepository(ISqlConnectionFactor
                 {
                     version.VersionId,
                     version.TenantId,
+                    version.PatternId,
+                    version.Version,
+                    ApprovedStatus = (int)RemediationPatternStatus.Approved,
                     Status = (int)version.Status,
                     version.ApprovedByActorKey,
                     version.ApprovedUtc,
                     version.UpdatedUtc,
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     public async Task UpdatePatternAsync(RemediationPatternRecord pattern, CancellationToken cancellationToken = default)

@@ -25,6 +25,14 @@ public sealed class RequestConstraintPhraseSpacedPipeTests
         RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_false_when_spaced_pipe_phrase_has_suffix_negation()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed | identity is not required for dev"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
     private static ArchitectureRequest CreateRequest(List<string>? constraints = null)
     {
         return new ArchitectureRequest

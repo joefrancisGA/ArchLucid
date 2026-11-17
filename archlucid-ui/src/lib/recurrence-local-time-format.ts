@@ -152,15 +152,23 @@ export function describeLocalCadence(
     };
   }
 
+  const localDateDiffers = parts.day !== instant.getUTCDate();
+  const localMonthName = MONTH_NAMES[parts.month - 1] ?? "month";
+  const localOccurrence = `local occurrence on ${localMonthName} ${parts.day} at ${clockWithOffset}`;
+
   if (kind === "quarterly") {
     return {
-      primary: cadenceWithZone(`Quarterly on the ${ordinalDay(utcDom)} at ${clockWithOffset}`),
+      primary: cadenceWithZone(
+        localDateDiffers ? `Quarterly — ${localOccurrence}` : `Quarterly on the ${ordinalDay(utcDom)} at ${clockWithOffset}`,
+      ),
     };
   }
 
   if (kind === "monthly") {
     return {
-      primary: cadenceWithZone(`Monthly on the ${ordinalDay(utcDom)} at ${clockWithOffset}`),
+      primary: cadenceWithZone(
+        localDateDiffers ? `Monthly — ${localOccurrence}` : `Monthly on the ${ordinalDay(utcDom)} at ${clockWithOffset}`,
+      ),
     };
   }
 
@@ -168,7 +176,9 @@ export function describeLocalCadence(
     const monthName = MONTH_NAMES[utcMonth - 1] ?? "month";
 
     return {
-      primary: cadenceWithZone(`Annually on ${monthName} ${utcDom} at ${clockWithOffset}`),
+      primary: cadenceWithZone(
+        localDateDiffers ? `Annually — ${localOccurrence}` : `Annually on ${monthName} ${utcDom} at ${clockWithOffset}`,
+      ),
     };
   }
 

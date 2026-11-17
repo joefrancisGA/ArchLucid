@@ -335,7 +335,8 @@ public sealed class SecurityAssetAssertionService(
                 AuditEventTypes.SecurityAssetAssertionExpired,
                 expired.AssertionId,
                 expired,
-                cancellationToken);
+                cancellationToken,
+                explicitActor: true);
         }
 
         if (expiredRecords.Count > 0)
@@ -359,12 +360,10 @@ public sealed class SecurityAssetAssertionService(
         DateTime utcNow,
         CancellationToken cancellationToken)
     {
-        (IReadOnlyList<OperationalSecurityFindingRecord> findings, _) =
-            await findingRepository.ListByCloudResourceIdPagedInScopeAsync(
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await findingRepository.ListByCloudResourceIdInScopeAsync(
                 scope.ToProjectScopeKey(),
                 expired.CloudResourceId,
-                page: 1,
-                pageSize: 100,
                 cancellationToken);
 
         if (findings.Count == 0)
@@ -378,6 +377,8 @@ public sealed class SecurityAssetAssertionService(
                      finding.WorkspaceId == expired.WorkspaceId
                      && finding.ProjectId == expired.ProjectId))
         {
+            byte[] observationHash = SecurityAssetAssertionGuard.ComputeExpiryObservationHash(
+                expired.AssertionId, finding.FindingId);
             IReadOnlyList<OperationalSecurityFindingObservationRecord> observations =
                 await findingRepository.ListObservationsByFindingInScopeAsync(scope.ToProjectScopeKey(), finding.FindingId, cancellationToken);
 
@@ -388,16 +389,15 @@ public sealed class SecurityAssetAssertionService(
                         StringComparison.Ordinal)
                     && OperationalSecurityFindingGuard.PayloadHashesEqual(
                         observation.PayloadHashSha256,
-                        SecurityAssetAssertionGuard.ComputeExpiryObservationHash(
-                            expired.AssertionId,
-                            finding.FindingId))))
+                        observationHash)))
             {
                 continue;
             }
 
             OperationalSecurityFindingObservationRecord observation = new()
             {
-                ObservationId = Guid.NewGuid(),
+                // Retrying the same assertion and finding uses the same observation key.
+                ObservationId = new Guid(observationHash.AsSpan(0, 16)),
                 FindingId = finding.FindingId,
                 TenantId = scope.TenantId,
                 ObservedUtc = utcNow,
@@ -406,9 +406,7 @@ public sealed class SecurityAssetAssertionService(
                 RiskScore = finding.RiskScore,
                 Summary =
                     "Human asset assertion expired; crown-jewel classification no longer applies to ranking.",
-                PayloadHashSha256 = SecurityAssetAssertionGuard.ComputeExpiryObservationHash(
-                    expired.AssertionId,
-                    finding.FindingId),
+                PayloadHashSha256 = observationHash,
                 SourceSystem = SecurityAssetAssertionConstants.AssertionExpirySourceSystem,
             };
 
@@ -516,7 +514,8 @@ public sealed class SecurityAssetAssertionService(
         string eventType,
         Guid assertionId,
         object payload,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool explicitActor = false)
     {
         await auditService.LogAsync(
             new AuditEvent
@@ -524,6 +523,7 @@ public sealed class SecurityAssetAssertionService(
                 EventType = eventType,
                 ActorUserId = actorId,
                 ActorUserName = actorId,
+                ExplicitActor = explicitActor,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

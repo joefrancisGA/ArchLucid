@@ -19,7 +19,7 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(schedule);
+            _items.Add(Copy(schedule));
         }
 
         return Task.CompletedTask;
@@ -34,7 +34,7 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
             int index = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId);
 
             if (index >= 0)
-                _items[index] = schedule;
+                _items[index] = Copy(schedule);
         }
 
         return Task.CompletedTask;
@@ -53,6 +53,7 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
                 .Where(s => s is { IsEnabled: true, NextRunUtc: not null } && s.NextRunUtc <= utcNow)
                 .OrderBy(s => s.NextRunUtc)
                 .Take(n)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<ArchitectureReviewRecurrenceSchedule>>(result);
@@ -71,6 +72,7 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
             List<ArchitectureReviewRecurrenceSchedule> result = _items
                 .Where(s => s.TenantId == tenantId && s.WorkspaceId == workspaceId && s.ProjectId == projectId)
                 .OrderByDescending(s => s.CreatedUtc)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<ArchitectureReviewRecurrenceSchedule>>(result);
@@ -81,6 +83,31 @@ public sealed class InMemoryArchitectureReviewRecurrenceScheduleRepository : IAr
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.ScheduleId == scheduleId));
+        {
+            ArchitectureReviewRecurrenceSchedule? schedule = _items.FirstOrDefault(x => x.ScheduleId == scheduleId);
+
+            return Task.FromResult(schedule is null ? null : Copy(schedule));
+        }
     }
+
+    private static ArchitectureReviewRecurrenceSchedule Copy(ArchitectureReviewRecurrenceSchedule schedule) => new()
+    {
+        ScheduleId = schedule.ScheduleId,
+        TenantId = schedule.TenantId,
+        WorkspaceId = schedule.WorkspaceId,
+        ProjectId = schedule.ProjectId,
+        SourceRunId = schedule.SourceRunId,
+        ArchitectureId = schedule.ArchitectureId,
+        Name = schedule.Name,
+        CronExpression = schedule.CronExpression,
+        IsEnabled = schedule.IsEnabled,
+        CreatedUtc = schedule.CreatedUtc,
+        LastTriggeredUtc = schedule.LastTriggeredUtc,
+        LastTriggeredRunId = schedule.LastTriggeredRunId,
+        NextRunUtc = schedule.NextRunUtc,
+        CreatedByUserId = schedule.CreatedByUserId,
+        LastRunStatus = schedule.LastRunStatus,
+        LastErrorMessage = schedule.LastErrorMessage,
+        ConsecutiveFailureCount = schedule.ConsecutiveFailureCount,
+    };
 }

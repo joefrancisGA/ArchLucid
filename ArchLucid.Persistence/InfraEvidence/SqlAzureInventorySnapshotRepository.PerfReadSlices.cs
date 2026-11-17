@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -157,7 +159,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                            FROM dbo.AzureInventoryResources
                            WHERE TenantId = @TenantId
                              AND SnapshotId = @SnapshotId
-                             AND CloudResourceId IN @CloudResourceIds;
+                             AND CloudResourceId IN (
+                                 SELECT Id FROM OPENJSON(@CloudResourceIdsJson) WITH (Id uniqueidentifier '$'));
                            """;
 
         using System.Data.IDbConnection conn =
@@ -166,7 +169,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         IEnumerable<AzureInventoryResourceRecord> rows = await conn.QueryAsync<AzureInventoryResourceRecord>(
             new CommandDefinition(
                 sql,
-                new { scope.TenantId, SnapshotId = snapshotId, CloudResourceIds = ids },
+                new { scope.TenantId, SnapshotId = snapshotId, CloudResourceIdsJson = JsonSerializer.Serialize(ids) },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -191,7 +194,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                            FROM dbo.AzureInventoryTags
                            WHERE TenantId = @TenantId
                              AND SnapshotId = @SnapshotId
-                             AND ResourceRowId IN @ResourceRowIds;
+                             AND ResourceRowId IN (
+                                 SELECT Id FROM OPENJSON(@ResourceRowIdsJson) WITH (Id uniqueidentifier '$'));
                            """;
 
         using System.Data.IDbConnection conn =
@@ -200,7 +204,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         IEnumerable<AzureInventoryTagReadModel> rows = await conn.QueryAsync<AzureInventoryTagReadModel>(
             new CommandDefinition(
                 sql,
-                new { scope.TenantId, SnapshotId = snapshotId, ResourceRowIds = ids },
+                new { scope.TenantId, SnapshotId = snapshotId, ResourceRowIdsJson = JsonSerializer.Serialize(ids) },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();

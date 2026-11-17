@@ -139,19 +139,9 @@ public sealed class RemediationPatternService(
             approvedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await repository.UpdateVersionAsync(approved, cancellationToken);
-
-        RemediationPatternRecord? pattern = await repository.TryGetPatternByIdAsync(scope.TenantId, patternId, cancellationToken);
-
-        if (pattern is not null)
-        {
-            RemediationPatternRecord updatedPattern = ClonePattern(
-                pattern,
-                currentApprovedVersion: approved.Version,
-                updatedUtc: utcNow);
-
-            await repository.UpdatePatternAsync(updatedPattern, cancellationToken);
-        }
+        bool persisted = await repository.TryApproveVersionAsync(approved, versionRecord.Status, cancellationToken);
+        if (!persisted)
+            return Fail("The remediation pattern or version changed before approval.");
 
         return Success(patternId, approved.Version, approved.Status);
     }
@@ -412,23 +402,6 @@ public sealed class RemediationPatternService(
             AuthorActorKey = source.AuthorActorKey,
             ApprovedByActorKey = approvedByActorKey ?? source.ApprovedByActorKey,
             ApprovedUtc = approvedUtc ?? source.ApprovedUtc,
-            CreatedUtc = source.CreatedUtc,
-            UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
-        };
-
-    private static RemediationPatternRecord ClonePattern(
-        RemediationPatternRecord source,
-        string? currentApprovedVersion = null,
-        DateTime? updatedUtc = null) =>
-        new()
-        {
-            PatternId = source.PatternId,
-            TenantId = source.TenantId,
-            PatternKey = source.PatternKey,
-            DisplayName = source.DisplayName,
-            Description = source.Description,
-            CurrentApprovedVersion = currentApprovedVersion ?? source.CurrentApprovedVersion,
-            CreatedByActorKey = source.CreatedByActorKey,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
         };

@@ -5,6 +5,90 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 71 (batch 36): Policy catalog, standards catalog, graph type filter, and compare zero counts
+
+**Outcome.** Policy pack catalog empty, standards rules catalog empty, evidence graph type-filter empty, compare correlation all-zero counts, and resource explorer filter empty repeat partial-capture discipline.
+
+**Surfaces.** Policy catalog empty, standards catalog empty, graph type filter, compare zero counts, resource explorer filter empty, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 70 (batch 35): Findings filter, policy packs, standards filter, and graph loaded empties
+
+**Outcome.** Governance findings filter-no-match, policy pack registered list and workspace selection empties, enforced rules empty, standards rules filter-no-match, evidence graph loaded zero nodes, and remediation factory priority queue empty repeat partial-capture discipline.
+
+**Surfaces.** Findings filter empty, policy packs hub empties, standards filter empty, evidence graph loaded, remediation factory priority queue, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 69 (batch 34): Connection status, hub audit tab, graph idle, and filter empties
+
+**Outcome.** Cloud connection status empty, digest browse scoped filter empty, compare correlation results, resource hub audit tab and degraded state, Terraform mapping empty, evidence graph idle, and sealed records filter and unscoped list repeat partial-capture discipline.
+
+**Surfaces.** Connection status, digest scoped filter, compare correlation results, hub audit tab, Terraform mapping empty, evidence graph idle, sealed records filter and unscoped list, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 68 (batch 33): Approval queue, needs attention, hub config, and browse partial capture
+
+**Outcome.** Governance approval workflow empty, needs-attention all-clear inbox, resource hub configuration empty, remediation workbench waves empty, digest browse setup empty, audit evidence lookup, compare insufficient-finalized, and sealed records list repeat partial-capture discipline.
+
+**Surfaces.** Approval queue empty, needs-attention inbox, hub config empty, remediation waves empty, digest browse setup, audit lookup, compare insufficient-finalized, signed records list, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 67 (batch 32): Search empty, hub drift and remediation, and satellite partial capture
+
+**Outcome.** Resource hub drift and remediation tabs repeat partial-capture recovery on tab and empty states. Search evidence zero hits, reviews hub inventory empty, governance findings results footer, approval lineage empties, audit control lineage, impact preview no-baseline, and scorecard zero metrics name partial inventory discipline.
+
+**Surfaces.** Resource hub drift and remediation tabs, search review evidence, reviews hub, findings results footer, approval lineage, audit control lineage, impact preview no-baseline, architecture scorecard empty, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 66 (batch 31): Resource hub tabs, satellite empties, and simulator partial capture
+
+**Outcome.** Resource hub overview, diagram, and Terraform tabs repeat partial-capture recovery. Declared connections, compare correlation empty, impact preview, signed records, and risk exceptions empties name partial inventory. Remediation factory simulator states partial-capture rank limits.
+
+**Surfaces.** Resource hub tabs, declared connections, compare correlation, impact preview, signed records, risk exceptions, remediation factory simulator, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 65 (batch 30): Ask drawer recovery, explorer empty, and infra workbench partial capture
+
+**Outcome.** Infrastructure Ask drawer mirrors full-page partial-capture recovery links. Resource explorer empty, policy pack detail, attack path unevaluated-only, sponsor drift chart, and diagrams and Terraform workbenches repeat partial-capture discipline.
+
+**Surfaces.** Infrastructure Ask drawer, resource explorer, policy pack detail, remediation factory attack path report, sponsor workspace health, diagrams workbench, Terraform workbench, honesty and mounted contract tests.
+
+## 2026-11-17 - Score lift round 64 (batch 29): Export partial capture, compare pickers, and hub findings honesty
+
+**Outcome.** Golden manifest and run deliverables show partial-capture recovery when exports block. Compare run pickers and insufficient-finalized empty name partial inventory. Resource hub findings empty, factory priority queue header, digest subscriptions empty, and first-review disabled CTAs repeat partial-capture discipline.
+
+**Surfaces.** Golden manifest export, run deliverables, compare pickers, resource hub findings, remediation factory priority queue, digest subscriptions, first-review guide, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 63 (batch 28): Compare partial inventory, digest scoped empty, and attack-path table honesty
+
+**Outcome.** Compare results name partial SecureNow inventory capture. Digest browse distinguishes scoped-review filter-empty from setup empty and load failure. Attack path report adds table partial-capture honesty and truncated path chip labels. Infrastructure Ask full page mirrors drawer partial-capture recovery. Remediation patterns filter-empty and decision register filter-empty repeat not-load-failure discipline.
+
+**Surfaces.** Compare two reviews, architecture digest browse, remediation factory attack path report, infrastructure Ask page, remediation patterns catalog, decision register filter empty, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 62 (batch 27): Infra workbench partial capture and scorecard annual discipline
+
+**Outcome.** Drift and diagram reconcile workbenches, path inspect, decision register empty, first-review prerequisites, and resource hub Terraform tab repeat partial-capture recovery or advisory-not-apply discipline. Scorecard savings hero states annual headline is not a sum of quarters when no quarterly estimate is shown.
+
+**Surfaces.** Drift, diagram reconcile, resource hub Terraform, path inspect, decision register empty, first-review guide, architecture scorecard savings hero, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 61 (batch 26): Satellite partial-capture honesty
+
+**Outcome.** Workspace health, findings empty queue, extract-upload accepted panel, remediation workbench, Infrastructure Ask drawer, collection second-capture, and attack path report name partial capture and recovery discipline. Execute advisory repeats gap posture under partial snapshots.
+
+**Surfaces.** Workspace health, governance findings empty, extract upload, remediation workbench, infrastructure Ask drawer, collection setup second capture, attack path report, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 60 (batch 25): Shared partial-capture recovery links and admin spine honesty
+
+**Outcome.** `SecureNowPartialCaptureRecoveryLinks` centralizes snapshot id plus cloud connections and extract-upload CTAs with return path. Home, findings, help, factory, sponsor flows, and collection ready states consume the shared component. Admin spine pages (first hour, self-service, pilot spine) and cloud connections show partial-capture recovery when setup is ready but the latest snapshot had gaps. Simulator output states breakdown does not re-run capture.
+
+**Surfaces.** Partial-capture recovery component, SecureNow home, findings, help connection status, remediation factory, collection setup, cloud connections, admin spine routes, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 59 (batch 24): Return-path labels, second-capture parity, drift export receipt
+
+**Outcome.** Return navigation labels name findings, sponsor path, pilot decision, investigation effort, and extract upload. Partial-capture strips on home, sponsor path, attack path, and the remediation priority queue add extract-upload links with return path and snapshot ids where missing. Drift Terraform export receipt states the ZIP is advisory text only.
+
+**Surfaces.** SecureNow home, sponsor path, pilot decision, investigation effort, remediation factory attack path and priority queue, cloud and extract return links, drift workbench, honesty and mounted contract tests.
+
+## 2026-11-16 - Score lift round 58 (batch 23): Second-capture return path, partial capture surfaces, drift Terraform honesty
+
+**Outcome.** Remediation factory ranked paths, pilot decision, and investigation effort name partial capture and link cloud connections with return path; extract-upload links and landing page honor `securenowReturnPath`. Drift Terraform ZIP export repeats advisory-not-apply discipline beside the control. Savings hero quarterly non-summing gains a render test.
+
+**Surfaces.** Remediation factory, collection setup, pilot decision, investigation effort, extract upload, drift workbench, scorecard tests, honesty and mounted contract tests.
+
 ## 2026-11-16 - Score lift round 57 (batch 22): Rescore follow-ups — return path parity and scorecard operational bands
 
 **Outcome.** Partial-capture cloud-connections links on home, findings, sponsor path, connection-status help, and collection second-capture carry `securenowReturnPath`. Pilot scorecard operational metric tiles repeat non-summing discipline. Savings hero shows quarterly non-summing when a per-quarter estimate is present. Mounted contract and component tests cover return-path wiring and operational scorecard honesty.

@@ -94,7 +94,8 @@ public sealed class RemediationPrioritizationController(
 
         foreach (KeyValuePair<string, decimal> entry in weights)
         {
-            if (!Enum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor))
+            if (!Enum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor)
+                || !Enum.IsDefined(factor))
             {
                 return this.BadRequestProblem(
                     $"Unknown factor '{entry.Key}'.",

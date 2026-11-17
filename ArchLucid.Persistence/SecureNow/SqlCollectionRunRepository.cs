@@ -115,7 +115,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         return rows.Select(static row => row.ToModel()).ToArray();
     }
 
-    public async Task<bool> HasImportedHashAsync(
+    public async Task<Guid?> FindImportedSnapshotIdByHashAsync(
         ScopeContext scope,
         byte[] zipSha256,
         CancellationToken cancellationToken = default)
@@ -123,15 +123,15 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(zipSha256);
         const string sql = """
-                           SELECT CAST(CASE WHEN EXISTS
-                             (SELECT 1 FROM dbo.SecureNowCollectionRuns
-                              WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
-                                AND Status = @Status AND ZipSha256 = @ZipSha256)
-                             THEN 1 ELSE 0 END AS BIT);
+                           SELECT TOP (1) ImportedSnapshotId
+                           FROM dbo.SecureNowCollectionRuns
+                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
+                             AND Status = @Status AND ZipSha256 = @ZipSha256 AND ImportedSnapshotId IS NOT NULL
+                           ORDER BY StartedUtc DESC, RunId DESC;
                            """;
         using System.Data.IDbConnection connection =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
+        return await connection.ExecuteScalarAsync<Guid?>(new CommandDefinition(
             sql,
             new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, Status = (int)CollectionRunStatus.Imported, ZipSha256 = zipSha256 },
             cancellationToken: cancellationToken));

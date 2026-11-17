@@ -15,8 +15,10 @@ import {
   resolveSponsorWorkspaceHealthSources,
 } from "@/lib/sponsor/sponsor-workspace-health-page-copy";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SecureNowWorkspaceHealthPartialCaptureStrip } from "@/components/product-line/SecureNowWorkspaceHealthPartialCaptureStrip";
 import { cn } from "@/lib/utils";
 import { WORKSPACE_HEALTH_POINT_IN_TIME_HONESTY_LINE } from "@/lib/insights/workspace-health-point-in-time-honesty-copy";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 const WORKSPACE_HEALTH_PRIMARY_CONTENT_ID = "workspace-health-primary-content";
 const WORKSPACE_HEALTH_SKIP_TARGET_ID = "workspace-health-first-viewport";
@@ -52,6 +54,7 @@ export function WorkspaceHealthPageView(): React.JSX.Element {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="workspace-health-point-in-time-honesty">
             {WORKSPACE_HEALTH_POINT_IN_TIME_HONESTY_LINE}
           </p>
+          {isSecureNowProductLine(productLine) ? <SecureNowWorkspaceHealthPartialCaptureStrip /> : null}
           <SponsorWorkspaceHealthDashboard standalonePage externalPageHeader />
           <WorkspaceHealthEvidenceOrientationStrip sources={workspaceHealthSources} />
         </div>

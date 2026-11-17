@@ -51,6 +51,7 @@ import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { QueryStatus } from "@tanstack/react-query";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 import { DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/digests/digest-subscriptions-empty-not-load-failure-copy";
+import { DIGEST_SUBSCRIPTIONS_VS_BROWSE_EMPTY_HONESTY_LINE } from "@/lib/digests/digest-subscriptions-vs-browse-empty-honesty-copy";
 
 export type DigestSubscriptionListProps = {
   readonly items: readonly DigestSubscription[];
@@ -107,6 +108,9 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
               <div className="flex flex-col gap-2">
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digest-subscriptions-empty-not-load-failure">
                   {DIGEST_SUBSCRIPTIONS_EMPTY_NOT_LOAD_FAILURE_LINE}
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digest-subscriptions-vs-browse-empty-honesty">
+                  {DIGEST_SUBSCRIPTIONS_VS_BROWSE_EMPTY_HONESTY_LINE}
                 </p>
                 {props.hideEmptyStateCreateCta ? null : (
                   <Button

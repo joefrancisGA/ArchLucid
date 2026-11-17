@@ -9,6 +9,12 @@ import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-partial-capture-honesty-copy";
 import {
   INFRASTRUCTURE_ASK_OPEN_PARAM,
   infrastructureAskDrawerCloseHref,
@@ -29,6 +35,10 @@ export function InfrastructureAskDrawerHost() {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const { productLine } = useProductLine();
+  const secureNowLine = isSecureNowProductLine(productLine);
+  const partialCapture = useLatestSnapshotCaptureIsPartial(secureNowLine);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const openFromUrl = parseInfrastructureAskOpenFromSearch(searchParams.get(INFRASTRUCTURE_ASK_OPEN_PARAM));
   const overlayEligible = isInfrastructureAskOverlayEligiblePath(pathname);
   const shouldBeOpen = overlayEligible && openFromUrl;
@@ -148,6 +158,18 @@ export function InfrastructureAskDrawerHost() {
               {GOVERNANCE_INFRASTRUCTURE_ASK_DRAWER_FULL_PAGE_ACTION}
             </Link>
           </p>
+          {secureNowLine && partialCapture ? (
+            <div className="space-y-2 pt-1" data-testid="infrastructure-ask-drawer-partial-capture">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE}</p>
+              <SecureNowPartialCaptureRecoveryParagraph
+                testId="infrastructure-ask-drawer-partial-capture-recovery"
+                partialCaptureSnapshotId={partialCaptureSnapshotId}
+                returnPath={partialCaptureReturnPath}
+                cloudConnectionsTestId="infrastructure-ask-drawer-partial-capture-cloud-connections"
+                extractUploadTestId="infrastructure-ask-drawer-partial-capture-extract-upload"
+              />
+            </div>
+          ) : null}
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -31,7 +33,8 @@ public sealed partial class SqlOperationalSecurityFindingRepository
                            WHERE m.TenantId = @TenantId
                              AND f.WorkspaceId = @WorkspaceId
                              AND f.ProjectId = @ProjectId
-                             AND m.FindingId IN @FindingIds
+                             AND m.FindingId IN (
+                                 SELECT Id FROM OPENJSON(@FindingIdsJson) WITH (Id uniqueidentifier '$'))
                            ORDER BY m.FindingId, m.MetadataKey;
                            """;
 
@@ -44,7 +47,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository
                     scope.TenantId,
                     scope.WorkspaceId,
                     scope.ProjectId,
-                    FindingIds = distinctFindingIds,
+                    FindingIdsJson = JsonSerializer.Serialize(distinctFindingIds),
                 },
                 cancellationToken: cancellationToken));
 

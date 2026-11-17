@@ -65,6 +65,14 @@ public sealed class RequestConstraintPhraseSpacedColonEqualsUnderscoreTests
         RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_false_when_spaced_underscore_phrase_has_suffix_negation()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed _ identity is not required for dev"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
     private static ArchitectureRequest CreateRequest(List<string>? constraints = null)
     {
         return new ArchitectureRequest

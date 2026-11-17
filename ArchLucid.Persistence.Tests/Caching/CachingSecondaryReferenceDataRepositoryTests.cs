@@ -281,6 +281,23 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantIdentityProvider_committed_write_evicts_cache_after_request_cancellation()
+    {
+        using CancellationTokenSource request = new();
+        TenantIdentityProviderConfigurationRecord record = new() { TenantId = Guid.NewGuid() };
+        Mock<ITenantIdentityProviderConfigurationRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(repository => repository.UpsertAsync(record, request.Token))
+            .Callback(request.Cancel).Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = CreateCancellationAwareCache();
+        CachingTenantIdentityProviderConfigurationRepository repository = new(inner.Object, cache.Object);
+
+        await repository.UpsertAsync(record, request.Token);
+
+        cache.Verify(x => x.RemoveAsync(
+            HotPathCacheKeys.TenantIdentityProviderConfiguration(record.TenantId), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
     public async Task TenantIdentityProvider_TryGetAsync_refreshes_after_upsert()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

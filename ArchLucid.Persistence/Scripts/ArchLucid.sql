@@ -13449,3 +13449,48 @@ BEGIN
         ON dbo.VerifiedRemediationControlAssociations (TenantId, InstanceId);
 END;
 GO
+
+/* Routing is created after its path and finding tables are available. */
+IF OBJECT_ID(N'dbo.SecurityEvidencePathRouting', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathRouting
+    (
+        RoutingRowId      UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathRouting PRIMARY KEY CLUSTERED,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        PathId            UNIQUEIDENTIFIER NOT NULL,
+        FindingId         UNIQUEIDENTIFIER NULL,
+        RoutingRole       INT               NOT NULL,
+        PrincipalId       NVARCHAR(512)     NULL,
+        DisplayName       NVARCHAR(512)     NULL,
+        ProvenanceKind    INT               NOT NULL,
+        SourceReference   NVARCHAR(1285)    NOT NULL,
+        CreatedUtc        DATETIME2         NOT NULL,
+        UpdatedUtc        DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePathRouting_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT FK_SecurityEvidencePathRouting_Findings
+            FOREIGN KEY (FindingId) REFERENCES dbo.OperationalSecurityFindings (FindingId),
+        CONSTRAINT UQ_SecurityEvidencePathRouting_Tenant_Path_Role
+            UNIQUE (TenantId, PathId, RoutingRole)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRouting_Tenant_Path
+        ON dbo.SecurityEvidencePathRouting (TenantId, PathId, RoutingRole);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.SecurityEvidencePathRouting', N'PrincipalId') = 512
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathRouting
+        ALTER COLUMN PrincipalId NVARCHAR(512) NULL;
+END;
+GO
+
+IF COL_LENGTH(N'dbo.SecurityEvidencePathRouting', N'SourceReference') = 1024
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathRouting
+        ALTER COLUMN SourceReference NVARCHAR(1285) NOT NULL;
+END;
+GO

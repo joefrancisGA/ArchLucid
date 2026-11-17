@@ -37,6 +37,7 @@ import {
 } from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
 
+import { ReviewsHubEmptyPartialCaptureHonesty } from "./ReviewsHubEmptyPartialCaptureHonesty";
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubInFlightAnalysisDesk } from "./ReviewsHubInFlightAnalysisDesk";
 import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
@@ -134,10 +135,28 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     [inFlightOperations],
   );
   const searchQuery = parseReviewsHubInventorySearchQuery(searchParams.get("q"));
-  const urlFilter = parseReviewsHubInventoryFilter(searchParams.get("filter"));
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(urlFilter);
+  const urlFilterParam = searchParams.get("filter");
+  const filterFromSearchParams = parseReviewsHubInventoryFilter(urlFilterParam);
+  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>(filterFromSearchParams);
   const activeFilterRef = useRef(activeFilter);
   activeFilterRef.current = activeFilter;
+  const lastUrlFilterParamRef = useRef<string | null | undefined>(urlFilterParam);
+
+  useEffect(() => {
+    if (lastUrlFilterParamRef.current === urlFilterParam) {
+      return;
+    }
+
+    lastUrlFilterParamRef.current = urlFilterParam;
+    const next = parseReviewsHubInventoryFilter(urlFilterParam);
+
+    if (activeFilterRef.current === next) {
+      return;
+    }
+
+    activeFilterRef.current = next;
+    setActiveFilter(next);
+  }, [urlFilterParam]);
 
   useEffect(() => {
     const syncActiveFilterFromUrl = (): void => {
@@ -221,7 +240,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     }
 
     return counts;
-  }, [mergedRuns, ownerContext]);
+  }, [mergedRuns, ownerContext, visibilityFilteredRuns]);
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
@@ -323,6 +342,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     ]
                   : []),
               ]}
+              footer={<ReviewsHubEmptyPartialCaptureHonesty />}
             />
           )}
           </div>

@@ -525,6 +525,12 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "Read from collected evidence",
     );
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent(
+      "Inference source: Inference source was not stored.",
+    );
+    expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent(
+      "Inference source: tag:owner",
+    );
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();

@@ -4,6 +4,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 
+using Moq;
+
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
@@ -30,6 +32,57 @@ public sealed class CachingAuditRepositoryInvalidationTests
         await repo.GetFilteredAsync(tenantId, workspaceId, projectId, filter, CancellationToken.None);
 
         inner.GetFilteredAsyncCallCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task AppendAsync_invalidates_after_standalone_write_even_if_caller_cancels()
+    {
+        using CancellationTokenSource cancellation = new();
+        AuditEvent entry = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext scope = new() { TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId };
+        string revisionKey = HotPathCacheKeys.AuditListScopeRevision(scope);
+        Mock<IAuditRepository> inner = new();
+        inner.Setup(repository => repository.AppendAsync(entry, cancellation.Token, null, null))
+            .Callback(cancellation.Cancel)
+            .Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = new();
+        cache.Setup(store => store.GetOrCreateAsync(
+                revisionKey, It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                It.IsAny<CancellationToken>(), It.IsAny<int?>()))
+            .Returns((string _, Func<CancellationToken, Task<RunListScopeRevisionState?>> factory, CancellationToken ct, int? _) =>
+                ct.IsCancellationRequested ? Task.FromCanceled<RunListScopeRevisionState?>(ct) : factory(ct));
+        cache.Setup(store => store.RemoveAsync(revisionKey, CancellationToken.None))
+            .Returns(Task.CompletedTask);
+        CachingAuditRepository repository = new(inner.Object, cache.Object);
+
+        await repository.AppendAsync(entry, cancellation.Token);
+
+        cache.Verify(store => store.RemoveAsync(revisionKey, CancellationToken.None), Times.Once);
+        cache.Verify(store => store.GetOrCreateAsync(
+            revisionKey, It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+            CancellationToken.None, It.IsAny<int?>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task AppendAsync_keeps_committed_write_successful_when_cache_eviction_fails()
+    {
+        AuditEvent entry = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IAuditRepository> inner = new();
+        inner.Setup(repository => repository.AppendAsync(entry, CancellationToken.None, null, null))
+            .Returns(Task.CompletedTask);
+        Mock<IHotPathReadCache> cache = new();
+        cache.Setup(store => store.GetOrCreateAsync(
+                It.IsAny<string>(), It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
+                CancellationToken.None, It.IsAny<int?>()))
+            .ReturnsAsync(new RunListScopeRevisionState { Revision = 0 });
+        cache.Setup(store => store.RemoveAsync(It.IsAny<string>(), CancellationToken.None))
+            .ThrowsAsync(new InvalidOperationException("Cache unavailable."));
+        CachingAuditRepository repository = new(inner.Object, cache.Object);
+
+        await repository.AppendAsync(entry, CancellationToken.None);
+
+        inner.Verify(store => store.AppendAsync(entry, CancellationToken.None, null, null), Times.Once);
+        cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), CancellationToken.None), Times.Once);
     }
 
     [SkippableFact]

@@ -1,4 +1,5 @@
 import { apiGet } from "./http";
+import { trimRequiredText } from "./api-boundary-normalization";
 import type { EngineInsightNoveltyRatesResponse } from "@/lib/quality/engine-insight-novelty-rates";
 
 export async function getEngineInsightNoveltyRates(
@@ -6,8 +7,8 @@ export async function getEngineInsightNoveltyRates(
   toUtcExclusive: string,
 ): Promise<EngineInsightNoveltyRatesResponse> {
   const query = new URLSearchParams({
-    from: fromUtc,
-    to: toUtcExclusive,
+    from: trimRequiredText(fromUtc, "fromUtc"),
+    to: trimRequiredText(toUtcExclusive, "toUtcExclusive"),
   });
 
   return apiGet<EngineInsightNoveltyRatesResponse>(

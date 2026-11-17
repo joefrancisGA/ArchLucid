@@ -57,9 +57,9 @@ export const ARCHITECTURE_DIAGRAM_RENDER_FAILURE =
 export const ARCHITECTURE_DIAGRAM_PAINT_FAILURE =
   "This painted view is too large for the browser viewport. Switch diagram mode or export Mermaid — the diagram source was stored and did not fail to render." as const;
 
-export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept" as const;
+export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept inference" as const;
 
-export const ARCHITECTURE_DIAGRAM_REMOVE_INFERRED_ACTION = "Remove" as const;
+export const ARCHITECTURE_DIAGRAM_REMOVE_INFERRED_ACTION = "Remove inference" as const;
 
 export const ARCHITECTURE_DIAGRAM_VERSION_HISTORY_LABEL = "Diagram versions saved on this device" as const;
 
@@ -97,7 +97,7 @@ export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED = "Inferred" as co
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE = "Accepted inference" as const;
 
-export const ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION = "Restore" as const;
+export const ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION = "Restore inference" as const;
 
 export const ARCHITECTURE_DIAGRAM_CANCEL_EDIT_ACTION = "Cancel" as const;
 

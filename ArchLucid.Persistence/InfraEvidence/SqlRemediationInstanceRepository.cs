@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -429,7 +431,8 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
                              AND Status = @ApprovedStatus
-                             AND FindingId IN @FindingIds
+                             AND FindingId IN (
+                                 SELECT Id FROM OPENJSON(@FindingIdsJson) WITH (Id uniqueidentifier '$'))
                            ORDER BY FindingId, UpdatedUtc DESC;
                            """;
 
@@ -443,7 +446,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                     scope.WorkspaceId,
                     scope.ProjectId,
                     ApprovedStatus = (int)RemediationInstanceStatus.Approved,
-                    FindingIds = findingIds,
+                    FindingIdsJson = JsonSerializer.Serialize(findingIds),
                 },
                 cancellationToken: cancellationToken));
 

@@ -12,7 +12,9 @@ public static class TenantEaDiscountMath
         if (eaDiscountPercentage >= 100m)
             return 0.0001m;
 
-        return decimal.Round(1.0m - (eaDiscountPercentage / 100m), 4, MidpointRounding.AwayFromZero);
+        decimal roundedMultiplier = decimal.Round(1.0m - (eaDiscountPercentage / 100m), 4, MidpointRounding.AwayFromZero);
+
+        return Math.Max(0.0001m, roundedMultiplier);
     }
 
     /// <summary>Percentage off list price from stored multiplier: <c>(1 - multiplier) * 100</c>.</summary>

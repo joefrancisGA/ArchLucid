@@ -23,7 +23,7 @@ public sealed class DigestTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
         ChatOpsWebhookMessage body = new()
         {
             Title = payload.Digest.Title,
-            SupportingParagraph = WebUtility.HtmlEncode(payload.Digest.Summary),
+            SupportingParagraph = WebUtility.HtmlEncode(ChatOpsDigestSummaryFragments.SanitizeForDelivery(payload.Digest.Summary)),
             Body = payload.Digest.ContentMarkdown,
         };
 

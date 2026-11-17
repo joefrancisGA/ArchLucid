@@ -577,6 +577,8 @@ public static class HostedAzureExtractorZipBuilder
                 childType = row.ChildType,
                 associationType = row.AssociationType,
                 captureStorageAccountId = row.CaptureStorageAccountId,
+                forwardToName = row.ForwardToName,
+                forwardDeadLetteredMessagesToName = row.ForwardDeadLetteredMessagesToName,
                 collectionStatus = row.CollectionStatus,
                 warningCode = row.WarningCode,
             })

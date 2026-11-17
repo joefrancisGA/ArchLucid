@@ -43,7 +43,7 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
                 return trimmedVerb;
             }
 
-            return $"likely · {trimmedVerb}";
+            return $"inferred · {trimmedVerb}";
         }
 
         if (visualKind == DiagramEdgeVisualKind.Unclassified)

@@ -49,6 +49,8 @@ import { SignedRecordsListTableSkeleton } from "./SignedRecordsListTableSkeleton
 import { SignedRecordsListToolbar } from "./SignedRecordsListToolbar";
 import { SignedRecordsListTableDeferred } from "./signed-records-list-deferred-chunks";
 import { SignedRecordsListEmptyStates } from "./SignedRecordsListEmptyStates";
+import { SignedRecordsListPartialCaptureFootnote } from "./SignedRecordsListPartialCaptureFootnote";
+import { SignedRecordsUnscopedListPartialHonesty } from "./SignedRecordsUnscopedListPartialHonesty";
 import { useSignedRecordsListClient } from "./use-signed-records-list-client";
 
 export default function SignedRecordsListClient() {
@@ -192,6 +194,10 @@ export default function SignedRecordsListClient() {
         onClearFilters={clearFilters}
       />
 
+      {!scopedRunFilterActive && hasRows && !loading ? (
+        <SignedRecordsUnscopedListPartialHonesty />
+      ) : null}
+
       {scopedRunFilterActive && showListChrome ? (
         <div className="mb-4 space-y-2" data-testid="signed-records-list-chrome">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_RECORDS_LIST_LIST_LEAD}</p>
@@ -238,16 +244,19 @@ export default function SignedRecordsListClient() {
       {isPageRefresh ? <SignedRecordsListTableSkeleton rowCount={Math.max(rows.length, 3)} /> : null}
 
       {scopedRunFilterActive && !loading && hasRows && !showFilterNoMatch ? (
-        <SignedRecordsListTableDeferred
-          rows={filteredRows}
-          enriching={enriching}
-          retryingRunId={retryingRunId}
-          retryFailedRunId={retryFailedRunId}
-          retrySucceededRunId={retrySucceededRunId}
-          onRetryRow={(runId) => {
-            void retryRow(runId);
-          }}
-        />
+        <>
+          <SignedRecordsListTableDeferred
+            rows={filteredRows}
+            enriching={enriching}
+            retryingRunId={retryingRunId}
+            retryFailedRunId={retryFailedRunId}
+            retrySucceededRunId={retrySucceededRunId}
+            onRetryRow={(runId) => {
+              void retryRow(runId);
+            }}
+          />
+          <SignedRecordsListPartialCaptureFootnote />
+        </>
       ) : null}
 
       {retrySucceededRunId !== null ? (

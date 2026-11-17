@@ -40,6 +40,7 @@ public sealed class CollectionRunIngestService(
         string? rejectionReason = GetManifestRejectionReason(manifest, scope.TenantId, zipHash);
         if (rejectionReason is null &&
             existingRun?.Status == CollectionRunStatus.Imported &&
+            existingRun.ImportedSnapshotId.HasValue &&
             existingRun.ZipSha256 is not null &&
             existingRun.ZipSha256.SequenceEqual(zipHash))
             return existingRun;
@@ -54,9 +55,15 @@ public sealed class CollectionRunIngestService(
             return collectionRun;
         }
 
-        if (await _collectionRunRepository.HasImportedHashAsync(scope, zipHash, cancellationToken))
+        Guid? reusableSnapshotId = await _collectionRunRepository.FindImportedSnapshotIdByHashAsync(scope, zipHash, cancellationToken);
+        if (reusableSnapshotId.HasValue)
         {
-            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Imported, null);
+            collectionRun = collectionRun with
+            {
+                Status = CollectionRunStatus.Imported,
+                ImportedSnapshotId = reusableSnapshotId,
+                ErrorSummary = null,
+            };
             await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
             return collectionRun;
         }
@@ -69,7 +76,8 @@ public sealed class CollectionRunIngestService(
             correlationId: null,
             maxAcceptedZipBytes: AzureExtractorIngestService.MaxUploadedZipBytes);
 
-        collectionRun = importResult.Succeeded
+        bool snapshotImported = importResult.Succeeded && importResult.SnapshotId.HasValue;
+        collectionRun = snapshotImported
             ? collectionRun with
             {
                 Status = CollectionRunStatus.Imported,
@@ -79,9 +87,14 @@ public sealed class CollectionRunIngestService(
             : WithStatus(
                 collectionRun,
                 importResult.IsSchemaRejection ? CollectionRunStatus.Rejected : CollectionRunStatus.Failed,
-                importResult.FailureDetail);
+                importResult.Succeeded
+                    ? "The uploaded package did not produce an inventory snapshot."
+                    : importResult.FailureDetail);
 
-        await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+        // A successful import has already written the snapshot. Preserve its link if the caller disconnects.
+        await _collectionRunRepository.UpsertAsync(
+            collectionRun,
+            snapshotImported ? CancellationToken.None : cancellationToken);
         return collectionRun;
     }
 

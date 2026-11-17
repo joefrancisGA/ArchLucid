@@ -210,8 +210,9 @@ public sealed class AuthorityPipelineStagesExecutor(
                     stageUow,
                     ct);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || outcome == "error")
             {
+                // A canceled outcome write must not replace a stage that already failed.
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
                     _logger.LogWarning(

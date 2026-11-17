@@ -3,6 +3,7 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { governanceScopeCoverageBlockedReason } from "@/lib/governance/governance-coverage-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { trimOptionalText, trimRequiredText } from "./api-boundary-normalization";
 
 export type CoveragePreviewAssignment = {
   policyPackId: string;
@@ -61,10 +62,25 @@ export type CoveragePreviewRequest = {
 export async function postCoveragePreview(
   body: CoveragePreviewRequest,
 ): Promise<CoveragePreviewResponse> {
+  const userOverrides = body.userOverrides
+    ?.map((override) => ({
+      ...override,
+      policyPackId: override.policyPackId.trim(),
+      exclusionReason: trimOptionalText(override.exclusionReason),
+    }))
+    .filter((override) => override.policyPackId.length > 0);
+  const normalizedBody: CoveragePreviewRequest = {
+    ...body,
+    cloudProvider: trimRequiredText(body.cloudProvider, "cloudProvider"),
+    securityIntakeAnswer: trimOptionalText(body.securityIntakeAnswer),
+    descriptionText: trimOptionalText(body.descriptionText),
+    userOverrides,
+  };
+
   try {
     return await apiPostJson<CoveragePreviewResponse>(
       `/${ApiV1Routes.governance}/coverage/preview`,
-      body,
+      normalizedBody,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);

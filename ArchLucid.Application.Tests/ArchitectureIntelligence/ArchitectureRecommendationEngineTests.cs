@@ -115,6 +115,136 @@ public sealed class ArchitectureRecommendationEngineTests
     }
 
     [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_accepted()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding acceptedRisk = CreateFailingFinding(
+            "f-accepted",
+            QualityDimension.Security,
+            "Residual exposure after explicit risk acceptance");
+        acceptedRisk.GovernanceDisposition = GovernanceDisposition.Accepted;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [acceptedRisk],
+            ["Security"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_exception_granted()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding excepted = CreateFailingFinding(
+            "f-excepted",
+            QualityDimension.Security,
+            "Documented exception for legacy exposure");
+        excepted.GovernanceDisposition = GovernanceDisposition.ExceptionGranted;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [excepted],
+            ["Security"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_deferred()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding deferred = CreateFailingFinding(
+            "f-deferred",
+            QualityDimension.Cost,
+            "Spend review deferred to next quarter");
+        deferred.GovernanceDisposition = GovernanceDisposition.Deferred;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [deferred],
+            ["Cost"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_remediation_planned()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding planned = CreateFailingFinding(
+            "f-planned",
+            QualityDimension.Reliability,
+            "Failover gap with remediation scheduled");
+        planned.GovernanceDisposition = GovernanceDisposition.RemediationPlanned;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [planned],
+            ["Reliability"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_skips_fail_findings_whose_governance_disposition_is_human_decision_required()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding pendingHuman = CreateFailingFinding(
+            "f-human",
+            QualityDimension.Security,
+            "Exposure awaiting human disposition");
+        pendingHuman.GovernanceDisposition = GovernanceDisposition.HumanDecisionRequired;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [pendingHuman],
+            ["Security"]);
+
+        recommendations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildRecommendations_stamps_system_proposed_indirectly_supported_when_evidence_is_insufficient()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding insufficient = CreateFailingFinding(
+            "f-insufficient",
+            QualityDimension.Security,
+            "Gap without complete evidence");
+        insufficient.EvidenceCondition = EvidenceCondition.Insufficient;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [insufficient],
+            ["Security"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);
+        recommendations[0].Provenance.Origin.Should().Be(ClaimOrigin.SystemProposed);
+    }
+
+    [Fact]
+    public void BuildRecommendations_stamps_system_proposed_indirectly_supported_when_fail_evidence_is_unverified()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding unverified = CreateFailingFinding(
+            "f-unverified",
+            QualityDimension.Cost,
+            "Spend signal without corroboration");
+        unverified.EvidenceCondition = EvidenceCondition.Unverified;
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            CreateModel(),
+            [unverified],
+            ["Cost"]);
+
+        recommendations.Should().ContainSingle();
+        recommendations[0].Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);
+        recommendations[0].Provenance.Origin.Should().Be(ClaimOrigin.SystemProposed);
+    }
+
+    [Fact]
     public void FromFinding_throws_when_finding_is_null()
     {
         Action act = () => ArchitectureRecommendationStableId.FromFinding(null!, "proposed");

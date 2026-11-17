@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
@@ -40,7 +42,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           MERGE dbo.RemediationPrioritizationWeights AS target
+                           MERGE dbo.RemediationPrioritizationWeights WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId) AS source
                            ON target.TenantId = source.TenantId
                            WHEN MATCHED THEN
@@ -72,7 +74,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           MERGE dbo.RemediationPrioritizationScores AS target
+                           MERGE dbo.RemediationPrioritizationScores WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
                            ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
                            WHEN MATCHED THEN
@@ -120,7 +122,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                            )
                                THROW 50001, 'Scoped prioritization score target finding was not found.', 1;
 
-                           MERGE dbo.RemediationPrioritizationScores AS target
+                           MERGE dbo.RemediationPrioritizationScores WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
                            ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
                            WHEN MATCHED THEN
@@ -169,11 +171,12 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                                 WHERE TenantId = @TenantId
                                   AND WorkspaceId = @WorkspaceId
                                   AND ProjectId = @ProjectId
-                                  AND FindingId IN @FindingIds;
+                                  AND FindingId IN (
+                                      SELECT Id FROM OPENJSON(@FindingIdsJson) WITH (Id uniqueidentifier '$'));
                                 """;
 
         const string mergeSql = """
-                                MERGE dbo.RemediationPrioritizationScores AS target
+                                MERGE dbo.RemediationPrioritizationScores WITH (HOLDLOCK) AS target
                                 USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
                                 ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
                                 WHEN MATCHED THEN
@@ -203,7 +206,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                     scope.TenantId,
                     scope.WorkspaceId,
                     scope.ProjectId,
-                    FindingIds = findingIds,
+                    FindingIdsJson = JsonSerializer.Serialize(findingIds),
                 },
                 cancellationToken: cancellationToken));
 
@@ -214,7 +217,8 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
 
         try
         {
-            foreach (RemediationPrioritizationScoreMutation mutation in mutations)
+            // Acquire score-key locks in the same order across overlapping batches.
+            foreach (RemediationPrioritizationScoreMutation mutation in mutations.OrderBy(item => item.FindingId))
             {
                 await conn.ExecuteAsync(
                     new CommandDefinition(

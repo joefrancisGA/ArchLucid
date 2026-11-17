@@ -13,11 +13,10 @@ public static class SqlConnectionStringMasterCatalog
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        // No connection is opened here, and the returned string always passes through
-        // EnsureSqlClientEncryptMandatory below, which forces Encrypt=True.
-        // codeql[cs/insecure-sql-connection]
+        // No connection is opened here. Encrypt is mandatory on the builder before returning a connection string.
         SqlConnectionStringBuilder builder = new(connectionString)
         {
+            Encrypt = SqlConnectionEncryptOption.Mandatory,
             InitialCatalog = MasterCatalogName
         };
 
@@ -28,8 +27,11 @@ public static class SqlConnectionStringMasterCatalog
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        // codeql[cs/insecure-sql-connection]: parses catalog name only; no connection opened; Encrypt applied on builders that return strings.
-        SqlConnectionStringBuilder builder = new(connectionString);
+        // Parses Initial Catalog only; no connection is opened.
+        SqlConnectionStringBuilder builder = new(connectionString)
+        {
+            Encrypt = SqlConnectionEncryptOption.Mandatory
+        };
 
         if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
             throw new InvalidOperationException("Connection string must specify Initial Catalog.");

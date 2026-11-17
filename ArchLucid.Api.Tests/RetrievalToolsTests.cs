@@ -252,6 +252,43 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_returns_empty_when_vector_hits_rank_only_prior_decision_corpus()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "prior-chunk-1",
+                    DocumentId = "prior-doc-1",
+                    Title = "Prior manifest",
+                    Text = "committed architecture decision",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PriorManifest.ToString(),
+                    SourceType = "PriorManifest",
+                    SourceId = "prior-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task PriceRowLookupAsync_returns_empty_when_vector_hits_exclude_retail_corpus()
     {
         Mock<IRetrievalQueryService> queryService = new();
@@ -346,6 +383,66 @@ public sealed class RetrievalToolsTests
 
         hits.Should().HaveCount(2);
         hits.Select(h => h.DocumentId).Should().Equal("policy-doc-1", "policy-doc-2");
+    }
+
+    [Fact]
+    public async Task PriorDecisionSearchAsync_returns_prior_hits_in_vector_order_when_policy_rows_interleaved()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Policy",
+                    Text = "policy baseline",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "policy-1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "prior-chunk-1",
+                    DocumentId = "prior-doc-1",
+                    Title = "Prior 1",
+                    Text = "prior decision",
+                    Score = 0.98,
+                    CorpusKind = CorpusKind.PriorManifest.ToString(),
+                    SourceType = "PriorManifest",
+                    SourceId = "prior-1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "prior-chunk-2",
+                    DocumentId = "prior-doc-2",
+                    Title = "Prior 2",
+                    Text = "prior decision",
+                    Score = 0.97,
+                    CorpusKind = CorpusKind.PriorManifest.ToString(),
+                    SourceType = "PriorManifest",
+                    SourceId = "prior-2"
+                },
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "decision",
+            TopK = 2,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PriorDecisionSearchAsync(request, CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits.Select(h => h.DocumentId).Should().Equal("prior-doc-1", "prior-doc-2");
     }
 
     [Fact]

@@ -378,6 +378,8 @@ public static partial class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
+        // canonical IntegrationEventTypes URN taxonomy; sanitized above — not credentials or PII.
+        // codeql[cs/exposure-of-sensitive-information]
         EmitIntegrationEventOutboxMissingMessageId(logger, safeEventType);
     }
 }

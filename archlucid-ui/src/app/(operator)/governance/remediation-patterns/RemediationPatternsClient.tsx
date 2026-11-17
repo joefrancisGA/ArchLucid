@@ -54,6 +54,7 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-pattern/remediation-patterns-empty-not-load-failure-copy";
+import { REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-pattern/remediation-patterns-filter-no-match-not-load-failure-copy";
 import { GOVERNANCE_AUDIT_PATH, SECURENOW_REMEDIATION_PATTERNS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
@@ -941,7 +942,7 @@ export function RemediationPatternsClient() {
               Show all patterns
             </Link>
             <span className={cn("block mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-patterns-filtered-empty-not-failure">
-              {REMEDIATION_PATTERNS_EMPTY_NOT_LOAD_FAILURE_LINE}
+              {REMEDIATION_PATTERNS_FILTER_NO_MATCH_NOT_LOAD_FAILURE_LINE}
             </span>
           </p>
         ) : (

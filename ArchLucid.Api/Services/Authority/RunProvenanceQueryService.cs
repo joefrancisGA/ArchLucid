@@ -124,24 +124,14 @@ public sealed class RunProvenanceQueryService(
         int pageSize,
         CancellationToken cancellationToken)
     {
-        // Pagination input validation, not an authorization decision; tenant scoping and run
-        // authorization happen separately below.
-        // codeql[cs/user-controlled-bypass]
-        if (pageNumber < 1)
-        {
-            return new RunTracesQueryResult
-            {
-                Outcome = RunGraphQueryOutcome.BadRequest,
-                ProblemDetail = "pageNumber must be at least 1."
-            };
-        }
+        string? pagingProblem = PagingParameters.TryGetInvalidPageQueryDetail(pageNumber, pageSize);
 
-        if (pageSize is < 1 or > PagingParameters.MaxPageSize)
+        if (pagingProblem is not null)
         {
             return new RunTracesQueryResult
             {
                 Outcome = RunGraphQueryOutcome.BadRequest,
-                ProblemDetail = $"pageSize must be between 1 and {PagingParameters.MaxPageSize}."
+                ProblemDetail = pagingProblem
             };
         }
 

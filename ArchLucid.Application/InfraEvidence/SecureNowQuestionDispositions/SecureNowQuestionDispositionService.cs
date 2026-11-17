@@ -19,12 +19,15 @@ public sealed class SecureNowQuestionDispositionService(
     IAuditService auditService,
     IOperatorInferredConnectionRepository? inferredConnectionRepository = null,
     IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
-    IAzureInventorySnapshotGraphResolver? graphResolver = null) : ISecureNowQuestionDispositionService
+    IAzureInventorySnapshotGraphResolver? graphResolver = null,
+    TimeProvider? timeProvider = null) : ISecureNowQuestionDispositionService
 {
+    private readonly TimeProvider clock = timeProvider ?? TimeProvider.System;
     private readonly SecureNowQuestionCompiler questionCompiler = new();
     private readonly SecureNowPackQuestionCandidateBuilder packQuestionCandidateBuilder = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
     private const int MaximumQuestionKeyLength = 256;
+    private const int MaximumDispositionTextLength = 4000;
     private static readonly Regex VersionedQuestionKey = new(
         @"@v[1-9][0-9]*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -120,13 +123,13 @@ public sealed class SecureNowQuestionDispositionService(
         if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.SubscriptionId))
             return [];
 
-        DateTime now = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecureNowQuestionDispositionRecord> records =
             await dispositionRepository.ListByTenantAndSubscriptionAsync(
                 scope.TenantId,
                 Normalize(snapshot.SubscriptionId),
                 cancellationToken);
 
+        DateTime now = clock.UtcNowDateTime();
         return records
             .Select(record => record with { IsExpired = record.ExpirationUtc <= now })
             .ToList();
@@ -233,7 +236,9 @@ public sealed class SecureNowQuestionDispositionService(
                 .ToList(),
         };
 
-        await dispositionRepository.UpsertAsync(reopened, cancellationToken);
+        if (!await dispositionRepository.TryUpsertAsync(reopened, existing.AuditEntries.Count, cancellationToken))
+            return Failed("Question disposition changed. Reload it before saving.");
+
         await WriteAuditAsync(scope, snapshotId, actorKey, "Reopened", reopened, request.Reason, cancellationToken);
         return new SecureNowQuestionDispositionMutationResult { Succeeded = true, Record = reopened };
     }
@@ -261,7 +266,8 @@ public sealed class SecureNowQuestionDispositionService(
             request,
             actorKey,
             status,
-            dispositionResourceId);
+            dispositionResourceId,
+            clock.UtcNowDateTime());
 
         if (validationError is not null)
             return Failed(validationError);
@@ -283,8 +289,6 @@ public sealed class SecureNowQuestionDispositionService(
                 return Failed(mutationValidationError);
         }
 
-        DateTime now = TimeProvider.System.UtcNowDateTime();
-        DateTime expirationUtc = request.ExpirationUtc ?? now.Add(MaximumDispositionLifetime);
         SecureNowQuestionDispositionRecord? existing =
             await dispositionRepository.TryGetByIdentityAsync(
                 scope.TenantId,
@@ -293,6 +297,12 @@ public sealed class SecureNowQuestionDispositionService(
                 NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
 
+        DateTime now = clock.UtcNowDateTime();
+        string? expirationError = ValidateExpiration(request.ExpirationUtc, now);
+        if (expirationError is not null)
+            return Failed(expirationError);
+
+        DateTime expirationUtc = request.ExpirationUtc ?? now.Add(MaximumDispositionLifetime);
         SecureNowQuestionDispositionRecord record = new()
         {
             DispositionId = existing?.DispositionId ?? Guid.NewGuid(),
@@ -328,7 +338,9 @@ public sealed class SecureNowQuestionDispositionService(
                 .ToList(),
         };
 
-        await dispositionRepository.UpsertAsync(record, cancellationToken);
+        if (!await dispositionRepository.TryUpsertAsync(record, existing?.AuditEntries.Count, cancellationToken))
+            return Failed("Question disposition changed. Reload it before saving.");
+
         await WriteAuditAsync(scope, snapshotId, actorKey, status.ToString(), record, request.Reason, cancellationToken);
         return new SecureNowQuestionDispositionMutationResult { Succeeded = true, Record = record };
     }
@@ -419,7 +431,8 @@ public sealed class SecureNowQuestionDispositionService(
         SecureNowQuestionDispositionWriteRequest request,
         string actorKey,
         SecureNowQuestionDispositionStatus status,
-        string dispositionResourceId)
+        string dispositionResourceId,
+        DateTime now)
     {
         string? identityError = ValidateIdentity(
             request.SubscriptionId,
@@ -430,6 +443,13 @@ public sealed class SecureNowQuestionDispositionService(
 
         if (identityError is not null)
             return identityError;
+
+        if (request.Reason.Trim().Length > MaximumDispositionTextLength)
+            return "Reason is too long.";
+
+        if (status == SecureNowQuestionDispositionStatus.Answered
+            && request.AnswerText?.Trim().Length > MaximumDispositionTextLength)
+            return "AnswerText is too long.";
 
         if (string.IsNullOrWhiteSpace(request.EvidenceFingerprint))
             return "EvidenceFingerprint is required.";
@@ -444,7 +464,7 @@ public sealed class SecureNowQuestionDispositionService(
             && string.IsNullOrWhiteSpace(request.AnswerCode))
             return "AnswerCode is required.";
 
-        return ValidateExpiration(request.ExpirationUtc);
+        return ValidateExpiration(request.ExpirationUtc, now);
     }
 
     private static string? ValidateIdentity(
@@ -477,9 +497,8 @@ public sealed class SecureNowQuestionDispositionService(
         return null;
     }
 
-    private static string? ValidateExpiration(DateTime? expirationUtc)
+    private static string? ValidateExpiration(DateTime? expirationUtc, DateTime now)
     {
-        DateTime now = TimeProvider.System.UtcNowDateTime();
         DateTime expiration = expirationUtc ?? now.Add(MaximumDispositionLifetime);
 
         if (expiration <= now)

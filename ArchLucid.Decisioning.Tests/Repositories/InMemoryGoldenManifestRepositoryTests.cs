@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
 
 using FluentAssertions;
@@ -285,5 +286,39 @@ public sealed class InMemoryGoldenManifestRepositoryTests
 
         ManifestDocument? evicted = await sut.GetByIdAsync(scope, firstId, CancellationToken.None);
         evicted.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UpdateSealedHasherBoundSliceAsync_throws_when_missing_row_manifest_scope_mismatches_request_scope()
+    {
+        InMemoryGoldenManifestRepository sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid manifestId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            ManifestId = manifestId,
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            ManifestHash = "hash",
+        };
+
+        Func<Task> act = async () =>
+            await sut.UpdateSealedHasherBoundSliceAsync(scope, manifest, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"*'{manifestId:D}'*");
     }
 }

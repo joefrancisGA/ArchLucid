@@ -24,11 +24,13 @@ import {
 } from "@/lib/usability/usability-consolidation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { NeedsAttentionInboxAllClearPartialHonesty } from "@/app/(operator)/governance/needs-attention/_sections/NeedsAttentionInboxAllClearPartialHonesty";
 
 export function NeedsAttentionInboxPageClient(): React.JSX.Element {
   const { summaries } = useOperatorAttentionSummary();
   const previews = useAttentionPartitionPreviews();
   const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
+  const allCountsZero = summaries.every((summary) => summary.totalCount === 0);
 
   return (
     <OperatorPageContainer variant="full" className="py-4" data-testid="needs-attention-inbox-page">
@@ -102,6 +104,7 @@ export function NeedsAttentionInboxPageClient(): React.JSX.Element {
           );
         })}
       </ul>
+      <NeedsAttentionInboxAllClearPartialHonesty allCountsZero={allCountsZero} />
       </main>
     </OperatorPageContainer>
   );

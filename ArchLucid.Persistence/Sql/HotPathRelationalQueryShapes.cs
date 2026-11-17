@@ -115,16 +115,16 @@ internal static class HotPathRelationalQueryShapes
                                                                   """;
 
     /// <summary>
-    ///     Filtered audit export/stream opening clause including full <c>DataJson</c> payload.
+    ///     Committed-read prefix for filtered audit export and listing with the full <c>DataJson</c> payload.
     /// </summary>
-    public const string AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock = """
+    public const string AuditEventsFilteredSelectFromWhereScopeWithDataJson = """
                                                                   SELECT TOP (@Take)
                                                                       EventId, OccurredUtc, EventType,
                                                                       ActorUserId, ActorUserName,
                                                                       TenantId, WorkspaceId, ProjectId,
                                                                       RunId, ManifestId, ArtifactId,
                                                                       DataJson, CorrelationId
-                                                                  FROM dbo.AuditEvents WITH (NOLOCK)
+                                                                  FROM dbo.AuditEvents
                                                                   WHERE TenantId = @TenantId
                                                                     AND WorkspaceId = @WorkspaceId
                                                                     AND ProjectId = @ProjectId

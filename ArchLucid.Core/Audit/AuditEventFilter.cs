@@ -1,3 +1,5 @@
+using ArchLucid.Core.Pagination;
+
 namespace ArchLucid.Core.Audit;
 
 /// <summary>Filters for scoped audit queries (defense-in-depth with tenant/workspace/project).</summary>
@@ -62,6 +64,12 @@ public sealed class AuditEventFilter
         get;
         set;
     } = 100;
+
+    /// <summary>Allow a paginated list to retrieve one extra row beyond the visible limit.</summary>
+    public bool AllowListLookaheadRow { get; set; }
+
+    public int ResolveListFetchSize() =>
+        Math.Clamp(Take <= 0 ? 100 : Take, 1, PaginationDefaults.MaxListingTake + (AllowListLookaheadRow ? 1 : 0));
 
     /// <summary>Read one extra row in a filtered export to detect overflow before writing the response.</summary>
     public bool IncludeExportOverflowRow { get; set; }

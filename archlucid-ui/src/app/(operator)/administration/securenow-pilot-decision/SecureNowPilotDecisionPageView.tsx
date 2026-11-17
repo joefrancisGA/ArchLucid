@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -36,6 +41,9 @@ import { cn } from "@/lib/utils";
 
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
   const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
   const [outcome, setOutcome] = useState("");
@@ -121,6 +129,15 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       <OperatorPageHeader title={SECURENOW_PILOT_DECISION_HEADING} subtitle={SECURENOW_PILOT_DECISION_LEAD} />
 
       <main className="mt-6 max-w-3xl space-y-6">
+        {partialCapture ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="securenow-pilot-decision-partial-capture"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="securenow-pilot-decision-partial-capture-cloud-connections"
+            extractUploadTestId="securenow-pilot-decision-partial-capture-extract-upload"
+          />
+        ) : null}
         <section aria-labelledby="securenow-pilot-decision-steps-heading" className="space-y-2">
           <h2 id="securenow-pilot-decision-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Close the review

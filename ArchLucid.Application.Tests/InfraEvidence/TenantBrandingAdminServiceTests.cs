@@ -59,6 +59,25 @@ public sealed class TenantBrandingAdminServiceTests
     }
 
     [Fact]
+    public async Task ActivateDraft_leaves_previous_active_and_replacement_draft_if_validated_draft_changed()
+    {
+        InMemoryTenantBrandingProfileRepository repository = new();
+        TenantBrandingProfileRecord previous = BuildProfile(BrandingProfileStatus.Active, 1, "Old Co");
+        TenantBrandingProfileRecord stale = BuildDraft("Original Draft", LogoId);
+        TenantBrandingProfileRecord replacement = BuildDraft("Replacement Draft", LogoId);
+        await repository.InsertAsync(previous, CancellationToken.None);
+        await repository.ReplaceDraftAsync(stale, CancellationToken.None);
+        await repository.ReplaceDraftAsync(replacement, CancellationToken.None);
+
+        bool activated = await repository.TryActivateDraftAsync(
+            stale, BuildProfile(BrandingProfileStatus.Active, 2, "Original Draft"), CancellationToken.None);
+
+        activated.Should().BeFalse();
+        (await repository.TryGetActiveAsync(TenantId, CancellationToken.None)).Should().BeSameAs(previous);
+        (await repository.TryGetDraftAsync(TenantId, CancellationToken.None)).Should().BeSameAs(replacement);
+    }
+
+    [Fact]
     public async Task RevertToProductDefaults_clears_active_profile()
     {
         InMemoryTenantBrandingProfileRepository repository = new();

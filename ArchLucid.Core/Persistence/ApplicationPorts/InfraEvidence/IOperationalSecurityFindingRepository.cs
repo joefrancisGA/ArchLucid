@@ -113,6 +113,16 @@ public interface IOperationalSecurityFindingRepository
         return (scoped, scoped.Count);
     }
 
+    async Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await ListByScopeAsync(scope, status: null, cancellationToken);
+        return findings.Where(finding => finding.CloudResourceId == cloudResourceId).ToList();
+    }
+
     Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
         Guid tenantId,
         Guid pathId,

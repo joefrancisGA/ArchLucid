@@ -40,7 +40,7 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
     }
 
     [Fact]
-    public async Task Advisory_scan_execution_repository_updates_existing_row()
+    public async Task Advisory_scan_execution_repository_publishes_changes_only_after_update()
     {
         InMemoryAdvisoryScanExecutionRepository sut = new();
         AdvisoryScanExecution execution = new()
@@ -53,14 +53,25 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         execution.Status = "Completed";
         execution.ResultJson = """{"findings":1}""";
 
+        ScopeContext scope = new();
+        IReadOnlyList<AdvisoryScanExecution> before =
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, take: 1, CancellationToken.None);
+        before.Should().ContainSingle().Subject.Status.Should().Be("Started");
+
         await sut.UpdateAsync(execution, CancellationToken.None);
+        execution.Status = "Failed";
 
         IReadOnlyList<AdvisoryScanExecution> listed =
-            await sut.ListByScheduleAsync(new ScopeContext(), execution.ScheduleId, take: 1, CancellationToken.None);
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, take: 1, CancellationToken.None);
 
         listed.Should().ContainSingle();
         listed[0].Status.Should().Be("Completed");
         listed[0].ResultJson.Should().Contain("findings");
+        listed[0].Status = "Failed";
+
+        IReadOnlyList<AdvisoryScanExecution> reloaded =
+            await sut.ListByScheduleAsync(scope, execution.ScheduleId, take: 1, CancellationToken.None);
+        reloaded.Should().ContainSingle().Subject.Status.Should().Be("Completed");
     }
 
     [Fact]

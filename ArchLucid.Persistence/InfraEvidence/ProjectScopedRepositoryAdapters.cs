@@ -34,6 +34,10 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);
 
+    public Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope, Guid cloudResourceId, CancellationToken cancellationToken = default) =>
+        inner.ListByCloudResourceIdInScopeAsync(scope, cloudResourceId, cancellationToken);
+
     public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(ProjectScopeKey scope, Guid pathId, CancellationToken cancellationToken = default) =>
         inner.ListFindingIdsByPathIdInScopeAsync(scope, pathId, cancellationToken);
 

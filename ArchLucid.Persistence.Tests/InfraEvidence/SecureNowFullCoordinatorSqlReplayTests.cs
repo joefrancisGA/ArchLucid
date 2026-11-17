@@ -52,7 +52,8 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
         string subscriptionId = Guid.NewGuid().ToString("D");
         string storageArmId = $"/subscriptions/{subscriptionId}/resourceGroups/rg-lab/" +
                               "providers/Microsoft.Storage/storageAccounts/securelab";
-        byte[] zip = BuildZip(subscriptionId, storageArmId);
+        string ownerTagValue = new('a', 512);
+        byte[] zip = BuildZip(subscriptionId, storageArmId, ownerTagValue);
 
         ScopeContext scope = new()
         {
@@ -218,6 +219,13 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
         (await cutPoints.RunAsync(scope, snapshotId, actor)).Succeeded.Should().BeTrue();
         await routing.SyncSnapshotAsync(scope, snapshotId);
 
+        List<SecurityEvidencePathRoutingRecord> routingRows = [];
+        foreach (SecurityEvidencePathWithHops path in observedPaths)
+            routingRows.AddRange(await routingRepository.ListByPathIdInScopeAsync(ownProject, path.Path.PathId));
+
+        routingRows.Should().Contain(row =>
+            row.Role == SecurityEvidencePathRoutingRole.BusinessOwner && row.PrincipalId == ownerTagValue);
+
         // A zero-cutpoint result can be valid for some graph shapes; the SQL
         // cut-point query is still exercised. Do not claim a positive count.
         IReadOnlyList<SecurityEvidenceCutPointRecord> cuts =
@@ -277,9 +285,29 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
                 .Order());
         (await rankRepository.ListBySnapshotAsync(ownSnapshot)).Should()
             .HaveCount(secondPass.Count);
+
+        Guid routingPathId = secondPass[0].Path.PathId;
+        string longResourceId = storageArmId.PadRight(1024, 'a');
+        string longReference = $"{SecurityEvidencePathRoutingConstants.SourcePrefixTag}{SecurityEvidencePathRoutingConstants.TagKeyVerificationOwner}@{longResourceId}";
+        await routingRepository.ReplaceRoutingForPathInScopeAsync(ownProject, routingPathId,
+        [
+            new SecurityEvidencePathRoutingRecord
+            {
+                RoutingRowId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                PathId = routingPathId,
+                Role = SecurityEvidencePathRoutingRole.VerificationOwner,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+                SourceReference = longReference,
+                CreatedUtc = now,
+                UpdatedUtc = now,
+            },
+        ]);
+        (await routingRepository.ListByPathIdInScopeAsync(ownProject, routingPathId))
+            .Should().ContainSingle().Which.SourceReference.Should().Be(longReference);
     }
 
-    private static byte[] BuildZip(string subscriptionId, string storageArmId)
+    private static byte[] BuildZip(string subscriptionId, string storageArmId, string ownerTagValue)
     {
         using MemoryStream buffer = new();
         using (ZipArchive zip = new(buffer, ZipArchiveMode.Create, leaveOpen: true))
@@ -302,7 +330,7 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
                     "resourceGroup":"rg-lab",
                     "location":"eastus",
                     "properties":{"publicNetworkAccess":"Enabled"},
-                    "tags":{"environment":"production"}
+                    "tags":{"environment":"production","owner":"{{ownerTagValue}}"}
                   }]
                   """);
             Write(zip, "role-assignments.json",

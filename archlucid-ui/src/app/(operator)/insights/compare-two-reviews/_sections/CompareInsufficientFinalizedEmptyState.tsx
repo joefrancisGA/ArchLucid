@@ -9,6 +9,8 @@ import {
 } from "@/lib/insights-finalized-review-prerequisite-empty";
 import { ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE } from "@/lib/architecture/compare-delta-counts-two-sealed-footnote-copy";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
+import { CompareInsufficientFinalizedPartialCaptureHonesty } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedPartialCaptureHonesty";
+import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +49,8 @@ export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficien
           >
             {ARCHITECTURE_COMPARE_DELTA_COUNTS_TWO_SEALED_FOOTNOTE}
           </p>
+          <CompareRunPickersPartialInventoryFootnote />
+          <CompareInsufficientFinalizedPartialCaptureHonesty />
           <CompareSampleComparisonAction onLoadSampleComparison={onLoadSampleComparison} />
         </div>
       }

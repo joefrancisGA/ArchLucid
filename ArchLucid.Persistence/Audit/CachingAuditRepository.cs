@@ -4,13 +4,18 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Persistence.Audit;
 
 /// <summary>
 ///     Decorates <see cref="IAuditRepository" /> with short-TTL hot-path reads for first-page list/search queries
 ///     (TB-581). Export, count, and keyset pages bypass the cache.
 /// </summary>
-public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadCache hotPathReadCache) : IAuditRepository
+public sealed class CachingAuditRepository(
+    IAuditRepository inner,
+    IHotPathReadCache hotPathReadCache,
+    ILogger<CachingAuditRepository>? logger = null) : IAuditRepository
 {
     /// <summary>
     ///     Short TTL for admin audit list/search; scope revision bump invalidates on append (TB-581), coalesced during
@@ -34,7 +39,17 @@ public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadC
 
         ScopeContext scope = ScopeForEvent(auditEvent);
 
-        await HotPathCacheEviction.InvalidateAuditListScopeAsync(_hotPathReadCache, scope, ct);
+        // A standalone append has already committed. A caller-owned transaction can still roll back.
+        bool callerOwnsTransaction = connection is not null && transaction is not null;
+        CancellationToken invalidationToken = callerOwnsTransaction ? ct : CancellationToken.None;
+        try
+        {
+            await HotPathCacheEviction.InvalidateAuditListScopeAsync(_hotPathReadCache, scope, invalidationToken);
+        }
+        catch (Exception ex) when (!callerOwnsTransaction)
+        {
+            logger?.LogWarning(ex, "Audit append committed but audit list cache invalidation failed.");
+        }
     }
 
     /// <inheritdoc />
@@ -79,7 +94,7 @@ public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadC
             return await _inner.GetFilteredAsync(tenantId, workspaceId, projectId, filter, ct);
 
         ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
-        int safeTake = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        int safeTake = filter.ResolveListFetchSize();
         long revision = await ReadAuditListScopeRevisionAsync(scope, ct);
         string fingerprint = AuditFilterCacheFingerprint.Build(filter);
         string key = HotPathCacheKeys.AuditListFilteredFirstPage(scope, fingerprint, safeTake, revision);
@@ -158,7 +173,9 @@ public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadC
 
         RunListScopeRevisionState? state = await _hotPathReadCache.GetOrCreateAsync(
             revisionKey,
-            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = 0 }),
+            // Negative revisions distinguish reader-created generations from invalidation timestamps.
+            _ => Task.FromResult<RunListScopeRevisionState?>(
+                new RunListScopeRevisionState { Revision = Random.Shared.NextInt64(long.MinValue, 0) }),
             ct);
 
         return state?.Revision ?? 0;

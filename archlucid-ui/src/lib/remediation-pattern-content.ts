@@ -75,7 +75,9 @@ export function findApprovedRemediationPatternVersion(
   const approvedVersionLabel = currentApprovedVersion?.trim() ?? "";
 
   if (approvedVersionLabel.length > 0) {
-    const byLabel = versions.find((version) => version.version === approvedVersionLabel);
+    const byLabel = versions.find((version) =>
+      version.version === approvedVersionLabel && version.status === REMEDIATION_PATTERN_STATUS.approved
+    );
 
     if (byLabel !== undefined) {
       return byLabel;

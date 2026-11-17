@@ -17,7 +17,12 @@ import {
 } from "@/lib/governance/governance-workflow-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { positiveIntegerOrDefault, recordsOnly, trimRequiredPathSegment } from "./api-boundary-normalization";
+import {
+  positiveIntegerOrDefault,
+  recordsOnly,
+  requireRecord,
+  trimRequiredPathSegment,
+} from "./api-boundary-normalization";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -27,7 +32,18 @@ export async function fetchGovernanceSetupGuideBundle(): Promise<{
   alertRoutingSubscriptions: AlertRoutingSubscription[];
 }> {
   try {
-    return await apiGetSealedManifestAware(`${governanceBase()}/setup-guide-bundle`);
+    const raw = requireRecord<{
+      effectivePolicyPacks: EffectivePolicyPackSet;
+      alertRoutingSubscriptions?: unknown;
+    }>(
+      await apiGetSealedManifestAware<unknown>(`${governanceBase()}/setup-guide-bundle`),
+      "Governance setup guide",
+    );
+
+    return {
+      effectivePolicyPacks: raw.effectivePolicyPacks,
+      alertRoutingSubscriptions: recordsOnly<AlertRoutingSubscription>(raw.alertRoutingSubscriptions),
+    };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceSetupGuideBlockedReason(failure);

@@ -39,13 +39,19 @@ public sealed class ArchitectureProjectRetentionPurgeBackgroundWorkTests
         audit.LoggedEvents.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task RunSinglePassAsync_when_enabled_audits_each_deleted_project_id()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RunSinglePassAsync_when_enabled_audits_each_deleted_project_id(bool cancelAfterPurge)
     {
         Guid projectId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
-        PurgeSpy purge = new();
+        using CancellationTokenSource cancellation = new();
+        PurgeSpy purge = new()
+        {
+            OnReturningDeletions = cancelAfterPurge ? cancellation.Cancel : null,
+        };
         purge.DeletionsToReturn.Add(new ArchitectureProjectPurgeDeletion(projectId, tenantId, workspaceId));
         AuditSpy audit = new();
 
@@ -62,7 +68,7 @@ public sealed class ArchitectureProjectRetentionPurgeBackgroundWorkTests
             factory,
             monitor,
             NullLogger.Instance,
-            CancellationToken.None);
+            cancellation.Token);
 
         purge.PurgeCallCount.Should().Be(1);
         audit.LoggedEvents.Should().ContainSingle();
@@ -85,6 +91,8 @@ public sealed class ArchitectureProjectRetentionPurgeBackgroundWorkTests
 
     private sealed class PurgeSpy : IArchitectureProjectRetentionPurgeService
     {
+        public Action? OnReturningDeletions { get; init; }
+
         public List<ArchitectureProjectPurgeDeletion> DeletionsToReturn { get; } = [];
 
         public int PurgeCallCount
@@ -100,6 +108,7 @@ public sealed class ArchitectureProjectRetentionPurgeBackgroundWorkTests
             PurgeCallCount++;
             _ = cutoffUtc;
             _ = ct;
+            OnReturningDeletions?.Invoke();
 
             return Task.FromResult<IReadOnlyList<ArchitectureProjectPurgeDeletion>>(DeletionsToReturn.ToList());
         }
@@ -111,8 +120,8 @@ public sealed class ArchitectureProjectRetentionPurgeBackgroundWorkTests
 
         public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             LoggedEvents.Add(auditEvent);
-            _ = cancellationToken;
 
             return Task.CompletedTask;
         }

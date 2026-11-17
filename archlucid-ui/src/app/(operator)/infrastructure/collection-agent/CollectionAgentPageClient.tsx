@@ -17,6 +17,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useCollectionRunsQuery, useTriggerCollectionRunMutation } from "@/hooks/use-collection-runs-query";
 import {
+  collectionRunTimeMs,
   formatCollectionRunDuration,
   formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
@@ -45,7 +46,8 @@ import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-fail
 import { cn } from "@/lib/utils";
 
 function collectionRunSortTime(run: CollectionRun): number {
-  return parseIsoUtcMs(run.finishedUtc ?? run.startedUtc ?? "");
+  const time = collectionRunTimeMs(run);
+  return Number.isFinite(time) ? time : Number.NEGATIVE_INFINITY;
 }
 
 function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
@@ -53,7 +55,13 @@ function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
     const leftRunning = left.status === "Running" ? 1 : 0;
     const rightRunning = right.status === "Running" ? 1 : 0;
 
-    return rightRunning - leftRunning || collectionRunSortTime(right) - collectionRunSortTime(left);
+    if (leftRunning !== rightRunning) {
+      return rightRunning - leftRunning;
+    }
+
+    const leftTime = collectionRunSortTime(left);
+    const rightTime = collectionRunSortTime(right);
+    return leftTime === rightTime ? 0 : rightTime - leftTime;
   });
 }
 
@@ -180,6 +188,21 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
   );
 }
 
+function formatSuccessfulRunLabel(run: CollectionRun | null): string {
+  if (run === null) {
+    return "No successful run was stored.";
+  }
+
+  const finishedUtc = run.finishedUtc?.trim();
+  if (!finishedUtc) {
+    return "Last successful run finish time was not stored.";
+  }
+
+  return Number.isFinite(parseIsoUtcMs(finishedUtc))
+    ? `Last successful run ${formatRelativeTime(finishedUtc)}`
+    : "Last successful run finish time could not be read.";
+}
+
 export function CollectionAgentPageClient(): React.JSX.Element {
   const query = useCollectionRunsQuery();
   const triggerMutation = useTriggerCollectionRunMutation();
@@ -193,11 +216,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
     ? null
     : toApiLoadFailure(triggerMutation.error);
-  const successfulRunLabel = health.successfulRun === null
-    ? "No successful run was stored."
-    : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
-      ? "Last successful run finish time was not stored."
-      : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
+  const successfulRunLabel = formatSuccessfulRunLabel(health.successfulRun);
 
   if (query.isPending) {
     return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;

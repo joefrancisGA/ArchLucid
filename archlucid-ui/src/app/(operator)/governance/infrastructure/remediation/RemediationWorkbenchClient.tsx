@@ -81,6 +81,11 @@ import {
 import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
 import { REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-workflow-honesty-copy";
 import { REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE } from "@/lib/infra-evidence/remediation-workbench-execute-advisory-honesty-copy";
+import { RemediationWorkbenchWavesEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchWavesEmptyPartialHonesty";
+import { REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/remediation-workbench-partial-capture-honesty-copy";
+import { SecureNowRemediationWorkbenchPartialCaptureStrip } from "@/components/product-line/SecureNowRemediationWorkbenchPartialCaptureStrip";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
@@ -230,6 +235,7 @@ function buildDiagramHubHref(context: {
 export function RemediationWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const router = useRouter();
   const pathname = usePathname() ?? "";
@@ -922,6 +928,7 @@ export function RemediationWorkbenchClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-workflow-honesty">
         {REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE}
       </p>
+      {isSecureNowProductLine(productLine) ? <SecureNowRemediationWorkbenchPartialCaptureStrip /> : null}
 
       <RemediationWorkbenchContextStrip
         freshnessLabel={freshnessLabel}
@@ -1565,6 +1572,14 @@ export function RemediationWorkbenchClient() {
               >
                 {REMEDIATION_WORKBENCH_EXECUTE_ADVISORY_HONESTY_LINE}
               </p>
+              {isSecureNowProductLine(productLine) && partialCapture ? (
+                <p
+                  className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-remediation-execute-partial-capture-honesty"
+                >
+                  {REMEDIATION_WORKBENCH_EXECUTE_PARTIAL_CAPTURE_LINE}
+                </p>
+              ) : null}
               {buyerPolishedShell ? (
                 <div className="space-y-1">
                   <WhyDisabledCtaHint
@@ -1637,6 +1652,7 @@ export function RemediationWorkbenchClient() {
               {productLine === "security" ? SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL : REMEDIATION_WAVES_EMPTY_LABEL}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_HELPER}</p>
+            {isSecureNowProductLine(productLine) ? <RemediationWorkbenchWavesEmptyPartialHonesty /> : null}
           </div>
         ) : (
           <ul className="m-0 grid gap-2 pl-5">

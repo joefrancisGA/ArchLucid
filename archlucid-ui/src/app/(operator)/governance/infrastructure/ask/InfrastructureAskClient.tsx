@@ -17,6 +17,12 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-partial-capture-honesty-copy";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -172,6 +178,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const buyerPolishedShell = useProductionEvalChrome();
   const workingDeskChrome = useProductionDeskChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
     GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
@@ -1035,6 +1044,19 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-insufficient-evidence-honesty">
         {INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE}
       </p>
+
+      {!drawerPresentation && isSecureNowProductLine(productLine) && partialCapture ? (
+        <div className="space-y-2" data-testid="infrastructure-ask-page-partial-capture">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE}</p>
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="infrastructure-ask-page-partial-capture-recovery"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            cloudConnectionsTestId="infrastructure-ask-page-partial-capture-cloud-connections"
+            extractUploadTestId="infrastructure-ask-page-partial-capture-extract-upload"
+          />
+        </div>
+      ) : null}
 
       {cloudResourceId.length > 0 && (
         auditScope != null

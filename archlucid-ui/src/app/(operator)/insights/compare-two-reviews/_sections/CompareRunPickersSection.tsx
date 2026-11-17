@@ -20,6 +20,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { RunSummary } from "@/types/authority";
 import { ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE } from "@/lib/architecture/compare-second-sealed-review-honesty-copy";
+import { CompareRunPickersPartialInventoryFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersPartialInventoryFootnote";
 
 export type CompareRunPickersSectionProps = {
   leftPickerLabel: string;
@@ -274,6 +275,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-run-pickers-second-seal-footnote">
           {ARCHITECTURE_COMPARE_SECOND_SEALED_REVIEW_LINE}
         </p>
+        <CompareRunPickersPartialInventoryFootnote />
       </div>
     </>
   );

@@ -551,6 +551,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         if (finding.Conclusion is not (ReviewConclusion.Fail or ReviewConclusion.Indeterminate))
             return false;
 
+        if (ArchitectureRecommendationEngine.IsGovernanceClosedForRecommendation(finding))
+            return false;
+
         return ProvenancePresentationMapper.MapFinding(finding) != ProvenancePresentationBucket.Unverified;
     }
 

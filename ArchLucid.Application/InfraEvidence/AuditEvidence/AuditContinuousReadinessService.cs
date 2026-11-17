@@ -40,8 +40,9 @@ public sealed class AuditContinuousReadinessService(
                 };
             }
 
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
             IReadOnlyList<AuditAssessmentRecord> assessments =
-                await assessmentRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
+                await assessmentRepository.ListActiveByScopeAsync(projectScope, cancellationToken);
 
             if (assessments.Count == 0)
             {
@@ -56,6 +57,7 @@ public sealed class AuditContinuousReadinessService(
             List<Guid> affectedControlIds = [];
             List<Guid> reEvaluatedControlIds = [];
             int findingHandoffCount = 0;
+            string? evaluationError = null;
 
             foreach (AuditAssessmentRecord assessment in assessments)
             {
@@ -77,8 +79,8 @@ public sealed class AuditContinuousReadinessService(
                     .ToHashSet();
 
                 IReadOnlyList<AuditEvidenceSnapshotHeaderRecord> auditSnapshots =
-                    await auditEvidenceSnapshotRepository.ListByAssessmentAsync(
-                        scope.TenantId,
+                    await auditEvidenceSnapshotRepository.ListByAssessmentInScopeAsync(
+                        projectScope,
                         assessment.AssessmentId,
                         cancellationToken);
 
@@ -90,8 +92,8 @@ public sealed class AuditContinuousReadinessService(
                     continue;
 
                 IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
-                    await auditEvidenceSnapshotRepository.ListItemsAsync(
-                        scope.TenantId,
+                    await auditEvidenceSnapshotRepository.ListItemsInScopeAsync(
+                        projectScope,
                         latestAuditSnapshot.AuditEvidenceSnapshotId,
                         cancellationToken);
 
@@ -110,8 +112,8 @@ public sealed class AuditContinuousReadinessService(
 
                 if (freshnessUpdates.Count > 0)
                 {
-                    await auditEvidenceSnapshotRepository.UpdateItemFreshnessAsync(
-                        scope.TenantId,
+                    await auditEvidenceSnapshotRepository.UpdateItemFreshnessInScopeAsync(
+                        projectScope,
                         latestAuditSnapshot.AuditEvidenceSnapshotId,
                         freshnessUpdates,
                         cancellationToken);
@@ -130,6 +132,12 @@ public sealed class AuditContinuousReadinessService(
                             [],
                             [],
                             cancellationToken);
+
+                    if (!evaluationResult.Succeeded)
+                    {
+                        evaluationError ??= evaluationResult.ErrorMessage ?? "Audit control re-evaluation failed.";
+                        continue;
+                    }
 
                     reEvaluatedControlIds.Add(controlId);
 
@@ -174,7 +182,8 @@ public sealed class AuditContinuousReadinessService(
 
             return new AuditContinuousReadinessProcessResult
             {
-                Succeeded = true,
+                Succeeded = evaluationError is null,
+                ErrorMessage = evaluationError,
                 AffectedControlIds = affectedControlIds.Distinct().ToList(),
                 ReEvaluatedControlIds = reEvaluatedControlIds.Distinct().ToList(),
                 FindingHandoffCount = findingHandoffCount,

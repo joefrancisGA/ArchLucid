@@ -20,7 +20,7 @@ public static class AzureInventoryMessagingAssociationExtractor
             return false;
         }
 
-        string? childResourceId = TryReadString(eventHubResource, "id");
+        string? childResourceId = TryReadResourceId(eventHubResource, "id");
         string? childName = TryReadString(eventHubResource, "name");
 
         if (string.IsNullOrWhiteSpace(childResourceId) || string.IsNullOrWhiteSpace(childName))
@@ -71,7 +71,7 @@ public static class AzureInventoryMessagingAssociationExtractor
             return false;
         }
 
-        string? childResourceId = TryReadString(childResource, "id");
+        string? childResourceId = TryReadResourceId(childResource, "id");
         string? childName = TryReadString(childResource, "name");
 
         if (string.IsNullOrWhiteSpace(childResourceId) || string.IsNullOrWhiteSpace(childName))
@@ -106,6 +106,16 @@ public static class AzureInventoryMessagingAssociationExtractor
         };
 
         return true;
+    }
+
+    private static string? TryReadResourceId(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        {
+            return null;
+        }
+
+        return AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(value);
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

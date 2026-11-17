@@ -36,6 +36,19 @@ import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-
 import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/resource-hub-inventory-snapshot-honesty-copy";
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
+import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-hub-audit-tab-partial-capture-copy";
+import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
+import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
+import {
+  RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE,
+  RESOURCE_HUB_TERRAFORM_TAB_PARTIAL_CAPTURE_LINE,
+} from "@/lib/infra-evidence/resource-hub-tab-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -1558,6 +1571,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Overview combines the selected resource&apos;s captured configuration, findings, and recent changes.
             </p>
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-overview-partial-capture"
+                middleLine={RESOURCE_HUB_OVERVIEW_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-overview-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-overview-partial-capture-extract"
+              />
+            ) : null}
             {hub.auditLineageLink.available !== true ? (
               <InfraAuditLineageUnavailableBanner
                 degradedReason={formatStoredInfraEvidenceHubField(
@@ -1675,6 +1696,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
                     description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
                     testId="infra-resource-hub-config-empty"
+                    footer={
+                      isSecureNowProductLine(productLine) ? (
+                        <SecureNowInfraPartialCaptureStrip
+                          testId="infra-resource-hub-config-empty-partial-capture"
+                          middleLine={RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE}
+                          cloudConnectionsTestId="infra-resource-hub-config-empty-partial-cloud"
+                          extractUploadTestId="infra-resource-hub-config-empty-partial-extract"
+                        />
+                      ) : undefined
+                    }
                   />
                 </>
               ) : (
@@ -2002,6 +2033,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Open the drift workbench with this resource&apos;s snapshot context prefilled.
             </p>
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-drift-tab-partial-capture"
+                middleLine={RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-drift-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-drift-tab-partial-capture-extract"
+              />
+            ) : null}
             <Link
               className={OPERATOR_LINK.inline}
               href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, resolvedRunId)}
@@ -2027,6 +2066,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_TITLE}
                 description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_DRIFT_EMPTY_BODY}
                 testId="infra-resource-hub-drift-empty"
+                footer={
+                  isSecureNowProductLine(productLine) ? (
+                    <SecureNowInfraPartialCaptureStrip
+                      testId="infra-resource-hub-drift-empty-partial-capture"
+                      middleLine={RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE}
+                      cloudConnectionsTestId="infra-resource-hub-drift-empty-partial-cloud"
+                      extractUploadTestId="infra-resource-hub-drift-empty-partial-extract"
+                    />
+                  ) : undefined
+                }
               />
             )}
           </EnterpriseTabsContent>
@@ -2038,6 +2087,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               This compares diagram correspondence with captured inventory; it does not redraw Azure.
             </p>
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-diagram-tab-partial-capture"
+                middleLine={RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-diagram-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-diagram-tab-partial-capture-extract"
+              />
+            ) : null}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <Link
                 className={OPERATOR_LINK.inline}
@@ -2152,6 +2209,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="terraform" className="mt-4 space-y-3">
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-terraform-tab-partial-capture"
+                middleLine={RESOURCE_HUB_TERRAFORM_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-terraform-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-terraform-tab-partial-capture-extract"
+              />
+            ) : null}
             {!hasTerraformMapping ? (
               <EnterpriseCompactEmptyState
                 title={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE}
@@ -2173,8 +2238,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             ) : (
               <section className={cnCard}>
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
-                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                  This mapping is advisory. Exporting it does not apply Terraform.
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="resource-hub-terraform-advisory-not-apply">
+                  {TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE}
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Not mapped means no Terraform address was captured; it does not mean the resource is unmanaged in Azure.
@@ -2284,6 +2349,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid={`infra-resource-hub-findings-empty-not-failure-${stream.streamKind}`}>
                           {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
+                        <SecureNowInfraPartialCaptureStrip
+                          testId={`infra-resource-hub-findings-empty-partial-capture-${stream.streamKind}`}
+                          middleLine={RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE}
+                          cloudConnectionsTestId={`infra-resource-hub-findings-empty-partial-cloud-${stream.streamKind}`}
+                          extractUploadTestId={`infra-resource-hub-findings-empty-partial-extract-${stream.streamKind}`}
+                        />
                       </div>
                     }
                   />
@@ -2465,6 +2536,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-remediation-tab-partial-capture"
+                middleLine={RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-remediation-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-remediation-tab-partial-capture-extract"
+              />
+            ) : null}
             <Link
               className={OPERATOR_LINK.inline}
               href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, runId: resolvedRunId.length > 0 ? resolvedRunId : undefined, ...workbenchLinkAuditContext })}
@@ -2493,6 +2572,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE}
                 description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_BODY}
                 testId="infra-resource-hub-remediation-empty"
+                footer={
+                  isSecureNowProductLine(productLine) ? (
+                    <SecureNowInfraPartialCaptureStrip
+                      testId="infra-resource-hub-remediation-empty-partial-capture"
+                      middleLine={RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE}
+                      cloudConnectionsTestId="infra-resource-hub-remediation-empty-partial-cloud"
+                      extractUploadTestId="infra-resource-hub-remediation-empty-partial-extract"
+                    />
+                  ) : undefined
+                }
               />
             ) : (
               <EnterpriseTable ariaLabel="Remediation instances">
@@ -2588,6 +2677,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="audit" className="mt-4 space-y-3">
+            {isSecureNowProductLine(productLine) ? (
+              <SecureNowInfraPartialCaptureStrip
+                testId="infra-resource-hub-audit-tab-partial-capture"
+                middleLine={RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE}
+                cloudConnectionsTestId="infra-resource-hub-audit-tab-partial-capture-cloud"
+                extractUploadTestId="infra-resource-hub-audit-tab-partial-capture-extract"
+              />
+            ) : null}
             {resolvedAuditLineage != null ? (
               <>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -2679,6 +2776,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     "No audit evidence snapshot rows reference this cloud resource yet.",
                   )}
                 </p>
+                {isSecureNowProductLine(productLine) ? (
+                  <SecureNowInfraPartialCaptureStrip
+                    testId="infra-resource-hub-audit-degraded-partial-capture"
+                    middleLine={RESOURCE_HUB_AUDIT_TAB_PARTIAL_CAPTURE_LINE}
+                    cloudConnectionsTestId="infra-resource-hub-audit-degraded-partial-cloud"
+                    extractUploadTestId="infra-resource-hub-audit-degraded-partial-extract"
+                  />
+                ) : null}
               </section>
             )}
           </EnterpriseTabsContent>

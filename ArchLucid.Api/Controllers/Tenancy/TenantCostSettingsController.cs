@@ -83,17 +83,19 @@ public sealed class TenantCostSettingsController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (body.ArchitectHourlyRateUsd is <= 0m or > 10_000m)
+        // SQL rounds both amounts to cents and requires the stored values to be positive.
+        const decimal minimumRoundingToOneCent = 0.005m;
+        if (body.ArchitectHourlyRateUsd is < minimumRoundingToOneCent or > 10_000m)
         {
             return this.BadRequestProblem(
-                "Architect hourly rate must be between 0 and 10,000 (exclusive of zero).",
+                "Architect hourly rate must round to at least $0.01 and be at most $10,000.",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (body.AverageIncidentCostUsd is <= 0m or > 10_000_000m)
+        if (body.AverageIncidentCostUsd is < minimumRoundingToOneCent or > 10_000_000m)
         {
             return this.BadRequestProblem(
-                "Average incident cost must be between 0 and 10,000,000 (exclusive of zero).",
+                "Average incident cost must round to at least $0.01 and be at most $10,000,000.",
                 ProblemTypes.ValidationFailed);
         }
 

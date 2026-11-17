@@ -264,7 +264,8 @@ public sealed class RemediationPrioritizationService(
 
         foreach (KeyValuePair<string, decimal> entry in parsed)
         {
-            if (Enum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor))
+            if (Enum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor)
+                && Enum.IsDefined(factor))
                 weights[factor] = entry.Value;
         }
 

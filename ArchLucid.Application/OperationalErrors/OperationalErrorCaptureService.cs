@@ -92,6 +92,9 @@ public sealed class OperationalErrorCaptureService(
 
         return string.Join(
             '|',
+            request.TenantId?.ToString() ?? string.Empty,
+            request.WorkspaceId?.ToString() ?? string.Empty,
+            request.ProjectId?.ToString() ?? string.Empty,
             request.Category,
             request.Source,
             request.HttpStatusCode?.ToString() ?? string.Empty,

@@ -48,10 +48,8 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 import Link from "next/link";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
-import { formatPartialCaptureWithSnapshotIdLine } from "@/lib/product-line/partial-capture-snapshot-id-honesty-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
-import { SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL } from "@/lib/product-line/securenow-second-capture-cta-copy";
 import {
   isPositiveFiniteCount,
   resolveSecureNowFindingsQueueOpenGate,
@@ -329,16 +327,13 @@ export function GovernanceFindingsQueueHeader({
             <SecureNowFindingsQueueOpenGateStrip openGates={secureNowFindingsOpenGates} />
           ) : null}
           {partialCapture ? (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-header-partial-capture">
-              {formatPartialCaptureWithSnapshotIdLine(partialCaptureSnapshotId)}{" "}
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={buildSecureNowSecondCaptureCloudConnectionsHref(partialCaptureReturnPath)}
-                data-testid="governance-findings-header-partial-capture-cloud-connections"
-              >
-                {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
-              </Link>
-            </p>
+            <SecureNowPartialCaptureRecoveryParagraph
+              testId="governance-findings-header-partial-capture"
+              partialCaptureSnapshotId={partialCaptureSnapshotId}
+              returnPath={partialCaptureReturnPath}
+              cloudConnectionsTestId="governance-findings-header-partial-capture-cloud-connections"
+              extractUploadTestId="governance-findings-header-partial-capture-extract-upload"
+            />
           ) : null}
         </div>
       ) : null}

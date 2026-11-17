@@ -2,7 +2,7 @@ using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Persistence.Audit;
 
-/// <summary>Normalizes audit list rows that omit <see cref="AuditEvent.DataJson"/> (TB-577).</summary>
+/// <summary>Copies audit rows, optionally omitting <see cref="AuditEvent.DataJson"/> from list results.</summary>
 internal static class AuditEventListProjection
 {
     internal static IReadOnlyList<AuditEvent> MaterializeWithoutDataJson(IEnumerable<AuditEvent> rows)
@@ -10,12 +10,12 @@ internal static class AuditEventListProjection
         List<AuditEvent> list = [];
 
         foreach (AuditEvent row in rows)
-            list.Add(WithoutDataJson(row));
+            list.Add(Copy(row, includeDataJson: false));
 
         return list;
     }
 
-    internal static AuditEvent WithoutDataJson(AuditEvent row)
+    internal static AuditEvent Copy(AuditEvent row, bool includeDataJson = true)
     {
         return new AuditEvent
         {
@@ -31,7 +31,7 @@ internal static class AuditEventListProjection
             RunId = row.RunId,
             ManifestId = row.ManifestId,
             ArtifactId = row.ArtifactId,
-            DataJson = "{}",
+            DataJson = includeDataJson ? row.DataJson : "{}",
             CorrelationId = row.CorrelationId,
         };
     }

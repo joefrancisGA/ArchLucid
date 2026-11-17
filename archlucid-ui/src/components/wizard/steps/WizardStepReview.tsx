@@ -289,15 +289,12 @@ function wizardConfirmNamedAttachmentSummary(
     (entry) => entry.name.trim().length > 0 || Object.values(entry).some((value) => typeof value === "string" && value.trim().length > 0),
   );
   const unnamedCount = withStoredContent.filter((entry) => entry.name.trim().length === 0).length;
-  const namedCount = withStoredContent.length - unnamedCount;
   const countLine =
-    namedCount > 0
-      ? `${namedCount} ${options.unitLabel}${namedCount === 1 ? "" : "s"}`
+    withStoredContent.length > 0
+      ? `${withStoredContent.length} ${options.unitLabel}${withStoredContent.length === 1 ? "" : "s"}`
       : touched && options.storedEmptyCountLabel !== undefined
         ? options.storedEmptyCountLabel
-        : withStoredContent.length === 0
-          ? `0 ${options.unitLabel}s`
-          : `0 named ${options.unitLabel}s`;
+        : `0 ${options.unitLabel}s`;
 
   if (unnamedCount === 0) {
     return countLine;

@@ -25,9 +25,12 @@ namespace ArchLucid.Application.Tests.AzureExtractor;
 [Trait("Suite", "Core")]
 public sealed class AzureExtractorPreparedZipPersistStageTests
 {
-    [Fact]
-    public async Task PersistAsync_forwards_subscription_name_to_snapshot_header()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PersistAsync_returns_snapshot_id_only_after_materialization_succeeds(bool materialized)
     {
+        Guid snapshotId = Guid.NewGuid();
         Mock<IAzureInventorySnapshotHeaderService> snapshotHeader = new();
         snapshotHeader
             .Setup(s => s.TryCreatePendingFromPackageAsync(
@@ -44,15 +47,17 @@ public sealed class AzureExtractorPreparedZipPersistStageTests
             .ReturnsAsync(new AzureInventorySnapshotHeaderCreateResult
             {
                 Succeeded = true,
-                SnapshotId = Guid.NewGuid(),
+                SnapshotId = snapshotId,
             });
 
-        AzureExtractorPreparedZipPersistStage sut = CreateSut(snapshotHeader.Object);
+        AzureExtractorPreparedZipPersistStage sut = CreateSut(snapshotHeader.Object, materialized);
         AzureExtractorPreparedZipValidatedContext context = CreateContext("Contoso Production");
 
         AzureExtractorIngestResult result = await sut.PersistAsync(context, CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
+        result.PackageId.Should().HaveValue();
+        result.SnapshotId.Should().Be(materialized ? snapshotId : null);
         snapshotHeader.Verify(
             s => s.TryCreatePendingFromPackageAsync(
                 It.IsAny<ScopeContext>(),
@@ -213,7 +218,8 @@ public sealed class AzureExtractorPreparedZipPersistStageTests
             Times.Once);
     }
 
-    private static AzureExtractorPreparedZipPersistStage CreateSut(IAzureInventorySnapshotHeaderService snapshotHeader)
+    private static AzureExtractorPreparedZipPersistStage CreateSut(
+        IAzureInventorySnapshotHeaderService snapshotHeader, bool materialized = true)
     {
         Mock<IScopeContextProvider> scope = new();
         Mock<IAuditService> audit = new();
@@ -230,9 +236,9 @@ public sealed class AzureExtractorPreparedZipPersistStageTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AzureInventorySnapshotMaterializeResult
             {
-                Succeeded = true,
-                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
-                ResourceCount = 1,
+                Succeeded = materialized,
+                CaptureStatus = materialized ? AzureInventoryCaptureStatus.Succeeded : AzureInventoryCaptureStatus.Failed,
+                ResourceCount = materialized ? 1 : 0,
             });
 
         return new AzureExtractorPreparedZipPersistStage(

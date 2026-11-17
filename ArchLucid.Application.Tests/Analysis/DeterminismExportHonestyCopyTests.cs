@@ -26,7 +26,7 @@ public sealed class DeterminismExportHonestyCopyTests
             .Be(ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy);
         DeterminismExportHonestyCopy.FormatTraceErrorMessage(null, parseSucceeded: true)
             .Should()
-            .Be(ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy);
+            .Be(ArchitectureEvidenceRequestExport.TraceErrorNotStoredBecauseParseSucceededCopy);
         DeterminismExportHonestyCopy.FormatTraceErrorMessage("  timeout  ", parseSucceeded: false)
             .Should()
             .Be("  timeout  ");

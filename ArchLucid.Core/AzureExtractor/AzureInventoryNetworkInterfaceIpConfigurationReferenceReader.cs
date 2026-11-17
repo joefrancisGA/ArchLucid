@@ -70,24 +70,24 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         return ArmResourceIdNormalizer.Normalize(working);
     }
 
-    private static string? TryReadArmIdFromJson(string json)
+    private static string? TryReadArmIdFromJson(string json) =>
+        AzureInventoryArmJsonBlobIdReader.TryReadArmIdFromJson(json, TryReadArmIdFromDecodedScalar);
+
+    private static string? TryReadArmIdFromDecodedScalar(string? scalar)
     {
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Object
-                || !TryGetPropertyIgnoreCase(document.RootElement, "id", out JsonElement idElement))
-            {
-                return null;
-            }
-
-            return TryReadArmId(idElement);
-        }
-        catch (JsonException)
+        if (string.IsNullOrWhiteSpace(scalar))
         {
             return null;
         }
+
+        string trimmed = scalar.Trim();
+
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return NormalizeReferenceArmId(trimmed);
     }
 
     private static bool LooksLikeArmResourceId(string value)

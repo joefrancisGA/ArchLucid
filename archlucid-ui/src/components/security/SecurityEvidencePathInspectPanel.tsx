@@ -82,6 +82,8 @@ import {
   PATH_INSPECT_LONG_PATH_ID_OVERFLOW_LINE,
   shouldShowPathInspectLongPathIdHonesty,
 } from "@/lib/product-line/path-inspect-long-path-id-honesty-copy";
+import { PATH_INSPECT_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/path-inspect-partial-capture-honesty-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
 import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -918,6 +920,14 @@ export function SecurityEvidencePathInspectPanel(props: {
           ) : null}
         </div>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
+        {resolvedPathId != null ? (
+          <SecureNowInfraPartialCaptureStrip
+            testId="security-evidence-path-inspect-partial-capture"
+            middleLine={PATH_INSPECT_PARTIAL_CAPTURE_LINE}
+            cloudConnectionsTestId="security-evidence-path-inspect-partial-capture-cloud"
+            extractUploadTestId="security-evidence-path-inspect-partial-capture-extract"
+          />
+        ) : null}
         <SecureNowPathInspectAssignedPacksLine />
         {resolvedPathId != null && agentExecutionModeLine !== null ? (
           <p

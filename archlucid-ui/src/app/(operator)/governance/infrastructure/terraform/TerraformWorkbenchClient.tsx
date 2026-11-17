@@ -26,6 +26,10 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
 import { TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-evidence/terraform-advisory-snapshot-honesty-copy";
+import { TERRAFORM_WORKBENCH_MAPPING_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/terraform-workbench-mapping-empty-partial-capture-copy";
+import { TERRAFORM_WORKBENCH_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/infra-evidence-workbench-partial-capture-copy";
+import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
@@ -513,6 +517,14 @@ export function TerraformWorkbenchClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-terraform-advisory-snapshot-honesty">
           {TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE}
         </p>
+        {isSecureNowProductLine(productLine) ? (
+          <SecureNowInfraPartialCaptureStrip
+            testId="infra-terraform-partial-capture"
+            middleLine={TERRAFORM_WORKBENCH_PARTIAL_CAPTURE_LINE}
+            cloudConnectionsTestId="infra-terraform-partial-capture-cloud"
+            extractUploadTestId="infra-terraform-partial-capture-extract"
+          />
+        ) : null}
 
         {hasStaleAuditUrlParams && urlCloudResourceId.length === 0 ? (
           <InfraAuditLineageUnavailableBanner
@@ -701,6 +713,16 @@ export function TerraformWorkbenchClient() {
               </div>
             }
             testId="infra-terraform-empty-state"
+            footer={
+              isSecureNowProductLine(productLine) ? (
+                <SecureNowInfraPartialCaptureStrip
+                  testId="infra-terraform-mapping-empty-partial-capture"
+                  middleLine={TERRAFORM_WORKBENCH_MAPPING_EMPTY_PARTIAL_CAPTURE_LINE}
+                  cloudConnectionsTestId="infra-terraform-mapping-empty-partial-cloud"
+                  extractUploadTestId="infra-terraform-mapping-empty-partial-extract"
+                />
+              ) : undefined
+            }
             actions={
               driftWorkbenchHref != null
                 ? [

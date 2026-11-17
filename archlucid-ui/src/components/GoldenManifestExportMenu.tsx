@@ -43,6 +43,7 @@ import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-mar
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE } from "@/lib/reviews/review-commit-evidence-before-seal-copy";
+import { ExportPartialCaptureRecoveryHonesty } from "@/components/exports/ExportPartialCaptureRecoveryHonesty";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
@@ -318,7 +319,22 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-commit-before-seal">
           {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
         </p>
+        <ExportPartialCaptureRecoveryHonesty
+          show
+          testId="golden-manifest-export-partial-capture-recovery"
+          cloudConnectionsTestId="golden-manifest-export-partial-capture-cloud-connections"
+          extractUploadTestId="golden-manifest-export-partial-capture-extract-upload"
+        />
       </div>
+    ) : null;
+  const exportPartialCaptureOnError =
+    exportError !== null ? (
+      <ExportPartialCaptureRecoveryHonesty
+        show
+        testId="golden-manifest-export-error-partial-capture-recovery"
+        cloudConnectionsTestId="golden-manifest-export-error-partial-capture-cloud-connections"
+        extractUploadTestId="golden-manifest-export-error-partial-capture-extract-upload"
+      />
     ) : null;
 
   if (buyerMarkdownAsPrimaryButton === true) {
@@ -345,6 +361,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         {exportLegacyWarning}
         {exportStatusChrome}
         {exportRecoveryChrome}
+        {exportPartialCaptureOnError}
         {exportError !== null ? (
           <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
             <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
@@ -417,6 +434,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       {exportLegacyWarning}
       {exportStatusChrome}
       {exportRecoveryChrome}
+      {exportPartialCaptureOnError}
       {exportError !== null ? (
         <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
           <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>

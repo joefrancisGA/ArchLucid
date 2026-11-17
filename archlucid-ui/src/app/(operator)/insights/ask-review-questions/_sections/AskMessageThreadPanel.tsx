@@ -416,7 +416,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                 content={
                   streamingAssistantContent.length > 0
                     ? streamingAssistantContent
-                    : "Answer text was not received yet."
+                    : "Answer text was stored empty."
                 }
                 citedReviewIds={streamingCitedReviewIds}
               />
@@ -426,7 +426,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         {citationHostMessageId !== null && streamingAssistantContent === null ? (
           <div className="space-y-2" data-testid="ask-assistant-answer-follow-ups">
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {buyerPolishedShell ? "Suggested follow-ups" : "Follow up on this answer"}
+              {buyerPolishedShell ? "Ask a follow-up" : "Follow up on this answer"}
             </p>
             <div className="flex flex-wrap gap-1.5" role="group" aria-label="Suggested follow-up questions">
               {assistantAnswerFollowUpPrompts.map((line) => (

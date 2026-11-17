@@ -31,6 +31,10 @@ import {
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE } from "@/lib/infra-evidence/resources-explorer-snapshot-scope-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
+import { RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-partial-capture-copy";
+import { ResourcesExplorerFilterEmptyPartialHonesty } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerFilterEmptyPartialHonesty";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
@@ -138,6 +142,7 @@ function resolveNewestLastSeenUtc(rows: readonly CloudResourceSummary[]): string
 export function ResourcesExplorerClient() {
   useProductionEvalChrome();
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -651,9 +656,17 @@ export function ResourcesExplorerClient() {
                   description="No resources in this snapshot match the current filters. Widen filters or clear the work queue — an empty table is not proof the subscription has zero resources."
                   testId="infra-resource-explorer-empty-state"
                   footer={
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-not-failure">
-                      {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
-                    </p>
+                    <>
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-not-failure">
+                        {RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                      {partialCapture ? (
+                        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-empty-partial-capture">
+                          {RESOURCE_EXPLORER_EMPTY_PARTIAL_CAPTURE_LINE}
+                        </p>
+                      ) : null}
+                      {hasAppliedFilters ? <ResourcesExplorerFilterEmptyPartialHonesty /> : null}
+                    </>
                   }
                 />
               </EnterpriseTableCell>

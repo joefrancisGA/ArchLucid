@@ -104,17 +104,13 @@ export function OperationalErrorsPageClient() {
   );
 
   useEffect(() => {
-    if (state.status !== "ready" || urlErrorId.length === 0) {
+    if (state.status !== "ready") {
       return;
     }
 
     const row = state.rows.find((candidate) => candidate.id === urlErrorId) ?? null;
 
-    if (row === null) {
-      return;
-    }
-
-    setSelectedRowState((current) => (current?.id === row.id ? current : row));
+    setSelectedRowState((current) => (current?.id === row?.id ? current : row));
   }, [state, urlErrorId]);
 
   useEffect(() => {

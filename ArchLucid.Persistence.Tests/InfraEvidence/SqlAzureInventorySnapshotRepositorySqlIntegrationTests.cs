@@ -125,6 +125,125 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
   }
 
   [SkippableFact]
+  public async Task Drift_and_routing_slices_load_inventory_for_more_than_2100_ids()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+    SqlConnectionFactory factory = new(fixture.ConnectionString);
+    SqlAzureExtractorPackageRepository packages = new(factory);
+    SqlAzureInventorySnapshotRepository snapshots = new(factory);
+    SqlAzureInventoryDiffRepository diffs = new(factory);
+    ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = WorkspaceId, ProjectId = ProjectA };
+    DateTime utcNow = DateTime.UtcNow;
+    Guid priorId = await InsertSnapshotAsync();
+    Guid currentId = await InsertSnapshotAsync();
+    Guid[] cloudResourceIds = Enumerable.Range(0, 2101).Select(_ => Guid.NewGuid()).ToArray();
+    List<AzureInventoryResourceRecord> resources = cloudResourceIds.Select((cloudResourceId, index) =>
+      new AzureInventoryResourceRecord
+      {
+        ResourceRowId = Guid.NewGuid(),
+        SnapshotId = priorId,
+        TenantId = scope.TenantId,
+        CloudResourceId = cloudResourceId,
+        AzureResourceId = $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/drift{index}",
+        ResourceType = "Microsoft.Storage/storageAccounts",
+      }).ToList();
+    await snapshots.MaterializeSnapshotAsync(scope, priorId, new AzureInventorySnapshotMaterializeWriteRequest
+    {
+      CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+      ResourceCount = resources.Count,
+      Resources = resources,
+      Properties = resources.Select(resource => new AzureInventoryResourcePropertyWrite
+      {
+        ResourceRowId = resource.ResourceRowId,
+        PropertyKey = "network",
+        PropertyValue = "private",
+      }).ToList(),
+      Tags = resources.Select(resource => new AzureInventoryTagWrite
+      {
+        ResourceRowId = resource.ResourceRowId,
+        TagKey = "owner",
+        TagValue = "routing-test",
+      }).ToList(),
+    });
+
+    Guid diffId = Guid.NewGuid();
+    Guid changeId = Guid.NewGuid();
+    await diffs.InsertDiffAsync(scope, new AzureInventoryDiffPersistRequest
+    {
+      DiffId = diffId,
+      SnapshotAId = priorId,
+      SnapshotBId = currentId,
+      Summary = new AzureInventoryDiffSummaryRecord
+      {
+        DiffId = diffId,
+        SnapshotAId = priorId,
+        SnapshotBId = currentId,
+        TotalChanges = 1,
+      },
+      Changes =
+      [
+        new AzureInventoryChangeRecord
+        {
+          ChangeId = changeId,
+          SnapshotAId = priorId,
+          SnapshotBId = currentId,
+          CloudResourceId = cloudResourceIds[^1],
+          ChangeType = AzureInventoryChangeType.ResourceModified,
+        },
+      ],
+    });
+
+    IReadOnlyList<AzureInventoryChangeRecord> changes =
+      await diffs.ListChangesByDiffIdAndCloudResourceIdsAsync(scope, diffId, cloudResourceIds);
+    var (priorResources, priorProperties) =
+      await snapshots.ListResourcesAndPropertiesByCloudResourceIdsAsync(scope, priorId, cloudResourceIds);
+
+    changes.Should().ContainSingle().Which.ChangeId.Should().Be(changeId);
+    priorResources.Select(resource => resource.CloudResourceId).Should().BeEquivalentTo(cloudResourceIds.Select(id => (Guid?)id));
+    priorProperties.Select(property => property.ResourceRowId).Should().BeEquivalentTo(resources.Select(resource => resource.ResourceRowId));
+
+    IReadOnlyList<AzureInventoryResourceRecord> routingResources =
+      await snapshots.ListResourcesByCloudResourceIdsAsync(scope, priorId, cloudResourceIds);
+    IReadOnlyList<AzureInventoryTagReadModel> routingTags =
+      await snapshots.ListTagsByResourceRowIdsAsync(scope, priorId, resources.Select(resource => resource.ResourceRowId).ToArray());
+
+    routingResources.Select(resource => resource.CloudResourceId).Should().BeEquivalentTo(cloudResourceIds.Select(id => (Guid?)id));
+    routingTags.Select(tag => tag.ResourceRowId).Should().BeEquivalentTo(resources.Select(resource => resource.ResourceRowId));
+
+    async Task<Guid> InsertSnapshotAsync()
+    {
+      Guid packageId = Guid.NewGuid();
+      await packages.InsertAsync(new AzureExtractorPackageRecord
+      {
+        PackageId = packageId,
+        TenantId = scope.TenantId,
+        WorkspaceId = scope.WorkspaceId,
+        ProjectId = scope.ProjectId,
+        CreatedUtc = utcNow,
+        SchemaVersion = 1,
+        OriginalFileName = "drift-inventory.zip",
+        ManifestJson = "{}",
+        PackageBytes = [0x50, 0x4B],
+      });
+
+      Guid snapshotId = Guid.NewGuid();
+      await snapshots.InsertHeaderAsync(new AzureInventorySnapshotRecord
+      {
+        SnapshotId = snapshotId,
+        TenantId = scope.TenantId,
+        WorkspaceId = scope.WorkspaceId,
+        ProjectId = scope.ProjectId,
+        PackageId = packageId,
+        CaptureStatus = AzureInventoryCaptureStatus.Pending,
+        CreatedUtc = utcNow,
+        UpdatedUtc = utcNow,
+      });
+      return snapshotId;
+    }
+  }
+
+  [SkippableFact]
   public async Task CloudResourceIdentity_same_arm_id_across_snapshots_reuses_guid()
   {
     Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

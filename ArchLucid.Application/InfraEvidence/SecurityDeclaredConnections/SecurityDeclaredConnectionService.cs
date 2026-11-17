@@ -34,27 +34,6 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
-            await connectionRepository.ListByScopeAsync(
-                scope.ToProjectScopeKey(),
-                cancellationToken);
-
-        bool existingActive = scopedConnections.Any(record =>
-            record.FromCloudResourceId == request.FromCloudResourceId
-            && record.ToCloudResourceId == request.ToCloudResourceId
-            && record.RelationshipType == request.RelationshipType
-            && record.Status == SecurityDeclaredConnectionStatus.Active
-            && record.ExpirationUtc > utcNow);
-
-        if (existingActive)
-        {
-            return new SecurityDeclaredConnectionCreateResult
-            {
-                Succeeded = false,
-                ErrorMessage = "An active declared connection already exists for this source, target, and relationship type.",
-            };
-        }
-
         Guid connectionId = Guid.NewGuid();
         byte[] payloadHash = SecurityDeclaredConnectionGuard.ComputePayloadHash(request);
 
@@ -78,7 +57,14 @@ public sealed class SecurityDeclaredConnectionService(
             UpdatedUtc = utcNow,
         };
 
-        await connectionRepository.InsertAsync(record, cancellationToken);
+        if (!await connectionRepository.TryInsertActiveAsync(record, cancellationToken))
+        {
+            return new SecurityDeclaredConnectionCreateResult
+            {
+                Succeeded = false,
+                ErrorMessage = "An active declared connection already exists for this source, target, and relationship type.",
+            };
+        }
 
         await LogAuditAsync(
             scope,
@@ -139,7 +125,8 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        if (existing.Status != SecurityDeclaredConnectionStatus.Active)
+        if (existing.Status != SecurityDeclaredConnectionStatus.Active
+            || existing.ExpirationUtc <= TimeProvider.System.UtcNowDateTime())
         {
             return new SecurityDeclaredConnectionRenewResult
             {
@@ -358,7 +345,8 @@ public sealed class SecurityDeclaredConnectionService(
                 AuditEventTypes.SecurityDeclaredConnectionExpired,
                 record.ConnectionId,
                 new { ConnectionId = record.ConnectionId },
-                cancellationToken);
+                cancellationToken,
+                explicitActor: true);
         }
 
         logger.LogInformation(
@@ -378,7 +366,8 @@ public sealed class SecurityDeclaredConnectionService(
         string eventType,
         Guid connectionId,
         object payload,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool explicitActor = false)
     {
         await auditService.LogAsync(
             new AuditEvent
@@ -386,6 +375,7 @@ public sealed class SecurityDeclaredConnectionService(
                 EventType = eventType,
                 ActorUserId = actorId,
                 ActorUserName = actorId,
+                ExplicitActor = explicitActor,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

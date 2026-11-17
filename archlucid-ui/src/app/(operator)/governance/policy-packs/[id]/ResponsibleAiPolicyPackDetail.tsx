@@ -9,6 +9,7 @@ import { GovernancePolicyPackBreadcrumb } from "@/components/governance/Governan
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { ResponsibleAiPolicyPackTechnicalDetailsDisclosure } from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackTechnicalDetailsDisclosure";
+import { PolicyPackDetailPartialCaptureStrip } from "./PolicyPackDetailPartialCaptureStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -279,6 +280,8 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         }
         actions={headerActions}
       />
+
+      <PolicyPackDetailPartialCaptureStrip />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>

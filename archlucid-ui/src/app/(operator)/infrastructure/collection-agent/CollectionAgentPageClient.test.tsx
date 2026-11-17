@@ -80,16 +80,20 @@ describe("CollectionAgentPageClient", () => {
     });
   });
 
-  it("labels a successful run with missing finish time (P-17)", () => {
+  it.each([
+    [null, "Last successful run finish time was not stored."],
+    ["   ", "Last successful run finish time was not stored."],
+    ["unreadable-finish", "Last successful run finish time could not be read."],
+  ] as const)("labels the successful run when the finish time is %s (P-17)", (finishedUtc, expectedLabel) => {
     useCollectionRunsQueryMock.mockReturnValue({
-      data: [{ ...successfulRun(), finishedUtc: null }],
+      data: [{ ...successfulRun(), finishedUtc }],
       isPending: false,
       isError: false,
     });
 
     render(<CollectionAgentPageClient />);
 
-    expect(screen.getByText("Last successful run finish time was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(expectedLabel)).toBeInTheDocument();
     expect(screen.queryByText("No successful run recorded")).not.toBeInTheDocument();
   });
 
@@ -141,6 +145,27 @@ describe("CollectionAgentPageClient", () => {
     expect(screen.getByText("Schedule reported on a collection run: Daily at 02:00 UTC")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeDisabled();
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Collection is running.");
+  });
+
+  it("orders dated runs ahead of undated runs and reports the newest schedule", () => {
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [
+        { ...successfulRun(), runId: "older", finishedUtc: "2026-10-11T18:00:00Z", importedSnapshotId: "older", schedule: "Old schedule" },
+        { ...successfulRun(), runId: "undated", startedUtc: undefined, finishedUtc: null, importedSnapshotId: "undated", schedule: "Undated schedule" },
+        { ...successfulRun(), runId: "newer", startedUtc: "2026-10-11T20:00:00Z", finishedUtc: "invalid", importedSnapshotId: "newer", schedule: "New schedule" },
+      ],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getAllByRole("link", { name: "Open drift for this snapshot" }).map((link) => link.getAttribute("href"))).toEqual([
+      "/infrastructure/snapshots-drift?snapshotId=newer",
+      "/infrastructure/snapshots-drift?snapshotId=older",
+      "/infrastructure/snapshots-drift?snapshotId=undated",
+    ]);
+    expect(screen.getByText("Schedule reported on a collection run: New schedule")).toBeInTheDocument();
   });
 
   it("reuses the trigger key after an ambiguous failure and rotates it after success", async () => {

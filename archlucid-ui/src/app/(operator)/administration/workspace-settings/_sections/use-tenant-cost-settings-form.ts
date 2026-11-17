@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { useTenantCostSettingsQuery } from "@/hooks/use-tenant-cost-settings-query";
 import {
   LivelihoodDocumentGuardDialog,
@@ -44,6 +45,7 @@ export type UseTenantCostSettingsFormOptions = {
 export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsFormOptions) {
   const demoMode = isNextPublicDemoMode();
   const queryClient = useQueryClient();
+  const tenantId = useOperatorScopeRecord()?.tenantId;
   const costSettingsQuery = useTenantCostSettingsQuery({ enabled: !demoMode });
 
   const [saving, setSaving] = useState(false);
@@ -54,6 +56,7 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
   const [saveConfirmation, setSaveConfirmation] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const loadedTenantRef = useRef(tenantId);
   const loadedSnapshotRef = useRef({
     hourlyRate: "",
     incidentCost: "",
@@ -70,20 +73,25 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
       return;
     }
 
-    applyLoadedSettingsToForm(costSettingsQuery.data, {
-      setIsTenantConfigured,
-      setUpdatedUtc,
-      setHourlyRate,
-      setIncidentCost,
-      setEaDiscountPercentage,
-    });
-
-    loadedSnapshotRef.current = {
-      hourlyRate: String(costSettingsQuery.data.architectHourlyRateUsd),
-      incidentCost: String(costSettingsQuery.data.averageIncidentCostUsd),
-      eaDiscountPercentage: String(costSettingsQuery.data.eaDiscountPercentage ?? 0),
+    const settings = costSettingsQuery.data;
+    const previous = loadedSnapshotRef.current;
+    const tenantChanged = loadedTenantRef.current !== tenantId;
+    loadedTenantRef.current = tenantId;
+    const next = {
+      hourlyRate: String(settings.architectHourlyRateUsd),
+      incidentCost: String(settings.averageIncidentCostUsd),
+      eaDiscountPercentage: String(settings.eaDiscountPercentage ?? 0),
     };
-  }, [costSettingsQuery.data]);
+
+    setIsTenantConfigured(settings.isTenantConfigured);
+    setUpdatedUtc(settings.updatedUtc);
+    setHourlyRate(current => tenantChanged || current.trim() === previous.hourlyRate.trim() ? next.hourlyRate : current);
+    setIncidentCost(current => tenantChanged || current.trim() === previous.incidentCost.trim() ? next.incidentCost : current);
+    setEaDiscountPercentage(current =>
+      tenantChanged || current.trim() === previous.eaDiscountPercentage.trim() ? next.eaDiscountPercentage : current,
+    );
+    loadedSnapshotRef.current = next;
+  }, [costSettingsQuery.data, tenantId]);
 
   const onHourlyRateChange = useCallback((next: string) => {
     setHourlyRate(next);

@@ -98,6 +98,32 @@ public sealed class OperationalSecurityExceptionServiceTests
     }
 
     [Fact]
+    public async Task SweepExpiredAsync_recovers_work_interrupted_after_marking_an_exception_expired()
+    {
+        Guid findingId = Guid.NewGuid();
+        Guid exceptionId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        findings.Findings.Add(CreateFinding(findingId, OperationalSecurityFindingStatus.Exception, utcNow));
+        InMemoryOperationalSecurityExceptionRepository exceptions = new();
+        exceptions.Records.Add(CloneException(
+            CreateExpiredException(exceptionId, findingId, utcNow.AddMinutes(-5)),
+            status: OperationalSecurityExceptionStatus.Expired));
+        OperationalSecurityExceptionService sut = CreateSut(exceptions, findings);
+
+        OperationalSecurityExceptionExpirySweepResult retry = await sut.SweepExpiredAsync(CreateScope());
+
+        retry.FindingsReopenedCount.Should().Be(1);
+        retry.ObservationsCreatedCount.Should().Be(1);
+        findings.Findings.Single().Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        findings.Observations.Should().ContainSingle();
+        exceptions.Records.Single().ExpiryProcessedUtc.Should().NotBeNull();
+
+        (await sut.SweepExpiredAsync(CreateScope())).ExpiredCount.Should().Be(0);
+        findings.Observations.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task SweepExpiredAsync_does_not_create_observation_for_active_exception()
     {
         Guid findingId = Guid.NewGuid();
@@ -116,6 +142,44 @@ public sealed class OperationalSecurityExceptionServiceTests
 
         result.ExpiredCount.Should().Be(0);
         findingRepository.Observations.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Finding_stays_excepted_until_its_last_active_exception_ends(bool sweep)
+    {
+        Guid findingId = Guid.NewGuid();
+        Guid endingId = Guid.NewGuid();
+        Guid remainingId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        findingRepository.Findings.Add(CreateFinding(findingId, OperationalSecurityFindingStatus.Exception, utcNow));
+        InMemoryOperationalSecurityExceptionRepository exceptionRepository = new();
+        exceptionRepository.Records.Add(CreateActiveException(
+            endingId, findingId, sweep ? utcNow.AddMinutes(-5) : utcNow.AddDays(1)));
+        exceptionRepository.Records.Add(CreateActiveException(remainingId, findingId, utcNow.AddDays(7)));
+        OperationalSecurityExceptionService sut = CreateSut(exceptionRepository, findingRepository);
+
+        if (sweep)
+        {
+            OperationalSecurityExceptionExpirySweepResult result = await sut.SweepExpiredAsync(CreateScope());
+            result.ExpiredCount.Should().Be(1);
+            result.FindingsReopenedCount.Should().Be(0);
+            exceptionRepository.Records.Single(record => record.ExceptionId == endingId)
+                .ExpiryProcessedUtc.Should().NotBeNull();
+        }
+        else
+        {
+            (await sut.RevokeAsync(CreateScope(), endingId, "operator")).Succeeded.Should().BeTrue();
+        }
+
+        findingRepository.Findings.Single().Status.Should().Be(OperationalSecurityFindingStatus.Exception);
+        findingRepository.Observations.Should().BeEmpty();
+
+        (await sut.RevokeAsync(CreateScope(), remainingId, "operator")).Succeeded.Should().BeTrue();
+        findingRepository.Findings.Single().Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        findingRepository.Observations.Should().ContainSingle();
     }
 
     [Fact]
@@ -300,8 +364,17 @@ public sealed class OperationalSecurityExceptionServiceTests
             Guid exceptionId,
             string revokedByActorKey,
             DateTime revokedUtc,
-            CancellationToken cancellationToken = default) =>
-            Task.CompletedTask;
+            CancellationToken cancellationToken = default)
+        {
+            int index = Records.FindIndex(record => record.TenantId == tenantId && record.ExceptionId == exceptionId);
+            if (index >= 0)
+            {
+                Records[index] = CloneException(
+                    Records[index], status: OperationalSecurityExceptionStatus.Revoked, updatedUtc: revokedUtc);
+            }
+
+            return Task.CompletedTask;
+        }
 
         public Task<bool> HasActiveExceptionForFindingAsync(
             Guid tenantId,

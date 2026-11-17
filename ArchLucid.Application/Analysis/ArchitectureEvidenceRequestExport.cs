@@ -152,9 +152,17 @@ internal static class ArchitectureEvidenceRequestExport
             _ => value,
         };
 
+    internal const string TraceErrorNotStoredBecauseParseSucceededCopy =
+        "No error was stored because parsing succeeded.";
+
     internal static string FormatTraceErrorForExport(string? errorMessage, bool parseSucceeded)
     {
-        if (errorMessage is null)
+        if (parseSucceeded && errorMessage is null)
+        {
+            return TraceErrorNotStoredBecauseParseSucceededCopy;
+        }
+
+        if (!parseSucceeded && errorMessage is null)
         {
             return TraceErrorNotStoredCopy;
         }

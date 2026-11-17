@@ -8,8 +8,14 @@ import { SecureNowCollectionLatestSnapshotLine } from "@/components/product-line
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
 import { useSecureNowLatestSucceededSnapshotId } from "@/hooks/use-securenow-latest-succeeded-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
-import { buildSecureNowSecondCaptureCloudConnectionsHref } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import {
+  buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
+} from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
 import type { SecureNowCollectionMissingInput } from "@/lib/product-line/securenow-collection-missing-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
@@ -27,11 +33,12 @@ import {
   SECURENOW_COLLECTION_READY_NEXT_LABEL,
   SECURENOW_COLLECTION_READY_NEXT_SUMMARY,
 } from "@/lib/product-line/securenow-collection-setup-ready-copy";
+import { SECURENOW_COLLECTION_READY_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
+import { SECURENOW_COLLECTION_SECOND_CAPTURE_REMAINING_LINE } from "@/lib/product-line/securenow-collection-second-capture-remaining-copy";
 import { SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/product-line/securenow-second-capture-delta-copy";
 import {
   SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL,
   SECURENOW_SECOND_CAPTURE_EXTRACT_UPLOAD_LABEL,
-  SECURENOW_SECOND_CAPTURE_CTA_HREFS,
 } from "@/lib/product-line/securenow-second-capture-cta-copy";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +57,8 @@ export function SecureNowCollectionSetupStatusSection(
     enabled: props.collectionInput === undefined,
   });
   const latestSnapshotQuery = useSecureNowLatestSucceededSnapshotId();
+  const latestCapturePartial = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(latestCapturePartial);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const collectionInput = props.collectionInput ?? hookResult.collectionInput;
   const isPending = props.collectionInput === undefined && hookResult.isPending;
@@ -93,6 +102,16 @@ export function SecureNowCollectionSetupStatusSection(
       </h2>
       {collectionReady ? (
         <div className="space-y-2" data-testid={`${props.testIdPrefix}-collection-ready`}>
+          {latestCapturePartial ? (
+            <SecureNowPartialCaptureRecoveryParagraph
+              testId={`${props.testIdPrefix}-collection-ready-partial-capture`}
+              partialCaptureSnapshotId={partialCaptureSnapshotId}
+              returnPath={partialCaptureReturnPath}
+              middleLine={SECURENOW_COLLECTION_READY_PARTIAL_CAPTURE_LINE}
+              cloudConnectionsTestId={`${props.testIdPrefix}-collection-ready-partial-capture-cloud`}
+              extractUploadTestId={`${props.testIdPrefix}-collection-ready-partial-capture-upload`}
+            />
+          ) : null}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Collection ready.</p>
           {latestSnapshotQuery.latestSnapshotId !== null ? (
             <SecureNowCollectionLatestSnapshotLine
@@ -102,6 +121,12 @@ export function SecureNowCollectionSetupStatusSection(
           ) : null}
           {latestSnapshotQuery.succeededSnapshotCountOnFirstPage < 2 ? (
             <div className="space-y-1" data-testid={`${props.testIdPrefix}-collection-second-capture-honesty`}>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid={`${props.testIdPrefix}-collection-second-capture-remaining`}
+              >
+                {SECURENOW_COLLECTION_SECOND_CAPTURE_REMAINING_LINE}
+              </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_SECOND_CAPTURE_PATH_DELTA_LINE}</p>
               <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
                 <Link
@@ -112,7 +137,7 @@ export function SecureNowCollectionSetupStatusSection(
                   {SECURENOW_SECOND_CAPTURE_CLOUD_CONNECTIONS_LABEL}
                 </Link>
                 <Link
-                  href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.extractUpload}
+                  href={buildSecureNowSecondCaptureExtractUploadHref(partialCaptureReturnPath)}
                   className={OPERATOR_LINK.inline}
                   data-testid={`${props.testIdPrefix}-collection-second-capture-upload-link`}
                 >

@@ -9,6 +9,7 @@ import {
   REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE,
 } from "@/lib/review-scorecard-empty-state";
 
+import { ReviewScorecardEmptyPartialCaptureHonesty } from "./ReviewScorecardEmptyPartialCaptureHonesty";
 import { ReviewScorecardEmptyStatePreview } from "./ReviewScorecardEmptyStatePreview";
 
 /** Sponsor-ready empty state for the operator review scorecard. */
@@ -32,6 +33,7 @@ export function ReviewScorecardEmptyState(): React.JSX.Element {
       >
         {REVIEW_SCORECARD_ROI_NON_SUMMING_NOTE}
       </p>
+      <ReviewScorecardEmptyPartialCaptureHonesty />
     </div>
   );
 }

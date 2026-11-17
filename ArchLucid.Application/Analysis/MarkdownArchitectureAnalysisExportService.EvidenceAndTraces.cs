@@ -37,26 +37,39 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             sb.AppendLine(
                 $"- Description: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatDescription(evidence.Request.Description))}");
 
-            AppendEvidenceRequestStringList(
-                sb,
-                "Constraints",
-                evidence.Request.Constraints,
-                ArchitectureEvidenceRequestExport.ConstraintsNotStoredCopy,
-                ArchitectureEvidenceRequestExport.ConstraintsStoredEmptyCopy);
+            if (evidence.Request.Constraints.Count > 0)
+            {
+                sb.AppendLine("- Constraints:");
+                sb.AppendLine(string.Join(Environment.NewLine,
+                    evidence.Request.Constraints.Select(static item => $"  - {FormatMarkdownListText(item)}")));
+            }
+            else
+            {
+                sb.AppendLine($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy}");
+            }
 
-            AppendEvidenceRequestStringList(
-                sb,
-                "Required Capabilities",
-                evidence.Request.RequiredCapabilities,
-                ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotStoredCopy,
-                ArchitectureEvidenceRequestExport.RequiredCapabilitiesStoredEmptyCopy);
+            if (evidence.Request.RequiredCapabilities.Count > 0)
+            {
+                sb.AppendLine("- Required Capabilities:");
+                sb.AppendLine(string.Join(Environment.NewLine,
+                    evidence.Request.RequiredCapabilities.Select(static item => $"  - {FormatMarkdownListText(item)}")));
+            }
+            else
+            {
+                sb.AppendLine(
+                    $"- Required Capabilities: {ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy}");
+            }
 
-            AppendEvidenceRequestStringList(
-                sb,
-                "Assumptions",
-                evidence.Request.Assumptions,
-                ArchitectureEvidenceRequestExport.AssumptionsNotStoredCopy,
-                ArchitectureEvidenceRequestExport.AssumptionsStoredEmptyCopy);
+            if (evidence.Request.Assumptions.Count > 0)
+            {
+                sb.AppendLine("- Assumptions:");
+                sb.AppendLine(string.Join(Environment.NewLine,
+                    evidence.Request.Assumptions.Select(static item => $"  - {FormatMarkdownListText(item)}")));
+            }
+            else
+            {
+                sb.AppendLine($"- Assumptions: {ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy}");
+            }
 
             sb.AppendLine();
 
@@ -219,29 +232,6 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     fenceLanguage: "json");
                 sb.AppendLine();
             }
-    }
-
-    private static void AppendEvidenceRequestStringList(
-        StringBuilder sb,
-        string label,
-        IReadOnlyList<string>? values,
-        string notStoredCopy,
-        string storedEmptyCopy)
-    {
-        if (values is null)
-        {
-            sb.AppendLine($"- {label}: {notStoredCopy}");
-            return;
-        }
-
-        if (values.Count == 0)
-        {
-            sb.AppendLine($"- {label}: {storedEmptyCopy}");
-            return;
-        }
-
-        sb.AppendLine($"- {label}:");
-        sb.AppendLine(string.Join(Environment.NewLine, values.Select(static item => $"  - {item}")));
     }
 
     private static void AppendTraceFieldSection(

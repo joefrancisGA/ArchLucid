@@ -71,6 +71,14 @@ import {
 import { FIRST_REVIEW_TENANT_REVIEW_EVIDENCE_SEAL_LINE } from "@/lib/architecture/first-review-tenant-review-seal-discipline-copy";
 import { formatFirstReviewGuidePrerequisitesCombinedHelper } from "@/lib/architecture/first-review-guide-prerequisites-combined-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { FIRST_REVIEW_PARTIAL_CAPTURE_BEFORE_START_LINE } from "@/lib/architecture/first-review-partial-capture-copy";
+import { FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE } from "@/lib/architecture/first-review-partial-capture-disabled-cta-copy";
 
 import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
@@ -238,15 +246,34 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
     [guide.onePrerequisite, guide.steps],
   );
   const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
-  const primaryDisabledReason: WhyDisabledCtaReason | null =
-    guide.headerActions.primaryDisabledReason !== null &&
-    guide.headerActions.primaryDisabledReason.trim().length > 0
-      ? {
-          kind: "role",
-          message: guide.headerActions.primaryDisabledReason,
-        }
-      : null;
+  const primaryDisabledReason: WhyDisabledCtaReason | null = useMemo(() => {
+    const baseReason = guide.headerActions.primaryDisabledReason?.trim() ?? "";
+
+    if (isSecureNowProductLine(productLine) && partialCapture && guide.headerActions.primaryDisabled) {
+      const message =
+        baseReason.length > 0
+          ? `${FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE} ${baseReason}`
+          : FIRST_REVIEW_PARTIAL_CAPTURE_DISABLED_CTA_LINE;
+
+      return { kind: "role", message };
+    }
+
+    if (baseReason.length > 0) {
+      return { kind: "role", message: baseReason };
+    }
+
+    return null;
+  }, [
+    guide.headerActions.primaryDisabled,
+    guide.headerActions.primaryDisabledReason,
+    partialCapture,
+    productLine,
+  ]);
 
   const firstReviewGuideHeaderChildren =
     guide.isError ? (
@@ -343,6 +370,16 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
                     && guide.latestRunHref.includes(encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)),
                 })}
               </p>
+              {isSecureNowProductLine(productLine) && partialCapture ? (
+                <SecureNowPartialCaptureRecoveryParagraph
+                  testId="first-review-partial-capture-before-start"
+                  partialCaptureSnapshotId={partialCaptureSnapshotId}
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={FIRST_REVIEW_PARTIAL_CAPTURE_BEFORE_START_LINE}
+                  cloudConnectionsTestId="first-review-partial-capture-cloud"
+                  extractUploadTestId="first-review-partial-capture-extract"
+                />
+              ) : null}
               {walkthroughNextStep !== null ? (
                 <div className="space-y-1" data-testid="first-review-walkthrough-next-step">
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>

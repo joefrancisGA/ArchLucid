@@ -29,6 +29,7 @@ import {
 import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
 import { SecureNowCollectionSetupChecklist } from "@/components/product-line/SecureNowCollectionSetupChecklist";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
+import { SecureNowCloudConnectionsPartialCaptureStrip } from "@/components/product-line/SecureNowCloudConnectionsPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SECURENOW_COLLECTION_SELF_SERVICE_CHECK_HREF } from "@/lib/product-line/securenow-self-service-home-copy";
@@ -216,6 +217,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
 
         <SecureNowPilotWalkthroughBanner productLine={productLine} />
         {returnPathStrip}
+        {productLine === "security" && showCollectionReady ? <SecureNowCloudConnectionsPartialCaptureStrip /> : null}
 
         {collectionStatus}
         {collectionInProgress}
@@ -290,6 +292,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
 
           <SecureNowPilotWalkthroughBanner productLine={productLine} />
           {returnPathStrip}
+          {productLine === "security" && showCollectionReady ? <SecureNowCloudConnectionsPartialCaptureStrip /> : null}
 
           {collectionStatus}
           {collectionInProgress}

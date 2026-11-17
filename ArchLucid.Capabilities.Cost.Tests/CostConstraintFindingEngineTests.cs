@@ -137,6 +137,31 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_treats_high_cost_risk_with_leading_ideographic_space_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-lead-ideo",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "\u3000high",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_treats_uppercase_high_cost_risk_with_trailing_tab_as_warning_severity()
     {
         GraphSnapshot graph = new()
@@ -176,6 +201,31 @@ public sealed class CostConstraintFindingEngineTests
                     Properties = new Dictionary<string, string>
                     {
                         ["costRisk"] = "hi\u00A0gh",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_treats_interior_hair_space_in_cost_risk_token_as_info_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-interior-hair",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "hi\u200Agh",
                     }
                 }
             ],

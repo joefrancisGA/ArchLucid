@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -35,7 +37,8 @@ public sealed partial class SqlAzureInventoryDiffRepository
                            FROM dbo.AzureInventoryChanges
                            WHERE TenantId = @TenantId
                              AND DiffId = @DiffId
-                             AND CloudResourceId IN @CloudResourceIds
+                             AND CloudResourceId IN (
+                                 SELECT Id FROM OPENJSON(@CloudResourceIdsJson) WITH (Id uniqueidentifier '$'))
                            ORDER BY AzureResourceId, ChangeType, Property;
                            """;
 
@@ -48,7 +51,7 @@ public sealed partial class SqlAzureInventoryDiffRepository
                 {
                     scope.TenantId,
                     DiffId = diffId,
-                    CloudResourceIds = distinctIds,
+                    CloudResourceIdsJson = JsonSerializer.Serialize(distinctIds),
                 },
                 cancellationToken: cancellationToken));
 

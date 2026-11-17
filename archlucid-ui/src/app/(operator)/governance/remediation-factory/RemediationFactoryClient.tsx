@@ -19,9 +19,12 @@ import {
 } from "@/components/security/SecureNowArchitectOutcomeMetricsPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE } from "@/lib/product-line/securenow-partial-capture-honesty-copy";
-import { SECURENOW_SECOND_CAPTURE_CTA_HREFS } from "@/lib/product-line/securenow-second-capture-cta-copy";
+import { REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE } from "@/lib/remediation-factory/remediation-factory-priority-queue-partial-rank-copy";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-securenow-collection-setup-progress";
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
@@ -50,7 +53,12 @@ import {
   focusRemediationFactoryQueueRow,
 } from "@/lib/governance/governance-findings-queue-keyboard-focus";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
-import { REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE } from "@/lib/remediation-factory-simulator-rank-honesty-copy";
+import {
+  REMEDIATION_FACTORY_SIMULATOR_NOT_INVENTORY_CAPTURE_LINE,
+  REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE,
+} from "@/lib/remediation-factory-simulator-rank-honesty-copy";
+import { REMEDIATION_FACTORY_SIMULATOR_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-simulator-partial-capture-copy";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { REMEDIATION_FACTORY_CORE_READ_RETRY_RANK_UNCHANGED_LINE } from "@/lib/remediation-factory/remediation-factory-core-read-honesty-copy";
 import {
   remediationFactoryExecutiveMetricsErrorRecovery,
@@ -93,6 +101,7 @@ import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryA
 import { RemediationFactoryTopCutPointsSection } from "./RemediationFactoryTopCutPointsSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
 import { RemediationFactoryPriorityTable } from "./RemediationFactoryPriorityTable";
+import { RemediationFactoryPriorityQueueEmptyPartialHonesty } from "./RemediationFactoryPriorityQueueEmptyPartialHonesty";
 import { RemediationFactoryRankedPathsShortcutHints } from "./RemediationFactoryRankedPathsShortcutHints";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import { remediationFactoryPageShortcutsDisclosureEntries } from "./remediation-factory-page-shortcuts-disclosure";
@@ -215,6 +224,8 @@ function RemediationSimulatorOutput(props: {
   readonly explanation: RemediationPrioritizationExplanation;
   readonly generatedAt: Date;
 }) {
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const copyPayload = [
     `Finding ID: ${props.explanation.findingId}`,
     `Generated: ${props.generatedAt.toISOString()}`,
@@ -237,6 +248,14 @@ function RemediationSimulatorOutput(props: {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-rank-discipline">
         {REMEDIATION_FACTORY_SIMULATOR_RANK_DISCIPLINE}
       </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-not-inventory-capture">
+        {REMEDIATION_FACTORY_SIMULATOR_NOT_INVENTORY_CAPTURE_LINE}
+      </p>
+      {partialCapture ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-simulator-partial-capture">
+          {REMEDIATION_FACTORY_SIMULATOR_PARTIAL_CAPTURE_LINE}
+        </p>
+      ) : null}
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Finding{" "}
         <span className="font-mono">{props.explanation.findingId}</span>
@@ -285,6 +304,8 @@ export function RemediationFactoryClient() {
     snapshotCaptureSucceeded: null,
   });
   const latestCapturePartial = useLatestSnapshotCaptureIsPartial(productLine === "security");
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(latestCapturePartial);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const rankedPathsEmptyState = useMemo((): typeof REMEDIATION_FACTORY_RANKED_PATHS_EMPTY => {
     if (productLine !== "security" || collectionInputPending || collectionInput === null) {
       return REMEDIATION_FACTORY_RANKED_PATHS_EMPTY;
@@ -825,6 +846,7 @@ export function RemediationFactoryClient() {
             }
             showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
             partialCapture={productLine === "security" && latestCapturePartial}
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
           />
 
           <RemediationFactoryTopCutPointsSection
@@ -852,6 +874,16 @@ export function RemediationFactoryClient() {
       )}
 
       <section className="space-y-3" aria-label="Operator priority table">
+        {productLine === "security" && latestCapturePartial ? (
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="remediation-partial-capture-priority-queue"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            middleLine={SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}
+            cloudConnectionsTestId="remediation-priority-queue-partial-capture-cloud-connections"
+            extractUploadTestId="remediation-priority-queue-partial-capture-extract-upload"
+          />
+        ) : null}
         {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-factory-priority-queue-collapsed">
             Priority queue: {ranked.length} finding{ranked.length === 1 ? "" : "s"} on this snapshot. Step focus is on the
@@ -870,6 +902,11 @@ export function RemediationFactoryClient() {
             <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
               These are SecureNow findings for the current inventory snapshot.
             </p>
+            {productLine === "security" && latestCapturePartial ? (
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-priority-queue-partial-rank">
+                {REMEDIATION_FACTORY_PRIORITY_QUEUE_PARTIAL_RANK_LINE}
+              </p>
+            ) : null}
           </>
         )}
         {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? null : rankedQuery.isError ? (
@@ -886,7 +923,10 @@ export function RemediationFactoryClient() {
             />
           </>
         ) : ranked.length === 0 ? (
-          <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
+          <>
+            <EnterpriseCompactEmptyState {...priorityQueueEmptyState} />
+            {productLine === "security" ? <RemediationFactoryPriorityQueueEmptyPartialHonesty /> : null}
+          </>
         ) : (
           <RemediationFactoryPriorityTable
             rows={ranked}
@@ -901,12 +941,14 @@ export function RemediationFactoryClient() {
 
       <section className="space-y-3" aria-label={SECURENOW_PATH_RANKED_PATHS_TITLE}>
         {productLine === "security" && latestCapturePartial ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-partial-capture-ranked-paths">
-            {SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}{" "}
-            <Link className={OPERATOR_LINK.inline} href={SECURENOW_SECOND_CAPTURE_CTA_HREFS.extractUpload}>
-              Open capture log
-            </Link>
-          </p>
+          <SecureNowPartialCaptureRecoveryParagraph
+            testId="remediation-partial-capture-ranked-paths"
+            partialCaptureSnapshotId={partialCaptureSnapshotId}
+            returnPath={partialCaptureReturnPath}
+            middleLine={SECURENOW_PARTIAL_CAPTURE_RANKED_PATHS_LINE}
+            cloudConnectionsTestId="remediation-partial-capture-cloud-connections"
+            extractUploadTestId="remediation-partial-capture-extract-upload"
+          />
         ) : null}
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>

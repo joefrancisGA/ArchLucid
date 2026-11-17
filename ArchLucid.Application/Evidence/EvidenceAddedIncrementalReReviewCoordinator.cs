@@ -129,13 +129,14 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinator(
         }
         finally
         {
+            // A canceled review still needs to close its persisted stage.
             await runStageOutcomesRepository
                 .RecordStageCompletedAsync(
                     runId,
                     StageName,
                     outcomeStatus,
                     TimeProvider.System.GetUtcNow().UtcDateTime,
-                    cancellationToken)
+                    CancellationToken.None)
                 .ConfigureAwait(false);
         }
 

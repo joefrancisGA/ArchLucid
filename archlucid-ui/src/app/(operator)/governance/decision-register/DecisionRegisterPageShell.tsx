@@ -43,6 +43,14 @@ import { DecisionRegisterViewSwitcher } from "./DecisionRegisterViewSwitcher";
 import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 import { DecisionRegisterPickReviewBeforeFilteringStrip } from "./DecisionRegisterPickReviewBeforeFilteringStrip";
 import { DecisionRegisterNextReviewFooterClient } from "./DecisionRegisterNextReviewFooterClient";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { DECISION_REGISTER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/governance/decision-register-empty-partial-capture-copy";
+import { DECISION_REGISTER_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/governance/decision-register-filter-empty-not-load-failure-copy";
 import {
   DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
   DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
@@ -95,6 +103,21 @@ export function DecisionRegisterPageShell(props: DecisionRegisterPageShellProps)
     resetFilters,
     clearCustomDatePreset,
   } = props;
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
+  const decisionRegisterEmptyPartialCapture =
+    isSecureNowProductLine(productLine) && partialCapture ? (
+      <SecureNowPartialCaptureRecoveryParagraph
+        testId="decision-register-empty-partial-capture"
+        partialCaptureSnapshotId={partialCaptureSnapshotId}
+        returnPath={partialCaptureReturnPath}
+        middleLine={DECISION_REGISTER_EMPTY_PARTIAL_CAPTURE_LINE}
+        cloudConnectionsTestId="decision-register-empty-partial-capture-cloud"
+        extractUploadTestId="decision-register-empty-partial-capture-extract"
+      />
+    ) : null;
 
   return (
     <OperatorPageContainer
@@ -262,9 +285,12 @@ export function DecisionRegisterPageShell(props: DecisionRegisterPageShellProps)
                   { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance/approval-queue", variant: "outline" },
                 ]}
                 footer={
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="decision-register-empty-not-load-failure">
-                    {DECISION_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE}
-                  </p>
+                  <div className="space-y-2">
+                    {decisionRegisterEmptyPartialCapture}
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="decision-register-empty-not-load-failure">
+                      {DECISION_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                  </div>
                 }
               />
             </div>
@@ -273,16 +299,33 @@ export function DecisionRegisterPageShell(props: DecisionRegisterPageShellProps)
 
         {!loading && !loadError && filtersExcludeMatches ? (
           <DecisionRegisterViewEmptyShell viewMode={viewMode}>
-            <EnterpriseCompactEmptyState
-              testId="decision-register-filter-no-match-empty-state"
-              title={DECISION_REGISTER_FILTER_NO_MATCH_TITLE}
-              description={DECISION_REGISTER_FILTER_NO_MATCH_BODY}
-              footer={
-                <Button type="button" variant="outline" size="sm" data-testid="decision-register-clear-filters-empty" onClick={resetFilters}>
-                  Clear filters
-                </Button>
-              }
-            />
+            <div className="space-y-3">
+              {isSecureNowProductLine(productLine) && partialCapture ? (
+                <SecureNowPartialCaptureRecoveryParagraph
+                  testId="decision-register-filter-empty-partial-capture"
+                  partialCaptureSnapshotId={partialCaptureSnapshotId}
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={DECISION_REGISTER_EMPTY_PARTIAL_CAPTURE_LINE}
+                  cloudConnectionsTestId="decision-register-filter-empty-partial-capture-cloud-connections"
+                  extractUploadTestId="decision-register-filter-empty-partial-capture-extract-upload"
+                />
+              ) : null}
+              <EnterpriseCompactEmptyState
+                testId="decision-register-filter-no-match-empty-state"
+                title={DECISION_REGISTER_FILTER_NO_MATCH_TITLE}
+                description={DECISION_REGISTER_FILTER_NO_MATCH_BODY}
+                footer={
+                  <div className="space-y-2">
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="decision-register-filter-empty-not-load-failure">
+                      {DECISION_REGISTER_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                    <Button type="button" variant="outline" size="sm" data-testid="decision-register-clear-filters-empty" onClick={resetFilters}>
+                      Clear filters
+                    </Button>
+                  </div>
+                }
+              />
+            </div>
           </DecisionRegisterViewEmptyShell>
         ) : null}
 

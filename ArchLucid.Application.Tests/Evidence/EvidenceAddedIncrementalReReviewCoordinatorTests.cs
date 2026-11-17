@@ -60,9 +60,12 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinatorTests
         captured.Should().NotBeNull();
     }
 
-    [Fact]
-    public async Task TryScheduleAfterBulkUploadAsync_background_work_runs_incremental_rereview_in_fresh_scope()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryScheduleAfterBulkUploadAsync_background_work_records_terminal_outcome(bool cancelDuringReview)
     {
+        using CancellationTokenSource cancellation = new();
         Guid runId = Guid.NewGuid();
         Mock<IScopeContextProvider> scopeContextProvider = new();
         scopeContextProvider.Setup(provider => provider.GetCurrentScope()).Returns(DefaultScope);
@@ -99,9 +102,18 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinatorTests
                 It.IsAny<ReReviewScope>(),
                 It.IsAny<IAsyncSpecialistReviewService>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IncrementalReReviewResult
+            .Returns((ArchitectureKnowledgeModel _, ReReviewScope _, IAsyncSpecialistReviewService _, CancellationToken token) =>
             {
-                SpecialistResults = [new SpecialistReviewResult()]
+                if (cancelDuringReview)
+                {
+                    cancellation.Cancel();
+                    return Task.FromCanceled<IncrementalReReviewResult>(token);
+                }
+
+                return Task.FromResult(new IncrementalReReviewResult
+                {
+                    SpecialistResults = [new SpecialistReviewResult()]
+                });
             });
         Mock<IRunStageOutcomesRepository> runStageOutcomesRepository = new();
         Mock<IAuditService> auditService = new();
@@ -130,8 +142,24 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinatorTests
         await sut.TryScheduleAfterBulkUploadAsync(runId, uploadedFileCount: 2, CancellationToken.None);
         captured.Should().NotBeNull();
 
-        await captured!(CancellationToken.None);
+        Func<Task> runWork = () => captured!(cancellation.Token);
+        if (cancelDuringReview)
+        {
+            await runWork.Should().ThrowAsync<OperationCanceledException>();
+        }
+        else
+        {
+            await runWork();
+        }
 
+        runStageOutcomesRepository.Verify(
+            repository => repository.RecordStageCompletedAsync(
+                runId,
+                "incremental-re-review-evidence-added",
+                cancelDuringReview ? "error" : "succeeded",
+                It.IsAny<DateTime>(),
+                It.Is<CancellationToken>(token => !token.IsCancellationRequested)),
+            Times.Once);
         sealedManifestPinGate.Verify(
             gate => gate.EnsureReadyAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
             Times.Once);
@@ -158,6 +186,6 @@ public sealed class EvidenceAddedIncrementalReReviewCoordinatorTests
                     && auditEvent.WorkspaceId == DefaultScope.WorkspaceId
                     && auditEvent.ProjectId == DefaultScope.ProjectId),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            cancelDuringReview ? Times.Never() : Times.Once());
     }
 }

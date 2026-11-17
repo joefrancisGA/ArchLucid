@@ -13,6 +13,12 @@ public interface IRemediationWaveRepository
         CancellationToken cancellationToken = default) =>
         InsertWaveAsync(mutation.ToRecord(scope), cancellationToken);
 
+    Task InsertWaveWithMembersInScopeAsync(
+        ProjectScopeKey scope,
+        RemediationWaveCreateMutation wave,
+        IReadOnlyList<RemediationWaveMemberMutation> members,
+        CancellationToken cancellationToken = default);
+
     Task UpdateWaveAsync(RemediationWaveRecord wave, CancellationToken cancellationToken = default);
 
     async Task UpdateWaveInScopeAsync(
