@@ -36,7 +36,7 @@ public sealed class CachingPolicyPackVersionRepository(
             _hotPathReadCache,
             version.PolicyPackId,
             version.Version,
-            ct);
+            transaction is null ? CancellationToken.None : ct);
     }
 
     /// <inheritdoc />
