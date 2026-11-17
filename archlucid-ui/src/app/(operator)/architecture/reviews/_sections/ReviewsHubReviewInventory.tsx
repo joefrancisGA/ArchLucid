@@ -37,6 +37,7 @@ import {
 } from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
 
+import { ReviewsHubEmptyPartialCaptureHonesty } from "./ReviewsHubEmptyPartialCaptureHonesty";
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubInFlightAnalysisDesk } from "./ReviewsHubInFlightAnalysisDesk";
 import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
@@ -323,6 +324,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                     ]
                   : []),
               ]}
+              footer={<ReviewsHubEmptyPartialCaptureHonesty />}
             />
           )}
           </div>

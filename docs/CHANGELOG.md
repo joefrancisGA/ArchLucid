@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 67 (batch 32): Search empty, hub drift and remediation, and satellite partial capture
+
+**Outcome.** Resource hub drift and remediation tabs repeat partial-capture recovery on tab and empty states. Search evidence zero hits, reviews hub inventory empty, governance findings results footer, approval lineage empties, audit control lineage, impact preview no-baseline, and scorecard zero metrics name partial inventory discipline.
+
+**Surfaces.** Resource hub drift and remediation tabs, search review evidence, reviews hub, findings results footer, approval lineage, audit control lineage, impact preview no-baseline, architecture scorecard empty, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 66 (batch 31): Resource hub tabs, satellite empties, and simulator partial capture
 
 **Outcome.** Resource hub overview, diagram, and Terraform tabs repeat partial-capture recovery. Declared connections, compare correlation empty, impact preview, signed records, and risk exceptions empties name partial inventory. Remediation factory simulator states partial-capture rank limits.

@@ -43,6 +43,7 @@ import {
   resolveSearchReviewEvidenceSteps,
 } from "@/lib/search-review-evidence-checklist";
 
+import { SearchReviewEvidencePartialEmptyHonesty } from "./SearchReviewEvidencePartialEmptyHonesty";
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
   SEARCH_EXAMPLE_QUERY_CHIPS,
@@ -352,6 +353,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
               ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another relevance band or broaden your query.`
               : SEARCH_EMPTY_COMPACT.description
           }
+          footer={<SearchReviewEvidencePartialEmptyHonesty />}
         />
       ) : null}
 

@@ -76,6 +76,7 @@ import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governanc
 import { formatShortId } from "@/lib/format-short-id";
 import { cn } from "@/lib/utils";
 
+import { AuditEvidenceControlLineagePartialCaptureFootnote } from "./AuditEvidenceControlLineagePartialCaptureFootnote";
 import { AuditEvidenceControlLineageBreadcrumb } from "./AuditEvidenceControlLineageBreadcrumb";
 import { AuditEvidenceControlLineageClaimOrientationStrip } from "./AuditEvidenceControlLineageClaimOrientationStrip";
 import { AuditEvidenceLineageRouteIdentifiersDisclosure } from "./AuditEvidenceLineageRouteIdentifiersDisclosure";
@@ -468,6 +469,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               snapshotId={props.snapshotId}
               controlId={props.controlId}
             />
+            <AuditEvidenceControlLineagePartialCaptureFootnote />
           </section>
         ) : null}
 

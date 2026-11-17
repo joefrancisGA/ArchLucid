@@ -9,3 +9,11 @@ export const RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE =
 /** Terraform mapping and advisory text read stored snapshot inventory for this resource. */
 export const RESOURCE_HUB_TERRAFORM_TAB_PARTIAL_CAPTURE_LINE =
   "Terraform mapping reads stored snapshot inventory on this tab. Partial capture may omit resource context." as const;
+
+/** Drift tab recent changes read stored snapshot inventory for this resource. */
+export const RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE =
+  "Drift changes on this tab read stored snapshot inventory. Partial capture may hide configuration changes." as const;
+
+/** Remediation instances on this tab read stored evaluation and factory records for this resource. */
+export const RESOURCE_HUB_REMEDIATION_TAB_PARTIAL_CAPTURE_LINE =
+  "Remediation instances on this tab read stored records for this resource. Partial capture may omit open remediation work." as const;

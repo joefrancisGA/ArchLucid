@@ -3,6 +3,7 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { IMPACT_PREVIEW_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/impact-preview-partial-capture-empty-copy";
+import { IMPACT_PREVIEW_PARTIAL_CAPTURE_NO_BASELINE_LINE } from "@/lib/impact-preview-partial-capture-no-baseline-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
@@ -72,6 +73,13 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
             <p className="m-0">{IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY}</p>
             <p className="m-0">{INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT}</p>
           </>
+        }
+        footer={
+          partialCapture ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="impact-preview-no-baseline-partial-capture">
+              {IMPACT_PREVIEW_PARTIAL_CAPTURE_NO_BASELINE_LINE}
+            </p>
+          ) : undefined
         }
         prominentBoundary
       />
