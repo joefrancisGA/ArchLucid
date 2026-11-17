@@ -42,6 +42,22 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_source_from_json_blob_when_inner_arm_key_uses_capital_Id_casing()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["source"] =
+                """
+                {"Id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app"}
+                """,
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_reads_source_from_json_blob_when_id_inside_is_percent_encoded_plain_arm_scalar()
     {
         string blob = $$"""{"id":"{{Uri.EscapeDataString(VirtualMachineArmId)}}"}""";

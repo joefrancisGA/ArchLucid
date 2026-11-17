@@ -119,17 +119,24 @@ public static class AzureInventoryRestorePointCollectionSourceParser
         try
         {
             using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Object)
+            if (root.ValueKind is not JsonValueKind.Object)
             {
                 return null;
             }
 
-            if (document.RootElement.TryGetProperty("id", out JsonElement idElement)
-                && idElement.ValueKind is JsonValueKind.String)
+            string? armId = AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(root);
+
+            if (string.IsNullOrWhiteSpace(armId))
             {
-                return TryResolveArmReferenceValue(idElement.GetString());
+                return null;
             }
+
+            // Re-enter when the inner scalar is still encoded or nested; otherwise keep normalized id.
+            string? resolved = TryResolveArmReferenceValue(armId);
+
+            return resolved ?? armId;
         }
         catch (JsonException)
         {
