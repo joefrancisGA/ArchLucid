@@ -45,6 +45,7 @@ partial class FindingsEngineInvokeStage
 
         // A matching pin must be assessed even if it lacks CollectionUtc, to preserve fail-closed handling.
         // The same applies when a policy mandates the engine or evidence-pin commitment is inconsistent.
+
         if (matchingPin || required
             || (analysisContext.HasCreateTimeEvidencePinCommitment && !anyPins)
             || (anyPins && !analysisContext.HasCreateTimeEvidencePinCommitment))

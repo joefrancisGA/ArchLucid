@@ -112,6 +112,7 @@ public sealed class FindingsEngineInventoryApplicabilityTests
         Mock<IEffectfulFindingEngine> engine = new(MockBehavior.Strict);
         engine.SetupGet(x => x.EngineType).Returns(type);
         engine.SetupGet(x => x.Category).Returns("Security");
+
         if (invoke)
         {
             if (fail)
