@@ -11886,6 +11886,58 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_session_value_contains_literal_space()
+    {
+        const string effectiveValue = "Cookie: session=abc defghijklmnop";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_percent_encoded_set_cookie_follows_plain_authorization_basic()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz Set-Cookie%3A%20session%3D1234567890123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_digest_authorization_has_spaced_comma_parameters()
+    {
+        const string effectiveValue = "Authorization: Digest nonce=\"x\", uri=\"/\", response=\"deadbeef0123\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_token_is_followed_by_semicolon_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic x;dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_basic_semicolon_suffix_is_not_credential_material()
+    {
+        const string effectiveValue = "Authorization: Basic YWJjZA==;other=1";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [ConfigPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, ConfigPath, isSet: true);
+
+        value.Should().Be(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_long_effective_value_with_password_pair_beyond_truncation_boundary()
+    {
+        string prefix = new string('x', 260);
+        string effectiveValue = prefix + " Password=longsecretvalue123456";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
