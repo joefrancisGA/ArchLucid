@@ -108,7 +108,9 @@ def _metric_values(payload: dict, metric_name: str) -> dict:
     if isinstance(values, dict):
         return values
 
-    trend_keys = ("rate", "count", "med", "p(50)", "p(95)", "p(99)")
+    # k6 summary-export emits rate metrics as top-level "value" in current versions.
+    # Older exports may use "rate" or nested "values"; accept both without guessing.
+    trend_keys = ("rate", "value", "count", "med", "p(50)", "p(95)", "p(99)")
     return {key: block[key] for key in trend_keys if key in block}
 
 
@@ -242,7 +244,7 @@ def main() -> int:
     payload = json.loads(path.read_text(encoding="utf-8"))
     failed = _metric_values(payload, "http_req_failed")
 
-    failed_rate = _float(failed, "rate")
+    failed_rate = _float(failed, "rate", "value")
 
     errors: list[str] = []
 

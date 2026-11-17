@@ -149,7 +149,8 @@ export function getRunDetailFn() {
     return;
   }
 
-  const detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`);
+  // Canonical run aggregate is /review/{runId}; /run/{runId} is not an API route.
+  const detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/review/${encodeURIComponent(runId)}`);
   check(detail, { "get run detail 200": (res) => res.status === 200 });
 }
 

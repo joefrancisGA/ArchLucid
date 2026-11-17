@@ -6094,6 +6094,9 @@ jobs:
           ARCHLUCID_K6_CREATE_RUN_SMOKE_MAX_TIME_SECONDS: "1200"
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6CiSmoke "${RUNNER_TEMP}/k6-ci-api.log" "${RUNNER_TEMP}/k6-ci-api.pid"
 
+      - name: Verify k6 summary parser handles current and legacy exports
+        run: python3 -m unittest discover -s scripts/ci -p 'test_assert_k6_ci_smoke_summary.py' -v
+
       - name: Run k6 CI smoke
         env:
           BASE_URL: http://127.0.0.1:5128
