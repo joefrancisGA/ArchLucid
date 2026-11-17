@@ -23,7 +23,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(recommendation);
+            _items.Add(Copy(recommendation));
         }
 
         return Task.CompletedTask;
@@ -35,7 +35,11 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.RecommendationId == recommendationId && MatchesScope(x, scope)));
+        {
+            RecommendationRecord? stored = _items.FirstOrDefault(x =>
+                x.RecommendationId == recommendationId && MatchesScope(x, scope));
+            return Task.FromResult(stored is null ? null : Copy(stored));
+        }
     }
 
     /// <inheritdoc />
@@ -58,6 +62,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
                 .OrderByDescending(x => x.PriorityScore)
                 .ThenByDescending(x => x.CreatedUtc)
                 .Take(500)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<RecommendationRecord>>(result);
@@ -85,11 +90,40 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
                     (status is null || x.Status == status))
                 .OrderByDescending(x => x.LastUpdatedUtc)
                 .Take(n)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<RecommendationRecord>>(result);
         }
     }
+
+    private static RecommendationRecord Copy(RecommendationRecord record) => new()
+    {
+        RecommendationId = record.RecommendationId,
+        TenantId = record.TenantId,
+        WorkspaceId = record.WorkspaceId,
+        ProjectId = record.ProjectId,
+        RunId = record.RunId,
+        ComparedToRunId = record.ComparedToRunId,
+        Title = record.Title,
+        Category = record.Category,
+        Rationale = record.Rationale,
+        SuggestedAction = record.SuggestedAction,
+        Urgency = record.Urgency,
+        ExpectedImpact = record.ExpectedImpact,
+        PriorityScore = record.PriorityScore,
+        Status = record.Status,
+        CreatedUtc = record.CreatedUtc,
+        LastUpdatedUtc = record.LastUpdatedUtc,
+        ReviewedByUserId = record.ReviewedByUserId,
+        ReviewedByUserName = record.ReviewedByUserName,
+        ReviewComment = record.ReviewComment,
+        ResolutionRationale = record.ResolutionRationale,
+        SupportingFindingIdsJson = record.SupportingFindingIdsJson,
+        SupportingDecisionIdsJson = record.SupportingDecisionIdsJson,
+        SupportingArtifactIdsJson = record.SupportingArtifactIdsJson,
+        SourceEvidenceLinksJson = record.SourceEvidenceLinksJson,
+    };
 
     private static bool MatchesScope(RecommendationRecord record, ScopeContext scope) =>
         record.TenantId == scope.TenantId &&
