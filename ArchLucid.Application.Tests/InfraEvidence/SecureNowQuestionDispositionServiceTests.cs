@@ -672,8 +672,47 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     private const string UnknownEvidenceFingerprint =
         "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD";
 
+    [Fact]
+    public async Task Reopen_reports_conflict_if_a_new_audit_entry_was_saved_after_the_read()
+    {
+        SecureNowQuestionDispositionWriteRequest writeRequest =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource");
+        SecureNowQuestionDispositionRecord existing = new()
+        {
+            TenantId = Scope.TenantId,
+            SubscriptionId = writeRequest.SubscriptionId,
+            ResourceId = writeRequest.ResourceId,
+            QuestionKey = writeRequest.QuestionKey,
+            AuditEntries = [new SecureNowQuestionDispositionAuditEntry { Action = "Ignored" }],
+        };
+        Mock<ISecureNowQuestionDispositionRepository> repository = new();
+        repository.Setup(repo => repo.TryGetByIdentityAsync(
+                Scope.TenantId, existing.SubscriptionId, existing.ResourceId, existing.QuestionKey, CancellationToken.None))
+            .ReturnsAsync(existing);
+        repository.Setup(repo => repo.TryUpsertAsync(
+                It.Is<SecureNowQuestionDispositionRecord>(row => row.AuditEntries.Count == 2),
+                1,
+                CancellationToken.None))
+            .ReturnsAsync(false);
+        SecureNowQuestionDispositionService sut = CreateSut(repository.Object);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.ReopenAsync(
+            Scope, SnapshotId, new SecureNowQuestionDispositionReopenRequest
+            {
+                SubscriptionId = existing.SubscriptionId,
+                ResourceId = existing.ResourceId,
+                QuestionKey = existing.QuestionKey,
+                Reason = "Reopen.",
+            }, "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Question disposition changed. Reload it before saving.");
+        repository.Verify(repo => repo.TryUpsertAsync(
+            It.IsAny<SecureNowQuestionDispositionRecord>(), 1, CancellationToken.None), Times.Once);
+    }
+
     private static SecureNowQuestionDispositionService CreateSut(
-        InMemoryDispositionRepository repository,
+        ISecureNowQuestionDispositionRepository repository,
         bool snapshotOwned = true,
         bool includeQuestion = true,
         bool includeInventoryQuestion = true,
@@ -837,17 +876,21 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                     && string.Equals(row.ResourceId, resourceId, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(row.QuestionKey, questionKey, StringComparison.OrdinalIgnoreCase)));
 
-        public Task UpsertAsync(
+        public async Task<bool> TryUpsertAsync(
             SecureNowQuestionDispositionRecord record,
+            int? expectedAuditEntryCount,
             CancellationToken cancellationToken = default)
         {
-            Rows.RemoveAll(row =>
-                row.TenantId == record.TenantId
-                && row.SubscriptionId == record.SubscriptionId
-                && row.ResourceId == record.ResourceId
-                && string.Equals(row.QuestionKey, record.QuestionKey, StringComparison.OrdinalIgnoreCase));
+            SecureNowQuestionDispositionRecord? previous = await TryGetByIdentityAsync(
+                record.TenantId, record.SubscriptionId, record.ResourceId, record.QuestionKey, cancellationToken);
+            if (previous?.AuditEntries.Count != expectedAuditEntryCount)
+                return false;
+
+            if (previous is not null)
+                Rows.Remove(previous);
+
             Rows.Add(record);
-            return Task.CompletedTask;
+            return true;
         }
     }
 }
