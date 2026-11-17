@@ -2706,19 +2706,29 @@
 ---
 
 ## Zone: archlucid-core
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read outside saturated inventory-host ladder classes per `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` (`LogSanitizer`, `AllowedOutboundWebhookProbeUrlPolicy`, `ArtifactCursorCodec`, `ApiKeyMaterialMasker`). Fixed concatenated JSONL in `AL_BUG_HUNT_RUN_LOG_4.jsonl`. Spot-check **42/42** Core tests on those areas (`RunAnalyzers=false`). No row met hunt-ready bar; seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `LogSanitizer.Sanitize` — only normalizes CR/LF before the `char.IsControl` scan (`L21-22`); locus: log forging hardening; input: operator-controlled label containing Unicode line/paragraph separators (U+2028/U+2029); wrong outcome: multiline log injection in plaintext sinks; reachability: structured logging of unsanitized external text.
+- [ ] (candidate) `LogSanitizer.EmailDomainForLogs` — domain extraction uses `LastIndexOf('@')` on sanitized text (`L49-54`); locus: mailbox masking; input: quoted local-part or display name containing `@`; wrong outcome: non-domain token returned as the logged email domain; reachability: auth/audit logs for multi-tenant sign-in diagnostics.
+- [ ] (candidate) `AllowedOutboundWebhookProbeUrlPolicy.TryGetRejectionReason` — private-network guard inspects `uri.IdnHost` only (`L23-25`); locus: literal SSRF precheck before DNS; input: absolute HTTPS URL whose host is permissible Punycode but userinfo or path carries disallowed literal; wrong outcome: synchronous pass before async DNS guard; reachability: operator webhook dry-run URL validation (shared with Api layer).
+- [ ] (candidate) `ArtifactCursorCodec.TryDecode` — accepts arbitrary UTF-8 JSON size from Base64Url cursor without an upper bound (`L28-38`); locus: opaque pagination cursor; input: megabyte crafted cursor query param; wrong outcome: CPU/memory amplification on list endpoints; reachability: artifact metadata paging APIs using `ArtifactCursorCodec`.
+- [ ] (candidate) `ApiKeyMaterialMasker.MaskCommaSeparatedSegments` — splits on comma only and never applies `LogSanitizer` to segments (`L19-34`); locus: operator UI masking; input: configuration string with embedded newline or control characters between comma-separated keys; wrong outcome: masked preview still breaks layout or leaks line structure; reachability: tenant API key material display.
+
 - **id:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 0
-- **last-hunt:** never
+- **hunts:** 1
+- **last-hunt:** 2026-11-17
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** 1
 - **reseed-policy:** `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` — arithmetic sibling classes saturated; no new per-integer tests (CI allowlist); reseed from churn/sibling-path/analyzer signal only.
 
 2026-10-31 seed hunt (seed-only): zone was **exhausted** after inventory host ladder dry streak; reread `ArchLucid.Core/` outside saturated delimiter classes; closed stale open `(candidate)` septuple VaultName `%25252525252523` as `[class:route-percent-decode-depth]` **valid-no-repro** (cap-10 scan/decode; cite `TryParseKeyVaultReference_vault_name_septuple_percent_encoded_hash_yields_decoded_vault_host`); reopened zone to **cooling** and reset **consecutive-dry-hunts** to **0** (parity hunt #895 exhaustion treadmill); reseeded five reachability `(candidate)` rows below; scoped `FullyQualifiedName~AzureInventoryAppSettingHost` **626/626** sanity check; no production change. Private beta: n/a.
