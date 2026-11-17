@@ -344,7 +344,8 @@ public sealed class SecurityDeclaredConnectionService(
                 AuditEventTypes.SecurityDeclaredConnectionExpired,
                 record.ConnectionId,
                 new { ConnectionId = record.ConnectionId },
-                cancellationToken);
+                cancellationToken,
+                explicitActor: true);
         }
 
         logger.LogInformation(
@@ -364,7 +365,8 @@ public sealed class SecurityDeclaredConnectionService(
         string eventType,
         Guid connectionId,
         object payload,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool explicitActor = false)
     {
         await auditService.LogAsync(
             new AuditEvent
@@ -372,6 +374,7 @@ public sealed class SecurityDeclaredConnectionService(
                 EventType = eventType,
                 ActorUserId = actorId,
                 ActorUserName = actorId,
+                ExplicitActor = explicitActor,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
