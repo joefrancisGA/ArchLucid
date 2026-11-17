@@ -123,13 +123,13 @@ public sealed class SecureNowQuestionDispositionService(
         if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.SubscriptionId))
             return [];
 
-        DateTime now = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecureNowQuestionDispositionRecord> records =
             await dispositionRepository.ListByTenantAndSubscriptionAsync(
                 scope.TenantId,
                 Normalize(snapshot.SubscriptionId),
                 cancellationToken);
 
+        DateTime now = clock.UtcNowDateTime();
         return records
             .Select(record => record with { IsExpired = record.ExpirationUtc <= now })
             .ToList();
