@@ -1,26 +1,27 @@
-using System.Collections.Concurrent;
-
-
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>In-memory substitute for <see cref="DapperPolicyPackCatalogRepository" /> when SQL is disabled.</summary>
 public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepository
 {
-    private readonly ConcurrentDictionary<Guid, InMemoryPolicyPackCatalogEntryState> _byCatalogId = new();
-    private readonly ConcurrentDictionary<Guid, Guid> _sourceToCatalogId = new();
+    private readonly Lock _gate = new();
+    private readonly Dictionary<Guid, InMemoryPolicyPackCatalogEntryState> _byCatalogId = new();
+    private readonly Dictionary<Guid, Guid> _sourceToCatalogId = new();
 
     /// <inheritdoc />
     public Task<IReadOnlyList<PolicyPackCatalogListItem>> ListPromotedAsync(CancellationToken ct)
     {
         _ = ct;
 
-        List<PolicyPackCatalogListItem> rows = _byCatalogId.Values
-            .Where(e => e.IsPromoted)
-            .OrderBy(e => e.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .Select(ToListItem)
-            .ToList();
+        lock (_gate)
+        {
+            List<PolicyPackCatalogListItem> rows = _byCatalogId.Values
+                .Where(e => e.IsPromoted)
+                .OrderBy(e => e.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .Select(ToListItem)
+                .ToList();
 
-        return Task.FromResult<IReadOnlyList<PolicyPackCatalogListItem>>(rows);
+            return Task.FromResult<IReadOnlyList<PolicyPackCatalogListItem>>(rows);
+        }
     }
 
     /// <inheritdoc />
@@ -30,11 +31,14 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
     {
         _ = ct;
 
-        if (!_byCatalogId.TryGetValue(policyPackCatalogEntryId, out InMemoryPolicyPackCatalogEntryState? e) ||
-            !e.IsPromoted)
-            return Task.FromResult<PolicyPackCatalogEntryDetail?>(null);
+        lock (_gate)
+        {
+            if (!_byCatalogId.TryGetValue(policyPackCatalogEntryId, out InMemoryPolicyPackCatalogEntryState? e) ||
+                !e.IsPromoted)
+                return Task.FromResult<PolicyPackCatalogEntryDetail?>(null);
 
-        return Task.FromResult<PolicyPackCatalogEntryDetail?>(ToDetail(e));
+            return Task.FromResult<PolicyPackCatalogEntryDetail?>(ToDetail(e));
+        }
     }
 
     /// <inheritdoc />
@@ -42,15 +46,18 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
     {
         _ = ct;
 
-        if (!_byCatalogId.TryGetValue(policyPackCatalogEntryId, out InMemoryPolicyPackCatalogEntryState? e))
-            return Task.FromResult(false);
+        lock (_gate)
+        {
+            if (!_byCatalogId.TryGetValue(policyPackCatalogEntryId, out InMemoryPolicyPackCatalogEntryState? e))
+                return Task.FromResult(false);
 
-        if (!e.IsPromoted)
+            if (!e.IsPromoted)
+                return Task.FromResult(true);
+
+            e.IsPromoted = false;
+            e.DemotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
             return Task.FromResult(true);
-
-        e.IsPromoted = false;
-        e.DemotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-        return Task.FromResult(true);
+        }
     }
 
     /// <inheritdoc />
@@ -71,45 +78,48 @@ public sealed class InMemoryPolicyPackCatalogRepository : IPolicyPackCatalogRepo
         ArgumentException.ThrowIfNullOrWhiteSpace(snapshotVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(snapshotContentJson);
 
-        DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        if (_sourceToCatalogId.TryGetValue(sourcePolicyPackId, out Guid catalogId))
+        lock (_gate)
         {
-            InMemoryPolicyPackCatalogEntryState existing = _byCatalogId[catalogId];
-            existing.DisplayName = displayName;
-            existing.Description = description;
-            existing.PackType = packType;
-            existing.SnapshotVersion = snapshotVersion;
-            existing.SnapshotContentJson = snapshotContentJson;
-            existing.IsPromoted = true;
-            existing.UpdatedUtc = utcNow;
-            existing.PromotedUtc = utcNow;
-            existing.DemotedUtc = null;
+            DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
 
-            return Task.FromResult(ToDetail(existing));
+            if (_sourceToCatalogId.TryGetValue(sourcePolicyPackId, out Guid catalogId))
+            {
+                InMemoryPolicyPackCatalogEntryState existing = _byCatalogId[catalogId];
+                existing.DisplayName = displayName;
+                existing.Description = description;
+                existing.PackType = packType;
+                existing.SnapshotVersion = snapshotVersion;
+                existing.SnapshotContentJson = snapshotContentJson;
+                existing.IsPromoted = true;
+                existing.UpdatedUtc = utcNow;
+                existing.PromotedUtc = utcNow;
+                existing.DemotedUtc = null;
+
+                return Task.FromResult(ToDetail(existing));
+            }
+
+            Guid newId = Guid.NewGuid();
+            InMemoryPolicyPackCatalogEntryState created = new InMemoryPolicyPackCatalogEntryState
+            {
+                PolicyPackCatalogEntryId = newId,
+                DisplayName = displayName,
+                Description = description,
+                PackType = packType,
+                SnapshotVersion = snapshotVersion,
+                SnapshotContentJson = snapshotContentJson,
+                SourcePolicyPackId = sourcePolicyPackId,
+                IsPromoted = true,
+                CreatedUtc = utcNow,
+                UpdatedUtc = utcNow,
+                PromotedUtc = utcNow,
+                DemotedUtc = null
+            };
+
+            _byCatalogId[newId] = created;
+            _sourceToCatalogId[sourcePolicyPackId] = newId;
+
+            return Task.FromResult(ToDetail(created));
         }
-
-        Guid newId = Guid.NewGuid();
-        InMemoryPolicyPackCatalogEntryState created = new InMemoryPolicyPackCatalogEntryState
-        {
-            PolicyPackCatalogEntryId = newId,
-            DisplayName = displayName,
-            Description = description,
-            PackType = packType,
-            SnapshotVersion = snapshotVersion,
-            SnapshotContentJson = snapshotContentJson,
-            SourcePolicyPackId = sourcePolicyPackId,
-            IsPromoted = true,
-            CreatedUtc = utcNow,
-            UpdatedUtc = utcNow,
-            PromotedUtc = utcNow,
-            DemotedUtc = null
-        };
-
-        _byCatalogId[newId] = created;
-        _sourceToCatalogId[sourcePolicyPackId] = newId;
-
-        return Task.FromResult(ToDetail(created));
     }
 
     private static PolicyPackCatalogListItem ToListItem(InMemoryPolicyPackCatalogEntryState e) =>
