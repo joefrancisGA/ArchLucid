@@ -55,13 +55,10 @@ public sealed partial class InternalArchitectureTraceForensicsController(
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
-        if (pageNumber < 1)
-            return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
+        string? pagingProblem = PagingParameters.TryGetInvalidPageQueryDetail(pageNumber, pageSize);
 
-        if (pageSize is < 1 or > PagingParameters.MaxPageSize)
-            return this.BadRequestProblem(
-                $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
-                ProblemTypes.ValidationFailed);
+        if (pagingProblem is not null)
+            return this.BadRequestProblem(pagingProblem, ProblemTypes.ValidationFailed);
 
         if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
