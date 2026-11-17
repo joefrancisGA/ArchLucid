@@ -42,6 +42,32 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
     }
 
     [SkippableFact]
+    public async Task Saved_profile_history_is_independent_of_caller_mutations()
+    {
+        InMemoryRecommendationLearningProfileRepository repo = new();
+        RecommendationLearningProfile profile = BuildProfile(SampleUtc);
+        profile.CategoryStats = [new() { Key = "Reliability", ProposedCount = 1 }];
+        profile.CategoryWeights["Reliability"] = 1.25;
+
+        await repo.SaveAsync(profile, CancellationToken.None);
+        profile.CategoryStats[0].ProposedCount = 8;
+        profile.CategoryWeights["Reliability"] = 2;
+
+        var history = await repo.ListHistoryAsync(TenantId, WorkspaceId, ProjectId, 1, CancellationToken.None);
+        var snapshot = history.Should().ContainSingle().Subject;
+        snapshot.Profile.CategoryStats[0].ProposedCount.Should().Be(1);
+        snapshot.Profile.CategoryWeights["reliability"].Should().Be(1.25);
+        snapshot.Profile.CategoryStats.Clear();
+        snapshot.Profile.CategoryWeights.Clear();
+
+        RecommendationLearningProfile? latest =
+            await repo.GetLatestAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+        Assert.NotNull(latest);
+        latest.CategoryStats.Should().ContainSingle().Subject.ProposedCount.Should().Be(1);
+        latest.CategoryWeights["Reliability"].Should().Be(1.25);
+    }
+
+    [SkippableFact]
     public async Task GetLatestAsync_returns_most_recent_GeneratedUtc_for_scope()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
