@@ -30,6 +30,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
         CollectionRun? result = _runs.TryGetValue(Key(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId), out CollectionRun? run)
             ? CopyHash(run)
@@ -44,6 +45,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
         int safeOffset = Math.Max(0, offset);
         int safeLimit = Math.Clamp(limit, 1, 100);
         IReadOnlyList<CollectionRun> result = _runs.Values
@@ -64,6 +66,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(zipSha256);
+        cancellationToken.ThrowIfCancellationRequested();
         Guid? result = _runs.Values
             .Where(run =>
                 IsInScope(run, scope) &&
