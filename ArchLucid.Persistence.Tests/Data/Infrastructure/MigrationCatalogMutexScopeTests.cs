@@ -34,32 +34,47 @@ public sealed class MigrationCatalogMutexScopeTests
     [SkippableFact]
     public async Task Acquire_ThrowsTimeoutException_WhenSameCatalogAlreadyLocked()
     {
+        // This is a named, cross-process mutex. Each test must use its own synthetic
+        // catalog key so unrelated concurrent CI assemblies cannot occupy its lock.
+        string isolatedConnectionString = SampleConnectionString.Replace(
+            "ArchLucidMutexTest",
+            $"ArchLucidMutexTest{Guid.NewGuid():N}",
+            StringComparison.Ordinal);
         using ManualResetEventSlim holderReady = new(false);
         using ManualResetEventSlim releaseHolder = new(false);
         Exception? backgroundError = null;
 
-        Task holder = Task.Run(() =>
-        {
-            try
+        // Mutex ownership is thread-affine. Use a dedicated thread so busy parallel
+        // test runners cannot starve the holder's ThreadPool work item.
+        Task holder = Task.Factory.StartNew(
+            () =>
             {
-                using (MigrationCatalogMutexScope.Acquire(SampleConnectionString, TimeSpan.FromMinutes(1)))
+                try
                 {
-                    holderReady.Set();
-                    releaseHolder.Wait(TimeSpan.FromSeconds(30));
+                    using (MigrationCatalogMutexScope.Acquire(isolatedConnectionString, TimeSpan.FromMinutes(1)))
+                    {
+                        holderReady.Set();
+                        releaseHolder.Wait(TimeSpan.FromSeconds(30));
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                backgroundError = ex;
-            }
-        });
-
-        holderReady.Wait(TimeSpan.FromSeconds(10)).Should().BeTrue("background task should acquire mutex");
-        backgroundError.Should().BeNull();
+                catch (Exception ex)
+                {
+                    backgroundError = ex;
+                }
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
 
         try
         {
-            Action act = () => MigrationCatalogMutexScope.Acquire(SampleConnectionString, TimeSpan.FromMilliseconds(200));
+            holderReady.Wait(TimeSpan.FromSeconds(10)).Should().BeTrue(
+                "a dedicated holder thread should acquire this test's isolated catalog mutex");
+            backgroundError.Should().BeNull();
+
+            Action act = () => MigrationCatalogMutexScope.Acquire(
+                isolatedConnectionString,
+                TimeSpan.FromMilliseconds(200));
 
             act.Should().Throw<TimeoutException>()
                 .WithMessage("*waiting for exclusive database migration lock*");
@@ -67,9 +82,9 @@ public sealed class MigrationCatalogMutexScopeTests
         finally
         {
             releaseHolder.Set();
+            await holder.WaitAsync(TimeSpan.FromSeconds(10));
         }
 
-        await holder;
         backgroundError.Should().BeNull();
     }
 }

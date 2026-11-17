@@ -60,10 +60,13 @@ export function healthFn() {
 }
 
 function createArchitectureRequestBody(requestIdPrefix) {
+  // The same workspace receives concurrent creates. A unique requestId alone does not
+  // satisfy review-name uniqueness, so keep both identifiers scoped to this iteration.
+  const requestId = `${requestIdPrefix}-${__VU}-${__ITER}-${Date.now()}`;
   return JSON.stringify({
-    requestId: `${requestIdPrefix}-${__VU}-${__ITER}-${Date.now()}`,
+    requestId,
     description: "k6 CI smoke architecture write-path test",
-    systemName: "K6CiSmokeSystem",
+    systemName: `K6CiSmokeSystem-${requestId}`,
     environment: "prod",
     cloudProvider: 1,
     constraints: [],
