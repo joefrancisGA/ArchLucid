@@ -7,6 +7,7 @@ import type { LearningProfile } from "@/types/recommendation-learning";
 
 const reloadBundle = vi.fn();
 const reloadPersistedOnly = vi.fn();
+const routerRefresh = vi.hoisted(() => vi.fn());
 const operateCapabilityMocks = vi.hoisted(() => ({
   canMutate: true,
 }));
@@ -21,7 +22,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    refresh: vi.fn(),
+    refresh: routerRefresh,
   }),
   usePathname: () => "/internal/recommendation-learning",
   useSearchParams: () => new URLSearchParams(),
@@ -76,6 +77,7 @@ const baseProfile: LearningProfile = {
 
 describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
   beforeEach(() => {
+    routerRefresh.mockClear();
     reloadBundle.mockReset();
     reloadPersistedOnly.mockReset();
     reloadBundle.mockResolvedValue({
@@ -120,6 +122,7 @@ describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
       expect(reloadBundle).toHaveBeenCalledTimes(1);
     });
     expect(reloadPersistedOnly).not.toHaveBeenCalled();
+    expect(routerRefresh).not.toHaveBeenCalled();
   });
 
   it("load persisted profile fetches stored weights without refreshing eligibility counts", async () => {
