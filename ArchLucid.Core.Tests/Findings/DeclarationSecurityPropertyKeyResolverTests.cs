@@ -274,6 +274,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_requiressl_for_https_only_logical_name()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.requiressl"] = "true",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.HttpsOnly,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.requiressl");
+        value.Should().Be("true");
+    }
+
+    [Fact]
     public void TryGet_returns_false_for_empty_properties()
     {
         bool found = DeclarationSecurityPropertyKeyResolver.TryGet(

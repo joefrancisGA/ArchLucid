@@ -1435,6 +1435,54 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_https_only_mismatch_when_gcp_declaration_uses_compacted_tf_requiressl()
+    {
+        const string resourceId = "projects/demo-project/instances/pay-sql";
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "sql-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-sql",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] = resourceId,
+                        ["tf.requiressl"] = "true",
+                    },
+                },
+            ],
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "name": "{{resourceId}}",
+                "assetType": "sqladmin.googleapis.com/Instance",
+                "properties": {
+                  "requireSsl": false
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Gcp,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.requiressl");
+        mismatch.DeclarationValue.Should().Be("true");
+        mismatch.InventoryValue.Should().Be("false");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_does_not_mismatch_when_declaration_uses_no_and_inventory_public_network_access_is_disabled()
     {
         GraphSnapshot graph = new()
