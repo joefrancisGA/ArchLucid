@@ -39,8 +39,8 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     {
         await _inner.UpdateAsync(pack, ct);
 
-        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, ct);
-        await HotPathCacheEviction.InvalidatePolicyPackListScopeAsync(_hotPathReadCache, ScopeForPack(pack), ct);
+        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, CancellationToken.None);
+        await HotPathCacheEviction.InvalidatePolicyPackListScopeAsync(_hotPathReadCache, ScopeForPack(pack), CancellationToken.None);
     }
 
     /// <inheritdoc />
