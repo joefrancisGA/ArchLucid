@@ -52,7 +52,7 @@ public sealed class OperationalErrorCaptureDrainHostedService(
                     "OperationalErrorCaptureDrain",
                     stoppingToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
             {
                 failure = ex;
             }
