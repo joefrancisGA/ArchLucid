@@ -3,7 +3,10 @@ import { z } from "zod";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { GraphViewModel } from "@/types/graph";
 import type { ManifestSummary, ReplayResponse } from "@/types/authority";
-import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
+import {
+  operatorNonEmptyTrimmedString,
+  operatorNonNegativeInteger,
+} from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -95,9 +98,13 @@ export function coerceGoldenManifestComparison(
   return { ok: true, value: parsed.data as GoldenManifestComparison };
 }
 
+function validationNotesAreStrings(notes: unknown[]): boolean {
+  return notes.every((note) => typeof note === "string");
+}
+
 const replayValidationSchema = z
   .object({
-    notes: z.array(z.unknown()),
+    notes: z.array(z.string()),
     manifestHashMatches: z.boolean(),
     artifactBundlePresentAfterReplay: z.boolean(),
     hasValidationNotes: z.boolean().optional(),
@@ -144,6 +151,13 @@ export function coerceReplayResponse(
       };
     }
 
+    if (!validationNotesAreStrings(data.validation.notes)) {
+      return {
+        ok: false,
+        message: 'Replay response has invalid "validation.notes" entries (expected strings).',
+      };
+    }
+
     const validation = data.validation;
 
     const boolKeys = [
@@ -182,9 +196,9 @@ const manifestSummarySchema = z
     ruleSetId: operatorNonEmptyTrimmedString,
     ruleSetVersion: operatorNonEmptyTrimmedString,
     status: operatorNonEmptyTrimmedString,
-    decisionCount: z.number(),
-    warningCount: z.number(),
-    unresolvedIssueCount: z.number(),
+    decisionCount: operatorNonNegativeInteger,
+    warningCount: operatorNonNegativeInteger,
+    unresolvedIssueCount: operatorNonNegativeInteger,
     operatorSummary: operatorNonEmptyTrimmedString.optional(),
   })
   .passthrough();
@@ -227,7 +241,7 @@ export function coerceManifestSummary(
     const numberKeys = ["decisionCount", "warningCount", "unresolvedIssueCount"] as const;
 
     for (const key of numberKeys) {
-      if (typeof data[key] !== "number") {
+      if (!operatorNonNegativeInteger.safeParse(data[key]).success) {
         return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
       }
     }

@@ -233,6 +233,20 @@ describe("coerceRunComparison", () => {
     ).toBe(false);
   });
 
+  it("rejects manifestComparison object without diffs array", () => {
+    const result = coerceRunComparison({
+      leftRunId: "L",
+      rightRunId: "R",
+      runLevelDiffs: [],
+      manifestComparison: {},
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('manifestComparison is missing "diffs" array.');
+    }
+  });
+
   it("reports missing run identifiers when leftRunId or rightRunId is whitespace-only", () => {
     const blankLeft = coerceRunComparison({
       leftRunId: "   ",
@@ -348,6 +362,24 @@ describe("coerceReplayResponse", () => {
     });
 
     expect(result.ok).toBe(true);
+  });
+
+  it("rejects validation.notes entries that are not strings", () => {
+    const result = coerceReplayResponse({
+      runId: "r",
+      mode: "m",
+      replayedUtc: "2020-01-01T00:00:00Z",
+      validation: {
+        notes: [null],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Replay response has invalid "validation.notes" entries (expected strings).');
+    }
   });
 
   it("rejects missing validation.notes", () => {
@@ -669,6 +701,43 @@ describe("coerceManifestSummary", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.message).toBe('Review record summary is missing or invalid "ruleSetVersion".');
+    }
+  });
+
+  const validManifestSummary = {
+    manifestId: "m",
+    runId: "r",
+    createdUtc: "2020-01-01T00:00:00Z",
+    manifestHash: "h",
+    ruleSetId: "rs",
+    ruleSetVersion: "1",
+    decisionCount: 0,
+    warningCount: 0,
+    unresolvedIssueCount: 0,
+    status: "Committed",
+  };
+
+  it("rejects fractional manifest counter values", () => {
+    const result = coerceManifestSummary({
+      ...validManifestSummary,
+      decisionCount: 1.5,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "decisionCount".');
+    }
+  });
+
+  it("rejects non-finite manifest counter values", () => {
+    const result = coerceManifestSummary({
+      ...validManifestSummary,
+      decisionCount: Number.NaN,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "decisionCount".');
     }
   });
 });
