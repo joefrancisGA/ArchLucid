@@ -108,22 +108,23 @@ export function ordinalDay(day: number): string {
 }
 
 export function classifyCadence(parsed: FiveFieldUtcCron): CadenceKind {
-  if (parsed.dayOfWeek !== "*" && parsed.dayOfMonth === "*") {
+  const monthNum = parseSingleCronField(parsed.month);
+  const domNum = parseSingleCronField(parsed.dayOfMonth);
+  const dowNum = parseSingleCronField(parsed.dayOfWeek);
+
+  if (dowNum !== null && parsed.dayOfMonth === "*" && parsed.month === "*") {
     return "weekly";
   }
 
-  if (parsed.month === "*/3" && parsed.dayOfMonth !== "*") {
+  if (parsed.month === "*/3" && domNum !== null && parsed.dayOfWeek === "*") {
     return "quarterly";
   }
-
-  const monthNum = parseSingleCronField(parsed.month);
-  const domNum = parseSingleCronField(parsed.dayOfMonth);
 
   if (monthNum !== null && domNum !== null && parsed.dayOfWeek === "*") {
     return "annual";
   }
 
-  if (parsed.dayOfMonth !== "*" && parsed.dayOfWeek === "*") {
+  if (domNum !== null && parsed.month === "*" && parsed.dayOfWeek === "*") {
     return "monthly";
   }
 
@@ -234,7 +235,7 @@ export function findRepresentativeUtcInstantForCron(
 ): Date | null {
   const parsed = parseFiveFieldUtcCron(cronExpression);
 
-  if (parsed === null) {
+  if (parsed === null || classifyCadence(parsed) === "custom") {
     return null;
   }
 
