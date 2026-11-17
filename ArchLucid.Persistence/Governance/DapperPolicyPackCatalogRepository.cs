@@ -28,7 +28,7 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
                                SnapshotVersion,
                                SourcePolicyPackId,
                                PromotedUtc
-                           FROM dbo.PolicyPackCatalogEntry WITH (NOLOCK)
+                           FROM dbo.PolicyPackCatalogEntry
                            WHERE IsPromoted = 1
                            ORDER BY DisplayName ASC;
                            """;
@@ -54,7 +54,7 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
                                SourcePolicyPackId,
                                PromotedUtc,
                                SnapshotContentJson
-                           FROM dbo.PolicyPackCatalogEntry WITH (NOLOCK)
+                           FROM dbo.PolicyPackCatalogEntry
                            WHERE PolicyPackCatalogEntryId = @PolicyPackCatalogEntryId
                              AND IsPromoted = 1;
                            """;
@@ -86,7 +86,7 @@ public sealed class DapperPolicyPackCatalogRepository(ISqlConnectionFactory conn
 
         const string alreadyDemotedSql = """
                                          SELECT TOP (1) 1
-                                         FROM dbo.PolicyPackCatalogEntry WITH (NOLOCK)
+                                         FROM dbo.PolicyPackCatalogEntry
                                          WHERE PolicyPackCatalogEntryId = @PolicyPackCatalogEntryId
                                            AND IsPromoted = 0;
                                          """;
