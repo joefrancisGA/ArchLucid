@@ -486,7 +486,9 @@ internal static class RequestConstraintTokenMatcher
 
     private static string NormalizeSpacedCjkPhraseStop(string haystack)
     {
-        return NormalizeSpacedDelimiterCharacter(haystack, '\u3002');
+        haystack = NormalizeSpacedDelimiterCharacter(haystack, '\u3002');
+
+        return NormalizeSpacedDelimiterCharacter(haystack, '\u3001');
     }
 
     private static string NormalizeSpacedAsciiSolidus(string haystack)

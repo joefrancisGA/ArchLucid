@@ -26,6 +26,14 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_hair_space_separates_words()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u200Aidentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void HasPrivateNetworkingConstraint_returns_true_when_figure_space_separates_private_endpoint_phrase()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["Traffic via private\u2007endpoint only"]);
