@@ -21,7 +21,7 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(digest);
+            _items.Add(Copy(digest));
         }
 
         return Task.CompletedTask;
@@ -46,6 +46,7 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
                     !d.ArchivedUtc.HasValue)
                 .OrderByDescending(d => d.GeneratedUtc)
                 .Take(n)
+                .Select(Copy)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<ArchitectureDigest>>(result);
@@ -60,7 +61,7 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
         lock (_gate)
         {
             ArchitectureDigest? d = _items.FirstOrDefault(x => x.DigestId == digestId && MatchesScope(x, scope));
-            return Task.FromResult(d is { ArchivedUtc: not null } ? null : d);
+            return Task.FromResult(d is { ArchivedUtc: null } ? Copy(d) : null);
         }
     }
 
@@ -80,6 +81,22 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
 
         return Task.FromResult(count);
     }
+
+    private static ArchitectureDigest Copy(ArchitectureDigest digest) => new()
+    {
+        DigestId = digest.DigestId,
+        TenantId = digest.TenantId,
+        WorkspaceId = digest.WorkspaceId,
+        ProjectId = digest.ProjectId,
+        RunId = digest.RunId,
+        ComparedToRunId = digest.ComparedToRunId,
+        GeneratedUtc = digest.GeneratedUtc,
+        Title = digest.Title,
+        Summary = digest.Summary,
+        ContentMarkdown = digest.ContentMarkdown,
+        MetadataJson = digest.MetadataJson,
+        ArchivedUtc = digest.ArchivedUtc,
+    };
 
     private static bool MatchesScope(ArchitectureDigest digest, ScopeContext scope) =>
         digest.TenantId == scope.TenantId &&
