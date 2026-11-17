@@ -52,6 +52,17 @@ public sealed class ProposedEvidencePayloadValidatorTests
     }
 
     [Fact]
+    public void TryParseValid_WhenTitleContainsEmbeddedZeroWidthSpace_returns_trimmed_payload()
+    {
+        bool ok = ProposedEvidencePayloadValidator.TryParseValid(
+            """{"type":"Policy","title":"Encrypt\u200b data at rest","description":"All storage accounts use CMK.","rationale":"Gap in catalog."}""",
+            out ProposedEvidencePayload payload);
+
+        ok.Should().BeTrue();
+        payload.Title.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
     public void TryParseValid_WhenTitleIsZeroWidthSpaceOnly_ReturnsFalse()
     {
         bool ok = ProposedEvidencePayloadValidator.TryParseValid(
