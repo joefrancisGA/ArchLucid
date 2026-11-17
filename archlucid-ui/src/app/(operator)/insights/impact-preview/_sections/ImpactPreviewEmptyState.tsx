@@ -1,6 +1,10 @@
 "use client";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { IMPACT_PREVIEW_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/impact-preview-partial-capture-empty-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   buildInsightsFinalizedReviewPrerequisiteEmpty,
   INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_HINT,
@@ -28,6 +32,13 @@ export type ImpactPreviewEmptyStateProps = {
 };
 
 export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): React.JSX.Element | null {
+  const partialCapture = useLatestSnapshotCaptureIsPartial(true);
+  const partialCaptureFooter = partialCapture ? (
+    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="impact-preview-empty-partial-capture">
+      {IMPACT_PREVIEW_PARTIAL_CAPTURE_EMPTY_LINE}
+    </p>
+  ) : null;
+
   if (props.pageState === "ready") {
     return null;
   }
@@ -81,6 +92,7 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
       title={IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE}
       description={IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY}
       prominentBoundary
+      footer={partialCaptureFooter ?? undefined}
       actions={[
         { label: IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE, href: createHref, variant: "primary" },
         ...secondaryActions,
