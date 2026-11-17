@@ -197,6 +197,31 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
 
+        // Serialize replacements even when the snapshot has no rank rows yet.
+        const string lockSnapshotSql = """
+                                       SELECT SnapshotId
+                                       FROM dbo.AzureInventorySnapshots WITH (UPDLOCK, HOLDLOCK)
+                                       WHERE TenantId = @TenantId
+                                         AND WorkspaceId = @WorkspaceId
+                                         AND ProjectId = @ProjectId
+                                         AND SnapshotId = @SnapshotId;
+                                       """;
+
+        Guid? lockedSnapshotId = await conn.ExecuteScalarAsync<Guid?>(
+            new CommandDefinition(
+                lockSnapshotSql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
+                transaction: tx,
+                cancellationToken: cancellationToken));
+
+        if (lockedSnapshotId is null)
+        {
+            if (ranks.Count == 0)
+                return;
+
+            throw new InvalidOperationException("Scoped path rank target snapshot was not found.");
+        }
+
         const string deleteSql = """
                                  DELETE r
                                  FROM dbo.SecurityEvidencePathRanks r
