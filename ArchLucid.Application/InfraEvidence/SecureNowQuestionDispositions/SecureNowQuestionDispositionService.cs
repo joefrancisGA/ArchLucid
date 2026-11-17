@@ -25,6 +25,7 @@ public sealed class SecureNowQuestionDispositionService(
     private readonly SecureNowPackQuestionCandidateBuilder packQuestionCandidateBuilder = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
     private const int MaximumQuestionKeyLength = 256;
+    private const int MaximumDispositionTextLength = 4000;
     private static readonly Regex VersionedQuestionKey = new(
         @"@v[1-9][0-9]*$",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -430,6 +431,13 @@ public sealed class SecureNowQuestionDispositionService(
 
         if (identityError is not null)
             return identityError;
+
+        if (request.Reason.Trim().Length > MaximumDispositionTextLength)
+            return "Reason is too long.";
+
+        if (status == SecureNowQuestionDispositionStatus.Answered
+            && request.AnswerText?.Trim().Length > MaximumDispositionTextLength)
+            return "AnswerText is too long.";
 
         if (string.IsNullOrWhiteSpace(request.EvidenceFingerprint))
             return "EvidenceFingerprint is required.";
