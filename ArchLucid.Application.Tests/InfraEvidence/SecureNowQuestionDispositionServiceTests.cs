@@ -50,6 +50,49 @@ public sealed class SecureNowQuestionDispositionServiceTests
     }
 
     [Fact]
+    public async Task Ignore_rejects_reason_that_cannot_fit_in_storage()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource");
+        string maxLengthReason = new('x', 4000);
+
+        SecureNowQuestionDispositionMutationResult rejected = await sut.IgnoreAsync(
+            Scope, SnapshotId, request with { Reason = maxLengthReason + "x" }, "actor");
+
+        rejected.Succeeded.Should().BeFalse();
+        rejected.ErrorMessage.Should().Be("Reason is too long.");
+        repository.Rows.Should().BeEmpty();
+
+        SecureNowQuestionDispositionMutationResult accepted = await sut.IgnoreAsync(
+            Scope, SnapshotId, request with { Reason = $" {maxLengthReason} " }, "actor");
+
+        accepted.Succeeded.Should().BeTrue();
+        accepted.Record!.Reason.Should().Be(maxLengthReason);
+    }
+
+    [Fact]
+    public async Task Answer_rejects_answer_text_that_cannot_fit_in_storage()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                AnswerCode = "yes",
+                AnswerText = new string('x', 4001),
+            };
+
+        SecureNowQuestionDispositionMutationResult rejected =
+            await sut.AnswerAsync(Scope, SnapshotId, request, "actor");
+
+        rejected.Succeeded.Should().BeFalse();
+        rejected.ErrorMessage.Should().Be("AnswerText is too long.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Question_key_is_case_insensitive_on_ignore()
     {
         InMemoryDispositionRepository repository = new();
