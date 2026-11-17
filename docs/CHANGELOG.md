@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 71 (batch 36): Policy catalog, standards catalog, graph type filter, and compare zero counts
+
+**Outcome.** Policy pack catalog empty, standards rules catalog empty, evidence graph type-filter empty, compare correlation all-zero counts, and resource explorer filter empty repeat partial-capture discipline.
+
+**Surfaces.** Policy catalog empty, standards catalog empty, graph type filter, compare zero counts, resource explorer filter empty, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 70 (batch 35): Findings filter, policy packs, standards filter, and graph loaded empties
 
 **Outcome.** Governance findings filter-no-match, policy pack registered list and workspace selection empties, enforced rules empty, standards rules filter-no-match, evidence graph loaded zero nodes, and remediation factory priority queue empty repeat partial-capture discipline.

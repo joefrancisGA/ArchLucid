@@ -7,6 +7,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackCatalogListItem } from "@/types/policy-packs";
 import { POLICY_PACKS_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/policy/policy-packs-catalog-empty-honesty-copy";
+import { PolicyPacksCatalogEmptyPartialHonesty } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksCatalogEmptyPartialHonesty";
 
 type PolicyPacksCatalogSectionProps = {
   readonly canMutatePacks: boolean;
@@ -84,6 +85,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
           >
             {POLICY_PACKS_CATALOG_EMPTY_NOT_LOAD_FAILURE_LINE}
           </p>
+          <PolicyPacksCatalogEmptyPartialHonesty />
         </div>
       ) : null}
 
