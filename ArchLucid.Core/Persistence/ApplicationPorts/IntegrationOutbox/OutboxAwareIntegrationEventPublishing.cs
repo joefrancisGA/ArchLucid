@@ -48,8 +48,6 @@ public static class OutboxAwareIntegrationEventPublishing
             if (string.IsNullOrWhiteSpace(messageId))
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-
-                    // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
                     logger.LogWarningIntegrationEventOutboxMissingMessageId(eventType);
 
                 return;

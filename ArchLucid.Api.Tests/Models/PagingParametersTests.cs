@@ -9,6 +9,30 @@ namespace ArchLucid.Api.Tests.Models;
 public sealed class PagingParametersTests
 {
     [SkippableFact]
+    public void TryGetInvalidPageQueryDetail_rejects_invalid_page_number()
+    {
+        string? detail = PagingParameters.TryGetInvalidPageQueryDetail(0, 50);
+
+        detail.Should().Be("pageNumber must be at least 1.");
+    }
+
+    [SkippableFact]
+    public void TryGetInvalidPageQueryDetail_rejects_invalid_page_size()
+    {
+        string? tooSmall = PagingParameters.TryGetInvalidPageQueryDetail(1, 0);
+        string? tooLarge = PagingParameters.TryGetInvalidPageQueryDetail(1, PagingParameters.MaxPageSize + 1);
+
+        tooSmall.Should().Contain("pageSize");
+        tooLarge.Should().Contain("pageSize");
+    }
+
+    [SkippableFact]
+    public void TryGetInvalidPageQueryDetail_accepts_valid_query()
+    {
+        PagingParameters.TryGetInvalidPageQueryDetail(1, PagingParameters.MaxPageSize).Should().BeNull();
+    }
+
+    [SkippableFact]
     public void Normalize_clamps_page_number_and_page_size()
     {
         PagingParameters paging = new() { PageNumber = 0, PageSize = 0 };
