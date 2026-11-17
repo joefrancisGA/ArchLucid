@@ -37,6 +37,7 @@ import { RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE } from "@/lib/infra-eviden
 import { formatResourceHubFindingsStoredEmptyLine } from "@/lib/infra-evidence/resource-hub-findings-empty-honesty-copy";
 import { RESOURCE_EXPLORER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-explorer-empty-not-failure-copy";
 import { TERRAFORM_ADVISORY_PLAN_OUTPUT_NOT_APPLY_LINE } from "@/lib/infra-evidence/terraform-advisory-plan-output-not-apply-copy";
+import { RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-config-partial-capture-copy";
 import { RESOURCE_HUB_FINDINGS_PARTIAL_CAPTURE_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-partial-capture-copy";
 import {
   RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
@@ -1694,6 +1695,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_TITLE}
                     description={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CONFIG_EMPTY_BODY}
                     testId="infra-resource-hub-config-empty"
+                    footer={
+                      isSecureNowProductLine(productLine) ? (
+                        <SecureNowInfraPartialCaptureStrip
+                          testId="infra-resource-hub-config-empty-partial-capture"
+                          middleLine={RESOURCE_HUB_CONFIG_PARTIAL_CAPTURE_EMPTY_LINE}
+                          cloudConnectionsTestId="infra-resource-hub-config-empty-partial-cloud"
+                          extractUploadTestId="infra-resource-hub-config-empty-partial-extract"
+                        />
+                      ) : undefined
+                    }
                   />
                 </>
               ) : (

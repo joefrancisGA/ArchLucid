@@ -69,6 +69,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceClaimOrientationStrip } from "./AuditEvidenceClaimOrientationStrip";
+import { AuditEvidenceLookupPartialCaptureFootnote } from "./AuditEvidenceLookupPartialCaptureFootnote";
 import { AuditEvidenceLookupBuildProvenanceStrip } from "./AuditEvidenceLookupBuildProvenanceStrip";
 import { AuditEvidenceLookupRecentLineageTable } from "./AuditEvidenceLookupRecentLineageTable";
 import { AuditEvidenceLookupScopeBanner } from "./AuditEvidenceLookupScopeBanner";
@@ -782,6 +783,7 @@ export function AuditEvidenceLookupClient() {
           </p>
         </section>
 
+        <AuditEvidenceLookupPartialCaptureFootnote />
         {buyerPolishedShell ? <AuditEvidenceClaimOrientationStrip /> : null}
       </div>
     </div>

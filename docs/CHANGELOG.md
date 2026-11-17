@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 68 (batch 33): Approval queue, needs attention, hub config, and browse partial capture
+
+**Outcome.** Governance approval workflow empty, needs-attention all-clear inbox, resource hub configuration empty, remediation workbench waves empty, digest browse setup empty, audit evidence lookup, compare insufficient-finalized, and sealed records list repeat partial-capture discipline.
+
+**Surfaces.** Approval queue empty, needs-attention inbox, hub config empty, remediation waves empty, digest browse setup, audit lookup, compare insufficient-finalized, signed records list, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 67 (batch 32): Search empty, hub drift and remediation, and satellite partial capture
 
 **Outcome.** Resource hub drift and remediation tabs repeat partial-capture recovery on tab and empty states. Search evidence zero hits, reviews hub inventory empty, governance findings results footer, approval lineage empties, audit control lineage, impact preview no-baseline, and scorecard zero metrics name partial inventory discipline.
