@@ -23441,6 +23441,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: quick-scan-distributed-concurrency
+**Hunts:** 1 · **Bugs found:** 0 · **Consecutive dry hunts:** 0
+
+2026-11-17 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Post-catalog-reset re-read of `QuickScanDistributedConcurrencyService`, Dapper/in-memory stores, lease renewal, and admission dispose. Scoped filter **45/45** (`RunAnalyzers=false`). No hunt-ready row; seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote poll reuses a single `promotedLeaseId` for every `TryPromoteAsync` attempt, so a store fault after reserving that lease id may strand the waiter until queue timeout; locus: promote loop lease id; input: SQL throw after partial promote; wrong outcome: queue slot held without lease progress; reachability: transient SQL faults during anonymous quick-scan peaks.
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — queue deadline is fixed at enqueue (`admitUtcNow + QueueWaitTimeout`) and does not honor live ops shortening `QueueWaitTimeoutSeconds`; locus: captured deadline; input: policy tighten mid-wait; wrong outcome: queue residence exceeds new timeout budget; reachability: ops incident response tightening quick-scan limits (monitor `#6960` contract).
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.TryCreateEmergencyDisabledRejectAfterPromoteAsync` — emergency disable after successful promote may release lease and abandon queue but leaves `RecordConcurrencyQueued` telemetry without a matching permit/reject pair; locus: post-promote emergency path; input: anonymous kill-switch flip during promote; wrong outcome: skewed concurrency metrics; reachability: trust-center emergency anonymous disable during queued quick scan.
+- [ ] (candidate) `DapperQuickScanDistributedConcurrencyStore.TryAdmitAsync` — `@QueueWaitSeconds` truncates sub-second `QueueWaitTimeout` to zero, admitting queued rows with immediate expiry semantics; locus: `(int)TotalSeconds` cast; input: fractional queue wait below 1s; wrong outcome: instant queue timeout under misconfigured ops; reachability: `QuickScanSafetyOptions` mis-set below validator minimum in test harness only (validator gate may invalidate).
+- [ ] (candidate) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — `ReleaseLeaseAsync` uses `CancellationToken.None` after awaiting a faulted renewal task, so host shutdown cancel on the caller token may not abort a hung SQL release; locus: dispose release token; input: slow `ReleaseLease` during stop; wrong outcome: capacity slot pinned past process exit; reachability: worker drain during in-flight anonymous quick scan (TB-896).
 
 2026-11-02 thorough hunt (dry, rotation, hunt 99): **Zone rotation** fired (`shouldRotate: true`; `avoidZoneApplied: true`; reason: *3 consecutive low-yield hunt(s) on 'commit-output-integrity' (outcomes: dry, dry, dry).*). Picker applied **`-AvoidZoneId commit-output-integrity`** and returned `quick-scan-distributed-concurrency` after commit-output-integrity dries **131**–**133**. Cheap-disproof closed five header `(candidate)` monitor rows from hunt 98 reseed — **valid-no-repro** lengthening `LeaseRenewalIntervalSeconds` during an in-flight delay may renew before the new interval elapses but does not shrink lease TTL below renew-then-delay math (hunt **43** / hunt **97** diary parity; symmetric to `Renewal_loop_re_reads_lease_renewal_interval_after_options_change` decrease case), **valid-no-repro** promote-loop `Task.Delay(250ms)` uses wall clock while deadline uses `TimeProvider` (intentional poll cadence; deadline re-reads `TimeProvider` each iteration — regression family at `WaitForAdmissionAsync` promote self-heal with `SteppingTimeProvider`; hunt **88** parity), **valid-no-repro** admit-refresh `LeaseDurationSeconds` at direct admit vs queued row stamped at enqueue (queued TTL fixed at admit intent; promote path re-reads limits only — `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`; hunt **23** parity), **invalid** fractional `@LeaseDurationSeconds` at Dapper layer (`QuickScanSafetyOptionsValidator` requires positive integer seconds; hunt **43** parity), **invalid** `HolderInstanceId` from `Environment.MachineName` without pod suffix (diagnostics-only; capacity unchanged; hunt **43** parity). Reseeded five `(candidate)` monitor rows below (hunt **43** regression family); scoped **45/45** `FullyQualifiedName~QuickScanDistributedConcurrency` tests passed (`RunAnalyzers=false`). Run-log low-yield streak on **`quick-scan-distributed-concurrency`** is **0/3** before this record — commit-output-integrity dry **131**–**133** at tail. **This dry starts 1/3** on `quick-scan-distributed-concurrency`. Private beta: n/a.
 
@@ -23477,15 +23486,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — faulted renewal task prevents lease release — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
 
 - **id:** quick-scan-distributed-concurrency
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-17
 - **last-bug:** never
 
 2026-10-27 thorough hunt (dry #88): repro-first on five open `(candidate)` rows (promote-loop wall-clock `Task.Delay` vs `TimeProvider` deadline, mid-wait `QueueWaitTimeoutSeconds` lengthen, double-fault abandon cleanup, renewal `cancellationToken` on host shutdown, promote refresh `UtcNow`); no failing repro; cheap-disproof closed all five; seeded five follow-on `(candidate)` rows below; 45 scoped QuickScanDistributedConcurrency tests passed (`RunAnalyzers=false`).
