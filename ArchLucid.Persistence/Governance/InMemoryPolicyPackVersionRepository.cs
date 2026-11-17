@@ -25,7 +25,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _items.Add(version);
+            _items.Add(Copy(version));
 
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
@@ -44,7 +44,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             int idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
 
             if (idx >= 0)
-                _items[idx] = version;
+                _items[idx] = Copy(version);
         }
 
         return Task.CompletedTask;
@@ -62,7 +62,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             PolicyPackVersion? row = _items.FirstOrDefault(x => x.PolicyPackId == policyPackId &&
                                                                 string.Equals(x.Version, versionKey,
                                                                     StringComparison.OrdinalIgnoreCase));
-            return Task.FromResult(row);
+            return Task.FromResult(row is null ? null : Copy(row));
         }
     }
 
@@ -88,7 +88,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
                 existing.IsPublished = true;
                 _items[idx] = existing;
 
-                return Task.FromResult<(PolicyPackVersion, string?)>((existing, previous));
+                return Task.FromResult<(PolicyPackVersion, string?)>((Copy(existing), previous));
             }
 
             PolicyPackVersion inserted = new()
@@ -106,7 +106,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
 
-            return Task.FromResult<(PolicyPackVersion, string?)>((inserted, null));
+            return Task.FromResult<(PolicyPackVersion, string?)>((Copy(inserted), null));
         }
     }
 
@@ -119,17 +119,20 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             List<PolicyPackVersion> result = _items
                 .Where(x => x.PolicyPackId == policyPackId)
                 .OrderByDescending(x => x.CreatedUtc)
-                .Select(static x => new PolicyPackVersion
-                {
-                    PolicyPackVersionId = x.PolicyPackVersionId,
-                    PolicyPackId = x.PolicyPackId,
-                    Version = x.Version,
-                    ContentJson = string.Empty,
-                    CreatedUtc = x.CreatedUtc,
-                    IsPublished = x.IsPublished,
-                })
+                .Select(static version => Copy(version, includeContent: false))
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPackVersion>>(result);
         }
     }
+
+    private static PolicyPackVersion Copy(PolicyPackVersion version, bool includeContent = true) =>
+        new()
+        {
+            PolicyPackVersionId = version.PolicyPackVersionId,
+            PolicyPackId = version.PolicyPackId,
+            Version = version.Version,
+            ContentJson = includeContent ? version.ContentJson : string.Empty,
+            CreatedUtc = version.CreatedUtc,
+            IsPublished = version.IsPublished,
+        };
 }
