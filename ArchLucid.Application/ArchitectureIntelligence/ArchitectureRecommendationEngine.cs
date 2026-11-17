@@ -40,7 +40,9 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
 
     internal static bool IsGovernanceClosedForRecommendation(SpecialistReviewFinding finding) =>
         finding.GovernanceDisposition is GovernanceDisposition.Accepted
-            or GovernanceDisposition.ExceptionGranted;
+            or GovernanceDisposition.ExceptionGranted
+            or GovernanceDisposition.Deferred
+            or GovernanceDisposition.RemediationPlanned;
 
     private static ArchitectureRecommendation CreateRecommendation(
         SpecialistReviewFinding finding,
