@@ -15,6 +15,11 @@ public interface ITenantBrandingProfileRepository
 
     Task ReplaceDraftAsync(TenantBrandingProfileRecord record, CancellationToken cancellationToken = default);
 
+    Task<bool> TryActivateDraftAsync(
+        TenantBrandingProfileRecord draft,
+        TenantBrandingProfileRecord activated,
+        CancellationToken cancellationToken = default);
+
     Task UpdateStatusForTenantAsync(
         Guid tenantId,
         BrandingProfileStatus fromStatus,

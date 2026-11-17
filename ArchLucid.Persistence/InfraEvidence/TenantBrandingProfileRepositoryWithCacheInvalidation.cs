@@ -27,6 +27,18 @@ public sealed class TenantBrandingProfileRepositoryWithCacheInvalidation(
         cacheInvalidator.InvalidateTenantCache(record.TenantId);
     }
 
+    public async Task<bool> TryActivateDraftAsync(
+        TenantBrandingProfileRecord draft,
+        TenantBrandingProfileRecord activated,
+        CancellationToken cancellationToken = default)
+    {
+        bool changed = await inner.TryActivateDraftAsync(draft, activated, cancellationToken);
+        if (changed)
+            cacheInvalidator.InvalidateTenantCache(activated.TenantId);
+
+        return changed;
+    }
+
     public async Task UpdateStatusForTenantAsync(
         Guid tenantId,
         BrandingProfileStatus fromStatus,
