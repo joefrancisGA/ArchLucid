@@ -103,6 +103,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_sslenforcementenabled()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.sslenforcementenabled"] = "Disabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.sslenforcementenabled");
+        value.Should().Be("Disabled");
+    }
+
+    [Fact]
     public void TryGet_resolves_arm_sslEnforcementEnabled()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
