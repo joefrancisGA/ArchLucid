@@ -15,6 +15,9 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.publicnetworkaccess",
                 "tf.publicly_accessible",
                 "tf.publiclyaccessible",
+                "tf.ipv4_enabled",
+                "tf.ipv4enabled",
+                "ipv4Enabled",
                 "publicNetworkAccess",
                 "publiclyAccessible",
             ],
@@ -73,6 +76,9 @@ public static class DeclarationSecurityPropertyKeyResolver
             [
                 "tf.storage_encrypted",
                 "tf.storageencrypted",
+                "tf.encryption_enabled",
+                "tf.encryptionenabled",
+                "encryptionEnabled",
                 "storageEncrypted",
             ],
             [DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction] =

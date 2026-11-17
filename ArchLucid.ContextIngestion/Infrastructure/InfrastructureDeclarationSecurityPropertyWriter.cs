@@ -19,6 +19,8 @@ internal static class InfrastructureDeclarationSecurityPropertyWriter
             ["supportshttpstrafficonly"] = "supportsHttpsTrafficOnly",
             ["enablehttpstrafficonly"] = "enableHttpsTrafficOnly",
             ["requiressl"] = "requireSsl",
+            ["ipv4enabled"] = "ipv4Enabled",
+            ["encryptionenabled"] = "encryptionEnabled",
         };
 
     internal static bool TryAddTfPropertyWithArmAlias(

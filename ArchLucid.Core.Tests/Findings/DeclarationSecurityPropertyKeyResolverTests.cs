@@ -293,6 +293,44 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_compacted_tf_ipv4enabled_for_public_network_access()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ipv4enabled"] = "false",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.ipv4enabled");
+        value.Should().Be("false");
+    }
+
+    [Fact]
+    public void TryGet_resolves_compacted_tf_encryptionenabled_for_storage_encrypted()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.encryptionenabled"] = "false",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.StorageEncrypted,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.encryptionenabled");
+        value.Should().Be("false");
+    }
+
+    [Fact]
     public void TryGet_returns_false_for_empty_properties()
     {
         bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
