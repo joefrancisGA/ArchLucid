@@ -169,8 +169,24 @@ public static class AzureInventoryArmNestedObjectPropertyReader
     {
         foreach (JsonProperty property in referenceObject.EnumerateObject())
         {
-            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
-                || property.Value.ValueKind is not JsonValueKind.String)
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind is JsonValueKind.Object)
+            {
+                string? fromNestedReference = TryReadArmIdFromReferenceObject(property.Value);
+
+                if (!string.IsNullOrWhiteSpace(fromNestedReference))
+                {
+                    return fromNestedReference;
+                }
+
+                continue;
+            }
+
+            if (property.Value.ValueKind is not JsonValueKind.String)
             {
                 continue;
             }

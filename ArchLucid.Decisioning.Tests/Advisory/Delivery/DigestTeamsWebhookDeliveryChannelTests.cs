@@ -123,6 +123,38 @@ public sealed class DigestTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_TeamsPayload_strips_form_feed_from_digest_summary_before_teams_text()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        DigestTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        DigestDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Digest.Summary = "Cost\freview.";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string text = GetStringProperty(body, "text");
+
+        text.Should().StartWith("Cost review.");
+        text.Should().NotContain("\f");
+    }
+
+    [Fact]
     public async Task SendAsync_TeamsPayload_preserves_form_feed_in_digest_title_after_html_encode()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();

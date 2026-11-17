@@ -114,27 +114,6 @@ public static class AzureInventoryRestorePointCollectionSourceParser
         return ArmResourceIdNormalizer.Normalize(working);
     }
 
-    private static string? TryReadArmIdFromJson(string json)
-    {
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            if (document.RootElement.TryGetProperty("id", out JsonElement idElement)
-                && idElement.ValueKind is JsonValueKind.String)
-            {
-                return TryResolveArmReferenceValue(idElement.GetString());
-            }
-        }
-        catch (JsonException)
-        {
-        }
-
-        return null;
-    }
+    private static string? TryReadArmIdFromJson(string json) =>
+        AzureInventoryArmJsonBlobIdReader.TryReadArmIdFromJson(json, TryResolveArmReferenceValue);
 }

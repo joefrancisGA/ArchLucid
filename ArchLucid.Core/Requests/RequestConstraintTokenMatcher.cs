@@ -425,9 +425,10 @@ internal static class RequestConstraintTokenMatcher
 
         if (!ContainsConstraintNormalizationCharacters(haystack))
         return NormalizeSpacedListSeparators(
-            NormalizeSpacedAsciiSolidus(
-                NormalizeSpacedAsciiHyphen(
-                    NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack)))));
+            NormalizeSpacedCjkPhraseStop(
+                NormalizeSpacedAsciiSolidus(
+                    NormalizeSpacedAsciiHyphen(
+                        NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack))))));
 
         StringBuilder builder = new(haystack.Length);
 
@@ -444,17 +445,19 @@ internal static class RequestConstraintTokenMatcher
         }
 
         return NormalizeSpacedListSeparators(
-            NormalizeSpacedAsciiSolidus(
-                NormalizeSpacedAsciiHyphen(
-                    NormalizeSpacedAsciiBackslash(
-                        NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString()))))));
+            NormalizeSpacedCjkPhraseStop(
+                NormalizeSpacedAsciiSolidus(
+                    NormalizeSpacedAsciiHyphen(
+                        NormalizeSpacedAsciiBackslash(
+                            NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString())))))));
     }
 
     private static string NormalizeSpacedListSeparators(string haystack)
     {
         if (!haystack.Contains(',')
             && !haystack.Contains(';')
-            && !haystack.Contains('\uFF0C'))
+            && !haystack.Contains('\uFF0C')
+            && !haystack.Contains('\uFF1B'))
             return haystack;
 
         StringBuilder normalized = new(haystack.Length);
@@ -465,7 +468,8 @@ internal static class RequestConstraintTokenMatcher
 
             if ((character == ','
                     || character == ';'
-                    || character == '\uFF0C')
+                    || character == '\uFF0C'
+                    || character == '\uFF1B')
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
@@ -478,6 +482,13 @@ internal static class RequestConstraintTokenMatcher
         }
 
         return CollapseConsecutiveAsciiSpaces(normalized.ToString());
+    }
+
+    private static string NormalizeSpacedCjkPhraseStop(string haystack)
+    {
+        haystack = NormalizeSpacedDelimiterCharacter(haystack, '\u3002');
+
+        return NormalizeSpacedDelimiterCharacter(haystack, '\u3001');
     }
 
     private static string NormalizeSpacedAsciiSolidus(string haystack)
@@ -579,7 +590,10 @@ internal static class RequestConstraintTokenMatcher
         return haystack;
     }
 
-    private static string NormalizeSpacedAsciiDelimiter(string haystack, char delimiter)
+    private static string NormalizeSpacedAsciiDelimiter(string haystack, char delimiter) =>
+        NormalizeSpacedDelimiterCharacter(haystack, delimiter);
+
+    private static string NormalizeSpacedDelimiterCharacter(string haystack, char delimiter)
     {
         if (!haystack.Contains(delimiter))
             return haystack;
