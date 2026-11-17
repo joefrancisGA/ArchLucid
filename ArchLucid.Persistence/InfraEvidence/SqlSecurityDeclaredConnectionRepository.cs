@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.InfraEvidence;
 public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactory connectionFactory)
     : ISecurityDeclaredConnectionRepository
 {
-    public async Task InsertAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default)
+    public async Task<bool> TryInsertActiveAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default)
     {
         const string sql = """
                            INSERT INTO dbo.SecurityDeclaredConnections
@@ -17,17 +17,28 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
                                 RelationshipType, Rationale, EvidenceReference, ExpirationUtc, Status,
                                 RequestedByActorKey, ApprovedByActorKey, PayloadHashSha256, ExpiryProcessedUtc,
                                 CreatedUtc, UpdatedUtc, RevokedUtc, RevokedByActorKey)
-                           VALUES
-                               (@ConnectionId, @TenantId, @WorkspaceId, @ProjectId, @FromCloudResourceId, @ToCloudResourceId,
-                                @RelationshipType, @Rationale, @EvidenceReference, @ExpirationUtc, @Status,
-                                @RequestedByActorKey, @ApprovedByActorKey, @PayloadHashSha256, @ExpiryProcessedUtc,
-                                @CreatedUtc, @UpdatedUtc, @RevokedUtc, @RevokedByActorKey);
+                           SELECT @ConnectionId, @TenantId, @WorkspaceId, @ProjectId, @FromCloudResourceId, @ToCloudResourceId,
+                                  @RelationshipType, @Rationale, @EvidenceReference, @ExpirationUtc, @Status,
+                                  @RequestedByActorKey, @ApprovedByActorKey, @PayloadHashSha256, @ExpiryProcessedUtc,
+                                  @CreatedUtc, @UpdatedUtc, @RevokedUtc, @RevokedByActorKey
+                           WHERE NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.SecurityDeclaredConnections WITH (UPDLOCK, HOLDLOCK)
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId
+                                 AND FromCloudResourceId = @FromCloudResourceId
+                                 AND ToCloudResourceId = @ToCloudResourceId
+                                 AND RelationshipType = @RelationshipType
+                                 AND Status = @Status
+                                 AND ExpirationUtc > @CreatedUtc);
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await conn.ExecuteAsync(
+        int inserted = await conn.ExecuteAsync(
             new CommandDefinition(sql, MapParameters(record), cancellationToken: cancellationToken));
+        return inserted == 1;
     }
 
     public async Task<SecurityDeclaredConnectionRecord?> TryGetByIdAsync(

@@ -155,10 +155,25 @@ public sealed class SecurityDeclaredConnectionServiceTests
     {
         public List<SecurityDeclaredConnectionRecord> Records { get; } = [];
 
-        public Task InsertAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default)
+        public Task<bool> TryInsertActiveAsync(SecurityDeclaredConnectionRecord record, CancellationToken cancellationToken = default)
         {
-            Records.Add(record);
-            return Task.CompletedTask;
+            lock (Records)
+            {
+                if (Records.Any(existing => existing.TenantId == record.TenantId
+                    && existing.WorkspaceId == record.WorkspaceId
+                    && existing.ProjectId == record.ProjectId
+                    && existing.FromCloudResourceId == record.FromCloudResourceId
+                    && existing.ToCloudResourceId == record.ToCloudResourceId
+                    && existing.RelationshipType == record.RelationshipType
+                    && existing.Status == SecurityDeclaredConnectionStatus.Active
+                    && existing.ExpirationUtc > record.CreatedUtc))
+                {
+                    return Task.FromResult(false);
+                }
+
+                Records.Add(record);
+                return Task.FromResult(true);
+            }
         }
 
         public Task<SecurityDeclaredConnectionRecord?> TryGetByIdAsync(

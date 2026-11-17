@@ -34,27 +34,6 @@ public sealed class SecurityDeclaredConnectionService(
             };
         }
 
-        IReadOnlyList<SecurityDeclaredConnectionRecord> scopedConnections =
-            await connectionRepository.ListByScopeAsync(
-                scope.ToProjectScopeKey(),
-                cancellationToken);
-
-        bool existingActive = scopedConnections.Any(record =>
-            record.FromCloudResourceId == request.FromCloudResourceId
-            && record.ToCloudResourceId == request.ToCloudResourceId
-            && record.RelationshipType == request.RelationshipType
-            && record.Status == SecurityDeclaredConnectionStatus.Active
-            && record.ExpirationUtc > utcNow);
-
-        if (existingActive)
-        {
-            return new SecurityDeclaredConnectionCreateResult
-            {
-                Succeeded = false,
-                ErrorMessage = "An active declared connection already exists for this source, target, and relationship type.",
-            };
-        }
-
         Guid connectionId = Guid.NewGuid();
         byte[] payloadHash = SecurityDeclaredConnectionGuard.ComputePayloadHash(request);
 
@@ -78,7 +57,14 @@ public sealed class SecurityDeclaredConnectionService(
             UpdatedUtc = utcNow,
         };
 
-        await connectionRepository.InsertAsync(record, cancellationToken);
+        if (!await connectionRepository.TryInsertActiveAsync(record, cancellationToken))
+        {
+            return new SecurityDeclaredConnectionCreateResult
+            {
+                Succeeded = false,
+                ErrorMessage = "An active declared connection already exists for this source, target, and relationship type.",
+            };
+        }
 
         await LogAuditAsync(
             scope,
