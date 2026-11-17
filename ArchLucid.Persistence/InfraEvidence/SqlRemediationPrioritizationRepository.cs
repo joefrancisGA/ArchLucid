@@ -72,7 +72,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           MERGE dbo.RemediationPrioritizationScores AS target
+                           MERGE dbo.RemediationPrioritizationScores WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
                            ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
                            WHEN MATCHED THEN
@@ -120,7 +120,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                            )
                                THROW 50001, 'Scoped prioritization score target finding was not found.', 1;
 
-                           MERGE dbo.RemediationPrioritizationScores AS target
+                           MERGE dbo.RemediationPrioritizationScores WITH (HOLDLOCK) AS target
                            USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
                            ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
                            WHEN MATCHED THEN
@@ -173,7 +173,7 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
                                 """;
 
         const string mergeSql = """
-                                MERGE dbo.RemediationPrioritizationScores AS target
+                                MERGE dbo.RemediationPrioritizationScores WITH (HOLDLOCK) AS target
                                 USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
                                 ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
                                 WHEN MATCHED THEN
@@ -214,7 +214,8 @@ public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectio
 
         try
         {
-            foreach (RemediationPrioritizationScoreMutation mutation in mutations)
+            // Acquire score-key locks in the same order across overlapping batches.
+            foreach (RemediationPrioritizationScoreMutation mutation in mutations.OrderBy(item => item.FindingId))
             {
                 await conn.ExecuteAsync(
                     new CommandDefinition(
