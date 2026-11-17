@@ -102,7 +102,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
             List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
-                .Take(take)
+                .Take(Math.Clamp(take, 1, 200))
                 .Select(Copy)
                 .ToList();
 
