@@ -60,7 +60,14 @@ public sealed class KnowledgeModelGraphReprojector(
             .GetByIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (run?.ContextSnapshotId is not Guid contextSnapshotId)
+        // A sealed run's evidence anchors are immutable. κ updates after commitment
+        // may produce a new architecture revision, but must not retarget this run's Γ.
+        if (run is null
+            || run.GoldenManifestId.HasValue
+            || string.Equals(run.LegacyRunStatus, "Committed", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (run.ContextSnapshotId is not Guid contextSnapshotId)
             return;
 
         ContextSnapshot? contextSnapshot = await _contextSnapshotRepository
@@ -76,11 +83,24 @@ public sealed class KnowledgeModelGraphReprojector(
         GraphSnapshot modelGraph = _knowledgeModelGraphProjector.Project(model, contextSnapshot, runId);
         GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
 
+        // Re-check after the potentially long projection so concurrent finalization
+        // cannot be overwritten using the earlier, unsealed run snapshot.
+        ArchLucid.Persistence.Models.RunRecord? latestRun = await _runRepository
+            .GetByIdAsync(scope, runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (latestRun is null
+            || latestRun.GoldenManifestId.HasValue
+            || string.Equals(latestRun.LegacyRunStatus, "Committed", StringComparison.OrdinalIgnoreCase)
+            || latestRun.ContextSnapshotId != contextSnapshotId
+            || latestRun.GraphSnapshotId != run.GraphSnapshotId)
+            return;
+
         await _graphSnapshotRepository
             .SaveAsync(merged, cancellationToken)
             .ConfigureAwait(false);
 
-        run.GraphSnapshotId = merged.GraphSnapshotId;
-        await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+        latestRun.GraphSnapshotId = merged.GraphSnapshotId;
+        await _runRepository.UpdateAsync(latestRun, cancellationToken).ConfigureAwait(false);
     }
 }
