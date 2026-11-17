@@ -76,6 +76,30 @@ public sealed class SecurityDeclaredConnectionServiceTests
     }
 
     [Fact]
+    public async Task RenewAsync_rejects_expired_connection_before_sweep_updates_status()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+        Guid connectionId = Guid.NewGuid();
+        InMemorySecurityDeclaredConnectionRepository repository = new();
+        repository.Records.Add(CreateActiveConnection(connectionId, utcNow.AddMinutes(-5)));
+        SecurityDeclaredConnectionService sut = CreateSut(repository);
+
+        SecurityDeclaredConnectionRenewResult result = await sut.RenewAsync(
+            CreateScope(),
+            connectionId,
+            new SecurityDeclaredConnectionRenewRequest
+            {
+                ExpirationUtc = utcNow.AddDays(10),
+                RenewedByActorKey = "requester",
+                ApprovedByActorKey = "approver",
+            });
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Only active declared connections can be renewed.");
+        repository.Records.Single().ExpirationUtc.Should().Be(utcNow.AddMinutes(-5));
+    }
+
+    [Fact]
     public async Task ListAsync_excludes_same_tenant_rows_from_other_project()
     {
         DateTime utcNow = DateTime.UtcNow;
