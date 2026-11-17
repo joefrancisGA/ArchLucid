@@ -454,7 +454,8 @@ internal static class RequestConstraintTokenMatcher
     {
         if (!haystack.Contains(',')
             && !haystack.Contains(';')
-            && !haystack.Contains('\uFF0C'))
+            && !haystack.Contains('\uFF0C')
+            && !haystack.Contains('\uFF1B'))
             return haystack;
 
         StringBuilder normalized = new(haystack.Length);
@@ -465,7 +466,8 @@ internal static class RequestConstraintTokenMatcher
 
             if ((character == ','
                     || character == ';'
-                    || character == '\uFF0C')
+                    || character == '\uFF0C'
+                    || character == '\uFF1B')
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
