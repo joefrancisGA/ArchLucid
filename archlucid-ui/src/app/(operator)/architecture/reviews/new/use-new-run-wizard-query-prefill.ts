@@ -35,6 +35,17 @@ function applyPolicyPackPrefill(
   setValue("policyReferences", [deeplinkPolicyPackId], { shouldValidate: true, shouldDirty: true });
 }
 
+/** Wholesale `reset` from session restore clears form state; re-apply policy-pack deeplinks the one-shot hook skipped. */
+export function restoreWizardFormWithDeeplinkPolicy(
+  deeplinkPolicyPackId: string | null,
+  reset: UseFormReset<WizardFormValues>,
+  setValue: UseFormSetValue<WizardFormValues>,
+  values: WizardFormValues,
+): void {
+  reset(values);
+  applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
+}
+
 /**
  * Applies link-borne prefills to the form: accelerator pack, preset deep link, zero-config demo
  * package, and example-request template.

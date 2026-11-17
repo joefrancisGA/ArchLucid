@@ -7,7 +7,11 @@ import { useForm, useWatch } from "react-hook-form";
 
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import {
   buildDefaultWizardValues,
   wizardFormSchema,
@@ -29,7 +33,10 @@ import { useNewRunWizardPolicyPackMismatch } from "./use-new-run-wizard-policy-p
 import { useNewRunWizardTrackStream } from "./use-new-run-wizard-track-stream";
 import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { useNewRunWizardPendingEvidence } from "./use-new-run-wizard-pending-evidence";
-import { useNewRunWizardQueryPrefill } from "./use-new-run-wizard-query-prefill";
+import {
+  restoreWizardFormWithDeeplinkPolicy,
+  useNewRunWizardQueryPrefill,
+} from "./use-new-run-wizard-query-prefill";
 import { useNewRunWizardSubmit } from "./use-new-run-wizard-submit";
 import { useNewRunWizardSteps } from "./use-new-run-wizard-steps";
 import { useNewRunWizardTemplateRestore } from "./NewRunWizardTemplateRestore";
@@ -45,6 +52,8 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   const embeddedInPathSwitcher = options.embeddedInPathSwitcher === true;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const params = useNewRunWizardIntakeParams();
   const {
     baselineFirst,
@@ -78,9 +87,16 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
       readonly focusedPilotModeEnabled?: boolean;
       readonly advancedConfigurationOptIn?: boolean;
     }) => {
-      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(readWindowLocationSearch(), patch, pathname), {
-        notify: false,
-      });
+      commitHrefIfChanged(
+        newRunWizardPilotHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          patch,
+          pathname,
+        ),
+        {
+          notify: false,
+        },
+      );
     },
     [pathname],
   );
@@ -109,14 +125,14 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   useEffect(() => {
     const syncPilotTogglesFromUrl = (): void => {
       const nextPilot = parseNewRunWizardPilotFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("pilot"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "pilot"),
       );
 
       setFocusedPilotModeEnabledState(nextPilot ?? true);
 
       setAdvancedConfigurationOptInState(
         parseNewRunWizardAdvancedConfigFromSearch(
-          new URLSearchParams(readWindowLocationSearch()).get("advancedConfig"),
+          searchParamFromRouterSearchParams(searchParamsRef.current, "advancedConfig"),
         ),
       );
     };
@@ -233,6 +249,13 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   );
   const policyPackCloudMismatch = useNewRunWizardPolicyPackMismatch(templateWizardSessionState, payloadOptions);
 
+  const resetTemplateWizardSession = useCallback(
+    (values: WizardFormValues) => {
+      restoreWizardFormWithDeeplinkPolicy(params.deeplinkPolicyPackId, reset, setValue, values);
+    },
+    [params.deeplinkPolicyPackId, reset, setValue],
+  );
+
   const {
     templateWizardSession,
     suppressWizardResumePrompt,
@@ -242,9 +265,10 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     clearWizardSessionRef,
   } = useNewRunWizardTemplateRestore({
     stepIndex: wizardSteps.stepIndex,
+    wizardStepCount: wizardSteps.stepDefinitions.length,
     templateWizardSessionState,
     showFullWizardShell: wizardSteps.effectiveShowFullWizardShell,
-    reset,
+    reset: resetTemplateWizardSession,
     setStepIndex: wizardSteps.setStepIndex,
     getValues,
   });
