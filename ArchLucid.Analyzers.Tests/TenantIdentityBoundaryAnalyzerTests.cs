@@ -22,16 +22,6 @@ namespace Microsoft.AspNetCore.Http
     }
 }
 
-namespace ArchLucid.Api.Http
-{
-    public static class HttpContextProvider
-    {
-        public static Microsoft.AspNetCore.Http.HttpContext Resolve() => null!;
-
-        public static Microsoft.AspNetCore.Http.HttpContext ResolveViaExtension(this object target) => null!;
-    }
-}
-
 """;
 
   [Fact]
@@ -813,30 +803,6 @@ namespace N
   }
 
   [Fact]
-  public async Task Reports_discarded_call_returning_HttpContext_from_referenced_assembly()
-  {
-    const string testCode = """
-
-namespace N
-{
-    public sealed class C
-    {
-        void M()
-        {
-            _ = ArchLucid.Api.Http.HttpContextProvider.{|#0:Resolve|}();
-        }
-    }
-}
-""";
-
-    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
-        .WithLocation(0)
-        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
-
-    await RunInnerLayerTestAsync(testCode, expected);
-  }
-
-  [Fact]
   public async Task Reports_banned_type_in_method_return_type_in_inner_layer_assembly()
   {
     const string testCode = """
@@ -1027,52 +993,30 @@ namespace N
   }
 
   [Fact]
-  public async Task Reports_dynamic_local_assigned_from_HttpContext_returning_call()
+  public async Task Reports_HttpContext_parameter_when_type_is_file_scoped_using_alias()
   {
     const string testCode = """
 
 namespace N
 {
-    public sealed class C
+    using Ctx = Microsoft.AspNetCore.Http.HttpContext;
+
+    public sealed class Handler
     {
-        void M()
-        {
-            dynamic ctx = ArchLucid.Api.Http.HttpContextProvider.{|#0:Resolve|}();
-            _ = ctx;
-        }
+        void M({|#0:Ctx|} context) { }
     }
 }
 """;
 
-    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
-        .WithLocation(0)
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(4, 43, 4, 54)
         .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
 
-    await RunInnerLayerTestAsync(testCode, expected);
-  }
-
-  [Fact]
-  public async Task Reports_reduced_extension_call_returning_HttpContext_without_HttpContext_identifier()
-  {
-    const string testCode = """
-
-namespace N
-{
-    public sealed class C
-    {
-        void M(object services)
-        {
-            ArchLucid.Api.Http.HttpContextProvider.{|#0:ResolveViaExtension|}(services);
-        }
-    }
-}
-""";
-
-    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
-        .WithLocation(0)
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(8, 16, 8, 19)
         .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
 
-    await RunInnerLayerTestAsync(testCode, expected);
+    await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
   }
 
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>

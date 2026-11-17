@@ -548,7 +548,7 @@
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
 - **code-changed-since:** 7
@@ -566,7 +566,7 @@
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
 - **hunts:** 18
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-26
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
@@ -1983,7 +1983,20 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
+
+2026-11-17 thorough hunt #905 (dry): no rotation (shouldRotate: false). Cheap-disproof closed five `(candidate)` rows reseeded after hunt #904 — **valid-no-repro** switch `default` arm with unreachable `goto case` (`AL0003_reports_when_LogAsync_only_in_switch_default_arm_with_unreachable_goto_case`; constant-discriminant reachability parity with #873), **invalid** static nested authorized shell vs outer GET (`Reports_AL0001_on_outer_get_when_static_shell_nests_authorized_controller`), **valid-no-repro** file-scoped `using` alias to `HttpContext` (`Reports_HttpContext_parameter_when_type_is_file_scoped_using_alias`), **valid-no-repro** `await using` constructor initializer `LogAsync` (`AL0003_reports_when_LogAsync_runs_only_in_await_using_constructor_initializer`), **invalid** partial controller with authorized default-interface POST still reports inherited GET (`Reports_inherited_get_when_partial_controller_implements_authorized_default_interface_post`). Reseeded five `(candidate)` rows below. Scoped filter **194/194** passed (`RunAnalyzers=false`, Release). Private beta: n/a.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `switch` expression arm reached only via `goto case` from unreachable label suppresses AL0003 — **cheap-disproof 2026-11-17 thorough hunt #905:** regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested static controller class does not satisfy AL0001 for outer instance routes — **cheap-disproof 2026-11-17 thorough hunt #905:** nested static authorized routes do not clear outer GET; regression above.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned type inside `using` directive target missed when alias is file-local — **cheap-disproof 2026-11-17 thorough hunt #905:** regression above.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` in `await using` initializer suppresses AL0003 when dispose path is empty — **cheap-disproof 2026-11-17 thorough hunt #905:** constructor-initializer audit is not action-body proof; regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — partial controller with authorized default-interface member skips AL0001 on unrelated inherited GET — **cheap-disproof 2026-11-17 thorough hunt #905:** authorized default-interface POST does not suppress inherited GET scan; regression above.
+
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `lock` statement suppresses AL0003 when guard is compile-time constant false — locus: syntax-wide reachability; input: mutating POST with audited lock body behind `if (false)` (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested enum type does not satisfy AL0001 for enclosing controller routes — locus: nested type scan; input: enum shell nesting authorized controller with unauthorized outer GET (monitor).
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — `global using` alias to banned type is missed when parameter type uses alias name — locus: global alias binding; input: file with `global using Ctx = HttpContext` parameter in inner layer (monitor).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `using` declaration initializer suppresses AL0003 when dispose path is empty — locus: syntax-wide scan; input: POST with audited `using var` scope only (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[Authorize]` on primary-constructor parameter satisfies AL0001 for inherited GET without type-level authorize — locus: primary constructor scan; input: derived with authorized ctor parameter and unauthenticated inherited GET (monitor).
 
 2026-11-17 thorough hunt #904 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted null-coalescing right-hand `LogAsync` audit proof when left `Task.FromResult` is never null — **proven** `IsLogAsyncSyntaxProofReachable` coalesce reachability (parity with hunt #873 switch arms); regression `AL0003_reports_when_LogAsync_only_on_unreachable_null_coalescing_right_operand`. Cheap-disproof closed four sibling `(candidate)` rows — **valid-no-repro** foreach collection-expression iterator (`AL0003_is_absent_when_LogAsync_runs_only_in_foreach_collection_expression_iterator`; compile-time local/iterator reachability), **invalid** nested record authorized shell vs inherited GET (records cannot inherit `ControllerBase`; regression `Reports_inherited_get_when_partial_outer_nests_unrelated_authorized_controller_class`), **invalid** named tuple `ARCH001` gap (regression `Reports_value_tuple_element_with_banned_type_in_inner_layer_assembly`), **invalid** struct controller AL0001 skip (`RequireAuthorizationAnalyzer` scans `TypeKind.Class` only; `Does_not_report_struct_symbols_because_require_authorization_scans_classes_only`). Reseeded five `(candidate)` rows below. Scoped filter **189/189** passed (`RunAnalyzers=false`, Release). Private beta: RC35 builds again flag mutating API actions that hide `LogAsync` behind unreachable null-coalescing right operands, matching switch-arm honesty from hunt #873.
 - [x] (proven) `MutatingControllerAuditAnalyzer` — `LogAsync` on unreachable null-coalescing right operand suppresses AL0003 — **hit 2026-11-17 thorough hunt #904:** `IsCoalesceLeftOperandNeverNull`; regression `AL0003_reports_when_LogAsync_only_on_unreachable_null_coalescing_right_operand`. [class:fail-open-validation]
@@ -1992,11 +2005,6 @@
 - [x] (invalid) `TenantIdentityBoundaryAnalyzer` — named tuple `(HttpContext ctx, int id)` misses ARCH001 — **cheap-disproof 2026-11-17 thorough hunt #904:** regression `Reports_value_tuple_element_with_banned_type_in_inner_layer_assembly`.
 - [x] (invalid) `RequireAuthorizationAnalyzer` — struct controller explicit mutating API skips AL0001 — **cheap-disproof 2026-11-17 thorough hunt #904:** class-only symbol action; regression `Does_not_report_struct_symbols_because_require_authorization_scans_classes_only`.
 
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `switch` expression arm reached only via `goto case` from unreachable label suppresses AL0003 — locus: syntax-wide reachability; input: mutating POST with audited `goto` ladder (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested static controller class does not satisfy AL0001 for outer instance routes — locus: nested type scan; input: static nested authorized shell with unauthorized outer GET (monitor).
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type inside `using` directive target missed when alias is file-local — locus: alias binding; input: file-scoped alias to `HttpContext` parameter (monitor).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` in `await using` initializer suppresses AL0003 when dispose path is empty — locus: syntax-wide scan; input: POST with audited async-disposable scope only (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — partial controller with authorized default-interface member skips AL0001 on unrelated inherited GET — locus: default-interface scan; input: partial with authorized POST default member and unauthenticated inherited GET (monitor).
 
 2026-10-30 seed hunt #903 (seed-only): re-read the three analyzer implementations after hunt #873 shipped switch reachability and constraint/alias regressions. Cheap-disproof closed five open `(candidate)` rows from the #873 reseed — constant-discriminant switch LogAsync (`AL0003_reports_when_LogAsync_only_in_switch_default_arm_never_selected_by_constant`), generic `where` constraints (`Reports_banned_type_in_generic_type_parameter_constraint_in_inner_layer_assembly`), file-scoped `using` alias parameters (`Reports_ClaimsPrincipal_parameter_when_type_is_file_scoped_using_alias`), protected-only nested helpers vs inherited public GET (`Reports_nested_controller_class_without_authorization`), and non-reachable `when`-guard LogAsync probes. No hunt-ready promotion; reseeded five `(candidate)` rows; scoped analyzer filter **185/185** (Release). Private beta: n/a.
 
@@ -2169,9 +2177,9 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 43
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-17
 - **last-bug:** 2026-11-17 — null-coalescing right operand LogAsync satisfied AL0003
 - **related-pd-tb:** none
@@ -2814,7 +2822,7 @@
 - **hunts:** 709
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3559
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-31 — nonuple Key Vault VaultName encoding depth cap
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -5900,7 +5908,7 @@
 - **hunts:** 489
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3521
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — ADO.NET Data Source SQL host alias omitted from app-setting host extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11422,7 +11430,7 @@
 
 - **hunts:** 72
 - **bugs-found:** 48
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-03
 - **last-bug:** 2026-11-03 — Service Bus forward targets dropped on package round-trip
 
@@ -17735,7 +17743,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **test-filter:** FullyQualifiedName~Configuration
 - **hunts:** 50
 - **bugs-found:** 33
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — fullwidth circumflex accent (`U+FFEC`) pair delimiter for embedded credentials
 - **related-pd-tb:** none
@@ -17975,7 +17983,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
 - **hunts:** 39
 - **bugs-found:** 66
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — soft-hyphen/word-joiner Jaccard splits, won't/never comply conflict wording, prohibited-access-from negation
 - **related-pd-tb:** none
@@ -18172,7 +18180,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **test-filter:** FullyQualifiedName~RequestConstraint
 - **hunts:** 50
 - **bugs-found:** 43
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — fullwidth comma U+FF0C between phrase words broke managed identity detection
 
@@ -31092,7 +31100,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
 - **hunts:** 132
 - **bugs-found:** 94
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — commit sponsor product display name sanitizer before HtmlEncode
 - **related-pd-tb:** none
@@ -31658,7 +31666,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -31691,7 +31699,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 82
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 57
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -31773,7 +31781,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 54
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
