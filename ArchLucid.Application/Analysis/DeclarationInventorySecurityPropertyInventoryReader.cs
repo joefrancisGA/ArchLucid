@@ -38,6 +38,14 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return true;
         }
 
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.HttpsOnly
+            && cloudProvider is InventoryTopologyCloudProvider.Gcp
+            && TryReadNestedGcpIpConfigurationRequireSsl(properties, out string? nestedRequireSsl))
+        {
+            value = nestedRequireSsl;
+            return true;
+        }
+
         if (logicalName == DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
             && cloudProvider is InventoryTopologyCloudProvider.Azure)
         {
@@ -168,6 +176,31 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return false;
 
         return TryReadPropertyIgnoreCase(siteConfig, "minTlsVersion", out value);
+    }
+
+    private static bool TryReadNestedGcpIpConfigurationRequireSsl(JsonElement properties, out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (TryGetPropertyIgnoreCase(properties, "settings", out JsonElement settings)
+            && settings.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(settings, "ipConfiguration", out JsonElement ipConfiguration)
+            && ipConfiguration.ValueKind is JsonValueKind.Object
+            && TryReadPropertyIgnoreCase(ipConfiguration, "requireSsl", out value))
+        {
+            return true;
+        }
+
+        if (TryGetPropertyIgnoreCase(properties, "ipConfiguration", out JsonElement flatIpConfiguration)
+            && flatIpConfiguration.ValueKind is JsonValueKind.Object)
+        {
+            return TryReadPropertyIgnoreCase(flatIpConfiguration, "requireSsl", out value);
+        }
+
+        return false;
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
