@@ -111,10 +111,10 @@ SqlConnectionStringBuilder builder = new(connectionString);
 
 | Rule | Anchor line | Why | Date |
 | ---- | ---- | --- | ---- |
-| `cs/insecure-sql-connection` | `SqlConnectionStringCommandTimeout.Apply` — `SqlConnectionStringBuilder` construction | No connection is opened; the returned string always passes through `SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory`, which forces `Encrypt=True`. | 2026-08-26 |
-| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.RedirectToMaster` — `SqlConnectionStringBuilder` construction | Same as above. | 2026-08-26 |
-| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.ReadInitialCatalog` | Parses `InitialCatalog` only; no connection opened. | 2026-08-26 |
-| `cs/user-controlled-bypass` | `RunProvenanceQueryService.GetRunTracesAsync` — `if (pageNumber < 1)` | Pagination input validation, not an authorization decision; tenant scoping and run authorization are separate. | 2026-08-26 |
+| `cs/insecure-sql-connection` | `SqlConnectionStringCommandTimeout.Apply` — `SqlConnectionStringBuilder` construction | `Encrypt = SqlConnectionEncryptOption.Mandatory` on the builder; returned string also passes through `SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory`. | 2026-11-17 |
+| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.RedirectToMaster` — `SqlConnectionStringBuilder` construction | Same as above. | 2026-11-17 |
+| `cs/insecure-sql-connection` | `SqlConnectionStringMasterCatalog.ReadInitialCatalog` | Parses `InitialCatalog` only; builder still sets mandatory encrypt (no connection opened). | 2026-11-17 |
+| `cs/user-controlled-bypass` | `PagingParameters.TryGetInvalidPageQueryDetail` — `if (pageNumber < 1)` | Pagination input validation, not an authorization decision; tenant scoping and run authorization are separate. | 2026-11-17 |
 | `cs/user-controlled-bypass` | `ClosedLoopPublishMergeGate.ShouldMergeAuthorityFindings` — `return publishToProductRequested` | `PublishToProduct` is a publish **request** flag; the authorization decision is `publishBlocked`, evaluated first. | 2026-09-15 |
 | `cs/user-controlled-bypass` | `ReplayCommitRequestGate.ShouldSkipCommit` — `return !commitReplayRequested` | `commitReplay` selects the outcome of an already-authorized replay pipeline; it is not an auth bypass. | 2026-09-15 |
 | `js/user-controlled-bypass` | `ItsmAtlassianOAuthSupportMailtoLink` — null href skip | Convenience mailto after a failed OAuth callback; not an authorization decision. | 2026-09-15 |
@@ -122,6 +122,7 @@ SqlConnectionStringBuilder builder = new(connectionString);
 | `js/file-system-race` | `career-gravity-unlabeled-ready-inventory.ts` — `readFileSync` | Local CI inventory of the UI source tree; try/read + `EISDIR` recurse, not a user-controlled path. | 2026-09-15 |
 | `js/remote-property-injection` | `idle-desk-restore.ts` — Map.set after allow-list | Keys must pass `isSafeIdleRestoreRecordKey` (`__proto__` / `constructor` / `prototype` rejected). | 2026-09-15 |
 | `js/clear-text-storage-of-sensitive-data` | `resolve-continue-last-api-key-credential.ts` | `localStorage` stores credential **slot** enum (`Admin` / `ReadOnly`), not API key secrets. | 2026-08-26 |
+| `js/clear-text-storage-of-sensitive-data` | `last-visited-watermark.ts` — `localStorage.setItem` | Stores UTC UX watermarks keyed by section id; no secrets or tokens. | 2026-11-17 |
 | `js/incomplete-sanitization` | `e2e/helpers/escape-markdown-table-cell.ts` | Escapes backslashes before pipes/newlines for Markdown table cells in batch reports (`run-architecture-lifecycle-batch.ts`). | 2026-09-07 |
 
 ---
