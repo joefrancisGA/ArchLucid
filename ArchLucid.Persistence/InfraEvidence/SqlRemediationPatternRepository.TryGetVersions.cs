@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.Connections;
 
@@ -22,17 +24,20 @@ public sealed partial class SqlRemediationPatternRepository
         if (distinctKeys.Count == 0)
             return [];
 
-        List<string> compositeKeys = distinctKeys
-            .Select(item => $"{item.PatternId:N}|{item.Version}")
-            .ToList();
-
         const string sql = """
                            SELECT VersionId, PatternId, TenantId, Version, Status, ControlObjective, ContentJson,
                                   MatchProvider, MatchResourceType, MatchControlId, MatchSeverityMin, MatchPropertyEqualsJson,
                                   AutomationLevel, AuthorActorKey, ApprovedByActorKey, ApprovedUtc, CreatedUtc, UpdatedUtc
-                           FROM dbo.RemediationPatternVersions
-                           WHERE TenantId = @TenantId
-                             AND CONCAT(CONVERT(char(36), PatternId), '|', Version) IN @CompositeKeys;
+                           FROM dbo.RemediationPatternVersions v
+                           WHERE v.TenantId = @TenantId
+                             AND EXISTS (
+                                 SELECT 1
+                                 FROM OPENJSON(@KeysJson) WITH (
+                                     PatternId uniqueidentifier '$.PatternId',
+                                     Version nvarchar(max) '$.Version'
+                                 ) k
+                                 WHERE k.PatternId = v.PatternId AND k.Version = v.Version
+                             );
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -40,7 +45,7 @@ public sealed partial class SqlRemediationPatternRepository
         IEnumerable<VersionRow> rows = await conn.QueryAsync<VersionRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, CompositeKeys = compositeKeys },
+                new { TenantId = tenantId, KeysJson = JsonSerializer.Serialize(distinctKeys) },
                 cancellationToken: cancellationToken));
 
         return rows.Select(MapVersion).ToList();
