@@ -14,23 +14,17 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        if (record.BrandingStatus == BrandingProfileStatus.Active)
+        List<TenantBrandingProfileRecord> profiles = _profilesByTenant.GetOrAdd(record.TenantId, _ => []);
+        lock (profiles)
         {
-            int activeCount = _profilesByTenant.GetOrAdd(record.TenantId, _ => []).Count(
-                p => p.BrandingStatus == BrandingProfileStatus.Active);
-
-            if (activeCount > 0)
-                throw new InvalidOperationException("Only one Active branding profile is allowed per tenant.");
-        }
-
-        _profilesByTenant.AddOrUpdate(
-            record.TenantId,
-            _ => [record],
-            (_, list) =>
+            if (record.BrandingStatus == BrandingProfileStatus.Active &&
+                profiles.Any(p => p.BrandingStatus == BrandingProfileStatus.Active))
             {
-                list.Add(record);
-                return list;
-            });
+                throw new InvalidOperationException("Only one Active branding profile is allowed per tenant.");
+            }
+
+            profiles.Add(record);
+        }
 
         return Task.CompletedTask;
     }
@@ -52,10 +46,47 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
             throw new InvalidOperationException("ReplaceDraftAsync requires a Draft profile.");
 
         List<TenantBrandingProfileRecord> profiles = _profilesByTenant.GetOrAdd(record.TenantId, _ => []);
-        profiles.RemoveAll(p => p.BrandingStatus == BrandingProfileStatus.Draft);
-        profiles.Add(record);
+        lock (profiles)
+        {
+            profiles.RemoveAll(p => p.BrandingStatus == BrandingProfileStatus.Draft);
+            profiles.Add(record);
+        }
 
         return Task.CompletedTask;
+    }
+
+    public Task<bool> TryActivateDraftAsync(
+        TenantBrandingProfileRecord draft,
+        TenantBrandingProfileRecord activated,
+        CancellationToken cancellationToken = default)
+    {
+        if (draft.TenantId != activated.TenantId || activated.BrandingStatus != BrandingProfileStatus.Active)
+            throw new InvalidOperationException("Branding activation requires an active profile for the draft tenant.");
+
+        if (!_profilesByTenant.TryGetValue(draft.TenantId, out List<TenantBrandingProfileRecord>? profiles))
+            return Task.FromResult(false);
+
+        lock (profiles)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int draftIndex = profiles.FindIndex(p => p.BrandingStatus == BrandingProfileStatus.Draft &&
+                p.BrandingProfileId == draft.BrandingProfileId && p.UpdatedUtc == draft.UpdatedUtc);
+            if (draftIndex < 0)
+                return Task.FromResult(false);
+
+            for (int i = 0; i < profiles.Count; i++)
+            {
+                if (i == draftIndex || profiles[i].BrandingStatus == BrandingProfileStatus.Active)
+                {
+                    profiles[i] = CloneProfile(
+                        profiles[i], BrandingProfileStatus.Disabled, activated.UpdatedUtc, activated.UpdatedBy);
+                }
+            }
+
+            profiles.Add(activated);
+        }
+
+        return Task.FromResult(true);
     }
 
     public Task UpdateStatusForTenantAsync(
@@ -70,14 +101,17 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        for (int i = 0; i < profiles.Count; i++)
+        lock (profiles)
         {
-            TenantBrandingProfileRecord profile = profiles[i];
+            for (int i = 0; i < profiles.Count; i++)
+            {
+                TenantBrandingProfileRecord profile = profiles[i];
 
-            if (profile.BrandingStatus != fromStatus)
-                continue;
+                if (profile.BrandingStatus != fromStatus)
+                    continue;
 
-            profiles[i] = CloneProfile(profile, toStatus, utcNow, updatedBy);
+                profiles[i] = CloneProfile(profile, toStatus, utcNow, updatedBy);
+            }
         }
 
         return Task.CompletedTask;
@@ -88,8 +122,10 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
         if (!_profilesByTenant.TryGetValue(tenantId, out List<TenantBrandingProfileRecord>? profiles))
             return Task.FromResult(0);
 
-        int count = profiles.Count(p => p.BrandingStatus == BrandingProfileStatus.Active);
-        return Task.FromResult(count);
+        lock (profiles)
+        {
+            return Task.FromResult(profiles.Count(p => p.BrandingStatus == BrandingProfileStatus.Active));
+        }
     }
 
     private Task<TenantBrandingProfileRecord?> TryGetByStatusAsync(Guid tenantId, BrandingProfileStatus status)
@@ -97,19 +133,22 @@ public sealed class InMemoryTenantBrandingProfileRepository : ITenantBrandingPro
         if (!_profilesByTenant.TryGetValue(tenantId, out List<TenantBrandingProfileRecord>? profiles))
             return Task.FromResult<TenantBrandingProfileRecord?>(null);
 
-        TenantBrandingProfileRecord? match = profiles
-            .Where(p => p.BrandingStatus == status)
-            .OrderByDescending(p => p.Version)
-            .FirstOrDefault();
+        lock (profiles)
+        {
+            TenantBrandingProfileRecord? match = profiles
+                .Where(p => p.BrandingStatus == status)
+                .OrderByDescending(p => p.Version)
+                .FirstOrDefault();
 
-        return Task.FromResult(match);
+            return Task.FromResult(match);
+        }
     }
 
     private static TenantBrandingProfileRecord CloneProfile(
         TenantBrandingProfileRecord source,
         BrandingProfileStatus status,
         DateTime updatedUtc,
-        string updatedBy) =>
+        string? updatedBy) =>
         new()
         {
             BrandingProfileId = source.BrandingProfileId,

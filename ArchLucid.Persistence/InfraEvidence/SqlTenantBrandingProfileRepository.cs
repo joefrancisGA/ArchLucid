@@ -170,6 +170,56 @@ public sealed class SqlTenantBrandingProfileRepository(ISqlConnectionFactory con
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<bool> TryActivateDraftAsync(
+        TenantBrandingProfileRecord draft,
+        TenantBrandingProfileRecord activated,
+        CancellationToken cancellationToken = default)
+    {
+        if (draft.TenantId != activated.TenantId || activated.BrandingStatus != BrandingProfileStatus.Active)
+            throw new InvalidOperationException("Branding activation requires an active profile for the draft tenant.");
+
+        const string disableDraftSql = """
+                                       UPDATE dbo.TenantBrandingProfiles
+                                       SET BrandingStatus = @Disabled, UpdatedUtc = @UpdatedUtc, UpdatedBy = @UpdatedBy
+                                       WHERE TenantId = @TenantId AND BrandingProfileId = @DraftId
+                                         AND BrandingStatus = @Draft AND UpdatedUtc = @DraftUpdatedUtc;
+                                       """;
+
+        const string disableActiveSql = """
+                                        UPDATE dbo.TenantBrandingProfiles
+                                        SET BrandingStatus = @Disabled, UpdatedUtc = @UpdatedUtc, UpdatedBy = @UpdatedBy
+                                        WHERE TenantId = @TenantId AND BrandingStatus = @Active;
+                                        """;
+
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction();
+
+        DynamicParameters parameters = new(new
+        {
+            activated.TenantId,
+            activated.UpdatedBy,
+            DraftId = draft.BrandingProfileId,
+            Draft = (int)BrandingProfileStatus.Draft,
+            Active = (int)BrandingProfileStatus.Active,
+            Disabled = (int)BrandingProfileStatus.Disabled,
+        });
+        parameters.Add("DraftUpdatedUtc", draft.UpdatedUtc, System.Data.DbType.DateTime2, scale: 7);
+        parameters.Add("UpdatedUtc", activated.UpdatedUtc, System.Data.DbType.DateTime2, scale: 7);
+
+        int changed = await conn.ExecuteAsync(
+            new CommandDefinition(disableDraftSql, parameters, transaction, cancellationToken: cancellationToken));
+
+        if (changed != 1)
+            return false;
+
+        await conn.ExecuteAsync(
+            new CommandDefinition(disableActiveSql, parameters, transaction, cancellationToken: cancellationToken));
+        await InsertAsync(conn, activated, transaction, cancellationToken);
+        transaction.Commit();
+        return true;
+    }
+
     public async Task<int> CountActiveProfilesAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         const string sql = """
