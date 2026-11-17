@@ -56,10 +56,10 @@ public sealed class CircuitBreakerAuditBridge(
 
                     try
                     {
+                        auditEvent = BuildAuditEvent(entry, scope, correlationCapture);
+
                         using IServiceScope serviceScope = _scopeFactory.CreateScope();
                         IAuditService audit = serviceScope.ServiceProvider.GetRequiredService<IAuditService>();
-
-                        auditEvent = BuildAuditEvent(entry, scope, correlationCapture);
 
                         await audit.LogAsync(auditEvent, CancellationToken.None);
                     }
