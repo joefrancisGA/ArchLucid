@@ -49,7 +49,10 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                 ChannelType = @ChannelType,
                 Destination = @Destination,
                 IsEnabled = @IsEnabled,
-                LastDeliveredUtc = @LastDeliveredUtc,
+                LastDeliveredUtc = CASE
+                    WHEN LastDeliveredUtc IS NULL OR @LastDeliveredUtc > LastDeliveredUtc THEN @LastDeliveredUtc
+                    ELSE LastDeliveredUtc
+                END,
                 MetadataJson = @MetadataJson
             WHERE SubscriptionId = @SubscriptionId
               AND TenantId = @TenantId
