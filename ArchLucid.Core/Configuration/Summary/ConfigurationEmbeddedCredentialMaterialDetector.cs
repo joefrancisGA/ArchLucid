@@ -101,6 +101,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             if (decodedTrimmed.Length < 4)
                 continue;
 
+            if (ContainsAuthorizationHeaderCredentialsAfterPercentDecoding(decodedTrimmed))
+                return true;
+
             if (ContainsUrlUserInfoCredentials(decodedTrimmed))
                 return true;
 
@@ -109,6 +112,26 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return false;
+    }
+
+    private static bool ContainsAuthorizationHeaderCredentialsAfterPercentDecoding(ReadOnlySpan<char> decodedTrimmed)
+    {
+        if (ContainsBasicAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsBearerAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsDigestAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsNegotiateAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        if (ContainsNtlmAuthorizationHeaderCredentials(decodedTrimmed))
+            return true;
+
+        return ContainsSetCookieHeaderCredentials(decodedTrimmed);
     }
 
     private static bool ContainsUrlUserInfoCredentials(ReadOnlySpan<char> trimmed)

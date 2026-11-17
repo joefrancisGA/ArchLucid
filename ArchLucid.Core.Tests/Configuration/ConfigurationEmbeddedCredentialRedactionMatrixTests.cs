@@ -11676,6 +11676,13 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         value.Should().Be(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_fully_percent_encoded()
+    {
+        const string effectiveValue = "Authorization%3A%20Basic%20dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
