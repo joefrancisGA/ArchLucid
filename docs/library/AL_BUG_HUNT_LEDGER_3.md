@@ -12027,6 +12027,20 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-17 thorough hunt #501 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**25** monitor rows — **proven** `NewRunWizardClient` integration helper advanced the evidence step via `wizard-evidence-brief-continue` without first selecting `wizard-evidence-source-brief` (live step shows source-not-chosen until the operator picks brief); **valid-no-repro** `GuidedIntakeEvidenceSection` prior-package labels vs cleared uploads (intentional rerun copy; `GuidedIntakeEvidenceSection.test.tsx`); **valid-no-repro** `useNewRunWizardSubmit.recheckUnresolvedRun` upload ordering (hunt **#196** regressions + `use-new-run-wizard-pending-evidence.test.ts` generation guards); **valid-no-repro** `ReviewsNewDeferredIntentCallout` vs path switcher after soft navigation (hunt **#196** / live `useSearchParams`); **valid-no-repro** duplicate `hydrateClarificationsFromDraft` on session restore (`toHaveBeenCalledTimes(1)` on session-restore regression). Fixed `skipEvidenceStep` in `NewRunWizardClient.test.tsx`. Scoped vitest **10/10** on evidence-section, session-restore, and full-wizard client files. Reseeded five pass-**26** `(candidate)` rows below. Private beta: no operator-path behavior change; full guided wizard regression walks again match the live optional evidence step.
+
+- [x] (valid-no-repro) `GuidedIntakeEvidenceSection` — prior-package attachment labels may disagree with `evidenceFiles` after operator removes uploads — **cheap-disproof 2026-11-17 thorough hunt #501:** prior names are informational rerun copy; step uploads are independent; regression above.
+- [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — recheck may resume before pending evidence upload generation bumps — **cheap-disproof 2026-11-17 thorough hunt #501:** resume path awaits `uploadPendingEvidence`; generation invalidation covered by pending-evidence regressions.
+- [x] (valid-no-repro) `ReviewsNewDeferredIntentCallout` — deferred intent banner may disagree with path switcher `pathMode` after soft navigation — **cheap-disproof 2026-11-17 thorough hunt #501:** hunt **#196** class; deferred manifest reads live search params.
+- [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow` — `hydrateClarificationsFromDraft` may run twice on restore + URL step sync — **cheap-disproof 2026-11-17 thorough hunt #501:** session restore calls hydrate once when rewinding confirm bookmarks; URL step sync does not re-invoke hydrate.
+- [x] (proven) `NewRunWizardClient` — evidence brief step test ids vs live step rail — **hit 2026-11-17 thorough hunt #501:** `skipEvidenceStep` selects brief source before continue; regression full-wizard client suite **7/7**.
+
+- [ ] (candidate) `WizardStepEvidenceUpload` — `evidenceSource` URL param may disagree with picker state after App Router soft navigation — locus: `syncEvidenceSourceToUrl` vs popstate; input: evidence source deeplink then in-app path switch; monitor; pass 26 reseed.
+- [ ] (candidate) `useNewRunWizardSteps` — browser Back from track step may leave macro stage line stale vs micro step index — locus: step/macro sync on history; input: create run then history.back from track; monitor; pass 26 reseed.
+- [ ] (candidate) `SocraticIntakeWizard` — session restore may drop `priorAttachedFileNames` while evidence upload stub still lists files — locus: guided session snapshot vs brief form state; input: restore snapshot with prior names + empty files; monitor; pass 26 reseed.
+- [ ] (candidate) `ReviewsNewPathSwitcher` — embedded full wizard pin may preserve `evidenceSource=` query incompatible with quick-review return — locus: path `selectPath` vs evidence URL keys; input: full wizard evidence deeplink then back to quick start; monitor; pass 26 reseed.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — revised-clone `rerun=` clear may leave inherited semantic summary visible — locus: intent clear vs semantic summary state; input: remove revised-clone query after summary prefill; monitor; pass 26 reseed.
+
 2026-11-04 seed hunt pass 4 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseed after three same-day `useGuidedIntakePriorRunPrefill` hits — **`state-machine-gap`** prefill lifecycle class saturated; no new hunt-ready mechanism in prefill without synonym duplication. Reread pending-evidence auto-upload, guided session restore, and rerun auto-submit hooks; cheap-disproof closed five pass-24 monitor rows below (inventory platform detection generation + `runId` clear regressions in `use-new-run-wizard-pending-evidence.test.ts`; rerun auto-submit + session-restore suites; no failing repro on attached-file re-copy or embedded mode URL write this pass). Focused hook vitest **17/17** (pending-evidence 11, prefill 4, rerun auto-submit 1, session-restore 1). Reseeded five pass-25 `(candidate)` rows below. Private beta: n/a.
 
 - [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — `inventoryPlatformDetectionPending` may block auto-upload after `runId` cleared mid-detection — **cheap-disproof 2026-11-04 seed hunt pass 4:** detection generation + stale ZIP replacement regressions; `runId` clear resets upload chrome without leaving permanent uploading state.
@@ -12035,11 +12049,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `useGuidedIntakeWizard` — session restore confirm bookmark vs `draftId` hydrate race — **cheap-disproof 2026-11-04 seed hunt pass 4:** session-restore regression `rewinds restored confirm bookmarks to clarifications when draftId is present`.
 - [x] (valid-no-repro) `useNewRunWizardMode.persistWizardMode` — embedded path switcher may merge stale toolbar query on auto full-mode pin — **cheap-disproof 2026-11-04 seed hunt pass 4:** hunt **#192–#193** URL write helpers; monitor row retained as pass-25 lens only.
 
-- [ ] (candidate) `GuidedIntakeEvidenceSection` — prior-package attachment labels may disagree with `evidenceFiles` after operator removes uploads — locus: scope step evidence panel; input: prefill names + manual delete; monitor; pass 25 reseed.
-- [ ] (candidate) `useNewRunWizardSubmit.recheckUnresolvedRun` — recheck may resume before pending evidence upload generation bumps — locus: quick-family create resume; input: unresolved recheck + pending ZIP; monitor; pass 25 reseed.
-- [ ] (candidate) `ReviewsNewDeferredIntentCallout` — deferred intent banner may disagree with path switcher `pathMode` after soft navigation — locus: deferred shell vs switcher; input: intent query + path change; monitor; pass 25 reseed.
-- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — `hydrateClarificationsFromDraft` may run twice on restore + URL step sync — locus: draft hydrate vs session restore; input: restored draft on confirm slide; monitor; pass 25 reseed.
-- [ ] (candidate) `NewRunWizardClient` — evidence brief step test ids vs live step rail — locus: full wizard integration tests; input: baseline quick-start path; monitor harness drift; pass 25 reseed.
+- [x] (superseded) pass **#25** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #501:** four valid-no-repro + one harness hit; see hunt **#501** header and pass **#26** reseed.
 
 2026-11-04 seed hunt pass 3 (seed→hit): promoted `useGuidedIntakePriorRunPrefill` **inverted `.catch` guard (`!appliedRef.current`) so rejected prior-package loads never surfaced `GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE`** — operators saw a blank scope-step banner after fetch failures; guard now skips only when cancelled or already applied; regression `surfaces load-failure copy when prior-package fetch rejects`; scoped prefill vitest **4/4**. Private beta: invited operators on rerun-guided intake see honest copy when the prior package cannot be loaded instead of silent failure on step 0.
 
@@ -12160,11 +12170,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-11-02 — wizard popstate URL sync resurrected stale mode/step/toggle/disclosure state from lagging window search
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-11-17 — full guided wizard vitest helper skipped evidence-source selection before brief continue
 - **code-changed-since:** no
 
-**Hunts:** 76 · **Bugs found:** 46 · **Consecutive dry hunts:** 1
+**Hunts:** 77 · **Bugs found:** 47 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
