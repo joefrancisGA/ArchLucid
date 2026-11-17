@@ -31,6 +31,11 @@ import {
 import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-copy";
+import {
+  attackPathReportPathChipOverflowLine,
+  formatAttackPathReportPathChipLabel,
+} from "@/lib/remediation-factory/attack-path-report-path-chip-label";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import {
   ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY,
@@ -126,6 +131,14 @@ export function RemediationFactoryAttackPathReportSection(props: {
         </>
       ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
+          {props.partialCapture === true ? (
+            <p
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid="attack-path-report-table-partial-capture"
+            >
+              {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE}
+            </p>
+          ) : null}
           {props.reportQuery.data.vulnerableAttackPaths.length === 0
           && props.reportQuery.data.unevaluatedGroups.length === 0 ? (
             <p
@@ -231,28 +244,37 @@ function UnevaluatedPathLinks(props: {
   const storedPathCount = props.pathCount ?? linkedCount;
   const displayCount = storedPathCount < linkedCount ? linkedCount : storedPathCount;
   const remaining = displayCount - visible.length;
+  const pathChipOverflowLine = attackPathReportPathChipOverflowLine(props.pathIds);
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className={OPERATOR_TYPOGRAPHY.helper}>{displayCount}</span>
-      {visible.map((pathId) => (
-        <Link
-          key={pathId}
-          href={`#path-${pathId}`}
-          className={cn(OPERATOR_LINK.inline, "font-mono text-xs")}
-          onClick={(event) => {
-            event.preventDefault();
-            props.onSelectPath(pathId);
-          }}
-          data-testid={`attack-path-report-path-link-${pathId}`}
-        >
-          {pathId}
-        </Link>
-      ))}
-      {remaining > 0 ? (
-        <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-overflow-honesty">
-          {formatRemediationFactoryAttackPathOverflowLine(remaining)}
-        </span>
+    <div className="space-y-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={OPERATOR_TYPOGRAPHY.helper}>{displayCount}</span>
+        {visible.map((pathId) => (
+          <Link
+            key={pathId}
+            href={`#path-${pathId}`}
+            className={cn(OPERATOR_LINK.inline, "font-mono text-xs")}
+            title={pathId}
+            onClick={(event) => {
+              event.preventDefault();
+              props.onSelectPath(pathId);
+            }}
+            data-testid={`attack-path-report-path-link-${pathId}`}
+          >
+            {formatAttackPathReportPathChipLabel(pathId)}
+          </Link>
+        ))}
+        {remaining > 0 ? (
+          <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-overflow-honesty">
+            {formatRemediationFactoryAttackPathOverflowLine(remaining)}
+          </span>
+        ) : null}
+      </div>
+      {pathChipOverflowLine !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="attack-path-report-path-chip-overflow">
+          {pathChipOverflowLine}
+        </p>
       ) : null}
     </div>
   );

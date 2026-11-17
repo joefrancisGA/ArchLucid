@@ -327,6 +327,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             comparisonNarrativeLoading={comparisonNarrativeLoading}
             buyerPolished={buyerPolished}
             resultsFirst={compareInsightFirstLayout}
+            showPartialInventoryFootnote={compareHasRenderableOutcome}
           />
         ) : null}
       </section>
