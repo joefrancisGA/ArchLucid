@@ -48,7 +48,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
             ProjectId = schedule.ProjectId,
         };
 
-        Guid? newRunId = null;
+        Guid newRunId;
 
         try
         {
@@ -96,7 +96,7 @@ public sealed class RecurringArchitectureReviewTriggerService(
 
             using (AmbientScopeContext.Push(scope))
             {
-                await executeOrchestrator.ExecuteRunAsync(newRunId.Value.ToString("N"), cancellationToken);
+                await executeOrchestrator.ExecuteRunAsync(newRunId.ToString("N"), cancellationToken);
             }
 
             schedule.LastRunStatus = RecurrenceRunStatuses.Succeeded;
@@ -129,8 +129,6 @@ public sealed class RecurringArchitectureReviewTriggerService(
                 logger,
                 $"{AuditEventTypes.ArchitectureReviewRecurrenceTriggered}:{schedule.ScheduleId:N}",
                 cancellationToken);
-
-            await recurrenceCompletionNotificationService.NotifyCompletionAsync(schedule, newRunId.Value, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -180,6 +178,16 @@ public sealed class RecurringArchitectureReviewTriggerService(
             await scheduleRepository.UpdateAsync(schedule, cancellationToken);
 
             throw;
+        }
+
+        try
+        {
+            await recurrenceCompletionNotificationService.NotifyCompletionAsync(schedule, newRunId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(ex, "Completion notification failed for recurrence schedule {ScheduleId}.", schedule.ScheduleId);
         }
     }
 
