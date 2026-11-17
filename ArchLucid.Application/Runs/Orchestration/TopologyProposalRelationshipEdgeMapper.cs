@@ -242,37 +242,57 @@ public static class TopologyProposalRelationshipEdgeMapper
                 string trimmedKey = alias.Key.Trim();
                 string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
 
-                if (TryResolveNodeId(
-                        resolvedNodeId,
-                        endpointKeyToNodeId,
-                        unindexedTerraformEndpointIdentities,
-                        indexedTerraformEndpointIdentities,
-                        out string canonicalNodeId))
+                bool aliasTargetResolves = TryResolveNodeId(
+                    resolvedNodeId,
+                    endpointKeyToNodeId,
+                    unindexedTerraformEndpointIdentities,
+                    indexedTerraformEndpointIdentities,
+                    out string canonicalNodeId);
+
+                if (aliasTargetResolves)
                     resolvedNodeId = canonicalNodeId;
 
                 if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedKey))
                 {
-                    TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+                    RegisterDeclaredEndpointAlias(
                         endpointKeyToNodeId,
                         trimmedKey,
-                        resolvedNodeId);
+                        resolvedNodeId,
+                        aliasTargetResolves);
+                    RegisterDeclaredEndpointAlias(
+                        endpointKeyToNodeId,
+                        GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedKey),
+                        resolvedNodeId,
+                        aliasTargetResolves);
                 }
                 else
                 {
-                    endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+                    RegisterDeclaredEndpointAlias(endpointKeyToNodeId, trimmedKey, resolvedNodeId, aliasTargetResolves);
 
                     string canonicalTerraformKey =
                         TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(trimmedKey);
 
                     if (!string.Equals(canonicalTerraformKey, trimmedKey, StringComparison.OrdinalIgnoreCase))
-                        endpointKeyToNodeId.TryAdd(canonicalTerraformKey, resolvedNodeId);
+                    {
+                        RegisterDeclaredEndpointAlias(
+                            endpointKeyToNodeId,
+                            canonicalTerraformKey,
+                            resolvedNodeId,
+                            aliasTargetResolves);
+                    }
                 }
 
                 string? normalizedSyntheticKey =
                     TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
 
                 if (normalizedSyntheticKey is not null)
-                    endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, resolvedNodeId);
+                {
+                    RegisterDeclaredEndpointAlias(
+                        endpointKeyToNodeId,
+                        normalizedSyntheticKey,
+                        resolvedNodeId,
+                        aliasTargetResolves);
+                }
             }
         }
 
@@ -293,6 +313,23 @@ public static class TopologyProposalRelationshipEdgeMapper
             ambiguousSharedTerraformLeafNodeIds[dataRoot.Key] = dataRoot.Value;
 
         return endpointKeyToNodeId;
+    }
+
+    private static void RegisterDeclaredEndpointAlias(
+        Dictionary<string, string> endpointKeyToNodeId,
+        string aliasKey,
+        string resolvedNodeId,
+        bool aliasTargetResolves)
+    {
+        if (aliasTargetResolves)
+        {
+            // Renames override label and source-id keys that were registered while indexing nodes.
+            endpointKeyToNodeId[aliasKey] = resolvedNodeId;
+
+            return;
+        }
+
+        endpointKeyToNodeId.TryAdd(aliasKey, resolvedNodeId);
     }
 
     private static void RememberIndexedDataSourceRoot(
