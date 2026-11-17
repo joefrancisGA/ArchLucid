@@ -49,7 +49,7 @@ public sealed class CachingPolicyPackVersionRepository(
             _hotPathReadCache,
             version.PolicyPackId,
             version.Version,
-            ct);
+            CancellationToken.None);
     }
 
     /// <inheritdoc />
