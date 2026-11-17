@@ -347,6 +347,31 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("pilot=")).toBe(false);
   });
 
+  it("clears quick-start disclosure params when returning to quick-review", async () => {
+    seedReviewsNewSearchParams(
+      "path=detailed&simplifiedPilotAdvancedConfigOpen=1&firstPilotStandardsSelectionOpen=1&reviewsNewMoreWaysToStartOpen=1",
+    );
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-back-to-quick-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    const lastHref = pathSwitcherUrlHarness.committedHrefs.at(-1) ?? "";
+
+    expect(lastHref).toContain("path=quick-review");
+    expect(lastHref.includes("simplifiedPilotAdvancedConfigOpen=")).toBe(false);
+    expect(lastHref.includes("firstPilotStandardsSelectionOpen=")).toBe(false);
+    expect(lastHref.includes("reviewsNewMoreWaysToStartOpen=")).toBe(false);
+  });
+
   it("clears full-wizard evidence source params when returning to quick-review", async () => {
     seedReviewsNewSearchParams("path=detailed&evidenceSource=azure-export&demoScenario=default");
 
