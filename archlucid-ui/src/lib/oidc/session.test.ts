@@ -949,6 +949,12 @@ describe("consumePkceState", () => {
 
     expect(consumePkceState("primary-state")).toBeNull();
   });
+
+  it("rejects PKCE consume when tampered session nonce contains interior vertical tab control characters", () => {
+    storePkceState("primary-state", "primary-verifier", "nonce\u000Bvalue", "primary");
+
+    expect(consumePkceState("primary-state")).toBeNull();
+  });
 });
 
 describe("clearOidcSession", () => {

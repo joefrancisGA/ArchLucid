@@ -149,6 +149,8 @@ export function coerceRunSummaryPaged(
     }
 
     const pageSize = data.requestedTake;
+    const trimmedNextCursor =
+      typeof data.nextCursor === "string" ? operatorNonEmptyTrimmedString.safeParse(data.nextCursor) : null;
 
     return {
       ok: true,
@@ -158,8 +160,7 @@ export function coerceRunSummaryPaged(
         page,
         pageSize,
         hasMore: data.hasMore,
-        nextCursor:
-          typeof data.nextCursor === "string" && data.nextCursor.length > 0 ? data.nextCursor : null,
+        nextCursor: trimmedNextCursor?.success ? trimmedNextCursor.data : null,
       },
     };
   }

@@ -2,7 +2,10 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { UseFormReset } from "react-hook-form";
 
-import { useNewRunWizardQueryPrefill } from "@/app/(operator)/architecture/reviews/new/use-new-run-wizard-query-prefill";
+import {
+  restoreWizardFormWithDeeplinkPolicy,
+  useNewRunWizardQueryPrefill,
+} from "@/app/(operator)/architecture/reviews/new/use-new-run-wizard-query-prefill";
 import { REVIEW_INTAKE_EXAMPLE_TEMPLATES } from "@/lib/operator/operator-home-example-request";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -365,5 +368,20 @@ describe("useNewRunWizardQueryPrefill", () => {
     });
 
     expect(values.policyReferences).toEqual(["cis-azure-baseline"]);
+  });
+
+  it("reapplies policy-pack deeplink after wholesale session restore reset", () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+    const setValue = vi.fn();
+
+    const restoredState = { policyReferences: [] as string[] } as WizardFormValues;
+
+    restoreWizardFormWithDeeplinkPolicy("cis-azure-baseline", reset, setValue, restoredState);
+
+    expect(reset).toHaveBeenCalledWith(restoredState);
+    expect(setValue).toHaveBeenCalledWith("policyReferences", ["cis-azure-baseline"], {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   });
 });
