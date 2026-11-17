@@ -11880,6 +11880,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_ntlm_challenge_uses_plus_sign_delimiters()
+    {
+        const string effectiveValue = "WWW-Authenticate:+NTLM+TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_session_uses_plus_before_path_attribute()
+    {
+        const string effectiveValue = "Set-Cookie: session=abcdefgh+Path=/secure";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_is_doubly_percent_encoded()
+    {
+        const string effectiveValue = "Cookie%25253A%2520session%253Ddeadbeef00";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_wraps_plus_delimited_negotiate_authorization_paste()
+    {
+        const string effectiveValue = """["Authorization:+Negotiate+YIIeAYeAABQAAAABAAA="]""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_session_uses_plus_before_partitioned_attribute()
+    {
+        const string effectiveValue = "Set-Cookie2: session=abcdefgh+Partitioned";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_basic_credential_follows_semicolon_after_non_credential_metadata()
     {
         const string effectiveValue = "Authorization: Basic meta=1; dXNlcjpwYXNz";
