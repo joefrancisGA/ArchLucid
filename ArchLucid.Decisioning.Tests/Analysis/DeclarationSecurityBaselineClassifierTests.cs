@@ -176,6 +176,20 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_weak_transport_when_https_only_is_no_token()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["httpsOnly"] = "no",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("api", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "transport-security");
+    }
+
+    [Fact]
     public void Classify_does_not_flag_nosql_terraform_type_as_weak_sql_posture()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

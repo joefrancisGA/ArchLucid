@@ -114,8 +114,5 @@ public static partial class DeclarationSecurityBaselineClassifier
 
     private static bool IsTruthy(string? value) => DecisioningDeclarationTruthyToken.IsTruthy(value);
 
-    private static bool IsFalsy(string? value) =>
-        string.Equals(value, "false", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(value, "0", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(value, "disabled", StringComparison.OrdinalIgnoreCase);
+    private static bool IsFalsy(string? value) => DecisioningDeclarationFalsyToken.IsFalsy(value);
 }
