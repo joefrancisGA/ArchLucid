@@ -18,6 +18,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { PolicyPack } from "@/types/policy-packs";
+import { PolicyPacksRegisteredListEmptyPartialHonesty } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksRegisteredListEmptyPartialHonesty";
 
 export type PolicyPacksRegisteredListSectionProps = {
   buyerPolishedShell: boolean;
@@ -37,9 +38,12 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
         {canMutatePacks ? policyPacksCurrentPacksHeadingOperator : policyPacksCurrentPacksHeadingReader}
       </h3>
       {packs.length === 0 ? (
-        <p className={cn("max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
-        </p>
+        <div className="max-w-2xl space-y-2">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
+          </p>
+          <PolicyPacksRegisteredListEmptyPartialHonesty />
+        </div>
       ) : (
         <ul className="m-0 list-none space-y-2 p-0" data-testid="policy-packs-registered-inventory-list">
           {packs.map((p) => (

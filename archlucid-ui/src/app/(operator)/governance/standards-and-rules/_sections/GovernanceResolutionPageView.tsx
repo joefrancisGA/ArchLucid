@@ -73,6 +73,7 @@ import { GovernanceStandardsRulesNextReviewFooterClient } from "./GovernanceStan
 import { StandardsRulesPickReviewBeforeResolvingStrip } from "./StandardsRulesPickReviewBeforeResolvingStrip";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
+import { StandardsRulesFilterPartialHonesty } from "./StandardsRulesFilterPartialHonesty";
 import { StandardsRulesTable } from "./StandardsRulesTable";
 import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
 import { StandardsRulesBuyerChrome } from "./StandardsRulesBuyerChrome";
@@ -303,6 +304,7 @@ export function GovernanceResolutionPageView(props: Props) {
                     >
                       {STANDARDS_RULES_RESET_FILTERS}
                     </Button>
+                    <StandardsRulesFilterPartialHonesty />
                   </div>
                 }
               />

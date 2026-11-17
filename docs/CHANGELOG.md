@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 70 (batch 35): Findings filter, policy packs, standards filter, and graph loaded empties
+
+**Outcome.** Governance findings filter-no-match, policy pack registered list and workspace selection empties, enforced rules empty, standards rules filter-no-match, evidence graph loaded zero nodes, and remediation factory priority queue empty repeat partial-capture discipline.
+
+**Surfaces.** Findings filter empty, policy packs hub empties, standards filter empty, evidence graph loaded, remediation factory priority queue, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 69 (batch 34): Connection status, hub audit tab, graph idle, and filter empties
 
 **Outcome.** Cloud connection status empty, digest browse scoped filter empty, compare correlation results, resource hub audit tab and degraded state, Terraform mapping empty, evidence graph idle, and sealed records filter and unscoped list repeat partial-capture discipline.

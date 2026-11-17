@@ -35,6 +35,7 @@ import { graphNodeTypeHrefFromSearch } from "@/lib/insights/graph-node-type-url"
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
+import { GraphLoadedZeroNodesPartialCaptureHonesty } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedZeroNodesPartialCaptureHonesty";
 import type { GraphViewModel } from "@/types/graph";
 import { resolveEvidenceGraphReviewPackageHref } from "@/lib/evidence-graph-review-package-href";
 
@@ -121,6 +122,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
 
   const operatorGraphCanvas = (
     <>
+      {!loading && runTrim.length > 0 && graph.nodes.length === 0 ? (
+        <GraphLoadedZeroNodesPartialCaptureHonesty />
+      ) : null}
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <FilterChipGroup aria-label="Filter graph nodes by type" className="flex flex-wrap gap-2">
           <FilterChip

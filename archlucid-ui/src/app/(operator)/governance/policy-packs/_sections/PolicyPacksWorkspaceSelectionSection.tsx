@@ -10,6 +10,7 @@ import {
   resolvePolicyPacksWorkspaceAssignmentsEmptyLine,
 } from "@/lib/policy/policy-packs-workspace-status-copy";
 import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
+import { PolicyPacksWorkspaceSelectionEmptyPartialHonesty } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksWorkspaceSelectionEmptyPartialHonesty";
 
 export type PolicyPacksWorkspaceSelectionSectionProps = {
   readonly canMutatePacks: boolean;
@@ -59,6 +60,7 @@ export function PolicyPacksWorkspaceSelectionSection(props: PolicyPacksWorkspace
           >
             {POLICY_PACKS_WORKSPACE_ASSIGNMENTS_EMPTY_NOT_LOAD_FAILURE_LINE}
           </p>
+          <PolicyPacksWorkspaceSelectionEmptyPartialHonesty />
         </div>
       ) : null}
 
