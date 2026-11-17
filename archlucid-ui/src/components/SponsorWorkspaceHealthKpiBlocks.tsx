@@ -14,6 +14,9 @@ import {
   HOURS_PER_PRECOMMIT_BLOCK,
 } from "@/lib/roi-assumptions";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SPONSOR_COMPLIANCE_DRIFT_PARTIAL_WINDOW_LINE } from "@/lib/sponsor/sponsor-compliance-drift-partial-window-copy";
 import { executiveWorkspaceHealthKpiTitle } from "@/lib/sponsor-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
@@ -60,6 +63,7 @@ export function SponsorWorkspaceHealthKpiBlocks({
   viewModel,
 }: SponsorWorkspaceHealthKpiBlocksProps) {
   const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const findingsQueueHref = findingsPathForProductLine(productLine);
   const {
     blocked30d,
@@ -150,6 +154,14 @@ export function SponsorWorkspaceHealthKpiBlocks({
             </div>
             <WorkspaceHealthKpiCardAsOfLine />
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>
+            {partialCapture ? (
+              <p
+                className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="sponsor-drift-partial-window"
+              >
+                {SPONSOR_COMPLIANCE_DRIFT_PARTIAL_WINDOW_LINE}
+              </p>
+            ) : null}
             <ComplianceDriftChartPdfExport points={driftPoints} />
           </CardContent>
         </Card>

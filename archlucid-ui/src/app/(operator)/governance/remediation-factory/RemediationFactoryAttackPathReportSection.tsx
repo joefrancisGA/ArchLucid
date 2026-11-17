@@ -32,6 +32,7 @@ import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediatio
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-copy";
+import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-partial-copy";
 import {
   attackPathReportPathChipOverflowLine,
   formatAttackPathReportPathChipLabel,
@@ -137,6 +138,16 @@ export function RemediationFactoryAttackPathReportSection(props: {
               data-testid="attack-path-report-table-partial-capture"
             >
               {REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE}
+            </p>
+          ) : null}
+          {props.partialCapture === true
+          && props.reportQuery.data.vulnerableAttackPaths.length === 0
+          && props.reportQuery.data.unevaluatedGroups.length > 0 ? (
+            <p
+              className={OPERATOR_TYPOGRAPHY.helper}
+              data-testid="attack-path-report-unevaluated-only-partial"
+            >
+              {REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE}
             </p>
           ) : null}
           {props.reportQuery.data.vulnerableAttackPaths.length === 0

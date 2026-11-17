@@ -38,6 +38,7 @@ import {
 } from "@/components/usability/PageContextualHelpButton";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
+import { PolicyPackDetailPartialCaptureStrip } from "./PolicyPackDetailPartialCaptureStrip";
 import { PolicyPackGenericTechnicalDetailsDisclosure } from "./PolicyPackGenericTechnicalDetailsDisclosure";
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import {
@@ -156,6 +157,8 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           </div>
         }
       />
+
+      <PolicyPackDetailPartialCaptureStrip />
 
       <Card>
         <CardContent className={cn("space-y-2 p-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

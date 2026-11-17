@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-17 - Score lift round 65 (batch 30): Ask drawer recovery, explorer empty, and infra workbench partial capture
+
+**Outcome.** Infrastructure Ask drawer mirrors full-page partial-capture recovery links. Resource explorer empty, policy pack detail, attack path unevaluated-only, sponsor drift chart, and diagrams and Terraform workbenches repeat partial-capture discipline.
+
+**Surfaces.** Infrastructure Ask drawer, resource explorer, policy pack detail, remediation factory attack path report, sponsor workspace health, diagrams workbench, Terraform workbench, honesty and mounted contract tests.
+
 ## 2026-11-17 - Score lift round 64 (batch 29): Export partial capture, compare pickers, and hub findings honesty
 
 **Outcome.** Golden manifest and run deliverables show partial-capture recovery when exports block. Compare run pickers and insufficient-finalized empty name partial inventory. Resource hub findings empty, factory priority queue header, digest subscriptions empty, and first-review disabled CTAs repeat partial-capture discipline.
