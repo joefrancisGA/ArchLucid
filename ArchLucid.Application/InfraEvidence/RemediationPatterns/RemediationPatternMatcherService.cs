@@ -121,8 +121,6 @@ public sealed class RemediationPatternMatcherService(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        await matchRepository.DeactivateMatchesForFindingInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
-
         RemediationPatternMatchResultRecord matchResult = new()
         {
             MatchResultId = Guid.NewGuid(),
@@ -139,7 +137,8 @@ public sealed class RemediationPatternMatcherService(
             MatchedUtc = utcNow,
         };
 
-        await matchRepository.InsertMatchResultInScopeAsync(scope.ToProjectScopeKey(), matchResult, cancellationToken);
+        await matchRepository.ReplaceActiveMatchInScopeAsync(
+            scope.ToProjectScopeKey(), findingId, matchResult, conflict: null, cancellationToken);
 
         return new RemediationPatternMatchEvaluationResult
         {
@@ -159,10 +158,11 @@ public sealed class RemediationPatternMatcherService(
     {
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        await matchRepository.DeactivateMatchesForFindingInScopeAsync(scope, findingId, cancellationToken);
-
         if (candidates.Count == 0)
         {
+            await matchRepository.ReplaceActiveMatchInScopeAsync(
+                scope, findingId, matchResult: null, conflict: null, cancellationToken);
+
             return new RemediationPatternMatchEvaluationResult
             {
                 Succeeded = true,
@@ -190,8 +190,6 @@ public sealed class RemediationPatternMatcherService(
                 CreatedUtc = utcNow,
             };
 
-            await matchRepository.InsertConflictInScopeAsync(scope, conflict, cancellationToken);
-
             RemediationPatternMatchResultRecord conflictMatch = new()
             {
                 MatchResultId = Guid.NewGuid(),
@@ -208,7 +206,8 @@ public sealed class RemediationPatternMatcherService(
                 MatchedUtc = utcNow,
             };
 
-            await matchRepository.InsertMatchResultInScopeAsync(scope, conflictMatch, cancellationToken);
+            await matchRepository.ReplaceActiveMatchInScopeAsync(
+                scope, findingId, conflictMatch, conflict, cancellationToken);
 
             return new RemediationPatternMatchEvaluationResult
             {
@@ -225,7 +224,8 @@ public sealed class RemediationPatternMatcherService(
 
         RemediationPatternMatchCandidate primary = candidates[0];
         RemediationPatternMatchResultRecord primaryMatch = MapCandidate(primary, scope.TenantId, findingId, utcNow, isActive: true);
-        await matchRepository.InsertMatchResultInScopeAsync(scope, primaryMatch, cancellationToken);
+        await matchRepository.ReplaceActiveMatchInScopeAsync(
+            scope, findingId, primaryMatch, conflict: null, cancellationToken);
 
         return new RemediationPatternMatchEvaluationResult
         {
