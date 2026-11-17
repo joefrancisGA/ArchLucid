@@ -11873,6 +11873,20 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_negotiate_challenge_uses_plus_sign_delimiters()
+    {
+        const string effectiveValue = "WWW-Authenticate:+Negotiate+YIIeAYeAABQAAAABAAA=";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_credential_follows_semicolon_after_non_credential_metadata()
+    {
+        const string effectiveValue = "Authorization: Basic meta=1; dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_partially_percent_encoded_with_literal_plus()
     {
         const string effectiveValue = "Authorization%20Basic%2BdXNlcjpwYXNz";
