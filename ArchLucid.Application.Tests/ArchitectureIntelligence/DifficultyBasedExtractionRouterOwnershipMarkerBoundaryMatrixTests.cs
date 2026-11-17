@@ -35,6 +35,7 @@ public sealed class DifficultyBasedExtractionRouterOwnershipMarkerBoundaryMatrix
         { "RACI lists 「owner」platform team. Legacy racks remain unowned.", "corner-quote-owner" },
         { "RACI lists 『owner』platform team. Legacy racks remain unowned.", "white-corner-bracket-owner" },
         { "RACI lists ‚owner‛ platform team. Legacy racks remain unowned.", "single-low-quotation-owner" },
+        { "RACI lists \u201Eowner\u201F platform team. Legacy racks remain unowned.", "double-low-quotation-owner" },
         { "Policy names \"owner\" role separately. Legacy racks remain unowned.", "double-quoted-owner" },
         { "Policy names 'owner' role separately. Legacy racks remain unowned.", "single-quoted-owner" },
         { "Markdown [owner team] handles paging. Legacy racks remain unowned.", "bracket-owner-label" },
