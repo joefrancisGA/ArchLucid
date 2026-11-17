@@ -12,7 +12,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
     {
         _ = ct;
         lock (_gate)
-            _items.Add(subscription);
+            _items.Add(Copy(subscription));
         return Task.CompletedTask;
     }
 
@@ -67,9 +67,31 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x =>
-                x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope)));
+        {
+            AlertRoutingSubscription? stored = _items.FirstOrDefault(x =>
+                x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope));
+            return Task.FromResult(stored is null ? null : Copy(stored));
+        }
     }
+
+    private static AlertRoutingSubscription Copy(AlertRoutingSubscription subscription) => new()
+    {
+        RoutingSubscriptionId = subscription.RoutingSubscriptionId,
+        TenantId = subscription.TenantId,
+        WorkspaceId = subscription.WorkspaceId,
+        ProjectId = subscription.ProjectId,
+        Name = subscription.Name,
+        ChannelType = subscription.ChannelType,
+        Destination = subscription.Destination,
+        MinimumSeverity = subscription.MinimumSeverity,
+        IsEnabled = subscription.IsEnabled,
+        CreatedUtc = subscription.CreatedUtc,
+        CreatedByActor = subscription.CreatedByActor,
+        LastModifiedByActor = subscription.LastModifiedByActor,
+        LastModifiedUtc = subscription.LastModifiedUtc,
+        LastDeliveredUtc = subscription.LastDeliveredUtc,
+        MetadataJson = subscription.MetadataJson,
+    };
 
     private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope) =>
         subscription.TenantId == scope.TenantId &&
@@ -93,6 +115,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
             List<AlertRoutingSubscription> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRoutingSubscription>>(result);
         }
@@ -114,6 +137,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
                     x.ProjectId == projectId &&
                     x.IsEnabled)
                 .OrderByDescending(x => x.CreatedUtc)
+                .Select(Copy)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertRoutingSubscription>>(result);
         }
